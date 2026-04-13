@@ -5,13 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import type { SymptomCheckResult, Cat } from '@/types'
-
-const URGENCY_CONFIG = {
-  emergency: { emoji: '🔴', label: 'ЭКСТРЕННО',     color: 'bg-red-100 text-red-800 border-red-200',         action: 'Немедленно в ветеринарную клинику' },
-  urgent:    { emoji: '🟠', label: 'СРОЧНО',        color: 'bg-orange-100 text-orange-800 border-orange-200', action: 'К ветеринару в течение 24 часов' },
-  monitor:   { emoji: '🟡', label: 'НАБЛЮДАЕМ',     color: 'bg-yellow-100 text-yellow-800 border-yellow-200', action: 'Наблюдайте 48 часов, при ухудшении — к врачу' },
-  home_care: { emoji: '🟢', label: 'ДОМАШНИЙ УХОД', color: 'bg-green-100 text-green-800 border-green-200',   action: 'Можно лечить дома' },
-}
+import { URGENCY_CONFIG } from '@/lib/urgency'
 
 interface Props {
   cats: Pick<Cat, 'id' | 'name' | 'breed' | 'age_years' | 'sex'>[]
@@ -36,12 +30,14 @@ export default function CheckForm({ cats }: Props) {
       setError('Фото должно быть до 10 МБ')
       return
     }
+    if (photoPreview) URL.revokeObjectURL(photoPreview)
     setPhoto(file)
     setPhotoPreview(URL.createObjectURL(file))
     setError('')
   }
 
   function removePhoto() {
+    if (photoPreview) URL.revokeObjectURL(photoPreview)
     setPhoto(null)
     setPhotoPreview(null)
     if (fileInputRef.current) fileInputRef.current.value = ''

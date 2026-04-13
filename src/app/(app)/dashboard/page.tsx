@@ -1,7 +1,7 @@
-import { createClient } from '@/lib/supabase/server'
-import { createServiceClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { URGENCY_EMOJI } from '@/lib/urgency'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -24,13 +24,6 @@ export default async function DashboardPage() {
       .eq('user_id', user.id)
       .order('created_at', { ascending: true }),
   ])
-
-  const urgencyEmoji: Record<string, string> = {
-    emergency: '🔴',
-    urgent: '🟠',
-    monitor: '🟡',
-    home_care: '🟢',
-  }
 
   return (
     <div className="min-h-screen px-4 py-8 max-w-2xl mx-auto">
@@ -103,7 +96,7 @@ export default async function DashboardPage() {
             {checks.map((check: { id: string; symptoms_input: string; urgency: string; created_at: string }) => (
               <li key={check.id}>
                 <Link href={`/check/${check.id}`} className="flex gap-3 items-start border-b border-gray-50 pb-3 last:border-0 last:pb-0 hover:bg-gray-50 rounded-lg px-2 py-1 -mx-2 transition-colors">
-                  <span className="text-xl shrink-0">{urgencyEmoji[check.urgency] ?? '⚪'}</span>
+                  <span className="text-xl shrink-0">{URGENCY_EMOJI[check.urgency] ?? '⚪'}</span>
                   <div className="min-w-0">
                     <p className="text-sm text-gray-800 line-clamp-2">{check.symptoms_input}</p>
                     <p className="text-xs text-gray-400 mt-1">

@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
 import { createServiceClient } from '@/lib/supabase/server'
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
-import type { SymptomCheckResult } from '@/types'
+import { getAuthUser } from '@/lib/server-auth'
+import type { SymptomCheckResult, Urgency } from '@/types'
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
@@ -64,21 +63,27 @@ async function getVetContext(symptoms: string): Promise<string> {
     .join('\n\n---\n\n')
 }
 
+const VALID_URGENCY: Urgency[] = ['emergency', 'urgent', 'monitor', 'home_care']
+
+function validateAIResponse(raw: unknown): SymptomCheckResult {
+  if (typeof raw !== 'object' || raw === null) throw new Error('AI response is not an object')
+  const r = raw as Record<string, unknown>
+  if (!VALID_URGENCY.includes(r.urgency as Urgency)) throw new Error(`Invalid urgency: ${r.urgency}`)
+  return {
+    urgency: r.urgency as Urgency,
+    urgency_reason: String(r.urgency_reason ?? ''),
+    photo_observations: r.photo_observations ? String(r.photo_observations) : null,
+    possible_causes: Array.isArray(r.possible_causes) ? r.possible_causes as string[] : [],
+    cat_specific_warning: r.cat_specific_warning ? String(r.cat_specific_warning) : null,
+    home_care_steps: Array.isArray(r.home_care_steps) ? r.home_care_steps as string[] : [],
+    vet_questions: Array.isArray(r.vet_questions) ? r.vet_questions as string[] : [],
+    disclaimer: String(r.disclaimer ?? 'КотДок — информационный инструмент. Не является ветеринарным диагнозом и не заменяет осмотр специалиста.'),
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
-    // Auth
-    const cookieStore = await cookies()
-    const supabaseAuth = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() { return cookieStore.getAll() },
-          setAll() {},
-        },
-      }
-    )
-    const { data: { user } } = await supabaseAuth.auth.getUser()
+    const user = await getAuthUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const supabase = createServiceClient()
@@ -191,7 +196,13 @@ export async function POST(request: NextRequest) {
     const resultText = completion.choices[0].message.content
     if (!resultText) throw new Error('Empty response from GPT-4o')
 
-    const result: SymptomCheckResult = JSON.parse(resultText)
+    let parsed: unknown
+    try {
+      parsed = JSON.parse(resultText)
+    } catch {
+      throw new Error('AI returned invalid JSON')
+    }
+    const result = validateAIResponse(parsed)
 
     // Deduct credit
     await supabase.from('profiles').update({ credits: profile.credits - 1 }).eq('id', user.id)
