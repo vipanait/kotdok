@@ -1,0 +1,228 @@
+import { NextRequest, NextResponse } from 'next/server'
+import OpenAI from 'openai'
+import { createServiceClient } from '@/lib/supabase/server'
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
+import type { SymptomCheckResult } from '@/types'
+
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+
+const SYSTEM_PROMPT = `You are a specialized feline health triage assistant.
+You have deep knowledge of cat-specific diseases, physiology, and behavioral signs of illness.
+
+CRITICAL RULES:
+- You are NOT a veterinarian and cannot diagnose
+- Always recommend professional vet consultation
+- Cats hide pain — always err on the side of caution
+- Age matters enormously: kitten (<1yr), adult (1-10yr), senior (10yr+)
+- Breed predispositions are real: Persian → breathing, Maine Coon → HCM, etc.
+- If a photo is provided, analyze visible symptoms (wounds, swelling, discharge, posture, coat condition, eye/ear appearance) alongside the text description
+
+TRIAGE LEVELS:
+EMERGENCY (go now): seizures, difficulty breathing, urinary blockage in male cats, collapse, suspected poisoning, trauma
+URGENT (within 24h): not eating >24h, vomiting >3x, blood in urine/stool, hiding + lethargy combo, significant weight loss
+MONITOR (watch 48h): single vomit, mild sneezing, slight appetite change
+HOME CARE: minor wounds, mild hairball, normal grooming changes
+
+OUTPUT FORMAT (always valid JSON, no markdown). All text fields must be in Russian.
+
+{
+  "urgency": "emergency|urgent|monitor|home_care",
+  "urgency_reason": "одно предложение почему",
+  "photo_observations": "что видно на фото, или null если фото нет",
+  "possible_causes": ["причина 1", "причина 2", "причина 3"],
+  "cat_specific_warning": "специфика для кошек или null",
+  "home_care_steps": ["шаг 1", "шаг 2"],
+  "vet_questions": ["вопрос 1", "вопрос 2"],
+  "disclaimer": "КотДок — информационный инструмент. Не является ветеринарным диагнозом и не заменяет осмотр специалиста."
+}
+
+CONTEXT FROM VET DATABASE:
+{context}`
+
+async function getVetContext(symptoms: string): Promise<string> {
+  const supabase = createServiceClient()
+
+  const embeddingResponse = await openai.embeddings.create({
+    model: 'text-embedding-3-small',
+    input: symptoms,
+  })
+  const embedding = embeddingResponse.data[0].embedding
+
+  const { data, error } = await supabase.rpc('search_vet_knowledge', {
+    query_embedding: embedding,
+    match_count: 5,
+  })
+
+  if (error || !data?.length) return 'No additional context available.'
+
+  return data
+    .filter((row: { similarity: number }) => row.similarity > 0.3)
+    .map((row: { source_title: string; content: string }) =>
+      `[${row.source_title}]\n${row.content}`
+    )
+    .join('\n\n---\n\n')
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    // Auth
+    const cookieStore = await cookies()
+    const supabaseAuth = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() { return cookieStore.getAll() },
+          setAll() {},
+        },
+      }
+    )
+    const { data: { user } } = await supabaseAuth.auth.getUser()
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    const supabase = createServiceClient()
+
+    // Credits check
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('credits, plan')
+      .eq('id', user.id)
+      .single()
+
+    if (!profile || profile.credits <= 0) {
+      return NextResponse.json({ error: 'Not enough credits / Недостаточно credits.' }, { status: 402 })
+    }
+
+    // Parse multipart (photo) or JSON (text only)
+    let symptoms = ''
+    let cat_id: string | null = null
+    let photoBase64: string | null = null
+    let photoMimeType = 'image/jpeg'
+
+    const contentType = request.headers.get('content-type') ?? ''
+
+    if (contentType.includes('multipart/form-data')) {
+      const formData = await request.formData()
+      symptoms = (formData.get('symptoms') as string) ?? ''
+      cat_id = (formData.get('cat_id') as string) || null
+
+      const file = formData.get('photo') as File | null
+      if (file && file.size > 0) {
+        if (file.size > 10 * 1024 * 1024) {
+          return NextResponse.json({ error: 'Photo must be under 10MB / Фото до 10 МБ' }, { status: 400 })
+        }
+        photoMimeType = file.type || 'image/jpeg'
+        const buffer = await file.arrayBuffer()
+        photoBase64 = Buffer.from(buffer).toString('base64')
+
+        // Storage upload skipped for now
+      }
+    } else {
+      const body = await request.json()
+      symptoms = body.symptoms ?? ''
+      cat_id = body.cat_id || null
+    }
+
+    if (!symptoms || symptoms.trim().length < 3) {
+      return NextResponse.json(
+        { error: 'Please describe the symptoms / Опишите симптомы' },
+        { status: 400 }
+      )
+    }
+
+    // Cat profile context
+    let catContext = ''
+    if (cat_id) {
+      const { data: cat } = await supabase
+        .from('cats').select('*').eq('id', cat_id).eq('user_id', user.id).single()
+      if (cat) {
+        const parts = [
+          cat.name,
+          cat.breed ? `breed: ${cat.breed}` : null,
+          cat.age_years != null ? `${cat.age_years} years old` : null,
+          cat.sex || null,
+          cat.neutered != null ? (cat.neutered ? 'neutered/spayed' : 'intact') : null,
+          cat.indoor_outdoor ? `lifestyle: ${cat.indoor_outdoor}` : null,
+          cat.diet ? `diet: ${cat.diet} food` : null,
+          cat.vaccinated != null ? (cat.vaccinated ? 'vaccinated' : 'not vaccinated') : null,
+          cat.allergies?.length ? `allergies: ${cat.allergies.join(', ')}` : null,
+          cat.chronic_conditions?.length ? `chronic conditions: ${cat.chronic_conditions.join(', ')}` : null,
+          cat.medications?.length ? `medications: ${cat.medications.join(', ')}` : null,
+        ].filter(Boolean)
+        catContext = `\n\nCAT PROFILE: ${parts.join(', ')}`
+      }
+    }
+
+    // RAG search
+    const vetContext = await getVetContext(symptoms)
+    const systemPrompt = SYSTEM_PROMPT.replace('{context}', vetContext)
+
+    // Build user message — with or without photo
+    type ContentPart =
+      | { type: 'text'; text: string }
+      | { type: 'image_url'; image_url: { url: string; detail: 'high' } }
+
+    const userContent: ContentPart[] = [
+      { type: 'text', text: `Cat symptoms: ${symptoms}${catContext}` },
+    ]
+
+    if (photoBase64) {
+      userContent.push({
+        type: 'image_url',
+        image_url: {
+          url: `data:${photoMimeType};base64,${photoBase64}`,
+          detail: 'high',
+        },
+      })
+    }
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userContent },
+      ],
+      temperature: 0.3,
+      response_format: { type: 'json_object' },
+      max_tokens: 1500,
+    })
+
+    const resultText = completion.choices[0].message.content
+    if (!resultText) throw new Error('Empty response from GPT-4o')
+
+    const result: SymptomCheckResult = JSON.parse(resultText)
+
+    // Deduct credit
+    await supabase.from('profiles').update({ credits: profile.credits - 1 }).eq('id', user.id)
+    await supabase.from('credit_transactions').insert({ user_id: user.id, amount: -1, type: 'usage' })
+
+    // Save to history
+    const { data: check } = await supabase
+      .from('symptom_checks')
+      .insert({
+        user_id: user.id,
+        cat_id: cat_id || null,
+        symptoms_input: symptoms,
+        urgency: result.urgency,
+        urgency_reason: result.urgency_reason,
+        possible_causes: result.possible_causes,
+        cat_specific_warning: result.cat_specific_warning,
+        home_care_steps: result.home_care_steps,
+        vet_questions: result.vet_questions,
+        full_response: result,
+      })
+      .select('id')
+      .single()
+
+    return NextResponse.json({
+      ...result,
+      has_photo: !!photoBase64,
+      check_id: check?.id,
+      credits_remaining: profile.credits - 1,
+    })
+  } catch (error) {
+    console.error('symptom-check error:', error)
+    return NextResponse.json({ error: 'An error occurred / Произошла ошибка.' }, { status: 500 })
+  }
+}
