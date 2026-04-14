@@ -109,6 +109,9 @@ export default async function DashboardPage() {
           </ul>
         )}
       </div>
+      <p className="text-center text-xs text-gray-400 mt-6">
+        <Link href="/legal" className="hover:underline">Пользовательское соглашение</Link>
+      </p>
     </div>
   )
 }

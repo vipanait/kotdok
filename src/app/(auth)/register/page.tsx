@@ -81,6 +81,10 @@ export default function RegisterPage() {
           Уже есть аккаунт?{' '}
           <Link href="/login" className="text-orange-500 hover:underline">Войти</Link>
         </p>
+        <p className="text-center text-xs text-gray-400 mt-3">
+          Регистрируясь, вы принимаете{' '}
+          <Link href="/legal" className="underline hover:text-gray-600">пользовательское соглашение</Link>
+        </p>
       </div>
     </div>
   )
