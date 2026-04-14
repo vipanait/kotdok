@@ -102,6 +102,9 @@ export async function POST(request: NextRequest) {
     // Parse multipart (photo) or JSON (text only)
     let symptoms = ''
     let cat_id: string | null = null
+    let appetite: string | null = null
+    let activity: string | null = null
+    let duration: string | null = null
     let photoBase64: string | null = null
     let photoMimeType = 'image/jpeg'
 
@@ -111,6 +114,9 @@ export async function POST(request: NextRequest) {
       const formData = await request.formData()
       symptoms = (formData.get('symptoms') as string) ?? ''
       cat_id = (formData.get('cat_id') as string) || null
+      appetite = (formData.get('appetite') as string) || null
+      activity = (formData.get('activity') as string) || null
+      duration = (formData.get('duration') as string) || null
 
       const file = formData.get('photo') as File | null
       if (file && file.size > 0) {
@@ -127,6 +133,9 @@ export async function POST(request: NextRequest) {
       const body = await request.json()
       symptoms = body.symptoms ?? ''
       cat_id = body.cat_id || null
+      appetite = body.appetite || null
+      activity = body.activity || null
+      duration = body.duration || null
     }
 
     if (!symptoms || symptoms.trim().length < 3) {
@@ -169,8 +178,18 @@ export async function POST(request: NextRequest) {
       | { type: 'text'; text: string }
       | { type: 'image_url'; image_url: { url: string; detail: 'high' } }
 
+    const APPETITE_LABELS: Record<string, string> = { normal: 'eating normally', reduced: 'eating less than usual', none: 'not eating at all' }
+    const ACTIVITY_LABELS: Record<string, string> = { normal: 'active and alert', low: 'less active than usual', lethargic: 'very lethargic' }
+    const DURATION_LABELS: Record<string, string> = { today: 'started today', '2-3days': '2–3 days', 'week+': 'more than a week' }
+
+    const quickContext = [
+      appetite ? `Appetite: ${APPETITE_LABELS[appetite] ?? appetite}` : null,
+      activity ? `Activity level: ${ACTIVITY_LABELS[activity] ?? activity}` : null,
+      duration ? `Duration: symptoms have ${DURATION_LABELS[duration] ?? duration}` : null,
+    ].filter(Boolean).join('. ')
+
     const userContent: ContentPart[] = [
-      { type: 'text', text: `Cat symptoms: ${symptoms}${catContext}` },
+      { type: 'text', text: `Cat symptoms: ${symptoms}${quickContext ? `\n\nQuick assessment: ${quickContext}.` : ''}${catContext}` },
     ]
 
     if (photoBase64) {

@@ -16,6 +16,9 @@ export default function CheckForm({ cats }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [selectedCatId, setSelectedCatId] = useState<string>('')
+  const [appetite, setAppetite] = useState<string>('')
+  const [activity, setActivity] = useState<string>('')
+  const [duration, setDuration] = useState<string>('')
   const [symptoms, setSymptoms] = useState('')
   const [photo, setPhoto] = useState<File | null>(null)
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
@@ -51,17 +54,22 @@ export default function CheckForm({ cats }: Props) {
 
     let res: Response
 
+    const extra = { appetite: appetite || undefined, activity: activity || undefined, duration: duration || undefined }
+
     if (photo) {
       const formData = new FormData()
       formData.append('symptoms', symptoms)
       formData.append('photo', photo)
       if (selectedCatId) formData.append('cat_id', selectedCatId)
+      if (appetite) formData.append('appetite', appetite)
+      if (activity) formData.append('activity', activity)
+      if (duration) formData.append('duration', duration)
       res = await fetch('/api/symptom-check', { method: 'POST', body: formData })
     } else {
       res = await fetch('/api/symptom-check', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ symptoms, cat_id: selectedCatId || undefined }),
+        body: JSON.stringify({ symptoms, cat_id: selectedCatId || undefined, ...extra }),
       })
     }
 
@@ -121,11 +129,45 @@ export default function CheckForm({ cats }: Props) {
               </div>
             )}
 
+            {/* Быстрые вопросы */}
+            <div className="space-y-3">
+              <ChipGroup
+                label="Аппетит"
+                value={appetite}
+                onChange={setAppetite}
+                options={[
+                  { value: 'normal', label: 'Ест нормально' },
+                  { value: 'reduced', label: 'Ест меньше' },
+                  { value: 'none', label: 'Не ест' },
+                ]}
+              />
+              <ChipGroup
+                label="Активность"
+                value={activity}
+                onChange={setActivity}
+                options={[
+                  { value: 'normal', label: 'Бодрый' },
+                  { value: 'low', label: 'Менее активный' },
+                  { value: 'lethargic', label: 'Вялый' },
+                ]}
+              />
+              <ChipGroup
+                label="Симптомы длятся"
+                value={duration}
+                onChange={setDuration}
+                options={[
+                  { value: 'today', label: 'Сегодня' },
+                  { value: '2-3days', label: '2–3 дня' },
+                  { value: 'week+', label: 'Больше недели' },
+                ]}
+              />
+            </div>
+
             <textarea
               value={symptoms}
               onChange={e => setSymptoms(e.target.value)}
-              placeholder="Например: кошка не ест второй день, прячется под диваном, иногда пьёт воду. Ей 5 лет, стерилизована. Рвоты нет, в туалет ходит..."
-              rows={5}
+              placeholder="Опишите подробнее: что именно происходит, когда началось, как ведёт себя кошка..."
+              rows={4}
               className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 resize-none"
             />
 
@@ -257,6 +299,40 @@ export default function CheckForm({ cats }: Props) {
           <p className="text-center text-xs text-gray-400">Осталось credits: {result.credits_remaining}</p>
         </div>
       )}
+    </div>
+  )
+}
+
+function ChipGroup({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string
+  value: string
+  onChange: (v: string) => void
+  options: { value: string; label: string }[]
+}) {
+  return (
+    <div>
+      <p className="text-sm font-medium text-gray-700 mb-2">{label}</p>
+      <div className="flex flex-wrap gap-2">
+        {options.map(opt => (
+          <button
+            key={opt.value}
+            type="button"
+            onClick={() => onChange(value === opt.value ? '' : opt.value)}
+            className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+              value === opt.value
+                ? 'bg-orange-50 border-orange-400 text-orange-700 font-medium'
+                : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
+            }`}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
     </div>
   )
 }
