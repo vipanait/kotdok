@@ -11,20 +11,7 @@ interface Props {
   cat?: Cat
 }
 
-const EMPTY: CatFormValues = {
-  name: '',
-  breed: null,
-  age_years: null,
-  weight_kg: null,
-  sex: null,
-  neutered: null,
-  indoor_outdoor: null,
-  diet: null,
-  allergies: [],
-  vaccinated: null,
-  chronic_conditions: [],
-  medications: [],
-}
+const NOTES_MAX = 300
 
 function toArr(val: string): string[] {
   return val.split(',').map(s => s.trim()).filter(Boolean)
@@ -50,6 +37,7 @@ export default function CatForm({ cat }: Props) {
   const [vaccinated, setVaccinated] = useState<boolean | null>(cat?.vaccinated ?? null)
   const [chronicConditions, setChronicConditions] = useState(fromArr(cat?.chronic_conditions ?? []))
   const [medications, setMedications] = useState(fromArr(cat?.medications ?? []))
+  const [notes, setNotes] = useState(cat?.notes ?? '')
 
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -74,6 +62,7 @@ export default function CatForm({ cat }: Props) {
       vaccinated,
       chronic_conditions: toArr(chronicConditions),
       medications: toArr(medications),
+      notes: notes.trim() || null,
     }
 
     const url = isEdit ? `/api/cats/${cat!.id}` : '/api/cats'
@@ -268,6 +257,21 @@ export default function CatForm({ cat }: Props) {
               placeholder="Нефростоп, витамины — через запятую"
               className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
             />
+          </div>
+
+          {/* Доп. информация */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Дополнительно</label>
+            <textarea
+              value={notes}
+              onChange={e => setNotes(e.target.value.slice(0, NOTES_MAX))}
+              placeholder="Любые детали, которые помогут при анализе симптомов..."
+              rows={3}
+              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 resize-none"
+            />
+            <p className={`text-xs mt-1 text-right ${notes.length >= NOTES_MAX ? 'text-red-400' : 'text-gray-400'}`}>
+              {notes.length}/{NOTES_MAX}
+            </p>
           </div>
 
           {error && <div className="bg-red-50 text-red-700 text-sm rounded-lg px-4 py-3">{error}</div>}

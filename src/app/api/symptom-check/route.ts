@@ -154,6 +154,7 @@ export async function POST(request: NextRequest) {
           cat.allergies?.length ? `allergies: ${cat.allergies.join(', ')}` : null,
           cat.chronic_conditions?.length ? `chronic conditions: ${cat.chronic_conditions.join(', ')}` : null,
           cat.medications?.length ? `medications: ${cat.medications.join(', ')}` : null,
+          cat.notes ? `additional notes: ${cat.notes}` : null,
         ].filter(Boolean)
         catContext = `\n\nCAT PROFILE: ${parts.join(', ')}`
       }

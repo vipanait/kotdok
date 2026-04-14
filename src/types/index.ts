@@ -27,6 +27,7 @@ export interface Cat {
   vaccinated: boolean | null
   chronic_conditions: string[]
   medications: string[]
+  notes: string | null
   created_at: string
 }
 

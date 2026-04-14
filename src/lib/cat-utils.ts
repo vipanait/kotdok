@@ -22,5 +22,6 @@ export function sanitizeCat(body: Record<string, unknown>) {
     vaccinated: body.vaccinated != null ? Boolean(body.vaccinated) : null,
     chronic_conditions: Array.isArray(body.chronic_conditions) ? (body.chronic_conditions as string[]) : [],
     medications: Array.isArray(body.medications) ? (body.medications as string[]) : [],
+    notes: body.notes ? String(body.notes).slice(0, 300).trim() || null : null,
   }
 }
