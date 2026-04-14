@@ -13,6 +13,7 @@ export async function GET() {
     .select('*')
     .eq('user_id', user.id)
     .order('created_at', { ascending: true })
+    .limit(50)
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data)

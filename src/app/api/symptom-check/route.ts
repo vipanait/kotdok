@@ -121,13 +121,15 @@ export async function POST(request: NextRequest) {
       const file = formData.get('photo') as File | null
       if (file && file.size > 0) {
         if (file.size > 10 * 1024 * 1024) {
-          return NextResponse.json({ error: 'Photo must be under 10MB / Фото до 10 МБ' }, { status: 400 })
+          return NextResponse.json({ error: 'Фото должно быть до 10 МБ' }, { status: 400 })
         }
-        photoMimeType = file.type || 'image/jpeg'
+        const allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/heic', 'image/heif']
+        if (!allowedMimes.includes(file.type)) {
+          return NextResponse.json({ error: 'Допустимы только изображения (JPEG, PNG, WebP)' }, { status: 400 })
+        }
+        photoMimeType = file.type
         const buffer = await file.arrayBuffer()
         photoBase64 = Buffer.from(buffer).toString('base64')
-
-        // Storage upload skipped for now
       }
     } else {
       const body = await request.json()
@@ -138,12 +140,22 @@ export async function POST(request: NextRequest) {
       duration = body.duration || null
     }
 
+    symptoms = symptoms.slice(0, 2000)
+
     if (!symptoms || symptoms.trim().length < 3) {
       return NextResponse.json(
-        { error: 'Please describe the symptoms / Опишите симптомы' },
+        { error: 'Опишите симптомы (минимум 3 символа)' },
         { status: 400 }
       )
     }
+
+    // Validate quick params
+    const validAppetite = ['normal', 'reduced', 'none']
+    const validActivity = ['normal', 'low', 'lethargic']
+    const validDuration = ['today', '2-3days', 'week+']
+    if (appetite && !validAppetite.includes(appetite)) appetite = null
+    if (activity && !validActivity.includes(activity)) activity = null
+    if (duration && !validDuration.includes(duration)) duration = null
 
     // Cat profile context
     let catContext = ''
@@ -225,7 +237,11 @@ export async function POST(request: NextRequest) {
     const result = validateAIResponse(parsed)
 
     // Deduct credit
-    await supabase.from('profiles').update({ credits: profile.credits - 1 }).eq('id', user.id)
+    const { error: creditError } = await supabase
+      .from('profiles')
+      .update({ credits: profile.credits - 1 })
+      .eq('id', user.id)
+    if (creditError) throw new Error('Failed to deduct credit')
     await supabase.from('credit_transactions').insert({ user_id: user.id, amount: -1, type: 'usage' })
 
     // Save to history

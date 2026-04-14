@@ -37,12 +37,15 @@ export async function DELETE(
   const { id } = await params
   const supabase = createServiceClient()
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('cats')
     .delete()
     .eq('id', id)
     .eq('user_id', user.id)
+    .select()
+    .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (!data) return NextResponse.json({ error: 'Not found' }, { status: 404 })
   return new NextResponse(null, { status: 204 })
 }
