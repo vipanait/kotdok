@@ -6,6 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import type { SymptomCheckResult, Cat } from '@/types'
 import { URGENCY_CONFIG } from '@/lib/urgency'
+import { APPETITE_LABELS, ACTIVITY_LABELS, DURATION_LABELS } from '@/lib/check-params'
 
 interface Props {
   cats: Pick<Cat, 'id' | 'name' | 'breed' | 'age_years' | 'sex'>[]
@@ -227,6 +228,17 @@ export default function CheckForm({ cats }: Props) {
             <div className="text-sm opacity-75">{result.urgency_reason}</div>
           </div>
 
+          {(result.appetite || result.activity || result.duration) && (
+            <div className="bg-gray-50 rounded-2xl border border-gray-100 p-4">
+              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Указано при проверке</p>
+              <div className="flex flex-wrap gap-2">
+                {result.appetite && <Chip label={`Аппетит: ${APPETITE_LABELS[result.appetite] ?? result.appetite}`} />}
+                {result.activity && <Chip label={`Активность: ${ACTIVITY_LABELS[result.activity] ?? result.activity}`} />}
+                {result.duration && <Chip label={`Длительность: ${DURATION_LABELS[result.duration] ?? result.duration}`} />}
+              </div>
+            </div>
+          )}
+
           {result.has_photo && result.photo_observations && (
             <div className="bg-blue-50 border border-blue-200 rounded-2xl p-6">
               <h2 className="font-semibold text-blue-900 mb-2">📷 Что видно на фото</h2>
@@ -300,6 +312,14 @@ export default function CheckForm({ cats }: Props) {
         </div>
       )}
     </div>
+  )
+}
+
+function Chip({ label }: { label: string }) {
+  return (
+    <span className="px-3 py-1 rounded-full text-xs bg-white border border-gray-200 text-gray-600">
+      {label}
+    </span>
   )
 }
 

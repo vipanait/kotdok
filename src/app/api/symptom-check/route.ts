@@ -241,7 +241,7 @@ export async function POST(request: NextRequest) {
         cat_specific_warning: result.cat_specific_warning,
         home_care_steps: result.home_care_steps,
         vet_questions: result.vet_questions,
-        full_response: result,
+        full_response: { ...result, appetite, activity, duration },
       })
       .select('id')
       .single()
@@ -249,6 +249,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       ...result,
       has_photo: !!photoBase64,
+      appetite,
+      activity,
+      duration,
       check_id: check?.id,
       credits_remaining: profile.credits - 1,
     })

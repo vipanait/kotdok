@@ -10,6 +10,9 @@ export interface SymptomCheckResult {
   vet_questions: string[]
   disclaimer: string
   has_photo?: boolean
+  appetite?: string | null
+  activity?: string | null
+  duration?: string | null
 }
 
 export interface Cat {
