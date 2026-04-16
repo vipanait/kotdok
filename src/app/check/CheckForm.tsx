@@ -6,7 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import type { SymptomCheckResult, Cat } from '@/types'
 import { URGENCY_CONFIG } from '@/lib/urgency'
-import { APPETITE_LABELS, ACTIVITY_LABELS, DURATION_LABELS } from '@/lib/check-params'
+import { APPETITE_LABELS, ACTIVITY_LABELS, DURATION_LABELS, STOOL_LABELS } from '@/lib/check-params'
 
 interface Props {
   cats: Pick<Cat, 'id' | 'name' | 'breed' | 'age_years' | 'sex'>[]
@@ -20,6 +20,7 @@ export default function CheckForm({ cats }: Props) {
   const [appetite, setAppetite] = useState<string>('')
   const [activity, setActivity] = useState<string>('')
   const [duration, setDuration] = useState<string>('')
+  const [stool, setStool] = useState<string>('')
   const [symptoms, setSymptoms] = useState('')
   const [photo, setPhoto] = useState<File | null>(null)
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
@@ -55,7 +56,7 @@ export default function CheckForm({ cats }: Props) {
 
     let res: Response
 
-    const extra = { appetite: appetite || undefined, activity: activity || undefined, duration: duration || undefined }
+    const extra = { appetite: appetite || undefined, activity: activity || undefined, duration: duration || undefined, stool: stool || undefined }
 
     if (photo) {
       const formData = new FormData()
@@ -65,6 +66,7 @@ export default function CheckForm({ cats }: Props) {
       if (appetite) formData.append('appetite', appetite)
       if (activity) formData.append('activity', activity)
       if (duration) formData.append('duration', duration)
+      if (stool) formData.append('stool', stool)
       res = await fetch('/api/symptom-check', { method: 'POST', body: formData })
     } else {
       res = await fetch('/api/symptom-check', {
@@ -162,6 +164,17 @@ export default function CheckForm({ cats }: Props) {
                   { value: 'week+', label: 'Больше недели' },
                 ]}
               />
+              <ChipGroup
+                label="Стул"
+                value={stool}
+                onChange={setStool}
+                options={[
+                  { value: 'normal', label: 'Нормальный' },
+                  { value: 'loose', label: 'Жидкий (понос)' },
+                  { value: 'absent', label: 'Отсутствует' },
+                  { value: 'bloody', label: 'С кровью' },
+                ]}
+              />
             </div>
 
             <textarea
@@ -228,13 +241,14 @@ export default function CheckForm({ cats }: Props) {
             <div className="text-sm opacity-75">{result.urgency_reason}</div>
           </div>
 
-          {(result.appetite || result.activity || result.duration) && (
+          {(result.appetite || result.activity || result.duration || result.stool) && (
             <div className="bg-gray-50 rounded-2xl border border-gray-100 p-4">
               <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Указано при проверке</p>
               <div className="flex flex-wrap gap-2">
                 {result.appetite && <Chip label={`Аппетит: ${APPETITE_LABELS[result.appetite] ?? result.appetite}`} />}
                 {result.activity && <Chip label={`Активность: ${ACTIVITY_LABELS[result.activity] ?? result.activity}`} />}
                 {result.duration && <Chip label={`Длительность: ${DURATION_LABELS[result.duration] ?? result.duration}`} />}
+                {result.stool && <Chip label={`Стул: ${STOOL_LABELS[result.stool] ?? result.stool}`} />}
               </div>
             </div>
           )}

@@ -15,3 +15,10 @@ export const DURATION_LABELS: Record<string, string> = {
   '2-3days': '2–3 дня',
   'week+': 'Больше недели',
 }
+
+export const STOOL_LABELS: Record<string, string> = {
+  normal: 'Нормальный',
+  loose: 'Жидкий (понос)',
+  absent: 'Отсутствует',
+  bloody: 'С кровью',
+}

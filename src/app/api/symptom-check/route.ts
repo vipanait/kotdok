@@ -105,6 +105,7 @@ export async function POST(request: NextRequest) {
     let appetite: string | null = null
     let activity: string | null = null
     let duration: string | null = null
+    let stool: string | null = null
     let photoBase64: string | null = null
     let photoMimeType = 'image/jpeg'
 
@@ -117,6 +118,7 @@ export async function POST(request: NextRequest) {
       appetite = (formData.get('appetite') as string) || null
       activity = (formData.get('activity') as string) || null
       duration = (formData.get('duration') as string) || null
+      stool = (formData.get('stool') as string) || null
 
       const file = formData.get('photo') as File | null
       if (file && file.size > 0) {
@@ -138,6 +140,7 @@ export async function POST(request: NextRequest) {
       appetite = body.appetite || null
       activity = body.activity || null
       duration = body.duration || null
+      stool = body.stool || null
     }
 
     symptoms = symptoms.slice(0, 2000)
@@ -153,9 +156,11 @@ export async function POST(request: NextRequest) {
     const validAppetite = ['normal', 'reduced', 'none']
     const validActivity = ['normal', 'low', 'lethargic']
     const validDuration = ['today', '2-3days', 'week+']
+    const validStool = ['normal', 'loose', 'absent', 'bloody']
     if (appetite && !validAppetite.includes(appetite)) appetite = null
     if (activity && !validActivity.includes(activity)) activity = null
     if (duration && !validDuration.includes(duration)) duration = null
+    if (stool && !validStool.includes(stool)) stool = null
 
     // Cat profile context
     let catContext = ''
@@ -193,11 +198,13 @@ export async function POST(request: NextRequest) {
     const APPETITE_LABELS: Record<string, string> = { normal: 'eating normally', reduced: 'eating less than usual', none: 'not eating at all' }
     const ACTIVITY_LABELS: Record<string, string> = { normal: 'active and alert', low: 'less active than usual', lethargic: 'very lethargic' }
     const DURATION_LABELS: Record<string, string> = { today: 'started today', '2-3days': '2–3 days', 'week+': 'more than a week' }
+    const STOOL_LABELS: Record<string, string> = { normal: 'normal stool', loose: 'loose/diarrhea', absent: 'no stool / constipation', bloody: 'blood in stool' }
 
     const quickContext = [
       appetite ? `Appetite: ${APPETITE_LABELS[appetite] ?? appetite}` : null,
       activity ? `Activity level: ${ACTIVITY_LABELS[activity] ?? activity}` : null,
       duration ? `Duration: symptoms have ${DURATION_LABELS[duration] ?? duration}` : null,
+      stool ? `Stool: ${STOOL_LABELS[stool] ?? stool}` : null,
     ].filter(Boolean).join('. ')
 
     const userContent: ContentPart[] = [
@@ -257,7 +264,7 @@ export async function POST(request: NextRequest) {
         cat_specific_warning: result.cat_specific_warning,
         home_care_steps: result.home_care_steps,
         vet_questions: result.vet_questions,
-        full_response: { ...result, appetite, activity, duration },
+        full_response: { ...result, appetite, activity, duration, stool },
       })
       .select('id')
       .single()
@@ -268,6 +275,7 @@ export async function POST(request: NextRequest) {
       appetite,
       activity,
       duration,
+      stool,
       check_id: check?.id,
       credits_remaining: profile.credits - 1,
     })

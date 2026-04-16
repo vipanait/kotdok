@@ -13,6 +13,7 @@ export interface SymptomCheckResult {
   appetite?: string | null
   activity?: string | null
   duration?: string | null
+  stool?: string | null
 }
 
 export interface Cat {

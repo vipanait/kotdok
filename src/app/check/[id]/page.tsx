@@ -3,7 +3,7 @@ import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { URGENCY_CONFIG } from '@/lib/urgency'
 import type { UrgencyKey } from '@/lib/urgency'
-import { APPETITE_LABELS, ACTIVITY_LABELS, DURATION_LABELS } from '@/lib/check-params'
+import { APPETITE_LABELS, ACTIVITY_LABELS, DURATION_LABELS, STOOL_LABELS } from '@/lib/check-params'
 
 export default async function CheckResultPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -35,6 +35,7 @@ export default async function CheckResultPage({ params }: { params: Promise<{ id
   const appetite = (full?.appetite as string | null) ?? null
   const activity = (full?.activity as string | null) ?? null
   const duration = (full?.duration as string | null) ?? null
+  const stool = (full?.stool as string | null) ?? null
 
   return (
     <div className="min-h-screen px-4 py-8 max-w-2xl mx-auto">
@@ -58,13 +59,14 @@ export default async function CheckResultPage({ params }: { params: Promise<{ id
         <div className="bg-white rounded-2xl border border-gray-100 p-6">
           <h2 className="font-semibold text-gray-900 mb-2">Симптомы</h2>
           <p className="text-sm text-gray-700">{check.symptoms_input}</p>
-          {(appetite || activity || duration) && (
+          {(appetite || activity || duration || stool) && (
             <div className="mt-3 pt-3 border-t border-gray-50">
               <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">Указано при проверке</p>
               <div className="flex flex-wrap gap-2">
                 {appetite && <span className="px-3 py-1 rounded-full text-xs bg-gray-50 border border-gray-200 text-gray-600">Аппетит: {APPETITE_LABELS[appetite] ?? appetite}</span>}
                 {activity && <span className="px-3 py-1 rounded-full text-xs bg-gray-50 border border-gray-200 text-gray-600">Активность: {ACTIVITY_LABELS[activity] ?? activity}</span>}
                 {duration && <span className="px-3 py-1 rounded-full text-xs bg-gray-50 border border-gray-200 text-gray-600">Длительность: {DURATION_LABELS[duration] ?? duration}</span>}
+                {stool && <span className="px-3 py-1 rounded-full text-xs bg-gray-50 border border-gray-200 text-gray-600">Стул: {STOOL_LABELS[stool] ?? stool}</span>}
               </div>
             </div>
           )}
