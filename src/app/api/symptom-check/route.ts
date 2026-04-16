@@ -106,8 +106,7 @@ export async function POST(request: NextRequest) {
     let activity: string | null = null
     let duration: string | null = null
     let stool: string | null = null
-    let photoBase64: string | null = null
-    let photoMimeType = 'image/jpeg'
+    let photoBase64List: { data: string; mimeType: string }[] = []
 
     const contentType = request.headers.get('content-type') ?? ''
 
@@ -120,18 +119,18 @@ export async function POST(request: NextRequest) {
       duration = (formData.get('duration') as string) || null
       stool = (formData.get('stool') as string) || null
 
-      const file = formData.get('photo') as File | null
-      if (file && file.size > 0) {
-        if (file.size > 10 * 1024 * 1024) {
-          return NextResponse.json({ error: 'Фото должно быть до 10 МБ' }, { status: 400 })
+      const allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/heic', 'image/heif']
+      const files = formData.getAll('photo') as File[]
+      const validFiles = files.filter(f => f && f.size > 0).slice(0, 5)
+      for (const file of validFiles) {
+        if (file.size > 5 * 1024 * 1024) {
+          return NextResponse.json({ error: 'Каждое фото должно быть до 5 МБ' }, { status: 400 })
         }
-        const allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/heic', 'image/heif']
         if (!allowedMimes.includes(file.type)) {
           return NextResponse.json({ error: 'Допустимы только изображения (JPEG, PNG, WebP)' }, { status: 400 })
         }
-        photoMimeType = file.type
         const buffer = await file.arrayBuffer()
-        photoBase64 = Buffer.from(buffer).toString('base64')
+        photoBase64List.push({ data: Buffer.from(buffer).toString('base64'), mimeType: file.type })
       }
     } else {
       const body = await request.json()
@@ -211,11 +210,11 @@ export async function POST(request: NextRequest) {
       { type: 'text', text: `Cat symptoms: ${symptoms}${quickContext ? `\n\nQuick assessment: ${quickContext}.` : ''}${catContext}` },
     ]
 
-    if (photoBase64) {
+    for (const photo of photoBase64List) {
       userContent.push({
         type: 'image_url',
         image_url: {
-          url: `data:${photoMimeType};base64,${photoBase64}`,
+          url: `data:${photo.mimeType};base64,${photo.data}`,
           detail: 'high',
         },
       })
@@ -264,14 +263,14 @@ export async function POST(request: NextRequest) {
         cat_specific_warning: result.cat_specific_warning,
         home_care_steps: result.home_care_steps,
         vet_questions: result.vet_questions,
-        full_response: { ...result, appetite, activity, duration, stool },
+        full_response: { ...result, appetite, activity, duration, stool, photo_count: photoBase64List.length },
       })
       .select('id')
       .single()
 
     return NextResponse.json({
       ...result,
-      has_photo: !!photoBase64,
+      has_photo: photoBase64List.length > 0,
       appetite,
       activity,
       duration,

@@ -22,29 +22,48 @@ export default function CheckForm({ cats }: Props) {
   const [duration, setDuration] = useState<string>('')
   const [stool, setStool] = useState<string>('')
   const [symptoms, setSymptoms] = useState('')
-  const [photo, setPhoto] = useState<File | null>(null)
-  const [photoPreview, setPhotoPreview] = useState<string | null>(null)
+  const [photos, setPhotos] = useState<File[]>([])
+  const [photoPreviews, setPhotoPreviews] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<(SymptomCheckResult & { credits_remaining: number }) | null>(null)
   const [error, setError] = useState('')
 
+  const MAX_PHOTOS = 5
+  const MAX_PHOTO_SIZE = 5 * 1024 * 1024
+
   function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
-    if (file.size > 10 * 1024 * 1024) {
-      setError('Фото должно быть до 10 МБ')
+    const files = Array.from(e.target.files ?? [])
+    if (!files.length) return
+
+    const remaining = MAX_PHOTOS - photos.length
+    const toAdd = files.slice(0, remaining)
+    const skipped = files.length - toAdd.length
+
+    const oversized = toAdd.filter(f => f.size > MAX_PHOTO_SIZE)
+    if (oversized.length) {
+      setError(`Каждое фото — до 5 МБ. Превышают лимит: ${oversized.map(f => f.name).join(', ')}`)
+      if (fileInputRef.current) fileInputRef.current.value = ''
       return
     }
-    if (photoPreview) URL.revokeObjectURL(photoPreview)
-    setPhoto(file)
-    setPhotoPreview(URL.createObjectURL(file))
-    setError('')
+
+    const newPreviews = toAdd.map(f => URL.createObjectURL(f))
+    setPhotos(prev => [...prev, ...toAdd])
+    setPhotoPreviews(prev => [...prev, ...newPreviews])
+    if (skipped > 0) setError(`Можно добавить не более ${MAX_PHOTOS} фото. ${skipped} фото пропущено.`)
+    else setError('')
+    if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
-  function removePhoto() {
-    if (photoPreview) URL.revokeObjectURL(photoPreview)
-    setPhoto(null)
-    setPhotoPreview(null)
+  function removePhoto(index: number) {
+    URL.revokeObjectURL(photoPreviews[index])
+    setPhotos(prev => prev.filter((_, i) => i !== index))
+    setPhotoPreviews(prev => prev.filter((_, i) => i !== index))
+  }
+
+  function removeAllPhotos() {
+    photoPreviews.forEach(p => URL.revokeObjectURL(p))
+    setPhotos([])
+    setPhotoPreviews([])
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
@@ -58,10 +77,10 @@ export default function CheckForm({ cats }: Props) {
 
     const extra = { appetite: appetite || undefined, activity: activity || undefined, duration: duration || undefined, stool: stool || undefined }
 
-    if (photo) {
+    if (photos.length > 0) {
       const formData = new FormData()
       formData.append('symptoms', symptoms)
-      formData.append('photo', photo)
+      photos.forEach(p => formData.append('photo', p))
       if (selectedCatId) formData.append('cat_id', selectedCatId)
       if (appetite) formData.append('appetite', appetite)
       if (activity) formData.append('activity', activity)
@@ -185,31 +204,37 @@ export default function CheckForm({ cats }: Props) {
               className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 resize-none"
             />
 
-            {!photoPreview ? (
-              <div
-                onClick={() => fileInputRef.current?.click()}
-                className="border-2 border-dashed border-gray-200 rounded-xl px-4 py-5 text-center cursor-pointer hover:border-orange-300 hover:bg-orange-50 transition-colors"
-              >
-                <div className="text-2xl mb-1">📷</div>
-                <div className="text-sm font-medium text-gray-600">Добавить фото (необязательно)</div>
-                <div className="text-xs text-gray-400 mt-1">Рана, глаз, кожа, поза — до 10 МБ</div>
-                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
-              </div>
-            ) : (
-              <div className="relative rounded-xl overflow-hidden border border-gray-200">
-                <Image src={photoPreview} alt="Фото кошки" width={600} height={300} className="w-full object-cover max-h-64" />
-                <button
-                  type="button"
-                  onClick={removePhoto}
-                  className="absolute top-2 right-2 bg-black/60 text-white text-xs px-3 py-1 rounded-full hover:bg-black/80"
-                >
-                  Убрать
-                </button>
-                <div className="absolute bottom-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded-full">
-                  📷 Фото добавлено
+            <div className="space-y-2">
+              {photoPreviews.length > 0 && (
+                <div className="grid grid-cols-3 gap-2">
+                  {photoPreviews.map((src, i) => (
+                    <div key={i} className="relative rounded-xl overflow-hidden border border-gray-200 aspect-square">
+                      <Image src={src} alt={`Фото ${i + 1}`} fill className="object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => removePhoto(i)}
+                        className="absolute top-1 right-1 bg-black/60 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center hover:bg-black/80 leading-none"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
                 </div>
-              </div>
-            )}
+              )}
+              {photos.length < MAX_PHOTOS && (
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className="border-2 border-dashed border-gray-200 rounded-xl px-4 py-5 text-center cursor-pointer hover:border-orange-300 hover:bg-orange-50 transition-colors"
+                >
+                  <div className="text-2xl mb-1">📷</div>
+                  <div className="text-sm font-medium text-gray-600">
+                    {photos.length === 0 ? 'Добавить фото (необязательно)' : `Ещё фото (${photos.length}/${MAX_PHOTOS})`}
+                  </div>
+                  <div className="text-xs text-gray-400 mt-1">Рана, глаз, кожа, поза — до 5 МБ каждое</div>
+                </div>
+              )}
+              <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handlePhotoChange} />
+            </div>
 
             {error && <div className="bg-red-50 text-red-700 text-sm rounded-lg px-4 py-3">{error}</div>}
 
@@ -224,10 +249,10 @@ export default function CheckForm({ cats }: Props) {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
                   </svg>
-                  {photo ? 'Анализируем фото (~20 сек)...' : 'Анализируем (~15 сек)...'}
+                  {photos.length > 0 ? 'Анализируем фото (~20 сек)...' : 'Анализируем (~15 сек)...'}
                 </span>
               ) : (
-                photo ? 'Анализировать фото + симптомы' : 'Проверить симптомы'
+                photos.length > 0 ? `Анализировать фото (${photos.length}) + симптомы` : 'Проверить симптомы'
               )}
             </button>
           </form>
@@ -312,7 +337,7 @@ export default function CheckForm({ cats }: Props) {
 
           <div className="flex gap-3">
             <button
-              onClick={() => { setResult(null); setSymptoms(''); removePhoto() }}
+              onClick={() => { setResult(null); setSymptoms(''); removeAllPhotos() }}
               className="flex-1 bg-white border border-gray-200 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition-colors text-sm"
             >
               Новая проверка
