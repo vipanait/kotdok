@@ -1,4 +1,16 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
+
+export const metadata: Metadata = {
+  title: 'КотДок — AI симптомчекер для кошек',
+  description: 'Узнайте насколько серьёзны симптомы вашей кошки за 15 секунд. Опишите что происходит — получите чёткий ответ с уровнем срочности.',
+  alternates: {
+    canonical: 'https://kotdok.ru',
+  },
+  openGraph: {
+    url: 'https://kotdok.ru',
+  },
+}
 
 export default function Home() {
   return (

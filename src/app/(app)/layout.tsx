@@ -1,10 +1,9 @@
 import type { Metadata } from 'next'
-import CatForm from '../CatForm'
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
-export default function NewCatPage() {
-  return <CatForm />
+export default function AppLayout({ children }: { children: React.ReactNode }) {
+  return children
 }

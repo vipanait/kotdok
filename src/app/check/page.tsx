@@ -1,6 +1,11 @@
+import type { Metadata } from 'next'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import CheckForm from './CheckForm'
 import type { Cat } from '@/types'
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+}
 
 export default async function CheckPage() {
   const supabase = await createClient()

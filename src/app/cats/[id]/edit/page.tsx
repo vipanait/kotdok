@@ -1,6 +1,11 @@
+import type { Metadata } from 'next'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import CatForm from '../../CatForm'
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+}
 
 export default async function EditCatPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params

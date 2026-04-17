@@ -1,8 +1,13 @@
+import type { Metadata } from 'next'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { URGENCY_CONFIG } from '@/lib/urgency'
 import type { UrgencyKey } from '@/lib/urgency'
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+}
 import { APPETITE_LABELS, ACTIVITY_LABELS, DURATION_LABELS, STOOL_LABELS } from '@/lib/check-params'
 
 export default async function CheckResultPage({ params }: { params: Promise<{ id: string }> }) {

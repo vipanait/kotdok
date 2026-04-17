@@ -4,9 +4,33 @@ import "./globals.css";
 
 const geist = Geist({ subsets: ["latin"] });
 
+const siteUrl = 'https://kotdok.ru'
+const title = 'КотДок — AI симптомчекер для кошек'
+const description = 'Узнайте насколько серьёзны симптомы вашей кошки за 15 секунд. Опишите что происходит — получите чёткий ответ с уровнем срочности.'
+
 export const metadata: Metadata = {
-  title: "КотДок — AI симптомчекер для кошек",
-  description: "Узнайте насколько серьёзны симптомы вашей кошки за 15 секунд",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: title,
+    template: '%s — КотДок',
+  },
+  description,
+  openGraph: {
+    type: 'website',
+    locale: 'ru_RU',
+    url: siteUrl,
+    siteName: 'КотДок',
+    title,
+    description,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title,
+    description,
+  },
+  icons: {
+    icon: '/favicon.ico',
+  },
 };
 
 export default function RootLayout({
