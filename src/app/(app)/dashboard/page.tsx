@@ -27,6 +27,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen px-4 py-8 max-w-2xl mx-auto">
+      <h1 className="sr-only">Личный кабинет</h1>
       <div className="flex items-center justify-between mb-8">
         <span className="text-2xl font-bold">🐱 КотДок</span>
         <form action="/api/auth/signout" method="post">

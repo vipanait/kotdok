@@ -56,7 +56,7 @@ export default async function CheckResultPage({ params }: { params: Promise<{ id
       <div className="space-y-4">
         <div className={`rounded-2xl border-2 p-6 ${urgency.color}`}>
           <div className="text-4xl mb-2">{urgency.emoji}</div>
-          <div className="text-2xl font-bold mb-1">{urgency.label}</div>
+          <h1 className="text-2xl font-bold mb-1">{urgency.label}</h1>
           <div className="text-lg font-medium mb-2">{urgency.action}</div>
           <div className="text-sm opacity-75">{check.urgency_reason}</div>
         </div>
