@@ -5,10 +5,10 @@ export const metadata: Metadata = {
   title: 'КотДок — AI симптомчекер для кошек',
   description: 'Узнайте насколько серьёзны симптомы вашей кошки за 15 секунд. Опишите что происходит — получите чёткий ответ с уровнем срочности.',
   alternates: {
-    canonical: 'https://kotdok.ru',
+    canonical: 'https://kotdok.vercel.app',
   },
   openGraph: {
-    url: 'https://kotdok.ru',
+    url: 'https://kotdok.vercel.app',
   },
 }
 

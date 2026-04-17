@@ -17,6 +17,6 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
     ],
-    sitemap: 'https://kotdok.ru/sitemap.xml',
+    sitemap: 'https://kotdok.vercel.app/sitemap.xml',
   }
 }
