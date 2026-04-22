@@ -2,6 +2,7 @@ import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { URGENCY_EMOJI } from '@/lib/urgency'
+import DashboardActions from './DashboardActions'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -42,12 +43,7 @@ export default async function DashboardPage() {
             <div className="text-sm text-gray-500">Доступно проверок</div>
             <div className="text-4xl font-bold text-gray-900">{profile?.credits ?? 0}</div>
           </div>
-          <Link
-            href="/check"
-            className="bg-orange-500 text-white px-6 py-3 rounded-xl font-medium hover:bg-orange-600 transition-colors"
-          >
-            Проверить симптомы
-          </Link>
+          <DashboardActions cats={cats ?? []} />
         </div>
         {(profile?.credits ?? 0) === 0 && (
           <div className="mt-4 text-sm text-orange-700 bg-orange-50 rounded-lg px-4 py-3">
