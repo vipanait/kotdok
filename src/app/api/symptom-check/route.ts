@@ -22,11 +22,17 @@ EMERGENCY (go now): seizures, difficulty breathing, urinary blockage in male cat
 URGENT (within 24h): not eating >24h, vomiting >3x, blood in urine/stool, hiding + lethargy combo, significant weight loss
 MONITOR (watch 48h): single vomit, mild sneezing, slight appetite change
 HOME CARE: minor wounds, mild hairball, normal grooming changes
+HEALTHY (nothing to do): the described behavior is a normal feline trait or a one-off harmless event — e.g. seasonal shedding, purring while kneading, a single sneeze with no other signs, brief post-play panting, normal grooming, occasional zoomies. Use this ONLY when you are confident no action is needed and there are no red flags in the description, quick-assessment answers, photo, or cat profile. If there is any doubt, prefer MONITOR or HOME CARE.
+
+For HEALTHY:
+- home_care_steps should be empty or contain at most one short reassurance ("Продолжайте обычный уход").
+- vet_questions should be an empty array.
+- cat_specific_warning should be null unless the breed/age genuinely changes the picture.
 
 OUTPUT FORMAT (always valid JSON, no markdown). All text fields must be in Russian.
 
 {
-  "urgency": "emergency|urgent|monitor|home_care",
+  "urgency": "emergency|urgent|monitor|home_care|healthy",
   "urgency_reason": "одно предложение почему",
   "photo_observations": "что видно на фото, или null если фото нет",
   "possible_causes": ["причина 1", "причина 2", "причина 3"],
@@ -63,7 +69,7 @@ async function getVetContext(symptoms: string): Promise<string> {
     .join('\n\n---\n\n')
 }
 
-const VALID_URGENCY: Urgency[] = ['emergency', 'urgent', 'monitor', 'home_care']
+const VALID_URGENCY: Urgency[] = ['emergency', 'urgent', 'monitor', 'home_care', 'healthy']
 
 function validateAIResponse(raw: unknown): SymptomCheckResult {
   if (typeof raw !== 'object' || raw === null) throw new Error('AI response is not an object')

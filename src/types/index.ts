@@ -1,4 +1,4 @@
-export type Urgency = 'emergency' | 'urgent' | 'monitor' | 'home_care'
+export type Urgency = 'emergency' | 'urgent' | 'monitor' | 'home_care' | 'healthy'
 
 export interface SymptomCheckResult {
   urgency: Urgency
