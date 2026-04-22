@@ -42,6 +42,7 @@ export default function CatForm({ cat }: Props) {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [deleting, setDeleting] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -85,7 +86,6 @@ export default function CatForm({ cat }: Props) {
   }
 
   async function handleDelete() {
-    if (!confirm('Удалить профиль кота?')) return
     setDeleting(true)
     await fetch(`/api/cats/${cat!.id}`, { method: 'DELETE' })
     router.push('/dashboard')
@@ -280,7 +280,7 @@ export default function CatForm({ cat }: Props) {
             {isEdit && (
               <button
                 type="button"
-                onClick={handleDelete}
+                onClick={() => setConfirmDelete(true)}
                 disabled={deleting}
                 className="px-4 py-3 rounded-xl text-sm font-medium text-red-600 border border-red-200 hover:bg-red-50 transition-colors disabled:opacity-50"
               >
@@ -297,6 +297,40 @@ export default function CatForm({ cat }: Props) {
           </div>
         </form>
       </div>
+
+      {confirmDelete && isEdit && (
+        <div
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 sm:p-4"
+          onClick={e => { if (e.target === e.currentTarget && !deleting) setConfirmDelete(false) }}
+        >
+          <div className="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-sm p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-2">
+              Удалить профиль {cat!.name}?
+            </h2>
+            <p className="text-sm text-gray-600 mb-5">
+              Профиль и вся история проверок по этому коту будут скрыты. Отменить действие нельзя.
+            </p>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setConfirmDelete(false)}
+                disabled={deleting}
+                className="flex-1 bg-white border border-gray-200 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition-colors text-sm disabled:opacity-50"
+              >
+                Отмена
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={deleting}
+                className="flex-1 bg-red-600 text-white py-3 rounded-xl font-medium hover:bg-red-700 transition-colors text-sm disabled:opacity-50"
+              >
+                {deleting ? 'Удаляем...' : 'Удалить'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
