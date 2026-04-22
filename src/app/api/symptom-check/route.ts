@@ -165,7 +165,7 @@ export async function POST(request: NextRequest) {
     let catContext = ''
     if (cat_id) {
       const { data: cat } = await supabase
-        .from('cats').select('*').eq('id', cat_id).eq('user_id', user.id).single()
+        .from('cats').select('*').eq('id', cat_id).eq('user_id', user.id).is('deleted_at', null).single()
       if (cat) {
         const parts = [
           cat.name,

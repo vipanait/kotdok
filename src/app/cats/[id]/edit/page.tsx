@@ -20,6 +20,7 @@ export default async function EditCatPage({ params }: { params: Promise<{ id: st
     .select('*')
     .eq('id', id)
     .eq('user_id', user.id)
+    .is('deleted_at', null)
     .single()
 
   if (!cat) notFound()

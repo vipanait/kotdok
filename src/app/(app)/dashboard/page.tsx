@@ -17,12 +17,14 @@ export default async function DashboardPage() {
       .from('symptom_checks')
       .select('id, symptoms_input, urgency, created_at')
       .eq('user_id', user.id)
+      .is('deleted_at', null)
       .order('created_at', { ascending: false })
       .limit(10),
     service
       .from('cats')
       .select('id, name, breed, age_years, sex')
       .eq('user_id', user.id)
+      .is('deleted_at', null)
       .order('created_at', { ascending: true }),
   ])
 

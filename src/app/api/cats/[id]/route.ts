@@ -19,6 +19,7 @@ export async function PUT(
     .update(sanitizeCat(body))
     .eq('id', id)
     .eq('user_id', user.id)
+    .is('deleted_at', null)
     .select()
     .single()
 
@@ -36,16 +37,27 @@ export async function DELETE(
 
   const { id } = await params
   const supabase = createServiceClient()
+  const now = new Date().toISOString()
 
   const { data, error } = await supabase
     .from('cats')
-    .delete()
+    .update({ deleted_at: now })
     .eq('id', id)
     .eq('user_id', user.id)
+    .is('deleted_at', null)
     .select()
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   if (!data) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+
+  const { error: checksError } = await supabase
+    .from('symptom_checks')
+    .update({ deleted_at: now })
+    .eq('cat_id', id)
+    .eq('user_id', user.id)
+    .is('deleted_at', null)
+
+  if (checksError) return NextResponse.json({ error: checksError.message }, { status: 500 })
   return new NextResponse(null, { status: 204 })
 }

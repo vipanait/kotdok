@@ -23,6 +23,7 @@ export default async function CheckResultPage({ params }: { params: Promise<{ id
     .select('*')
     .eq('id', id)
     .eq('user_id', user.id)
+    .is('deleted_at', null)
     .single()
 
   if (!check) notFound()
