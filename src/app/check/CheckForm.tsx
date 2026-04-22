@@ -108,6 +108,7 @@ export default function CheckForm({ cats, onClose }: Props) {
 
     setResult(data)
     setLoading(false)
+    router.refresh()
   }
 
   const urgency = result ? URGENCY_CONFIG[result.urgency] : null
