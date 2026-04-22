@@ -243,7 +243,7 @@ export default function CheckForm({ cats, onClose }: Props) {
     </form>
   )
 
-  const resultContent = (
+  const resultContent = result && urgency ? (
     <div className="space-y-4">
       <div className={`rounded-2xl border-2 p-6 ${urgency!.color}`}>
         <div className="text-4xl mb-2">{urgency!.emoji}</div>
@@ -345,7 +345,7 @@ export default function CheckForm({ cats, onClose }: Props) {
 
       <p className="text-center text-xs text-gray-400">Осталось credits: {result!.credits_remaining}</p>
     </div>
-  )
+  ) : null
 
   if (onClose) {
     return (
