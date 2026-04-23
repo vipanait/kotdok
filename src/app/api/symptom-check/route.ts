@@ -248,15 +248,7 @@ export async function POST(request: NextRequest) {
     }
     const result = validateAIResponse(parsed)
 
-    // Deduct credit
-    const { error: creditError } = await supabase
-      .from('profiles')
-      .update({ credits: profile.credits - 1 })
-      .eq('id', user.id)
-    if (creditError) throw new Error('Failed to deduct credit')
-    await supabase.from('credit_transactions').insert({ user_id: user.id, amount: -1, type: 'usage' })
-
-    // Save to history
+    // Save check first so the ledger entry can reference it.
     const { data: check } = await supabase
       .from('symptom_checks')
       .insert({
@@ -274,6 +266,14 @@ export async function POST(request: NextRequest) {
       .select('id')
       .single()
 
+    // Atomic balance decrement + ledger entry. Raises 'insufficient_credits' if race loss.
+    const { data: usage, error: usageError } = await supabase.rpc('apply_symptom_check_usage', {
+      p_user_id: user.id,
+      p_symptom_check_id: check?.id ?? null,
+    })
+    if (usageError) throw new Error(usageError.message)
+    const newBalance = (usage as { new_balance: number } | null)?.new_balance ?? profile.credits - 1
+
     return NextResponse.json({
       ...result,
       has_photo: photoBase64List.length > 0,
@@ -282,7 +282,7 @@ export async function POST(request: NextRequest) {
       duration,
       stool,
       check_id: check?.id,
-      credits_remaining: profile.credits - 1,
+      credits_remaining: newBalance,
     })
   } catch (error) {
     console.error('symptom-check error:', error)
