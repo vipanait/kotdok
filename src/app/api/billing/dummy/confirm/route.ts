@@ -4,7 +4,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import { getAuthUser } from '@/lib/server-auth'
-import { siteUrl } from '@/lib/payments/registry'
 import type { DummyWebhookPayload } from '@/lib/payments/dummy'
 
 interface Body {
@@ -53,7 +52,7 @@ export async function POST(request: NextRequest) {
     payload.cardExpYear = new Date().getFullYear() + 3
   }
 
-  const webhookUrl = `${siteUrl()}/api/billing/webhook/dummy`
+  const webhookUrl = `${request.nextUrl.origin}/api/billing/webhook/dummy`
   const res = await fetch(webhookUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
