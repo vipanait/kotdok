@@ -1,6 +1,10 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import LapkaLogo from '@/components/LapkaLogo'
+import { getLocale } from '@/lib/i18n/getLocale'
+import { getDictionary } from '@/lib/i18n/getDictionary'
+import type { Dictionary } from '@/lib/i18n/dictionaries/ru'
+import { createClient } from '@/lib/supabase/server'
 
 export const metadata: Metadata = {
   title: 'Лапка — экстренная проверка симптомов кошки',
@@ -9,7 +13,14 @@ export const metadata: Metadata = {
   openGraph: { url: 'https://lapka.my' },
 }
 
-export default function Home() {
+export default async function Home() {
+  const locale = await getLocale()
+  const dict = await getDictionary(locale)
+  const t = dict.home
+
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
   return (
     <div className="min-h-screen bg-[#F7F6F4] text-black">
       <div className="relative mx-auto max-w-[1200px] px-10 py-10 lg:h-[760px]">
@@ -19,10 +30,10 @@ export default function Home() {
             <LapkaLogo />
           </Link>
           <Link
-            href="/login"
+            href={user ? '/dashboard' : '/login'}
             className="text-sm font-bold text-black/[.44] hover:text-black/70 transition-colors"
           >
-            Войти
+            {user ? dict.dashboard.title : t.signIn}
           </Link>
         </header>
 
@@ -39,14 +50,14 @@ export default function Home() {
                 fontWeight: 860,
               }}
             >
-              Экстренная проверка симптомов пушистика
+              {t.hero}
             </h1>
 
             <p
               className="mt-12 max-w-[564px] font-semibold text-black/[.44]"
               style={{ fontSize: '22px', lineHeight: '27px', letterSpacing: '-0.03em' }}
             >
-              Когда с питомцем что-то не так, важно быстро понять, насколько срочная ситуация. Короткий опрос подскажет, нужно ли наблюдать, записаться к врачу или действовать срочно.
+              {t.description}
             </p>
 
             <div className="mt-auto pt-16 flex flex-wrap items-center gap-6">
@@ -54,26 +65,27 @@ export default function Home() {
                 href="/register"
                 className="flex h-[140px] w-[140px] shrink-0 items-center justify-center rounded-full bg-[#FC7A00] text-white text-center font-semibold text-[17px] leading-[21px] hover:bg-[#e36c00] transition-colors px-6"
               >
-                Проверить симптомы
+                {t.checkSymptoms}
               </Link>
 
               <ul className="flex items-stretch gap-5 text-sm font-bold leading-[17px]">
-                <li className="max-w-[110px]">Рекомендации<br />за 1 минуту</li>
-                <li className="w-px bg-[#D9D9D9]" aria-hidden />
-                <li className="max-w-[89px]">Оценка<br />срочности</li>
-                <li className="w-px bg-[#D9D9D9]" aria-hidden />
-                <li className="max-w-[118px]">Вопросы<br />для ветеринара</li>
+                {[t.tag1, t.tag2, t.tag3].map((tag, i) => (
+                  <li key={i} className={i > 0 ? 'flex items-center gap-5' : undefined}>
+                    {i > 0 && <span className="w-px bg-[#D9D9D9] self-stretch" aria-hidden />}
+                    <span className="max-w-[118px] whitespace-pre-line">{tag}</span>
+                  </li>
+                ))}
               </ul>
             </div>
 
             <p className="mt-10 text-sm font-bold text-black/[.44]">
-              Не заменяет осмотр ветеринара
+              {dict.common.vetDisclaimer}
             </p>
           </div>
 
           {/* Right column: app preview */}
           <div className="relative hidden lg:block">
-            <AppPreview />
+            <AppPreview t={t} />
           </div>
         </div>
       </div>
@@ -81,43 +93,44 @@ export default function Home() {
   )
 }
 
-function AppPreview() {
+function AppPreview({ t }: { t: Dictionary['home'] }) {
+  const p = t.preview
   return (
     <div className="absolute -top-2 left-0 right-0 overflow-hidden rounded-[28px] bg-white shadow-[0_30px_80px_-20px_rgba(0,0,0,0.15)]">
       <div className="space-y-5 p-6">
         <div className="flex items-center gap-3 rounded-2xl bg-orange-50 p-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-orange-200 text-2xl">🐱</div>
           <div className="min-w-0 flex-1">
-            <p className="text-[10px] uppercase tracking-wide text-gray-500">Выбранный питомец</p>
-            <p className="text-base font-semibold">Бублик</p>
-            <p className="text-xs text-gray-500">Рыжий кот · 1 год · 4.5 кг · Домашний</p>
+            <p className="text-[10px] uppercase tracking-wide text-gray-500">{p.selectedPet}</p>
+            <p className="text-base font-semibold">{p.catName}</p>
+            <p className="text-xs text-gray-500">{p.catDetails}</p>
           </div>
           <span className="rounded-full border border-orange-200 bg-white px-3 py-1 text-xs font-medium text-orange-700">
-            Профиль заполнен
+            {p.profileFilled}
           </span>
         </div>
 
         <div>
           <div className="flex items-center justify-between">
-            <h3 className="text-xl font-bold">Опишите симптомы</h3>
+            <h3 className="text-xl font-bold">{p.describeSymptoms}</h3>
             <span className="text-lg text-gray-400">×</span>
           </div>
-          <p className="mt-1 text-xs text-gray-500">Чем подробнее — тем точнее. Можно добавить фото.</p>
+          <p className="mt-1 text-xs text-gray-500">{p.moreDetail}</p>
         </div>
 
-        <ChipGroup label="Аппетит" options={['Ест нормально', 'Ест меньше', 'Не ест']} active={0} />
-        <ChipGroup label="Активность" options={['Бодрый', 'Менее активный', 'Вялый']} active={0} />
-        <ChipGroup label="Симптомы длятся" options={['Сегодня', '2–3 дня', 'Больше недели']} active={2} />
-        <ChipGroup label="Стул" options={['Нормальный', 'Жидкий (понос)', 'Отсутствует', 'С кровью']} active={0} />
+        <ChipGroup label={p.appetiteLabel} options={p.appetiteOptions} active={0} />
+        <ChipGroup label={p.activityLabel} options={p.activityOptions} active={0} />
+        <ChipGroup label={p.durationLabel} options={p.durationOptions} active={2} />
+        <ChipGroup label={p.stoolLabel} options={p.stoolOptions} active={0} />
 
         <div className="rounded-xl border border-gray-200 px-4 py-3 text-xs text-gray-400">
-          Опишите подробнее: что именно происходит, когда началось, как ведёт себя кошка...
+          {p.symptomsPlaceholder}
         </div>
 
         <div className="rounded-xl border border-dashed border-gray-300 py-5 text-center">
           <div className="text-2xl">📷</div>
-          <p className="mt-1 text-sm font-semibold">Добавить фото (необязательно)</p>
-          <p className="text-[11px] text-gray-400">Рана, глаз, кожа, поза — до 5 МБ каждое</p>
+          <p className="mt-1 text-sm font-semibold">{p.addPhoto}</p>
+          <p className="text-[11px] text-gray-400">{p.photoHint}</p>
         </div>
       </div>
     </div>

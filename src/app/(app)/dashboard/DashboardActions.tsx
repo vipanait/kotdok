@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
 import type { Cat } from '@/types'
+import { useTranslations } from '@/components/LocaleProvider'
 
 const CheckModal = dynamic(() => import('./CheckModal'), { ssr: false })
 
@@ -12,6 +13,8 @@ interface Props {
 }
 
 export default function DashboardActions({ cats }: Props) {
+  const dict = useTranslations()
+  const t = dict.dashboard
   const [open, setOpen] = useState(false)
 
   if (!cats.length) {
@@ -21,9 +24,9 @@ export default function DashboardActions({ cats }: Props) {
           href="/cats/new"
           className="bg-orange-500 text-white px-6 py-3 rounded-xl font-medium hover:bg-orange-600 transition-colors inline-block"
         >
-          Добавить кота
+          {t.addCatBtn}
         </Link>
-        <p className="text-xs text-gray-400 mt-1.5">нужен для проверки симптомов</p>
+        <p className="text-xs text-gray-400 mt-1.5">{t.addCatHint}</p>
       </div>
     )
   }
@@ -34,7 +37,7 @@ export default function DashboardActions({ cats }: Props) {
         onClick={() => setOpen(true)}
         className="bg-orange-500 text-white px-6 py-3 rounded-xl font-medium hover:bg-orange-600 transition-colors"
       >
-        Проверить симптомы
+        {t.checkSymptomsBtn}
       </button>
       {open && <CheckModal cats={cats} onClose={() => setOpen(false)} />}
     </>

@@ -6,7 +6,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import type { SymptomCheckResult, Cat } from '@/types'
 import { URGENCY_CONFIG } from '@/lib/urgency'
-import { APPETITE_LABELS, ACTIVITY_LABELS, DURATION_LABELS, STOOL_LABELS } from '@/lib/check-params'
+import { useTranslations } from '@/components/LocaleProvider'
+import AppShell from '@/components/AppShell'
 
 interface Props {
   cats: Pick<Cat, 'id' | 'name' | 'breed' | 'age_years' | 'sex'>[]
@@ -15,6 +16,8 @@ interface Props {
 
 export default function CheckForm({ cats, onClose }: Props) {
   const router = useRouter()
+  const dict = useTranslations()
+  const t = dict.check
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [selectedCatId, setSelectedCatId] = useState<string>(cats[0]?.id ?? '')
@@ -42,7 +45,7 @@ export default function CheckForm({ cats, onClose }: Props) {
 
     const oversized = toAdd.filter(f => f.size > MAX_PHOTO_SIZE)
     if (oversized.length) {
-      setError(`Каждое фото — до 5 МБ. Превышают лимит: ${oversized.map(f => f.name).join(', ')}`)
+      setError(t.photoSizeError.replace('{names}', oversized.map(f => f.name).join(', ')))
       if (fileInputRef.current) fileInputRef.current.value = ''
       return
     }
@@ -50,8 +53,11 @@ export default function CheckForm({ cats, onClose }: Props) {
     const newPreviews = toAdd.map(f => URL.createObjectURL(f))
     setPhotos(prev => [...prev, ...toAdd])
     setPhotoPreviews(prev => [...prev, ...newPreviews])
-    if (skipped > 0) setError(`Можно добавить не более ${MAX_PHOTOS} фото. ${skipped} фото пропущено.`)
-    else setError('')
+    if (skipped > 0) {
+      setError(t.photoCountError.replace('{max}', String(MAX_PHOTOS)).replace('{skipped}', String(skipped)))
+    } else {
+      setError('')
+    }
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
@@ -101,7 +107,7 @@ export default function CheckForm({ cats, onClose }: Props) {
     if (!res.ok) {
       if (res.status === 401) router.push('/login')
       else if (res.status === 402) { onClose?.(); router.push('/dashboard?upgrade=1') }
-      else setError(data.error || 'Произошла ошибка. Попробуйте ещё раз.')
+      else setError(data.error || t.errorGeneric)
       setLoading(false)
       return
     }
@@ -111,14 +117,45 @@ export default function CheckForm({ cats, onClose }: Props) {
     router.refresh()
   }
 
-  const urgency = result ? URGENCY_CONFIG[result.urgency] : null
+  const urgencyConfig = result ? URGENCY_CONFIG[result.urgency] : null
+  const urgencyText = result ? dict.urgency[result.urgency as keyof typeof dict.urgency] : null
   const selectedCat = cats.find(c => c.id === selectedCatId)
+
+  const appetiteOptions = [
+    { value: 'normal', label: t.appetiteNormal },
+    { value: 'reduced', label: t.appetiteReduced },
+    { value: 'none', label: t.appetiteNone },
+  ]
+
+  const activityOptions = [
+    { value: 'normal', label: t.activityNormal },
+    { value: 'low', label: t.activityLow },
+    { value: 'lethargic', label: t.activityLethargic },
+  ]
+
+  const durationOptions = [
+    { value: 'today', label: t.durationToday },
+    { value: '2-3days', label: t.duration2_3days },
+    { value: 'week+', label: t.durationWeekPlus },
+  ]
+
+  const stoolOptions = [
+    { value: 'normal', label: t.stoolNormal },
+    { value: 'loose', label: t.stoolLoose },
+    { value: 'absent', label: t.stoolAbsent },
+    { value: 'bloody', label: t.stoolBloody },
+  ]
+
+  const appetiteLabels = Object.fromEntries(appetiteOptions.map(o => [o.value, o.label]))
+  const activityLabels = Object.fromEntries(activityOptions.map(o => [o.value, o.label]))
+  const durationLabels = Object.fromEntries(durationOptions.map(o => [o.value, o.label]))
+  const stoolLabels = Object.fromEntries(stoolOptions.map(o => [o.value, o.label]))
 
   const formContent = (
     <form onSubmit={handleSubmit} className="space-y-4">
       {cats.length > 1 && (
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Чей кот?</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{t.whichCat}</label>
           <select
             value={selectedCatId}
             onChange={e => setSelectedCatId(e.target.value)}
@@ -126,66 +163,29 @@ export default function CheckForm({ cats, onClose }: Props) {
           >
             {cats.map(cat => (
               <option key={cat.id} value={cat.id}>
-                {cat.name}{cat.breed ? ` (${cat.breed})` : ''}{cat.age_years ? `, ${cat.age_years} лет` : ''}
+                {cat.name}{cat.breed ? ` (${cat.breed})` : ''}{cat.age_years ? `, ${cat.age_years}` : ''}
               </option>
             ))}
           </select>
           {selectedCat && (
             <p className="text-xs text-gray-400 mt-1">
-              Профиль {selectedCat.name} будет учтён при анализе
+              {t.catProfile.replace('{name}', selectedCat.name)}
             </p>
           )}
         </div>
       )}
 
       <div className="space-y-3">
-        <ChipGroup
-          label="Аппетит"
-          value={appetite}
-          onChange={setAppetite}
-          options={[
-            { value: 'normal', label: 'Ест нормально' },
-            { value: 'reduced', label: 'Ест меньше' },
-            { value: 'none', label: 'Не ест' },
-          ]}
-        />
-        <ChipGroup
-          label="Активность"
-          value={activity}
-          onChange={setActivity}
-          options={[
-            { value: 'normal', label: 'Бодрый' },
-            { value: 'low', label: 'Менее активный' },
-            { value: 'lethargic', label: 'Вялый' },
-          ]}
-        />
-        <ChipGroup
-          label="Симптомы длятся"
-          value={duration}
-          onChange={setDuration}
-          options={[
-            { value: 'today', label: 'Сегодня' },
-            { value: '2-3days', label: '2–3 дня' },
-            { value: 'week+', label: 'Больше недели' },
-          ]}
-        />
-        <ChipGroup
-          label="Стул"
-          value={stool}
-          onChange={setStool}
-          options={[
-            { value: 'normal', label: 'Нормальный' },
-            { value: 'loose', label: 'Жидкий (понос)' },
-            { value: 'absent', label: 'Отсутствует' },
-            { value: 'bloody', label: 'С кровью' },
-          ]}
-        />
+        <ChipGroup label={t.appetite} value={appetite} onChange={setAppetite} options={appetiteOptions} />
+        <ChipGroup label={t.activity} value={activity} onChange={setActivity} options={activityOptions} />
+        <ChipGroup label={t.duration} value={duration} onChange={setDuration} options={durationOptions} />
+        <ChipGroup label={t.stool} value={stool} onChange={setStool} options={stoolOptions} />
       </div>
 
       <textarea
         value={symptoms}
         onChange={e => setSymptoms(e.target.value)}
-        placeholder="Опишите подробнее: что именно происходит, когда началось, как ведёт себя кошка..."
+        placeholder={t.symptomsPlaceholder}
         rows={4}
         className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 resize-none"
       />
@@ -195,7 +195,7 @@ export default function CheckForm({ cats, onClose }: Props) {
           <div className="grid grid-cols-3 gap-2">
             {photoPreviews.map((src, i) => (
               <div key={i} className="relative rounded-xl overflow-hidden border border-gray-200 aspect-square">
-                <Image src={src} alt={`Фото ${i + 1}`} fill className="object-cover" />
+                <Image src={src} alt={`Photo ${i + 1}`} fill className="object-cover" />
                 <button
                   type="button"
                   onClick={() => removePhoto(i)}
@@ -214,9 +214,11 @@ export default function CheckForm({ cats, onClose }: Props) {
           >
             <div className="text-2xl mb-1">📷</div>
             <div className="text-sm font-medium text-gray-600">
-              {photos.length === 0 ? 'Добавить фото (необязательно)' : `Ещё фото (${photos.length}/${MAX_PHOTOS})`}
+              {photos.length === 0
+                ? t.addPhoto
+                : t.morePhotos.replace('{count}', String(photos.length)).replace('{max}', String(MAX_PHOTOS))}
             </div>
-            <div className="text-xs text-gray-400 mt-1">Рана, глаз, кожа, поза — до 5 МБ каждое</div>
+            <div className="text-xs text-gray-400 mt-1">{t.photoHint}</div>
           </div>
         )}
         <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handlePhotoChange} />
@@ -235,48 +237,50 @@ export default function CheckForm({ cats, onClose }: Props) {
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
             </svg>
-            {photos.length > 0 ? 'Анализируем фото (~20 сек)...' : 'Анализируем (~15 сек)...'}
+            {photos.length > 0 ? t.analyzingPhotos : t.analyzing}
           </span>
         ) : (
-          photos.length > 0 ? `Анализировать фото (${photos.length}) + симптомы` : 'Проверить симптомы'
+          photos.length > 0
+            ? t.analyzeWithPhotos.replace('{n}', String(photos.length))
+            : t.checkSymptoms
         )}
       </button>
     </form>
   )
 
-  const resultContent = result && urgency ? (
+  const resultContent = result && urgencyConfig && urgencyText ? (
     <div className="space-y-4">
-      <div className={`rounded-2xl border-2 p-6 ${urgency!.color}`}>
-        <div className="text-4xl mb-2">{urgency!.emoji}</div>
-        <div className="text-2xl font-bold mb-1">{urgency!.label}</div>
-        <div className="text-lg font-medium mb-2">{urgency!.action}</div>
-        <div className="text-sm opacity-75">{result!.urgency_reason}</div>
+      <div className={`rounded-2xl border-2 p-6 ${urgencyConfig.color}`}>
+        <div className="text-4xl mb-2">{urgencyConfig.emoji}</div>
+        <div className="text-2xl font-bold mb-1">{urgencyText.label}</div>
+        <div className="text-lg font-medium mb-2">{urgencyText.action}</div>
+        <div className="text-sm opacity-75">{result.urgency_reason}</div>
       </div>
 
-      {(result!.appetite || result!.activity || result!.duration || result!.stool) && (
+      {(result.appetite || result.activity || result.duration || result.stool) && (
         <div className="bg-gray-50 rounded-2xl border border-gray-100 p-4">
-          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Указано при проверке</p>
+          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">{t.notedDuringCheck}</p>
           <div className="flex flex-wrap gap-2">
-            {result!.appetite && <Chip label={`Аппетит: ${APPETITE_LABELS[result!.appetite] ?? result!.appetite}`} />}
-            {result!.activity && <Chip label={`Активность: ${ACTIVITY_LABELS[result!.activity] ?? result!.activity}`} />}
-            {result!.duration && <Chip label={`Длительность: ${DURATION_LABELS[result!.duration] ?? result!.duration}`} />}
-            {result!.stool && <Chip label={`Стул: ${STOOL_LABELS[result!.stool] ?? result!.stool}`} />}
+            {result.appetite && <Chip label={`${t.appetitePrefix}: ${appetiteLabels[result.appetite] ?? result.appetite}`} />}
+            {result.activity && <Chip label={`${t.activityPrefix}: ${activityLabels[result.activity] ?? result.activity}`} />}
+            {result.duration && <Chip label={`${t.durationPrefix}: ${durationLabels[result.duration] ?? result.duration}`} />}
+            {result.stool && <Chip label={`${t.stoolPrefix}: ${stoolLabels[result.stool] ?? result.stool}`} />}
           </div>
         </div>
       )}
 
-      {result!.has_photo && result!.photo_observations && (
+      {result.has_photo && result.photo_observations && (
         <div className="bg-blue-50 border border-blue-200 rounded-2xl p-6">
-          <h2 className="font-semibold text-blue-900 mb-2">📷 Что видно на фото</h2>
-          <p className="text-sm text-blue-800">{result!.photo_observations}</p>
+          <h2 className="font-semibold text-blue-900 mb-2">{t.photoObservations}</h2>
+          <p className="text-sm text-blue-800">{result.photo_observations}</p>
         </div>
       )}
 
-      {result!.possible_causes.length > 0 && (
+      {result.possible_causes.length > 0 && (
         <div className="bg-white rounded-2xl border border-gray-100 p-6">
-          <h2 className="font-semibold text-gray-900 mb-3">Возможные причины</h2>
+          <h2 className="font-semibold text-gray-900 mb-3">{t.possibleCauses}</h2>
           <ul className="space-y-2">
-            {result!.possible_causes.map((cause, i) => (
+            {result.possible_causes.map((cause, i) => (
               <li key={i} className="flex gap-2 text-sm text-gray-700">
                 <span className="text-gray-400 mt-0.5 shrink-0">•</span>
                 {cause}
@@ -286,18 +290,18 @@ export default function CheckForm({ cats, onClose }: Props) {
         </div>
       )}
 
-      {result!.cat_specific_warning && (
+      {result.cat_specific_warning && (
         <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6">
-          <h2 className="font-semibold text-amber-900 mb-2">⚠️ Важно для кошек</h2>
-          <p className="text-sm text-amber-800">{result!.cat_specific_warning}</p>
+          <h2 className="font-semibold text-amber-900 mb-2">{t.catWarning}</h2>
+          <p className="text-sm text-amber-800">{result.cat_specific_warning}</p>
         </div>
       )}
 
-      {result!.home_care_steps.length > 0 && (
+      {result.home_care_steps.length > 0 && (
         <div className="bg-white rounded-2xl border border-gray-100 p-6">
-          <h2 className="font-semibold text-gray-900 mb-3">Что делать дома</h2>
+          <h2 className="font-semibold text-gray-900 mb-3">{t.homeCare}</h2>
           <ol className="space-y-2">
-            {result!.home_care_steps.map((step, i) => (
+            {result.home_care_steps.map((step, i) => (
               <li key={i} className="flex gap-3 text-sm text-gray-700">
                 <span className="text-orange-500 font-medium shrink-0">{i + 1}.</span>
                 {step}
@@ -307,11 +311,11 @@ export default function CheckForm({ cats, onClose }: Props) {
         </div>
       )}
 
-      {result!.vet_questions.length > 0 && (
+      {result.vet_questions.length > 0 && (
         <div className="bg-white rounded-2xl border border-gray-100 p-6">
-          <h2 className="font-semibold text-gray-900 mb-3">📋 Вопросы для ветеринара</h2>
+          <h2 className="font-semibold text-gray-900 mb-3">{t.vetQuestions}</h2>
           <ul className="space-y-2">
-            {result!.vet_questions.map((q, i) => (
+            {result.vet_questions.map((q, i) => (
               <li key={i} className="text-sm text-gray-700 border-b border-gray-50 pb-2 last:border-0 last:pb-0">{q}</li>
             ))}
           </ul>
@@ -319,7 +323,7 @@ export default function CheckForm({ cats, onClose }: Props) {
       )}
 
       <div className="bg-gray-50 rounded-xl p-4 text-xs text-gray-500 text-center">
-        {result!.disclaimer}
+        {result.disclaimer}
       </div>
 
       <div className="flex gap-3">
@@ -327,7 +331,7 @@ export default function CheckForm({ cats, onClose }: Props) {
           onClick={() => { setResult(null); setSymptoms(''); removeAllPhotos() }}
           className="flex-1 bg-white border border-gray-200 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition-colors text-sm"
         >
-          Новая проверка
+          {t.newCheck}
         </button>
         {onClose ? (
           <button
@@ -335,16 +339,18 @@ export default function CheckForm({ cats, onClose }: Props) {
             onClick={onClose}
             className="flex-1 bg-orange-500 text-white py-3 rounded-xl font-medium hover:bg-orange-600 transition-colors text-sm"
           >
-            Закрыть
+            {dict.common.close}
           </button>
         ) : (
           <Link href="/dashboard" className="flex-1 bg-orange-500 text-white py-3 rounded-xl font-medium hover:bg-orange-600 transition-colors text-sm text-center">
-            В личный кабинет
+            {t.toAccount}
           </Link>
         )}
       </div>
 
-      <p className="text-center text-xs text-gray-400">Осталось credits: {result!.credits_remaining}</p>
+      <p className="text-center text-xs text-gray-400">
+        {t.creditsRemaining.replace('{n}', String(result.credits_remaining))}
+      </p>
     </div>
   ) : null
 
@@ -353,18 +359,16 @@ export default function CheckForm({ cats, onClose }: Props) {
       <div className="p-6">
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">Опишите симптомы</h2>
+            <h2 className="text-lg font-semibold text-gray-900">{t.modalHeading}</h2>
             {!result && (
-              <p className="text-xs text-gray-400 mt-0.5">
-                Чем подробнее — тем точнее. Можно добавить фото.
-              </p>
+              <p className="text-xs text-gray-400 mt-0.5">{t.modalSubheading}</p>
             )}
           </div>
           <button
             type="button"
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-xl leading-none"
-            aria-label="Закрыть"
+            aria-label={dict.common.close}
           >
             ×
           </button>
@@ -375,24 +379,19 @@ export default function CheckForm({ cats, onClose }: Props) {
   }
 
   return (
-    <div className="min-h-screen px-4 py-8 max-w-2xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
-        <Link href="/dashboard" className="text-2xl font-bold">🐱 Лапка</Link>
-        <Link href="/dashboard" className="text-sm text-gray-500 hover:text-gray-700">← Назад</Link>
-      </div>
-
+    <AppShell right={
+      <Link href="/dashboard" className="text-sm text-gray-500 hover:text-gray-700">{dict.common.back}</Link>
+    }>
       {!result ? (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <h1 className="text-xl font-semibold text-gray-900 mb-1">Опишите симптомы</h1>
-          <p className="text-sm text-gray-500 mb-6">
-            Чем подробнее — тем точнее. Укажите как давно, как часто, как ведёт себя кошка. Можно добавить фото.
-          </p>
+          <h1 className="text-xl font-semibold text-gray-900 mb-1">{t.pageHeading}</h1>
+          <p className="text-sm text-gray-500 mb-6">{t.pageSubheading}</p>
           {formContent}
         </div>
       ) : (
         resultContent
       )}
-    </div>
+    </AppShell>
   )
 }
 

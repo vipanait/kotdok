@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import AppShell from '@/components/AppShell'
 
 export const metadata = {
   title: 'Пользовательское соглашение — Лапка',
@@ -6,11 +7,7 @@ export const metadata = {
 
 export default function LegalPage() {
   return (
-    <div className="min-h-screen px-4 py-12 max-w-2xl mx-auto">
-      <div className="mb-8">
-        <Link href="/" className="text-2xl font-bold">🐱 Лапка</Link>
-      </div>
-
+    <AppShell logoHref="/">
       <div className="prose prose-sm max-w-none text-gray-700 space-y-6">
         <h1 className="text-2xl font-bold text-gray-900">Пользовательское соглашение</h1>
         <p className="text-sm text-gray-400">Редакция от 14 апреля 2026 г.</p>
@@ -156,6 +153,6 @@ export default function LegalPage() {
           <Link href="/" className="text-sm text-orange-500 hover:underline">← На главную</Link>
         </div>
       </div>
-    </div>
+    </AppShell>
   )
 }

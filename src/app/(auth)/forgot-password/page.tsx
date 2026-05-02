@@ -4,8 +4,12 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import AuthShell from '@/components/AuthShell'
+import { useTranslations } from '@/components/LocaleProvider'
 
 export default function ForgotPasswordPage() {
+  const dict = useTranslations()
+  const t = dict.auth.forgotPassword
+
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
   const [sent, setSent] = useState(false)
@@ -22,7 +26,7 @@ export default function ForgotPasswordPage() {
     })
 
     if (error) {
-      setError('Не удалось отправить письмо. Проверьте email и попробуйте снова.')
+      setError(t.errorSend)
       setLoading(false)
       return
     }
@@ -33,23 +37,19 @@ export default function ForgotPasswordPage() {
 
   return (
     <AuthShell
-      heading={sent ? 'Письмо отправлено' : 'Забыли пароль? Бывает.'}
-      subheading={
-        sent
-          ? 'Перейдите по ссылке в письме, чтобы задать новый пароль. Письмо может прийти в течение пары минут.'
-          : 'Введите email вашего аккаунта — пришлём ссылку для сброса пароля.'
-      }
+      heading={sent ? t.headingSent : t.heading}
+      subheading={sent ? t.subheadingSent : t.subheading}
       topRight={
         <span>
-          Вспомнили?{' '}
-          <Link href="/login" className="text-[#FC7A00] hover:underline">Войти</Link>
+          {t.remembered}{' '}
+          <Link href="/login" className="text-[#FC7A00] hover:underline">{t.signIn}</Link>
         </span>
       }
       footer={
         <>
-          Нет аккаунта?{' '}
+          {t.noAccount}{' '}
           <Link href="/register" className="text-[#FC7A00] hover:underline font-medium">
-            Зарегистрироваться
+            {t.registerLink}
           </Link>
         </>
       }
@@ -58,13 +58,13 @@ export default function ForgotPasswordPage() {
         <div className="space-y-3 py-2 text-center">
           <div className="text-4xl">📬</div>
           <p className="text-sm text-gray-700">
-            Письмо отправлено на <span className="font-medium">{email}</span>
+            {t.sentTo} <span className="font-medium">{email}</span>
           </p>
           <Link
             href="/login"
             className="inline-block bg-[#FC7A00] text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#e36c00] transition-colors mt-2"
           >
-            Вернуться ко входу
+            {t.backToLogin}
           </Link>
         </div>
       ) : (
@@ -88,7 +88,7 @@ export default function ForgotPasswordPage() {
               disabled={loading}
               className="w-full rounded-xl bg-[#FC7A00] py-3 text-sm font-semibold text-white hover:bg-[#e36c00] transition-colors disabled:opacity-50"
             >
-              {loading ? 'Отправляем...' : 'Отправить ссылку'}
+              {loading ? t.submitting : t.submit}
             </button>
           </form>
         </div>

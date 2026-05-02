@@ -5,6 +5,9 @@ import { createClient, createServiceClient } from '@/lib/supabase/server'
 import type { PaymentMethod, TxStatus } from '@/types/billing'
 import { formatMoney, TX_STATUS_LABEL, TX_STATUS_STYLE } from '@/lib/billing-format'
 import BillingMethodsClient from './BillingMethodsClient'
+import { getLocale } from '@/lib/i18n/getLocale'
+import { getDictionary } from '@/lib/i18n/getDictionary'
+import AppShell from '@/components/AppShell'
 
 export const metadata: Metadata = {
   title: 'История операций — Лапка',
@@ -26,6 +29,10 @@ export default async function BillingPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login?next=/billing')
 
+  const locale = await getLocale()
+  const dict = await getDictionary(locale)
+  const t = dict.billing
+
   const service = createServiceClient()
   const [{ data: txRaw }, { data: methodsRaw }] = await Promise.all([
     service
@@ -46,37 +53,35 @@ export default async function BillingPage() {
   const methods = (methodsRaw ?? []) as PaymentMethod[]
 
   return (
-    <div className="min-h-screen px-4 py-8 max-w-2xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
-        <Link href="/dashboard" className="text-2xl font-bold">🐱 Лапка</Link>
-        <Link href="/dashboard" className="text-sm text-gray-500 hover:text-gray-700">← В кабинет</Link>
-      </div>
+    <AppShell right={
+      <Link href="/dashboard" className="text-sm text-gray-500 hover:text-gray-700">{dict.common.backToAccount}</Link>
+    }>
 
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">История операций</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{t.title}</h1>
         <Link
           href="/pricing"
           className="bg-orange-500 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-orange-600 transition-colors"
         >
-          Пополнить
+          {t.topUp}
         </Link>
       </div>
 
       {/* Saved cards */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 mb-6">
-        <h2 className="font-semibold text-gray-900 mb-3">Сохранённые карты</h2>
+        <h2 className="font-semibold text-gray-900 mb-3">{t.savedCards}</h2>
         {methods.length ? (
           <BillingMethodsClient initialMethods={methods} />
         ) : (
-          <p className="text-sm text-gray-500">Нет сохранённых карт. Поставьте галочку «Сохранить карту» при следующей покупке.</p>
+          <p className="text-sm text-gray-500">{t.noSavedCards}</p>
         )}
       </div>
 
       {/* Transactions */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-        <h2 className="font-semibold text-gray-900 mb-3">Операции</h2>
+        <h2 className="font-semibold text-gray-900 mb-3">{t.transactions}</h2>
         {!transactions.length ? (
-          <p className="text-sm text-gray-500">Операций пока нет.</p>
+          <p className="text-sm text-gray-500">{t.noTransactions}</p>
         ) : (
           <ul className="divide-y divide-gray-50">
             {transactions.map(tx => {
@@ -85,10 +90,10 @@ export default async function BillingPage() {
                 <li key={tx.id} className="py-3 flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-gray-800 truncate">
-                      {pkgName ?? `${tx.units_total} проверок`}
+                      {pkgName ?? t.checks.replace('{n}', String(tx.units_total))}
                     </p>
                     <p className="text-xs text-gray-400 mt-0.5">
-                      {new Date(tx.created_at).toLocaleDateString('ru-RU', {
+                      {new Date(tx.created_at).toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
                         day: 'numeric',
                         month: 'long',
                         year: 'numeric',
@@ -111,6 +116,6 @@ export default async function BillingPage() {
           </ul>
         )}
       </div>
-    </div>
+    </AppShell>
   )
 }

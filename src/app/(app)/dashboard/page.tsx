@@ -3,11 +3,18 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { URGENCY_EMOJI } from '@/lib/urgency'
 import DashboardActions from './DashboardActions'
+import { getLocale } from '@/lib/i18n/getLocale'
+import { getDictionary } from '@/lib/i18n/getDictionary'
+import AppShell from '@/components/AppShell'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
+
+  const locale = await getLocale()
+  const dict = await getDictionary(locale)
+  const t = dict.dashboard
 
   const service = createServiceClient()
 
@@ -29,28 +36,26 @@ export default async function DashboardPage() {
   ])
 
   return (
-    <div className="min-h-screen px-4 py-8 max-w-2xl mx-auto">
-      <h1 className="sr-only">Личный кабинет</h1>
-      <div className="flex items-center justify-between mb-8">
-        <span className="text-2xl font-bold">🐱 Лапка</span>
-        <form action="/api/auth/signout" method="post">
-          <button className="text-sm text-gray-500 hover:text-gray-700">Выйти</button>
-        </form>
-      </div>
+    <AppShell right={
+      <form action="/api/auth/signout" method="post">
+        <button className="text-sm text-gray-500 hover:text-gray-700">{dict.common.signOut}</button>
+      </form>
+    }>
+      <h1 className="sr-only">{t.title}</h1>
 
       {/* Credits */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-4">
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-sm text-gray-500">Доступно проверок</div>
+            <div className="text-sm text-gray-500">{t.availableChecks}</div>
             <div className="text-4xl font-bold text-gray-900">{profile?.credits ?? 0}</div>
           </div>
           <DashboardActions cats={cats ?? []} />
         </div>
         {(profile?.credits ?? 0) === 0 && (
           <div className="mt-4 text-sm text-orange-700 bg-orange-50 rounded-lg px-4 py-3">
-            Credits закончились.{' '}
-            <Link href="/pricing" className="underline font-medium">Пополнить</Link>
+            {t.creditsOut}{' '}
+            <Link href="/pricing" className="underline font-medium">{t.topUp}</Link>
           </div>
         )}
         <div className="flex gap-3 mt-4">
@@ -58,25 +63,25 @@ export default async function DashboardPage() {
             href="/pricing"
             className="flex-1 bg-orange-500 text-white text-sm font-medium text-center px-4 py-2.5 rounded-xl hover:bg-orange-600 transition-colors"
           >
-            Пополнить
+            {t.topUp}
           </Link>
           <Link
             href="/billing"
             className="flex-1 bg-white border border-gray-200 text-gray-700 text-sm font-medium text-center px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-colors"
           >
-            История операций
+            {t.transactionHistory}
           </Link>
         </div>
       </div>
 
-      {/* Мои коты */}
+      {/* My cats */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-4">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-gray-900">Мои коты</h2>
-          <Link href="/cats/new" className="text-sm text-orange-500 hover:text-orange-600 font-medium">+ Добавить</Link>
+          <h2 className="font-semibold text-gray-900">{t.myCats}</h2>
+          <Link href="/cats/new" className="text-sm text-orange-500 hover:text-orange-600 font-medium">{t.addCat}</Link>
         </div>
         {!cats?.length ? (
-          <p className="text-sm text-gray-500">Добавьте профиль кота — это улучшит точность анализа симптомов.</p>
+          <p className="text-sm text-gray-500">{t.noCats}</p>
         ) : (
           <ul className="space-y-2">
             {cats.map((cat: { id: string; name: string; breed: string | null; age_years: number | null; sex: string | null }) => (
@@ -87,23 +92,23 @@ export default async function DashboardPage() {
                     <span className="text-sm font-medium text-gray-800">{cat.name}</span>
                     {(cat.breed || cat.age_years) && (
                       <span className="text-xs text-gray-400 ml-2">
-                        {[cat.breed, cat.age_years ? `${cat.age_years} лет` : null].filter(Boolean).join(', ')}
+                        {[cat.breed, cat.age_years ? `${cat.age_years} ${t.yearsOld}` : null].filter(Boolean).join(', ')}
                       </span>
                     )}
                   </div>
                 </div>
-                <Link href={`/cats/${cat.id}/edit`} className="text-xs text-gray-400 hover:text-gray-600">Изменить</Link>
+                <Link href={`/cats/${cat.id}/edit`} className="text-xs text-gray-400 hover:text-gray-600">{dict.common.edit}</Link>
               </li>
             ))}
           </ul>
         )}
       </div>
 
-      {/* История */}
+      {/* Check history */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-        <h2 className="font-semibold text-gray-900 mb-4">История проверок</h2>
+        <h2 className="font-semibold text-gray-900 mb-4">{t.checkHistory}</h2>
         {!checks?.length ? (
-          <p className="text-sm text-gray-500">Проверок пока нет. Опишите симптомы кошки — получите ответ за 15 секунд.</p>
+          <p className="text-sm text-gray-500">{t.noChecks}</p>
         ) : (
           <ul className="space-y-3">
             {checks.map((check: { id: string; symptoms_input: string; urgency: string; created_at: string }) => (
@@ -113,7 +118,7 @@ export default async function DashboardPage() {
                   <div className="min-w-0">
                     <p className="text-sm text-gray-800 line-clamp-2">{check.symptoms_input}</p>
                     <p className="text-xs text-gray-400 mt-1">
-                      {new Date(check.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}
+                      {new Date(check.created_at).toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}
                     </p>
                   </div>
                 </Link>
@@ -123,8 +128,8 @@ export default async function DashboardPage() {
         )}
       </div>
       <p className="text-center text-xs text-gray-400 mt-6">
-        <Link href="/legal" className="hover:underline">Пользовательское соглашение</Link>
+        <Link href="/legal" className="hover:underline">{t.tos}</Link>
       </p>
-    </div>
+    </AppShell>
   )
 }

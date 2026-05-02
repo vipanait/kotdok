@@ -5,9 +5,13 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import AuthShell from '@/components/AuthShell'
+import { useTranslations } from '@/components/LocaleProvider'
 
 export default function RegisterPage() {
   const router = useRouter()
+  const dict = useTranslations()
+  const t = dict.auth.register
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -45,26 +49,26 @@ export default function RegisterPage() {
       options: { redirectTo: `${window.location.origin}/auth/callback` },
     })
     if (error) {
-      setError('Не удалось войти через Google')
+      setError(t.errorGoogle)
       setGoogleLoading(false)
     }
   }
 
   return (
     <AuthShell
-      heading="Создайте аккаунт за минуту"
-      subheading="3 проверки бесплатно. Карта не нужна. Опишите симптомы — получите уровень срочности и понятные шаги."
+      heading={t.heading}
+      subheading={t.subheading}
       topRight={
         <span>
-          Уже с нами?{' '}
-          <Link href="/login" className="text-[#FC7A00] hover:underline">Войти</Link>
+          {t.alreadyMember}{' '}
+          <Link href="/login" className="text-[#FC7A00] hover:underline">{t.signIn}</Link>
         </span>
       }
       footer={
         <>
-          Регистрируясь, вы принимаете{' '}
+          {t.tosPrefix}{' '}
           <Link href="/legal" className="underline hover:text-black/70">
-            пользовательское соглашение
+            {t.tosLink}
           </Link>
         </>
       }
@@ -81,12 +85,12 @@ export default function RegisterPage() {
           className="flex w-full items-center justify-center gap-3 rounded-xl border border-gray-200 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
         >
           <GoogleIcon />
-          {googleLoading ? 'Перенаправление...' : 'Продолжить через Google'}
+          {googleLoading ? dict.common.redirecting : t.googleBtn}
         </button>
 
         <div className="flex items-center gap-3">
           <div className="h-px flex-1 bg-gray-100" />
-          <span className="text-xs text-gray-400">или</span>
+          <span className="text-xs text-gray-400">{dict.common.or}</span>
           <div className="h-px flex-1 bg-gray-100" />
         </div>
 
@@ -102,7 +106,9 @@ export default function RegisterPage() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Пароль</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              {dict.auth.login.password}
+            </label>
             <input
               type="password"
               required
@@ -111,14 +117,14 @@ export default function RegisterPage() {
               onChange={e => setPassword(e.target.value)}
               className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#FC7A00]/40"
             />
-            <p className="mt-1 text-xs text-gray-400">Минимум 6 символов</p>
+            <p className="mt-1 text-xs text-gray-400">{t.passwordHint}</p>
           </div>
           <button
             type="submit"
             disabled={loading}
             className="w-full rounded-xl bg-[#FC7A00] py-3 text-sm font-semibold text-white hover:bg-[#e36c00] transition-colors disabled:opacity-50"
           >
-            {loading ? 'Создаём...' : 'Зарегистрироваться'}
+            {loading ? t.submitting : t.submit}
           </button>
         </form>
       </div>

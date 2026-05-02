@@ -1,5 +1,8 @@
+'use client'
+
 import Link from 'next/link'
 import LapkaLogo from './LapkaLogo'
+import { useTranslations } from './LocaleProvider'
 
 interface Props {
   heading: string
@@ -10,6 +13,7 @@ interface Props {
 }
 
 export default function AuthShell({ heading, subheading, topRight, children, footer }: Props) {
+  const dict = useTranslations()
   return (
     <div className="min-h-screen bg-[#F7F6F4] text-black">
       <div className="relative mx-auto flex min-h-screen max-w-[1200px] flex-col px-10 py-10 lg:min-h-[760px]">
@@ -60,7 +64,7 @@ export default function AuthShell({ heading, subheading, topRight, children, foo
         </div>
 
         <p className="mt-10 text-sm font-bold text-black/[.44]">
-          Не заменяет осмотр ветеринара
+          {dict.common.vetDisclaimer}
         </p>
       </div>
     </div>

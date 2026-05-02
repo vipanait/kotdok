@@ -4,6 +4,9 @@ import { redirect } from 'next/navigation'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import PricingClient from './PricingClient'
 import type { Package, PaymentMethod } from '@/types/billing'
+import { getLocale } from '@/lib/i18n/getLocale'
+import { getDictionary } from '@/lib/i18n/getDictionary'
+import AppShell from '@/components/AppShell'
 
 export const metadata: Metadata = {
   title: 'Пополнить — Лапка',
@@ -14,6 +17,10 @@ export default async function PricingPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login?next=/pricing')
+
+  const locale = await getLocale()
+  const dict = await getDictionary(locale)
+  const t = dict.pricing
 
   const service = createServiceClient()
   const [{ data: packagesRaw }, { data: profile }, { data: methodsRaw }] = await Promise.all([
@@ -36,24 +43,21 @@ export default async function PricingPage() {
   const credits = profile?.credits ?? 0
 
   return (
-    <div className="min-h-screen px-4 py-8 max-w-2xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
-        <Link href="/dashboard" className="text-2xl font-bold">🐱 Лапка</Link>
-        <Link href="/dashboard" className="text-sm text-gray-500 hover:text-gray-700">← Назад</Link>
-      </div>
-
+    <AppShell right={
+      <Link href="/dashboard" className="text-sm text-gray-500 hover:text-gray-700">{dict.common.back}</Link>
+    }>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-1">Пополнить баланс</h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-1">{t.title}</h1>
         <p className="text-sm text-gray-500">
-          Сейчас доступно проверок: <span className="font-medium text-gray-900">{credits}</span>
+          {t.availableChecks.replace('{n}', String(credits))}
         </p>
       </div>
 
       <PricingClient packages={packages} methods={methods} />
 
       <p className="text-xs text-gray-400 mt-6 text-center">
-        Оплата проходит через Tinkoff. Карта сохраняется по желанию для быстрых повторных покупок.
+        {t.paymentNote}
       </p>
-    </div>
+    </AppShell>
   )
 }
