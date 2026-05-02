@@ -24,7 +24,7 @@ export interface ChargeSavedInput {
   amountCents: number
   currency: string
   description: string
-  /** Provider-specific saved-card id (for Tinkoff: RebillId). */
+  /** Provider-specific saved-card token (e.g. recurring billing id). */
   providerPmId: string
 }
 
@@ -35,7 +35,7 @@ export interface ChargeSavedResult {
 /** Normalized webhook event emitted by a provider. */
 export interface ProviderWebhookEvent {
   providerPaymentId: string
-  /** Stable id for idempotency. For Tinkoff we synthesize `${PaymentId}:${Status}`. */
+  /** Stable id for idempotency. Synthesize one if the PSP doesn't provide it. */
   providerEventId: string
   status: 'succeeded' | 'failed' | 'canceled' | 'authorized'
   reason?: string
@@ -54,7 +54,7 @@ export interface PaymentProvider {
   chargeSaved(input: ChargeSavedInput): Promise<ChargeSavedResult>
   /**
    * Verifies signature and parses the notification body.
-   * Returns null for events we choose to ignore (e.g. NEW, FORM_SHOWED for Tinkoff).
+   * Returns null for events we choose to ignore (e.g. intermediate "form shown" notifications).
    * Throws on signature mismatch.
    */
   parseWebhook(rawBody: string, headers?: Headers): Promise<ProviderWebhookEvent | null>

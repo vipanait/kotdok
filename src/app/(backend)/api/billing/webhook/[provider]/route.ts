@@ -16,7 +16,7 @@ export async function POST(
     await applyProviderWebhook(provider, rawBody, request.headers)
   } catch (err) {
     console.error(`[webhook ${provider}] error:`, err)
-    // Do not leak details to the provider. Tinkoff expects plain "OK" on success;
+    // Do not leak details to the provider. PSPs typically expect "OK" on success;
     // a non-OK body lets them retry, which is what we want on signature failure.
     return new NextResponse('WEBHOOK_FAILED', { status: 400 })
   }

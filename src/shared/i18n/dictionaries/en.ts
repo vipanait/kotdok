@@ -272,7 +272,7 @@ const en: Dictionary = {
     title: 'Top up balance',
     availableChecks: 'Currently available checks: {n}',
     paymentNote:
-      'Payment is processed through Tinkoff. The card can be saved for quick future purchases.',
+      'Test payment mode. The card can be saved for quick future purchases.',
   },
 }
 
