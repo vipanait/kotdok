@@ -1,8 +1,8 @@
 import { createClient, createServiceClient } from '@/server/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { URGENCY_EMOJI } from '@/shared/utils/urgency'
 import DashboardActions from '@/features/dashboard/DashboardActions'
+import DashboardHistory from '@/features/dashboard/DashboardHistory'
 import { getLocale } from '@/server/i18n/get-locale'
 import { getDictionary } from '@/server/i18n/get-dictionary'
 import AppShell from '@/components/AppShell'
@@ -22,7 +22,7 @@ export default async function DashboardPage() {
     service.from('profiles').select('credits, plan').eq('id', user.id).single(),
     service
       .from('symptom_checks')
-      .select('id, symptoms_input, urgency, created_at')
+      .select('id, symptoms_input, urgency, urgency_reason, possible_causes, cat_specific_warning, home_care_steps, vet_questions, full_response, created_at')
       .eq('user_id', user.id)
       .is('deleted_at', null)
       .order('created_at', { ascending: false })
@@ -107,25 +107,7 @@ export default async function DashboardPage() {
       {/* Check history */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
         <h2 className="font-semibold text-gray-900 mb-4">{t.checkHistory}</h2>
-        {!checks?.length ? (
-          <p className="text-sm text-gray-500">{t.noChecks}</p>
-        ) : (
-          <ul className="space-y-3">
-            {checks.map((check: { id: string; symptoms_input: string; urgency: string; created_at: string }) => (
-              <li key={check.id}>
-                <Link href={`/check/${check.id}`} className="flex gap-3 items-start border-b border-gray-50 pb-3 last:border-0 last:pb-0 hover:bg-gray-50 rounded-lg px-2 py-1 -mx-2 transition-colors">
-                  <span className="text-xl shrink-0">{URGENCY_EMOJI[check.urgency] ?? '⚪'}</span>
-                  <div className="min-w-0">
-                    <p className="text-sm text-gray-800 line-clamp-2">{check.symptoms_input}</p>
-                    <p className="text-xs text-gray-400 mt-1">
-                      {new Date(check.created_at).toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}
-                    </p>
-                  </div>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
+        <DashboardHistory checks={checks ?? []} />
       </div>
       <p className="text-center text-xs text-gray-400 mt-6">
         <Link href="/legal" className="hover:underline">{t.tos}</Link>
