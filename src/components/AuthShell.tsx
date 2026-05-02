@@ -59,7 +59,7 @@ export default function AuthShell({ heading, subheading, topRight, children, foo
           </div>
         </div>
 
-        <p className="mt-10 text-sm font-bold text-black/[.44] lg:absolute lg:bottom-10 lg:left-10 lg:mt-0">
+        <p className="mt-10 text-sm font-bold text-black/[.44]">
           Не заменяет осмотр ветеринара
         </p>
       </div>

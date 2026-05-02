@@ -66,7 +66,7 @@ export default function Home() {
               </ul>
             </div>
 
-            <p className="mt-10 text-sm font-bold text-black/[.44] lg:absolute lg:bottom-10 lg:left-10 lg:mt-0">
+            <p className="mt-10 text-sm font-bold text-black/[.44]">
               Не заменяет осмотр ветеринара
             </p>
           </div>
