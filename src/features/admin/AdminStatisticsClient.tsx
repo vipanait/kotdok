@@ -1,7 +1,16 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useMemo } from 'react'
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+  type TooltipProps,
+} from 'recharts'
 import { useLocale, useTranslations } from '@/components/LocaleProvider'
 import type { AdminStatistics, AdminStatisticsDailyPoint, AdminStatisticsPeriod } from '@/shared/types/admin'
 import { formatMoney } from '@/shared/utils/billing-format'
@@ -104,10 +113,8 @@ function LineChart({
   formatValue?: (value: number) => string
 }) {
   const values = points.map(point => point[valueKey])
-  const max = Math.max(...values, 0)
   const latest = values.at(-1) ?? 0
   const total = values.reduce((sum, value) => sum + value, 0)
-  const path = useMemo(() => buildPath(values, max), [values, max])
 
   return (
     <section className="rounded-xl border border-gray-100 p-4">
@@ -123,48 +130,60 @@ function LineChart({
           <div className="text-xs text-gray-400">{formatValue(latest)}</div>
         </div>
       </div>
-      <svg viewBox="0 0 320 120" role="img" aria-label={title} className="h-32 w-full overflow-visible">
-        <line x1="0" y1="104" x2="320" y2="104" stroke="currentColor" className="text-gray-100" />
-        {path ? (
-          <>
-            <path d={path.area} fill="currentColor" className="text-orange-100" />
-            <path d={path.line} fill="none" stroke="currentColor" strokeWidth="3" className="text-orange-500" />
-          </>
-        ) : (
-          <line x1="0" y1="104" x2="320" y2="104" stroke="currentColor" strokeWidth="3" className="text-orange-200" />
-        )}
-      </svg>
+      <div className="h-44">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={points} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+            <defs>
+              <linearGradient id={`${valueKey}-gradient`} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#f97316" stopOpacity={0.32} />
+                <stop offset="95%" stopColor="#f97316" stopOpacity={0.04} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid stroke="#f3f4f6" strokeDasharray="3 3" vertical={false} />
+            <XAxis
+              dataKey="date"
+              tickFormatter={value => formatDate(value, locale)}
+              tickLine={false}
+              axisLine={false}
+              tick={{ fill: '#9ca3af', fontSize: 11 }}
+              minTickGap={18}
+            />
+            <YAxis
+              width={44}
+              tickFormatter={value => compactValue(Number(value), locale)}
+              tickLine={false}
+              axisLine={false}
+              tick={{ fill: '#9ca3af', fontSize: 11 }}
+            />
+            <Tooltip
+              cursor={{ stroke: '#fed7aa', strokeWidth: 2 }}
+              content={<ChartTooltip locale={locale} valueKey={valueKey} formatValue={formatValue} />}
+            />
+            <Area
+              type="monotone"
+              dataKey={valueKey}
+              stroke="#f97316"
+              strokeWidth={3}
+              fill={`url(#${valueKey}-gradient)`}
+              dot={false}
+              activeDot={{ r: 4, strokeWidth: 2, fill: '#fff', stroke: '#f97316' }}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
     </section>
   )
 }
 
-function buildPath(values: number[], max: number): { line: string; area: string } | null {
-  if (!values.length) return null
-
-  const width = 320
-  const top = 12
-  const bottom = 104
-  const range = bottom - top
-  const denominator = Math.max(values.length - 1, 1)
-  const coordinates = values.map((value, index) => {
-    const x = (index / denominator) * width
-    const y = max > 0 ? bottom - (value / max) * range : bottom
-    return { x, y }
-  })
-  const line = coordinates
-    .map(({ x, y }, index) => `${index === 0 ? 'M' : 'L'} ${x.toFixed(2)} ${y.toFixed(2)}`)
-    .join(' ')
-  const first = coordinates[0]
-  const last = coordinates[coordinates.length - 1]
-
-  return {
-    line,
-    area: `${line} L ${last.x.toFixed(2)} ${bottom} L ${first.x.toFixed(2)} ${bottom} Z`,
-  }
-}
-
 function formatNumber(value: number, locale: string): string {
   return new Intl.NumberFormat(locale === 'ru' ? 'ru-RU' : 'en-US').format(value)
+}
+
+function compactValue(value: number, locale: string): string {
+  return new Intl.NumberFormat(locale === 'ru' ? 'ru-RU' : 'en-US', {
+    notation: 'compact',
+    maximumFractionDigits: 1,
+  }).format(value)
 }
 
 function formatDate(value: string | undefined, locale: string): string {
@@ -173,4 +192,27 @@ function formatDate(value: string | undefined, locale: string): string {
     day: 'numeric',
     month: 'short',
   })
+}
+
+function ChartTooltip({
+  active,
+  payload,
+  label,
+  locale,
+  formatValue,
+}: TooltipProps<number, string> & {
+  locale: string
+  valueKey: keyof Pick<AdminStatisticsDailyPoint, 'registrations' | 'payments' | 'paymentAmount'>
+  formatValue: (value: number) => string
+}) {
+  if (!active || !payload?.length) return null
+
+  return (
+    <div className="rounded-xl border border-gray-100 bg-white/95 px-3 py-2 text-xs shadow-lg">
+      <div className="font-medium text-gray-700">{formatDate(String(label), locale)}</div>
+      <div className="mt-1 font-semibold text-orange-600">
+        {formatValue(Number(payload[0]?.value ?? 0))}
+      </div>
+    </div>
+  )
 }
