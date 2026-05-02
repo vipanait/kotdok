@@ -4,7 +4,7 @@ import "./globals.css";
 
 const geist = Geist({ subsets: ["latin"] });
 
-const siteUrl = 'https://kotdok.vercel.app'
+const siteUrl = 'https://lapka.my'
 
 const jsonLd = {
   '@context': 'https://schema.org',
