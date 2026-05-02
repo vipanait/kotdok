@@ -12,11 +12,8 @@ interface PurchaseBody {
 }
 
 function getAppBaseUrl(request: NextRequest): string {
-  const configuredUrl = process.env.APP_BASE_URL
+  const configuredUrl = process.env.APP_BASE_URL ?? process.env.NEXT_PUBLIC_APP_URL
   if (configuredUrl) return configuredUrl.replace(/\/$/, '')
-  if (process.env.NODE_ENV === 'production') {
-    throw new Error('APP_BASE_URL is required for payment redirects')
-  }
   return request.nextUrl.origin
 }
 
