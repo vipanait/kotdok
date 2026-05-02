@@ -1,7 +1,7 @@
 // Mock payment provider used in development. The "hosted page" lives at
 // /billing/dummy/[transaction_id]; clicking "Pay" there hits our own webhook
 // at /api/billing/webhook/dummy with a simple JSON body, simulating what a
-// real PSP (Tinkoff, Stripe, ...) would do server-to-server.
+// real PSP would do server-to-server.
 
 import 'server-only'
 
