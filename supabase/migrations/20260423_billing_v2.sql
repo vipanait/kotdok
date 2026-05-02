@@ -1,14 +1,15 @@
 -- Billing v2: packages catalog, transactions with status history, credit ledger,
--- payment methods for multi-provider (Tinkoff on start, Stripe/YooKassa ready).
---
--- IMPORTANT: If you had a stripe-era `payment_methods` table, rename it first:
---   alter table public.payment_methods rename to payment_methods_legacy;
+-- payment methods. Multi-provider-ready, but only the `dummy` provider is wired
+-- in the application layer for now.
 
 -- ========== Enums ==========
 
 do $$ begin
-  create type public.payment_provider as enum ('tinkoff', 'stripe', 'yookassa');
+  create type public.payment_provider as enum ('dummy');
 exception when duplicate_object then null; end $$;
+
+-- Allow re-running on databases where 'dummy' wasn't part of the original enum.
+alter type public.payment_provider add value if not exists 'dummy';
 
 do $$ begin
   create type public.tx_status as enum ('created', 'pending', 'authorized', 'succeeded', 'failed', 'canceled', 'refunded');

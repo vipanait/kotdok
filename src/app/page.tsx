@@ -1,65 +1,147 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import LapkaLogo from '@/components/LapkaLogo'
 
 export const metadata: Metadata = {
-  title: 'КотДок — AI симптомчекер для кошек',
-  description: 'Узнайте насколько серьёзны симптомы вашей кошки за 15 секунд. Опишите что происходит — получите чёткий ответ с уровнем срочности.',
-  alternates: {
-    canonical: 'https://kotdok.vercel.app',
-  },
-  openGraph: {
-    url: 'https://kotdok.vercel.app',
-  },
+  title: 'Лапка — экстренная проверка симптомов кошки',
+  description: 'Когда с питомцем что-то не так, важно быстро понять, насколько срочная ситуация. Короткий опрос подскажет, нужно ли наблюдать, записаться к врачу или действовать срочно.',
+  alternates: { canonical: 'https://lapka.my' },
+  openGraph: { url: 'https://lapka.my' },
 }
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="px-6 py-4 flex items-center justify-between max-w-5xl mx-auto w-full">
-        <span className="text-xl font-bold">🐱 КотДок</span>
-        <div className="flex gap-3">
-          <Link href="/login" className="text-sm text-gray-600 hover:text-gray-900 px-4 py-2">Войти</Link>
-          <Link href="/register" className="text-sm bg-orange-500 text-white px-4 py-2 rounded-full hover:bg-orange-600 transition-colors">Начать бесплатно</Link>
-        </div>
-      </header>
-
-      <main className="flex-1 flex flex-col items-center justify-center px-6 text-center">
-        <div className="max-w-2xl">
-          <div className="text-6xl mb-6">🐱</div>
-          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4 leading-tight">
-            Симптомы кошки —<br />ждать или срочно к врачу?
-          </h1>
-          <p className="text-xl text-gray-600 mb-8">
-            AI-симптомчекер только для кошек. Опишите что происходит — получите чёткий ответ с уровнем срочности за 15 секунд.
-          </p>
-          <Link href="/register" className="inline-block bg-orange-500 text-white text-lg px-8 py-4 rounded-full hover:bg-orange-600 transition-colors font-medium">
-            Проверить симптомы бесплатно
+    <div className="min-h-screen bg-[#F7F6F4] text-black">
+      <div className="relative mx-auto max-w-[1200px] px-10 py-10 lg:h-[760px]">
+        {/* Header */}
+        <header className="flex items-start justify-between">
+          <Link href="/" aria-label="Лапка" className="block">
+            <LapkaLogo />
           </Link>
-          <p className="text-sm text-gray-400 mt-3">3 проверки бесплатно. Карта не нужна.</p>
+          <Link
+            href="/login"
+            className="text-sm font-bold text-black/[.44] hover:text-black/70 transition-colors"
+          >
+            Войти
+          </Link>
+        </header>
+
+        {/* Two-column area */}
+        <div className="mt-12 grid gap-12 lg:mt-[60px] lg:grid-cols-[minmax(0,636px)_minmax(0,1fr)]">
+          {/* Left column */}
+          <div className="flex flex-col">
+            <h1
+              className="font-black text-black"
+              style={{
+                fontSize: 'clamp(40px, 6vw, 60px)',
+                lineHeight: 1,
+                letterSpacing: '-0.02em',
+                fontWeight: 860,
+              }}
+            >
+              Экстренная проверка симптомов пушистика
+            </h1>
+
+            <p
+              className="mt-12 max-w-[564px] font-semibold text-black/[.44]"
+              style={{ fontSize: '22px', lineHeight: '27px', letterSpacing: '-0.03em' }}
+            >
+              Когда с питомцем что-то не так, важно быстро понять, насколько срочная ситуация. Короткий опрос подскажет, нужно ли наблюдать, записаться к врачу или действовать срочно.
+            </p>
+
+            <div className="mt-auto pt-16 flex flex-wrap items-center gap-6">
+              <Link
+                href="/register"
+                className="flex h-[140px] w-[140px] shrink-0 items-center justify-center rounded-full bg-[#FC7A00] text-white text-center font-semibold text-[17px] leading-[21px] hover:bg-[#e36c00] transition-colors px-6"
+              >
+                Проверить симптомы
+              </Link>
+
+              <ul className="flex items-stretch gap-5 text-sm font-bold leading-[17px]">
+                <li className="max-w-[110px]">Рекомендации<br />за 1 минуту</li>
+                <li className="w-px bg-[#D9D9D9]" aria-hidden />
+                <li className="max-w-[89px]">Оценка<br />срочности</li>
+                <li className="w-px bg-[#D9D9D9]" aria-hidden />
+                <li className="max-w-[118px]">Вопросы<br />для ветеринара</li>
+              </ul>
+            </div>
+
+            <p className="mt-10 text-sm font-bold text-black/[.44] lg:absolute lg:bottom-10 lg:left-10 lg:mt-0">
+              Не заменяет осмотр ветеринара
+            </p>
+          </div>
+
+          {/* Right column: app preview */}
+          <div className="relative hidden lg:block">
+            <AppPreview />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function AppPreview() {
+  return (
+    <div className="absolute -top-2 left-0 right-0 overflow-hidden rounded-[28px] bg-white shadow-[0_30px_80px_-20px_rgba(0,0,0,0.15)]">
+      <div className="space-y-5 p-6">
+        <div className="flex items-center gap-3 rounded-2xl bg-orange-50 p-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-orange-200 text-2xl">🐱</div>
+          <div className="min-w-0 flex-1">
+            <p className="text-[10px] uppercase tracking-wide text-gray-500">Выбранный питомец</p>
+            <p className="text-base font-semibold">Бублик</p>
+            <p className="text-xs text-gray-500">Рыжий кот · 1 год · 4.5 кг · Домашний</p>
+          </div>
+          <span className="rounded-full border border-orange-200 bg-white px-3 py-1 text-xs font-medium text-orange-700">
+            Профиль заполнен
+          </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-20 max-w-3xl w-full text-left">
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <div className="text-3xl mb-3">🔴</div>
-            <div className="font-semibold text-gray-900 mb-1">Экстренно</div>
-            <div className="text-sm text-gray-600">Едем в клинику прямо сейчас</div>
+        <div>
+          <div className="flex items-center justify-between">
+            <h3 className="text-xl font-bold">Опишите симптомы</h3>
+            <span className="text-lg text-gray-400">×</span>
           </div>
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <div className="text-3xl mb-3">🟠</div>
-            <div className="font-semibold text-gray-900 mb-1">Срочно</div>
-            <div className="text-sm text-gray-600">К врачу в течение 24 часов</div>
-          </div>
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <div className="text-3xl mb-3">🟡</div>
-            <div className="font-semibold text-gray-900 mb-1">Наблюдаем</div>
-            <div className="text-sm text-gray-600">Следим 48 часов дома</div>
-          </div>
+          <p className="mt-1 text-xs text-gray-500">Чем подробнее — тем точнее. Можно добавить фото.</p>
         </div>
-      </main>
 
-      <footer className="text-center text-sm text-gray-400 py-8">
-        КотДок — информационный инструмент. Не заменяет консультацию ветеринара.
-      </footer>
+        <ChipGroup label="Аппетит" options={['Ест нормально', 'Ест меньше', 'Не ест']} active={0} />
+        <ChipGroup label="Активность" options={['Бодрый', 'Менее активный', 'Вялый']} active={0} />
+        <ChipGroup label="Симптомы длятся" options={['Сегодня', '2–3 дня', 'Больше недели']} active={2} />
+        <ChipGroup label="Стул" options={['Нормальный', 'Жидкий (понос)', 'Отсутствует', 'С кровью']} active={0} />
+
+        <div className="rounded-xl border border-gray-200 px-4 py-3 text-xs text-gray-400">
+          Опишите подробнее: что именно происходит, когда началось, как ведёт себя кошка...
+        </div>
+
+        <div className="rounded-xl border border-dashed border-gray-300 py-5 text-center">
+          <div className="text-2xl">📷</div>
+          <p className="mt-1 text-sm font-semibold">Добавить фото (необязательно)</p>
+          <p className="text-[11px] text-gray-400">Рана, глаз, кожа, поза — до 5 МБ каждое</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ChipGroup({ label, options, active }: { label: string; options: string[]; active: number }) {
+  return (
+    <div>
+      <p className="mb-2 text-xs font-semibold">{label}</p>
+      <div className="flex flex-wrap gap-2">
+        {options.map((opt, i) => (
+          <span
+            key={opt}
+            className={`rounded-full border px-3 py-1.5 text-xs font-medium ${
+              i === active
+                ? 'border-orange-300 bg-orange-50 text-orange-700'
+                : 'border-gray-200 bg-white text-gray-700'
+            }`}
+          >
+            {opt}
+          </span>
+        ))}
+      </div>
     </div>
   )
 }

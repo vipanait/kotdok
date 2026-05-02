@@ -3,7 +3,7 @@ import { createServiceClient } from '@/lib/supabase/server'
 import { getProvider } from '@/lib/payments/registry'
 import type { PaymentProviderName } from '@/types/billing'
 
-const VALID_PROVIDERS: PaymentProviderName[] = ['tinkoff', 'stripe', 'yookassa']
+const VALID_PROVIDERS: PaymentProviderName[] = ['dummy']
 
 export async function POST(
   request: NextRequest,

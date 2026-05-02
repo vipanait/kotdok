@@ -1,30 +1,23 @@
 import type { PaymentProviderName } from '@/types/billing'
 import type { PaymentProvider } from './provider'
-import { TinkoffProvider } from './tinkoff'
+import { DummyProvider } from './dummy'
 
-function mustEnv(name: string): string {
-  const v = process.env[name]
-  if (!v) throw new Error(`Missing env var: ${name}`)
-  return v
-}
+let dummySingleton: DummyProvider | null = null
 
-let tinkoffSingleton: TinkoffProvider | null = null
-
-function siteUrl(): string {
-  return process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? 'https://kotdok.vercel.app'
+export function siteUrl(): string {
+  const explicit = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '')
+  if (explicit) return explicit
+  const vercel = process.env.VERCEL_URL
+  if (vercel) return `https://${vercel.replace(/\/$/, '')}`
+  if (process.env.NODE_ENV === 'development') return 'http://localhost:3000'
+  return 'https://lapka.my'
 }
 
 export function getProvider(name: PaymentProviderName): PaymentProvider {
   switch (name) {
-    case 'tinkoff': {
-      if (!tinkoffSingleton) {
-        tinkoffSingleton = new TinkoffProvider(
-          mustEnv('TINKOFF_TERMINAL_KEY'),
-          mustEnv('TINKOFF_PASSWORD'),
-          `${siteUrl()}/api/billing/webhook/tinkoff`,
-        )
-      }
-      return tinkoffSingleton
+    case 'dummy': {
+      if (!dummySingleton) dummySingleton = new DummyProvider(siteUrl())
+      return dummySingleton
     }
     default:
       throw new Error(`Payment provider not configured: ${name}`)

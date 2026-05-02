@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'package_id_required' }, { status: 400 })
   }
 
-  const provider: PaymentProviderName = body.provider ?? 'tinkoff'
+  const provider: PaymentProviderName = body.provider ?? 'dummy'
   const savePaymentMethod = body.save_payment_method ?? true
 
   const supabase = createServiceClient()

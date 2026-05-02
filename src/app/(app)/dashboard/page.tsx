@@ -53,6 +53,20 @@ export default async function DashboardPage() {
             <Link href="/pricing" className="underline font-medium">Пополнить</Link>
           </div>
         )}
+        <div className="flex gap-3 mt-4">
+          <Link
+            href="/pricing"
+            className="flex-1 bg-orange-500 text-white text-sm font-medium text-center px-4 py-2.5 rounded-xl hover:bg-orange-600 transition-colors"
+          >
+            Пополнить
+          </Link>
+          <Link
+            href="/billing"
+            className="flex-1 bg-white border border-gray-200 text-gray-700 text-sm font-medium text-center px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-colors"
+          >
+            История операций
+          </Link>
+        </div>
       </div>
 
       {/* Мои коты */}

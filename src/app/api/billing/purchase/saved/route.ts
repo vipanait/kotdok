@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import { getAuthUser } from '@/lib/server-auth'
-import { getProvider } from '@/lib/payments/registry'
+import { getProvider, siteUrl } from '@/lib/payments/registry'
+import type { DummyWebhookPayload } from '@/lib/payments/dummy'
 
 interface SavedPurchaseBody {
   package_id: string
@@ -63,6 +64,23 @@ export async function POST(request: NextRequest) {
       p_transaction_id: txId,
       p_provider_payment_id: result.providerPaymentId,
     })
+
+    // For dummy provider there is no UI step — fire the webhook ourselves so
+    // the transaction reaches a terminal state. In real life a PSP would
+    // call us back after charging the saved card.
+    if (pm.provider === 'dummy') {
+      const payload: DummyWebhookPayload = {
+        providerPaymentId: result.providerPaymentId,
+        status: 'succeeded',
+      }
+      // Fire-and-forget; the UI will poll /api/billing/transactions/[id].
+      fetch(`${siteUrl()}/api/billing/webhook/dummy`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        cache: 'no-store',
+      }).catch(err => console.error('[dummy saved-card webhook] failed:', err))
+    }
 
     // The actual 'succeeded' state will arrive via webhook; respond with tx id
     // so the UI can poll /api/billing/transactions/[id] for confirmation.

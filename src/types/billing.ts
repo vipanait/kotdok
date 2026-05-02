@@ -1,4 +1,4 @@
-export type PaymentProviderName = 'tinkoff' | 'stripe' | 'yookassa'
+export type PaymentProviderName = 'dummy'
 
 export type TxStatus =
   | 'created'
