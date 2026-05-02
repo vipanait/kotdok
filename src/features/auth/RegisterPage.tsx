@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { createClient } from '@/features/auth/lib/supabase-browser'
 import AuthShell from '@/components/AuthShell'
 import { useTranslations } from '@/components/LocaleProvider'
@@ -14,13 +13,13 @@ function getSafeNextPath(): string {
 }
 
 export default function RegisterPage() {
-  const router = useRouter()
   const dict = useTranslations()
   const t = dict.auth.register
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [sent, setSent] = useState(false)
   const [loading, setLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
 
@@ -44,8 +43,8 @@ export default function RegisterPage() {
       return
     }
 
-    router.push(getSafeNextPath())
-    router.refresh()
+    setSent(true)
+    setLoading(false)
   }
 
   async function handleGoogle() {
@@ -66,8 +65,8 @@ export default function RegisterPage() {
 
   return (
     <AuthShell
-      heading={t.heading}
-      subheading={t.subheading}
+      heading={sent ? t.headingSent : t.heading}
+      subheading={sent ? t.subheadingSent : t.subheading}
       topRight={
         <span>
           {t.alreadyMember}{' '}
@@ -83,7 +82,22 @@ export default function RegisterPage() {
         </>
       }
     >
-      <div className="space-y-4">
+      {sent ? (
+        <div className="space-y-3 py-2 text-center">
+          <div className="text-4xl">📬</div>
+          <p className="text-sm text-gray-700">
+            {t.sentTo} <span className="font-medium">{email}</span>
+          </p>
+          <p className="text-xs text-gray-400">{t.checkInboxHint}</p>
+          <Link
+            href="/login"
+            className="inline-block bg-[#FC7A00] text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#e36c00] transition-colors mt-2"
+          >
+            {t.backToLogin}
+          </Link>
+        </div>
+      ) : (
+        <div className="space-y-4">
         {error && (
           <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
         )}
@@ -138,6 +152,7 @@ export default function RegisterPage() {
           </button>
         </form>
       </div>
+      )}
     </AuthShell>
   )
 }

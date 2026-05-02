@@ -69,14 +69,20 @@ const en: Dictionary = {
     },
     register: {
       heading: 'Create an account in a minute',
+      headingSent: 'Confirm your registration',
       subheading:
         '3 free checks. No card required. Describe symptoms — get an urgency level and clear steps.',
+      subheadingSent:
+        'We sent you an email to confirm your registration. Follow the link in the email to activate your account.',
       alreadyMember: 'Already with us?',
       signIn: 'Sign in',
       tosPrefix: 'By registering, you accept the',
       tosLink: 'terms of service',
       googleBtn: 'Continue with Google',
       passwordHint: 'At least 6 characters',
+      sentTo: 'Email sent to',
+      checkInboxHint: 'If you do not see it, check your Spam or Promotions folder.',
+      backToLogin: 'Go to sign in',
       submit: 'Register',
       submitting: 'Creating...',
       errorGoogle: 'Failed to sign in with Google',
