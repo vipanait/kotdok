@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { sanitizeCat } from '../cat-utils'
+import { sanitizeCat } from '@/shared/utils/cat-utils'
 
 describe('sanitizeCat', () => {
   it('normalizes supported cat profile fields', () => {

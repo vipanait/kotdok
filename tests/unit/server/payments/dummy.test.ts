@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { DummyProvider } from '../dummy'
+import { DummyProvider } from '@/server/payments/dummy'
 
 const payload = {
   providerPaymentId: 'dummy_payment_1',
