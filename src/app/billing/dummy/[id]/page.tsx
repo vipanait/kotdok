@@ -15,7 +15,7 @@ interface TxRow {
   user_id: string
   provider: string
   current_status: string
-  amount_cents: number
+  amount: number
   currency: string
   units_total: number
   package: { name: string } | { name: string }[] | null
@@ -38,7 +38,7 @@ export default async function DummyCheckoutPage({
   const service = createServiceClient()
   const { data: txRaw } = await service
     .from('transactions')
-    .select('id, user_id, provider, current_status, amount_cents, currency, units_total, package:packages(name)')
+    .select('id, user_id, provider, current_status, amount, currency, units_total, package:packages(name)')
     .eq('id', id)
     .single()
 
@@ -73,7 +73,7 @@ export default async function DummyCheckoutPage({
           <div className="rounded-xl bg-gray-50 p-4 mb-5">
             <div className="flex items-baseline justify-between">
               <span className="text-sm text-gray-600">{packageName ?? 'Пакет'}</span>
-              <span className="text-lg font-bold">{formatMoney(tx.amount_cents, tx.currency)}</span>
+              <span className="text-lg font-bold">{formatMoney(tx.amount, tx.currency)}</span>
             </div>
             <div className="text-xs text-gray-400 mt-1">{tx.units_total} проверок</div>
           </div>

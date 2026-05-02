@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
   }
 
   const txId = created.transaction_id as string
-  const amountCents = created.amount_cents as number
+  const amountCents = created.amount as number
   const currency = created.currency as string
   const packageName = created.package_name as string
 
