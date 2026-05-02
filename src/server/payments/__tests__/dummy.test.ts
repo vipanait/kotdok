@@ -44,6 +44,7 @@ describe('DummyProvider', () => {
 
   it('allows unsigned webhooks only from local requests outside production', async () => {
     vi.stubEnv('NODE_ENV', 'test')
+    vi.stubEnv('DUMMY_WEBHOOK_SECRET', '')
     const provider = new DummyProvider()
     const event = await provider.parseWebhook(
       JSON.stringify(payload),
@@ -61,6 +62,7 @@ describe('DummyProvider', () => {
 
   it('rejects unsigned shared-environment webhooks', async () => {
     vi.stubEnv('NODE_ENV', 'test')
+    vi.stubEnv('DUMMY_WEBHOOK_SECRET', '')
     const provider = new DummyProvider()
 
     await expect(provider.parseWebhook(
