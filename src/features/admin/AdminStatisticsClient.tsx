@@ -9,7 +9,6 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-  type TooltipProps,
 } from 'recharts'
 import { useLocale, useTranslations } from '@/components/LocaleProvider'
 import type { AdminStatistics, AdminStatisticsDailyPoint, AdminStatisticsPeriod } from '@/shared/types/admin'
@@ -157,7 +156,7 @@ function LineChart({
             />
             <Tooltip
               cursor={{ stroke: '#fed7aa', strokeWidth: 2 }}
-              content={<ChartTooltip locale={locale} valueKey={valueKey} formatValue={formatValue} />}
+              content={<ChartTooltip locale={locale} formatValue={formatValue} />}
             />
             <Area
               type="monotone"
@@ -200,9 +199,11 @@ function ChartTooltip({
   label,
   locale,
   formatValue,
-}: TooltipProps<number, string> & {
+}: {
+  active?: boolean
+  payload?: Array<{ value?: number | string | null }>
+  label?: string | number
   locale: string
-  valueKey: keyof Pick<AdminStatisticsDailyPoint, 'registrations' | 'payments' | 'paymentAmount'>
   formatValue: (value: number) => string
 }) {
   if (!active || !payload?.length) return null
