@@ -16,7 +16,7 @@ const jsonLd = {
       url: siteUrl,
       logo: {
         '@type': 'ImageObject',
-        url: `${siteUrl}/android-chrome-512x512.png`,
+        url: `${siteUrl}/icon.svg`,
       },
       contactPoint: {
         '@type': 'ContactPoint',
@@ -66,14 +66,7 @@ export const metadata: Metadata = {
     title,
     description,
   },
-  icons: {
-    icon: [
-      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
-      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
-    ],
-    shortcut: '/favicon.ico',
-    apple: '/apple-touch-icon.png',
-  },
+  // Icons are auto-detected from src/app/icon.svg + src/app/apple-icon.svg.
 };
 
 export default function RootLayout({
