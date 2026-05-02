@@ -4,10 +4,9 @@ import "./globals.css";
 import { getLocale } from "@/server/i18n/get-locale";
 import { getDictionary } from "@/server/i18n/get-dictionary";
 import { LocaleProvider } from "@/components/LocaleProvider";
+import { defaultSeo, siteName, siteUrl, supportEmail } from "@/shared/seo";
 
 const geist = Geist({ subsets: ["latin"] });
-
-const siteUrl = 'https://lapka.my'
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -23,7 +22,7 @@ const jsonLd = {
       },
       contactPoint: {
         '@type': 'ContactPoint',
-        email: 'support@kotdok.ru',
+        email: supportEmail,
         contactType: 'customer support',
       },
     },
@@ -46,30 +45,28 @@ const jsonLd = {
     },
   ],
 }
-const title = 'Лапка — AI симптомчекер для кошек'
-const description = 'Узнайте насколько серьёзны симптомы вашей кошки за 15 секунд. Опишите что происходит — получите чёткий ответ с уровнем срочности.'
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: title,
-    template: '%s — Лапка',
+    default: defaultSeo.title,
+    template: `%s — ${siteName}`,
   },
-  description,
+  description: defaultSeo.description,
   openGraph: {
     type: 'website',
     locale: 'ru_RU',
-    url: siteUrl,
-    siteName: 'Лапка',
-    title,
-    description,
+    url: '/',
+    siteName,
+    title: defaultSeo.title,
+    description: defaultSeo.description,
   },
   twitter: {
     card: 'summary_large_image',
-    title,
-    description,
+    title: defaultSeo.title,
+    description: defaultSeo.description,
   },
-  // Icons are auto-detected from src/app/icon.svg + src/app/apple-icon.svg.
+  // Icons and social previews are auto-detected from app metadata files.
 };
 
 export default async function RootLayout({

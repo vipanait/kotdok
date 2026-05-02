@@ -9,7 +9,7 @@ import { getDictionary } from '@/server/i18n/get-dictionary'
 import AppShell from '@/components/AppShell'
 
 export const metadata: Metadata = {
-  title: 'Пополнить — Лапка',
+  title: 'Пополнить',
   robots: { index: false, follow: false },
 }
 

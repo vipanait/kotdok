@@ -1,8 +1,13 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import AppShell from '@/components/AppShell'
+import { supportEmail } from '@/shared/seo'
 
-export const metadata = {
-  title: 'Пользовательское соглашение — Лапка',
+export const metadata: Metadata = {
+  title: 'Пользовательское соглашение',
+  description:
+    'Пользовательское соглашение сервиса Лапка: условия использования, ограничения ответственности, оплата, персональные данные и контакты.',
+  alternates: { canonical: '/legal' },
 }
 
 export default function LegalPage() {
@@ -143,8 +148,8 @@ export default function LegalPage() {
           <p>
             По вопросам, связанным с работой Сервиса, возвратом средств или обработкой персональных
             данных, обращайтесь по электронной почте:{' '}
-            <a href="mailto:support@kotdok.ru" className="text-orange-500 hover:underline">
-              support@kotdok.ru
+            <a href={`mailto:${supportEmail}`} className="text-orange-500 hover:underline">
+              {supportEmail}
             </a>
           </p>
         </section>

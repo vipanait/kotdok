@@ -6,10 +6,6 @@ function detectLocale(request: NextRequest): Locale {
   const cookie = request.cookies.get('NEXT_LOCALE')?.value
   if (cookie && (locales as readonly string[]).includes(cookie)) return cookie as Locale
 
-  const acceptLanguage = request.headers.get('accept-language') ?? ''
-  const preferred = acceptLanguage.split(',')[0]?.split('-')[0]?.toLowerCase()
-  if (preferred && (locales as readonly string[]).includes(preferred)) return preferred as Locale
-
   return defaultLocale
 }
 

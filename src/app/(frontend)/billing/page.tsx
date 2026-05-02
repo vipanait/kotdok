@@ -10,7 +10,7 @@ import { getDictionary } from '@/server/i18n/get-dictionary'
 import AppShell from '@/components/AppShell'
 
 export const metadata: Metadata = {
-  title: 'История операций — Лапка',
+  title: 'История операций',
   robots: { index: false, follow: false },
 }
 

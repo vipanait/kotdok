@@ -5,7 +5,7 @@ import ReturnClient from '@/features/billing/ReturnClient'
 import AppShell from '@/components/AppShell'
 
 export const metadata: Metadata = {
-  title: 'Оплата — Лапка',
+  title: 'Оплата',
   robots: { index: false, follow: false },
 }
 
