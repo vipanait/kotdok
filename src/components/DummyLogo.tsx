@@ -38,7 +38,7 @@ export default function DummyLogo({ width = 160, height = 56, className, withWor
         strokeWidth="3.5"
       />
 
-      {/* Bottom-left dash (card chip stripe) */}
+      {/* Bottom-left dash on the card chip */}
       <rect x="16" y="50" width="14" height="3.5" rx="1.75" fill="url(#dummy-gradient)" />
 
       {/* Plus inside card */}
