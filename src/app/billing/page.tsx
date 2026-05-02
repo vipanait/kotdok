@@ -85,7 +85,7 @@ export default async function BillingPage() {
                 <li key={tx.id} className="py-3 flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-gray-800 truncate">
-                      {pkgName ?? 'Пакет'} · {tx.units_total} проверок
+                      {pkgName ?? `${tx.units_total} проверок`}
                     </p>
                     <p className="text-xs text-gray-400 mt-0.5">
                       {new Date(tx.created_at).toLocaleDateString('ru-RU', {

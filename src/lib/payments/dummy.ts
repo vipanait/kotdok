@@ -31,12 +31,12 @@ function randomId(prefix: string): string {
 export class DummyProvider implements PaymentProvider {
   readonly name = 'dummy' as const
 
-  constructor(private readonly siteUrl: string) {}
-
   async initPayment(input: InitPaymentInput): Promise<InitPaymentResult> {
     const providerPaymentId = randomId('dummy')
     // Hosted "checkout" page that lets the user choose pay/fail/cancel.
-    const redirectUrl = `${this.siteUrl}/billing/dummy/${input.transactionId}?save=${input.savePaymentMethod ? '1' : '0'}`
+    // Returned as a relative URL so the browser stays on the current origin
+    // (otherwise on Vercel previews we'd jump to VERCEL_URL and lose cookies).
+    const redirectUrl = `/billing/dummy/${input.transactionId}?save=${input.savePaymentMethod ? '1' : '0'}`
     return { providerPaymentId, redirectUrl }
   }
 

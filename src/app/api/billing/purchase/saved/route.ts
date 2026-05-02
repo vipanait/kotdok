@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import { getAuthUser } from '@/lib/server-auth'
-import { getProvider, siteUrl } from '@/lib/payments/registry'
+import { getProvider } from '@/lib/payments/registry'
 import type { DummyWebhookPayload } from '@/lib/payments/dummy'
 
 interface SavedPurchaseBody {
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
         status: 'succeeded',
       }
       // Fire-and-forget; the UI will poll /api/billing/transactions/[id].
-      fetch(`${siteUrl()}/api/billing/webhook/dummy`, {
+      fetch(`${request.nextUrl.origin}/api/billing/webhook/dummy`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
