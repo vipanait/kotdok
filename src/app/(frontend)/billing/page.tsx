@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient, createServiceClient } from '@/server/supabase/server'
-import type { PaymentMethod, TxStatus } from '@/shared/types/billing'
+import type { PublicPaymentMethod, TxStatus } from '@/shared/types/billing'
 import { formatMoney, TX_STATUS_LABEL, TX_STATUS_STYLE } from '@/shared/utils/billing-format'
 import BillingMethodsClient from '@/features/billing/BillingMethodsClient'
 import { getLocale } from '@/server/i18n/get-locale'
@@ -43,14 +43,14 @@ export default async function BillingPage() {
       .limit(50),
     service
       .from('payment_methods')
-      .select('id, user_id, provider, provider_pm_id, brand, last4, exp_month, exp_year, is_default, created_at, deleted_at')
+      .select('id, provider, brand, last4, exp_month, exp_year, is_default, created_at')
       .eq('user_id', user.id)
       .is('deleted_at', null)
       .order('created_at', { ascending: false }),
   ])
 
   const transactions = (txRaw ?? []) as TxRow[]
-  const methods = (methodsRaw ?? []) as PaymentMethod[]
+  const methods = (methodsRaw ?? []) as PublicPaymentMethod[]
 
   return (
     <AppShell right={

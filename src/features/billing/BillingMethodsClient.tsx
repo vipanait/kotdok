@@ -1,10 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import type { PaymentMethod } from '@/shared/types/billing'
+import type { PublicPaymentMethod } from '@/shared/types/billing'
 
 interface Props {
-  initialMethods: PaymentMethod[]
+  initialMethods: PublicPaymentMethod[]
 }
 
 export default function BillingMethodsClient({ initialMethods }: Props) {

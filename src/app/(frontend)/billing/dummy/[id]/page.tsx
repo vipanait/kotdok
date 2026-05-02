@@ -82,7 +82,7 @@ export default async function DummyCheckoutPage({
         </div>
 
         <p className="text-center text-xs text-gray-400 mt-4">
-          Подтверждение придёт на наш сервер через симулированный webhook.
+          Подтверждение будет применено через внутренний mock-обработчик.
         </p>
       </div>
     </div>

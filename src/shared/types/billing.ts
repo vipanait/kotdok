@@ -66,6 +66,11 @@ export interface PaymentMethod {
   deleted_at: string | null
 }
 
+export type PublicPaymentMethod = Pick<
+  PaymentMethod,
+  'id' | 'provider' | 'brand' | 'last4' | 'exp_month' | 'exp_year' | 'is_default' | 'created_at'
+>
+
 export interface CreditLedgerEntry {
   id: string
   user_id: string

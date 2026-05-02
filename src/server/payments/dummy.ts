@@ -5,6 +5,7 @@
 
 import 'server-only'
 
+import { randomUUID } from 'crypto'
 import type {
   ChargeSavedResult,
   InitPaymentInput,
@@ -26,7 +27,14 @@ export interface DummyWebhookPayload {
 }
 
 function randomId(prefix: string): string {
-  return `${prefix}_${Math.random().toString(36).slice(2, 10)}${Date.now().toString(36)}`
+  return `${prefix}_${randomUUID()}`
+}
+
+function isLocalRequest(headers?: Headers): boolean {
+  const host = headers?.get('x-forwarded-host') ?? headers?.get('host') ?? ''
+  if (host.startsWith('[::1]')) return true
+  const hostname = host.split(':')[0]
+  return hostname === 'localhost' || hostname === '127.0.0.1'
 }
 
 export class DummyProvider implements PaymentProvider {
@@ -52,7 +60,7 @@ export class DummyProvider implements PaymentProvider {
     if (secret) {
       const providedSecret = headers?.get('x-dummy-webhook-secret')
       if (providedSecret !== secret) throw new Error('invalid_signature')
-    } else if (process.env.NODE_ENV === 'production') {
+    } else if (process.env.NODE_ENV === 'production' || !isLocalRequest(headers)) {
       throw new Error('dummy_webhook_secret_required')
     }
 
