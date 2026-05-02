@@ -55,5 +55,5 @@ export interface PaymentProvider {
    * Returns null for events we choose to ignore (e.g. NEW, FORM_SHOWED for Tinkoff).
    * Throws on signature mismatch.
    */
-  parseWebhook(rawBody: string): Promise<ProviderWebhookEvent | null>
+  parseWebhook(rawBody: string, headers?: Headers): Promise<ProviderWebhookEvent | null>
 }

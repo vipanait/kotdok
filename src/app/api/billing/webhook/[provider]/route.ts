@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
-import { getProvider } from '@/lib/payments/registry'
+import { getProvider, isDummyProviderEnabled } from '@/lib/payments/registry'
 import type { PaymentProviderName } from '@/types/billing'
 
 const VALID_PROVIDERS: PaymentProviderName[] = ['dummy']
@@ -10,7 +10,10 @@ export async function POST(
   { params }: { params: Promise<{ provider: string }> },
 ) {
   const { provider: providerParam } = await params
-  if (!VALID_PROVIDERS.includes(providerParam as PaymentProviderName)) {
+  if (
+    !VALID_PROVIDERS.includes(providerParam as PaymentProviderName) ||
+    (providerParam === 'dummy' && !isDummyProviderEnabled())
+  ) {
     return NextResponse.json({ error: 'unknown_provider' }, { status: 404 })
   }
   const provider = providerParam as PaymentProviderName
@@ -19,7 +22,7 @@ export async function POST(
 
   let event
   try {
-    event = await getProvider(provider).parseWebhook(rawBody)
+    event = await getProvider(provider).parseWebhook(rawBody, request.headers)
   } catch (err) {
     console.error(`[webhook ${provider}] parse error:`, err)
     // Do not leak details to the provider. Tinkoff expects plain "OK" on success;

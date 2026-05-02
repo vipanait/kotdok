@@ -34,11 +34,11 @@ begin
 
   insert into public.transactions (
     user_id, provider, package_id,
-    units_total, amount, currency,
+    units_total, unit_price, amount, currency,
     metadata, payment_method_id
   ) values (
     p_user_id, p_provider, p_package_id,
-    v_pkg.units, v_pkg.unit_price * v_pkg.units, v_pkg.currency,
+    v_pkg.units, v_pkg.unit_price, v_pkg.unit_price * v_pkg.units, v_pkg.currency,
     p_metadata, p_payment_method_id
   )
   returning id into v_tx_id;

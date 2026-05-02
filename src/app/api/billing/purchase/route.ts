@@ -2,12 +2,22 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import { getAuthUser } from '@/lib/server-auth'
 import { getProvider } from '@/lib/payments/registry'
+import { createBillingTransaction } from '@/lib/billing-transactions'
 import type { PaymentProviderName } from '@/types/billing'
 
 interface PurchaseBody {
   package_id: string
   provider?: PaymentProviderName
   save_payment_method?: boolean
+}
+
+function getAppBaseUrl(request: NextRequest): string {
+  const configuredUrl = process.env.APP_BASE_URL
+  if (configuredUrl) return configuredUrl.replace(/\/$/, '')
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('APP_BASE_URL is required for payment redirects')
+  }
+  return request.nextUrl.origin
 }
 
 export async function POST(request: NextRequest) {
@@ -24,30 +34,28 @@ export async function POST(request: NextRequest) {
 
   const supabase = createServiceClient()
 
-  // 1. Create transaction + initial 'created' event (atomic, in DB function).
-  const { data: created, error: createErr } = await supabase.rpc('create_transaction', {
-    p_user_id: user.id,
-    p_provider: provider,
-    p_package_id: body.package_id,
-    p_metadata: { save_payment_method: savePaymentMethod },
-  })
-
-  if (createErr || !created) {
-    const msg = createErr?.message ?? 'create_failed'
+  let created
+  try {
+    created = await createBillingTransaction(supabase, {
+      userId: user.id,
+      provider,
+      packageId: body.package_id,
+      metadata: { save_payment_method: savePaymentMethod },
+    })
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'create_failed'
     const status = msg.includes('package_not_found') ? 404 : msg.includes('inactive') ? 400 : 500
     return NextResponse.json({ error: msg }, { status })
   }
 
-  const txId = created.transaction_id as string
-  const amountCents = created.amount as number
-  const currency = created.currency as string
-  const packageName = created.package_name as string
+  const txId = created.transaction_id
+  const amountCents = created.amount
+  const currency = created.currency
+  const packageName = created.package_name
 
   // 2. Call provider Init to get PaymentURL.
-  const origin = request.nextUrl.origin
-  const returnUrl = `${origin}/billing/return/${txId}`
-
   try {
+    const returnUrl = `${getAppBaseUrl(request)}/billing/return/${txId}`
     const initResult = await getProvider(provider).initPayment({
       transactionId: txId,
       userId: user.id,
@@ -58,10 +66,11 @@ export async function POST(request: NextRequest) {
       savePaymentMethod,
     })
 
-    await supabase.rpc('mark_transaction_pending', {
+    const { error: pendingErr } = await supabase.rpc('mark_transaction_pending', {
       p_transaction_id: txId,
       p_provider_payment_id: initResult.providerPaymentId,
     })
+    if (pendingErr) throw pendingErr
 
     return NextResponse.json({
       transaction_id: txId,

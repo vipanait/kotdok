@@ -52,17 +52,30 @@ export async function POST(request: NextRequest) {
     payload.cardExpYear = new Date().getFullYear() + 3
   }
 
-  const webhookUrl = `${request.nextUrl.origin}/api/billing/webhook/dummy`
-  const res = await fetch(webhookUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-    cache: 'no-store',
-  })
-
-  if (!res.ok) {
-    const text = await res.text().catch(() => '')
-    return NextResponse.json({ error: 'webhook_failed', detail: text }, { status: 502 })
+  const providerEventId = `dummy:${tx.provider_payment_id}:${body.outcome}`
+  if (body.outcome === 'succeeded') {
+    const { error } = await supabase.rpc('apply_transaction_success', {
+      p_provider: 'dummy',
+      p_provider_payment_id: tx.provider_payment_id,
+      p_provider_event_id: providerEventId,
+      p_payload: payload,
+      p_rebill_id: payload.rebillId ?? null,
+      p_card_last4: payload.cardLast4 ?? null,
+      p_card_brand: payload.cardBrand ?? null,
+      p_card_exp_month: payload.cardExpMonth ?? null,
+      p_card_exp_year: payload.cardExpYear ?? null,
+    })
+    if (error) return NextResponse.json({ error: 'webhook_failed', detail: error.message }, { status: 502 })
+  } else {
+    const { error } = await supabase.rpc('apply_transaction_terminal', {
+      p_provider: 'dummy',
+      p_provider_payment_id: tx.provider_payment_id,
+      p_provider_event_id: providerEventId,
+      p_status: body.outcome,
+      p_reason: payload.reason ?? null,
+      p_payload: payload,
+    })
+    if (error) return NextResponse.json({ error: 'webhook_failed', detail: error.message }, { status: 502 })
   }
 
   return NextResponse.json({ ok: true })
