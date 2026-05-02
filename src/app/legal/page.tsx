@@ -1,14 +1,14 @@
 import Link from 'next/link'
 
 export const metadata = {
-  title: 'Пользовательское соглашение — КотДок',
+  title: 'Пользовательское соглашение — Лапка',
 }
 
 export default function LegalPage() {
   return (
     <div className="min-h-screen px-4 py-12 max-w-2xl mx-auto">
       <div className="mb-8">
-        <Link href="/" className="text-2xl font-bold">🐱 КотДок</Link>
+        <Link href="/" className="text-2xl font-bold">🐱 Лапка</Link>
       </div>
 
       <div className="prose prose-sm max-w-none text-gray-700 space-y-6">
@@ -20,7 +20,7 @@ export default function LegalPage() {
           <h2 className="text-lg font-semibold text-gray-900 mt-8 mb-2">1. Общие положения</h2>
           <p>
             Настоящее Пользовательское соглашение (далее — «Соглашение») регулирует условия использования
-            информационного сервиса КотДок, доступного по адресу в сети Интернет (далее — «Сервис»).
+            информационного сервиса Лапка, доступного по адресу в сети Интернет (далее — «Сервис»).
             Используя Сервис, вы подтверждаете, что ознакомились с настоящим Соглашением и безоговорочно
             принимаете его условия.
           </p>
@@ -33,7 +33,7 @@ export default function LegalPage() {
         <section>
           <h2 className="text-lg font-semibold text-gray-900 mt-8 mb-2">2. Характер Сервиса. Не является ветеринарной помощью</h2>
           <p>
-            <strong>КотДок является исключительно информационным сервисом.</strong> Сервис использует
+            <strong>Лапка является исключительно информационным сервисом.</strong> Сервис использует
             искусственный интеллект для предоставления общих сведений о симптомах и состоянии здоровья кошек
             на основании описаний, предоставленных пользователем.
           </p>

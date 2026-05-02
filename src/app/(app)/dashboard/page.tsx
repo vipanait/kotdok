@@ -32,7 +32,7 @@ export default async function DashboardPage() {
     <div className="min-h-screen px-4 py-8 max-w-2xl mx-auto">
       <h1 className="sr-only">Личный кабинет</h1>
       <div className="flex items-center justify-between mb-8">
-        <span className="text-2xl font-bold">🐱 КотДок</span>
+        <span className="text-2xl font-bold">🐱 Лапка</span>
         <form action="/api/auth/signout" method="post">
           <button className="text-sm text-gray-500 hover:text-gray-700">Выйти</button>
         </form>

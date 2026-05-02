@@ -69,7 +69,7 @@ export default function PricingClient({ packages, methods }: Props) {
       <div className="grid gap-3">
         {packages.map(pkg => {
           const selected = pkg.id === selectedPackageId
-          const perUnit = formatMoney(pkg.unit_price_cents, pkg.currency)
+          const perUnit = formatMoney(pkg.unit_price, pkg.currency)
           return (
             <button
               key={pkg.id}
@@ -84,7 +84,7 @@ export default function PricingClient({ packages, methods }: Props) {
               <div className="flex items-baseline justify-between mb-1">
                 <span className="text-lg font-semibold text-gray-900">{pkg.name}</span>
                 <span className="text-xl font-bold text-gray-900">
-                  {formatMoney(pkg.price_cents, pkg.currency)}
+                  {formatMoney(pkg.amount, pkg.currency)}
                 </span>
               </div>
               <div className="text-xs text-gray-500">

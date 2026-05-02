@@ -37,7 +37,7 @@ export default async function CheckResultPage({ params }: { params: Promise<{ id
   const vetQuestions: string[] = Array.isArray(check.vet_questions) ? check.vet_questions : []
   const photoObservations = (full?.photo_observations as string | null) ?? null
   const hasPhoto = !!(full?.has_photo)
-  const disclaimer = (full?.disclaimer as string | null) ?? 'КотДок — информационный инструмент. Не является ветеринарным диагнозом и не заменяет осмотр специалиста.'
+  const disclaimer = (full?.disclaimer as string | null) ?? 'Лапка — информационный инструмент. Не является ветеринарным диагнозом и не заменяет осмотр специалиста.'
   const appetite = (full?.appetite as string | null) ?? null
   const activity = (full?.activity as string | null) ?? null
   const duration = (full?.duration as string | null) ?? null
@@ -46,7 +46,7 @@ export default async function CheckResultPage({ params }: { params: Promise<{ id
   return (
     <div className="min-h-screen px-4 py-8 max-w-2xl mx-auto">
       <div className="flex items-center justify-between mb-8">
-        <Link href="/dashboard" className="text-2xl font-bold">🐱 КотДок</Link>
+        <Link href="/dashboard" className="text-2xl font-bold">🐱 Лапка</Link>
         <Link href="/dashboard" className="text-sm text-gray-500 hover:text-gray-700">← Назад</Link>
       </div>
 

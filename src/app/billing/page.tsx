@@ -7,7 +7,7 @@ import { formatMoney, TX_STATUS_LABEL, TX_STATUS_STYLE } from '@/lib/billing-for
 import BillingMethodsClient from './BillingMethodsClient'
 
 export const metadata: Metadata = {
-  title: 'История операций — КотДок',
+  title: 'История операций — Лапка',
   robots: { index: false, follow: false },
 }
 
@@ -48,7 +48,7 @@ export default async function BillingPage() {
   return (
     <div className="min-h-screen px-4 py-8 max-w-2xl mx-auto">
       <div className="flex items-center justify-between mb-8">
-        <Link href="/dashboard" className="text-2xl font-bold">🐱 КотДок</Link>
+        <Link href="/dashboard" className="text-2xl font-bold">🐱 Лапка</Link>
         <Link href="/dashboard" className="text-sm text-gray-500 hover:text-gray-700">← В кабинет</Link>
       </div>
 

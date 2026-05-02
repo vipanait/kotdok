@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
       userId: user.id,
       amountCents,
       currency,
-      description: `КотДок — ${packageName}`,
+      description: `Лапка — ${packageName}`,
       returnUrl,
       savePaymentMethod,
     })
