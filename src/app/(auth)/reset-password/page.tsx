@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import AuthShell from '@/components/AuthShell'
 
 export default function ResetPasswordPage() {
   const router = useRouter()
@@ -40,51 +41,52 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <Link href="/" className="text-2xl font-bold">🐱 КотДок</Link>
-          <h1 className="text-xl font-semibold text-gray-900 mt-4">Новый пароль</h1>
-        </div>
+    <AuthShell
+      heading="Придумайте новый пароль"
+      subheading="Минимум 6 символов. Используйте что-то, что не повторяет ваш старый пароль."
+      topRight={
+        <span>
+          <Link href="/login" className="text-[#FC7A00] hover:underline">Войти</Link>
+        </span>
+      }
+    >
+      <div className="space-y-4">
+        {error && (
+          <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
+        )}
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4">
-          {error && (
-            <div className="bg-red-50 text-red-700 text-sm rounded-lg px-4 py-3">{error}</div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Новый пароль</label>
-              <input
-                type="password"
-                required
-                minLength={6}
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Повторите пароль</label>
-              <input
-                type="password"
-                required
-                minLength={6}
-                value={confirm}
-                onChange={e => setConfirm(e.target.value)}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-orange-500 text-white py-2.5 rounded-lg font-medium hover:bg-orange-600 transition-colors disabled:opacity-50"
-            >
-              {loading ? 'Сохраняем...' : 'Сохранить пароль'}
-            </button>
-          </form>
-        </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">Новый пароль</label>
+            <input
+              type="password"
+              required
+              minLength={6}
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#FC7A00]/40"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">Повторите пароль</label>
+            <input
+              type="password"
+              required
+              minLength={6}
+              value={confirm}
+              onChange={e => setConfirm(e.target.value)}
+              className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#FC7A00]/40"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded-xl bg-[#FC7A00] py-3 text-sm font-semibold text-white hover:bg-[#e36c00] transition-colors disabled:opacity-50"
+          >
+            {loading ? 'Сохраняем...' : 'Сохранить пароль'}
+          </button>
+        </form>
       </div>
-    </div>
+    </AuthShell>
   )
 }
