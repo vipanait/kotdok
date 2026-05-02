@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
-import { getLocale } from "@/lib/i18n/getLocale";
-import { getDictionary } from "@/lib/i18n/getDictionary";
+import { getLocale } from "@/server/i18n/get-locale";
+import { getDictionary } from "@/server/i18n/get-dictionary";
 import { LocaleProvider } from "@/components/LocaleProvider";
 
 const geist = Geist({ subsets: ["latin"] });
