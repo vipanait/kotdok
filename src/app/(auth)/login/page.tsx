@@ -5,9 +5,13 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import AuthShell from '@/components/AuthShell'
+import { useTranslations } from '@/components/LocaleProvider'
 
 export default function LoginPage() {
   const router = useRouter()
+  const dict = useTranslations()
+  const t = dict.auth.login
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -23,7 +27,7 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithPassword({ email, password })
 
     if (error) {
-      setError('Неверный email или пароль')
+      setError(t.errorCredentials)
       setLoading(false)
       return
     }
@@ -41,25 +45,25 @@ export default function LoginPage() {
       options: { redirectTo: `${window.location.origin}/auth/callback` },
     })
     if (error) {
-      setError('Не удалось войти через Google')
+      setError(t.errorGoogle)
       setGoogleLoading(false)
     }
   }
 
   return (
     <AuthShell
-      heading="С возвращением, друг пушистика"
-      subheading="Войдите, чтобы продолжить проверку симптомов и видеть историю предыдущих ответов."
+      heading={t.heading}
+      subheading={t.subheading}
       topRight={
         <span>
-          Нет аккаунта?{' '}
-          <Link href="/register" className="text-[#FC7A00] hover:underline">Создать</Link>
+          {t.noAccount}{' '}
+          <Link href="/register" className="text-[#FC7A00] hover:underline">{t.create}</Link>
         </span>
       }
       footer={
         <>
-          Нет аккаунта?{' '}
-          <Link href="/register" className="text-[#FC7A00] hover:underline font-medium">Зарегистрироваться</Link>
+          {t.noAccount}{' '}
+          <Link href="/register" className="text-[#FC7A00] hover:underline font-medium">{t.register}</Link>
         </>
       }
     >
@@ -75,12 +79,12 @@ export default function LoginPage() {
           className="flex w-full items-center justify-center gap-3 rounded-xl border border-gray-200 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
         >
           <GoogleIcon />
-          {googleLoading ? 'Перенаправление...' : 'Войти через Google'}
+          {googleLoading ? dict.common.redirecting : t.googleBtn}
         </button>
 
         <div className="flex items-center gap-3">
           <div className="h-px flex-1 bg-gray-100" />
-          <span className="text-xs text-gray-400">или</span>
+          <span className="text-xs text-gray-400">{dict.common.or}</span>
           <div className="h-px flex-1 bg-gray-100" />
         </div>
 
@@ -97,9 +101,9 @@ export default function LoginPage() {
           </div>
           <div>
             <div className="mb-1 flex items-center justify-between">
-              <label className="block text-sm font-medium text-gray-700">Пароль</label>
+              <label className="block text-sm font-medium text-gray-700">{t.password}</label>
               <Link href="/forgot-password" className="text-xs text-[#FC7A00] hover:underline">
-                Забыли пароль?
+                {t.forgotPassword}
               </Link>
             </div>
             <input
@@ -115,7 +119,7 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full rounded-xl bg-[#FC7A00] py-3 text-sm font-semibold text-white hover:bg-[#e36c00] transition-colors disabled:opacity-50"
           >
-            {loading ? 'Входим...' : 'Войти'}
+            {loading ? t.submitting : t.submit}
           </button>
         </form>
       </div>

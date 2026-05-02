@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import ReturnClient from './ReturnClient'
+import AppShell from '@/components/AppShell'
 
 export const metadata: Metadata = {
   title: 'Оплата — Лапка',
@@ -20,12 +20,8 @@ export default async function BillingReturnPage({
   if (!user) redirect(`/login?next=/billing/return/${id}`)
 
   return (
-    <div className="min-h-screen px-4 py-8 max-w-md mx-auto">
-      <div className="flex items-center justify-between mb-8">
-        <Link href="/dashboard" className="text-2xl font-bold">🐱 Лапка</Link>
-      </div>
-
+    <AppShell>
       <ReturnClient transactionId={id} />
-    </div>
+    </AppShell>
   )
 }

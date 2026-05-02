@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
+import { getLocale } from "@/lib/i18n/getLocale";
+import { getDictionary } from "@/lib/i18n/getDictionary";
+import { LocaleProvider } from "@/components/LocaleProvider";
 
 const geist = Geist({ subsets: ["latin"] });
 
@@ -69,19 +72,24 @@ export const metadata: Metadata = {
   // Icons are auto-detected from src/app/icon.svg + src/app/apple-icon.svg.
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const locale = await getLocale();
+  const dict = await getDictionary(locale);
+
   return (
-    <html lang="ru" className="h-full">
+    <html lang={locale} className="h-full">
       <body className={`${geist.className} min-h-full bg-gray-50`}>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        {children}
+        <LocaleProvider locale={locale} dict={dict}>
+          {children}
+        </LocaleProvider>
       </body>
     </html>
   );

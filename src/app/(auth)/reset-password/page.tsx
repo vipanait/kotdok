@@ -5,9 +5,13 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import AuthShell from '@/components/AuthShell'
+import { useTranslations } from '@/components/LocaleProvider'
 
 export default function ResetPasswordPage() {
   const router = useRouter()
+  const dict = useTranslations()
+  const t = dict.auth.resetPassword
+
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [error, setError] = useState('')
@@ -18,11 +22,11 @@ export default function ResetPasswordPage() {
     setError('')
 
     if (password.length < 6) {
-      setError('Пароль должен быть не менее 6 символов')
+      setError(t.errorTooShort)
       return
     }
     if (password !== confirm) {
-      setError('Пароли не совпадают')
+      setError(t.errorMismatch)
       return
     }
 
@@ -31,7 +35,7 @@ export default function ResetPasswordPage() {
     const { error } = await supabase.auth.updateUser({ password })
 
     if (error) {
-      setError('Не удалось изменить пароль. Попробуйте запросить новую ссылку.')
+      setError(t.errorFailed)
       setLoading(false)
       return
     }
@@ -42,11 +46,13 @@ export default function ResetPasswordPage() {
 
   return (
     <AuthShell
-      heading="Придумайте новый пароль"
-      subheading="Минимум 6 символов. Используйте что-то, что не повторяет ваш старый пароль."
+      heading={t.heading}
+      subheading={t.subheading}
       topRight={
         <span>
-          <Link href="/login" className="text-[#FC7A00] hover:underline">Войти</Link>
+          <Link href="/login" className="text-[#FC7A00] hover:underline">
+            {dict.auth.login.submit}
+          </Link>
         </span>
       }
     >
@@ -57,7 +63,7 @@ export default function ResetPasswordPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Новый пароль</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">{t.newPassword}</label>
             <input
               type="password"
               required
@@ -68,7 +74,7 @@ export default function ResetPasswordPage() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Повторите пароль</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">{t.confirmPassword}</label>
             <input
               type="password"
               required
@@ -83,7 +89,7 @@ export default function ResetPasswordPage() {
             disabled={loading}
             className="w-full rounded-xl bg-[#FC7A00] py-3 text-sm font-semibold text-white hover:bg-[#e36c00] transition-colors disabled:opacity-50"
           >
-            {loading ? 'Сохраняем...' : 'Сохранить пароль'}
+            {loading ? t.submitting : t.submit}
           </button>
         </form>
       </div>

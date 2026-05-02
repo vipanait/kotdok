@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import type { Cat } from '@/types'
+import { useTranslations } from '@/components/LocaleProvider'
+import AppShell from '@/components/AppShell'
 
 type CatFormValues = Omit<Cat, 'id' | 'user_id' | 'created_at'>
 
@@ -23,6 +25,8 @@ function fromArr(arr: string[]): string {
 
 export default function CatForm({ cat }: Props) {
   const router = useRouter()
+  const dict = useTranslations()
+  const t = dict.cats
   const isEdit = !!cat
 
   const [name, setName] = useState(cat?.name ?? '')
@@ -46,7 +50,7 @@ export default function CatForm({ cat }: Props) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!name.trim()) { setError('Введите имя кота'); return }
+    if (!name.trim()) { setError(t.errorName); return }
     setSaving(true)
     setError('')
 
@@ -76,7 +80,7 @@ export default function CatForm({ cat }: Props) {
 
     if (!res.ok) {
       const data = await res.json()
-      setError(data.error || 'Произошла ошибка')
+      setError(data.error || t.errorGeneric)
       setSaving(false)
       return
     }
@@ -93,42 +97,38 @@ export default function CatForm({ cat }: Props) {
   }
 
   return (
-    <div className="min-h-screen px-4 py-8 max-w-2xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
-        <Link href="/dashboard" className="text-2xl font-bold">🐱 Лапка</Link>
-        <Link href="/dashboard" className="text-sm text-gray-500 hover:text-gray-700">← Назад</Link>
-      </div>
+    <AppShell right={
+      <Link href="/dashboard" className="text-sm text-gray-500 hover:text-gray-700">{dict.common.back}</Link>
+    }>
 
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
         <h1 className="text-xl font-semibold text-gray-900 mb-6">
-          {isEdit ? `Редактировать: ${cat!.name}` : 'Добавить кота'}
+          {isEdit ? `${t.editTitlePrefix}: ${cat!.name}` : t.newTitle}
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Имя */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Имя *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t.name}</label>
             <input
               value={name}
               onChange={e => setName(e.target.value)}
-              placeholder="Мурка"
+              placeholder={t.namePlaceholder}
               className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
             />
           </div>
 
-          {/* Порода + Возраст + Вес */}
           <div className="grid grid-cols-3 gap-3">
             <div className="col-span-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Порода</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t.breed}</label>
               <input
                 value={breed}
                 onChange={e => setBreed(e.target.value)}
-                placeholder="Сибирская"
+                placeholder={t.breedPlaceholder}
                 className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Возраст (лет)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t.ageYears}</label>
               <input
                 type="number"
                 min="0"
@@ -141,7 +141,7 @@ export default function CatForm({ cat }: Props) {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Вес (кг)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t.weightKg}</label>
               <input
                 type="number"
                 min="0"
@@ -155,117 +155,111 @@ export default function CatForm({ cat }: Props) {
             </div>
           </div>
 
-          {/* Пол + Стерилизация */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Пол</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t.sex}</label>
               <select
                 value={sex ?? ''}
                 onChange={e => setSex((e.target.value || null) as Cat['sex'])}
                 className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white"
               >
-                <option value="">Не указан</option>
-                <option value="female">Кошка</option>
-                <option value="male">Кот</option>
+                <option value="">{dict.common.notSpecifiedM}</option>
+                <option value="female">{t.sexFemale}</option>
+                <option value="male">{t.sexMale}</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Стерилизована/кастрирован</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t.neutered}</label>
               <select
                 value={neutered == null ? '' : neutered ? 'yes' : 'no'}
                 onChange={e => setNeutered(e.target.value === '' ? null : e.target.value === 'yes')}
                 className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white"
               >
-                <option value="">Не указано</option>
-                <option value="yes">Да</option>
-                <option value="no">Нет</option>
+                <option value="">{dict.common.notSpecified}</option>
+                <option value="yes">{dict.common.yes}</option>
+                <option value="no">{dict.common.no}</option>
               </select>
             </div>
           </div>
 
-          {/* Образ жизни + Питание + Вакцинация */}
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Образ жизни</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t.lifestyle}</label>
               <select
                 value={indoorOutdoor ?? ''}
                 onChange={e => setIndoorOutdoor((e.target.value || null) as Cat['indoor_outdoor'])}
                 className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white"
               >
-                <option value="">Не указан</option>
-                <option value="indoor">Домашний</option>
-                <option value="outdoor">Уличный</option>
-                <option value="both">Смешанный</option>
+                <option value="">{dict.common.notSpecifiedM}</option>
+                <option value="indoor">{t.lifestyleIndoor}</option>
+                <option value="outdoor">{t.lifestyleOutdoor}</option>
+                <option value="both">{t.lifestyleBoth}</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Питание</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t.diet}</label>
               <select
                 value={diet ?? ''}
                 onChange={e => setDiet((e.target.value || null) as Cat['diet'])}
                 className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white"
               >
-                <option value="">Не указано</option>
-                <option value="dry">Сухой корм</option>
-                <option value="wet">Влажный</option>
-                <option value="mixed">Смешанное</option>
-                <option value="raw">Натуральное</option>
+                <option value="">{dict.common.notSpecified}</option>
+                <option value="dry">{t.dietDry}</option>
+                <option value="wet">{t.dietWet}</option>
+                <option value="mixed">{t.dietMixed}</option>
+                <option value="raw">{t.dietRaw}</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Вакцинация</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t.vaccination}</label>
               <select
                 value={vaccinated == null ? '' : vaccinated ? 'yes' : 'no'}
                 onChange={e => setVaccinated(e.target.value === '' ? null : e.target.value === 'yes')}
                 className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white"
               >
-                <option value="">Не указано</option>
-                <option value="yes">Привита</option>
-                <option value="no">Нет</option>
+                <option value="">{dict.common.notSpecified}</option>
+                <option value="yes">{t.vaccinationYes}</option>
+                <option value="no">{t.vaccinationNo}</option>
               </select>
             </div>
           </div>
 
-          {/* Аллергии */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Аллергии</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t.allergies}</label>
             <input
               value={allergies}
               onChange={e => setAllergies(e.target.value)}
-              placeholder="курица, рыба — через запятую"
+              placeholder={t.allergiesPlaceholder}
               className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
             />
           </div>
 
-          {/* Хронические болезни */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Хронические болезни</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t.chronicConditions}</label>
             <input
               value={chronicConditions}
               onChange={e => setChronicConditions(e.target.value)}
-              placeholder="ХБП, сахарный диабет — через запятую"
+              placeholder={t.chronicPlaceholder}
               className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
             />
           </div>
 
-          {/* Препараты */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Принимает препараты</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t.medications}</label>
             <input
               value={medications}
               onChange={e => setMedications(e.target.value)}
-              placeholder="Нефростоп, витамины — через запятую"
+              placeholder={t.medicationsPlaceholder}
               className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
             />
           </div>
 
-          {/* Доп. информация */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Дополнительно</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t.notes}</label>
             <textarea
               value={notes}
               onChange={e => setNotes(e.target.value.slice(0, NOTES_MAX))}
-              placeholder="Любые детали, которые помогут при анализе симптомов..."
+              placeholder={t.notesPlaceholder}
               rows={3}
               className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 resize-none"
             />
@@ -284,7 +278,7 @@ export default function CatForm({ cat }: Props) {
                 disabled={deleting}
                 className="px-4 py-3 rounded-xl text-sm font-medium text-red-600 border border-red-200 hover:bg-red-50 transition-colors disabled:opacity-50"
               >
-                {deleting ? 'Удаление...' : 'Удалить'}
+                {deleting ? t.deletingBtn : t.deleteBtn}
               </button>
             )}
             <button
@@ -292,7 +286,7 @@ export default function CatForm({ cat }: Props) {
               disabled={saving}
               className="flex-1 bg-orange-500 text-white py-3 rounded-xl font-medium hover:bg-orange-600 transition-colors disabled:opacity-50"
             >
-              {saving ? 'Сохраняем...' : isEdit ? 'Сохранить' : 'Добавить кота'}
+              {saving ? t.savingBtn : isEdit ? t.saveBtn : t.addBtn}
             </button>
           </div>
         </form>
@@ -305,10 +299,10 @@ export default function CatForm({ cat }: Props) {
         >
           <div className="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-sm p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-2">
-              Удалить профиль {cat!.name}?
+              {t.confirmDeleteTitle.replace('{name}', cat!.name)}
             </h2>
             <p className="text-sm text-gray-600 mb-5">
-              Профиль и вся история проверок по этому коту будут скрыты. Отменить действие нельзя.
+              {t.confirmDeleteBody}
             </p>
             <div className="flex gap-3">
               <button
@@ -317,7 +311,7 @@ export default function CatForm({ cat }: Props) {
                 disabled={deleting}
                 className="flex-1 bg-white border border-gray-200 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition-colors text-sm disabled:opacity-50"
               >
-                Отмена
+                {t.cancelBtn}
               </button>
               <button
                 type="button"
@@ -325,12 +319,12 @@ export default function CatForm({ cat }: Props) {
                 disabled={deleting}
                 className="flex-1 bg-red-600 text-white py-3 rounded-xl font-medium hover:bg-red-700 transition-colors text-sm disabled:opacity-50"
               >
-                {deleting ? 'Удаляем...' : 'Удалить'}
+                {deleting ? t.deletingBtn : t.deleteBtn}
               </button>
             </div>
           </div>
         </div>
       )}
-    </div>
+    </AppShell>
   )
 }
