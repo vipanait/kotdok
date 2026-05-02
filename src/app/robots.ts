@@ -1,4 +1,5 @@
 import type { MetadataRoute } from 'next'
+import { siteUrl } from '@/shared/seo'
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -14,9 +15,12 @@ export default function robots(): MetadataRoute.Robots {
           '/dashboard',
           '/check',
           '/cats',
+          '/admin',
+          '/billing',
+          '/api',
         ],
       },
     ],
-    sitemap: 'https://lapka.my/sitemap.xml',
+    sitemap: `${siteUrl}/sitemap.xml`,
   }
 }

@@ -6,7 +6,7 @@ import DummyLogo from '@/components/DummyLogo'
 import DummyCheckoutClient from '@/features/billing/DummyCheckoutClient'
 
 export const metadata: Metadata = {
-  title: 'Тестовая оплата — Лапка',
+  title: 'Тестовая оплата',
   robots: { index: false, follow: false },
 }
 

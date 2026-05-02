@@ -7,10 +7,10 @@ import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
 import { createClient } from '@/server/supabase/server'
 
 export const metadata: Metadata = {
-  title: 'Лапка — экстренная проверка симптомов кошки',
+  title: 'Экстренная проверка симптомов кошки',
   description: 'Когда с питомцем что-то не так, важно быстро понять, насколько срочная ситуация. Короткий опрос подскажет, нужно ли наблюдать, записаться к врачу или действовать срочно.',
-  alternates: { canonical: 'https://lapka.my' },
-  openGraph: { url: 'https://lapka.my' },
+  alternates: { canonical: '/' },
+  openGraph: { url: '/' },
 }
 
 export default async function Home() {
