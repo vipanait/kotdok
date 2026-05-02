@@ -9,7 +9,7 @@ import { formatMoney, isTerminalStatus, TX_STATUS_LABEL } from '@/lib/billing-fo
 interface TransactionView {
   id: string
   current_status: TxStatus
-  amount_cents: number
+  amount: number
   currency: string
   units_total: number
   package: { name: string } | { name: string }[] | null
@@ -74,7 +74,7 @@ export default function ReturnClient({ transactionId }: { transactionId: string 
         </p>
         {tx && (
           <p className="text-xs text-green-700 mb-5">
-            {packageName} · {formatMoney(tx.amount_cents, tx.currency)}
+            {packageName} · {formatMoney(tx.amount, tx.currency)}
           </p>
         )}
         <Link

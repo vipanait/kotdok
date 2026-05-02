@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 interface TxRow {
   id: string
   current_status: TxStatus
-  amount_cents: number
+  amount: number
   currency: string
   units_total: number
   created_at: string
@@ -30,7 +30,7 @@ export default async function BillingPage() {
   const [{ data: txRaw }, { data: methodsRaw }] = await Promise.all([
     service
       .from('transactions')
-      .select('id, current_status, amount_cents, currency, units_total, created_at, package:packages(name)')
+      .select('id, current_status, amount, currency, units_total, created_at, package:packages(name)')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(50),
@@ -99,7 +99,7 @@ export default async function BillingPage() {
                   </div>
                   <div className="text-right shrink-0">
                     <div className="text-sm font-semibold text-gray-900">
-                      {formatMoney(tx.amount_cents, tx.currency)}
+                      {formatMoney(tx.amount, tx.currency)}
                     </div>
                     <span className={`inline-block mt-1 text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full ${TX_STATUS_STYLE[tx.current_status]}`}>
                       {TX_STATUS_LABEL[tx.current_status]}
