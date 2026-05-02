@@ -19,7 +19,7 @@ export default async function DashboardPage() {
   const service = createServiceClient()
 
   const [{ data: profile }, { data: checks }, { data: cats }] = await Promise.all([
-    service.from('profiles').select('credits, plan').eq('id', user.id).single(),
+    service.from('profiles').select('credits, plan, role').eq('id', user.id).single(),
     service
       .from('symptom_checks')
       .select('id, symptoms_input, urgency, urgency_reason, possible_causes, cat_specific_warning, home_care_steps, vet_questions, full_response, created_at')
@@ -72,6 +72,14 @@ export default async function DashboardPage() {
             {t.transactionHistory}
           </Link>
         </div>
+        {profile?.role === 'admin' && (
+          <Link
+            href="/admin/statistics"
+            className="mt-3 block rounded-xl border border-orange-100 bg-orange-50 px-4 py-2.5 text-center text-sm font-medium text-orange-700 hover:bg-orange-100 transition-colors"
+          >
+            {dict.admin.statistics.title}
+          </Link>
+        )}
       </div>
 
       {/* My cats */}

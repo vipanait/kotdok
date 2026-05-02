@@ -1,4 +1,5 @@
 export type Urgency = 'emergency' | 'urgent' | 'monitor' | 'home_care' | 'healthy'
+export type UserRole = 'user' | 'admin'
 
 export interface SymptomCheckResult {
   urgency: Urgency
@@ -39,5 +40,6 @@ export interface Profile {
   id: string
   credits: number
   plan: 'free' | 'credits' | 'monthly' | 'pro'
+  role: UserRole
   created_at: string
 }

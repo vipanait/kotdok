@@ -251,6 +251,23 @@ const ru = {
     noTransactions: 'Операций пока нет.',
     checks: '{n} проверок',
   },
+  admin: {
+    statistics: {
+      kicker: 'Админ',
+      title: 'Статистика',
+      subtitle: 'Регистрации, оплаты и проверки симптомов по всем пользователям.',
+      registeredUsers: 'Зарегистрировалось пользователей',
+      payingUsers: 'Пользователей с оплатами',
+      symptomCheckUsers: 'Пользователей с проверками симптомов',
+      totalRevenue: 'Общая сумма оплат',
+      chartTitle: 'Динамика по дням',
+      chartSubtitle: 'Регистрации, успешные оплаты и сумма успешных оплат.',
+      days: '{n} дн.',
+      registrationsChart: 'Регистрации',
+      paymentsChart: 'Оплаты',
+      paymentAmountChart: 'Сумма оплат',
+    },
+  },
   pricing: {
     title: 'Пополнить баланс',
     availableChecks: 'Сейчас доступно проверок: {n}',

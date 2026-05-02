@@ -251,6 +251,23 @@ const en: Dictionary = {
     noTransactions: 'No transactions yet.',
     checks: '{n} checks',
   },
+  admin: {
+    statistics: {
+      kicker: 'Admin',
+      title: 'Statistics',
+      subtitle: 'Registrations, payments, and symptom checks across all users.',
+      registeredUsers: 'Registered users',
+      payingUsers: 'Users with payments',
+      symptomCheckUsers: 'Users with symptom checks',
+      totalRevenue: 'Total paid',
+      chartTitle: 'Daily trend',
+      chartSubtitle: 'Registrations, successful payments, and successful payment amount.',
+      days: '{n} days',
+      registrationsChart: 'Registrations',
+      paymentsChart: 'Payments',
+      paymentAmountChart: 'Payment amount',
+    },
+  },
   pricing: {
     title: 'Top up balance',
     availableChecks: 'Currently available checks: {n}',
