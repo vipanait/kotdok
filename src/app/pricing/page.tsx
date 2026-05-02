@@ -6,7 +6,7 @@ import PricingClient from './PricingClient'
 import type { Package, PaymentMethod } from '@/types/billing'
 
 export const metadata: Metadata = {
-  title: 'Пополнить — КотДок',
+  title: 'Пополнить — Лапка',
   robots: { index: false, follow: false },
 }
 
@@ -19,7 +19,7 @@ export default async function PricingPage() {
   const [{ data: packagesRaw }, { data: profile }, { data: methodsRaw }] = await Promise.all([
     service
       .from('packages')
-      .select('id, code, name, units, unit_price_cents, price_cents, currency, is_active, sort_order, created_at')
+      .select('id, code, name, units, unit_price, amount, currency, is_active, sort_order, created_at')
       .eq('is_active', true)
       .order('sort_order', { ascending: true }),
     service.from('profiles').select('credits').eq('id', user.id).single(),
@@ -38,7 +38,7 @@ export default async function PricingPage() {
   return (
     <div className="min-h-screen px-4 py-8 max-w-2xl mx-auto">
       <div className="flex items-center justify-between mb-8">
-        <Link href="/dashboard" className="text-2xl font-bold">🐱 КотДок</Link>
+        <Link href="/dashboard" className="text-2xl font-bold">🐱 Лапка</Link>
         <Link href="/dashboard" className="text-sm text-gray-500 hover:text-gray-700">← Назад</Link>
       </div>
 

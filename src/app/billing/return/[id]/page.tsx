@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import ReturnClient from './ReturnClient'
 
 export const metadata: Metadata = {
-  title: 'Оплата — КотДок',
+  title: 'Оплата — Лапка',
   robots: { index: false, follow: false },
 }
 
@@ -22,7 +22,7 @@ export default async function BillingReturnPage({
   return (
     <div className="min-h-screen px-4 py-8 max-w-md mx-auto">
       <div className="flex items-center justify-between mb-8">
-        <Link href="/dashboard" className="text-2xl font-bold">🐱 КотДок</Link>
+        <Link href="/dashboard" className="text-2xl font-bold">🐱 Лапка</Link>
       </div>
 
       <ReturnClient transactionId={id} />

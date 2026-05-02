@@ -16,8 +16,8 @@ export interface Package {
   code: string
   name: string
   units: number
-  unit_price_cents: number
-  price_cents: number
+  unit_price: number
+  amount: number
   currency: string
   is_active: boolean
   sort_order: number
@@ -31,8 +31,8 @@ export interface Transaction {
   provider_payment_id: string | null
   package_id: string
   units_total: number
-  unit_price_cents: number
-  amount_cents: number
+  unit_price: number
+  amount: number
   currency: string
   current_status: TxStatus
   current_status_event_id: string | null

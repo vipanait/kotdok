@@ -39,7 +39,7 @@ OUTPUT FORMAT (always valid JSON, no markdown). All text fields must be in Russi
   "cat_specific_warning": "специфика для кошек или null",
   "home_care_steps": ["шаг 1", "шаг 2"],
   "vet_questions": ["вопрос 1", "вопрос 2"],
-  "disclaimer": "КотДок — информационный инструмент. Не является ветеринарным диагнозом и не заменяет осмотр специалиста."
+  "disclaimer": "Лапка — информационный инструмент. Не является ветеринарным диагнозом и не заменяет осмотр специалиста."
 }
 
 CONTEXT FROM VET DATABASE:
@@ -83,7 +83,7 @@ function validateAIResponse(raw: unknown): SymptomCheckResult {
     cat_specific_warning: r.cat_specific_warning ? String(r.cat_specific_warning) : null,
     home_care_steps: Array.isArray(r.home_care_steps) ? r.home_care_steps as string[] : [],
     vet_questions: Array.isArray(r.vet_questions) ? r.vet_questions as string[] : [],
-    disclaimer: String(r.disclaimer ?? 'КотДок — информационный инструмент. Не является ветеринарным диагнозом и не заменяет осмотр специалиста.'),
+    disclaimer: String(r.disclaimer ?? 'Лапка — информационный инструмент. Не является ветеринарным диагнозом и не заменяет осмотр специалиста.'),
   }
 }
 

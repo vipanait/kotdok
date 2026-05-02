@@ -12,7 +12,7 @@ const jsonLd = {
     {
       '@type': 'Organization',
       '@id': `${siteUrl}/#organization`,
-      name: 'КотДок',
+      name: 'Лапка',
       url: siteUrl,
       logo: {
         '@type': 'ImageObject',
@@ -27,7 +27,7 @@ const jsonLd = {
     {
       '@type': 'WebApplication',
       '@id': `${siteUrl}/#app`,
-      name: 'КотДок',
+      name: 'Лапка',
       url: siteUrl,
       description: 'AI-симптомчекер для кошек. Опишите симптомы — получите уровень срочности за 15 секунд.',
       applicationCategory: 'HealthApplication',
@@ -43,21 +43,21 @@ const jsonLd = {
     },
   ],
 }
-const title = 'КотДок — AI симптомчекер для кошек'
+const title = 'Лапка — AI симптомчекер для кошек'
 const description = 'Узнайте насколько серьёзны симптомы вашей кошки за 15 секунд. Опишите что происходит — получите чёткий ответ с уровнем срочности.'
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
     default: title,
-    template: '%s — КотДок',
+    template: '%s — Лапка',
   },
   description,
   openGraph: {
     type: 'website',
     locale: 'ru_RU',
     url: siteUrl,
-    siteName: 'КотДок',
+    siteName: 'Лапка',
     title,
     description,
   },

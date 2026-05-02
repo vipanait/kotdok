@@ -95,7 +95,7 @@ export default function CatForm({ cat }: Props) {
   return (
     <div className="min-h-screen px-4 py-8 max-w-2xl mx-auto">
       <div className="flex items-center justify-between mb-8">
-        <Link href="/dashboard" className="text-2xl font-bold">🐱 КотДок</Link>
+        <Link href="/dashboard" className="text-2xl font-bold">🐱 Лапка</Link>
         <Link href="/dashboard" className="text-sm text-gray-500 hover:text-gray-700">← Назад</Link>
       </div>
 

@@ -10,8 +10,8 @@ export async function GET() {
   const { data, error } = await supabase
     .from('transactions')
     .select(`
-      id, provider, amount_cents, currency,
-      units_total, unit_price_cents,
+      id, provider, amount, currency,
+      units_total, unit_price,
       current_status, created_at, updated_at,
       package:packages ( name, code )
     `)
