@@ -46,7 +46,9 @@ export async function middleware(request: NextRequest) {
   const isProtected = protectedPaths.some(p => request.nextUrl.pathname.startsWith(p))
 
   if (!user && isProtected) {
-    return NextResponse.redirect(new URL('/login', request.url))
+    const loginUrl = new URL('/login', request.url)
+    loginUrl.searchParams.set('next', `${request.nextUrl.pathname}${request.nextUrl.search}`)
+    return NextResponse.redirect(loginUrl)
   }
 
   if (user && (request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/register')) {

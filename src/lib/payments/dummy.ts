@@ -4,7 +4,6 @@
 // real PSP (Tinkoff, Stripe, ...) would do server-to-server.
 
 import type {
-  ChargeSavedInput,
   ChargeSavedResult,
   InitPaymentInput,
   InitPaymentResult,
@@ -40,13 +39,21 @@ export class DummyProvider implements PaymentProvider {
     return { providerPaymentId, redirectUrl }
   }
 
-  async chargeSaved(_input: ChargeSavedInput): Promise<ChargeSavedResult> {
+  async chargeSaved(): Promise<ChargeSavedResult> {
     // For saved-card flow there is no UI; the API route will trigger the
     // webhook itself after marking the transaction pending.
     return { providerPaymentId: randomId('dummy') }
   }
 
-  async parseWebhook(rawBody: string): Promise<ProviderWebhookEvent | null> {
+  async parseWebhook(rawBody: string, headers?: Headers): Promise<ProviderWebhookEvent | null> {
+    const secret = process.env.DUMMY_WEBHOOK_SECRET
+    if (secret) {
+      const providedSecret = headers?.get('x-dummy-webhook-secret')
+      if (providedSecret !== secret) throw new Error('invalid_signature')
+    } else if (process.env.NODE_ENV === 'production') {
+      throw new Error('dummy_webhook_secret_required')
+    }
+
     let body: DummyWebhookPayload
     try {
       body = JSON.parse(rawBody) as DummyWebhookPayload

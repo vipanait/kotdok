@@ -7,6 +7,12 @@ import { createClient } from '@/lib/supabase/client'
 import AuthShell from '@/components/AuthShell'
 import { useTranslations } from '@/components/LocaleProvider'
 
+function getSafeNextPath(): string {
+  const next = new URLSearchParams(window.location.search).get('next')
+  if (!next || !next.startsWith('/') || next.startsWith('//')) return '/dashboard'
+  return next
+}
+
 export default function RegisterPage() {
   const router = useRouter()
   const dict = useTranslations()
@@ -27,7 +33,9 @@ export default function RegisterPage() {
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL ?? window.location.origin}/auth/callback` },
+      options: {
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL ?? window.location.origin}/auth/callback?next=${encodeURIComponent(getSafeNextPath())}`,
+      },
     })
 
     if (error) {
@@ -36,7 +44,7 @@ export default function RegisterPage() {
       return
     }
 
-    router.push('/dashboard')
+    router.push(getSafeNextPath())
     router.refresh()
   }
 
@@ -46,7 +54,9 @@ export default function RegisterPage() {
     const supabase = createClient()
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(getSafeNextPath())}`,
+      },
     })
     if (error) {
       setError(t.errorGoogle)

@@ -88,11 +88,17 @@ function validateAIResponse(raw: unknown): SymptomCheckResult {
 }
 
 export async function POST(request: NextRequest) {
+  let reservedUsageLedgerId: string | null = null
+  let supabaseForRefund: ReturnType<typeof createServiceClient> | null = null
+  let userIdForRefund: string | null = null
+
   try {
     const user = await getAuthUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    userIdForRefund = user.id
 
     const supabase = createServiceClient()
+    supabaseForRefund = supabase
 
     // Credits check
     const { data: profile } = await supabase
@@ -112,7 +118,7 @@ export async function POST(request: NextRequest) {
     let activity: string | null = null
     let duration: string | null = null
     let stool: string | null = null
-    let photoBase64List: { data: string; mimeType: string }[] = []
+    const photoBase64List: { data: string; mimeType: string }[] = []
 
     const contentType = request.headers.get('content-type') ?? ''
 
@@ -169,27 +175,43 @@ export async function POST(request: NextRequest) {
 
     // Cat profile context
     let catContext = ''
+    let verifiedCatId: string | null = null
     if (cat_id) {
       const { data: cat } = await supabase
         .from('cats').select('*').eq('id', cat_id).eq('user_id', user.id).is('deleted_at', null).single()
-      if (cat) {
-        const parts = [
-          cat.name,
-          cat.breed ? `breed: ${cat.breed}` : null,
-          cat.age_years != null ? `${cat.age_years} years old` : null,
-          cat.sex || null,
-          cat.neutered != null ? (cat.neutered ? 'neutered/spayed' : 'intact') : null,
-          cat.indoor_outdoor ? `lifestyle: ${cat.indoor_outdoor}` : null,
-          cat.diet ? `diet: ${cat.diet} food` : null,
-          cat.vaccinated != null ? (cat.vaccinated ? 'vaccinated' : 'not vaccinated') : null,
-          cat.allergies?.length ? `allergies: ${cat.allergies.join(', ')}` : null,
-          cat.chronic_conditions?.length ? `chronic conditions: ${cat.chronic_conditions.join(', ')}` : null,
-          cat.medications?.length ? `medications: ${cat.medications.join(', ')}` : null,
-          cat.notes ? `additional notes: ${cat.notes}` : null,
-        ].filter(Boolean)
-        catContext = `\n\nCAT PROFILE: ${parts.join(', ')}`
-      }
+      if (!cat) return NextResponse.json({ error: 'Cat not found / Кот не найден.' }, { status: 404 })
+
+      verifiedCatId = cat.id
+      const parts = [
+        cat.name,
+        cat.breed ? `breed: ${cat.breed}` : null,
+        cat.age_years != null ? `${cat.age_years} years old` : null,
+        cat.sex || null,
+        cat.neutered != null ? (cat.neutered ? 'neutered/spayed' : 'intact') : null,
+        cat.indoor_outdoor ? `lifestyle: ${cat.indoor_outdoor}` : null,
+        cat.diet ? `diet: ${cat.diet} food` : null,
+        cat.vaccinated != null ? (cat.vaccinated ? 'vaccinated' : 'not vaccinated') : null,
+        cat.allergies?.length ? `allergies: ${cat.allergies.join(', ')}` : null,
+        cat.chronic_conditions?.length ? `chronic conditions: ${cat.chronic_conditions.join(', ')}` : null,
+        cat.medications?.length ? `medications: ${cat.medications.join(', ')}` : null,
+        cat.notes ? `additional notes: ${cat.notes}` : null,
+      ].filter(Boolean)
+      catContext = `\n\nCAT PROFILE: ${parts.join(', ')}`
     }
+
+    // Reserve the credit before expensive external work. If anything below
+    // fails, the catch block compensates it with refund_symptom_check_usage.
+    const { data: usage, error: usageError } = await supabase.rpc('apply_symptom_check_usage', {
+      p_user_id: user.id,
+      p_symptom_check_id: null,
+    })
+    if (usageError) {
+      const status = usageError.message.includes('insufficient_credits') ? 402 : 500
+      return NextResponse.json({ error: usageError.message }, { status })
+    }
+    const reservedUsage = usage as { new_balance: number; ledger_id: string } | null
+    reservedUsageLedgerId = reservedUsage?.ledger_id ?? null
+    const newBalance = reservedUsage?.new_balance ?? profile.credits - 1
 
     // RAG search
     const vetContext = await getVetContext(symptoms)
@@ -249,11 +271,11 @@ export async function POST(request: NextRequest) {
     const result = validateAIResponse(parsed)
 
     // Save check first so the ledger entry can reference it.
-    const { data: check } = await supabase
+    const { data: check, error: checkError } = await supabase
       .from('symptom_checks')
       .insert({
         user_id: user.id,
-        cat_id: cat_id || null,
+        cat_id: verifiedCatId,
         symptoms_input: symptoms,
         urgency: result.urgency,
         urgency_reason: result.urgency_reason,
@@ -265,14 +287,18 @@ export async function POST(request: NextRequest) {
       })
       .select('id')
       .single()
+    if (checkError || !check) throw new Error(checkError?.message ?? 'symptom_check_save_failed')
 
-    // Atomic balance decrement + ledger entry. Raises 'insufficient_credits' if race loss.
-    const { data: usage, error: usageError } = await supabase.rpc('apply_symptom_check_usage', {
-      p_user_id: user.id,
-      p_symptom_check_id: check?.id ?? null,
-    })
-    if (usageError) throw new Error(usageError.message)
-    const newBalance = (usage as { new_balance: number } | null)?.new_balance ?? profile.credits - 1
+    if (reservedUsageLedgerId) {
+      const { error: ledgerError } = await supabase
+        .from('credit_ledger')
+        .update({ symptom_check_id: check.id })
+        .eq('id', reservedUsageLedgerId)
+        .eq('user_id', user.id)
+        .eq('reason', 'usage')
+      if (ledgerError) console.error('usage ledger attach error:', ledgerError)
+    }
+    reservedUsageLedgerId = null
 
     return NextResponse.json({
       ...result,
@@ -286,6 +312,13 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error('symptom-check error:', error)
+    if (reservedUsageLedgerId && supabaseForRefund && userIdForRefund) {
+      const { error: refundError } = await supabaseForRefund.rpc('refund_symptom_check_usage', {
+        p_user_id: userIdForRefund,
+        p_usage_ledger_id: reservedUsageLedgerId,
+      })
+      if (refundError) console.error('symptom-check credit refund error:', refundError)
+    }
     return NextResponse.json({ error: 'An error occurred / Произошла ошибка.' }, { status: 500 })
   }
 }

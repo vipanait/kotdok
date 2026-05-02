@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import { getAuthUser } from '@/lib/server-auth'
 import { getProvider } from '@/lib/payments/registry'
-import type { DummyWebhookPayload } from '@/lib/payments/dummy'
+import { createBillingTransaction } from '@/lib/billing-transactions'
 
 interface SavedPurchaseBody {
   package_id: string
@@ -33,22 +33,26 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'payment_method_not_found' }, { status: 404 })
   }
 
-  const { data: created, error: createErr } = await supabase.rpc('create_transaction', {
-    p_user_id: user.id,
-    p_provider: pm.provider,
-    p_package_id: body.package_id,
-    p_metadata: { flow: 'saved_card' },
-    p_payment_method_id: pm.id,
-  })
-
-  if (createErr || !created) {
-    return NextResponse.json({ error: createErr?.message ?? 'create_failed' }, { status: 500 })
+  let created
+  try {
+    created = await createBillingTransaction(supabase, {
+      userId: user.id,
+      provider: pm.provider,
+      packageId: body.package_id,
+      metadata: { flow: 'saved_card' },
+      paymentMethodId: pm.id,
+    })
+  } catch (err) {
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : 'create_failed' },
+      { status: 500 },
+    )
   }
 
-  const txId = created.transaction_id as string
-  const amountCents = created.amount as number
-  const currency = created.currency as string
-  const packageName = created.package_name as string
+  const txId = created.transaction_id
+  const amountCents = created.amount
+  const currency = created.currency
+  const packageName = created.package_name
 
   try {
     const result = await getProvider(pm.provider).chargeSaved({
@@ -60,26 +64,22 @@ export async function POST(request: NextRequest) {
       providerPmId: pm.provider_pm_id,
     })
 
-    await supabase.rpc('mark_transaction_pending', {
+    const { error: pendingErr } = await supabase.rpc('mark_transaction_pending', {
       p_transaction_id: txId,
       p_provider_payment_id: result.providerPaymentId,
     })
+    if (pendingErr) throw pendingErr
 
-    // For dummy provider there is no UI step — fire the webhook ourselves so
-    // the transaction reaches a terminal state. In real life a PSP would
-    // call us back after charging the saved card.
+    // For dummy provider there is no UI step; apply the simulated terminal
+    // event directly instead of relying on background work after response.
     if (pm.provider === 'dummy') {
-      const payload: DummyWebhookPayload = {
-        providerPaymentId: result.providerPaymentId,
-        status: 'succeeded',
-      }
-      // Fire-and-forget; the UI will poll /api/billing/transactions/[id].
-      fetch(`${request.nextUrl.origin}/api/billing/webhook/dummy`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-        cache: 'no-store',
-      }).catch(err => console.error('[dummy saved-card webhook] failed:', err))
+      const { error: applyErr } = await supabase.rpc('apply_transaction_success', {
+        p_provider: pm.provider,
+        p_provider_payment_id: result.providerPaymentId,
+        p_provider_event_id: `dummy:${result.providerPaymentId}:succeeded`,
+        p_payload: { providerPaymentId: result.providerPaymentId, status: 'succeeded' },
+      })
+      if (applyErr) throw applyErr
     }
 
     // The actual 'succeeded' state will arrive via webhook; respond with tx id
