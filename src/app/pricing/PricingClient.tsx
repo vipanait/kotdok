@@ -41,7 +41,7 @@ export default function PricingClient({ packages, methods }: Props) {
           body: JSON.stringify({ package_id: selectedPackageId, save_payment_method: saveCard }),
         })
         const data = await res.json()
-        if (!res.ok) throw new Error(data.error ?? 'purchase_failed')
+        if (!res.ok) throw new Error(data.detail ?? data.error ?? 'purchase_failed')
         if (data.redirect_url) {
           window.location.href = data.redirect_url
           return
@@ -54,7 +54,7 @@ export default function PricingClient({ packages, methods }: Props) {
           body: JSON.stringify({ package_id: selectedPackageId, payment_method_id: payMode }),
         })
         const data = await res.json()
-        if (!res.ok) throw new Error(data.error ?? 'purchase_failed')
+        if (!res.ok) throw new Error(data.detail ?? data.error ?? 'purchase_failed')
         router.push(`/billing/return/${data.transaction_id}`)
       }
     } catch (err) {

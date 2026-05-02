@@ -5,7 +5,7 @@ import { DummyProvider } from './dummy'
 let dummySingleton: DummyProvider | null = null
 
 export function isDummyProviderEnabled(): boolean {
-  return process.env.NODE_ENV !== 'production' || process.env.ENABLE_DUMMY_PAYMENTS === 'true'
+  return process.env.ENABLE_DUMMY_PAYMENTS !== 'false'
 }
 
 export function getProvider(name: PaymentProviderName): PaymentProvider {
