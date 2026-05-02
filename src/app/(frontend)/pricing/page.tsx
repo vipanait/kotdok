@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient, createServiceClient } from '@/server/supabase/server'
 import PricingClient from '@/features/billing/PricingClient'
-import type { Package, PaymentMethod } from '@/shared/types/billing'
+import type { Package, PublicPaymentMethod } from '@/shared/types/billing'
 import { getLocale } from '@/server/i18n/get-locale'
 import { getDictionary } from '@/server/i18n/get-dictionary'
 import AppShell from '@/components/AppShell'
@@ -32,14 +32,14 @@ export default async function PricingPage() {
     service.from('profiles').select('credits').eq('id', user.id).single(),
     service
       .from('payment_methods')
-      .select('id, user_id, provider, provider_pm_id, brand, last4, exp_month, exp_year, is_default, created_at, deleted_at')
+      .select('id, provider, brand, last4, exp_month, exp_year, is_default, created_at')
       .eq('user_id', user.id)
       .is('deleted_at', null)
       .order('created_at', { ascending: false }),
   ])
 
   const packages = (packagesRaw ?? []) as Package[]
-  const methods = (methodsRaw ?? []) as PaymentMethod[]
+  const methods = (methodsRaw ?? []) as PublicPaymentMethod[]
   const credits = profile?.credits ?? 0
 
   return (

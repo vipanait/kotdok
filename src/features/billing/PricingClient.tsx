@@ -2,12 +2,12 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import type { Package, PaymentMethod } from '@/shared/types/billing'
+import type { Package, PublicPaymentMethod } from '@/shared/types/billing'
 import { formatMoney } from '@/shared/utils/billing-format'
 
 interface Props {
   packages: Package[]
-  methods: PaymentMethod[]
+  methods: PublicPaymentMethod[]
 }
 
 type PayMode = 'new' | string // string = payment_method_id

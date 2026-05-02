@@ -1,5 +1,6 @@
 import 'server-only'
 
+import { randomUUID } from 'crypto'
 import { createServiceClient } from '@/server/supabase/server'
 import { getProvider, isDummyProviderEnabled } from '@/server/payments/registry'
 import type { DummyWebhookPayload } from '@/server/payments/dummy'
@@ -182,7 +183,7 @@ export async function confirmDummyCheckout(input: {
   }
 
   if (input.outcome === 'succeeded' && input.saveCard && !tx.payment_method_id) {
-    payload.rebillId = `dummy_pm_${Math.random().toString(36).slice(2, 10)}`
+    payload.rebillId = randomUUID()
     payload.cardLast4 = '4242'
     payload.cardBrand = 'Visa'
     payload.cardExpMonth = 12

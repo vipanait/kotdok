@@ -33,7 +33,7 @@ export function softDeletePaymentMethod(
     .eq('user_id', userId)
     .is('deleted_at', null)
     .select('id')
-    .single()
+    .maybeSingle()
 }
 
 export function listTransactions(supabase: SupabaseService, userId: string) {
@@ -65,5 +65,5 @@ export function getTransaction(
     `)
     .eq('id', transactionId)
     .eq('user_id', userId)
-    .single()
+    .maybeSingle()
 }

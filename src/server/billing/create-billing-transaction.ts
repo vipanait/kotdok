@@ -33,15 +33,17 @@ export async function createBillingTransaction(
   }
   if (!pkg.is_active) throw new Error('package_inactive')
 
-  const amount = Number(pkg.amount ?? Number(pkg.unit_price) * Number(pkg.units))
+  const units = Number(pkg.units)
+  const unitPrice = Number(pkg.unit_price)
+  const amount = unitPrice * units
   const { data: transaction, error: transactionError } = await supabase
     .from('transactions')
     .insert({
       user_id: input.userId,
       provider: input.provider,
       package_id: input.packageId,
-      units_total: pkg.units,
-      unit_price: pkg.unit_price,
+      units_total: units,
+      unit_price: unitPrice,
       amount,
       currency: pkg.currency,
       metadata: input.metadata ?? {},
