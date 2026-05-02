@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatMoney, isTerminalStatus } from '../billing-format'
+import { formatMoney, isTerminalStatus } from '@/shared/utils/billing-format'
 import type { TxStatus } from '@/shared/types/billing'
 
 describe('formatMoney', () => {
