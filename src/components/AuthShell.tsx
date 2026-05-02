@@ -14,6 +14,7 @@ interface Props {
 
 export default function AuthShell({ heading, subheading, topRight, children, footer }: Props) {
   const dict = useTranslations()
+  const home = dict.home
   return (
     <div className="min-h-screen bg-[#F7F6F4] text-black">
       <div className="relative mx-auto flex min-h-screen max-w-[1200px] flex-col px-10 py-10 lg:min-h-[760px]">
@@ -50,6 +51,24 @@ export default function AuthShell({ heading, subheading, topRight, children, foo
                 {subheading}
               </p>
             )}
+
+            <div className="mt-12 flex flex-wrap items-center gap-6 lg:mt-auto lg:pt-16">
+              <Link
+                href="/register"
+                className="flex h-[140px] w-[140px] shrink-0 items-center justify-center rounded-full bg-[#FC7A00] px-6 text-center text-[17px] font-semibold leading-[21px] text-white transition-colors hover:bg-[#e36c00]"
+              >
+                {home.checkSymptoms}
+              </Link>
+
+              <ul className="flex items-stretch gap-5 text-sm font-bold leading-[17px]">
+                {[home.tag1, home.tag2, home.tag3].map((tag, i) => (
+                  <li key={tag} className={i > 0 ? 'flex items-center gap-5' : undefined}>
+                    {i > 0 && <span className="w-px self-stretch bg-[#D9D9D9]" aria-hidden />}
+                    <span className="max-w-[118px] whitespace-pre-line">{tag}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
 
           {/* Right: form card */}
