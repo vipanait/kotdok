@@ -105,7 +105,7 @@ export default function CatForm({ cat }: Props) {
         <CatAvatar size={72} />
         <div>
           <p className="text-xs font-semibold tracking-wider text-text-muted uppercase">{t.kicker}</p>
-          <h1 className="font-serif italic text-4xl sm:text-5xl font-bold text-text leading-none mt-1">
+          <h1 className="font-serif text-4xl sm:text-5xl font-bold text-text leading-none mt-1">
             {isEdit ? `${t.editTitlePrefix}: ${cat!.name}` : t.newTitle}
           </h1>
           <p className="text-xs text-text-muted mt-2">{t.profileSubheading}</p>

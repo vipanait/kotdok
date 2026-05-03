@@ -21,7 +21,7 @@ export default function DashboardHistory({ checks }: Props) {
 
   return (
     <>
-      <ul className="space-y-3">
+      <ul className="divide-y divide-hairline -my-3">
         {checks.map(check => {
           const key = check.urgency as UrgencyKey
           const urgencyText = dict.urgency[key]
@@ -30,11 +30,11 @@ export default function DashboardHistory({ checks }: Props) {
               <button
                 type="button"
                 onClick={() => setSelectedCheck(check)}
-                className="w-full text-left rounded-2xl border border-hairline bg-canvas-soft/60 hover:bg-canvas-soft px-4 py-3 transition-colors flex items-center gap-3"
+                className="w-full text-left py-4 transition-colors flex items-center gap-3 hover:bg-canvas-soft/40 -mx-4 px-4 rounded-xl"
               >
-                <span className={`mt-1 block h-2.5 w-2.5 shrink-0 rounded-full ${URGENCY_DOT_CLASS[key] ?? 'bg-text-faint'}`} aria-hidden />
+                <span className={`block h-2.5 w-2.5 shrink-0 rounded-full ${URGENCY_DOT_CLASS[key] ?? 'bg-text-faint'}`} aria-hidden />
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-text line-clamp-1">{check.symptoms_input}</p>
+                  <p className="text-base font-medium text-text line-clamp-1">{check.symptoms_input}</p>
                   <p className="text-xs text-text-faint mt-0.5">
                     {new Date(check.created_at).toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
                       day: 'numeric',
@@ -83,18 +83,16 @@ function HistoryModal({ check, onClose }: { check: SymptomCheckRecord; onClose: 
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 sm:p-4"
       onClick={e => { if (e.target === e.currentTarget) onClose() }}
     >
-      <div className="bg-card rounded-t-3xl sm:rounded-3xl w-full sm:max-w-lg max-h-[95dvh] overflow-y-auto">
+      <div className="bg-card rounded-t-3xl sm:rounded-3xl w-full sm:max-w-2xl max-h-[95dvh] overflow-y-auto relative">
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute top-4 right-4 z-10 text-text/70 hover:text-text w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/10 transition-colors text-xl leading-none"
+          aria-label={dict.common.close}
+        >
+          ×
+        </button>
         <div className="p-6 sm:p-8">
-          <div className="flex justify-end mb-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="text-text-faint hover:text-text w-8 h-8 flex items-center justify-center rounded-full hover:bg-canvas-soft transition-colors text-xl leading-none"
-              aria-label={dict.common.close}
-            >
-              ×
-            </button>
-          </div>
           <CheckResultContent check={check} />
         </div>
       </div>
