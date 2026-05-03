@@ -27,15 +27,15 @@ export default function LegalPage() {
           </Link>
         </header>
 
-        <main className="mt-12 grid gap-10 lg:mt-[60px] lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
+        <main className="mt-12 grid gap-10 lg:mt-[60px] lg:grid-cols-[minmax(0,500px)_minmax(0,1fr)]">
           <aside className="lg:sticky lg:top-10 lg:self-start">
             <p className="mb-6 text-sm font-bold uppercase tracking-[0.18em] text-black/[.32]">
               Документы
             </p>
             <h1
-              className="font-black text-black"
+              className="max-w-[500px] font-black text-black"
               style={{
-                fontSize: 'clamp(40px, 6vw, 60px)',
+                fontSize: 'clamp(40px, 5vw, 52px)',
                 lineHeight: 1,
                 letterSpacing: '-0.02em',
                 fontWeight: 860,
@@ -49,17 +49,6 @@ export default function LegalPage() {
             >
               Редакция от 14 апреля 2026 г.
             </p>
-            <div className="mt-12 flex flex-wrap items-center gap-6">
-              <Link
-                href="/"
-                className="flex h-[140px] w-[140px] shrink-0 items-center justify-center rounded-full bg-[#FC7A00] px-6 text-center text-[17px] font-semibold leading-[21px] text-white transition-colors hover:bg-[#e36c00]"
-              >
-                Вернуться на главную
-              </Link>
-              <p className="max-w-[220px] text-sm font-bold leading-[17px] text-black/[.44]">
-                Условия использования сервиса Лапка, оплаты, данных и ограничений ответственности.
-              </p>
-            </div>
           </aside>
 
           <article className="rounded-[28px] bg-white p-6 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.15)] sm:p-10">
