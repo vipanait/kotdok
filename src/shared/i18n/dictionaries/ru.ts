@@ -131,10 +131,17 @@ const ru = {
     addCatBtn: 'Добавить кота',
     addCatHint: 'нужен для проверки симптомов',
     checkSymptomsBtn: 'Проверить симптомы',
+    kicker: 'ДОСТУПНО ПРОВЕРОК',
+    checksUnit: 'проверок симптомов',
+    statistics: 'Статистика',
+    seeAll: 'Все',
+    signOut: 'Выйти',
   },
   cats: {
     newTitle: 'Добавить кота',
     editTitlePrefix: 'Редактировать',
+    kicker: 'ПРОФИЛЬ ПИТОМЦА',
+    profileSubheading: 'Чем точнее профиль — тем точнее проверка симптомов',
     errorName: 'Введите имя кота',
     errorGeneric: 'Произошла ошибка',
     name: 'Имя *',
@@ -226,6 +233,11 @@ const ru = {
     creditsRemaining: 'Осталось credits: {n}',
     modalHeading: 'Опишите симптомы',
     modalSubheading: 'Чем подробнее — тем точнее. Можно добавить фото.',
+    stepLabel: 'ШАГ 1 ИЗ 1',
+    changeCat: 'Сменить',
+    describeMore: 'Опишите подробнее',
+    submitButton: 'Получить оценку',
+    willCharge: 'Будет списана 1 проверка',
     symptoms: 'Симптомы',
     pageHeading: 'Опишите симптомы',
     pageSubheading:
@@ -243,13 +255,16 @@ const ru = {
   },
   billing: {
     title: 'История операций',
-    topUp: 'Пополнить',
+    kicker: 'БАЛАНС И ПЛАТЕЖИ',
+    topUp: '+ Пополнить',
     savedCards: 'Сохранённые карты',
     noSavedCards:
       'Нет сохранённых карт. Поставьте галочку «Сохранить карту» при следующей покупке.',
     transactions: 'Операции',
     noTransactions: 'Операций пока нет.',
     checks: '{n} проверок',
+    creditAdd: 'Пополнение баланса',
+    delete: 'Удалить',
   },
   admin: {
     statistics: {

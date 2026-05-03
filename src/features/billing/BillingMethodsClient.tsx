@@ -2,12 +2,14 @@
 
 import { useState } from 'react'
 import type { PublicPaymentMethod } from '@/shared/types/billing'
+import { useTranslations } from '@/components/LocaleProvider'
 
 interface Props {
   initialMethods: PublicPaymentMethod[]
 }
 
 export default function BillingMethodsClient({ initialMethods }: Props) {
+  const dict = useTranslations()
   const [methods, setMethods] = useState(initialMethods)
   const [confirmId, setConfirmId] = useState<string | null>(null)
   const [busyId, setBusyId] = useState<string | null>(null)
@@ -32,7 +34,7 @@ export default function BillingMethodsClient({ initialMethods }: Props) {
   }
 
   if (!methods.length) {
-    return <p className="text-sm text-gray-500">Нет сохранённых карт.</p>
+    return <p className="text-sm text-text-muted">{dict.billing.noSavedCards}</p>
   }
 
   return (
@@ -41,14 +43,17 @@ export default function BillingMethodsClient({ initialMethods }: Props) {
         {methods.map(pm => (
           <li
             key={pm.id}
-            className="flex items-center justify-between rounded-xl border border-gray-200 px-3 py-2"
+            className="flex items-center justify-between rounded-2xl bg-card-soft/60 px-4 py-3"
           >
-            <div className="text-sm">
-              <span className="font-medium text-gray-800">
-                {pm.brand ?? 'Карта'} •••• {pm.last4 ?? '????'}
+            <div className="flex items-center gap-3 min-w-0">
+              <span className="shrink-0 inline-flex items-center justify-center rounded-md bg-[#1A1F71] text-white text-[10px] font-bold tracking-wide px-2 py-1">
+                {pm.brand?.toUpperCase() ?? 'CARD'}
+              </span>
+              <span className="text-base font-semibold text-text">
+                •••• {pm.last4 ?? '????'}
               </span>
               {pm.exp_month && pm.exp_year && (
-                <span className="text-gray-400 ml-2">
+                <span className="text-sm text-text-faint">
                   {String(pm.exp_month).padStart(2, '0')}/{String(pm.exp_year).slice(-2)}
                 </span>
               )}
@@ -56,15 +61,15 @@ export default function BillingMethodsClient({ initialMethods }: Props) {
             <button
               type="button"
               onClick={() => setConfirmId(pm.id)}
-              className="text-xs text-red-500 hover:text-red-600"
+              className="text-sm font-medium text-status-error-fg hover:underline"
             >
-              Удалить
+              {dict.billing.delete}
             </button>
           </li>
         ))}
       </ul>
 
-      {error && <p className="text-xs text-red-600 mt-2">{error}</p>}
+      {error && <p className="text-xs text-status-error-fg mt-2">{error}</p>}
 
       {confirmId && (
         <div
@@ -74,11 +79,11 @@ export default function BillingMethodsClient({ initialMethods }: Props) {
           onClick={() => busyId ? null : setConfirmId(null)}
         >
           <div
-            className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl"
+            className="bg-card rounded-3xl p-6 max-w-sm w-full"
             onClick={e => e.stopPropagation()}
           >
-            <h3 className="font-semibold text-gray-900 mb-2">Удалить карту?</h3>
-            <p className="text-sm text-gray-600 mb-5">
+            <h3 className="font-bold text-text mb-2">Удалить карту?</h3>
+            <p className="text-sm text-text-muted mb-5">
               Карта больше не будет доступна для быстрой оплаты. Это действие нельзя отменить.
             </p>
             <div className="flex gap-3">
@@ -86,17 +91,17 @@ export default function BillingMethodsClient({ initialMethods }: Props) {
                 type="button"
                 onClick={() => setConfirmId(null)}
                 disabled={busyId !== null}
-                className="flex-1 bg-white border border-gray-200 text-gray-700 px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
+                className="flex-1 bg-card border border-hairline text-text px-4 py-2.5 rounded-full text-sm font-medium hover:bg-canvas-soft transition-colors disabled:opacity-50"
               >
-                Отмена
+                {dict.common.cancel ?? 'Отмена'}
               </button>
               <button
                 type="button"
                 onClick={() => handleDelete(confirmId)}
                 disabled={busyId !== null}
-                className="flex-1 bg-red-500 text-white px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-red-600 transition-colors disabled:opacity-50"
+                className="flex-1 bg-status-error-fg text-white px-4 py-2.5 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
               >
-                {busyId ? 'Удаляем...' : 'Удалить'}
+                {busyId ? 'Удаляем...' : dict.billing.delete}
               </button>
             </div>
           </div>

@@ -131,10 +131,17 @@ const en: Dictionary = {
     addCatBtn: 'Add a cat',
     addCatHint: 'required for symptom checking',
     checkSymptomsBtn: 'Check symptoms',
+    kicker: 'AVAILABLE CHECKS',
+    checksUnit: 'symptom checks',
+    statistics: 'Statistics',
+    seeAll: 'All',
+    signOut: 'Sign out',
   },
   cats: {
     newTitle: 'Add a cat',
     editTitlePrefix: 'Edit',
+    kicker: 'PET PROFILE',
+    profileSubheading: 'The more accurate the profile — the better the symptom check',
     errorName: 'Enter the cat\'s name',
     errorGeneric: 'An error occurred',
     name: 'Name *',
@@ -226,6 +233,11 @@ const en: Dictionary = {
     creditsRemaining: 'Credits remaining: {n}',
     modalHeading: 'Describe symptoms',
     modalSubheading: 'The more detail — the more accurate. You can add photos.',
+    stepLabel: 'STEP 1 OF 1',
+    changeCat: 'Change',
+    describeMore: 'Describe in more detail',
+    submitButton: 'Get assessment',
+    willCharge: '1 check will be used',
     symptoms: 'Symptoms',
     pageHeading: 'Describe symptoms',
     pageSubheading:
@@ -243,13 +255,16 @@ const en: Dictionary = {
   },
   billing: {
     title: 'Transaction history',
-    topUp: 'Top up',
+    kicker: 'BALANCE & PAYMENTS',
+    topUp: '+ Top up',
     savedCards: 'Saved cards',
     noSavedCards:
       'No saved cards. Check "Save card" during your next purchase.',
     transactions: 'Transactions',
     noTransactions: 'No transactions yet.',
     checks: '{n} checks',
+    creditAdd: 'Balance top-up',
+    delete: 'Delete',
   },
   admin: {
     statistics: {

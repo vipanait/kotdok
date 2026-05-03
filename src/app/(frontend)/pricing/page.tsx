@@ -44,18 +44,21 @@ export default async function PricingPage() {
 
   return (
     <AppShell right={
-      <Link href="/dashboard" className="text-sm text-gray-500 hover:text-gray-700">{dict.common.back}</Link>
+      <Link href="/dashboard" className="text-text-muted hover:text-text">{dict.common.back}</Link>
     }>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-1">{t.title}</h1>
-        <p className="text-sm text-gray-500">
+      <div className="mb-6 sm:mb-8">
+        <p className="text-xs font-semibold tracking-wider text-text-muted uppercase">{dict.billing.kicker}</p>
+        <h1 className="font-serif italic text-4xl sm:text-5xl font-bold text-text mt-1 leading-none">{t.title}</h1>
+        <p className="text-sm text-text-muted mt-3">
           {t.availableChecks.replace('{n}', String(credits))}
         </p>
       </div>
 
-      <PricingClient packages={packages} methods={methods} />
+      <div className="bg-card rounded-3xl p-6 sm:p-8">
+        <PricingClient packages={packages} methods={methods} />
+      </div>
 
-      <p className="text-xs text-gray-400 mt-6 text-center">
+      <p className="text-xs text-text-faint mt-6 text-center">
         {t.paymentNote}
       </p>
     </AppShell>

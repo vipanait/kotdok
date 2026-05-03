@@ -22,7 +22,7 @@ export default function PricingClient({ packages, methods }: Props) {
 
   if (!packages.length) {
     return (
-      <div className="bg-white rounded-2xl border border-gray-100 p-6 text-sm text-gray-500">
+      <div className="text-sm text-text-muted">
         Сейчас нет активных пакетов. Попробуйте позже.
       </div>
     )
@@ -64,7 +64,7 @@ export default function PricingClient({ packages, methods }: Props) {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       {/* Package cards */}
       <div className="grid gap-3">
         {packages.map(pkg => {
@@ -77,17 +77,17 @@ export default function PricingClient({ packages, methods }: Props) {
               onClick={() => setSelectedPackageId(pkg.id)}
               className={`text-left rounded-2xl border-2 p-5 transition-colors ${
                 selected
-                  ? 'border-orange-400 bg-orange-50'
-                  : 'border-gray-100 bg-white hover:border-gray-200'
+                  ? 'border-accent bg-card-soft/60'
+                  : 'border-hairline bg-card hover:border-card-soft-strong'
               }`}
             >
               <div className="flex items-baseline justify-between mb-1">
-                <span className="text-lg font-semibold text-gray-900">{pkg.name}</span>
-                <span className="text-xl font-bold text-gray-900">
+                <span className="text-lg font-semibold text-text">{pkg.name}</span>
+                <span className="font-serif text-2xl font-bold text-text">
                   {formatMoney(pkg.amount, pkg.currency)}
                 </span>
               </div>
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-text-muted">
                 {perUnit} за проверку · {pkg.units} проверок
               </div>
             </button>
@@ -96,14 +96,14 @@ export default function PricingClient({ packages, methods }: Props) {
       </div>
 
       {/* Payment method */}
-      <div className="bg-white rounded-2xl border border-gray-100 p-5">
-        <p className="text-sm font-medium text-gray-700 mb-3">Способ оплаты</p>
+      <div>
+        <p className="text-sm font-semibold text-text mb-3">Способ оплаты</p>
         <div className="space-y-2">
           {methods.map(pm => (
             <label
               key={pm.id}
-              className={`flex items-center gap-3 rounded-xl border p-3 cursor-pointer transition-colors ${
-                payMode === pm.id ? 'border-orange-400 bg-orange-50' : 'border-gray-200 hover:bg-gray-50'
+              className={`flex items-center gap-3 rounded-2xl border p-3 cursor-pointer transition-colors ${
+                payMode === pm.id ? 'border-accent bg-card-soft/60' : 'border-hairline hover:bg-canvas-soft/50'
               }`}
             >
               <input
@@ -111,14 +111,17 @@ export default function PricingClient({ packages, methods }: Props) {
                 name="pay-mode"
                 checked={payMode === pm.id}
                 onChange={() => setPayMode(pm.id)}
-                className="accent-orange-500"
+                className="accent-[var(--accent)]"
               />
-              <div className="flex-1 text-sm">
-                <span className="font-medium text-gray-800">
-                  {pm.brand ?? 'Карта'} •••• {pm.last4 ?? '????'}
+              <div className="flex-1 text-sm flex items-center gap-3">
+                <span className="inline-flex items-center justify-center rounded-md bg-[#1A1F71] text-white text-[10px] font-bold tracking-wide px-2 py-1">
+                  {pm.brand?.toUpperCase() ?? 'CARD'}
+                </span>
+                <span className="font-medium text-text">
+                  •••• {pm.last4 ?? '????'}
                 </span>
                 {pm.exp_month && pm.exp_year && (
-                  <span className="text-gray-400 ml-2">
+                  <span className="text-text-faint">
                     {String(pm.exp_month).padStart(2, '0')}/{String(pm.exp_year).slice(-2)}
                   </span>
                 )}
@@ -127,8 +130,8 @@ export default function PricingClient({ packages, methods }: Props) {
           ))}
 
           <label
-            className={`flex items-center gap-3 rounded-xl border p-3 cursor-pointer transition-colors ${
-              payMode === 'new' ? 'border-orange-400 bg-orange-50' : 'border-gray-200 hover:bg-gray-50'
+            className={`flex items-center gap-3 rounded-2xl border p-3 cursor-pointer transition-colors ${
+              payMode === 'new' ? 'border-accent bg-card-soft/60' : 'border-hairline hover:bg-canvas-soft/50'
             }`}
           >
             <input
@@ -136,20 +139,20 @@ export default function PricingClient({ packages, methods }: Props) {
               name="pay-mode"
               checked={payMode === 'new'}
               onChange={() => setPayMode('new')}
-              className="accent-orange-500"
+              className="accent-[var(--accent)]"
             />
-            <span className="flex-1 text-sm font-medium text-gray-800">
+            <span className="flex-1 text-sm font-medium text-text">
               {methods.length ? 'Новая карта' : 'Оплатить картой'}
             </span>
           </label>
 
           {payMode === 'new' && (
-            <label className="flex items-center gap-2 pt-1 pl-3 text-sm text-gray-600 cursor-pointer">
+            <label className="flex items-center gap-2 pt-1 pl-3 text-sm text-text-muted cursor-pointer">
               <input
                 type="checkbox"
                 checked={saveCard}
                 onChange={e => setSaveCard(e.target.checked)}
-                className="accent-orange-500"
+                className="accent-[var(--accent)]"
               />
               Сохранить карту для быстрых покупок
             </label>
@@ -157,13 +160,13 @@ export default function PricingClient({ packages, methods }: Props) {
         </div>
       </div>
 
-      {error && <div className="bg-red-50 text-red-700 text-sm rounded-lg px-4 py-3">{error}</div>}
+      {error && <div className="bg-status-error-bg text-status-error-fg text-sm rounded-xl px-4 py-3">{error}</div>}
 
       <button
         type="button"
         onClick={handleBuy}
         disabled={loading || !selectedPackageId}
-        className="w-full bg-orange-500 text-white py-3 rounded-xl font-medium hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full rounded-full bg-accent text-white py-4 font-semibold hover:bg-accent-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {loading ? 'Переходим к оплате...' : 'Оплатить'}
       </button>

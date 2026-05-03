@@ -6,6 +6,7 @@ import DashboardHistory from '@/features/dashboard/DashboardHistory'
 import { getLocale } from '@/server/i18n/get-locale'
 import { getDictionary } from '@/server/i18n/get-dictionary'
 import AppShell from '@/components/AppShell'
+import CatAvatar from '@/components/CatAvatar'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -35,89 +36,106 @@ export default async function DashboardPage() {
       .order('created_at', { ascending: true }),
   ])
 
+  const credits = profile?.credits ?? 0
+
   return (
     <AppShell right={
       <form action="/api/auth/signout" method="post">
-        <button className="text-sm text-gray-500 hover:text-gray-700">{dict.common.signOut}</button>
+        <button className="text-text-muted hover:text-text">{t.signOut}</button>
       </form>
     }>
       <h1 className="sr-only">{t.title}</h1>
 
-      {/* Credits */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="text-sm text-gray-500">{t.availableChecks}</div>
-            <div className="text-4xl font-bold text-gray-900">{profile?.credits ?? 0}</div>
+      {/* Credits + actions */}
+      <section className="bg-card rounded-3xl p-6 sm:p-8 mb-6">
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-xs font-semibold tracking-wider text-text-muted uppercase">{t.kicker}</p>
+            <div className="mt-2 flex items-baseline gap-3 flex-wrap">
+              <span className="font-serif text-7xl sm:text-8xl font-semibold leading-none text-text">
+                {credits}
+              </span>
+              <span className="text-sm sm:text-base text-text-muted">{t.checksUnit}</span>
+            </div>
           </div>
           <DashboardActions cats={cats ?? []} />
         </div>
-        {(profile?.credits ?? 0) === 0 && (
-          <div className="mt-4 text-sm text-orange-700 bg-orange-50 rounded-lg px-4 py-3">
+
+        {credits === 0 && (
+          <div className="mt-5 rounded-xl bg-accent-soft px-4 py-3 text-sm text-accent-text">
             {t.creditsOut}{' '}
             <Link href="/pricing" className="underline font-medium">{t.topUp}</Link>
           </div>
         )}
-        <div className="flex gap-3 mt-4">
+
+        <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3">
           <Link
             href="/pricing"
-            className="flex-1 bg-orange-500 text-white text-sm font-medium text-center px-4 py-2.5 rounded-xl hover:bg-orange-600 transition-colors"
+            className="rounded-full bg-accent-soft px-4 py-3 text-center text-sm font-semibold text-accent-text hover:bg-[#F8D8B0] transition-colors"
           >
-            {t.topUp}
+            + {t.topUp}
           </Link>
           <Link
             href="/billing"
-            className="flex-1 bg-white border border-gray-200 text-gray-700 text-sm font-medium text-center px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-colors"
+            className="rounded-full bg-card border border-hairline px-4 py-3 text-center text-sm font-medium text-text hover:bg-canvas-soft transition-colors"
           >
             {t.transactionHistory}
           </Link>
+          {profile?.role === 'admin' ? (
+            <Link
+              href="/admin/statistics"
+              className="rounded-full bg-card border border-hairline px-4 py-3 text-center text-sm font-medium text-text hover:bg-canvas-soft transition-colors"
+            >
+              {t.statistics}
+            </Link>
+          ) : (
+            <span className="hidden sm:block" />
+          )}
         </div>
-        {profile?.role === 'admin' && (
-          <Link
-            href="/admin/statistics"
-            className="mt-3 block rounded-xl border border-orange-100 bg-orange-50 px-4 py-2.5 text-center text-sm font-medium text-orange-700 hover:bg-orange-100 transition-colors"
-          >
-            {dict.admin.statistics.title}
-          </Link>
-        )}
-      </div>
+      </section>
 
       {/* My cats */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-4">
+      <section className="bg-card rounded-3xl p-6 sm:p-8 mb-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-gray-900">{t.myCats}</h2>
-          <Link href="/cats/new" className="text-sm text-orange-500 hover:text-orange-600 font-medium">{t.addCat}</Link>
+          <h2 className="text-xl font-bold text-text">{t.myCats}</h2>
+          <Link href="/cats/new" className="text-sm text-text-muted hover:text-text">{t.addCat}</Link>
         </div>
         {!cats?.length ? (
-          <p className="text-sm text-gray-500">{t.noCats}</p>
+          <p className="text-sm text-text-muted">{t.noCats}</p>
         ) : (
-          <ul className="space-y-2">
+          <ul className="divide-y divide-hairline -my-2">
             {cats.map((cat: { id: string; name: string; breed: string | null; age_years: number | null; sex: string | null }) => (
-              <li key={cat.id} className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="text-lg">{cat.sex === 'male' ? '🐱' : '🐈'}</span>
-                  <div>
-                    <span className="text-sm font-medium text-gray-800">{cat.name}</span>
+              <li key={cat.id} className="flex items-center justify-between py-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <CatAvatar size={40} />
+                  <div className="min-w-0">
+                    <div className="text-base font-semibold text-text truncate">{cat.name}</div>
                     {(cat.breed || cat.age_years) && (
-                      <span className="text-xs text-gray-400 ml-2">
+                      <div className="text-xs text-text-faint truncate">
                         {[cat.breed, cat.age_years ? `${cat.age_years} ${t.yearsOld}` : null].filter(Boolean).join(', ')}
-                      </span>
+                      </div>
                     )}
                   </div>
                 </div>
-                <Link href={`/cats/${cat.id}/edit`} className="text-xs text-gray-400 hover:text-gray-600">{dict.common.edit}</Link>
+                <Link href={`/cats/${cat.id}/edit`} className="text-sm text-text-muted hover:text-text shrink-0">{dict.common.edit}</Link>
               </li>
             ))}
           </ul>
         )}
-      </div>
+      </section>
 
       {/* Check history */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-        <h2 className="font-semibold text-gray-900 mb-4">{t.checkHistory}</h2>
+      <section className="bg-card rounded-3xl p-6 sm:p-8">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold text-text">{t.checkHistory}</h2>
+          {(checks?.length ?? 0) > 0 && (
+            <span className="text-sm text-text-muted">{t.seeAll} →</span>
+          )}
+        </div>
         <DashboardHistory checks={checks ?? []} />
-      </div>
-      <p className="text-center text-xs text-gray-400 mt-6">
+      </section>
+
+      <p className="text-center text-xs text-text-faint mt-6">
         <Link href="/legal" className="hover:underline">{t.tos}</Link>
       </p>
     </AppShell>

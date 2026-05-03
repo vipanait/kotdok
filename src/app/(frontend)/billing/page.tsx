@@ -24,6 +24,26 @@ interface TxRow {
   package: { name: string } | { name: string }[] | null
 }
 
+const STATUS_BADGE_BG: Record<TxStatus, string> = {
+  succeeded: 'bg-status-good-fg/15 text-status-good-fg',
+  authorized: 'bg-status-good-fg/15 text-status-good-fg',
+  pending: 'bg-status-pending-bg text-status-pending-fg',
+  created: 'bg-status-pending-bg text-status-pending-fg',
+  failed: 'bg-status-error-bg text-status-error-fg',
+  canceled: 'bg-canvas-soft text-text-muted',
+  refunded: 'bg-card-soft text-accent-text',
+}
+
+const TX_AVATAR_BG: Record<TxStatus, string> = {
+  succeeded: 'bg-status-good-fg/15 text-status-good-fg',
+  authorized: 'bg-status-good-fg/15 text-status-good-fg',
+  pending: 'bg-status-pending-bg text-status-pending-fg',
+  created: 'bg-status-pending-bg text-status-pending-fg',
+  failed: 'bg-status-error-bg text-status-error-fg',
+  canceled: 'bg-canvas-soft text-text-muted',
+  refunded: 'bg-card-soft text-accent-text',
+}
+
 export default async function BillingPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -53,60 +73,68 @@ export default async function BillingPage() {
   const methods = (methodsRaw ?? []) as PublicPaymentMethod[]
 
   return (
-    <AppShell right={
-      <Link href="/dashboard" className="text-sm text-gray-500 hover:text-gray-700">{dict.common.backToAccount}</Link>
+    <AppShell width="wide" right={
+      <Link href="/dashboard" className="text-text-muted hover:text-text">{dict.common.backToAccount}</Link>
     }>
-
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">{t.title}</h1>
+      <div className="mb-6 sm:mb-8 flex items-end justify-between gap-6 flex-wrap">
+        <div>
+          <p className="text-xs font-semibold tracking-wider text-text-muted uppercase">{t.kicker}</p>
+          <h1 className="font-serif italic text-5xl sm:text-6xl font-bold text-text mt-2 leading-none">
+            {t.title}
+          </h1>
+        </div>
         <Link
           href="/pricing"
-          className="bg-orange-500 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-orange-600 transition-colors"
+          className="rounded-full bg-text text-white px-5 py-3 text-sm font-semibold hover:bg-black transition-colors shrink-0"
         >
           {t.topUp}
         </Link>
       </div>
 
       {/* Saved cards */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 mb-6">
-        <h2 className="font-semibold text-gray-900 mb-3">{t.savedCards}</h2>
+      <section className="bg-card rounded-3xl p-6 sm:p-8 mb-6">
+        <h2 className="text-lg font-bold text-text mb-4">{t.savedCards}</h2>
         {methods.length ? (
           <BillingMethodsClient initialMethods={methods} />
         ) : (
-          <p className="text-sm text-gray-500">{t.noSavedCards}</p>
+          <p className="text-sm text-text-muted">{t.noSavedCards}</p>
         )}
-      </div>
+      </section>
 
       {/* Transactions */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-        <h2 className="font-semibold text-gray-900 mb-3">{t.transactions}</h2>
+      <section className="bg-card rounded-3xl p-6 sm:p-8">
+        <h2 className="text-lg font-bold text-text mb-4">{t.transactions}</h2>
         {!transactions.length ? (
-          <p className="text-sm text-gray-500">{t.noTransactions}</p>
+          <p className="text-sm text-text-muted">{t.noTransactions}</p>
         ) : (
-          <ul className="divide-y divide-gray-50">
+          <ul className="divide-y divide-hairline -my-3">
             {transactions.map(tx => {
-              const pkgName = Array.isArray(tx.package) ? tx.package[0]?.name : tx.package?.name
               return (
-                <li key={tx.id} className="py-3 flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-gray-800 truncate">
-                      {pkgName ?? t.checks.replace('{n}', String(tx.units_total))}
-                    </p>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {new Date(tx.created_at).toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </p>
+                <li key={tx.id} className="py-4 flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold ${TX_AVATAR_BG[tx.current_status]}`}>
+                      +{tx.units_total}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="text-base font-semibold text-text truncate">
+                        {t.creditAdd}
+                      </p>
+                      <p className="text-xs text-text-faint mt-0.5">
+                        {new Date(tx.created_at).toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </p>
+                    </div>
                   </div>
                   <div className="text-right shrink-0">
-                    <div className="text-sm font-semibold text-gray-900">
+                    <div className="font-serif text-xl font-bold text-text">
                       {formatMoney(tx.amount, tx.currency)}
                     </div>
-                    <span className={`inline-block mt-1 text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full ${TX_STATUS_STYLE[tx.current_status]}`}>
+                    <span className={`inline-block mt-1 text-[10px] uppercase tracking-wider px-2.5 py-0.5 rounded-full ${STATUS_BADGE_BG[tx.current_status] ?? TX_STATUS_STYLE[tx.current_status]}`}>
                       {TX_STATUS_LABEL[tx.current_status]}
                     </span>
                   </div>
@@ -115,7 +143,7 @@ export default async function BillingPage() {
             })}
           </ul>
         )}
-      </div>
+      </section>
     </AppShell>
   )
 }
