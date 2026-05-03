@@ -322,40 +322,28 @@ export default function CheckForm({ cats, onClose }: Props) {
 
   if (onClose) {
     return (
-      <div className="p-6 sm:p-8">
-        {!result ? (
-          <>
-            <div className="flex items-start justify-between mb-5">
-              <div>
+      <div className="relative">
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute top-4 right-4 z-10 text-text/70 hover:text-text w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/10 transition-colors text-xl leading-none"
+          aria-label={dict.common.close}
+        >
+          ×
+        </button>
+        <div className="p-6 sm:p-8">
+          {!result ? (
+            <>
+              <div className="mb-5 pr-10">
                 <p className="text-[11px] font-semibold tracking-wider text-text-muted">{dict.check.stepLabel}</p>
                 <h2 className="mt-1 font-serif text-2xl sm:text-3xl font-bold text-text">{t.modalHeading}</h2>
               </div>
-              <button
-                type="button"
-                onClick={onClose}
-                className="text-text-faint hover:text-text w-8 h-8 flex items-center justify-center rounded-full hover:bg-canvas-soft transition-colors text-xl leading-none"
-                aria-label={dict.common.close}
-              >
-                ×
-              </button>
-            </div>
-            {formContent}
-          </>
-        ) : (
-          <>
-            <div className="flex justify-end mb-3">
-              <button
-                type="button"
-                onClick={onClose}
-                className="text-text-faint hover:text-text w-8 h-8 flex items-center justify-center rounded-full hover:bg-canvas-soft transition-colors text-xl leading-none"
-                aria-label={dict.common.close}
-              >
-                ×
-              </button>
-            </div>
-            {resultContent}
-          </>
-        )}
+              {formContent}
+            </>
+          ) : (
+            resultContent
+          )}
+        </div>
       </div>
     )
   }
