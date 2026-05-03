@@ -57,31 +57,31 @@ export default async function DummyCheckoutPage({
   const willSaveCard = save === '1'
 
   return (
-    <div className="min-h-screen bg-[#F7F6F4] flex items-center justify-center px-4 py-10">
+    <div className="min-h-screen bg-canvas flex items-center justify-center px-4 py-10">
       <div className="w-full max-w-md">
         <div className="flex flex-col items-center mb-6">
           <DummyLogo width={140} height={44} />
-          <p className="text-xs uppercase tracking-wide text-gray-400 mt-2">Тестовая платёжная система</p>
+          <p className="text-xs uppercase tracking-wider text-text-muted mt-2">Тестовая платёжная система</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <h1 className="text-xl font-semibold text-gray-900 mb-1">Подтвердите оплату</h1>
-          <p className="text-sm text-gray-500 mb-5">
+        <div className="bg-card rounded-3xl p-6 sm:p-8">
+          <h1 className="font-serif text-2xl font-bold text-text mb-1">Подтвердите оплату</h1>
+          <p className="text-sm text-text-muted mb-5">
             Это mock-страница. Реальный банк не задействован.
           </p>
 
-          <div className="rounded-xl bg-gray-50 p-4 mb-5">
+          <div className="rounded-2xl bg-card-soft/50 p-4 mb-5">
             <div className="flex items-baseline justify-between">
-              <span className="text-sm text-gray-600">{packageName ?? 'Пакет'}</span>
-              <span className="text-lg font-bold">{formatMoney(tx.amount, tx.currency)}</span>
+              <span className="text-sm text-text-muted">{packageName ?? 'Пакет'}</span>
+              <span className="font-serif text-xl font-bold text-text">{formatMoney(tx.amount, tx.currency)}</span>
             </div>
-            <div className="text-xs text-gray-400 mt-1">{tx.units_total} проверок</div>
+            <div className="text-xs text-text-faint mt-1">{tx.units_total} проверок</div>
           </div>
 
           <DummyCheckoutClient transactionId={id} willSaveCard={willSaveCard} />
         </div>
 
-        <p className="text-center text-xs text-gray-400 mt-4">
+        <p className="text-center text-xs text-text-faint mt-4">
           Подтверждение будет применено через внутренний mock-обработчик.
         </p>
       </div>

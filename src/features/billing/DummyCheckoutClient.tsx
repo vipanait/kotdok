@@ -47,7 +47,7 @@ export default function DummyCheckoutClient({
           type="button"
           onClick={() => trigger('succeeded')}
           disabled={busy !== null}
-          className="w-full bg-[#FC7A00] text-white py-3 rounded-xl font-semibold hover:bg-[#e36c00] transition-colors disabled:opacity-50"
+          className="w-full bg-accent text-white py-3 rounded-full font-semibold hover:bg-accent-hover transition-colors disabled:opacity-50"
         >
           {busy === 'succeeded' ? 'Подтверждаем...' : 'Оплатить'}
         </button>
@@ -55,7 +55,7 @@ export default function DummyCheckoutClient({
           type="button"
           onClick={() => trigger('failed')}
           disabled={busy !== null}
-          className="w-full bg-white border border-gray-200 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition-colors disabled:opacity-50 text-sm"
+          className="w-full bg-card border border-hairline text-text py-3 rounded-full font-medium hover:bg-canvas-soft transition-colors disabled:opacity-50 text-sm"
         >
           {busy === 'failed' ? 'Подтверждаем...' : 'Имитировать отказ банка'}
         </button>
@@ -63,13 +63,13 @@ export default function DummyCheckoutClient({
           type="button"
           onClick={() => trigger('canceled')}
           disabled={busy !== null}
-          className="w-full bg-white border border-gray-200 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition-colors disabled:opacity-50 text-sm"
+          className="w-full bg-card border border-hairline text-text py-3 rounded-full font-medium hover:bg-canvas-soft transition-colors disabled:opacity-50 text-sm"
         >
           {busy === 'canceled' ? 'Отменяем...' : 'Отменить оплату'}
         </button>
       </div>
 
-      {error && <p className="text-xs text-red-600 mt-3">{error}</p>}
+      {error && <p className="text-xs text-status-error-fg mt-3">{error}</p>}
     </>
   )
 }

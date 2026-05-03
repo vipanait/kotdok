@@ -1,26 +1,83 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #FBF1E0;
+  --foreground: #1B1B1B;
+
+  /* App canvas + cards */
+  --canvas: #FBF1E0;
+  --canvas-soft: #F7E8CC;
+  --card: #FFFFFF;
+  --card-soft: #FAE7C9;
+  --card-soft-strong: #F4DDB7;
+
+  /* Text */
+  --text: #1B1B1B;
+  --text-muted: #7A7367;
+  --text-faint: #A89F8E;
+
+  /* Borders */
+  --hairline: #ECE0C5;
+
+  /* Brand */
+  --accent: #FC7A00;
+  --accent-hover: #E36C00;
+  --accent-soft: #FCE4C7;
+  --accent-text: #C75D00;
+
+  /* Status chips */
+  --status-good-bg: #D6EFDC;
+  --status-good-fg: #2F8F5B;
+  --status-watch-fg: #C99021;
+  --status-urgent-fg: #E5683A;
+  --status-urgent-bg: #FAE5D2;
+  --status-emergency-fg: #B83D2A;
+  --status-emergency-bg: #F8DBD7;
+  --status-error-bg: #F8DBD7;
+  --status-error-fg: #B83D2A;
+  --status-pending-bg: #DDE7F8;
+  --status-pending-fg: #4F73B6;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
+  --color-canvas: var(--canvas);
+  --color-canvas-soft: var(--canvas-soft);
+  --color-card: var(--card);
+  --color-card-soft: var(--card-soft);
+  --color-card-soft-strong: var(--card-soft-strong);
+
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-text-faint: var(--text-faint);
+
+  --color-hairline: var(--hairline);
+
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-text: var(--accent-text);
+
+  --color-status-good-bg: var(--status-good-bg);
+  --color-status-good-fg: var(--status-good-fg);
+  --color-status-watch-fg: var(--status-watch-fg);
+  --color-status-urgent-fg: var(--status-urgent-fg);
+  --color-status-urgent-bg: var(--status-urgent-bg);
+  --color-status-emergency-fg: var(--status-emergency-fg);
+  --color-status-emergency-bg: var(--status-emergency-bg);
+  --color-status-error-bg: var(--status-error-bg);
+  --color-status-error-fg: var(--status-error-fg);
+  --color-status-pending-bg: var(--status-pending-bg);
+  --color-status-pending-fg: var(--status-pending-fg);
+
   --font-sans: var(--font-geist-sans);
+  --font-serif: var(--font-fraunces), "Fraunces", "Playfair Display", Georgia, serif;
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--canvas);
+  color: var(--text);
 }

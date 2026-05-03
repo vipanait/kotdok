@@ -5,9 +5,10 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import type { SymptomCheckResult, Cat } from '@/shared/types'
-import { URGENCY_CONFIG } from '@/shared/utils/urgency'
 import { useTranslations } from '@/components/LocaleProvider'
 import AppShell from '@/components/AppShell'
+import CatAvatar from '@/components/CatAvatar'
+import CheckResultContent, { type SymptomCheckRecord } from '@/features/symptom-check/CheckResultContent'
 
 interface Props {
   cats: Pick<Cat, 'id' | 'name' | 'breed' | 'age_years' | 'sex'>[]
@@ -21,6 +22,7 @@ export default function CheckForm({ cats, onClose }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [selectedCatId, setSelectedCatId] = useState<string>(cats[0]?.id ?? '')
+  const [showCatPicker, setShowCatPicker] = useState(false)
   const [appetite, setAppetite] = useState<string>('')
   const [activity, setActivity] = useState<string>('')
   const [duration, setDuration] = useState<string>('')
@@ -117,8 +119,6 @@ export default function CheckForm({ cats, onClose }: Props) {
     router.refresh()
   }
 
-  const urgencyConfig = result ? URGENCY_CONFIG[result.urgency] : null
-  const urgencyText = result ? dict.urgency[result.urgency as keyof typeof dict.urgency] : null
   const selectedCat = cats.find(c => c.id === selectedCatId)
 
   const appetiteOptions = [
@@ -146,55 +146,73 @@ export default function CheckForm({ cats, onClose }: Props) {
     { value: 'bloody', label: t.stoolBloody },
   ]
 
-  const appetiteLabels = Object.fromEntries(appetiteOptions.map(o => [o.value, o.label]))
-  const activityLabels = Object.fromEntries(activityOptions.map(o => [o.value, o.label]))
-  const durationLabels = Object.fromEntries(durationOptions.map(o => [o.value, o.label]))
-  const stoolLabels = Object.fromEntries(stoolOptions.map(o => [o.value, o.label]))
-
   const formContent = (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {cats.length > 1 && (
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">{t.whichCat}</label>
-          <select
-            value={selectedCatId}
-            onChange={e => setSelectedCatId(e.target.value)}
-            className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white"
-          >
-            {cats.map(cat => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}{cat.breed ? ` (${cat.breed})` : ''}{cat.age_years ? `, ${cat.age_years}` : ''}
-              </option>
-            ))}
-          </select>
-          {selectedCat && (
-            <p className="text-xs text-gray-400 mt-1">
-              {t.catProfile.replace('{name}', selectedCat.name)}
-            </p>
+    <form onSubmit={handleSubmit} className="space-y-5">
+      {/* Selected pet card */}
+      {selectedCat && (
+        <div className="rounded-2xl bg-card-soft p-3 flex items-center gap-3">
+          <CatAvatar size={44} bg="#FFFFFF" />
+          <div className="min-w-0 flex-1">
+            <div className="text-base font-semibold text-text truncate">{selectedCat.name}</div>
+            <div className="text-xs text-text-muted truncate">
+              {[selectedCat.breed, selectedCat.age_years ? `${selectedCat.age_years} ${dict.dashboard.yearsOld}` : null]
+                .filter(Boolean).join(' · ')}
+            </div>
+          </div>
+          {cats.length > 1 && (
+            <button
+              type="button"
+              onClick={() => setShowCatPicker(v => !v)}
+              className="rounded-full bg-card border border-hairline px-4 py-1.5 text-xs font-medium text-text hover:bg-canvas-soft transition-colors"
+            >
+              {dict.check.changeCat}
+            </button>
           )}
         </div>
       )}
 
-      <div className="space-y-3">
+      {showCatPicker && cats.length > 1 && (
+        <div className="rounded-2xl bg-canvas-soft p-2 grid gap-1">
+          {cats.map(c => (
+            <button
+              key={c.id}
+              type="button"
+              onClick={() => { setSelectedCatId(c.id); setShowCatPicker(false) }}
+              className={`text-left rounded-xl px-3 py-2 text-sm transition-colors ${
+                c.id === selectedCatId ? 'bg-card font-semibold text-text' : 'text-text-muted hover:bg-card/60'
+              }`}
+            >
+              {c.name}
+              {c.breed && <span className="text-text-faint ml-2">{c.breed}</span>}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <div className="grid sm:grid-cols-2 gap-x-5 gap-y-4">
         <ChipGroup label={t.appetite} value={appetite} onChange={setAppetite} options={appetiteOptions} />
         <ChipGroup label={t.activity} value={activity} onChange={setActivity} options={activityOptions} />
         <ChipGroup label={t.duration} value={duration} onChange={setDuration} options={durationOptions} />
         <ChipGroup label={t.stool} value={stool} onChange={setStool} options={stoolOptions} />
       </div>
 
-      <textarea
-        value={symptoms}
-        onChange={e => setSymptoms(e.target.value)}
-        placeholder={t.symptomsPlaceholder}
-        rows={4}
-        className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 resize-none"
-      />
+      <div>
+        <p className="text-sm font-semibold text-text mb-2">{dict.check.describeMore}</p>
+        <textarea
+          value={symptoms}
+          onChange={e => setSymptoms(e.target.value)}
+          placeholder={t.symptomsPlaceholder}
+          rows={4}
+          className="w-full bg-card border border-hairline rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40 resize-none"
+        />
+      </div>
 
+      {/* Photo dropzone */}
       <div className="space-y-2">
         {photoPreviews.length > 0 && (
           <div className="grid grid-cols-3 gap-2">
             {photoPreviews.map((src, i) => (
-              <div key={i} className="relative rounded-xl overflow-hidden border border-gray-200 aspect-square">
+              <div key={i} className="relative rounded-xl overflow-hidden border border-hairline aspect-square">
                 <Image src={src} alt={`Photo ${i + 1}`} fill className="object-cover" />
                 <button
                   type="button"
@@ -210,126 +228,75 @@ export default function CheckForm({ cats, onClose }: Props) {
         {photos.length < MAX_PHOTOS && (
           <div
             onClick={() => fileInputRef.current?.click()}
-            className="border-2 border-dashed border-gray-200 rounded-xl px-4 py-5 text-center cursor-pointer hover:border-orange-300 hover:bg-orange-50 transition-colors"
+            className="border-2 border-dashed border-[#E8D5B0] rounded-xl bg-card-soft/40 px-4 py-5 text-center cursor-pointer hover:bg-card-soft transition-colors"
           >
-            <div className="text-2xl mb-1">📷</div>
-            <div className="text-sm font-medium text-gray-600">
+            <div className="flex items-center justify-center gap-2 text-sm font-semibold text-text">
+              <span aria-hidden>📷</span>
               {photos.length === 0
                 ? t.addPhoto
                 : t.morePhotos.replace('{count}', String(photos.length)).replace('{max}', String(MAX_PHOTOS))}
             </div>
-            <div className="text-xs text-gray-400 mt-1">{t.photoHint}</div>
+            <p className="text-xs text-text-muted mt-1">{t.photoHint}</p>
           </div>
         )}
         <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handlePhotoChange} />
       </div>
 
-      {error && <div className="bg-red-50 text-red-700 text-sm rounded-lg px-4 py-3">{error}</div>}
+      {error && <div className="bg-status-error-bg text-status-error-fg text-sm rounded-xl px-4 py-3">{error}</div>}
 
-      <button
-        type="submit"
-        disabled={loading || symptoms.trim().length < 3}
-        className="w-full bg-orange-500 text-white py-3 rounded-xl font-medium hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        {loading ? (
-          <span className="flex items-center justify-center gap-2">
-            <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
-            </svg>
-            {photos.length > 0 ? t.analyzingPhotos : t.analyzing}
-          </span>
-        ) : (
-          photos.length > 0
-            ? t.analyzeWithPhotos.replace('{n}', String(photos.length))
-            : t.checkSymptoms
-        )}
-      </button>
+      <div className="pt-1">
+        <button
+          type="submit"
+          disabled={loading || symptoms.trim().length < 3}
+          className="w-full rounded-full bg-accent text-white py-4 font-semibold hover:bg-accent-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading ? (
+            <span className="flex items-center justify-center gap-2">
+              <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+              </svg>
+              {photos.length > 0 ? t.analyzingPhotos : t.analyzing}
+            </span>
+          ) : (
+            dict.check.submitButton
+          )}
+        </button>
+        <p className="text-center text-xs text-text-muted mt-2">{dict.check.willCharge}</p>
+      </div>
     </form>
   )
 
-  const resultContent = result && urgencyConfig && urgencyText ? (
-    <div className="space-y-4">
-      <div className={`rounded-2xl border-2 p-6 ${urgencyConfig.color}`}>
-        <div className="text-4xl mb-2">{urgencyConfig.emoji}</div>
-        <div className="text-2xl font-bold mb-1">{urgencyText.label}</div>
-        <div className="text-lg font-medium mb-2">{urgencyText.action}</div>
-        <div className="text-sm opacity-75">{result.urgency_reason}</div>
-      </div>
+  // Build a SymptomCheckRecord-shaped object from the API result so we can
+  // reuse the same renderer used by history.
+  const resultRecord: SymptomCheckRecord | null = result ? {
+    id: 'pending',
+    symptoms_input: symptoms,
+    urgency: result.urgency,
+    urgency_reason: result.urgency_reason,
+    possible_causes: result.possible_causes,
+    cat_specific_warning: result.cat_specific_warning ?? null,
+    home_care_steps: result.home_care_steps,
+    vet_questions: result.vet_questions,
+    full_response: {
+      appetite: result.appetite ?? null,
+      activity: result.activity ?? null,
+      duration: result.duration ?? null,
+      stool: result.stool ?? null,
+      photo_observations: result.photo_observations ?? null,
+      has_photo: result.has_photo,
+      disclaimer: result.disclaimer,
+    },
+    created_at: new Date().toISOString(),
+  } : null
 
-      {(result.appetite || result.activity || result.duration || result.stool) && (
-        <div className="bg-gray-50 rounded-2xl border border-gray-100 p-4">
-          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">{t.notedDuringCheck}</p>
-          <div className="flex flex-wrap gap-2">
-            {result.appetite && <Chip label={`${t.appetitePrefix}: ${appetiteLabels[result.appetite] ?? result.appetite}`} />}
-            {result.activity && <Chip label={`${t.activityPrefix}: ${activityLabels[result.activity] ?? result.activity}`} />}
-            {result.duration && <Chip label={`${t.durationPrefix}: ${durationLabels[result.duration] ?? result.duration}`} />}
-            {result.stool && <Chip label={`${t.stoolPrefix}: ${stoolLabels[result.stool] ?? result.stool}`} />}
-          </div>
-        </div>
-      )}
-
-      {result.has_photo && result.photo_observations && (
-        <div className="bg-blue-50 border border-blue-200 rounded-2xl p-6">
-          <h2 className="font-semibold text-blue-900 mb-2">{t.photoObservations}</h2>
-          <p className="text-sm text-blue-800">{result.photo_observations}</p>
-        </div>
-      )}
-
-      {result.possible_causes.length > 0 && (
-        <div className="bg-white rounded-2xl border border-gray-100 p-6">
-          <h2 className="font-semibold text-gray-900 mb-3">{t.possibleCauses}</h2>
-          <ul className="space-y-2">
-            {result.possible_causes.map((cause, i) => (
-              <li key={i} className="flex gap-2 text-sm text-gray-700">
-                <span className="text-gray-400 mt-0.5 shrink-0">•</span>
-                {cause}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {result.cat_specific_warning && (
-        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6">
-          <h2 className="font-semibold text-amber-900 mb-2">{t.catWarning}</h2>
-          <p className="text-sm text-amber-800">{result.cat_specific_warning}</p>
-        </div>
-      )}
-
-      {result.home_care_steps.length > 0 && (
-        <div className="bg-white rounded-2xl border border-gray-100 p-6">
-          <h2 className="font-semibold text-gray-900 mb-3">{t.homeCare}</h2>
-          <ol className="space-y-2">
-            {result.home_care_steps.map((step, i) => (
-              <li key={i} className="flex gap-3 text-sm text-gray-700">
-                <span className="text-orange-500 font-medium shrink-0">{i + 1}.</span>
-                {step}
-              </li>
-            ))}
-          </ol>
-        </div>
-      )}
-
-      {result.vet_questions.length > 0 && (
-        <div className="bg-white rounded-2xl border border-gray-100 p-6">
-          <h2 className="font-semibold text-gray-900 mb-3">{t.vetQuestions}</h2>
-          <ul className="space-y-2">
-            {result.vet_questions.map((q, i) => (
-              <li key={i} className="text-sm text-gray-700 border-b border-gray-50 pb-2 last:border-0 last:pb-0">{q}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      <div className="bg-gray-50 rounded-xl p-4 text-xs text-gray-500 text-center">
-        {result.disclaimer}
-      </div>
-
-      <div className="flex gap-3">
+  const resultContent = resultRecord ? (
+    <div>
+      <CheckResultContent check={resultRecord} />
+      <div className="px-6 sm:px-8 mt-6 flex gap-3">
         <button
           onClick={() => { setResult(null); setSymptoms(''); removeAllPhotos() }}
-          className="flex-1 bg-white border border-gray-200 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition-colors text-sm"
+          className="flex-1 bg-card border border-hairline text-text py-3 rounded-full font-medium hover:bg-canvas-soft transition-colors text-sm"
         >
           {t.newCheck}
         </button>
@@ -337,69 +304,77 @@ export default function CheckForm({ cats, onClose }: Props) {
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 bg-orange-500 text-white py-3 rounded-xl font-medium hover:bg-orange-600 transition-colors text-sm"
+            className="flex-1 rounded-full bg-accent text-white py-3 font-semibold hover:bg-accent-hover transition-colors text-sm"
           >
             {dict.common.close}
           </button>
         ) : (
-          <Link href="/dashboard" className="flex-1 bg-orange-500 text-white py-3 rounded-xl font-medium hover:bg-orange-600 transition-colors text-sm text-center">
+          <Link href="/dashboard" className="flex-1 rounded-full bg-accent text-white py-3 font-semibold hover:bg-accent-hover transition-colors text-sm text-center">
             {t.toAccount}
           </Link>
         )}
       </div>
-
-      <p className="text-center text-xs text-gray-400">
-        {t.creditsRemaining.replace('{n}', String(result.credits_remaining))}
+      <p className="text-center text-xs text-text-faint mt-4 px-6 pb-2">
+        {t.creditsRemaining.replace('{n}', String(result!.credits_remaining))}
       </p>
     </div>
   ) : null
 
   if (onClose) {
     return (
-      <div className="p-6">
-        <div className="flex items-center justify-between mb-5">
-          <div>
-            <h2 className="text-lg font-semibold text-gray-900">{t.modalHeading}</h2>
-            {!result && (
-              <p className="text-xs text-gray-400 mt-0.5">{t.modalSubheading}</p>
-            )}
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-xl leading-none"
-            aria-label={dict.common.close}
-          >
-            ×
-          </button>
-        </div>
-        {!result ? formContent : resultContent}
+      <div className="p-6 sm:p-8">
+        {!result ? (
+          <>
+            <div className="flex items-start justify-between mb-5">
+              <div>
+                <p className="text-[11px] font-semibold tracking-wider text-text-muted">{dict.check.stepLabel}</p>
+                <h2 className="mt-1 font-serif text-2xl sm:text-3xl font-bold text-text">{t.modalHeading}</h2>
+              </div>
+              <button
+                type="button"
+                onClick={onClose}
+                className="text-text-faint hover:text-text w-8 h-8 flex items-center justify-center rounded-full hover:bg-canvas-soft transition-colors text-xl leading-none"
+                aria-label={dict.common.close}
+              >
+                ×
+              </button>
+            </div>
+            {formContent}
+          </>
+        ) : (
+          <>
+            <div className="flex justify-end mb-3">
+              <button
+                type="button"
+                onClick={onClose}
+                className="text-text-faint hover:text-text w-8 h-8 flex items-center justify-center rounded-full hover:bg-canvas-soft transition-colors text-xl leading-none"
+                aria-label={dict.common.close}
+              >
+                ×
+              </button>
+            </div>
+            {resultContent}
+          </>
+        )}
       </div>
     )
   }
 
   return (
     <AppShell right={
-      <Link href="/dashboard" className="text-sm text-gray-500 hover:text-gray-700">{dict.common.back}</Link>
+      <Link href="/dashboard" className="text-sm text-text-muted hover:text-text">{dict.common.back}</Link>
     }>
       {!result ? (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <h1 className="text-xl font-semibold text-gray-900 mb-1">{t.pageHeading}</h1>
-          <p className="text-sm text-gray-500 mb-6">{t.pageSubheading}</p>
+        <div className="bg-card rounded-3xl p-6 sm:p-8">
+          <p className="text-[11px] font-semibold tracking-wider text-text-muted">{dict.check.stepLabel}</p>
+          <h1 className="mt-1 font-serif text-2xl sm:text-3xl font-bold text-text mb-1">{t.pageHeading}</h1>
+          <p className="text-sm text-text-muted mb-6">{t.pageSubheading}</p>
           {formContent}
         </div>
       ) : (
-        resultContent
+        <div className="bg-card rounded-3xl p-6 sm:p-8">{resultContent}</div>
       )}
     </AppShell>
-  )
-}
-
-function Chip({ label }: { label: string }) {
-  return (
-    <span className="px-3 py-1 rounded-full text-xs bg-white border border-gray-200 text-gray-600">
-      {label}
-    </span>
   )
 }
 
@@ -416,17 +391,17 @@ function ChipGroup({
 }) {
   return (
     <div>
-      <p className="text-sm font-medium text-gray-700 mb-2">{label}</p>
+      <p className="text-sm font-semibold text-text mb-2">{label}</p>
       <div className="flex flex-wrap gap-2">
         {options.map(opt => (
           <button
             key={opt.value}
             type="button"
             onClick={() => onChange(value === opt.value ? '' : opt.value)}
-            className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+            className={`px-3.5 py-1.5 rounded-full text-sm transition-colors ${
               value === opt.value
-                ? 'bg-orange-50 border-orange-400 text-orange-700 font-medium'
-                : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
+                ? 'bg-card-soft text-text font-medium'
+                : 'bg-card border border-hairline text-text-muted hover:border-card-soft-strong'
             }`}
           >
             {opt.label}

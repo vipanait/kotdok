@@ -1,12 +1,18 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Geist, Fraunces } from "next/font/google";
 import "./globals.css";
 import { getLocale } from "@/server/i18n/get-locale";
 import { getDictionary } from "@/server/i18n/get-dictionary";
 import { LocaleProvider } from "@/components/LocaleProvider";
 import { defaultSeo, siteName, siteUrl, supportEmail } from "@/shared/seo";
 
-const geist = Geist({ subsets: ["latin"] });
+const geist = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-fraunces",
+});
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -78,8 +84,8 @@ export default async function RootLayout({
   const dict = await getDictionary(locale);
 
   return (
-    <html lang={locale} className="h-full">
-      <body className={`${geist.className} min-h-full bg-gray-50`}>
+    <html lang={locale} className={`h-full ${geist.variable} ${fraunces.variable}`}>
+      <body className="min-h-full bg-canvas font-sans">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

@@ -34,9 +34,11 @@ export default async function CheckResultPage({ params }: { params: Promise<{ id
 
   return (
     <AppShell right={
-      <Link href="/dashboard" className="text-sm text-gray-500 hover:text-gray-700">{dict.common.back}</Link>
+      <Link href="/dashboard" className="text-text-muted hover:text-text">{dict.common.back}</Link>
     }>
-      <CheckResultContent check={check} showBackLink />
+      <div className="bg-card rounded-3xl p-6 sm:p-8">
+        <CheckResultContent check={check} showBackLink />
+      </div>
     </AppShell>
   )
 }

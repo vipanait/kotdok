@@ -6,6 +6,7 @@ import Link from 'next/link'
 import type { Cat } from '@/shared/types'
 import { useTranslations } from '@/components/LocaleProvider'
 import AppShell from '@/components/AppShell'
+import CatAvatar from '@/components/CatAvatar'
 
 type CatFormValues = Omit<Cat, 'id' | 'user_id' | 'created_at'>
 
@@ -97,38 +98,41 @@ export default function CatForm({ cat }: Props) {
   }
 
   return (
-    <AppShell right={
-      <Link href="/dashboard" className="text-sm text-gray-500 hover:text-gray-700">{dict.common.back}</Link>
+    <AppShell width="wide" right={
+      <Link href="/dashboard" className="text-text-muted hover:text-text">{dict.common.back}</Link>
     }>
+      <div className="flex items-end gap-5 mb-6 sm:mb-8">
+        <CatAvatar size={72} />
+        <div>
+          <p className="text-xs font-semibold tracking-wider text-text-muted uppercase">{t.kicker}</p>
+          <h1 className="font-serif italic text-4xl sm:text-5xl font-bold text-text leading-none mt-1">
+            {isEdit ? `${t.editTitlePrefix}: ${cat!.name}` : t.newTitle}
+          </h1>
+          <p className="text-xs text-text-muted mt-2">{t.profileSubheading}</p>
+        </div>
+      </div>
 
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-        <h1 className="text-xl font-semibold text-gray-900 mb-6">
-          {isEdit ? `${t.editTitlePrefix}: ${cat!.name}` : t.newTitle}
-        </h1>
-
+      <div className="bg-card rounded-3xl p-6 sm:p-8">
         <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t.name}</label>
+          <Field label={t.name}>
             <input
               value={name}
               onChange={e => setName(e.target.value)}
               placeholder={t.namePlaceholder}
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+              className={inputCls}
             />
-          </div>
+          </Field>
 
           <div className="grid grid-cols-3 gap-3">
-            <div className="col-span-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t.breed}</label>
+            <Field label={t.breed}>
               <input
                 value={breed}
                 onChange={e => setBreed(e.target.value)}
                 placeholder={t.breedPlaceholder}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+                className={inputCls}
               />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t.ageYears}</label>
+            </Field>
+            <Field label={t.ageYears}>
               <input
                 type="number"
                 min="0"
@@ -137,11 +141,10 @@ export default function CatForm({ cat }: Props) {
                 value={ageYears}
                 onChange={e => setAgeYears(e.target.value)}
                 placeholder="3"
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+                className={inputCls}
               />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t.weightKg}</label>
+            </Field>
+            <Field label={t.weightKg}>
               <input
                 type="number"
                 min="0"
@@ -150,58 +153,54 @@ export default function CatForm({ cat }: Props) {
                 value={weightKg}
                 onChange={e => setWeightKg(e.target.value)}
                 placeholder="4.5"
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+                className={inputCls}
               />
-            </div>
+            </Field>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t.sex}</label>
+            <Field label={t.sex}>
               <select
                 value={sex ?? ''}
                 onChange={e => setSex((e.target.value || null) as Cat['sex'])}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white"
+                className={inputCls}
               >
                 <option value="">{dict.common.notSpecifiedM}</option>
                 <option value="female">{t.sexFemale}</option>
                 <option value="male">{t.sexMale}</option>
               </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t.neutered}</label>
+            </Field>
+            <Field label={t.neutered}>
               <select
                 value={neutered == null ? '' : neutered ? 'yes' : 'no'}
                 onChange={e => setNeutered(e.target.value === '' ? null : e.target.value === 'yes')}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white"
+                className={inputCls}
               >
                 <option value="">{dict.common.notSpecified}</option>
                 <option value="yes">{dict.common.yes}</option>
                 <option value="no">{dict.common.no}</option>
               </select>
-            </div>
+            </Field>
           </div>
 
           <div className="grid grid-cols-3 gap-3">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t.lifestyle}</label>
+            <Field label={t.lifestyle}>
               <select
                 value={indoorOutdoor ?? ''}
                 onChange={e => setIndoorOutdoor((e.target.value || null) as Cat['indoor_outdoor'])}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white"
+                className={inputCls}
               >
                 <option value="">{dict.common.notSpecifiedM}</option>
                 <option value="indoor">{t.lifestyleIndoor}</option>
                 <option value="outdoor">{t.lifestyleOutdoor}</option>
                 <option value="both">{t.lifestyleBoth}</option>
               </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t.diet}</label>
+            </Field>
+            <Field label={t.diet}>
               <select
                 value={diet ?? ''}
                 onChange={e => setDiet((e.target.value || null) as Cat['diet'])}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white"
+                className={inputCls}
               >
                 <option value="">{dict.common.notSpecified}</option>
                 <option value="dry">{t.dietDry}</option>
@@ -209,66 +208,61 @@ export default function CatForm({ cat }: Props) {
                 <option value="mixed">{t.dietMixed}</option>
                 <option value="raw">{t.dietRaw}</option>
               </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t.vaccination}</label>
+            </Field>
+            <Field label={t.vaccination}>
               <select
                 value={vaccinated == null ? '' : vaccinated ? 'yes' : 'no'}
                 onChange={e => setVaccinated(e.target.value === '' ? null : e.target.value === 'yes')}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white"
+                className={inputCls}
               >
                 <option value="">{dict.common.notSpecified}</option>
                 <option value="yes">{t.vaccinationYes}</option>
                 <option value="no">{t.vaccinationNo}</option>
               </select>
-            </div>
+            </Field>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t.allergies}</label>
+          <Field label={t.allergies}>
             <input
               value={allergies}
               onChange={e => setAllergies(e.target.value)}
               placeholder={t.allergiesPlaceholder}
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+              className={inputCls}
             />
-          </div>
+          </Field>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t.chronicConditions}</label>
+          <Field label={t.chronicConditions}>
             <input
               value={chronicConditions}
               onChange={e => setChronicConditions(e.target.value)}
               placeholder={t.chronicPlaceholder}
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+              className={inputCls}
             />
-          </div>
+          </Field>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t.medications}</label>
+          <Field label={t.medications}>
             <input
               value={medications}
               onChange={e => setMedications(e.target.value)}
               placeholder={t.medicationsPlaceholder}
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+              className={inputCls}
             />
-          </div>
+          </Field>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t.notes}</label>
+          <Field label={t.notes}>
             <textarea
               value={notes}
               onChange={e => setNotes(e.target.value.slice(0, NOTES_MAX))}
               placeholder={t.notesPlaceholder}
               rows={3}
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 resize-none"
+              className="w-full bg-card border border-hairline rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 placeholder:text-text-faint resize-none"
             />
-            <p className={`text-xs mt-1 text-right ${notes.length >= NOTES_MAX ? 'text-red-400' : 'text-gray-400'}`}>
+            <p className={`text-xs mt-1 text-right ${notes.length >= NOTES_MAX ? 'text-status-error-fg' : 'text-text-faint'}`}>
               {notes.length}/{NOTES_MAX}
             </p>
-          </div>
+          </Field>
 
-          {error && <div className="bg-red-50 text-red-700 text-sm rounded-lg px-4 py-3">{error}</div>}
+          {error && <div className="bg-status-error-bg text-status-error-fg text-sm rounded-xl px-4 py-3">{error}</div>}
 
           <div className="flex gap-3 pt-2">
             {isEdit && (
@@ -276,7 +270,7 @@ export default function CatForm({ cat }: Props) {
                 type="button"
                 onClick={() => setConfirmDelete(true)}
                 disabled={deleting}
-                className="px-4 py-3 rounded-xl text-sm font-medium text-red-600 border border-red-200 hover:bg-red-50 transition-colors disabled:opacity-50"
+                className="px-5 py-3.5 rounded-full text-sm font-medium text-status-error-fg border border-status-error-bg hover:bg-status-error-bg/40 transition-colors disabled:opacity-50"
               >
                 {deleting ? t.deletingBtn : t.deleteBtn}
               </button>
@@ -284,7 +278,7 @@ export default function CatForm({ cat }: Props) {
             <button
               type="submit"
               disabled={saving}
-              className="flex-1 bg-orange-500 text-white py-3 rounded-xl font-medium hover:bg-orange-600 transition-colors disabled:opacity-50"
+              className="flex-1 bg-text text-white py-3.5 rounded-full font-semibold hover:bg-black transition-colors disabled:opacity-50"
             >
               {saving ? t.savingBtn : isEdit ? t.saveBtn : t.addBtn}
             </button>
@@ -294,22 +288,20 @@ export default function CatForm({ cat }: Props) {
 
       {confirmDelete && isEdit && (
         <div
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 sm:p-4"
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 sm:p-4"
           onClick={e => { if (e.target === e.currentTarget && !deleting) setConfirmDelete(false) }}
         >
-          <div className="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-sm p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-2">
+          <div className="bg-card rounded-t-3xl sm:rounded-3xl w-full sm:max-w-sm p-6">
+            <h2 className="text-lg font-bold text-text mb-2">
               {t.confirmDeleteTitle.replace('{name}', cat!.name)}
             </h2>
-            <p className="text-sm text-gray-600 mb-5">
-              {t.confirmDeleteBody}
-            </p>
+            <p className="text-sm text-text-muted mb-5">{t.confirmDeleteBody}</p>
             <div className="flex gap-3">
               <button
                 type="button"
                 onClick={() => setConfirmDelete(false)}
                 disabled={deleting}
-                className="flex-1 bg-white border border-gray-200 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition-colors text-sm disabled:opacity-50"
+                className="flex-1 bg-card border border-hairline text-text py-3 rounded-full font-medium hover:bg-canvas-soft transition-colors text-sm disabled:opacity-50"
               >
                 {t.cancelBtn}
               </button>
@@ -317,7 +309,7 @@ export default function CatForm({ cat }: Props) {
                 type="button"
                 onClick={handleDelete}
                 disabled={deleting}
-                className="flex-1 bg-red-600 text-white py-3 rounded-xl font-medium hover:bg-red-700 transition-colors text-sm disabled:opacity-50"
+                className="flex-1 bg-status-error-fg text-white py-3 rounded-full font-semibold hover:opacity-90 transition-opacity text-sm disabled:opacity-50"
               >
                 {deleting ? t.deletingBtn : t.deleteBtn}
               </button>
@@ -326,5 +318,17 @@ export default function CatForm({ cat }: Props) {
         </div>
       )}
     </AppShell>
+  )
+}
+
+const inputCls =
+  'w-full bg-card border border-hairline rounded-full px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 placeholder:text-text-faint'
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <label className="block">
+      <span className="block text-sm font-semibold text-text mb-1.5">{label}</span>
+      {children}
+    </label>
   )
 }
