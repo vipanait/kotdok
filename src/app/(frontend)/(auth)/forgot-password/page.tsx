@@ -1,3 +1,5 @@
-import ForgotPasswordPage from '@/features/auth/ForgotPasswordPage'
+import AuthRoute from '@/features/auth/AuthRoute'
 
-export default ForgotPasswordPage
+export default function Page() {
+  return <AuthRoute mode="forgot" />
+}

@@ -1,3 +1,5 @@
-import RegisterPage from '@/features/auth/RegisterPage'
+import AuthRoute from '@/features/auth/AuthRoute'
 
-export default RegisterPage
+export default function Page() {
+  return <AuthRoute mode="register" />
+}

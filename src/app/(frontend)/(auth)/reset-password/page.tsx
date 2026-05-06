@@ -1,3 +1,5 @@
-import ResetPasswordPage from '@/features/auth/ResetPasswordPage'
+import AuthRoute from '@/features/auth/AuthRoute'
 
-export default ResetPasswordPage
+export default function Page() {
+  return <AuthRoute mode="reset" />
+}
