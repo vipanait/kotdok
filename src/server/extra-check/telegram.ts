@@ -33,6 +33,10 @@ export function getTelegramWebhookSecret(): string {
   return secret
 }
 
+export function getOptionalTelegramWebhookSecret(): string | null {
+  return process.env.TELEGRAM_WEBHOOK_SECRET ?? null
+}
+
 function buildTelegramApiUrl(method: string): string {
   return `https://api.telegram.org/bot${getTelegramBotToken()}/${method}`
 }
@@ -63,11 +67,9 @@ export async function sendExtraCheckRequestToTelegram(input: {
 }): Promise<{ chatId: number; messageId: number }> {
   const chatId = getTelegramApprovalChatId()
   const text = [
-    'New extra check request',
+    'Запрос на новую проверку симптомов',
     `request_id: ${input.requestId}`,
     `user_id: ${input.userId}`,
-    '',
-    'Approve to grant +1 symptom check.',
   ].join('\n')
 
   const result = await postTelegram<TelegramSendMessageResult>('sendMessage', {
@@ -75,8 +77,8 @@ export async function sendExtraCheckRequestToTelegram(input: {
     text,
     reply_markup: {
       inline_keyboard: [[
-        { text: 'Approve +1', callback_data: `extra_check:${input.requestId}:approve` },
-        { text: 'Reject', callback_data: `extra_check:${input.requestId}:reject` },
+        { text: 'Подтвердить (+1)', callback_data: `extra_check:${input.requestId}:approve` },
+        { text: 'Отклонить', callback_data: `extra_check:${input.requestId}:reject` },
       ]],
     },
   })
@@ -105,20 +107,15 @@ export async function editTelegramMessageAfterDecision(input: {
   status: string
 }): Promise<void> {
   const suffix = input.status === 'already_resolved'
-    ? 'Already resolved'
+    ? 'Уже обработано'
     : input.action === 'approve'
-      ? 'Approved'
-      : 'Rejected'
+      ? 'Подтверждено (+1 проверка начислена)'
+      : 'Отклонено'
 
-  await postTelegram<Record<string, never>>('editMessageReplyMarkup', {
+  await postTelegram<Record<string, unknown>>('editMessageText', {
     chat_id: input.chatId,
     message_id: input.messageId,
+    text: `Запрос на новую проверку симптомов\n\nСтатус: ${suffix}`,
     reply_markup: { inline_keyboard: [] },
-  })
-
-  await postTelegram<Record<string, never>>('sendMessage', {
-    chat_id: input.chatId,
-    text: `extra_check request ${input.action}: ${suffix} (message ${input.messageId})`,
-    reply_to_message_id: input.messageId,
   })
 }
