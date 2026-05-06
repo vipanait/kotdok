@@ -3,7 +3,7 @@ import { resolveExtraCheckRequest } from '@/server/extra-check/extra-check-servi
 import {
   answerTelegramCallbackQuery,
   editTelegramMessageAfterDecision,
-  getTelegramWebhookSecret,
+  getOptionalTelegramWebhookSecret,
 } from '@/server/extra-check/telegram'
 
 interface CallbackQueryUpdate {
@@ -34,12 +34,10 @@ function parseCallbackData(data: string | undefined): { requestId: string; actio
 }
 
 function hasValidSecret(request: NextRequest): boolean {
+  const expected = getOptionalTelegramWebhookSecret()
+  if (!expected) return true
   const actual = request.headers.get('x-telegram-bot-api-secret-token')
-  try {
-    return actual === getTelegramWebhookSecret()
-  } catch {
-    return false
-  }
+  return actual === expected
 }
 
 export async function POST(request: NextRequest) {
