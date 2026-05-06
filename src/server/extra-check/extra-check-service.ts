@@ -13,6 +13,24 @@ function getErrorCode(error: RpcErrorLike | null): string {
   return error?.message ?? 'unknown_error'
 }
 
+async function loadPreviousRequestsCount(
+  supabase: ReturnType<typeof createServiceClient>,
+  userId: string,
+  currentRequestId: string,
+): Promise<number> {
+  const { count, error } = await supabase
+    .from('extra_check_requests')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .neq('id', currentRequestId)
+
+  if (error) {
+    throw new Error(error.message)
+  }
+
+  return count ?? 0
+}
+
 export async function submitExtraCheckRequest(userId: string): Promise<{ requestId: string }> {
   const supabase = createServiceClient()
   const { data, error } = await supabase.rpc('create_extra_check_request', {
@@ -29,7 +47,12 @@ export async function submitExtraCheckRequest(userId: string): Promise<{ request
   }
 
   try {
-    const telegramMessage = await sendExtraCheckRequestToTelegram({ requestId, userId })
+    const previousRequestsCount = await loadPreviousRequestsCount(supabase, userId, requestId)
+    const telegramMessage = await sendExtraCheckRequestToTelegram({
+      requestId,
+      userId,
+      previousRequestsCount,
+    })
     const { error: updateError } = await supabase
       .from('extra_check_requests')
       .update({

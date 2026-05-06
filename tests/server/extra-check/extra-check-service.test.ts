@@ -24,10 +24,13 @@ describe('extra-check-service', () => {
       }
       throw new Error(`Unexpected rpc: ${name}`)
     })
+    const countNeq = vi.fn(async () => ({ count: 3, error: null }))
+    const countEq = vi.fn(() => ({ neq: countNeq }))
+    const select = vi.fn(() => ({ eq: countEq }))
     const updateEqSecond = vi.fn(async () => ({ error: null }))
     const updateEqFirst = vi.fn(() => ({ eq: updateEqSecond }))
     const update = vi.fn(() => ({ eq: updateEqFirst }))
-    const from = vi.fn(() => ({ update }))
+    const from = vi.fn(() => ({ select, update }))
     vi.mocked(createServiceClient).mockReturnValue({ rpc, from } as never)
     vi.mocked(sendExtraCheckRequestToTelegram).mockResolvedValue({
       chatId: 123,
@@ -41,6 +44,7 @@ describe('extra-check-service', () => {
     expect(sendExtraCheckRequestToTelegram).toHaveBeenCalledWith({
       requestId: 'req-1',
       userId: 'user-1',
+      previousRequestsCount: 3,
     })
     expect(from).toHaveBeenCalledWith('extra_check_requests')
     expect(update).toHaveBeenCalled()
@@ -48,13 +52,16 @@ describe('extra-check-service', () => {
 
   it('deletes pending request when Telegram delivery fails', async () => {
     const rpc = vi.fn(async () => ({ data: { request_id: 'req-2' }, error: null }))
+    const countNeq = vi.fn(async () => ({ count: 1, error: null }))
+    const countEq = vi.fn(() => ({ neq: countNeq }))
+    const select = vi.fn(() => ({ eq: countEq }))
     const deleteEqSecond = vi.fn(async () => ({ error: null }))
     const deleteEqFirst = vi.fn(() => ({ eq: deleteEqSecond }))
     const remove = vi.fn(() => ({ eq: deleteEqFirst }))
     const updateEqSecond = vi.fn(async () => ({ error: null }))
     const updateEqFirst = vi.fn(() => ({ eq: updateEqSecond }))
     const update = vi.fn(() => ({ eq: updateEqFirst }))
-    const from = vi.fn(() => ({ update, delete: remove }))
+    const from = vi.fn(() => ({ select, update, delete: remove }))
     vi.mocked(createServiceClient).mockReturnValue({ rpc, from } as never)
     vi.mocked(sendExtraCheckRequestToTelegram).mockRejectedValue(new Error('network_error'))
 

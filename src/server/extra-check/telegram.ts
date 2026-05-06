@@ -64,12 +64,15 @@ async function postTelegram<T>(method: string, payload: Record<string, unknown>)
 export async function sendExtraCheckRequestToTelegram(input: {
   requestId: string
   userId: string
+  previousRequestsCount: number
 }): Promise<{ chatId: number; messageId: number }> {
   const chatId = getTelegramApprovalChatId()
   const text = [
     'Запрос на новую проверку симптомов',
     `request_id: ${input.requestId}`,
     `user_id: ${input.userId}`,
+    '',
+    `Уже было запрошено проверок: ${input.previousRequestsCount}`,
   ].join('\n')
 
   const result = await postTelegram<TelegramSendMessageResult>('sendMessage', {
