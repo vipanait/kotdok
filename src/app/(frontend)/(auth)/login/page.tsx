@@ -1,3 +1,5 @@
-import LoginPage from '@/features/auth/LoginPage'
+import AuthRoute from '@/features/auth/AuthRoute'
 
-export default LoginPage
+export default function Page() {
+  return <AuthRoute mode="login" />
+}

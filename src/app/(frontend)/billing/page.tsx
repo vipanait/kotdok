@@ -79,7 +79,7 @@ export default async function BillingPage() {
       <div className="mb-6 sm:mb-8 flex items-end justify-between gap-6 flex-wrap">
         <div>
           <p className="text-xs font-semibold tracking-wider text-text-muted uppercase">{t.kicker}</p>
-          <h1 className="font-serif italic text-5xl sm:text-6xl font-bold text-text mt-2 leading-none">
+          <h1 className="font-serif text-5xl sm:text-6xl font-bold text-text mt-2 leading-none">
             {t.title}
           </h1>
         </div>

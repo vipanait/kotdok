@@ -48,7 +48,7 @@ export default async function PricingPage() {
     }>
       <div className="mb-6 sm:mb-8">
         <p className="text-xs font-semibold tracking-wider text-text-muted uppercase">{dict.billing.kicker}</p>
-        <h1 className="font-serif italic text-4xl sm:text-5xl font-bold text-text mt-1 leading-none">{t.title}</h1>
+        <h1 className="font-serif text-4xl sm:text-5xl font-bold text-text mt-1 leading-none">{t.title}</h1>
         <p className="text-sm text-text-muted mt-3">
           {t.availableChecks.replace('{n}', String(credits))}
         </p>
