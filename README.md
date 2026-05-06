@@ -1,5 +1,42 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Telegram Extra Check Flow Setup
+
+The app supports requesting one extra symptom check when user credits are exhausted.
+Admin confirmation is done from a Telegram channel message with inline buttons.
+
+Add these variables to `.env.local`:
+
+```bash
+TELEGRAM_BOT_TOKEN=123456:your-bot-token
+TELEGRAM_APPROVAL_CHAT_ID=-1001234567890
+TELEGRAM_WEBHOOK_SECRET=your-random-secret
+```
+
+Webhook endpoint in this app:
+
+```bash
+https://<your-domain>/api/telegram/webhook
+```
+
+Set Telegram webhook:
+
+```bash
+curl -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/setWebhook" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://<your-domain>/api/telegram/webhook",
+    "secret_token": "'"${TELEGRAM_WEBHOOK_SECRET}"'"
+  }'
+```
+
+Quick health check:
+
+1. Exhaust checks for a user (`credits = 0`).
+2. Click "Request one more" on dashboard.
+3. Confirm request in Telegram.
+4. Verify `profiles.credits` increases by `+1` and a `credit_ledger` row with `reason = admin_grant` appears.
+
 ## Getting Started
 
 First, run the development server:

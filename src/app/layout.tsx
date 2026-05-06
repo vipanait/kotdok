@@ -45,7 +45,7 @@ const jsonLd = {
         '@type': 'Offer',
         price: '0',
         priceCurrency: 'RUB',
-        description: '3 проверки бесплатно',
+        description: '2 проверки бесплатно',
       },
       publisher: { '@id': `${siteUrl}/#organization` },
     },

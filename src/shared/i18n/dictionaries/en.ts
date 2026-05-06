@@ -71,7 +71,7 @@ const en: Dictionary = {
       heading: 'Create an account in a minute',
       headingSent: 'Confirm your registration',
       subheading:
-        '3 free checks. No card required. Describe symptoms — get an urgency level and clear steps.',
+        '2 free checks. No card required. Describe symptoms — get an urgency level and clear steps.',
       subheadingSent:
         'We sent you an email to confirm your registration. Follow the link in the email to activate your account.',
       alreadyMember: 'Already with us?',
@@ -118,9 +118,16 @@ const en: Dictionary = {
   dashboard: {
     title: 'Account',
     availableChecks: 'Available checks',
-    creditsOut: 'Credits are out.',
+    creditsOut: 'No checks left.',
     topUp: 'Top up',
     transactionHistory: 'Transaction history',
+    requestMoreChecks: 'Request one more',
+    requestingMoreChecks: 'Sending request...',
+    requestPending: 'Request sent. Waiting for admin confirmation.',
+    requestApproved: 'Request approved. You received 1 extra check.',
+    requestRejected: 'Request was rejected by admin.',
+    requestSent: 'Request sent to the admin Telegram channel.',
+    requestError: 'Failed to send request. Please try again.',
     myCats: 'My cats',
     addCat: '+ Add',
     noCats: 'Add a cat profile — it will improve the accuracy of symptom analysis.',

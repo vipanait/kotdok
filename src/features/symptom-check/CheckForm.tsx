@@ -108,7 +108,7 @@ export default function CheckForm({ cats, onClose }: Props) {
 
     if (!res.ok) {
       if (res.status === 401) router.push('/login')
-      else if (res.status === 402) { onClose?.(); router.push('/dashboard?upgrade=1') }
+      else if (res.status === 402) { onClose?.(); router.push('/dashboard') }
       else setError(data.error || t.errorGeneric)
       setLoading(false)
       return

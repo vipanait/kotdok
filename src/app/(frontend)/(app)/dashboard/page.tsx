@@ -7,6 +7,7 @@ import { getLocale } from '@/server/i18n/get-locale'
 import { getDictionary } from '@/server/i18n/get-dictionary'
 import AppShell from '@/components/AppShell'
 import CatAvatar from '@/components/CatAvatar'
+import ExtraCheckRequestPanel from '@/features/dashboard/ExtraCheckRequestPanel'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -19,7 +20,7 @@ export default async function DashboardPage() {
 
   const service = createServiceClient()
 
-  const [{ data: profile }, { data: checks }, { data: cats }] = await Promise.all([
+  const [{ data: profile }, { data: checks }, { data: cats }, { data: latestRequest }] = await Promise.all([
     service.from('profiles').select('credits, plan, role').eq('id', user.id).single(),
     service
       .from('symptom_checks')
@@ -34,6 +35,13 @@ export default async function DashboardPage() {
       .eq('user_id', user.id)
       .is('deleted_at', null)
       .order('created_at', { ascending: true }),
+    service
+      .from('extra_check_requests')
+      .select('status')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
   ])
 
   const credits = profile?.credits ?? 0
@@ -61,26 +69,14 @@ export default async function DashboardPage() {
           <DashboardActions cats={cats ?? []} />
         </div>
 
-        {credits === 0 && (
-          <div className="mt-5 rounded-xl bg-accent-soft px-4 py-3 text-sm text-accent-text">
-            {t.creditsOut}{' '}
-            <Link href="/pricing" className="underline font-medium">{t.topUp}</Link>
-          </div>
+        {(credits === 0 || latestRequest?.status === 'pending') && (
+          <ExtraCheckRequestPanel
+            credits={credits}
+            latestRequestStatus={(latestRequest?.status ?? null) as 'pending' | 'approved' | 'rejected' | null}
+          />
         )}
 
         <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <Link
-            href="/pricing"
-            className="rounded-full bg-accent-soft px-4 py-3 text-center text-sm font-semibold text-accent-text hover:bg-[#F8D8B0] transition-colors"
-          >
-            + {t.topUp}
-          </Link>
-          <Link
-            href="/billing"
-            className="rounded-full bg-card border border-hairline px-4 py-3 text-center text-sm font-medium text-text hover:bg-canvas-soft transition-colors"
-          >
-            {t.transactionHistory}
-          </Link>
           {profile?.role === 'admin' ? (
             <Link
               href="/admin/statistics"
