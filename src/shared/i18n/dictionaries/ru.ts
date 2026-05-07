@@ -233,6 +233,7 @@ const ru = {
     photoObservations: '📷 Что видно на фото',
     possibleCauses: 'Возможные причины',
     catWarning: '⚠️ Важно для кошек',
+    additionalCatInfoNeeded: 'Что уточнить о коте',
     homeCare: 'Что делать дома',
     vetQuestions: '📋 Вопросы для ветеринара',
     newCheck: 'Новая проверка',

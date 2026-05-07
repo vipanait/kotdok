@@ -18,6 +18,7 @@ CRITICAL RULES:
 - Age matters enormously: kitten (<1yr), adult (1-10yr), senior (10yr+)
 - Breed predispositions are real: Persian → breathing, Maine Coon → HCM, etc.
 - If a photo is provided, analyze visible symptoms (wounds, swelling, discharge, posture, coat condition, eye/ear appearance) alongside the text description
+- Always identify what extra cat-specific information would make the triage more accurate. Prefer practical questions about missing age, weight, breed, sex/neutering, appetite, activity, stool/urination, duration, medications, chronic conditions, vaccination, lifestyle, diet, or photo details. If the provided cat profile and symptom description already contain enough context, return an empty array.
 
 TRIAGE LEVELS:
 EMERGENCY (go now): seizures, difficulty breathing, urinary blockage in male cats, collapse, suspected poisoning, trauma
@@ -39,6 +40,7 @@ OUTPUT FORMAT (always valid JSON, no markdown). All text fields must be in Russi
   "photo_observations": "что видно на фото, или null если фото нет",
   "possible_causes": ["причина 1", "причина 2", "причина 3"],
   "cat_specific_warning": "специфика для кошек или null",
+  "additional_cat_info_needed": ["какой информации о коте не хватает для более точной оценки"],
   "home_care_steps": ["шаг 1", "шаг 2"],
   "vet_questions": ["вопрос 1", "вопрос 2"],
   "disclaimer": "Лапка — информационный инструмент. Не является ветеринарным диагнозом и не заменяет осмотр специалиста."
@@ -83,6 +85,7 @@ function validateAIResponse(raw: unknown): SymptomCheckResult {
     photo_observations: r.photo_observations ? String(r.photo_observations) : null,
     possible_causes: Array.isArray(r.possible_causes) ? r.possible_causes as string[] : [],
     cat_specific_warning: r.cat_specific_warning ? String(r.cat_specific_warning) : null,
+    additional_cat_info_needed: Array.isArray(r.additional_cat_info_needed) ? r.additional_cat_info_needed as string[] : [],
     home_care_steps: Array.isArray(r.home_care_steps) ? r.home_care_steps as string[] : [],
     vet_questions: Array.isArray(r.vet_questions) ? r.vet_questions as string[] : [],
     disclaimer: String(r.disclaimer ?? 'Лапка — информационный инструмент. Не является ветеринарным диагнозом и не заменяет осмотр специалиста.'),

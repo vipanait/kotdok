@@ -233,6 +233,7 @@ const en: Dictionary = {
     photoObservations: '📷 What\'s visible in the photo',
     possibleCauses: 'Possible causes',
     catWarning: '⚠️ Important for cats',
+    additionalCatInfoNeeded: 'What to clarify about the cat',
     homeCare: 'What to do at home',
     vetQuestions: '📋 Questions for the vet',
     newCheck: 'New check',
