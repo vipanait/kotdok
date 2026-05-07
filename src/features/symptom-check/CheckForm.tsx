@@ -284,6 +284,7 @@ export default function CheckForm({ cats, onClose }: Props) {
       duration: result.duration ?? null,
       stool: result.stool ?? null,
       photo_observations: result.photo_observations ?? null,
+      additional_cat_info_needed: result.additional_cat_info_needed,
       has_photo: result.has_photo,
       disclaimer: result.disclaimer,
     },

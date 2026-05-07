@@ -7,6 +7,7 @@ export interface SymptomCheckResult {
   photo_observations: string | null
   possible_causes: string[]
   cat_specific_warning: string | null
+  additional_cat_info_needed: string[]
   home_care_steps: string[]
   vet_questions: string[]
   disclaimer: string
