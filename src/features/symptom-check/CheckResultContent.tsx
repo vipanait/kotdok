@@ -36,6 +36,7 @@ export default function CheckResultContent({ check, showBackLink = false }: Prop
   const possibleCauses: string[] = Array.isArray(check.possible_causes) ? check.possible_causes : []
   const homeCareSteps: string[] = Array.isArray(check.home_care_steps) ? check.home_care_steps : []
   const vetQuestions: string[] = Array.isArray(check.vet_questions) ? check.vet_questions : []
+  const additionalCatInfoNeeded: string[] = Array.isArray(full?.additional_cat_info_needed) ? full.additional_cat_info_needed as string[] : []
   const photoObservations = (full?.photo_observations as string | null) ?? null
   const hasPhoto = !!(full?.has_photo)
   const disclaimer = (full?.disclaimer as string | null) ?? 'Лапка — информационный инструмент. Не является ветеринарным диагнозом и не заменяет осмотр специалиста.'
@@ -114,6 +115,19 @@ export default function CheckResultContent({ check, showBackLink = false }: Prop
             <p className="text-sm font-semibold text-text mb-1">⚠️ {t.catWarning}</p>
             <p className="text-sm text-text-muted">{check.cat_specific_warning}</p>
           </div>
+        )}
+
+        {additionalCatInfoNeeded.length > 0 && (
+          <Section title={t.additionalCatInfoNeeded}>
+            <ul className="space-y-2">
+              {additionalCatInfoNeeded.map((item, i) => (
+                <li key={i} className="flex gap-3 text-sm text-text">
+                  <span className="mt-1.5 block h-2 w-2 rounded-full bg-accent shrink-0" aria-hidden />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </Section>
         )}
 
         {/* Home-care numbered steps */}
