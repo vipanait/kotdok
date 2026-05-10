@@ -17,8 +17,8 @@ interface Props {
 export default function AppShell({ children, logoHref = '/', right, width = 'narrow' }: Props) {
   const max = width === 'wide' ? 'max-w-3xl' : 'max-w-2xl'
   return (
-    <div className={`min-h-screen px-4 py-8 ${max} mx-auto`}>
-      <div className="flex items-center justify-between mb-8">
+    <div className={`min-h-screen px-4 py-6 sm:py-8 ${max} mx-auto`}>
+      <div className="mb-7 flex items-center justify-between rounded-full border border-hairline/70 bg-card/70 px-4 py-3 shadow-sm backdrop-blur sm:mb-8">
         <Link href={logoHref} aria-label="Лапка" className="block">
           <LapkaLogo height={40} />
         </Link>

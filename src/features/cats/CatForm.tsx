@@ -100,12 +100,12 @@ export default function CatForm({ cat }: Props) {
 
   return (
     <AppShell width="wide" right={
-      <Link href="/dashboard" className="text-text-muted hover:text-text">{dict.common.back}</Link>
+      <Link href="/dashboard" className="app-link">{dict.common.back}</Link>
     }>
       <div className="flex items-end gap-5 mb-6 sm:mb-8">
         <CatAvatar size={72} />
         <div>
-          <p className="text-xs font-semibold tracking-wider text-text-muted uppercase">{t.kicker}</p>
+          <p className="app-kicker">{t.kicker}</p>
           <h1 className="font-serif text-4xl sm:text-5xl font-bold text-text leading-none mt-1">
             {isEdit ? `${t.editTitlePrefix}: ${cat!.name}` : t.newTitle}
           </h1>
@@ -113,7 +113,7 @@ export default function CatForm({ cat }: Props) {
         </div>
       </div>
 
-      <div className="bg-card rounded-3xl p-6 sm:p-8">
+      <div className="app-card p-6 sm:p-8">
         <form onSubmit={handleSubmit} className="space-y-5">
           <Field label={t.name}>
             <input
@@ -256,7 +256,7 @@ export default function CatForm({ cat }: Props) {
               onChange={e => setNotes(e.target.value.slice(0, NOTES_MAX))}
               placeholder={t.notesPlaceholder}
               rows={3}
-              className="w-full bg-card border border-hairline rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 placeholder:text-text-faint resize-none"
+              className="app-input resize-none"
             />
             <p className={`text-xs mt-1 text-right ${notes.length >= NOTES_MAX ? 'text-status-error-fg' : 'text-text-faint'}`}>
               {notes.length}/{NOTES_MAX}
@@ -271,7 +271,7 @@ export default function CatForm({ cat }: Props) {
                 type="button"
                 onClick={() => setConfirmDelete(true)}
                 disabled={deleting}
-                className="px-5 py-3.5 rounded-full text-sm font-medium text-status-error-fg border border-status-error-bg hover:bg-status-error-bg/40 transition-colors disabled:opacity-50"
+                className="rounded-full border border-status-error-bg px-5 py-3.5 text-sm font-semibold text-status-error-fg transition-colors hover:bg-status-error-bg/40 disabled:opacity-50"
               >
                 {deleting ? t.deletingBtn : t.deleteBtn}
               </button>
@@ -279,7 +279,7 @@ export default function CatForm({ cat }: Props) {
             <button
               type="submit"
               disabled={saving}
-              className="flex-1 bg-text text-white py-3.5 rounded-full font-semibold hover:bg-black transition-colors disabled:opacity-50"
+              className="app-button-primary flex-1 py-3.5"
             >
               {saving ? t.savingBtn : isEdit ? t.saveBtn : t.addBtn}
             </button>
@@ -289,10 +289,10 @@ export default function CatForm({ cat }: Props) {
 
       {confirmDelete && isEdit && (
         <div
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 sm:p-4"
+          className="app-overlay fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4"
           onClick={e => { if (e.target === e.currentTarget && !deleting) setConfirmDelete(false) }}
         >
-          <div className="bg-card rounded-t-3xl sm:rounded-3xl w-full sm:max-w-sm p-6">
+          <div className="app-card w-full rounded-b-none p-6 sm:max-w-sm sm:rounded-b-3xl">
             <h2 className="text-lg font-bold text-text mb-2">
               {t.confirmDeleteTitle.replace('{name}', cat!.name)}
             </h2>
@@ -302,7 +302,7 @@ export default function CatForm({ cat }: Props) {
                 type="button"
                 onClick={() => setConfirmDelete(false)}
                 disabled={deleting}
-                className="flex-1 bg-card border border-hairline text-text py-3 rounded-full font-medium hover:bg-canvas-soft transition-colors text-sm disabled:opacity-50"
+                className="app-button-secondary flex-1 py-3 text-sm"
               >
                 {t.cancelBtn}
               </button>
@@ -310,7 +310,7 @@ export default function CatForm({ cat }: Props) {
                 type="button"
                 onClick={handleDelete}
                 disabled={deleting}
-                className="flex-1 bg-status-error-fg text-white py-3 rounded-full font-semibold hover:opacity-90 transition-opacity text-sm disabled:opacity-50"
+                className="app-button-danger flex-1 py-3 text-sm"
               >
                 {deleting ? t.deletingBtn : t.deleteBtn}
               </button>
@@ -323,7 +323,7 @@ export default function CatForm({ cat }: Props) {
 }
 
 const inputCls =
-  'w-full bg-card border border-hairline rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 placeholder:text-text-faint'
+  'app-input py-2.5'
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
