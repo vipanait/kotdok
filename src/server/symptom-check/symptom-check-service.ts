@@ -108,7 +108,7 @@ export async function handleSymptomCheckRequest(request: NextRequest) {
     // Credits check
     const { data: profile } = await supabase
       .from('profiles')
-      .select('credits, plan, feedback_submitted_at')
+      .select('credits, plan')
       .eq('id', user.id)
       .single()
 
@@ -305,15 +305,6 @@ export async function handleSymptomCheckRequest(request: NextRequest) {
     }
     reservedUsageLedgerId = null
 
-    const { count: checksCount } = await supabase
-      .from('symptom_checks')
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', user.id)
-      .is('deleted_at', null)
-
-    const feedbackSubmittedAt = profile.feedback_submitted_at ?? null
-    const showFeedbackPrompt = (checksCount ?? 0) >= 2 && feedbackSubmittedAt === null
-
     return NextResponse.json({
       ...result,
       has_photo: photoBase64List.length > 0,
@@ -323,7 +314,6 @@ export async function handleSymptomCheckRequest(request: NextRequest) {
       stool,
       check_id: check?.id,
       credits_remaining: newBalance,
-      showFeedbackPrompt,
     })
   } catch (error) {
     console.error('symptom-check error:', error)
