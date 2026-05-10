@@ -2,11 +2,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/server/supabase/server'
 import { getAuthUser } from '@/server/auth/get-auth-user'
 import { softDeleteCatAndChecks, updateCat } from '@/server/cats/cat-service'
+import { csrfForbiddenResponse, verifyCsrf } from '@/server/security/csrf'
 
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  if (!await verifyCsrf(request)) return csrfForbiddenResponse()
+
   const user = await getAuthUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
@@ -21,9 +24,11 @@ export async function PUT(
 }
 
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  if (!await verifyCsrf(request)) return csrfForbiddenResponse()
+
   const user = await getAuthUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 

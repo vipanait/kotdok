@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { defaultLocale, locales, type Locale } from '@/shared/i18n/config'
+import { ensureCsrfCookie } from '@/server/security/csrf'
 
 function detectLocale(request: NextRequest): Locale {
   const cookie = request.cookies.get('NEXT_LOCALE')?.value
@@ -16,6 +17,7 @@ export async function proxy(request: NextRequest) {
   if (!request.cookies.get('NEXT_LOCALE')) {
     supabaseResponse.cookies.set('NEXT_LOCALE', locale, { path: '/', sameSite: 'lax' })
   }
+  ensureCsrfCookie(request, supabaseResponse)
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -31,6 +33,7 @@ export async function proxy(request: NextRequest) {
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options)
           )
+          ensureCsrfCookie(request, supabaseResponse)
         },
       },
     }

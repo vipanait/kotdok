@@ -9,6 +9,7 @@ import { useTranslations } from '@/components/LocaleProvider'
 import AppShell from '@/components/AppShell'
 import CatAvatar from '@/components/CatAvatar'
 import CheckResultContent, { type SymptomCheckRecord } from '@/features/symptom-check/CheckResultContent'
+import { csrfHeaders } from '@/shared/security/csrf-client'
 
 interface Props {
   cats: Pick<Cat, 'id' | 'name' | 'breed' | 'age_years' | 'sex'>[]
@@ -95,11 +96,11 @@ export default function CheckForm({ cats, onClose }: Props) {
       if (activity) formData.append('activity', activity)
       if (duration) formData.append('duration', duration)
       if (stool) formData.append('stool', stool)
-      res = await fetch('/api/symptom-check', { method: 'POST', body: formData })
+      res = await fetch('/api/symptom-check', { method: 'POST', headers: csrfHeaders(), body: formData })
     } else {
       res = await fetch('/api/symptom-check', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: csrfHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ symptoms, cat_id: selectedCatId || undefined, ...extra }),
       })
     }
@@ -151,7 +152,7 @@ export default function CheckForm({ cats, onClose }: Props) {
     <form onSubmit={handleSubmit} className="space-y-5">
       {/* Selected pet card */}
       {selectedCat && (
-        <div className="rounded-2xl bg-card-soft p-3 flex items-center gap-3">
+        <div className="app-card-soft flex items-center gap-3 p-3">
           <CatAvatar size={44} bg="#FFFFFF" />
           <div className="min-w-0 flex-1">
             <div className="text-base font-semibold text-text truncate">{selectedCat.name}</div>
@@ -164,7 +165,7 @@ export default function CheckForm({ cats, onClose }: Props) {
             <button
               type="button"
               onClick={() => setShowCatPicker(v => !v)}
-              className="rounded-full bg-card border border-hairline px-4 py-1.5 text-xs font-medium text-text hover:bg-canvas-soft transition-colors"
+              className="app-button-secondary px-4 py-1.5 text-xs"
             >
               {dict.check.changeCat}
             </button>
@@ -204,7 +205,7 @@ export default function CheckForm({ cats, onClose }: Props) {
           onChange={e => setSymptoms(e.target.value)}
           placeholder={t.symptomsPlaceholder}
           rows={4}
-          className="w-full bg-card border border-hairline rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40 resize-none"
+          className="app-input resize-none"
         />
       </div>
 
@@ -229,7 +230,7 @@ export default function CheckForm({ cats, onClose }: Props) {
         {photos.length < MAX_PHOTOS && (
           <div
             onClick={() => fileInputRef.current?.click()}
-            className="border-2 border-dashed border-[#E8D5B0] rounded-xl bg-card-soft/40 px-4 py-5 text-center cursor-pointer hover:bg-card-soft transition-colors"
+            className="cursor-pointer rounded-2xl border-2 border-dashed border-card-soft-strong bg-accent-soft/35 px-4 py-5 text-center transition-colors hover:bg-accent-soft/60"
           >
             <div className="flex items-center justify-center gap-2 text-sm font-semibold text-text">
               <span aria-hidden>📷</span>
@@ -249,7 +250,7 @@ export default function CheckForm({ cats, onClose }: Props) {
         <button
           type="submit"
           disabled={loading || symptomsTooShort}
-          className="w-full rounded-full bg-accent text-white py-4 font-semibold hover:bg-accent-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="app-button-primary w-full py-4"
         >
           {loading ? (
             <span className="flex items-center justify-center gap-2">
@@ -300,7 +301,7 @@ export default function CheckForm({ cats, onClose }: Props) {
       <div className="px-6 sm:px-8 mt-6 flex gap-3">
         <button
           onClick={() => { setResult(null); setSymptoms(''); removeAllPhotos() }}
-          className="flex-1 bg-card border border-hairline text-text py-3 rounded-full font-medium hover:bg-canvas-soft transition-colors text-sm"
+          className="app-button-secondary flex-1 py-3 text-sm"
         >
           {t.newCheck}
         </button>
@@ -308,12 +309,12 @@ export default function CheckForm({ cats, onClose }: Props) {
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 rounded-full bg-accent text-white py-3 font-semibold hover:bg-accent-hover transition-colors text-sm"
+            className="app-button-primary flex-1 py-3 text-sm"
           >
             {dict.common.close}
           </button>
         ) : (
-          <Link href="/dashboard" className="flex-1 rounded-full bg-accent text-white py-3 font-semibold hover:bg-accent-hover transition-colors text-sm text-center">
+          <Link href="/dashboard" className="app-button-primary flex-1 py-3 text-center text-sm">
             {t.toAccount}
           </Link>
         )}
@@ -330,7 +331,7 @@ export default function CheckForm({ cats, onClose }: Props) {
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 text-text/70 hover:text-text w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/10 transition-colors text-xl leading-none"
+          className="app-icon-button absolute top-4 right-4 z-10 text-xl leading-none"
           aria-label={dict.common.close}
         >
           ×
@@ -354,16 +355,16 @@ export default function CheckForm({ cats, onClose }: Props) {
 
   return (
     <AppShell right={
-      <Link href="/dashboard" className="text-sm text-text-muted hover:text-text">{dict.common.back}</Link>
+      <Link href="/dashboard" className="app-link">{dict.common.back}</Link>
     }>
       {!result ? (
-        <div className="bg-card rounded-3xl p-6 sm:p-8">
+        <div className="app-card p-6 sm:p-8">
           <h1 className="font-serif text-2xl sm:text-3xl font-bold text-text mb-1">{t.pageHeading}</h1>
           <p className="text-sm text-text-muted mb-6">{t.pageSubheading}</p>
           {formContent}
         </div>
       ) : (
-        <div className="bg-card rounded-3xl p-6 sm:p-8">{resultContent}</div>
+        <div className="app-card p-6 sm:p-8">{resultContent}</div>
       )}
     </AppShell>
   )
@@ -391,7 +392,7 @@ function ChipGroup({
             onClick={() => onChange(value === opt.value ? '' : opt.value)}
             className={`px-3.5 py-1.5 rounded-full text-sm transition-colors ${
               value === opt.value
-                ? 'bg-card-soft text-text font-medium'
+                ? 'bg-accent-soft text-accent-text font-semibold'
                 : 'bg-card border border-hairline text-text-muted hover:border-card-soft-strong'
             }`}
           >

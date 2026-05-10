@@ -1,6 +1,7 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { getAuthUser } from '@/server/auth/get-auth-user'
 import { submitExtraCheckRequest } from '@/server/extra-check/extra-check-service'
+import { csrfForbiddenResponse, verifyCsrf } from '@/server/security/csrf'
 
 function statusForError(message: string): number {
   if (message.includes('Unauthorized')) return 401
@@ -11,7 +12,9 @@ function statusForError(message: string): number {
   return 500
 }
 
-export async function POST() {
+export async function POST(request: NextRequest) {
+  if (!await verifyCsrf(request)) return csrfForbiddenResponse()
+
   const user = await getAuthUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 

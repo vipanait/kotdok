@@ -1,4 +1,4 @@
-import { defineConfig } from 'vitest/config'
+import { configDefaults, defineConfig } from 'vitest/config'
 import { loadEnv } from 'vite'
 import { fileURLToPath } from 'node:url'
 
@@ -12,6 +12,7 @@ for (const [key, value] of Object.entries(testEnv)) {
 export default defineConfig({
   test: {
     environment: 'node',
+    exclude: [...configDefaults.exclude, '.orch/**'],
     globals: false,
     restoreMocks: true,
   },

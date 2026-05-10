@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import type { PublicPaymentMethod } from '@/shared/types/billing'
 import { useTranslations } from '@/components/LocaleProvider'
+import { csrfHeaders } from '@/shared/security/csrf-client'
 
 interface Props {
   initialMethods: PublicPaymentMethod[]
@@ -19,7 +20,7 @@ export default function BillingMethodsClient({ initialMethods }: Props) {
     setBusyId(id)
     setError('')
     try {
-      const res = await fetch(`/api/billing/payment-methods/${id}`, { method: 'DELETE' })
+      const res = await fetch(`/api/billing/payment-methods/${id}`, { method: 'DELETE', headers: csrfHeaders() })
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
         throw new Error(data.error ?? 'delete_failed')

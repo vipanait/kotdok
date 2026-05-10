@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from '@/components/LocaleProvider'
+import { csrfHeaders } from '@/shared/security/csrf-client'
 
 type ExtraCheckRequestStatus = 'pending' | 'approved' | 'rejected' | null
 
@@ -35,7 +36,7 @@ export default function ExtraCheckRequestPanel({ credits, latestRequestStatus }:
     setSuccess('')
 
     try {
-      const response = await fetch('/api/credits/request-extra', { method: 'POST' })
+      const response = await fetch('/api/credits/request-extra', { method: 'POST', headers: csrfHeaders() })
       const payload = await response.json().catch(() => ({}))
       if (!response.ok) {
         setError(payload.error ? `${t.requestError} (${payload.error})` : t.requestError)
@@ -51,14 +52,14 @@ export default function ExtraCheckRequestPanel({ credits, latestRequestStatus }:
   }
 
   return (
-    <div className="mt-5 rounded-2xl bg-accent-soft px-4 py-4 text-sm text-accent-text">
-      <p>{statusText(latestRequestStatus, t)}</p>
+    <div className="app-card-soft mt-5 px-4 py-4 text-sm text-accent-text">
+      <p className="font-medium">{statusText(latestRequestStatus, t)}</p>
       {canRequest && (
         <button
           type="button"
           onClick={handleRequest}
           disabled={loading}
-          className="mt-3 rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-accent-hover transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+          className="app-button-primary mt-3 px-4 py-2 text-sm"
         >
           {loading ? t.requestingMoreChecks : t.requestMoreChecks}
         </button>

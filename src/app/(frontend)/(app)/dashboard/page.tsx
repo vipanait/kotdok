@@ -8,6 +8,7 @@ import { getDictionary } from '@/server/i18n/get-dictionary'
 import AppShell from '@/components/AppShell'
 import CatAvatar from '@/components/CatAvatar'
 import ExtraCheckRequestPanel from '@/features/dashboard/ExtraCheckRequestPanel'
+import SignOutForm from '@/features/auth/SignOutForm'
 
 export default async function DashboardPage({
   searchParams,
@@ -53,9 +54,7 @@ export default async function DashboardPage({
 
   return (
     <AppShell right={
-      <form action="/api/auth/signout" method="post">
-        <button className="text-text-muted hover:text-text">{t.signOut}</button>
-      </form>
+      <SignOutForm label={t.signOut} />
     }>
       <h1 className="sr-only">{t.title}</h1>
 

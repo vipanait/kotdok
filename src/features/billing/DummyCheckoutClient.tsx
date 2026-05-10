@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { csrfHeaders } from '@/shared/security/csrf-client'
 
 type Outcome = 'succeeded' | 'failed' | 'canceled'
 
@@ -22,7 +23,7 @@ export default function DummyCheckoutClient({
     try {
       const res = await fetch('/api/billing/dummy/confirm', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: csrfHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({
           transaction_id: transactionId,
           outcome,
