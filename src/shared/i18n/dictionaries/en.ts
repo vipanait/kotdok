@@ -160,7 +160,6 @@ const en: Dictionary = {
     catAdded: 'Cat added.',
     catDeleted: 'Cat profile deleted.',
     creditsReady: 'You can start a symptom check at any time.',
-    creditsEmpty: 'Request an extra check or wait for your request to be approved.',
   },
   cats: {
     newTitle: 'Add a cat',

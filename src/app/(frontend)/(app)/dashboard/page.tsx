@@ -75,9 +75,11 @@ export default async function DashboardPage({
               </span>
               <span className="max-w-32 text-sm text-text-muted sm:text-base">{t.checksUnit}</span>
             </div>
-            <p className="mt-3 max-w-md text-sm leading-relaxed text-text-muted">
-              {credits > 0 ? t.creditsReady : t.creditsEmpty}
-            </p>
+            {credits > 0 && (
+              <p className="mt-3 max-w-md text-sm leading-relaxed text-text-muted">
+                {t.creditsReady}
+              </p>
+            )}
           </div>
           <DashboardActions cats={cats ?? []} />
         </div>

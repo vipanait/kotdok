@@ -61,9 +61,6 @@ export default function DashboardHistory({ checks, emptyActionHref, emptyActionL
                 <span className={`text-sm font-semibold shrink-0 ${URGENCY_TEXT_CLASS[key] ?? 'text-text-muted'}`}>
                   {urgencyText?.label ? urgencyText.label.charAt(0) + urgencyText.label.slice(1).toLowerCase() : ''}
                 </span>
-                <span className="hidden rounded-full bg-card px-2.5 py-1 text-xs font-semibold text-text-muted transition-colors group-hover:text-text sm:inline-flex">
-                  {t.openCheck}
-                </span>
                 <span className="text-text-faint shrink-0 transition-transform group-hover:translate-x-0.5" aria-hidden>›</span>
               </button>
             </li>
