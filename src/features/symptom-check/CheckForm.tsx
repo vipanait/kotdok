@@ -13,9 +13,10 @@ import CheckResultContent, { type SymptomCheckRecord } from '@/features/symptom-
 interface Props {
   cats: Pick<Cat, 'id' | 'name' | 'breed' | 'age_years' | 'sex'>[]
   onClose?: () => void
+  onFeedbackPrompt?: () => void
 }
 
-export default function CheckForm({ cats, onClose }: Props) {
+export default function CheckForm({ cats, onClose, onFeedbackPrompt }: Props) {
   const router = useRouter()
   const dict = useTranslations()
   const t = dict.check
@@ -117,6 +118,12 @@ export default function CheckForm({ cats, onClose }: Props) {
     setResult(data)
     setLoading(false)
     router.refresh()
+    if (data.showFeedbackPrompt === true) {
+      onFeedbackPrompt?.()
+    }
+    if (data.showFeedbackPrompt === true) {
+      onFeedbackPrompt?.()
+    }
   }
 
   const selectedCat = cats.find(c => c.id === selectedCatId)
