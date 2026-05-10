@@ -120,6 +120,7 @@ function buildAdminStatistics({
   } satisfies AdminStatisticsDailyPoint]))
   const payingUsers = new Set<string>()
   const symptomCheckUsers = new Set<string>()
+  let symptomChecksTotal = 0
   let totalRevenue = 0
   let currency = 'RUB'
 
@@ -146,6 +147,7 @@ function buildAdminStatistics({
 
   for (const symptomCheck of symptomChecks) {
     symptomCheckUsers.add(symptomCheck.user_id)
+    symptomChecksTotal += 1
     const point = daily.get(toDateKey(symptomCheck.created_at))
     if (point) point.symptomChecks += 1
   }
@@ -157,6 +159,7 @@ function buildAdminStatistics({
       registeredUsers: profiles.length,
       payingUsers: payingUsers.size,
       symptomCheckUsers: symptomCheckUsers.size,
+      symptomChecks: symptomChecksTotal,
       totalRevenue,
     },
     daily: Array.from(daily.values()),

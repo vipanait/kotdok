@@ -30,6 +30,7 @@ export default function AdminStatisticsClient({ statistics }: Props) {
     { label: t.registeredUsers, value: formatNumber(statistics.totals.registeredUsers, locale) },
     { label: t.payingUsers, value: formatNumber(statistics.totals.payingUsers, locale) },
     { label: t.symptomCheckUsers, value: formatNumber(statistics.totals.symptomCheckUsers, locale) },
+    { label: t.symptomChecks, value: formatNumber(statistics.totals.symptomChecks, locale) },
     { label: t.totalRevenue, value: formatMoney(statistics.totals.totalRevenue, statistics.currency) },
   ]
 
@@ -86,6 +87,12 @@ export default function AdminStatisticsClient({ statistics }: Props) {
             locale={locale}
           />
           <LineChart
+            title={t.symptomChecksChart}
+            points={statistics.daily}
+            valueKey="symptomChecks"
+            locale={locale}
+          />
+          <LineChart
             title={t.paymentAmountChart}
             points={statistics.daily}
             valueKey="paymentAmount"
@@ -107,7 +114,7 @@ function LineChart({
 }: {
   title: string
   points: AdminStatisticsDailyPoint[]
-  valueKey: keyof Pick<AdminStatisticsDailyPoint, 'registrations' | 'payments' | 'paymentAmount'>
+  valueKey: keyof Pick<AdminStatisticsDailyPoint, 'registrations' | 'payments' | 'paymentAmount' | 'symptomChecks'>
   locale: string
   formatValue?: (value: number) => string
 }) {
