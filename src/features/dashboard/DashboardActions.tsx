@@ -19,14 +19,14 @@ export default function DashboardActions({ cats }: Props) {
 
   if (!cats.length) {
     return (
-      <div className="text-right shrink-0">
+      <div className="shrink-0 text-left sm:text-right">
         <Link
           href="/cats/new"
-          className="inline-block rounded-full bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover transition-colors"
+          className="app-button-primary px-6 py-3 text-sm"
         >
           {t.addCatBtn}
         </Link>
-        <p className="text-xs text-text-faint mt-1.5">{t.addCatHint}</p>
+        <p className="mt-2 max-w-48 text-xs leading-relaxed text-text-faint sm:ml-auto">{t.addCatHint}</p>
       </div>
     )
   }
@@ -35,7 +35,7 @@ export default function DashboardActions({ cats }: Props) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="rounded-full bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent-hover transition-colors shrink-0"
+        className="app-button-primary shrink-0 px-6 py-3 text-sm"
       >
         {t.checkSymptomsBtn}
       </button>

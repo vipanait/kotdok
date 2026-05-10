@@ -59,21 +59,21 @@ export default async function DashboardPage({
       <h1 className="sr-only">{t.title}</h1>
 
       {params.catSaved && (
-        <div className="bg-status-good-bg text-status-good-fg rounded-2xl px-4 py-3 mb-6 text-sm font-medium">
+        <div className="mb-6 rounded-2xl border border-status-good-fg/10 bg-status-good-bg px-4 py-3 text-sm font-semibold text-status-good-fg shadow-sm">
           {params.catSaved === 'created' ? t.catAdded : params.catSaved === 'deleted' ? t.catDeleted : t.catSaved}
         </div>
       )}
 
       {/* Credits + actions */}
-      <section className="bg-card rounded-3xl p-6 sm:p-8 mb-6">
-        <div className="flex items-start justify-between gap-4">
+      <section className="app-card mb-6 overflow-hidden p-6 sm:p-8">
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
-            <p className="text-xs font-semibold tracking-wider text-text-muted uppercase">{t.kicker}</p>
+            <p className="app-kicker">{t.kicker}</p>
             <div className="mt-2 flex items-baseline gap-3 flex-wrap">
               <span className="font-serif text-7xl sm:text-8xl font-semibold leading-none text-text">
                 {credits}
               </span>
-              <span className="text-sm sm:text-base text-text-muted">{t.checksUnit}</span>
+              <span className="max-w-32 text-sm text-text-muted sm:text-base">{t.checksUnit}</span>
             </div>
           </div>
           <DashboardActions cats={cats ?? []} />
@@ -90,7 +90,7 @@ export default async function DashboardPage({
           {profile?.role === 'admin' ? (
             <Link
               href="/admin/statistics"
-              className="rounded-full bg-card border border-hairline px-4 py-3 text-center text-sm font-medium text-text hover:bg-canvas-soft transition-colors"
+              className="app-button-secondary px-4 py-3 text-sm"
             >
               {t.statistics}
             </Link>
@@ -101,17 +101,17 @@ export default async function DashboardPage({
       </section>
 
       {/* My cats */}
-      <section className="bg-card rounded-3xl p-6 sm:p-8 mb-6">
+      <section className="app-card mb-6 p-6 sm:p-8">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-text">{t.myCats}</h2>
-          <Link href="/cats/new" className="text-sm text-text-muted hover:text-text">{t.addCat}</Link>
+          <Link href="/cats/new" className="app-link">{t.addCat}</Link>
         </div>
         {!cats?.length ? (
-          <p className="text-sm text-text-muted">{t.noCats}</p>
+          <div className="app-card-soft px-4 py-5 text-sm text-text-muted">{t.noCats}</div>
         ) : (
-          <ul className="divide-y divide-hairline -my-2">
+          <ul className="grid gap-2">
             {cats.map((cat: { id: string; name: string; breed: string | null; age_years: number | null; sex: string | null }) => (
-              <li key={cat.id} className="flex items-center justify-between py-3">
+              <li key={cat.id} className="flex items-center justify-between rounded-2xl border border-hairline/70 bg-canvas/35 px-3 py-3">
                 <div className="flex items-center gap-3 min-w-0">
                   <CatAvatar size={40} />
                   <div className="min-w-0">
@@ -123,7 +123,7 @@ export default async function DashboardPage({
                     )}
                   </div>
                 </div>
-                <Link href={`/cats/${cat.id}/edit`} className="text-sm text-text-muted hover:text-text shrink-0">{dict.common.edit}</Link>
+                <Link href={`/cats/${cat.id}/edit`} className="app-link shrink-0">{dict.common.edit}</Link>
               </li>
             ))}
           </ul>
@@ -131,11 +131,11 @@ export default async function DashboardPage({
       </section>
 
       {/* Check history */}
-      <section className="bg-card rounded-3xl p-6 sm:p-8">
+      <section className="app-card p-6 sm:p-8">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-text">{t.checkHistory}</h2>
           {(checks?.length ?? 0) > 0 && (
-            <Link href="/checks" className="text-sm text-text-muted hover:text-text">{t.seeAll} →</Link>
+            <Link href="/checks" className="app-link">{t.seeAll} →</Link>
           )}
         </div>
         <DashboardHistory checks={checks ?? []} />

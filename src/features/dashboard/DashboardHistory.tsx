@@ -16,12 +16,12 @@ export default function DashboardHistory({ checks }: Props) {
   const [selectedCheck, setSelectedCheck] = useState<SymptomCheckRecord | null>(null)
 
   if (!checks.length) {
-    return <p className="text-sm text-text-muted">{t.noChecks}</p>
+    return <div className="app-card-soft px-4 py-5 text-sm text-text-muted">{t.noChecks}</div>
   }
 
   return (
     <>
-      <ul className="divide-y divide-hairline -my-3">
+      <ul className="grid gap-2">
         {checks.map(check => {
           const key = check.urgency as UrgencyKey
           const urgencyText = dict.urgency[key]
@@ -30,7 +30,7 @@ export default function DashboardHistory({ checks }: Props) {
               <button
                 type="button"
                 onClick={() => setSelectedCheck(check)}
-                className="w-full text-left py-4 transition-colors flex items-center gap-3 hover:bg-canvas-soft/40 -mx-4 px-4 rounded-xl"
+                className="flex w-full items-center gap-3 rounded-2xl border border-hairline/70 bg-canvas/30 px-3 py-3 text-left transition-colors hover:bg-canvas-soft/70"
               >
                 <span className={`block h-2.5 w-2.5 shrink-0 rounded-full ${URGENCY_DOT_CLASS[key] ?? 'bg-text-faint'}`} aria-hidden />
                 <div className="min-w-0 flex-1">
@@ -80,14 +80,14 @@ function HistoryModal({ check, onClose }: { check: SymptomCheckRecord; onClose: 
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 sm:p-4"
+      className="app-overlay fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4"
       onClick={e => { if (e.target === e.currentTarget) onClose() }}
     >
-      <div className="bg-card rounded-t-3xl sm:rounded-3xl w-full sm:max-w-2xl max-h-[95dvh] overflow-y-auto relative">
+      <div className="app-card relative max-h-[95dvh] w-full overflow-y-auto rounded-b-none sm:max-w-2xl sm:rounded-b-3xl">
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 text-text/70 hover:text-text w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/10 transition-colors text-xl leading-none"
+          className="app-icon-button absolute top-4 right-4 z-10 text-xl leading-none"
           aria-label={dict.common.close}
         >
           ×

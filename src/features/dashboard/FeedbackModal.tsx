@@ -59,14 +59,14 @@ export default function FeedbackModal({ onClose, dict }: Props) {
       role="dialog"
       aria-modal="true"
       aria-label={dict.title}
-      className="fixed inset-0 z-60 flex items-end sm:items-center justify-center bg-black/50 sm:p-4"
+      className="app-overlay fixed inset-0 z-60 flex items-end justify-center sm:items-center sm:p-4"
       onClick={e => { if (e.target === e.currentTarget) onClose() }}
     >
-      <div className="bg-card rounded-t-3xl sm:rounded-3xl w-full sm:max-w-md relative">
+      <div className="app-card relative w-full rounded-b-none sm:max-w-md sm:rounded-b-3xl">
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 text-text/70 hover:text-text w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/10 transition-colors text-xl leading-none"
+          className="app-icon-button absolute top-4 right-4 z-10 text-xl leading-none"
           aria-label="Закрыть"
         >
           ×
@@ -119,7 +119,7 @@ export default function FeedbackModal({ onClose, dict }: Props) {
                 placeholder={dict.commentPlaceholder}
                 maxLength={500}
                 rows={3}
-                className="w-full bg-card border border-hairline rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40 resize-none mb-4"
+                className="app-input mb-4 resize-none"
               />
 
               {error && (
@@ -132,7 +132,7 @@ export default function FeedbackModal({ onClose, dict }: Props) {
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex-1 rounded-full border border-hairline bg-card text-text py-3 text-sm font-medium hover:bg-canvas-soft transition-colors"
+                  className="app-button-secondary flex-1 py-3 text-sm"
                 >
                   {dict.skip}
                 </button>
@@ -140,7 +140,7 @@ export default function FeedbackModal({ onClose, dict }: Props) {
                   type="button"
                   onClick={handleSubmit}
                   disabled={!rating || loading}
-                  className="flex-1 rounded-full bg-accent text-white py-3 text-sm font-semibold hover:bg-accent-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="app-button-primary flex-1 py-3 text-sm"
                 >
                   {loading ? (
                     <span className="flex items-center justify-center gap-2">

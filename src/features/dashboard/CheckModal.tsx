@@ -26,10 +26,10 @@ export default function CheckModal({ cats, onClose }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 sm:p-4"
+      className="app-overlay fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4"
       onClick={e => { if (e.target === e.currentTarget) onClose() }}
     >
-      <div className="bg-card rounded-t-3xl sm:rounded-3xl w-full sm:max-w-2xl max-h-[95dvh] overflow-y-auto">
+      <div className="app-card max-h-[95dvh] w-full overflow-y-auto rounded-b-none sm:max-w-2xl sm:rounded-b-3xl">
         <CheckForm
           cats={cats}
           onClose={onClose}

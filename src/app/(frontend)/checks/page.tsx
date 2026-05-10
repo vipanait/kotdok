@@ -29,9 +29,9 @@ export default async function ChecksPage() {
 
   return (
     <AppShell right={
-      <Link href="/dashboard" className="text-text-muted hover:text-text">{dict.common.back}</Link>
+      <Link href="/dashboard" className="app-link">{dict.common.back}</Link>
     }>
-      <section className="bg-card rounded-3xl p-6 sm:p-8">
+      <section className="app-card p-6 sm:p-8">
         <h1 className="text-xl font-bold text-text mb-4">{dict.dashboard.checkHistory}</h1>
         <DashboardHistory checks={checks ?? []} />
       </section>

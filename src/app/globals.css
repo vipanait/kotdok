@@ -78,6 +78,145 @@
 }
 
 body {
-  background: var(--canvas);
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(252, 122, 0, 0.12), transparent 32rem),
+    linear-gradient(180deg, #fff8ed 0%, var(--canvas) 18rem);
   color: var(--text);
+}
+
+@layer components {
+  .app-card {
+    background: var(--card);
+    border: 1px solid rgba(236, 224, 197, 0.82);
+    border-radius: 1.5rem;
+    box-shadow: 0 22px 70px rgba(92, 65, 32, 0.08);
+  }
+
+  .app-card-soft {
+    background: rgba(252, 228, 199, 0.58);
+    border: 1px solid rgba(244, 221, 183, 0.92);
+    border-radius: 1.25rem;
+  }
+
+  .app-kicker {
+    color: var(--accent-text);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .app-link {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: color 160ms ease;
+  }
+
+  .app-link:hover {
+    color: var(--text);
+  }
+
+  .app-button-primary,
+  .app-button-secondary,
+  .app-button-danger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    font-weight: 700;
+    transition:
+      background-color 160ms ease,
+      border-color 160ms ease,
+      color 160ms ease,
+      opacity 160ms ease,
+      transform 160ms ease;
+  }
+
+  .app-button-primary {
+    background: var(--accent);
+    color: white;
+    box-shadow: 0 12px 28px rgba(252, 122, 0, 0.24);
+  }
+
+  .app-button-primary:hover {
+    background: var(--accent-hover);
+    transform: translateY(-1px);
+  }
+
+  .app-button-secondary {
+    background: var(--card);
+    border: 1px solid var(--hairline);
+    color: var(--text);
+  }
+
+  .app-button-secondary:hover {
+    background: var(--canvas-soft);
+    border-color: var(--card-soft-strong);
+  }
+
+  .app-button-danger {
+    background: var(--status-error-fg);
+    color: white;
+  }
+
+  .app-button-danger:hover {
+    opacity: 0.9;
+  }
+
+  .app-button-primary:disabled,
+  .app-button-secondary:disabled,
+  .app-button-danger:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+    transform: none;
+  }
+
+  .app-input {
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--hairline);
+    border-radius: 1rem;
+    color: var(--text);
+    font-size: 0.875rem;
+    padding: 0.75rem 1rem;
+    transition:
+      border-color 160ms ease,
+      box-shadow 160ms ease,
+      background-color 160ms ease;
+  }
+
+  .app-input::placeholder {
+    color: var(--text-faint);
+  }
+
+  .app-input:focus {
+    border-color: rgba(252, 122, 0, 0.5);
+    box-shadow: 0 0 0 4px rgba(252, 122, 0, 0.14);
+    outline: none;
+  }
+
+  .app-overlay {
+    background: rgba(27, 27, 27, 0.46);
+    backdrop-filter: blur(6px);
+  }
+
+  .app-icon-button {
+    align-items: center;
+    border-radius: 999px;
+    color: rgba(27, 27, 27, 0.7);
+    display: flex;
+    height: 2rem;
+    justify-content: center;
+    transition:
+      background-color 160ms ease,
+      color 160ms ease;
+    width: 2rem;
+  }
+
+  .app-icon-button:hover {
+    background: rgba(27, 27, 27, 0.08);
+    color: var(--text);
+  }
 }
