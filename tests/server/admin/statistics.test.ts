@@ -53,6 +53,7 @@ describe('admin statistics service', () => {
       ],
       symptomChecks: [
         { user_id: 'user-1', created_at: '2026-05-02T10:00:00.000Z' },
+        { user_id: 'user-1', created_at: '2026-05-02T11:00:00.000Z' },
         { user_id: 'user-2', created_at: '2026-04-19T10:00:00.000Z' },
       ],
       events: [
@@ -68,6 +69,7 @@ describe('admin statistics service', () => {
         registeredUsers: 2,
         payingUsers: 1,
         symptomCheckUsers: 2,
+        symptomChecks: 3,
         totalRevenue: 178000,
       },
       daily: [
@@ -77,7 +79,7 @@ describe('admin statistics service', () => {
         { date: '2026-04-29', registrations: 0, payments: 0, paymentAmount: 0, symptomChecks: 0 },
         { date: '2026-04-30', registrations: 0, payments: 0, paymentAmount: 0, symptomChecks: 0 },
         { date: '2026-05-01', registrations: 1, payments: 0, paymentAmount: 0, symptomChecks: 0 },
-        { date: '2026-05-02', registrations: 0, payments: 1, paymentAmount: 49000, symptomChecks: 1 },
+        { date: '2026-05-02', registrations: 0, payments: 1, paymentAmount: 49000, symptomChecks: 2 },
       ],
     })
     expect(service.from).toHaveBeenCalledWith('profiles')

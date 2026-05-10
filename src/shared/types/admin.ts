@@ -4,6 +4,7 @@ export interface AdminStatisticsTotals {
   registeredUsers: number
   payingUsers: number
   symptomCheckUsers: number
+  symptomChecks: number
   totalRevenue: number
 }
 
