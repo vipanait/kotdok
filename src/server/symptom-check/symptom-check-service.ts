@@ -1,6 +1,7 @@
 import 'server-only'
 
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import OpenAI from 'openai'
 import { createServiceClient } from '@/server/supabase/server'
 import { getAuthUser } from '@/server/auth/get-auth-user'
@@ -304,6 +305,8 @@ export async function handleSymptomCheckRequest(request: NextRequest) {
       if (ledgerError) console.error('usage ledger attach error:', ledgerError)
     }
     reservedUsageLedgerId = null
+
+    revalidatePath('/dashboard')
 
     return NextResponse.json({
       ...result,
