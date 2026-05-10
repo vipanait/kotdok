@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
 import type { FeedbackRating } from '@/shared/types'
+import { csrfHeaders } from '@/shared/security/csrf-client'
 
 interface Props {
   onClose: () => void
@@ -37,7 +38,7 @@ export default function FeedbackModal({ onClose, dict }: Props) {
     try {
       const res = await fetch('/api/feedback', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: csrfHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ rating, comment: comment.trim() || undefined }),
       })
       if (!res.ok) {

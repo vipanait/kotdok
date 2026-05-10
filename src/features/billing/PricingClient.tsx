@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Package, PublicPaymentMethod } from '@/shared/types/billing'
 import { formatMoney } from '@/shared/utils/billing-format'
+import { csrfHeaders } from '@/shared/security/csrf-client'
 
 interface Props {
   packages: Package[]
@@ -37,7 +38,7 @@ export default function PricingClient({ packages, methods }: Props) {
       if (payMode === 'new') {
         const res = await fetch('/api/billing/purchase', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: csrfHeaders({ 'Content-Type': 'application/json' }),
           body: JSON.stringify({ package_id: selectedPackageId, save_payment_method: saveCard }),
         })
         const data = await res.json()
@@ -50,7 +51,7 @@ export default function PricingClient({ packages, methods }: Props) {
       } else {
         const res = await fetch('/api/billing/purchase/saved', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: csrfHeaders({ 'Content-Type': 'application/json' }),
           body: JSON.stringify({ package_id: selectedPackageId, payment_method_id: payMode }),
         })
         const data = await res.json()

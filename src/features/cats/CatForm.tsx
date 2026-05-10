@@ -7,6 +7,7 @@ import type { Cat } from '@/shared/types'
 import { useTranslations } from '@/components/LocaleProvider'
 import AppShell from '@/components/AppShell'
 import CatAvatar from '@/components/CatAvatar'
+import { csrfHeaders } from '@/shared/security/csrf-client'
 
 type CatFormValues = Omit<Cat, 'id' | 'user_id' | 'created_at'>
 
@@ -75,7 +76,7 @@ export default function CatForm({ cat }: Props) {
     const method = isEdit ? 'PUT' : 'POST'
     const res = await fetch(url, {
       method,
-      headers: { 'Content-Type': 'application/json' },
+      headers: csrfHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(body),
     })
 
@@ -92,7 +93,7 @@ export default function CatForm({ cat }: Props) {
 
   async function handleDelete() {
     setDeleting(true)
-    await fetch(`/api/cats/${cat!.id}`, { method: 'DELETE' })
+    await fetch(`/api/cats/${cat!.id}`, { method: 'DELETE', headers: csrfHeaders() })
     router.push('/dashboard?catSaved=deleted')
     router.refresh()
   }

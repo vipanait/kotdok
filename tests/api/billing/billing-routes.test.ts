@@ -1,11 +1,25 @@
 import { describe, expect, it } from 'vitest'
+import { NextRequest } from 'next/server'
 import { GET as getTransactionRoute } from '@/app/(backend)/api/billing/transactions/[id]/route'
 import { GET as listTransactionsRoute } from '@/app/(backend)/api/billing/transactions/route'
 import { DELETE as deletePaymentMethodRoute } from '@/app/(backend)/api/billing/payment-methods/[id]/route'
 import { GET as listPaymentMethodsRoute } from '@/app/(backend)/api/billing/payment-methods/route'
+import { CSRF_COOKIE_NAME, CSRF_HEADER_NAME } from '@/server/security/csrf'
 
 function params(id: string) {
   return { params: Promise.resolve({ id }) }
+}
+
+function csrfRequest(method: string) {
+  const token = 'test-csrf-token'
+  return new NextRequest('http://test.local', {
+    method,
+    headers: {
+      origin: 'http://test.local',
+      cookie: `${CSRF_COOKIE_NAME}=${token}`,
+      [CSRF_HEADER_NAME]: token,
+    },
+  })
 }
 
 describe('billing API routes', () => {
@@ -30,7 +44,7 @@ describe('billing API routes', () => {
   })
 
   it('returns disabled response for payment method deletion', async () => {
-    const response = await deletePaymentMethodRoute(new Request('http://test.local') as never, params('pm-1'))
+    const response = await deletePaymentMethodRoute(csrfRequest('DELETE') as never)
 
     expect(response.status).toBe(503)
     await expect(response.json()).resolves.toEqual({

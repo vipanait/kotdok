@@ -2,8 +2,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getAuthUser } from '@/server/auth/get-auth-user'
 import { createServiceClient } from '@/server/supabase/server'
 import type { FeedbackRating } from '@/shared/types'
+import { csrfForbiddenResponse, verifyCsrf } from '@/server/security/csrf'
 
 export async function POST(request: NextRequest) {
+  if (!await verifyCsrf(request)) return csrfForbiddenResponse()
+
   const user = await getAuthUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
