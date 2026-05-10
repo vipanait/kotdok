@@ -121,9 +121,6 @@ export default function CheckForm({ cats, onClose, onFeedbackPrompt }: Props) {
     if (data.showFeedbackPrompt === true) {
       onFeedbackPrompt?.()
     }
-    if (data.showFeedbackPrompt === true) {
-      onFeedbackPrompt?.()
-    }
   }
 
   const selectedCat = cats.find(c => c.id === selectedCatId)
