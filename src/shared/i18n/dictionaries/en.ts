@@ -20,6 +20,8 @@ const en: Dictionary = {
     notSpecified: 'Not specified',
     notSpecifiedM: 'Not specified',
     redirecting: 'Redirecting...',
+    showPassword: 'Show password',
+    hidePassword: 'Hide password',
   },
   home: {
     signIn: 'Sign in',
@@ -86,6 +88,10 @@ const en: Dictionary = {
       submit: 'Register',
       submitting: 'Creating...',
       errorGoogle: 'Failed to sign in with Google',
+      errorAlreadyRegistered: 'A user with this email is already registered',
+      errorWeakPassword: 'Password must be at least 6 characters',
+      errorInvalidEmail: 'Enter a valid email',
+      errorGeneric: 'Failed to register. Check your details and try again.',
     },
     forgotPassword: {
       heading: 'Forgot your password? It happens.',
@@ -143,6 +149,9 @@ const en: Dictionary = {
     statistics: 'Statistics',
     seeAll: 'All',
     signOut: 'Sign out',
+    catSaved: 'Cat profile saved.',
+    catAdded: 'Cat added.',
+    catDeleted: 'Cat profile deleted.',
   },
   cats: {
     newTitle: 'Add a cat',
@@ -245,6 +254,8 @@ const en: Dictionary = {
     changeCat: 'Change',
     describeMore: 'Describe in more detail',
     submitButton: 'Get assessment',
+    symptomsRequired: 'Describe symptoms with at least 3 characters to get an assessment.',
+    errorNoCredits: 'No checks left. Request one more check from your account.',
     willCharge: '1 check will be used',
     symptoms: 'Symptoms',
     pageHeading: 'Describe symptoms',

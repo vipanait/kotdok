@@ -86,14 +86,14 @@ export default function CatForm({ cat }: Props) {
       return
     }
 
-    router.push('/dashboard')
+    router.push(`/dashboard?catSaved=${isEdit ? 'updated' : 'created'}`)
     router.refresh()
   }
 
   async function handleDelete() {
     setDeleting(true)
     await fetch(`/api/cats/${cat!.id}`, { method: 'DELETE' })
-    router.push('/dashboard')
+    router.push('/dashboard?catSaved=deleted')
     router.refresh()
   }
 
@@ -123,7 +123,7 @@ export default function CatForm({ cat }: Props) {
             />
           </Field>
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Field label={t.breed}>
               <input
                 value={breed}
@@ -158,7 +158,7 @@ export default function CatForm({ cat }: Props) {
             </Field>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Field label={t.sex}>
               <select
                 value={sex ?? ''}
@@ -183,7 +183,7 @@ export default function CatForm({ cat }: Props) {
             </Field>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Field label={t.lifestyle}>
               <select
                 value={indoorOutdoor ?? ''}
@@ -322,7 +322,7 @@ export default function CatForm({ cat }: Props) {
 }
 
 const inputCls =
-  'w-full bg-card border border-hairline rounded-full px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 placeholder:text-text-faint'
+  'w-full bg-card border border-hairline rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 placeholder:text-text-faint'
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (

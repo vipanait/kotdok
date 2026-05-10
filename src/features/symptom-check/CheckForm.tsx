@@ -108,7 +108,7 @@ export default function CheckForm({ cats, onClose }: Props) {
 
     if (!res.ok) {
       if (res.status === 401) router.push('/login')
-      else if (res.status === 402) setError(dict.dashboard.creditsOut)
+      else if (res.status === 402) setError(t.errorNoCredits)
       else setError(data.error || t.errorGeneric)
       setLoading(false)
       return
@@ -120,6 +120,7 @@ export default function CheckForm({ cats, onClose }: Props) {
   }
 
   const selectedCat = cats.find(c => c.id === selectedCatId)
+  const symptomsTooShort = symptoms.trim().length < 3
 
   const appetiteOptions = [
     { value: 'normal', label: t.appetiteNormal },
@@ -247,7 +248,7 @@ export default function CheckForm({ cats, onClose }: Props) {
       <div className="pt-1">
         <button
           type="submit"
-          disabled={loading || symptoms.trim().length < 3}
+          disabled={loading || symptomsTooShort}
           className="w-full rounded-full bg-accent text-white py-4 font-semibold hover:bg-accent-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? (
@@ -262,7 +263,9 @@ export default function CheckForm({ cats, onClose }: Props) {
             dict.check.submitButton
           )}
         </button>
-        <p className="text-center text-xs text-text-muted mt-2">{dict.check.willCharge}</p>
+        <p className="text-center text-xs text-text-muted mt-2">
+          {symptomsTooShort ? t.symptomsRequired : dict.check.willCharge}
+        </p>
       </div>
     </form>
   )
@@ -336,8 +339,8 @@ export default function CheckForm({ cats, onClose }: Props) {
           {!result ? (
             <>
               <div className="mb-5 pr-10">
-                <p className="text-[11px] font-semibold tracking-wider text-text-muted">{dict.check.stepLabel}</p>
-                <h2 className="mt-1 font-serif text-2xl sm:text-3xl font-bold text-text">{t.modalHeading}</h2>
+                <h2 className="font-serif text-2xl sm:text-3xl font-bold text-text">{t.modalHeading}</h2>
+                <p className="text-sm text-text-muted mt-1">{t.modalSubheading}</p>
               </div>
               {formContent}
             </>
@@ -355,8 +358,7 @@ export default function CheckForm({ cats, onClose }: Props) {
     }>
       {!result ? (
         <div className="bg-card rounded-3xl p-6 sm:p-8">
-          <p className="text-[11px] font-semibold tracking-wider text-text-muted">{dict.check.stepLabel}</p>
-          <h1 className="mt-1 font-serif text-2xl sm:text-3xl font-bold text-text mb-1">{t.pageHeading}</h1>
+          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-text mb-1">{t.pageHeading}</h1>
           <p className="text-sm text-text-muted mb-6">{t.pageSubheading}</p>
           {formContent}
         </div>

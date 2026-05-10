@@ -26,6 +26,14 @@ const ROUTE_FOR_MODE: Record<AuthMode, string> = {
   reset: '/reset-password',
 }
 
+function registrationErrorMessage(message: string, t: ReturnType<typeof useTranslations>['auth']['register']): string {
+  const normalized = message.toLowerCase()
+  if (normalized.includes('already') || normalized.includes('registered')) return t.errorAlreadyRegistered
+  if (normalized.includes('password')) return t.errorWeakPassword
+  if (normalized.includes('email')) return t.errorInvalidEmail
+  return t.errorGeneric
+}
+
 export default function AuthModal({ initialMode }: Props) {
   const router = useRouter()
   const dict = useTranslations()
@@ -120,16 +128,16 @@ function LoginPanel({ onSwitch }: { onSwitch: (m: AuthMode) => void }) {
         <form onSubmit={handleSubmit} className="space-y-4">
           <FieldEmail value={email} onChange={setEmail} />
           <div>
-            <div className="mb-1 flex items-center justify-between">
-              <label className="block text-sm font-medium text-text">{t.password}</label>
-              <button type="button" onClick={() => onSwitch('forgot')} className="text-xs text-accent hover:underline">
-                {t.forgotPassword}
-              </button>
-            </div>
-            <input
-              type="password" required
-              value={password} onChange={e => setPassword(e.target.value)}
-              className={inputCls}
+            <PasswordInput
+              label={t.password}
+              value={password}
+              onChange={setPassword}
+              autoComplete="current-password"
+              action={(
+                <button type="button" onClick={() => onSwitch('forgot')} className="text-xs text-accent hover:underline">
+                  {t.forgotPassword}
+                </button>
+              )}
             />
           </div>
           <PrimaryButton loading={loading} loadingLabel={t.submitting} label={t.submit} />
@@ -167,7 +175,7 @@ function RegisterPanel({ onSwitch }: { onSwitch: (m: AuthMode) => void }) {
         emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL ?? window.location.origin}/auth/callback?next=${encodeURIComponent(safeNext())}`,
       },
     })
-    if (error) { setError(error.message); setLoading(false); return }
+    if (error) { setError(registrationErrorMessage(error.message, t)); setLoading(false); return }
     setSent(true); setLoading(false)
   }
 
@@ -213,11 +221,12 @@ function RegisterPanel({ onSwitch }: { onSwitch: (m: AuthMode) => void }) {
         <form onSubmit={handleSubmit} className="space-y-4">
           <FieldEmail value={email} onChange={setEmail} />
           <div>
-            <label className="mb-1 block text-sm font-medium text-text">{dict.auth.login.password}</label>
-            <input
-              type="password" required minLength={6}
-              value={password} onChange={e => setPassword(e.target.value)}
-              className={inputCls}
+            <PasswordInput
+              label={dict.auth.login.password}
+              value={password}
+              onChange={setPassword}
+              minLength={6}
+              autoComplete="new-password"
             />
             <p className="mt-1 text-xs text-text-faint">{t.passwordHint}</p>
           </div>
@@ -330,19 +339,21 @@ function ResetPanel() {
         {error && <ErrorBox text={error} />}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-text">{t.newPassword}</label>
-            <input
-              type="password" required minLength={6}
-              value={password} onChange={e => setPassword(e.target.value)}
-              className={inputCls}
+            <PasswordInput
+              label={t.newPassword}
+              value={password}
+              onChange={setPassword}
+              minLength={6}
+              autoComplete="new-password"
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-text">{t.confirmPassword}</label>
-            <input
-              type="password" required minLength={6}
-              value={confirm} onChange={e => setConfirm(e.target.value)}
-              className={inputCls}
+            <PasswordInput
+              label={t.confirmPassword}
+              value={confirm}
+              onChange={setConfirm}
+              minLength={6}
+              autoComplete="new-password"
             />
           </div>
           <PrimaryButton loading={loading} loadingLabel={t.submitting} label={t.submit} />
@@ -382,6 +393,53 @@ function FieldEmail({ value, onChange }: { value: string; onChange: (v: string) 
         className={inputCls}
         autoComplete="email"
       />
+    </div>
+  )
+}
+
+function PasswordInput({
+  label,
+  value,
+  onChange,
+  autoComplete,
+  minLength,
+  action,
+}: {
+  label: string
+  value: string
+  onChange: (v: string) => void
+  autoComplete: string
+  minLength?: number
+  action?: React.ReactNode
+}) {
+  const dict = useTranslations()
+  const [visible, setVisible] = useState(false)
+
+  return (
+    <div>
+      <div className="mb-1 flex items-center justify-between gap-3">
+        <label className="block text-sm font-medium text-text">{label}</label>
+        {action}
+      </div>
+      <div className="relative">
+        <input
+          type={visible ? 'text' : 'password'}
+          required
+          minLength={minLength}
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          className={`${inputCls} pr-28`}
+          autoComplete={autoComplete}
+        />
+        <button
+          type="button"
+          onClick={() => setVisible(v => !v)}
+          className="absolute inset-y-0 right-3 text-xs font-medium text-text-muted hover:text-text"
+          aria-label={visible ? dict.common.hidePassword : dict.common.showPassword}
+        >
+          {visible ? dict.common.hidePassword : dict.common.showPassword}
+        </button>
+      </div>
     </div>
   )
 }
