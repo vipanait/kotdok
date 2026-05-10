@@ -25,7 +25,6 @@ export default function CheckModal({ cats, onClose }: Props) {
   function handleFeedbackClose() {
     sessionStorage.setItem(FEEDBACK_DISMISSED_KEY, '1')
     setShowFeedback(false)
-    onClose()
   }
 
   useEffect(() => {
