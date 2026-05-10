@@ -297,6 +297,18 @@ const en: Dictionary = {
     paymentNote:
       'Test payment mode. The card can be saved for quick future purchases.',
   },
+  feedback: {
+    title: 'How do you like the service?',
+    subtitle: 'Tell us about your experience',
+    liked: 'Liked it',
+    disliked: "Didn't like it",
+    commentPlaceholder: 'What could be improved? (optional)',
+    submit: 'Submit',
+    skip: 'Skip',
+    thanks: 'Thanks for your feedback!',
+    thanksSubtitle: 'This helps us improve',
+    errorGeneric: 'Failed to submit feedback. Please try again.',
+  },
 }
 
 export default en

@@ -43,4 +43,7 @@ export interface Profile {
   plan: 'free' | 'credits' | 'monthly' | 'pro'
   role: UserRole
   created_at: string
+  feedback_submitted_at: string | null
 }
+
+export type FeedbackRating = 'liked' | 'disliked'
