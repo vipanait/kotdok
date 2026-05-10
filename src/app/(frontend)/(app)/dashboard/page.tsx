@@ -9,7 +9,11 @@ import AppShell from '@/components/AppShell'
 import CatAvatar from '@/components/CatAvatar'
 import ExtraCheckRequestPanel from '@/features/dashboard/ExtraCheckRequestPanel'
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ catSaved?: string }>
+}) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -17,6 +21,7 @@ export default async function DashboardPage() {
   const locale = await getLocale()
   const dict = await getDictionary(locale)
   const t = dict.dashboard
+  const params = await searchParams
 
   const service = createServiceClient()
 
@@ -53,6 +58,12 @@ export default async function DashboardPage() {
       </form>
     }>
       <h1 className="sr-only">{t.title}</h1>
+
+      {params.catSaved && (
+        <div className="bg-status-good-bg text-status-good-fg rounded-2xl px-4 py-3 mb-6 text-sm font-medium">
+          {params.catSaved === 'created' ? t.catAdded : params.catSaved === 'deleted' ? t.catDeleted : t.catSaved}
+        </div>
+      )}
 
       {/* Credits + actions */}
       <section className="bg-card rounded-3xl p-6 sm:p-8 mb-6">
@@ -125,7 +136,7 @@ export default async function DashboardPage() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-text">{t.checkHistory}</h2>
           {(checks?.length ?? 0) > 0 && (
-            <span className="text-sm text-text-muted">{t.seeAll} →</span>
+            <Link href="/checks" className="text-sm text-text-muted hover:text-text">{t.seeAll} →</Link>
           )}
         </div>
         <DashboardHistory checks={checks ?? []} />
