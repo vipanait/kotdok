@@ -70,11 +70,14 @@ export default async function DashboardPage({
           <div className="min-w-0">
             <p className="app-kicker">{t.kicker}</p>
             <div className="mt-2 flex items-baseline gap-3 flex-wrap">
-              <span className="font-serif text-7xl sm:text-8xl font-semibold leading-none text-text">
+              <span className={`font-serif font-semibold leading-none text-text ${credits > 0 ? 'text-6xl sm:text-7xl' : 'text-7xl sm:text-8xl'}`}>
                 {credits}
               </span>
               <span className="max-w-32 text-sm text-text-muted sm:text-base">{t.checksUnit}</span>
             </div>
+            <p className="mt-3 max-w-md text-sm leading-relaxed text-text-muted">
+              {credits > 0 ? t.creditsReady : t.creditsEmpty}
+            </p>
           </div>
           <DashboardActions cats={cats ?? []} />
         </div>
@@ -102,12 +105,21 @@ export default async function DashboardPage({
 
       {/* My cats */}
       <section className="app-card mb-6 p-6 sm:p-8">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-text">{t.myCats}</h2>
-          <Link href="/cats/new" className="app-link">{t.addCat}</Link>
+        <div className="app-section-header">
+          <div>
+            <h2 className="app-section-title">{t.myCats}</h2>
+            <p className="app-section-description">{t.catsSubtitle}</p>
+          </div>
+          <Link href="/cats/new" className="app-link shrink-0">{t.addCat}</Link>
         </div>
         {!cats?.length ? (
-          <div className="app-card-soft px-4 py-5 text-sm text-text-muted">{t.noCats}</div>
+          <div className="app-empty-state">
+            <h3 className="text-base font-bold text-text">{t.catsEmptyTitle}</h3>
+            <p className="mt-1 text-sm leading-relaxed">{t.noCats}</p>
+            <Link href="/cats/new" className="app-button-secondary app-button-sm mt-4">
+              {t.addFirstCat}
+            </Link>
+          </div>
         ) : (
           <ul className="grid gap-2">
             {cats.map((cat: { id: string; name: string; breed: string | null; age_years: number | null; sex: string | null }) => (
@@ -132,13 +144,20 @@ export default async function DashboardPage({
 
       {/* Check history */}
       <section className="app-card p-6 sm:p-8">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-text">{t.checkHistory}</h2>
+        <div className="app-section-header">
+          <div>
+            <h2 className="app-section-title">{t.checkHistory}</h2>
+            <p className="app-section-description">{t.checkHistorySubtitle}</p>
+          </div>
           {(checks?.length ?? 0) > 0 && (
-            <Link href="/checks" className="app-link">{t.seeAll} →</Link>
+            <Link href="/checks" className="app-link shrink-0">{t.seeAll} →</Link>
           )}
         </div>
-        <DashboardHistory checks={checks ?? []} />
+        <DashboardHistory
+          checks={checks ?? []}
+          emptyActionHref={(cats?.length ?? 0) > 0 ? '/check' : '/cats/new'}
+          emptyActionLabel={(cats?.length ?? 0) > 0 ? t.startFirstCheck : t.addFirstCat}
+        />
       </section>
 
       <p className="text-center text-xs text-text-faint mt-6">

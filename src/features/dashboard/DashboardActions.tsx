@@ -34,6 +34,7 @@ export default function DashboardActions({ cats }: Props) {
   return (
     <>
       <button
+        type="button"
         onClick={() => setOpen(true)}
         className="app-button-primary shrink-0 px-6 py-3 text-sm"
       >

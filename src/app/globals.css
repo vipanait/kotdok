@@ -99,6 +99,48 @@ body {
     border-radius: 1.25rem;
   }
 
+  .app-section-header {
+    align-items: flex-start;
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+
+  .app-section-title {
+    color: var(--text);
+    font-size: 1.25rem;
+    font-weight: 800;
+    line-height: 1.2;
+  }
+
+  .app-section-description {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    line-height: 1.55;
+    margin-top: 0.25rem;
+  }
+
+  .app-empty-state {
+    background: rgba(252, 228, 199, 0.45);
+    border: 1px dashed rgba(244, 221, 183, 0.95);
+    border-radius: 1.25rem;
+    color: var(--text-muted);
+    padding: 1rem;
+  }
+
+  .app-status-chip {
+    align-items: center;
+    border-radius: 999px;
+    display: inline-flex;
+    font-size: 0.75rem;
+    font-weight: 800;
+    gap: 0.375rem;
+    letter-spacing: 0.02em;
+    padding: 0.375rem 0.625rem;
+    white-space: nowrap;
+  }
+
   .app-kicker {
     color: var(--accent-text);
     font-size: 0.75rem;
@@ -173,6 +215,21 @@ body {
     transform: none;
   }
 
+  .app-button-sm {
+    font-size: 0.8125rem;
+    padding: 0.5rem 0.875rem;
+  }
+
+  .app-button-md {
+    font-size: 0.875rem;
+    padding: 0.75rem 1.25rem;
+  }
+
+  .app-button-lg {
+    font-size: 0.9375rem;
+    padding: 0.875rem 1.5rem;
+  }
+
   .app-input {
     width: 100%;
     background: var(--card);
@@ -197,6 +254,39 @@ body {
     outline: none;
   }
 
+  .app-focus-ring:focus-visible,
+  .app-button-primary:focus-visible,
+  .app-button-secondary:focus-visible,
+  .app-button-danger:focus-visible,
+  .app-link:focus-visible,
+  .app-icon-button:focus-visible {
+    outline: 3px solid rgba(252, 122, 0, 0.28);
+    outline-offset: 3px;
+  }
+
+  .app-form-section {
+    border-top: 1px solid var(--hairline);
+    padding-top: 1.25rem;
+  }
+
+  .app-form-section:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  .app-form-section-title {
+    color: var(--text);
+    font-size: 0.9375rem;
+    font-weight: 800;
+    margin-bottom: 0.875rem;
+  }
+
+  .app-field-error {
+    color: var(--status-error-fg);
+    font-size: 0.75rem;
+    margin-top: 0.375rem;
+  }
+
   .app-overlay {
     background: rgba(27, 27, 27, 0.46);
     backdrop-filter: blur(6px);
@@ -218,5 +308,20 @@ body {
   .app-icon-button:hover {
     background: rgba(27, 27, 27, 0.08);
     color: var(--text);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .app-button-primary,
+    .app-button-secondary,
+    .app-button-danger,
+    .app-link,
+    .app-icon-button,
+    .app-input {
+      transition: none;
+    }
+
+    .app-button-primary:hover {
+      transform: none;
+    }
   }
 }

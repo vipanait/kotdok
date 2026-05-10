@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import CheckForm from '@/features/symptom-check/CheckForm'
+import { useTranslations } from '@/components/LocaleProvider'
 import type { Cat } from '@/shared/types'
 
 interface Props {
@@ -10,6 +11,8 @@ interface Props {
 }
 
 export default function CheckModal({ cats, onClose }: Props) {
+  const dict = useTranslations()
+
   useEffect(() => {
     const prev = document.body.style.overflow
     document.body.style.overflow = 'hidden'
@@ -26,6 +29,9 @@ export default function CheckModal({ cats, onClose }: Props) {
 
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={dict.check.modalHeading}
       className="app-overlay fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4"
       onClick={e => { if (e.target === e.currentTarget) onClose() }}
     >

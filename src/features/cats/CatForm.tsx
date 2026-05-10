@@ -46,15 +46,17 @@ export default function CatForm({ cat }: Props) {
   const [notes, setNotes] = useState(cat?.notes ?? '')
 
   const [saving, setSaving] = useState(false)
-  const [error, setError] = useState('')
+  const [formError, setFormError] = useState('')
+  const [nameError, setNameError] = useState('')
   const [deleting, setDeleting] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!name.trim()) { setError(t.errorName); return }
+    if (!name.trim()) { setNameError(t.errorName); return }
     setSaving(true)
-    setError('')
+    setFormError('')
+    setNameError('')
 
     const body: CatFormValues = {
       name: name.trim(),
@@ -82,7 +84,7 @@ export default function CatForm({ cat }: Props) {
 
     if (!res.ok) {
       const data = await res.json()
-      setError(data.error || t.errorGeneric)
+      setFormError(data.error || t.errorGeneric)
       setSaving(false)
       return
     }
@@ -114,156 +116,167 @@ export default function CatForm({ cat }: Props) {
       </div>
 
       <div className="app-card p-6 sm:p-8">
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <Field label={t.name}>
-            <input
-              value={name}
-              onChange={e => setName(e.target.value)}
-              placeholder={t.namePlaceholder}
-              className={inputCls}
-            />
-          </Field>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <Field label={t.breed}>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <FormSection title={t.sectionBasic}>
+            <Field label={t.name} error={nameError}>
               <input
-                value={breed}
-                onChange={e => setBreed(e.target.value)}
-                placeholder={t.breedPlaceholder}
+                value={name}
+                onChange={e => { setName(e.target.value); if (nameError) setNameError('') }}
+                placeholder={t.namePlaceholder}
                 className={inputCls}
+                aria-invalid={!!nameError}
               />
             </Field>
-            <Field label={t.ageYears}>
-              <input
-                type="number"
-                min="0"
-                max="30"
-                step="0.5"
-                value={ageYears}
-                onChange={e => setAgeYears(e.target.value)}
-                placeholder="3"
-                className={inputCls}
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <Field label={t.breed}>
+                <input
+                  value={breed}
+                  onChange={e => setBreed(e.target.value)}
+                  placeholder={t.breedPlaceholder}
+                  className={inputCls}
+                />
+              </Field>
+              <Field label={t.ageYears}>
+                <input
+                  type="number"
+                  min="0"
+                  max="30"
+                  step="0.5"
+                  value={ageYears}
+                  onChange={e => setAgeYears(e.target.value)}
+                  placeholder="3"
+                  className={inputCls}
+                />
+              </Field>
+              <Field label={t.weightKg}>
+                <input
+                  type="number"
+                  min="0"
+                  max="20"
+                  step="0.1"
+                  value={weightKg}
+                  onChange={e => setWeightKg(e.target.value)}
+                  placeholder="4.5"
+                  className={inputCls}
+                />
+              </Field>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Field label={t.sex}>
+                <select
+                  value={sex ?? ''}
+                  onChange={e => setSex((e.target.value || null) as Cat['sex'])}
+                  className={inputCls}
+                >
+                  <option value="">{dict.common.notSpecifiedM}</option>
+                  <option value="female">{t.sexFemale}</option>
+                  <option value="male">{t.sexMale}</option>
+                </select>
+              </Field>
+              <Field label={t.neutered}>
+                <select
+                  value={neutered == null ? '' : neutered ? 'yes' : 'no'}
+                  onChange={e => setNeutered(e.target.value === '' ? null : e.target.value === 'yes')}
+                  className={inputCls}
+                >
+                  <option value="">{dict.common.notSpecified}</option>
+                  <option value="yes">{dict.common.yes}</option>
+                  <option value="no">{dict.common.no}</option>
+                </select>
+              </Field>
+            </div>
+          </FormSection>
+
+          <FormSection title={t.sectionLifestyle}>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <Field label={t.lifestyle}>
+                <select
+                  value={indoorOutdoor ?? ''}
+                  onChange={e => setIndoorOutdoor((e.target.value || null) as Cat['indoor_outdoor'])}
+                  className={inputCls}
+                >
+                  <option value="">{dict.common.notSpecifiedM}</option>
+                  <option value="indoor">{t.lifestyleIndoor}</option>
+                  <option value="outdoor">{t.lifestyleOutdoor}</option>
+                  <option value="both">{t.lifestyleBoth}</option>
+                </select>
+              </Field>
+              <Field label={t.diet}>
+                <select
+                  value={diet ?? ''}
+                  onChange={e => setDiet((e.target.value || null) as Cat['diet'])}
+                  className={inputCls}
+                >
+                  <option value="">{dict.common.notSpecified}</option>
+                  <option value="dry">{t.dietDry}</option>
+                  <option value="wet">{t.dietWet}</option>
+                  <option value="mixed">{t.dietMixed}</option>
+                  <option value="raw">{t.dietRaw}</option>
+                </select>
+              </Field>
+              <Field label={t.vaccination}>
+                <select
+                  value={vaccinated == null ? '' : vaccinated ? 'yes' : 'no'}
+                  onChange={e => setVaccinated(e.target.value === '' ? null : e.target.value === 'yes')}
+                  className={inputCls}
+                >
+                  <option value="">{dict.common.notSpecified}</option>
+                  <option value="yes">{t.vaccinationYes}</option>
+                  <option value="no">{t.vaccinationNo}</option>
+                </select>
+              </Field>
+            </div>
+          </FormSection>
+
+          <FormSection title={t.sectionHealth}>
+            <div className="grid gap-5">
+              <Field label={t.allergies}>
+                <input
+                  value={allergies}
+                  onChange={e => setAllergies(e.target.value)}
+                  placeholder={t.allergiesPlaceholder}
+                  className={inputCls}
+                />
+              </Field>
+
+              <Field label={t.chronicConditions}>
+                <input
+                  value={chronicConditions}
+                  onChange={e => setChronicConditions(e.target.value)}
+                  placeholder={t.chronicPlaceholder}
+                  className={inputCls}
+                />
+              </Field>
+
+              <Field label={t.medications}>
+                <input
+                  value={medications}
+                  onChange={e => setMedications(e.target.value)}
+                  placeholder={t.medicationsPlaceholder}
+                  className={inputCls}
+                />
+              </Field>
+            </div>
+          </FormSection>
+
+          <FormSection title={t.sectionNotes}>
+            <Field label={t.notes}>
+              <textarea
+                value={notes}
+                onChange={e => setNotes(e.target.value.slice(0, NOTES_MAX))}
+                placeholder={t.notesPlaceholder}
+                rows={3}
+                className="app-input resize-none"
               />
+              <p className={`text-xs mt-1 text-right ${notes.length >= NOTES_MAX ? 'text-status-error-fg' : 'text-text-faint'}`}>
+                {notes.length}/{NOTES_MAX}
+              </p>
             </Field>
-            <Field label={t.weightKg}>
-              <input
-                type="number"
-                min="0"
-                max="20"
-                step="0.1"
-                value={weightKg}
-                onChange={e => setWeightKg(e.target.value)}
-                placeholder="4.5"
-                className={inputCls}
-              />
-            </Field>
-          </div>
+          </FormSection>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <Field label={t.sex}>
-              <select
-                value={sex ?? ''}
-                onChange={e => setSex((e.target.value || null) as Cat['sex'])}
-                className={inputCls}
-              >
-                <option value="">{dict.common.notSpecifiedM}</option>
-                <option value="female">{t.sexFemale}</option>
-                <option value="male">{t.sexMale}</option>
-              </select>
-            </Field>
-            <Field label={t.neutered}>
-              <select
-                value={neutered == null ? '' : neutered ? 'yes' : 'no'}
-                onChange={e => setNeutered(e.target.value === '' ? null : e.target.value === 'yes')}
-                className={inputCls}
-              >
-                <option value="">{dict.common.notSpecified}</option>
-                <option value="yes">{dict.common.yes}</option>
-                <option value="no">{dict.common.no}</option>
-              </select>
-            </Field>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <Field label={t.lifestyle}>
-              <select
-                value={indoorOutdoor ?? ''}
-                onChange={e => setIndoorOutdoor((e.target.value || null) as Cat['indoor_outdoor'])}
-                className={inputCls}
-              >
-                <option value="">{dict.common.notSpecifiedM}</option>
-                <option value="indoor">{t.lifestyleIndoor}</option>
-                <option value="outdoor">{t.lifestyleOutdoor}</option>
-                <option value="both">{t.lifestyleBoth}</option>
-              </select>
-            </Field>
-            <Field label={t.diet}>
-              <select
-                value={diet ?? ''}
-                onChange={e => setDiet((e.target.value || null) as Cat['diet'])}
-                className={inputCls}
-              >
-                <option value="">{dict.common.notSpecified}</option>
-                <option value="dry">{t.dietDry}</option>
-                <option value="wet">{t.dietWet}</option>
-                <option value="mixed">{t.dietMixed}</option>
-                <option value="raw">{t.dietRaw}</option>
-              </select>
-            </Field>
-            <Field label={t.vaccination}>
-              <select
-                value={vaccinated == null ? '' : vaccinated ? 'yes' : 'no'}
-                onChange={e => setVaccinated(e.target.value === '' ? null : e.target.value === 'yes')}
-                className={inputCls}
-              >
-                <option value="">{dict.common.notSpecified}</option>
-                <option value="yes">{t.vaccinationYes}</option>
-                <option value="no">{t.vaccinationNo}</option>
-              </select>
-            </Field>
-          </div>
-
-          <Field label={t.allergies}>
-            <input
-              value={allergies}
-              onChange={e => setAllergies(e.target.value)}
-              placeholder={t.allergiesPlaceholder}
-              className={inputCls}
-            />
-          </Field>
-
-          <Field label={t.chronicConditions}>
-            <input
-              value={chronicConditions}
-              onChange={e => setChronicConditions(e.target.value)}
-              placeholder={t.chronicPlaceholder}
-              className={inputCls}
-            />
-          </Field>
-
-          <Field label={t.medications}>
-            <input
-              value={medications}
-              onChange={e => setMedications(e.target.value)}
-              placeholder={t.medicationsPlaceholder}
-              className={inputCls}
-            />
-          </Field>
-
-          <Field label={t.notes}>
-            <textarea
-              value={notes}
-              onChange={e => setNotes(e.target.value.slice(0, NOTES_MAX))}
-              placeholder={t.notesPlaceholder}
-              rows={3}
-              className="app-input resize-none"
-            />
-            <p className={`text-xs mt-1 text-right ${notes.length >= NOTES_MAX ? 'text-status-error-fg' : 'text-text-faint'}`}>
-              {notes.length}/{NOTES_MAX}
-            </p>
-          </Field>
-
-          {error && <div className="bg-status-error-bg text-status-error-fg text-sm rounded-xl px-4 py-3">{error}</div>}
+          {formError && <div className="bg-status-error-bg text-status-error-fg text-sm rounded-xl px-4 py-3">{formError}</div>}
 
           <div className="flex gap-3 pt-2">
             {isEdit && (
@@ -289,11 +302,14 @@ export default function CatForm({ cat }: Props) {
 
       {confirmDelete && isEdit && (
         <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-cat-title"
           className="app-overlay fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4"
           onClick={e => { if (e.target === e.currentTarget && !deleting) setConfirmDelete(false) }}
         >
           <div className="app-card w-full rounded-b-none p-6 sm:max-w-sm sm:rounded-b-3xl">
-            <h2 className="text-lg font-bold text-text mb-2">
+            <h2 id="delete-cat-title" className="text-lg font-bold text-text mb-2">
               {t.confirmDeleteTitle.replace('{name}', cat!.name)}
             </h2>
             <p className="text-sm text-text-muted mb-5">{t.confirmDeleteBody}</p>
@@ -325,11 +341,21 @@ export default function CatForm({ cat }: Props) {
 const inputCls =
   'app-input py-2.5'
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function FormSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="app-form-section">
+      <h2 className="app-form-section-title">{title}</h2>
+      <div className="space-y-5">{children}</div>
+    </section>
+  )
+}
+
+function Field({ label, children, error }: { label: string; children: React.ReactNode; error?: string }) {
   return (
     <label className="block">
       <span className="block text-sm font-semibold text-text mb-1.5">{label}</span>
       {children}
+      {error && <span className="app-field-error block">{error}</span>}
     </label>
   )
 }
