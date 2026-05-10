@@ -32,8 +32,17 @@ export default async function ChecksPage() {
       <Link href="/dashboard" className="app-link">{dict.common.back}</Link>
     }>
       <section className="app-card p-6 sm:p-8">
-        <h1 className="text-xl font-bold text-text mb-4">{dict.dashboard.checkHistory}</h1>
-        <DashboardHistory checks={checks ?? []} />
+        <div className="app-section-header">
+          <div>
+            <h1 className="app-section-title">{dict.dashboard.checkHistory}</h1>
+            <p className="app-section-description">{dict.dashboard.checkHistorySubtitle}</p>
+          </div>
+        </div>
+        <DashboardHistory
+          checks={checks ?? []}
+          emptyActionHref="/dashboard"
+          emptyActionLabel={dict.common.backToAccount}
+        />
       </section>
     </AppShell>
   )
