@@ -1,16 +1,18 @@
 import type { Metadata } from 'next'
-import { redirect } from 'next/navigation'
-import { createClient } from '@/server/supabase/server'
-import CatForm from '@/features/cats/CatForm'
+import DashboardContent from '@/features/dashboard/DashboardContent'
+import CatModalShell from '@/features/cats/CatModalShell'
+import { loadDashboard } from '@/server/dashboard/load-dashboard'
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
 export default async function NewCatPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login?next=/cats/new')
-
-  return <CatForm />
+  const data = await loadDashboard('/login?next=/cats/new')
+  return (
+    <>
+      <DashboardContent data={data} />
+      <CatModalShell />
+    </>
+  )
 }

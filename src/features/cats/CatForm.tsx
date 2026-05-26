@@ -13,6 +13,8 @@ type CatFormValues = Omit<Cat, 'id' | 'user_id' | 'created_at'>
 
 interface Props {
   cat?: Cat
+  /** When set, render in modal-mode (no AppShell, compact heading). */
+  modal?: boolean
 }
 
 const NOTES_MAX = 300
@@ -25,7 +27,7 @@ function fromArr(arr: string[]): string {
   return arr.join(', ')
 }
 
-export default function CatForm({ cat }: Props) {
+export default function CatForm({ cat, modal = false }: Props) {
   const router = useRouter()
   const dict = useTranslations()
   const t = dict.cats
@@ -100,19 +102,20 @@ export default function CatForm({ cat }: Props) {
     router.refresh()
   }
 
-  return (
-    <AppShell width="wide" right={
-      <Link href="/dashboard" className="app-link">{dict.common.back}</Link>
-    }>
-      <div className="flex items-center gap-4 mb-6 sm:mb-8">
-        <CatAvatar size={68} />
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-text leading-tight">
-          {isEdit ? cat!.name : t.newTitle}
-        </h1>
-      </div>
+  const heading = (
+    <div className="flex items-center gap-4 mb-6 sm:mb-8">
+      <CatAvatar size={modal ? 56 : 68} />
+      <h1 className={modal
+        ? 'text-2xl sm:text-3xl font-extrabold text-text leading-tight pr-8'
+        : 'text-3xl sm:text-4xl font-extrabold text-text leading-tight'}>
+        {isEdit ? cat!.name : t.newTitle}
+      </h1>
+    </div>
+  )
 
-      <div className="app-card p-6 sm:p-8">
-        <form onSubmit={handleSubmit} className="space-y-6">
+  const formBody = (
+    <div className={modal ? '' : 'app-card p-6 sm:p-8'}>
+      <form onSubmit={handleSubmit} className="space-y-6">
           <FormSection title={t.sectionBasic}>
             <Field label={t.name} error={nameError}>
               <input
@@ -293,43 +296,62 @@ export default function CatForm({ cat }: Props) {
               {saving ? t.savingBtn : isEdit ? t.saveBtn : t.addBtn}
             </button>
           </div>
-        </form>
-      </div>
+      </form>
+    </div>
+  )
 
-      {confirmDelete && isEdit && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="delete-cat-title"
-          className="app-overlay fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4"
-          onClick={e => { if (e.target === e.currentTarget && !deleting) setConfirmDelete(false) }}
-        >
-          <div className="app-card w-full rounded-b-none p-6 sm:max-w-sm sm:rounded-b-3xl">
-            <h2 id="delete-cat-title" className="text-lg font-bold text-text mb-2">
-              {t.confirmDeleteTitle.replace('{name}', cat!.name)}
-            </h2>
-            <p className="text-sm text-text-muted mb-5">{t.confirmDeleteBody}</p>
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={() => setConfirmDelete(false)}
-                disabled={deleting}
-                className="app-button-secondary flex-1 py-3 text-sm"
-              >
-                {t.cancelBtn}
-              </button>
-              <button
-                type="button"
-                onClick={handleDelete}
-                disabled={deleting}
-                className="app-button-danger flex-1 py-3 text-sm"
-              >
-                {deleting ? t.deletingBtn : t.deleteBtn}
-              </button>
-            </div>
-          </div>
+  const deleteDialog = confirmDelete && isEdit && (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="delete-cat-title"
+      className="app-overlay fixed inset-0 z-[60] flex items-end justify-center sm:items-center sm:p-4"
+      onClick={e => { if (e.target === e.currentTarget && !deleting) setConfirmDelete(false) }}
+    >
+      <div className="app-card w-full rounded-b-none p-6 sm:max-w-sm sm:rounded-b-3xl">
+        <h2 id="delete-cat-title" className="text-lg font-bold text-text mb-2">
+          {t.confirmDeleteTitle.replace('{name}', cat!.name)}
+        </h2>
+        <p className="text-sm text-text-muted mb-5">{t.confirmDeleteBody}</p>
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={() => setConfirmDelete(false)}
+            disabled={deleting}
+            className="app-button-secondary flex-1 py-3 text-sm"
+          >
+            {t.cancelBtn}
+          </button>
+          <button
+            type="button"
+            onClick={handleDelete}
+            disabled={deleting}
+            className="app-button-danger flex-1 py-3 text-sm"
+          >
+            {deleting ? t.deletingBtn : t.deleteBtn}
+          </button>
         </div>
-      )}
+      </div>
+    </div>
+  )
+
+  if (modal) {
+    return (
+      <div className="p-6 sm:p-8">
+        {heading}
+        {formBody}
+        {deleteDialog}
+      </div>
+    )
+  }
+
+  return (
+    <AppShell width="wide" right={
+      <Link href="/dashboard" className="app-link">{dict.common.back}</Link>
+    }>
+      {heading}
+      {formBody}
+      {deleteDialog}
     </AppShell>
   )
 }
