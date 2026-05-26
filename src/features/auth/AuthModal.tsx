@@ -371,7 +371,7 @@ const inputCls =
 function ModalHeader({ heading, subheading }: { heading: string; subheading?: string }) {
   return (
     <div className="mb-5 pr-10">
-      <h2 className="font-serif text-2xl sm:text-3xl font-bold text-text">{heading}</h2>
+      <h2 className="font-extrabold text-2xl sm:text-3xl text-text">{heading}</h2>
       {subheading && <p className="mt-2 text-sm text-text-muted">{subheading}</p>}
     </div>
   )

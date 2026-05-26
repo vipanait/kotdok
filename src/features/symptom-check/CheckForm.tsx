@@ -340,7 +340,7 @@ export default function CheckForm({ cats, onClose }: Props) {
           {!result ? (
             <>
               <div className="mb-5 pr-10">
-                <h2 className="font-serif text-2xl sm:text-3xl font-bold text-text">{t.modalHeading}</h2>
+                <h2 className="font-extrabold text-2xl sm:text-3xl text-text">{t.modalHeading}</h2>
                 <p className="text-sm text-text-muted mt-1">{t.modalSubheading}</p>
               </div>
               {formContent}
@@ -359,7 +359,7 @@ export default function CheckForm({ cats, onClose }: Props) {
     }>
       {!result ? (
         <div className="app-card p-6 sm:p-8">
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-text mb-1">{t.pageHeading}</h1>
+          <h1 className="font-extrabold text-2xl sm:text-3xl text-text mb-1">{t.pageHeading}</h1>
           <p className="text-sm text-text-muted mb-6">{t.pageSubheading}</p>
           {formContent}
         </div>

@@ -104,15 +104,11 @@ export default function CatForm({ cat }: Props) {
     <AppShell width="wide" right={
       <Link href="/dashboard" className="app-link">{dict.common.back}</Link>
     }>
-      <div className="flex items-end gap-5 mb-6 sm:mb-8">
-        <CatAvatar size={72} />
-        <div>
-          <p className="app-kicker">{t.kicker}</p>
-          <h1 className="font-serif text-4xl sm:text-5xl font-bold text-text leading-none mt-1">
-            {isEdit ? `${t.editTitlePrefix}: ${cat!.name}` : t.newTitle}
-          </h1>
-          <p className="text-xs text-text-muted mt-2">{t.profileSubheading}</p>
-        </div>
+      <div className="flex items-center gap-4 mb-6 sm:mb-8">
+        <CatAvatar size={68} />
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-text leading-tight">
+          {isEdit ? cat!.name : t.newTitle}
+        </h1>
       </div>
 
       <div className="app-card p-6 sm:p-8">

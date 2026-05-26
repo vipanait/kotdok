@@ -84,7 +84,7 @@ export default function PricingClient({ packages, methods }: Props) {
             >
               <div className="flex items-baseline justify-between mb-1">
                 <span className="text-lg font-semibold text-text">{pkg.name}</span>
-                <span className="font-serif text-2xl font-bold text-text">
+                <span className="font-extrabold text-2xl text-text">
                   {formatMoney(pkg.amount, pkg.currency)}
                 </span>
               </div>

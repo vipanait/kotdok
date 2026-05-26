@@ -52,7 +52,7 @@ export default function ExtraCheckRequestPanel({ credits, latestRequestStatus }:
   }
 
   return (
-    <div className="app-card-soft mt-5 px-4 py-4 text-sm text-accent-text">
+    <div className="app-card-soft px-4 py-4 text-sm text-accent-text">
       <p className="font-medium">{statusText(latestRequestStatus, t)}</p>
       {canRequest && (
         <button
