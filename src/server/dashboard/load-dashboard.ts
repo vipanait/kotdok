@@ -1,12 +1,13 @@
 import { createClient, createServiceClient } from '@/server/supabase/server'
 import { redirect } from 'next/navigation'
 import type { User } from '@supabase/supabase-js'
+import type { Cat } from '@/shared/types'
 
 export interface DashboardData {
   user: User
   credits: number
   role: 'admin' | string | null
-  cats: Array<{ id: string; name: string; breed: string | null; age_years: number | null; sex: 'male' | 'female' | null }>
+  cats: Cat[]
   checks: Array<{
     id: string
     symptoms_input: string
@@ -55,7 +56,7 @@ export async function loadDashboard(loginRedirectPath = '/login'): Promise<Dashb
         .limit(HISTORY_LIMIT),
       service
         .from('cats')
-        .select('id, name, breed, age_years, sex')
+        .select('*')
         .eq('user_id', user.id)
         .is('deleted_at', null)
         .order('created_at', { ascending: true }),

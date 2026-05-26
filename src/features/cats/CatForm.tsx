@@ -11,10 +11,18 @@ import { csrfHeaders } from '@/shared/security/csrf-client'
 
 type CatFormValues = Omit<Cat, 'id' | 'user_id' | 'created_at'>
 
+type SavedKind = 'created' | 'updated' | 'deleted'
+
 interface Props {
   cat?: Cat
   /** When set, render in modal-mode (no AppShell, compact heading). */
   modal?: boolean
+  /**
+   * When provided, after a successful save/delete the form invokes this
+   * callback instead of navigating to `/dashboard`. The caller is responsible
+   * for closing the modal and triggering data refresh.
+   */
+  onSaved?: (kind: SavedKind) => void
 }
 
 const NOTES_MAX = 300
@@ -27,7 +35,7 @@ function fromArr(arr: string[]): string {
   return arr.join(', ')
 }
 
-export default function CatForm({ cat, modal = false }: Props) {
+export default function CatForm({ cat, modal = false, onSaved }: Props) {
   const router = useRouter()
   const dict = useTranslations()
   const t = dict.cats
@@ -91,15 +99,26 @@ export default function CatForm({ cat, modal = false }: Props) {
       return
     }
 
-    router.push(`/dashboard?catSaved=${isEdit ? 'updated' : 'created'}`)
-    router.refresh()
+    const kind: SavedKind = isEdit ? 'updated' : 'created'
+    if (onSaved) {
+      onSaved(kind)
+      router.refresh()
+    } else {
+      router.push(`/dashboard?catSaved=${kind}`)
+      router.refresh()
+    }
   }
 
   async function handleDelete() {
     setDeleting(true)
     await fetch(`/api/cats/${cat!.id}`, { method: 'DELETE', headers: csrfHeaders() })
-    router.push('/dashboard?catSaved=deleted')
-    router.refresh()
+    if (onSaved) {
+      onSaved('deleted')
+      router.refresh()
+    } else {
+      router.push('/dashboard?catSaved=deleted')
+      router.refresh()
+    }
   }
 
   const heading = (
