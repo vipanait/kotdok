@@ -10,6 +10,8 @@ import CatAvatar from '@/components/CatAvatar'
 import ExtraCheckRequestPanel from '@/features/dashboard/ExtraCheckRequestPanel'
 import SignOutForm from '@/features/auth/SignOutForm'
 
+const HISTORY_LIMIT = 4
+
 export default async function DashboardPage({
   searchParams,
 }: {
@@ -26,15 +28,15 @@ export default async function DashboardPage({
 
   const service = createServiceClient()
 
-  const [{ data: profile }, { data: checks }, { data: cats }, { data: latestRequest }] = await Promise.all([
+  const [{ data: profile }, { data: checks, count: totalChecks }, { data: cats }, { data: latestRequest }] = await Promise.all([
     service.from('profiles').select('credits, plan, role').eq('id', user.id).single(),
     service
       .from('symptom_checks')
-      .select('id, symptoms_input, urgency, urgency_reason, possible_causes, cat_specific_warning, home_care_steps, vet_questions, full_response, created_at')
+      .select('id, symptoms_input, urgency, urgency_reason, possible_causes, cat_specific_warning, home_care_steps, vet_questions, full_response, created_at', { count: 'exact' })
       .eq('user_id', user.id)
       .is('deleted_at', null)
       .order('created_at', { ascending: false })
-      .limit(10),
+      .limit(HISTORY_LIMIT),
     service
       .from('cats')
       .select('id, name, breed, age_years, sex')
@@ -51,11 +53,11 @@ export default async function DashboardPage({
   ])
 
   const credits = profile?.credits ?? 0
+  const hasMoreChecks = (totalChecks ?? 0) > (checks?.length ?? 0)
+  const showRequestPanel = credits === 0 || latestRequest?.status === 'pending'
 
   return (
-    <AppShell right={
-      <SignOutForm label={t.signOut} />
-    }>
+    <AppShell right={<SignOutForm label={t.signOut} />}>
       <h1 className="sr-only">{t.title}</h1>
 
       {params.catSaved && (
@@ -64,54 +66,10 @@ export default async function DashboardPage({
         </div>
       )}
 
-      {/* Credits + actions */}
-      <section className="app-card mb-6 overflow-hidden p-6 sm:p-8">
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
-          <div className="min-w-0">
-            <p className="app-kicker">{t.kicker}</p>
-            <div className="mt-2 flex items-baseline gap-3 flex-wrap">
-              <span className={`font-serif font-semibold leading-none text-text ${credits > 0 ? 'text-6xl sm:text-7xl' : 'text-7xl sm:text-8xl'}`}>
-                {credits}
-              </span>
-              <span className="max-w-32 text-sm text-text-muted sm:text-base">{t.checksUnit}</span>
-            </div>
-            {credits > 0 && (
-              <p className="mt-3 max-w-md text-sm leading-relaxed text-text-muted">
-                {t.creditsReady}
-              </p>
-            )}
-          </div>
-          <DashboardActions cats={cats ?? []} />
-        </div>
-
-        {(credits === 0 || latestRequest?.status === 'pending') && (
-          <ExtraCheckRequestPanel
-            credits={credits}
-            latestRequestStatus={(latestRequest?.status ?? null) as 'pending' | 'approved' | 'rejected' | null}
-          />
-        )}
-
-        <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {profile?.role === 'admin' ? (
-            <Link
-              href="/admin/statistics"
-              className="app-button-secondary px-4 py-3 text-sm"
-            >
-              {t.statistics}
-            </Link>
-          ) : (
-            <span className="hidden sm:block" />
-          )}
-        </div>
-      </section>
-
-      {/* My cats */}
-      <section className="app-card mb-6 p-6 sm:p-8">
-        <div className="app-section-header">
-          <div>
-            <h2 className="app-section-title">{t.myCats}</h2>
-            <p className="app-section-description">{t.catsSubtitle}</p>
-          </div>
+      {/* My pets */}
+      <section className="app-card mb-6 p-6 sm:p-7">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <h2 className="text-xl font-extrabold text-text sm:text-2xl">{t.myCats}</h2>
           <Link href="/cats/new" className="app-link shrink-0">{t.addCat}</Link>
         </div>
         {!cats?.length ? (
@@ -123,44 +81,69 @@ export default async function DashboardPage({
             </Link>
           </div>
         ) : (
-          <ul className="grid gap-2">
+          <ul className="grid gap-1">
             {cats.map((cat: { id: string; name: string; breed: string | null; age_years: number | null; sex: string | null }) => (
-              <li key={cat.id} className="flex items-center justify-between rounded-2xl border border-hairline/70 bg-canvas/35 px-3 py-3">
-                <div className="flex items-center gap-3 min-w-0">
-                  <CatAvatar size={40} />
-                  <div className="min-w-0">
-                    <div className="text-base font-semibold text-text truncate">{cat.name}</div>
-                    {(cat.breed || cat.age_years) && (
-                      <div className="text-xs text-text-faint truncate">
-                        {[cat.breed, cat.age_years ? `${cat.age_years} ${t.yearsOld}` : null].filter(Boolean).join(', ')}
-                      </div>
-                    )}
+              <li key={cat.id}>
+                <Link
+                  href={`/cats/${cat.id}/edit`}
+                  className="flex items-center justify-between gap-3 rounded-2xl px-2 py-2 transition-colors hover:bg-canvas-soft/60"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <CatAvatar size={48} />
+                    <div className="min-w-0">
+                      <div className="text-base font-bold text-text truncate">{cat.name}</div>
+                      {(cat.breed || cat.age_years) && (
+                        <div className="text-sm text-text-faint truncate">
+                          {[cat.breed, cat.age_years ? `${cat.age_years} ${t.yearsOld}` : null].filter(Boolean).join(', ')}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-                <Link href={`/cats/${cat.id}/edit`} className="app-link shrink-0">{dict.common.edit}</Link>
+                </Link>
               </li>
             ))}
           </ul>
         )}
       </section>
 
-      {/* Check history */}
-      <section className="app-card p-6 sm:p-8">
-        <div className="app-section-header">
-          <div>
-            <h2 className="app-section-title">{t.checkHistory}</h2>
-            <p className="app-section-description">{t.checkHistorySubtitle}</p>
-          </div>
-          {(checks?.length ?? 0) > 0 && (
-            <Link href="/checks" className="app-link shrink-0">{t.seeAll} →</Link>
-          )}
+      {/* Checks */}
+      <section className="app-card mb-6 p-6 sm:p-7">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <h2 className="text-xl font-extrabold text-text sm:text-2xl">{t.checkHistory}</h2>
+          <span className="text-sm text-text-muted">{t.availableShort.replace('{n}', String(credits))}</span>
         </div>
-        <DashboardHistory
-          checks={checks ?? []}
-          emptyActionHref={(cats?.length ?? 0) > 0 ? '/check' : '/cats/new'}
-          emptyActionLabel={(cats?.length ?? 0) > 0 ? t.startFirstCheck : t.addFirstCat}
-        />
+
+        {showRequestPanel ? (
+          <ExtraCheckRequestPanel
+            credits={credits}
+            latestRequestStatus={(latestRequest?.status ?? null) as 'pending' | 'approved' | 'rejected' | null}
+          />
+        ) : (
+          <DashboardActions cats={cats ?? []} />
+        )}
+
+        <div className="mt-5">
+          <DashboardHistory
+            checks={checks ?? []}
+            emptyActionHref={(cats?.length ?? 0) > 0 ? '/check' : '/cats/new'}
+            emptyActionLabel={(cats?.length ?? 0) > 0 ? t.startFirstCheck : t.addFirstCat}
+          />
+        </div>
+
+        {hasMoreChecks && (
+          <div className="mt-4 border-t border-hairline/70 pt-4 text-center">
+            <Link href="/checks" className="app-link">{t.showAll}</Link>
+          </div>
+        )}
       </section>
+
+      {profile?.role === 'admin' && (
+        <section className="mb-6 flex justify-center">
+          <Link href="/admin/statistics" className="app-button-secondary app-button-sm">
+            {t.statistics}
+          </Link>
+        </section>
+      )}
 
       <p className="text-center text-xs text-text-faint mt-6">
         <Link href="/legal" className="hover:underline">{t.tos}</Link>

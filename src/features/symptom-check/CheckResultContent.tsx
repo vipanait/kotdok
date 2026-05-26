@@ -67,7 +67,7 @@ export default function CheckResultContent({ check, showBackLink = false }: Prop
       {/* Colored urgency block */}
       <div className={`${URGENCY_BG_CLASS[urgencyKey] ?? 'bg-status-good-bg'} px-6 sm:px-8 pt-6 pb-7`}>
         <div className="text-[11px] font-semibold tracking-wider text-text-muted">{dateStr}</div>
-        <h1 className={`mt-4 font-serif text-3xl sm:text-4xl font-bold flex items-center gap-3 ${URGENCY_TEXT_CLASS[urgencyKey] ?? 'text-text'}`}>
+        <h1 className={`mt-4 font-extrabold text-3xl sm:text-4xl flex items-center gap-3 ${URGENCY_TEXT_CLASS[urgencyKey] ?? 'text-text'}`}>
           <span className={`inline-block h-3 w-3 rounded-full ${URGENCY_DOT_CLASS[urgencyKey] ?? 'bg-text-faint'}`} aria-hidden />
           {urgencyText?.label ? capitalize(urgencyText.label) : ''}
         </h1>

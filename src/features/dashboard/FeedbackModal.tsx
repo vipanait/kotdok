@@ -76,13 +76,13 @@ export default function FeedbackModal({ onClose, dict }: Props) {
           {done ? (
             <div className="py-6 text-center space-y-3">
               <div className="text-5xl">🎉</div>
-              <h2 className="font-serif text-2xl font-bold text-text">{dict.thanks}</h2>
+              <h2 className="font-extrabold text-2xl text-text">{dict.thanks}</h2>
               <p className="text-sm text-text-muted">{dict.thanksSubtitle}</p>
             </div>
           ) : (
             <>
               <div className="mb-5 pr-10">
-                <h2 className="font-serif text-2xl sm:text-3xl font-bold text-text">{dict.title}</h2>
+                <h2 className="font-extrabold text-2xl sm:text-3xl text-text">{dict.title}</h2>
                 <p className="mt-2 text-sm text-text-muted">{dict.subtitle}</p>
               </div>
 

@@ -68,7 +68,7 @@ export default function ReturnClient({ transactionId }: { transactionId: string 
       <div className="bg-card rounded-3xl overflow-hidden">
         <div className="bg-status-good-bg p-8 text-center">
           <div className="text-4xl mb-3">✅</div>
-          <h1 className="font-serif text-3xl font-bold text-status-good-fg mb-2">Оплата прошла</h1>
+          <h1 className="font-extrabold text-3xl text-status-good-fg mb-2">Оплата прошла</h1>
           {tx && (
             <p className="text-sm font-semibold text-text">
               На баланс начислено {tx.units_total} проверок
@@ -97,7 +97,7 @@ export default function ReturnClient({ transactionId }: { transactionId: string 
       <div className="bg-card rounded-3xl overflow-hidden">
         <div className="bg-status-error-bg p-8 text-center">
           <div className="text-4xl mb-3">{status === 'canceled' ? '⏹' : '❌'}</div>
-          <h1 className="font-serif text-3xl font-bold text-status-error-fg mb-2">
+          <h1 className="font-extrabold text-3xl text-status-error-fg mb-2">
             {status === 'canceled' ? 'Оплата отменена' : 'Оплата не прошла'}
           </h1>
           <p className="text-sm text-text-muted">С карты ничего не списано. Можно попробовать ещё раз.</p>
@@ -125,7 +125,7 @@ export default function ReturnClient({ transactionId }: { transactionId: string 
       <div className="bg-card rounded-3xl overflow-hidden">
         <div className="bg-status-pending-bg p-8 text-center">
           <div className="text-4xl mb-3">⏳</div>
-          <h1 className="font-serif text-3xl font-bold text-status-pending-fg mb-2">Платёж обрабатывается</h1>
+          <h1 className="font-extrabold text-3xl text-status-pending-fg mb-2">Платёж обрабатывается</h1>
           <p className="text-sm text-text-muted">
             Банк ещё не прислал подтверждение. Кредиты начислятся автоматически, как только оно придёт.
           </p>
@@ -148,7 +148,7 @@ export default function ReturnClient({ transactionId }: { transactionId: string 
         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
       </svg>
-      <h1 className="font-serif text-2xl font-bold text-text mb-1">Ждём подтверждения банка</h1>
+      <h1 className="font-extrabold text-2xl text-text mb-1">Ждём подтверждения банка</h1>
       <p className="text-sm text-text-muted">
         Статус: {TX_STATUS_LABEL[status]}. Обычно занимает несколько секунд.
       </p>

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useLocale, useTranslations } from '@/components/LocaleProvider'
 import CheckResultContent, { type SymptomCheckRecord } from '@/features/symptom-check/CheckResultContent'
-import { URGENCY_DOT_CLASS, URGENCY_TEXT_CLASS, type UrgencyKey } from '@/shared/utils/urgency'
+import { URGENCY_TEXT_CLASS, type UrgencyKey } from '@/shared/utils/urgency'
 
 interface Props {
   checks: SymptomCheckRecord[]
@@ -20,7 +20,7 @@ export default function DashboardHistory({ checks, emptyActionHref, emptyActionL
 
   if (!checks.length) {
     return (
-      <div className="app-empty-state">
+      <div className="app-empty-state mt-2">
         <h3 className="text-base font-bold text-text">{t.checksEmptyTitle}</h3>
         <p className="mt-1 text-sm leading-relaxed">{t.noChecks}</p>
         {emptyActionHref && emptyActionLabel && (
@@ -34,21 +34,23 @@ export default function DashboardHistory({ checks, emptyActionHref, emptyActionL
 
   return (
     <>
-      <ul className="grid gap-2">
+      <ul className="divide-y divide-hairline/70">
         {checks.map(check => {
           const key = check.urgency as UrgencyKey
           const urgencyText = dict.urgency[key]
+          const statusLabel = urgencyText?.label
+            ? urgencyText.label.charAt(0) + urgencyText.label.slice(1).toLowerCase()
+            : ''
           return (
             <li key={check.id}>
               <button
                 type="button"
                 onClick={() => setSelectedCheck(check)}
-                className="app-focus-ring group flex w-full cursor-pointer items-center gap-3 rounded-2xl border border-hairline/70 bg-canvas/30 px-3 py-3 text-left transition-colors hover:border-card-soft-strong hover:bg-canvas-soft/80 focus-visible:bg-canvas-soft/80"
+                className="app-focus-ring group flex w-full cursor-pointer items-center gap-3 py-3 text-left transition-colors hover:bg-canvas-soft/40 -mx-2 px-2 rounded-xl"
                 aria-label={`${t.openCheck}: ${check.symptoms_input}`}
               >
-                <span className={`block h-2.5 w-2.5 shrink-0 rounded-full ${URGENCY_DOT_CLASS[key] ?? 'bg-text-faint'}`} aria-hidden />
                 <div className="min-w-0 flex-1">
-                  <p className="text-base font-medium text-text line-clamp-1">{check.symptoms_input}</p>
+                  <p className="text-base font-bold text-text line-clamp-1">{check.symptoms_input}</p>
                   <p className="text-xs text-text-faint mt-0.5">
                     {new Date(check.created_at).toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
                       day: 'numeric',
@@ -59,9 +61,8 @@ export default function DashboardHistory({ checks, emptyActionHref, emptyActionL
                   </p>
                 </div>
                 <span className={`text-sm font-semibold shrink-0 ${URGENCY_TEXT_CLASS[key] ?? 'text-text-muted'}`}>
-                  {urgencyText?.label ? urgencyText.label.charAt(0) + urgencyText.label.slice(1).toLowerCase() : ''}
+                  {statusLabel}
                 </span>
-                <span className="text-text-faint shrink-0 transition-transform group-hover:translate-x-0.5" aria-hidden>›</span>
               </button>
             </li>
           )

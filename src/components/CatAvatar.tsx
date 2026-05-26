@@ -7,8 +7,9 @@ interface Props {
 }
 
 /**
- * Round avatar with a stylised orange cat face. Used in the dashboard "My cats"
- * list, the symptom-check modal selected-pet card, and the cat profile form.
+ * Round avatar with a stylised flat orange cat face. Used in the dashboard
+ * "My pets" list, the symptom-check modal selected-pet card, and on the cat
+ * profile form heading.
  */
 export default function CatAvatar({ size = 40, bg = '#F4DDB7', className }: Props) {
   return (
@@ -18,30 +19,36 @@ export default function CatAvatar({ size = 40, bg = '#F4DDB7', className }: Prop
       aria-hidden
     >
       <svg
-        width={size * 0.62}
-        height={size * 0.62}
+        width={size * 0.58}
+        height={size * 0.58}
         viewBox="0 0 32 32"
         fill="none"
-        stroke="#FC7A00"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
       >
-        {/* ears */}
-        <path d="M7 8 L11 4 L13 11 Z" />
-        <path d="M25 8 L21 4 L19 11 Z" />
-        {/* head */}
-        <path d="M5 14 C5 22 10 28 16 28 C22 28 27 22 27 14 C27 11 26 9 25 8 L7 8 C6 9 5 11 5 14 Z" />
-        {/* eyes */}
-        <line x1="12" y1="17" x2="13" y2="18" />
-        <line x1="20" y1="17" x2="19" y2="18" />
-        {/* nose + mouth */}
-        <path d="M16 20 L15.2 21 L16 21.6 L16.8 21 Z" fill="#FC7A00" />
-        <path d="M16 22 L14.8 23.5" />
-        <path d="M16 22 L17.2 23.5" />
-        {/* whiskers */}
-        <line x1="9" y1="20" x2="13" y2="21" />
-        <line x1="23" y1="20" x2="19" y2="21" />
+        {/* Solid orange head + ears */}
+        <path
+          d="M6.4 9.5 L10.2 4.5 L13.5 10 H18.5 L21.8 4.5 L25.6 9.5 V18.2 C25.6 23.4 21.5 27 16 27 C10.5 27 6.4 23.4 6.4 18.2 Z"
+          fill="#FC7A00"
+        />
+        {/* Eyes */}
+        <circle cx="12.4" cy="17" r="1.05" fill="#FFFFFF" />
+        <circle cx="19.6" cy="17" r="1.05" fill="#FFFFFF" />
+        {/* Nose (small triangle) */}
+        <path d="M16 19.4 L15 20.4 L17 20.4 Z" fill="#FFFFFF" />
+        {/* Mouth — tiny upward curve */}
+        <path
+          d="M14.6 21.5 Q16 23 17.4 21.5"
+          stroke="#FFFFFF"
+          strokeWidth="0.9"
+          strokeLinecap="round"
+          fill="none"
+        />
+        {/* Whiskers */}
+        <g stroke="#FFFFFF" strokeWidth="0.6" strokeLinecap="round">
+          <line x1="9" y1="19" x2="11.2" y2="19.5" />
+          <line x1="9" y1="20.4" x2="11.2" y2="20.4" />
+          <line x1="23" y1="19" x2="20.8" y2="19.5" />
+          <line x1="23" y1="20.4" x2="20.8" y2="20.4" />
+        </g>
       </svg>
     </span>
   )
