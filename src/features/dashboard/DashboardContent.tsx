@@ -1,9 +1,9 @@
 import Link from 'next/link'
 import AppShell from '@/components/AppShell'
-import CatAvatar from '@/components/CatAvatar'
 import DashboardActions from '@/features/dashboard/DashboardActions'
 import DashboardHistory from '@/features/dashboard/DashboardHistory'
 import ExtraCheckRequestPanel from '@/features/dashboard/ExtraCheckRequestPanel'
+import MyPetsSection from '@/features/dashboard/MyPetsSection'
 import SignOutForm from '@/features/auth/SignOutForm'
 import { getLocale } from '@/server/i18n/get-locale'
 import { getDictionary } from '@/server/i18n/get-dictionary'
@@ -37,45 +37,8 @@ export default async function DashboardContent({ data, catSavedParam }: Props) {
         </div>
       )}
 
-      {/* My pets */}
-      <section className="app-card mb-6 p-6 sm:p-7">
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <h2 className="text-xl font-extrabold text-text sm:text-2xl">{t.myCats}</h2>
-          <Link href="/cats/new" className="app-link shrink-0">{t.addCat}</Link>
-        </div>
-        {!cats.length ? (
-          <div className="app-empty-state">
-            <h3 className="text-base font-bold text-text">{t.catsEmptyTitle}</h3>
-            <p className="mt-1 text-sm leading-relaxed">{t.noCats}</p>
-            <Link href="/cats/new" className="app-button-secondary app-button-sm mt-4">
-              {t.addFirstCat}
-            </Link>
-          </div>
-        ) : (
-          <ul className="grid gap-1">
-            {cats.map(cat => (
-              <li key={cat.id}>
-                <Link
-                  href={`/cats/${cat.id}/edit`}
-                  className="flex items-center justify-between gap-3 rounded-2xl px-2 py-2 transition-colors hover:bg-canvas-soft/60"
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <CatAvatar size={48} />
-                    <div className="min-w-0">
-                      <div className="text-base font-bold text-text truncate">{cat.name}</div>
-                      {(cat.breed || cat.age_years) && (
-                        <div className="text-sm text-text-faint truncate">
-                          {[cat.breed, cat.age_years ? `${cat.age_years} ${t.yearsOld}` : null].filter(Boolean).join(', ')}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+      {/* My pets — interactive section with in-place add/edit modal */}
+      <MyPetsSection cats={cats} />
 
       {/* Checks */}
       <section className="app-card mb-6 p-6 sm:p-7">
