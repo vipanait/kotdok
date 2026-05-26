@@ -42,7 +42,7 @@ export default async function DashboardContent({ data, catSavedParam }: Props) {
 
       {/* Checks */}
       <section className="app-card mb-6 p-6 sm:p-7">
-        <div className="mb-4 flex items-center justify-between gap-3">
+        <div className="mb-6 flex items-center justify-between gap-3">
           <h2 className="text-xl font-extrabold text-text sm:text-2xl">{t.checkHistory}</h2>
           <span className="text-sm text-text-muted">{t.availableShort.replace('{n}', String(credits))}</span>
         </div>
@@ -56,7 +56,7 @@ export default async function DashboardContent({ data, catSavedParam }: Props) {
           <DashboardActions cats={cats} />
         )}
 
-        <div className="mt-5">
+        <div className="mt-8">
           <DashboardHistory
             checks={checks}
             emptyActionHref={cats.length > 0 ? '/check' : '/cats/new'}
