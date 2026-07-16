@@ -91,6 +91,8 @@ const en: Dictionary = {
       errorAlreadyRegistered: 'A user with this email is already registered',
       errorWeakPassword: 'Password must be at least 6 characters',
       errorInvalidEmail: 'Enter a valid email',
+      errorEmailDelivery:
+        'Could not send the confirmation email. Try again later or sign in with Google.',
       errorGeneric: 'Failed to register. Check your details and try again.',
     },
     forgotPassword: {

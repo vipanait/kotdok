@@ -26,11 +26,29 @@ const ROUTE_FOR_MODE: Record<AuthMode, string> = {
   reset: '/reset-password',
 }
 
-function registrationErrorMessage(message: string, t: ReturnType<typeof useTranslations>['auth']['register']): string {
-  const normalized = message.toLowerCase()
+function registrationErrorMessage(
+  error: { code?: string; message: string },
+  t: ReturnType<typeof useTranslations>['auth']['register'],
+): string {
+  switch (error.code) {
+    case 'email_exists':
+    case 'user_already_exists':
+      return t.errorAlreadyRegistered
+    case 'weak_password':
+      return t.errorWeakPassword
+    case 'email_address_invalid':
+      return t.errorInvalidEmail
+    case 'email_address_not_authorized':
+      return t.errorEmailDelivery
+    default:
+      break
+  }
+
+  const normalized = error.message.toLowerCase()
   if (normalized.includes('already') || normalized.includes('registered')) return t.errorAlreadyRegistered
   if (normalized.includes('password')) return t.errorWeakPassword
-  if (normalized.includes('email')) return t.errorInvalidEmail
+  if (normalized.includes('invalid') && normalized.includes('email')) return t.errorInvalidEmail
+  if (normalized.includes('not authorized') || normalized.includes('not allowed')) return t.errorEmailDelivery
   return t.errorGeneric
 }
 
@@ -38,15 +56,19 @@ export default function AuthModal({ initialMode }: Props) {
   const router = useRouter()
   const dict = useTranslations()
   const [mode, setMode] = useState<AuthMode>(initialMode)
+  const [open, setOpen] = useState(true)
 
   useEffect(() => {
+    if (!open) return
+
     const prev = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     return () => { document.body.style.overflow = prev }
-  }, [])
+  }, [open])
 
   function close() {
-    router.push('/')
+    setOpen(false)
+    router.replace('/')
   }
 
   function switchMode(next: AuthMode) {
@@ -61,6 +83,8 @@ export default function AuthModal({ initialMode }: Props) {
     return () => window.removeEventListener('keydown', onKey)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  if (!open) return null
 
   return (
     <div
@@ -103,7 +127,8 @@ function LoginPanel({ onSwitch }: { onSwitch: (m: AuthMode) => void }) {
     e.preventDefault()
     setLoading(true); setError('')
     const supabase = createClient()
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const trimmedEmail = email.trim()
+    const { error } = await supabase.auth.signInWithPassword({ email: trimmedEmail, password })
     if (error) { setError(t.errorCredentials); setLoading(false); return }
     router.push(safeNext()); router.refresh()
   }
@@ -168,14 +193,16 @@ function RegisterPanel({ onSwitch }: { onSwitch: (m: AuthMode) => void }) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true); setError('')
+    const trimmedEmail = email.trim()
     const supabase = createClient()
     const { error } = await supabase.auth.signUp({
-      email, password,
+      email: trimmedEmail, password,
       options: {
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL ?? window.location.origin}/auth/callback?next=${encodeURIComponent(safeNext())}`,
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(safeNext())}`,
       },
     })
-    if (error) { setError(registrationErrorMessage(error.message, t)); setLoading(false); return }
+    if (error) { setError(registrationErrorMessage(error, t)); setLoading(false); return }
+    setEmail(trimmedEmail)
     setSent(true); setLoading(false)
   }
 
@@ -261,7 +288,8 @@ function ForgotPanel({ onSwitch }: { onSwitch: (m: AuthMode) => void }) {
     e.preventDefault()
     setLoading(true); setError('')
     const supabase = createClient()
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    const trimmedEmail = email.trim()
+    const { error } = await supabase.auth.resetPasswordForEmail(trimmedEmail, {
       redirectTo: `${window.location.origin}/auth/callback?next=/reset-password`,
     })
     if (error) { setError(t.errorSend); setLoading(false); return }

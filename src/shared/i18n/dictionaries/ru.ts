@@ -89,6 +89,8 @@ const ru = {
       errorAlreadyRegistered: 'Пользователь с таким email уже зарегистрирован',
       errorWeakPassword: 'Пароль должен быть не менее 6 символов',
       errorInvalidEmail: 'Введите корректный email',
+      errorEmailDelivery:
+        'Не удалось отправить письмо подтверждения. Попробуйте позже или войдите через Google.',
       errorGeneric: 'Не удалось зарегистрироваться. Проверьте данные и попробуйте ещё раз.',
     },
     forgotPassword: {
