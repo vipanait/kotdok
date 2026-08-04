@@ -37,7 +37,7 @@ const jsonLd = {
       '@id': `${siteUrl}/#app`,
       name: 'Лапка',
       url: siteUrl,
-      description: 'AI-симптомчекер для кошек. Опишите симптомы — получите уровень срочности за 15 секунд.',
+      description: 'AI-симптомчекер для кошек и собак. Опишите симптомы — получите уровень срочности за 15 секунд.',
       applicationCategory: 'HealthApplication',
       operatingSystem: 'Web',
       inLanguage: 'ru',

@@ -2,9 +2,9 @@ import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Лапка — AI симптомчекер для кошек',
+    name: 'Лапка — AI симптомчекер для кошек и собак',
     short_name: 'Лапка',
-    description: 'Узнайте насколько серьёзны симптомы вашей кошки за 15 секунд.',
+    description: 'Узнайте насколько серьёзны симптомы вашей кошки или собаки за 15 секунд.',
     start_url: '/',
     display: 'standalone',
     background_color: '#ffffff',
