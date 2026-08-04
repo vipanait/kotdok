@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import type { Pet, PetSpecies } from '@/shared/types'
+import type { Pet, PetSizeClass, PetSpecies, PetWalkActivity } from '@/shared/types'
 import { useTranslations } from '@/components/LocaleProvider'
 import AppShell from '@/components/AppShell'
 import PetAvatar from '@/components/PetAvatar'
@@ -63,6 +63,8 @@ export default function PetForm({ pet, modal = false, onSaved, onDirtyChange, on
   const [neutered, setNeutered] = useState<boolean | null>(pet?.neutered ?? null)
   const [indoorOutdoor, setIndoorOutdoor] = useState<Pet['indoor_outdoor']>(pet?.indoor_outdoor ?? null)
   const [diet, setDiet] = useState<Pet['diet']>(pet?.diet ?? null)
+  const [sizeClass, setSizeClass] = useState<PetSizeClass | null>(pet?.size_class ?? null)
+  const [walkActivity, setWalkActivity] = useState<PetWalkActivity | null>(pet?.walk_activity ?? null)
   const [allergies, setAllergies] = useState(fromArr(pet?.allergies ?? []))
   const [vaccinated, setVaccinated] = useState<boolean | null>(pet?.vaccinated ?? null)
   const [chronicConditions, setChronicConditions] = useState(fromArr(pet?.chronic_conditions ?? []))
@@ -92,6 +94,8 @@ export default function PetForm({ pet, modal = false, onSaved, onDirtyChange, on
     neutered !== (pet?.neutered ?? null) ||
     indoorOutdoor !== (pet?.indoor_outdoor ?? null) ||
     diet !== (pet?.diet ?? null) ||
+    sizeClass !== (pet?.size_class ?? null) ||
+    walkActivity !== (pet?.walk_activity ?? null) ||
     allergies !== fromArr(pet?.allergies ?? []) ||
     vaccinated !== (pet?.vaccinated ?? null) ||
     chronicConditions !== fromArr(pet?.chronic_conditions ?? []) ||
@@ -133,6 +137,8 @@ export default function PetForm({ pet, modal = false, onSaved, onDirtyChange, on
       neutered,
       indoor_outdoor: indoorOutdoor,
       diet,
+      size_class: species === 'dog' ? sizeClass : null,
+      walk_activity: species === 'dog' ? walkActivity : null,
       allergies: toArr(allergies),
       vaccinated,
       chronic_conditions: toArr(chronicConditions),
@@ -211,7 +217,13 @@ export default function PetForm({ pet, modal = false, onSaved, onDirtyChange, on
                 <button
                   key={value}
                   type="button"
-                  onClick={() => setSpecies(value)}
+                  onClick={() => {
+                    setSpecies(value)
+                    if (value !== 'dog') {
+                      setSizeClass(null)
+                      setWalkActivity(null)
+                    }
+                  }}
                   className={`rounded-xl border px-3 py-2.5 text-sm font-semibold transition-colors ${
                     species === value
                       ? 'border-accent bg-accent/10 text-text'
@@ -292,6 +304,40 @@ export default function PetForm({ pet, modal = false, onSaved, onDirtyChange, on
             </Field>
           </div>
         </FormSection>
+
+        {species === 'dog' && (
+          <FormSection title={t.sectionDog}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Field label={t.sizeClass}>
+                <select
+                  value={sizeClass ?? ''}
+                  onChange={e => setSizeClass((e.target.value || null) as PetSizeClass | null)}
+                  className={selectCls(!sizeClass)}
+                >
+                  <option value="">{dict.common.notSpecifiedM}</option>
+                  <option value="toy">{t.sizeToy}</option>
+                  <option value="small">{t.sizeSmall}</option>
+                  <option value="medium">{t.sizeMedium}</option>
+                  <option value="large">{t.sizeLarge}</option>
+                  <option value="giant">{t.sizeGiant}</option>
+                </select>
+              </Field>
+              <Field label={t.walkActivity}>
+                <select
+                  value={walkActivity ?? ''}
+                  onChange={e => setWalkActivity((e.target.value || null) as PetWalkActivity | null)}
+                  className={selectCls(!walkActivity)}
+                >
+                  <option value="">{dict.common.notSpecifiedM}</option>
+                  <option value="rare">{t.walkRare}</option>
+                  <option value="daily_short">{t.walkDailyShort}</option>
+                  <option value="daily_long">{t.walkDailyLong}</option>
+                  <option value="sport">{t.walkSport}</option>
+                </select>
+              </Field>
+            </div>
+          </FormSection>
+        )}
 
         <FormSection title={t.sectionHealth}>
           <div className="grid gap-5">
