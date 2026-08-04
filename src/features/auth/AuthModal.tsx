@@ -167,8 +167,8 @@ function LoginPanel({
       <div className="space-y-4">
         {error && <ErrorBox text={error} />}
         <div className="space-y-2">
-          <GoogleButton onClick={handleGoogle} loading={googleLoading} label={t.googleBtn} />
           <YandexButton onClick={handleYandex} loading={yandexLoading} label={t.yandexBtn} />
+          <GoogleButton onClick={handleGoogle} loading={googleLoading} label={t.googleBtn} />
         </div>
         <Divider text={dict.common.or} />
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -276,8 +276,8 @@ function RegisterPanel({ onSwitch }: { onSwitch: (m: AuthMode) => void }) {
       <div className="space-y-4">
         {error && <ErrorBox text={error} />}
         <div className="space-y-2">
-          <GoogleButton onClick={handleGoogle} loading={googleLoading} label={t.googleBtn} />
           <YandexButton onClick={handleYandex} loading={yandexLoading} label={t.yandexBtn} />
+          <GoogleButton onClick={handleGoogle} loading={googleLoading} label={t.googleBtn} />
         </div>
         <Divider text={dict.common.or} />
         <form onSubmit={handleSubmit} className="space-y-4">
