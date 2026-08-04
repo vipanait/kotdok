@@ -251,8 +251,8 @@ body {
 
   .app-input {
     width: 100%;
-    background: var(--canvas-soft);
-    border: 1px solid rgba(236, 224, 197, 0.95);
+    background-color: var(--card);
+    border: 1px solid var(--hairline);
     border-radius: 1rem;
     color: var(--text);
     font-size: 0.875rem;
@@ -271,7 +271,7 @@ body {
   }
 
   .app-input:focus {
-    background: var(--card);
+    background-color: var(--card);
     border-color: rgba(252, 122, 0, 0.5);
     box-shadow: 0 0 0 4px rgba(252, 122, 0, 0.14);
     outline: none;
