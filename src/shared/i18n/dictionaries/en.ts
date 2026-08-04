@@ -25,7 +25,7 @@ const en: Dictionary = {
   },
   home: {
     signIn: 'Sign in',
-    hero: 'Emergency symptom check for your cat',
+    hero: 'Emergency symptom check for your cat or dog',
     description:
       'When something is wrong with your pet, it\'s important to quickly understand how urgent the situation is. A short questionnaire will tell you whether to monitor, schedule a vet visit, or act immediately.',
     checkSymptoms: 'Check symptoms',
@@ -48,14 +48,14 @@ const en: Dictionary = {
       stoolLabel: 'Stool',
       stoolOptions: ['Normal', 'Loose (diarrhea)', 'Absent', 'Bloody'],
       symptomsPlaceholder:
-        'Describe in detail: what is happening, when it started, how the cat is behaving...',
+        'Describe in detail: what is happening, when it started, how the pet is behaving...',
       addPhoto: 'Add photo (optional)',
       photoHint: 'Wound, eye, skin, posture — up to 5 MB each',
     },
   },
   auth: {
     login: {
-      heading: 'Welcome back, cat lover',
+      heading: 'Welcome back, pet lover',
       subheading:
         'Sign in to continue checking symptoms and view your previous check history.',
       noAccount: 'No account?',
@@ -80,7 +80,7 @@ const en: Dictionary = {
         'We sent you an email to confirm your registration. Follow the link in the email to activate your account.',
       alreadyMember: 'Already with us?',
       signIn: 'Sign in',
-      tosPrefix: 'By registering, you accept the',
+      tosPrefix: 'I accept the',
       tosLink: 'terms of service',
       googleBtn: 'Continue with Google',
       yandexBtn: 'Continue with Yandex',
@@ -97,6 +97,7 @@ const en: Dictionary = {
       errorInvalidEmail: 'Enter a valid email',
       errorEmailDelivery:
         'Could not send the confirmation email. Try again later or sign in with Google or Yandex.',
+      errorTosRequired: 'To register, you must accept the terms of service',
       errorGeneric: 'Failed to register. Check your details and try again.',
     },
     forgotPassword: {
@@ -180,6 +181,7 @@ const en: Dictionary = {
     profileSubheading: 'The more accurate the profile — the better the symptom check',
     sectionBasic: 'Basic information',
     sectionLifestyle: 'Lifestyle',
+    sectionDog: 'For dogs',
     sectionHealth: 'Health',
     sectionNotes: 'Notes',
     species: 'Species',
@@ -212,6 +214,17 @@ const en: Dictionary = {
     dietWet: 'Wet food',
     dietMixed: 'Mixed',
     dietRaw: 'Raw',
+    sizeClass: 'Size',
+    sizeToy: 'Toy',
+    sizeSmall: 'Small',
+    sizeMedium: 'Medium',
+    sizeLarge: 'Large',
+    sizeGiant: 'Giant',
+    walkActivity: 'Walks',
+    walkRare: 'Rarely',
+    walkDailyShort: 'Daily short walks',
+    walkDailyLong: 'Daily long walks',
+    walkSport: 'Sport / high activity',
     vaccination: 'Vaccination',
     vaccinationYes: 'Vaccinated',
     vaccinationNo: 'No',

@@ -206,14 +206,22 @@ function RegisterPanel({ onSwitch }: { onSwitch: (m: AuthMode) => void }) {
   const t = dict.auth.register
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [acceptedTos, setAcceptedTos] = useState(false)
   const [error, setError] = useState('')
   const [sent, setSent] = useState(false)
   const [loading, setLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
   const [yandexLoading, setYandexLoading] = useState(false)
 
+  function requireTos(): boolean {
+    if (acceptedTos) return true
+    setError(t.errorTosRequired)
+    return false
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    if (!requireTos()) return
     setLoading(true); setError('')
     const trimmedEmail = email.trim()
     const supabase = createClient()
@@ -229,6 +237,7 @@ function RegisterPanel({ onSwitch }: { onSwitch: (m: AuthMode) => void }) {
   }
 
   async function handleGoogle() {
+    if (!requireTos()) return
     setGoogleLoading(true); setError('')
     const supabase = createClient()
     const { error } = await supabase.auth.signInWithOAuth({
@@ -239,6 +248,7 @@ function RegisterPanel({ onSwitch }: { onSwitch: (m: AuthMode) => void }) {
   }
 
   async function handleYandex() {
+    if (!requireTos()) return
     setYandexLoading(true); setError('')
     const supabase = createClient()
     const { error } = await supabase.auth.signInWithOAuth({
@@ -275,6 +285,23 @@ function RegisterPanel({ onSwitch }: { onSwitch: (m: AuthMode) => void }) {
       <ModalHeader heading={t.heading} subheading={t.subheading} />
       <div className="space-y-4">
         {error && <ErrorBox text={error} />}
+        <label className="flex items-start gap-2.5 text-sm text-text-muted">
+          <input
+            type="checkbox"
+            checked={acceptedTos}
+            onChange={e => {
+              setAcceptedTos(e.target.checked)
+              if (e.target.checked) setError('')
+            }}
+            className="mt-1 h-4 w-4 shrink-0 rounded border-hairline accent-[var(--color-accent)]"
+          />
+          <span>
+            {t.tosPrefix}{' '}
+            <Link href="/legal" className="underline hover:text-text/70" target="_blank" rel="noopener noreferrer">
+              {t.tosLink}
+            </Link>
+          </span>
+        </label>
         <div className="space-y-2">
           <YandexButton onClick={handleYandex} loading={yandexLoading} label={t.yandexBtn} />
           <GoogleButton onClick={handleGoogle} loading={googleLoading} label={t.googleBtn} />
@@ -300,10 +327,6 @@ function RegisterPanel({ onSwitch }: { onSwitch: (m: AuthMode) => void }) {
         <button type="button" onClick={() => onSwitch('login')} className="text-accent hover:underline font-medium">
           {t.signIn}
         </button>
-        <span className="block mt-2 text-xs text-text-faint">
-          {t.tosPrefix}{' '}
-          <Link href="/legal" className="underline hover:text-text/70">{t.tosLink}</Link>
-        </span>
       </FooterLine>
     </>
   )
