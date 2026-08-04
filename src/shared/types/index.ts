@@ -1,6 +1,8 @@
 export type Urgency = 'emergency' | 'urgent' | 'monitor' | 'home_care' | 'healthy'
 export type UserRole = 'user' | 'admin'
 export type PetSpecies = 'cat' | 'dog'
+export type PetSizeClass = 'toy' | 'small' | 'medium' | 'large' | 'giant'
+export type PetWalkActivity = 'rare' | 'daily_short' | 'daily_long' | 'sport'
 
 export interface SymptomCheckResult {
   urgency: Urgency
@@ -32,6 +34,8 @@ export interface Pet {
   neutered: boolean | null
   indoor_outdoor: 'indoor' | 'outdoor' | 'both' | null
   diet: 'dry' | 'wet' | 'mixed' | 'raw' | null
+  size_class: PetSizeClass | null
+  walk_activity: PetWalkActivity | null
   allergies: string[]
   vaccinated: boolean | null
   chronic_conditions: string[]

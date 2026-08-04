@@ -254,6 +254,8 @@ export async function handleSymptomCheckRequest(request: NextRequest) {
         pet.neutered != null ? (pet.neutered ? 'neutered/spayed' : 'intact') : null,
         pet.indoor_outdoor ? `lifestyle: ${pet.indoor_outdoor}` : null,
         pet.diet ? `diet: ${pet.diet} food` : null,
+        species === 'dog' && pet.size_class ? `size: ${pet.size_class}` : null,
+        species === 'dog' && pet.walk_activity ? `walk activity: ${pet.walk_activity}` : null,
         pet.vaccinated != null ? (pet.vaccinated ? 'vaccinated' : 'not vaccinated') : null,
         pet.allergies?.length ? `allergies: ${pet.allergies.join(', ')}` : null,
         pet.chronic_conditions?.length ? `chronic conditions: ${pet.chronic_conditions.join(', ')}` : null,

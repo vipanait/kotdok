@@ -1,4 +1,7 @@
-import type { PetSpecies } from '@/shared/types'
+import type { PetSizeClass, PetSpecies, PetWalkActivity } from '@/shared/types'
+
+const SIZE_CLASSES: PetSizeClass[] = ['toy', 'small', 'medium', 'large', 'giant']
+const WALK_ACTIVITIES: PetWalkActivity[] = ['rare', 'daily_short', 'daily_long', 'sport']
 
 function toNumber(val: unknown): number | null {
   if (val == null || val === '') return null
@@ -23,8 +26,17 @@ export function defaultPetName(species: PetSpecies): string {
   return species === 'dog' ? 'Пёс' : 'Кот'
 }
 
+function sanitizeSizeClass(val: unknown): PetSizeClass | null {
+  return SIZE_CLASSES.includes(val as PetSizeClass) ? (val as PetSizeClass) : null
+}
+
+function sanitizeWalkActivity(val: unknown): PetWalkActivity | null {
+  return WALK_ACTIVITIES.includes(val as PetWalkActivity) ? (val as PetWalkActivity) : null
+}
+
 export function sanitizePet(body: Record<string, unknown>) {
   const species = sanitizeSpecies(body.species)
+  const isDog = species === 'dog'
   return {
     species,
     name: String(body.name ?? '').slice(0, 100).trim() || defaultPetName(species),
@@ -39,6 +51,8 @@ export function sanitizePet(body: Record<string, unknown>) {
     diet: ['dry', 'wet', 'mixed', 'raw'].includes(body.diet as string)
       ? (body.diet as 'dry' | 'wet' | 'mixed' | 'raw')
       : null,
+    size_class: isDog ? sanitizeSizeClass(body.size_class) : null,
+    walk_activity: isDog ? sanitizeWalkActivity(body.walk_activity) : null,
     allergies: toStringArray(body.allergies),
     vaccinated: body.vaccinated != null ? Boolean(body.vaccinated) : null,
     chronic_conditions: toStringArray(body.chronic_conditions),
