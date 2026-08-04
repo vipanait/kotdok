@@ -323,30 +323,28 @@ export default function CheckForm({ cats, onClose }: Props) {
   const resultContent = resultRecord ? (
     <div>
       <CheckResultContent check={resultRecord} />
-      <div className="px-6 sm:px-8 mt-6 flex gap-3">
-        <button
-          onClick={() => { setResult(null); setSymptoms(''); removeAllPhotos() }}
-          className="app-button-secondary flex-1 py-3 text-sm"
-        >
-          {t.newCheck}
-        </button>
+      <div className="px-6 sm:px-8 mt-5 space-y-3 pb-1">
         {onClose ? (
           <button
             type="button"
             onClick={onClose}
-            className="app-button-primary flex-1 py-3 text-sm"
+            className="app-button-primary w-full py-3.5 text-sm sm:text-base"
           >
             {dict.common.close}
           </button>
         ) : (
-          <Link href="/dashboard" className="app-button-primary flex-1 py-3 text-center text-sm">
+          <Link href="/dashboard" className="app-button-primary w-full py-3.5 text-center text-sm sm:text-base">
             {t.toAccount}
           </Link>
         )}
+        <button
+          type="button"
+          onClick={() => { setResult(null); setSymptoms(''); removeAllPhotos() }}
+          className="block w-full cursor-pointer text-center text-sm font-semibold text-accent-text transition-colors hover:text-accent"
+        >
+          {t.newCheckWithCredits.replace('{n}', String(result!.credits_remaining))}
+        </button>
       </div>
-      <p className="text-center text-xs text-text-faint mt-4 px-6 pb-2">
-        {t.creditsRemaining.replace('{n}', String(result!.credits_remaining))}
-      </p>
     </div>
   ) : null
 

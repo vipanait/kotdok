@@ -40,6 +40,7 @@ export default function CheckResultContent({ check, showBackLink = false }: Prop
   const urgencyText = dict.urgency[urgencyKey]
   const isPositive = POSITIVE_STATUSES.has(urgencyKey)
   const isHealthy = urgencyKey === 'healthy'
+  const isCritical = CLINIC_CTA_STATUSES.has(urgencyKey)
   const stepBg = isPositive ? 'bg-status-good-fg' : urgencyKey === 'monitor' ? 'bg-status-watch-fg' : 'bg-accent'
 
   const possibleCauses: string[] = Array.isArray(check.possible_causes) ? check.possible_causes : []
@@ -78,9 +79,9 @@ export default function CheckResultContent({ check, showBackLink = false }: Prop
 
   const dateStr = new Date(check.created_at).toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
     day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit',
-  }).toUpperCase()
+  })
 
-  const showClinicCta = CLINIC_CTA_STATUSES.has(urgencyKey)
+  const showClinicCta = isCritical
   const showVetSection = VET_STATUSES.has(urgencyKey) && vetQuestions.length > 0
   const showHomeCareSection = !isHealthy && homeCareSteps.length > 0
   const hasAnyDetails =
@@ -90,48 +91,56 @@ export default function CheckResultContent({ check, showBackLink = false }: Prop
     additionalCatInfoNeeded.length > 0 ||
     (hasPhoto && !!photoObservations)
 
+  const statusLabel = urgencyText?.label ? capitalize(urgencyText.label) : ''
+
   return (
     <div className="-mx-6 sm:-mx-8 -mt-6 sm:-mt-8">
-      {/* Hero — status + action + reason */}
-      <div className={`${URGENCY_BG_CLASS[urgencyKey] ?? 'bg-status-good-bg'} px-6 sm:px-8 pt-6 pb-6`}>
-        <div className="text-[11px] font-semibold tracking-wider text-text-muted">{dateStr}</div>
-        <h1 className={`mt-3 font-extrabold text-3xl sm:text-4xl flex items-center gap-3 ${URGENCY_TEXT_CLASS[urgencyKey] ?? 'text-text'}`}>
-          <span className={`inline-block h-3 w-3 rounded-full ${URGENCY_DOT_CLASS[urgencyKey] ?? 'bg-text-faint'}`} aria-hidden />
-          {urgencyText?.label ? capitalize(urgencyText.label) : ''}
-        </h1>
-        <p className="mt-1 text-sm font-semibold text-text">{urgencyText?.action}</p>
-        {check.urgency_reason && (
-          <p className="mt-2 text-sm text-text-muted">{check.urgency_reason}</p>
-        )}
+      {/* Status plate — inset callout so the modal reads as one surface */}
+      <div className="px-6 sm:px-8 pt-6">
+        <div className={`rounded-2xl ${URGENCY_BG_CLASS[urgencyKey] ?? 'bg-status-good-bg'} px-5 py-5 sm:px-6`}>
+          <div className="text-[11px] font-semibold tracking-wide text-text-muted">{dateStr}</div>
+
+          <div className="mt-3 flex flex-wrap items-center gap-2.5">
+            <span
+              className={`inline-flex items-center gap-2 rounded-full bg-card/80 px-3 py-1.5 text-sm font-bold shadow-sm ring-1 ring-black/5 ${URGENCY_TEXT_CLASS[urgencyKey] ?? 'text-text'}`}
+            >
+              <span
+                className={`inline-block h-2.5 w-2.5 shrink-0 rounded-full ${URGENCY_DOT_CLASS[urgencyKey] ?? 'bg-text-faint'}`}
+                aria-hidden
+              />
+              {statusLabel}
+            </span>
+          </div>
+
+          <p className="mt-3 text-base font-semibold text-text">{urgencyText?.action}</p>
+          {check.urgency_reason && (
+            <p className="mt-2 text-sm leading-relaxed text-text-muted">{check.urgency_reason}</p>
+          )}
+        </div>
       </div>
 
-      {/* Clinic CTA right under the hero for urgent / emergency */}
+      {/* Clinic CTA — primary action for critical statuses */}
       {showClinicCta && (
-        <div className="px-6 sm:px-8 pt-5">
+        <div className="px-6 sm:px-8 pt-4">
           <a
             href="https://www.google.com/maps/search/?api=1&query=ветеринарная+клиника"
             target="_blank"
             rel="noopener noreferrer"
             className="app-button-primary w-full px-5 py-3.5 text-sm sm:text-base"
           >
-            🏥 {t.findClinic}
+            {t.findClinic}
           </a>
         </div>
       )}
 
-      <div className="px-6 sm:px-8 pt-6 pb-2 space-y-6">
-        {/* Healthy = single calm line, no steps */}
+      <div className="px-6 sm:px-8 pt-5 pb-2 space-y-4">
         {isHealthy && (
           <p className="text-base font-medium text-text">{t.keepCare}</p>
         )}
 
-        {/* What to do — primary action block */}
         {showHomeCareSection && (
-          <SectionCard
-            title={t.homeCare}
-            accent={isPositive ? 'good' : urgencyKey === 'monitor' ? 'watch' : 'accent'}
-            icon="🎯"
-          >
+          <SectionCard accent={isPositive ? 'good' : urgencyKey === 'monitor' ? 'watch' : isCritical ? 'urgent' : 'accent'}>
+            <h3 className="mb-3 text-base font-bold text-text">{t.homeCare}</h3>
             <ol className="space-y-3">
               {homeCareSteps.map((step, i) => (
                 <li key={i} className="flex gap-3 text-sm text-text">
@@ -145,13 +154,13 @@ export default function CheckResultContent({ check, showBackLink = false }: Prop
           </SectionCard>
         )}
 
-        {/* Ask the vet — expanded for statuses where we point user to a vet */}
         {showVetSection && (
-          <SectionCard title={t.vetQuestions} icon="💡" accent="muted">
-            <ul className="space-y-2">
+          <SectionCard accent="muted">
+            <h3 className="mb-3 text-base font-bold text-text">{t.vetQuestions}</h3>
+            <ul className="space-y-2.5">
               {vetQuestions.map((q, i) => (
                 <li key={i} className="flex gap-3 text-sm text-text">
-                  <span className="mt-2 block h-px w-4 shrink-0 bg-text-muted" aria-hidden />
+                  <span className="mt-2 block h-px w-3.5 shrink-0 bg-text-faint" aria-hidden />
                   <span>{q}</span>
                 </li>
               ))}
@@ -159,23 +168,20 @@ export default function CheckResultContent({ check, showBackLink = false }: Prop
           </SectionCard>
         )}
 
-        {/* Important for cats — always visible if present (concise warning) */}
         {check.cat_specific_warning && !isHealthy && (
-          <div className="rounded-2xl bg-[#FBEFC5] p-5 border-l-4 border-accent">
-            <p className="text-sm font-semibold text-text mb-1">{t.catWarning}</p>
-            <p className="text-sm text-text-muted">{check.cat_specific_warning}</p>
-          </div>
+          <SectionCard accent={isCritical ? 'urgent' : 'watch'}>
+            <h3 className="mb-1.5 text-base font-bold text-text">{t.catWarning}</h3>
+            <p className="text-sm leading-relaxed text-text-muted">{check.cat_specific_warning}</p>
+          </SectionCard>
         )}
 
-        {/* Collapsible details */}
         {hasAnyDetails && (
           <DetailsAccordion
             showLabel={t.showDetails}
             hideLabel={t.hideDetails}
             defaultOpen={isHealthy}
           >
-            <div className="space-y-5 pt-2">
-              {/* You described */}
+            <div className="space-y-5 pt-1">
               {check.symptoms_input && (
                 <Section title={t.youDescribed}>
                   <p className="text-sm text-text">{check.symptoms_input}</p>
@@ -207,7 +213,7 @@ export default function CheckResultContent({ check, showBackLink = false }: Prop
                   <ul className="space-y-2">
                     {possibleCauses.map((cause, i) => (
                       <li key={i} className="flex gap-3 text-sm text-text">
-                        <span className={`mt-2 block h-px w-4 shrink-0 ${isPositive ? 'bg-status-good-fg' : 'bg-accent'}`} aria-hidden />
+                        <span className={`mt-2 block h-px w-3.5 shrink-0 ${isPositive ? 'bg-status-good-fg' : 'bg-accent'}`} aria-hidden />
                         {cause}
                       </li>
                     ))}
@@ -220,7 +226,7 @@ export default function CheckResultContent({ check, showBackLink = false }: Prop
                   <ul className="space-y-2">
                     {additionalCatInfoNeeded.map((item, i) => (
                       <li key={i} className="flex gap-3 text-sm text-text">
-                        <span className="mt-1.5 block h-2 w-2 rounded-full bg-accent shrink-0" aria-hidden />
+                        <span className="mt-1.5 block h-1.5 w-1.5 rounded-full bg-text-faint shrink-0" aria-hidden />
                         {item}
                       </li>
                     ))}
@@ -231,7 +237,7 @@ export default function CheckResultContent({ check, showBackLink = false }: Prop
           </DetailsAccordion>
         )}
 
-        <p className="text-center text-xs text-text-faint pt-2">{disclaimer}</p>
+        <p className="text-center text-xs text-text-faint pt-1">{disclaimer}</p>
 
         {showBackLink && (
           <Link
@@ -247,25 +253,20 @@ export default function CheckResultContent({ check, showBackLink = false }: Prop
 }
 
 interface SectionCardProps {
-  title: string
-  icon?: string
-  accent: 'accent' | 'good' | 'watch' | 'muted'
+  accent: 'accent' | 'good' | 'watch' | 'urgent' | 'muted'
   children: React.ReactNode
 }
 
-function SectionCard({ title, icon, accent, children }: SectionCardProps) {
-  const borderClass =
-    accent === 'good' ? 'border-status-good-fg/30 bg-status-good-bg/30'
-    : accent === 'watch' ? 'border-status-watch-fg/30 bg-[#FBEFC5]/40'
-    : accent === 'muted' ? 'border-hairline bg-canvas-soft/40'
-    : 'border-accent/30 bg-accent-soft/40'
+function SectionCard({ accent, children }: SectionCardProps) {
+  const surface =
+    accent === 'good' ? 'border-status-good-fg/20 bg-status-good-bg/35'
+    : accent === 'watch' ? 'border-status-watch-fg/25 bg-[#FBEFC5]/55'
+    : accent === 'urgent' ? 'border-status-urgent-fg/25 bg-status-urgent-bg/70'
+    : accent === 'muted' ? 'border-hairline bg-canvas-soft/50'
+    : 'border-accent/25 bg-accent-soft/45'
 
   return (
-    <div className={`rounded-2xl border ${borderClass} p-5`}>
-      <div className="mb-3 flex items-center gap-2">
-        {icon && <span className="text-base" aria-hidden>{icon}</span>}
-        <h3 className="text-sm font-extrabold tracking-wide text-text uppercase">{title}</h3>
-      </div>
+    <div className={`rounded-2xl border p-5 ${surface}`}>
       {children}
     </div>
   )
@@ -284,17 +285,26 @@ function DetailsAccordion({
 }) {
   const [open, setOpen] = useState(defaultOpen)
   return (
-    <div className="border-t border-hairline pt-3">
+    <div className="rounded-2xl border border-hairline bg-card overflow-hidden">
       <button
         type="button"
         onClick={() => setOpen(v => !v)}
-        className="flex w-full items-center justify-between gap-2 py-2 text-sm font-semibold text-text-muted hover:text-text transition-colors cursor-pointer"
+        className="app-focus-ring flex w-full items-center justify-between gap-2 px-4 py-3 text-sm font-semibold text-text transition-colors hover:bg-canvas-soft/60 cursor-pointer"
         aria-expanded={open}
       >
         <span>{open ? hideLabel : showLabel}</span>
-        <span aria-hidden className={`transition-transform ${open ? 'rotate-180' : ''}`}>⌄</span>
+        <span
+          aria-hidden
+          className={`inline-flex h-6 w-6 items-center justify-center rounded-full bg-canvas-soft text-text-muted transition-transform ${open ? 'rotate-180' : ''}`}
+        >
+          ⌄
+        </span>
       </button>
-      {open && <div>{children}</div>}
+      {open && (
+        <div className="border-t border-hairline px-4 pb-4 pt-3">
+          {children}
+        </div>
+      )}
     </div>
   )
 }
@@ -302,7 +312,7 @@ function DetailsAccordion({
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <p className="text-xs font-semibold tracking-wider text-text-muted uppercase mb-2">{title}</p>
+      <p className="mb-2 text-sm font-bold text-text">{title}</p>
       {children}
     </div>
   )
