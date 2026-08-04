@@ -129,7 +129,7 @@ const ru = {
   dashboard: {
     title: 'Личный кабинет',
     availableChecks: 'Доступно проверок',
-    creditsOut: 'Проверки закончились.',
+    creditsOut: 'Если нужно проверить питомца — запросите ещё одну проверку.',
     topUp: 'Пополнить',
     transactionHistory: 'История операций',
     requestMoreChecks: 'Запросить ещё',
