@@ -46,6 +46,3 @@ export function sanitizePet(body: Record<string, unknown>) {
     notes: body.notes ? String(body.notes).slice(0, 300).trim() || null : null,
   }
 }
-
-/** @deprecated Use sanitizePet */
-export const sanitizeCat = sanitizePet

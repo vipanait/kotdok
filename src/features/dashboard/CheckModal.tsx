@@ -6,14 +6,11 @@ import { useTranslations } from '@/components/LocaleProvider'
 import type { Pet } from '@/shared/types'
 
 interface Props {
-  pets?: Pick<Pet, 'id' | 'name' | 'breed' | 'age_years' | 'sex' | 'species'>[]
-  /** @deprecated Use pets */
-  cats?: Pick<Pet, 'id' | 'name' | 'breed' | 'age_years' | 'sex' | 'species'>[]
+  pets: Pick<Pet, 'id' | 'name' | 'breed' | 'age_years' | 'sex' | 'species'>[]
   onClose: () => void
 }
 
-export default function CheckModal({ pets: petsProp, cats, onClose }: Props) {
-  const pets = petsProp ?? cats ?? []
+export default function CheckModal({ pets, onClose }: Props) {
   const dict = useTranslations()
 
   useEffect(() => {

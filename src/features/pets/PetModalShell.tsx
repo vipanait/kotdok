@@ -8,8 +8,6 @@ import { useTranslations } from '@/components/LocaleProvider'
 
 interface Props {
   pet?: Pet
-  /** @deprecated Use pet */
-  cat?: Pet
 }
 
 /**
@@ -17,8 +15,7 @@ interface Props {
  * Closes via the X button or Escape. Backdrop clicks never dismiss the form.
  * If there are unsaved changes, closing asks for confirmation first.
  */
-export default function PetModalShell({ pet: petProp, cat }: Props) {
-  const pet = petProp ?? cat
+export default function PetModalShell({ pet }: Props) {
   const router = useRouter()
   const dict = useTranslations()
   const t = dict.pets

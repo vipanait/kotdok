@@ -10,8 +10,6 @@ export interface DashboardData {
   credits: number
   role: 'admin' | string | null
   pets: Pet[]
-  /** @deprecated Use pets */
-  cats: Pet[]
   checks: Array<{
     id: string
     symptoms_input: string
@@ -27,8 +25,6 @@ export interface DashboardData {
   totalChecks: number
   latestRequestStatus: 'pending' | 'approved' | 'rejected' | null
   latestChecksByPet: Record<string, PetLatestCheck>
-  /** @deprecated Use latestChecksByPet */
-  latestChecksByCat: Record<string, PetLatestCheck>
 }
 
 const HISTORY_LIMIT = 4
@@ -100,18 +96,14 @@ export async function loadDashboard(loginRedirectPath = '/login'): Promise<Dashb
     }
   }
 
-  const petsList = (pets ?? []) as DashboardData['pets']
-
   return {
     user,
     credits: profile?.credits ?? 0,
     role: (profile?.role as string | null) ?? null,
-    pets: petsList,
-    cats: petsList,
+    pets: (pets ?? []) as DashboardData['pets'],
     checks: (checks ?? []) as DashboardData['checks'],
     totalChecks: totalChecks ?? 0,
     latestRequestStatus: (latestRequest?.status ?? null) as DashboardData['latestRequestStatus'],
     latestChecksByPet,
-    latestChecksByCat: latestChecksByPet,
   }
 }

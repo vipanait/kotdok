@@ -11,7 +11,7 @@ import {
 const token = 'test-csrf-token'
 
 function request(init: RequestInit = {}) {
-  return new NextRequest('http://test.local/api/cats', {
+  return new NextRequest('http://test.local/api/pets', {
     method: 'POST',
     ...init,
   })

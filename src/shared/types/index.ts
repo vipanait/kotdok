@@ -40,16 +40,10 @@ export interface Pet {
   created_at: string
 }
 
-/** @deprecated Use Pet */
-export type Cat = Pet
-
 export interface PetLatestCheck {
   urgency: string
   created_at: string
 }
-
-/** @deprecated Use PetLatestCheck */
-export type CatLatestCheck = PetLatestCheck
 
 export interface Profile {
   id: string

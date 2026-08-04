@@ -12,14 +12,11 @@ import CheckResultContent, { type SymptomCheckRecord } from '@/features/symptom-
 import { csrfHeaders } from '@/shared/security/csrf-client'
 
 interface Props {
-  pets?: Pick<Pet, 'id' | 'name' | 'breed' | 'age_years' | 'sex' | 'species'>[]
-  /** @deprecated Use pets */
-  cats?: Pick<Pet, 'id' | 'name' | 'breed' | 'age_years' | 'sex' | 'species'>[]
+  pets: Pick<Pet, 'id' | 'name' | 'breed' | 'age_years' | 'sex' | 'species'>[]
   onClose?: () => void
 }
 
-export default function CheckForm({ pets: petsProp, cats, onClose }: Props) {
-  const pets = petsProp ?? cats ?? []
+export default function CheckForm({ pets, onClose }: Props) {
   const router = useRouter()
   const dict = useTranslations()
   const t = dict.check
@@ -183,7 +180,7 @@ export default function CheckForm({ pets: petsProp, cats, onClose }: Props) {
               onClick={() => setShowPetPicker(v => !v)}
               className="app-button-secondary px-4 py-1.5 text-xs"
             >
-              {dict.check.changeCat}
+              {dict.check.changePet}
             </button>
           )}
         </div>
@@ -303,7 +300,6 @@ export default function CheckForm({ pets: petsProp, cats, onClose }: Props) {
     urgency: result.urgency,
     urgency_reason: result.urgency_reason,
     possible_causes: result.possible_causes,
-    cat_specific_warning: result.species_specific_warning ?? null,
     species_specific_warning: result.species_specific_warning ?? null,
     home_care_steps: result.home_care_steps,
     vet_questions: result.vet_questions,
@@ -314,7 +310,6 @@ export default function CheckForm({ pets: petsProp, cats, onClose }: Props) {
       stool: result.stool ?? null,
       pain_signs: result.pain_signs ?? [],
       photo_observations: result.photo_observations ?? null,
-      additional_cat_info_needed: result.additional_pet_info_needed,
       additional_pet_info_needed: result.additional_pet_info_needed,
       has_photo: result.has_photo,
       disclaimer: result.disclaimer,

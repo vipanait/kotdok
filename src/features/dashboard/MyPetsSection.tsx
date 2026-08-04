@@ -12,12 +12,8 @@ type ModalState = null | 'new' | Pet
 type SavedKind = 'created' | 'updated' | 'deleted'
 
 interface Props {
-  pets?: Pet[]
-  /** @deprecated Use pets */
-  cats?: Pet[]
+  pets: Pet[]
   latestChecksByPet?: Record<string, PetLatestCheck>
-  /** @deprecated Use latestChecksByPet */
-  latestChecksByCat?: Record<string, PetLatestCheck>
 }
 
 function AccentedCopy({ template, accent }: { template: string; accent: string }) {
@@ -33,13 +29,9 @@ function AccentedCopy({ template, accent }: { template: string; accent: string }
 }
 
 export default function MyPetsSection({
-  pets: petsProp,
-  cats,
-  latestChecksByPet: latestProp,
-  latestChecksByCat,
+  pets,
+  latestChecksByPet = {},
 }: Props) {
-  const pets = petsProp ?? cats ?? []
-  const latestChecksByPet = latestProp ?? latestChecksByCat ?? {}
   const dict = useTranslations()
   const t = dict.dashboard
   const locale = useLocale()
@@ -67,22 +59,22 @@ export default function MyPetsSection({
           role="status"
           className="mb-6 rounded-2xl border border-status-good-fg/10 bg-status-good-bg px-4 py-3 text-sm font-semibold text-status-good-fg"
         >
-          {banner === 'created' ? t.catAdded : banner === 'deleted' ? t.catDeleted : t.catSaved}
+          {banner === 'created' ? t.petAdded : banner === 'deleted' ? t.petDeleted : t.petSaved}
         </div>
       )}
 
       <section className="app-card mb-6 p-6 sm:p-7">
         <div className="mb-5 flex items-center justify-between gap-3">
-          <h2 className="text-xl font-extrabold text-text sm:text-2xl">{t.myCats}</h2>
+          <h2 className="text-xl font-extrabold text-text sm:text-2xl">{t.myPets}</h2>
           <button type="button" onClick={() => setModal('new')} className="app-link shrink-0">
-            {t.addCat}
+            {t.addPet}
           </button>
         </div>
         {!pets.length ? (
           <div className="app-empty-state">
-            <h3 className="text-base font-bold text-text">{t.catsEmptyTitle}</h3>
+            <h3 className="text-base font-bold text-text">{t.petsEmptyTitle}</h3>
             <p className="mt-1.5 text-sm leading-relaxed text-text-muted">
-              <AccentedCopy template={t.noCats} accent={t.noCatsAccent} />
+              <AccentedCopy template={t.noPets} accent={t.noPetsAccent} />
             </p>
           </div>
         ) : (
