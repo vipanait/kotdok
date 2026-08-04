@@ -6,6 +6,7 @@ import { getDictionary } from '@/server/i18n/get-dictionary'
 import { getLocale } from '@/server/i18n/get-locale'
 import AppShell from '@/components/AppShell'
 import DashboardHistory from '@/features/dashboard/DashboardHistory'
+import { mapSymptomCheckRow, symptomCheckSelect } from '@/server/symptom-check/map-symptom-check'
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -22,7 +23,7 @@ export default async function ChecksPage() {
   const service = createServiceClient()
   const { data: checks } = await service
     .from('symptom_checks')
-    .select('id, symptoms_input, urgency, urgency_reason, possible_causes, species_specific_warning, home_care_steps, vet_questions, full_response, created_at')
+    .select(symptomCheckSelect())
     .eq('user_id', user.id)
     .is('deleted_at', null)
     .order('created_at', { ascending: false })
@@ -39,7 +40,7 @@ export default async function ChecksPage() {
           </div>
         </div>
         <DashboardHistory
-          checks={checks ?? []}
+          checks={(checks ?? []).map(row => mapSymptomCheckRow(row as never))}
           emptyActionHref="/dashboard"
           emptyActionLabel={dict.common.backToAccount}
         />

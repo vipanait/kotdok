@@ -66,6 +66,12 @@ export default function DashboardHistory({ checks, emptyActionHref, emptyActionL
                 <div className="min-w-0 flex-1">
                   <p className="text-base font-bold text-text line-clamp-1">{check.symptoms_input}</p>
                   <p className="text-xs text-text-faint mt-0.5">
+                    {check.pet_name ? (
+                      <>
+                        <span className="font-medium text-text-muted">{check.pet_name}</span>
+                        {' · '}
+                      </>
+                    ) : null}
                     {new Date(check.created_at).toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
                       day: 'numeric',
                       month: 'long',
