@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { sanitizeCat } from '@/shared/utils/cat-utils'
+import { sanitizePet } from '@/shared/utils/pet-utils'
 
-describe('sanitizeCat', () => {
-  it('normalizes supported cat profile fields', () => {
-    expect(sanitizeCat({
+describe('sanitizePet', () => {
+  it('normalizes supported pet profile fields', () => {
+    expect(sanitizePet({
+      species: 'dog',
       name: '  Барсик  ',
       breed: '  Siberian  ',
       age_years: '4.5',
@@ -18,6 +19,7 @@ describe('sanitizeCat', () => {
       medications: [' inhaler '],
       notes: '  Needs evening meds  ',
     })).toEqual({
+      species: 'dog',
       name: 'Барсик',
       breed: 'Siberian',
       age_years: 4.5,
@@ -35,11 +37,11 @@ describe('sanitizeCat', () => {
   })
 
   it('parses decimal weight with a comma separator', () => {
-    expect(sanitizeCat({ name: 'Барсик', weight_kg: '4,5' }).weight_kg).toBe(4.5)
+    expect(sanitizePet({ name: 'Барсик', weight_kg: '4,5' }).weight_kg).toBe(4.5)
   })
 
   it('falls back safely for unsupported values and long free text', () => {
-    const result = sanitizeCat({
+    const result = sanitizePet({
       name: '   ',
       sex: 'unknown',
       indoor_outdoor: 'space',
@@ -48,11 +50,16 @@ describe('sanitizeCat', () => {
       notes: 'x'.repeat(400),
     })
 
+    expect(result.species).toBe('cat')
     expect(result.name).toBe('Кот')
     expect(result.sex).toBeNull()
     expect(result.indoor_outdoor).toBeNull()
     expect(result.diet).toBeNull()
     expect(result.allergies).toHaveLength(20)
     expect(result.notes).toHaveLength(300)
+  })
+
+  it('defaults dog name when empty', () => {
+    expect(sanitizePet({ species: 'dog', name: '  ' }).name).toBe('Пёс')
   })
 })

@@ -31,6 +31,11 @@ export default function AdminStatisticsClient({ statistics }: Props) {
     { label: t.payingUsers, value: formatNumber(statistics.totals.payingUsers, locale) },
     { label: t.symptomCheckUsers, value: formatNumber(statistics.totals.symptomCheckUsers, locale) },
     { label: t.symptomChecks, value: formatNumber(statistics.totals.symptomChecks, locale) },
+    { label: t.symptomChecksCat, value: formatNumber(statistics.totals.symptomChecksCat, locale) },
+    { label: t.symptomChecksDog, value: formatNumber(statistics.totals.symptomChecksDog, locale) },
+    { label: t.petsTotal, value: formatNumber(statistics.totals.petsTotal, locale) },
+    { label: t.petsCat, value: formatNumber(statistics.totals.petsCat, locale) },
+    { label: t.petsDog, value: formatNumber(statistics.totals.petsDog, locale) },
     { label: t.totalRevenue, value: formatMoney(statistics.totals.totalRevenue, statistics.currency) },
   ]
 

@@ -17,6 +17,12 @@ const nextConfig: NextConfig = {
       },
     ]
   },
+  async redirects() {
+    return [
+      { source: '/cats/new', destination: '/pets/new', permanent: true },
+      { source: '/cats/:id/edit', destination: '/pets/:id/edit', permanent: true },
+    ]
+  },
 }
 
 export default nextConfig

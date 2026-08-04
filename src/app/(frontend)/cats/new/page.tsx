@@ -1,18 +1,6 @@
-import type { Metadata } from 'next'
-import DashboardContent from '@/features/dashboard/DashboardContent'
-import CatModalShell from '@/features/cats/CatModalShell'
-import { loadDashboard } from '@/server/dashboard/load-dashboard'
+import { redirect } from 'next/navigation'
 
-export const metadata: Metadata = {
-  robots: { index: false, follow: false },
-}
-
-export default async function NewCatPage() {
-  const data = await loadDashboard('/login?next=/cats/new')
-  return (
-    <>
-      <DashboardContent data={data} />
-      <CatModalShell />
-    </>
-  )
+/** Legacy /cats/new → /pets/new */
+export default function LegacyNewCatPage() {
+  redirect('/pets/new')
 }
