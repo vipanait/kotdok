@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import AppShell from '@/components/AppShell'
-import AccountMenu from '@/features/auth/AccountMenu'
+import SignOutForm from '@/features/auth/SignOutForm'
 import DashboardActions from '@/features/dashboard/DashboardActions'
 import DashboardHistory from '@/features/dashboard/DashboardHistory'
 import ExtraCheckRequestPanel from '@/features/dashboard/ExtraCheckRequestPanel'
@@ -23,21 +23,12 @@ export default async function DashboardContent({ data, catSavedParam }: Props) {
   const dict = await getDictionary(locale)
   const t = dict.dashboard
 
-  const { user, credits, role, cats, checks, totalChecks, latestRequestStatus, latestChecksByCat } = data
+  const { credits, role, cats, checks, totalChecks, latestRequestStatus, latestChecksByCat } = data
   const hasMoreChecks = totalChecks > checks.length
   const showRequestPanel = credits === 0 || latestRequestStatus === 'pending'
 
   return (
-    <AppShell
-      right={
-        <AccountMenu
-          email={user.email ?? ''}
-          signOutLabel={t.signOut}
-          historyLabel={dict.common.checkHistoryNav}
-          menuLabel={dict.common.accountMenu}
-        />
-      }
-    >
+    <AppShell right={<SignOutForm label={t.signOut} />}>
       <h1 className="sr-only">{t.title}</h1>
 
       {catSavedParam && (

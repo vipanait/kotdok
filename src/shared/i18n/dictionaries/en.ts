@@ -22,8 +22,6 @@ const en: Dictionary = {
     redirecting: 'Redirecting...',
     showPassword: 'Show password',
     hidePassword: 'Hide password',
-    accountMenu: 'Account menu',
-    checkHistoryNav: 'Check history',
   },
   home: {
     signIn: 'Sign in',
