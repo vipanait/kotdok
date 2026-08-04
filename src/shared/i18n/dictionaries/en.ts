@@ -130,7 +130,7 @@ const en: Dictionary = {
   dashboard: {
     title: 'Account',
     availableChecks: 'Available checks',
-    creditsOut: 'No checks left.',
+    creditsOut: 'If you need to check your pet, request another check.',
     topUp: 'Top up',
     transactionHistory: 'Transaction history',
     requestMoreChecks: 'Request one more',

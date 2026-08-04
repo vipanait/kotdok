@@ -12,10 +12,15 @@ interface Props {
   latestRequestStatus: ExtraCheckRequestStatus
 }
 
-function statusText(status: ExtraCheckRequestStatus, t: ReturnType<typeof useTranslations>['dashboard']) {
+function statusText(
+  status: ExtraCheckRequestStatus,
+  credits: number,
+  t: ReturnType<typeof useTranslations>['dashboard'],
+) {
   if (status === 'pending') return t.requestPending
-  if (status === 'approved') return t.requestApproved
   if (status === 'rejected') return t.requestRejected
+  // Approved-but-spent (or never requested) — don't keep saying the credit was just granted.
+  if (status === 'approved' && credits > 0) return t.requestApproved
   return t.creditsOut
 }
 
@@ -53,7 +58,7 @@ export default function ExtraCheckRequestPanel({ credits, latestRequestStatus }:
 
   return (
     <div className="app-card-soft px-4 py-4 text-sm text-accent-text">
-      <p className="font-medium">{statusText(latestRequestStatus, t)}</p>
+      <p className="font-medium">{statusText(latestRequestStatus, credits, t)}</p>
       {canRequest && (
         <button
           type="button"
