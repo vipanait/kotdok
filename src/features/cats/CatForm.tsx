@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import type { Cat } from '@/shared/types'
@@ -23,6 +23,8 @@ interface Props {
    * for closing the modal and triggering data refresh.
    */
   onSaved?: (kind: SavedKind) => void
+  /** Notifies the parent when the form has unsaved changes. */
+  onDirtyChange?: (dirty: boolean) => void
 }
 
 const NOTES_MAX = 300
@@ -35,7 +37,25 @@ function fromArr(arr: string[]): string {
   return arr.join(', ')
 }
 
-export default function CatForm({ cat, modal = false, onSaved }: Props) {
+/** Keep digits and at most one decimal separator (`.` or `,`). */
+function sanitizeDecimalInput(raw: string): string {
+  const cleaned = raw.replace(/[^\d.,]/g, '')
+  const sepIndex = cleaned.search(/[.,]/)
+  if (sepIndex === -1) return cleaned
+  const intPart = cleaned.slice(0, sepIndex)
+  const sep = cleaned[sepIndex]
+  const frac = cleaned.slice(sepIndex + 1).replace(/[.,]/g, '')
+  return intPart + sep + frac
+}
+
+function parseDecimal(value: string): number | null {
+  const normalized = value.trim().replace(',', '.')
+  if (normalized === '') return null
+  const n = Number(normalized)
+  return Number.isFinite(n) ? n : null
+}
+
+export default function CatForm({ cat, modal = false, onSaved, onDirtyChange }: Props) {
   const router = useRouter()
   const dict = useTranslations()
   const t = dict.cats
@@ -61,6 +81,39 @@ export default function CatForm({ cat, modal = false, onSaved }: Props) {
   const [deleting, setDeleting] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
 
+  const dirty =
+    name !== (cat?.name ?? '') ||
+    breed !== (cat?.breed ?? '') ||
+    ageYears !== (cat?.age_years?.toString() ?? '') ||
+    weightKg !== (cat?.weight_kg?.toString() ?? '') ||
+    sex !== (cat?.sex ?? null) ||
+    neutered !== (cat?.neutered ?? null) ||
+    indoorOutdoor !== (cat?.indoor_outdoor ?? null) ||
+    diet !== (cat?.diet ?? null) ||
+    allergies !== fromArr(cat?.allergies ?? []) ||
+    vaccinated !== (cat?.vaccinated ?? null) ||
+    chronicConditions !== fromArr(cat?.chronic_conditions ?? []) ||
+    medications !== fromArr(cat?.medications ?? []) ||
+    notes !== (cat?.notes ?? '')
+
+  useEffect(() => {
+    onDirtyChange?.(dirty)
+  }, [dirty, onDirtyChange])
+
+  useEffect(() => {
+    if (!confirmDelete) return
+
+    function onKey(e: KeyboardEvent) {
+      if (e.key !== 'Escape') return
+      e.preventDefault()
+      e.stopImmediatePropagation()
+      if (!deleting) setConfirmDelete(false)
+    }
+
+    window.addEventListener('keydown', onKey, true)
+    return () => window.removeEventListener('keydown', onKey, true)
+  }, [confirmDelete, deleting])
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!name.trim()) { setNameError(t.errorName); return }
@@ -71,8 +124,8 @@ export default function CatForm({ cat, modal = false, onSaved }: Props) {
     const body: CatFormValues = {
       name: name.trim(),
       breed: breed.trim() || null,
-      age_years: ageYears !== '' ? Number(ageYears) : null,
-      weight_kg: weightKg !== '' ? Number(weightKg) : null,
+      age_years: parseDecimal(ageYears),
+      weight_kg: parseDecimal(weightKg),
       sex,
       neutered,
       indoor_outdoor: indoorOutdoor,
@@ -157,24 +210,20 @@ export default function CatForm({ cat, modal = false, onSaved }: Props) {
               </Field>
               <Field label={t.ageYears}>
                 <input
-                  type="number"
-                  min="0"
-                  max="30"
-                  step="0.5"
+                  type="text"
+                  inputMode="decimal"
                   value={ageYears}
-                  onChange={e => setAgeYears(e.target.value)}
+                  onChange={e => setAgeYears(sanitizeDecimalInput(e.target.value))}
                   placeholder="3"
                   className={inputCls}
                 />
               </Field>
               <Field label={t.weightKg}>
                 <input
-                  type="number"
-                  min="0"
-                  max="20"
-                  step="0.1"
+                  type="text"
+                  inputMode="decimal"
                   value={weightKg}
-                  onChange={e => setWeightKg(e.target.value)}
+                  onChange={e => setWeightKg(sanitizeDecimalInput(e.target.value))}
                   placeholder="4.5"
                   className={inputCls}
                 />

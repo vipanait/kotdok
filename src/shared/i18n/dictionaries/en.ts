@@ -216,6 +216,9 @@ const en: Dictionary = {
     confirmDeleteTitle: 'Delete {name}\'s profile?',
     confirmDeleteBody:
       'The profile and all check history for this cat will be hidden. This cannot be undone.',
+    confirmCloseTitle: 'Close the form?',
+    confirmCloseBody: 'Your changes will be lost. Are you sure you want to close?',
+    confirmCloseBtn: 'Close',
     cancelBtn: 'Cancel',
   },
   check: {

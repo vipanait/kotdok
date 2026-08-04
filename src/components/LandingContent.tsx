@@ -1,3 +1,6 @@
+'use client'
+
+import { useState } from 'react'
 import Link from 'next/link'
 import LapkaLogo from '@/components/LapkaLogo'
 import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
@@ -110,10 +113,10 @@ function AppPreview({ t }: { t: Dictionary['home'] }) {
           <p className="mt-1 text-xs text-gray-500">{p.moreDetail}</p>
         </div>
 
-        <ChipGroup label={p.appetiteLabel} options={p.appetiteOptions} active={0} />
-        <ChipGroup label={p.activityLabel} options={p.activityOptions} active={0} />
-        <ChipGroup label={p.durationLabel} options={p.durationOptions} active={2} />
-        <ChipGroup label={p.stoolLabel} options={p.stoolOptions} active={0} />
+        <ChipGroup label={p.appetiteLabel} options={p.appetiteOptions} initialActive={0} />
+        <ChipGroup label={p.activityLabel} options={p.activityOptions} initialActive={0} />
+        <ChipGroup label={p.durationLabel} options={p.durationOptions} initialActive={2} />
+        <ChipGroup label={p.stoolLabel} options={p.stoolOptions} initialActive={0} />
 
         <div className="rounded-xl border border-gray-200 px-4 py-3 text-xs text-gray-400">
           {p.symptomsPlaceholder}
@@ -129,22 +132,35 @@ function AppPreview({ t }: { t: Dictionary['home'] }) {
   )
 }
 
-function ChipGroup({ label, options, active }: { label: string; options: string[]; active: number }) {
+function ChipGroup({
+  label,
+  options,
+  initialActive,
+}: {
+  label: string
+  options: string[]
+  initialActive: number
+}) {
+  const [active, setActive] = useState(initialActive)
+
   return (
     <div>
       <p className="mb-2 text-xs font-semibold">{label}</p>
       <div className="flex flex-wrap gap-2">
         {options.map((opt, i) => (
-          <span
+          <button
+            type="button"
             key={opt}
-            className={`rounded-full border px-3 py-1.5 text-xs font-medium ${
+            aria-pressed={i === active}
+            onClick={() => setActive(current => current === i ? -1 : i)}
+            className={`cursor-pointer rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
               i === active
                 ? 'border-orange-300 bg-orange-50 text-orange-700'
-                : 'border-gray-200 bg-white text-gray-700'
+                : 'border-gray-200 bg-white text-gray-700 hover:border-orange-200 hover:bg-orange-50/50'
             }`}
           >
             {opt}
-          </span>
+          </button>
         ))}
       </div>
     </div>

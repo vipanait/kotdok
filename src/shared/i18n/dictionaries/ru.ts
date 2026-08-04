@@ -216,6 +216,9 @@ const ru = {
     confirmDeleteTitle: 'Удалить профиль {name}?',
     confirmDeleteBody:
       'Профиль и вся история проверок по этому коту будут скрыты. Отменить действие нельзя.',
+    confirmCloseTitle: 'Закрыть форму?',
+    confirmCloseBody: 'Введённые данные не сохранятся. Точно хотите закрыть?',
+    confirmCloseBtn: 'Закрыть',
     cancelBtn: 'Отмена',
   },
   check: {
