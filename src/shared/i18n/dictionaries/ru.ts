@@ -20,8 +20,6 @@ const ru = {
     redirecting: 'Перенаправление...',
     showPassword: 'Показать пароль',
     hidePassword: 'Скрыть пароль',
-    accountMenu: 'Меню аккаунта',
-    checkHistoryNav: 'История проверок',
   },
   home: {
     signIn: 'Войти',
