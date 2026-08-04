@@ -196,7 +196,7 @@ const en: Dictionary = {
     neutered: 'Spayed / neutered',
     neuteredYes: 'Yes',
     neuteredNo: 'No',
-    lifestyle: 'Lifestyle',
+    lifestyle: 'Housing',
     lifestyleIndoor: 'Indoor',
     lifestyleOutdoor: 'Outdoor',
     lifestyleBoth: 'Mixed',

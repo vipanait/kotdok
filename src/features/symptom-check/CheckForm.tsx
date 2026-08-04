@@ -169,8 +169,8 @@ export default function CheckForm({ cats, onClose }: Props) {
     <form onSubmit={handleSubmit} className="space-y-5">
       {/* Selected pet card */}
       {selectedCat && (
-        <div className="app-card-soft flex items-center gap-3 p-3">
-          <CatAvatar size={44} bg="#FFFFFF" />
+        <div className="flex items-center gap-3 rounded-2xl border border-hairline bg-card p-3.5">
+          <CatAvatar size={44} bg="#FFF8ED" />
           <div className="min-w-0 flex-1">
             <div className="text-base font-semibold text-text truncate">{selectedCat.name}</div>
             <div className="text-xs text-text-muted truncate">
@@ -191,14 +191,14 @@ export default function CheckForm({ cats, onClose }: Props) {
       )}
 
       {showCatPicker && cats.length > 1 && (
-        <div className="rounded-2xl bg-canvas-soft p-2 grid gap-1">
+        <div className="rounded-2xl border border-hairline bg-card p-2 grid gap-1">
           {cats.map(c => (
             <button
               key={c.id}
               type="button"
               onClick={() => { setSelectedCatId(c.id); setShowCatPicker(false) }}
               className={`text-left rounded-xl px-3 py-2 text-sm transition-colors ${
-                c.id === selectedCatId ? 'bg-card font-semibold text-text' : 'text-text-muted hover:bg-card/60'
+                c.id === selectedCatId ? 'bg-canvas-soft font-semibold text-text' : 'text-text-muted hover:bg-canvas-soft/60'
               }`}
             >
               {c.name}
@@ -230,7 +230,14 @@ export default function CheckForm({ cats, onClose }: Props) {
           placeholder={t.symptomsPlaceholder}
           rows={4}
           className="app-input resize-none"
+          aria-describedby="symptoms-hint"
         />
+        <p
+          id="symptoms-hint"
+          className={`mt-2 text-xs ${symptomsTooShort ? 'font-medium text-text-muted' : 'text-text-faint'}`}
+        >
+          {symptomsTooShort ? t.symptomsRequired : dict.check.willCharge}
+        </p>
       </div>
 
       {/* Photo dropzone */}
@@ -254,10 +261,9 @@ export default function CheckForm({ cats, onClose }: Props) {
         {photos.length < MAX_PHOTOS && (
           <div
             onClick={() => fileInputRef.current?.click()}
-            className="cursor-pointer rounded-2xl border-2 border-dashed border-card-soft-strong bg-accent-soft/35 px-4 py-5 text-center transition-colors hover:bg-accent-soft/60"
+            className="cursor-pointer rounded-2xl border border-hairline bg-card px-4 py-5 text-center transition-colors hover:border-card-soft-strong hover:bg-canvas-soft/40"
           >
             <div className="flex items-center justify-center gap-2 text-sm font-semibold text-text">
-              <span aria-hidden>📷</span>
               {photos.length === 0
                 ? t.addPhoto
                 : t.morePhotos.replace('{count}', String(photos.length)).replace('{max}', String(MAX_PHOTOS))}
@@ -288,9 +294,6 @@ export default function CheckForm({ cats, onClose }: Props) {
             dict.check.submitButton
           )}
         </button>
-        <p className="text-center text-xs text-text-muted mt-2">
-          {symptomsTooShort ? t.symptomsRequired : dict.check.willCharge}
-        </p>
       </div>
     </form>
   )
@@ -415,9 +418,10 @@ function ChipGroup({
             onClick={() => onChange(value === opt.value ? '' : opt.value)}
             className={`px-3.5 py-1.5 rounded-full text-sm transition-colors ${
               value === opt.value
-                ? 'bg-accent-soft text-accent-text font-semibold'
-                : 'bg-card border border-hairline text-text-muted hover:border-card-soft-strong'
+                ? 'bg-accent text-white font-semibold shadow-sm'
+                : 'bg-card border border-hairline text-text-muted hover:border-card-soft-strong hover:text-text'
             }`}
+            aria-pressed={value === opt.value}
           >
             {opt.label}
           </button>
@@ -460,8 +464,8 @@ function MultiChipGroup({
               onClick={() => toggle(opt.value)}
               className={`px-3.5 py-1.5 rounded-full text-sm transition-colors ${
                 active
-                  ? 'bg-accent-soft text-accent-text font-semibold'
-                  : 'bg-card border border-hairline text-text-muted hover:border-card-soft-strong'
+                  ? 'bg-accent text-white font-semibold shadow-sm'
+                  : 'bg-card border border-hairline text-text-muted hover:border-card-soft-strong hover:text-text'
               }`}
             >
               {opt.label}

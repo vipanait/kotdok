@@ -195,7 +195,7 @@ const ru = {
     neutered: 'Стерилизована/кастрирован',
     neuteredYes: 'Да',
     neuteredNo: 'Нет',
-    lifestyle: 'Образ жизни',
+    lifestyle: 'Содержание',
     lifestyleIndoor: 'Домашний',
     lifestyleOutdoor: 'Уличный',
     lifestyleBoth: 'Смешанный',
