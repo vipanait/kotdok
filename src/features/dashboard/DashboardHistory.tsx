@@ -119,7 +119,7 @@ function HistoryModal({ check, onClose }: { check: SymptomCheckRecord; onClose: 
         <button
           type="button"
           onClick={onClose}
-          className="app-icon-button absolute top-4 right-4 z-10 bg-card text-xl leading-none shadow-sm ring-1 ring-hairline/80"
+          className="app-icon-button absolute top-3 right-3 z-10 bg-card text-xl leading-none shadow-sm ring-1 ring-hairline/80"
           aria-label={dict.common.close}
         >
           ×
