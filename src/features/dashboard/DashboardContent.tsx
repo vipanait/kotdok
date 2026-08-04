@@ -59,8 +59,8 @@ export default async function DashboardContent({ data, catSavedParam }: Props) {
         <div className="mt-8">
           <DashboardHistory
             checks={checks}
-            emptyActionHref={cats.length > 0 ? '/check' : '/cats/new'}
-            emptyActionLabel={cats.length > 0 ? t.startFirstCheck : t.addFirstCat}
+            emptyActionHref={cats.length > 0 ? '/check' : undefined}
+            emptyActionLabel={cats.length > 0 ? t.startFirstCheck : undefined}
           />
         </div>
 
