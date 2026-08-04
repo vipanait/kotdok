@@ -5,6 +5,11 @@ export interface AdminStatisticsTotals {
   payingUsers: number
   symptomCheckUsers: number
   symptomChecks: number
+  symptomChecksCat: number
+  symptomChecksDog: number
+  petsTotal: number
+  petsCat: number
+  petsDog: number
   totalRevenue: number
 }
 
@@ -14,6 +19,8 @@ export interface AdminStatisticsDailyPoint {
   payments: number
   paymentAmount: number
   symptomChecks: number
+  symptomChecksCat: number
+  symptomChecksDog: number
 }
 
 export interface AdminStatistics {

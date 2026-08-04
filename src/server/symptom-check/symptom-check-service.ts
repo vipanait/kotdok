@@ -5,12 +5,30 @@ import { revalidatePath } from 'next/cache'
 import OpenAI from 'openai'
 import { createServiceClient } from '@/server/supabase/server'
 import { getAuthUser } from '@/server/auth/get-auth-user'
-import type { SymptomCheckResult, Urgency } from '@/shared/types'
+import type { PetSpecies, SymptomCheckResult, Urgency } from '@/shared/types'
 import { PAIN_SIGN_PROMPT_LABELS, sanitizePainSigns, type PainSign } from '@/shared/utils/check-params'
+import { sanitizeSpecies } from '@/shared/utils/pet-utils'
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
-const SYSTEM_PROMPT = `You are a specialized feline health triage assistant.
+const SHARED_OUTPUT = `OUTPUT FORMAT (always valid JSON, no markdown). All text fields must be in Russian.
+
+{
+  "urgency": "emergency|urgent|monitor|home_care|healthy",
+  "urgency_reason": "одно предложение почему",
+  "photo_observations": "что видно на фото, или null если фото нет",
+  "possible_causes": ["причина 1", "причина 2", "причина 3"],
+  "species_specific_warning": "видоспецифичное предупреждение или null",
+  "additional_pet_info_needed": ["какой информации о питомце не хватает для более точной оценки"],
+  "home_care_steps": ["шаг 1", "шаг 2"],
+  "vet_questions": ["вопрос 1", "вопрос 2"],
+  "disclaimer": "Лапка — информационный инструмент. Не является ветеринарным диагнозом и не заменяет осмотр специалиста."
+}
+
+CONTEXT FROM VET DATABASE:
+{context}`
+
+const CAT_SYSTEM_PROMPT = `You are a specialized feline health triage assistant.
 You have deep knowledge of cat-specific diseases, physiology, and behavioral signs of illness.
 
 CRITICAL RULES:
@@ -32,26 +50,41 @@ HEALTHY (nothing to do): the described behavior is a normal feline trait or a on
 For HEALTHY:
 - home_care_steps should be empty or contain at most one short reassurance ("Продолжайте обычный уход").
 - vet_questions should be an empty array.
-- cat_specific_warning should be null unless the breed/age genuinely changes the picture.
+- species_specific_warning should be null unless the breed/age genuinely changes the picture.
 
-OUTPUT FORMAT (always valid JSON, no markdown). All text fields must be in Russian.
+${SHARED_OUTPUT}`
 
-{
-  "urgency": "emergency|urgent|monitor|home_care|healthy",
-  "urgency_reason": "одно предложение почему",
-  "photo_observations": "что видно на фото, или null если фото нет",
-  "possible_causes": ["причина 1", "причина 2", "причина 3"],
-  "cat_specific_warning": "специфика для кошек или null",
-  "additional_cat_info_needed": ["какой информации о коте не хватает для более точной оценки"],
-  "home_care_steps": ["шаг 1", "шаг 2"],
-  "vet_questions": ["вопрос 1", "вопрос 2"],
-  "disclaimer": "Лапка — информационный инструмент. Не является ветеринарным диагнозом и не заменяет осмотр специалиста."
+const DOG_SYSTEM_PROMPT = `You are a specialized canine health triage assistant.
+You have deep knowledge of dog-specific diseases, physiology, and behavioral signs of illness.
+
+CRITICAL RULES:
+- You are NOT a veterinarian and cannot diagnose
+- Always recommend professional vet consultation
+- Dogs may still mask discomfort — err on the side of caution when signs are unclear
+- Age matters enormously: puppy (<1yr), adult (1-7yr), senior (7yr+; earlier for giant breeds)
+- Breed predispositions are real: brachycephalic → breathing/heat risk, deep-chested → GDV/bloat, large/giant → orthopedic disease, etc.
+- If a photo is provided, analyze visible symptoms (wounds, swelling, discharge, posture, coat condition, eye/ear appearance, abdomen distension) alongside the text description
+- Always identify what extra dog-specific information would make the triage more accurate. Prefer practical questions about missing age, weight, breed, sex/neutering, appetite, activity, stool/urination, duration, medications, chronic conditions, vaccination, lifestyle, diet, or photo details. If the provided dog profile and symptom description already contain enough context, return an empty array.
+
+TRIAGE LEVELS:
+EMERGENCY (go now): seizures, difficulty breathing, suspected GDV/bloat (non-productive retching + distended abdomen), collapse, suspected poisoning (xylitol, chocolate, grapes, rodenticide), trauma, heatstroke, pale gums, continuous uncontrolled bleeding
+URGENT (within 24h): not eating >24h, vomiting >3x, blood in urine/stool, marked lethargy, significant limp/pain, puppy with diarrhea/vomiting (parvo risk), sudden behavioral change with pain signs
+MONITOR (watch 48h): single vomit, mild soft stool, slight appetite change, mild limping after play that improves
+HOME CARE: minor scrapes, mild itch after known allergen exposure without distress, routine post-walk stiffness that resolves
+HEALTHY (nothing to do): the described behavior is a normal canine trait or a one-off harmless event — e.g. occasional zoomies, brief panting after exercise that resolves, one sneeze with no other signs, normal shedding. Use this ONLY when you are confident no action is needed and there are no red flags. If there is any doubt, prefer MONITOR or HOME CARE.
+
+For HEALTHY:
+- home_care_steps should be empty or contain at most one short reassurance ("Продолжайте обычный уход").
+- vet_questions should be an empty array.
+- species_specific_warning should be null unless the breed/age genuinely changes the picture.
+
+${SHARED_OUTPUT}`
+
+function systemPromptForSpecies(species: PetSpecies): string {
+  return species === 'dog' ? DOG_SYSTEM_PROMPT : CAT_SYSTEM_PROMPT
 }
 
-CONTEXT FROM VET DATABASE:
-{context}`
-
-async function getVetContext(symptoms: string): Promise<string> {
+async function getVetContext(symptoms: string, species: PetSpecies): Promise<string> {
   const supabase = createServiceClient()
 
   const embeddingResponse = await openai.embeddings.create({
@@ -63,6 +96,7 @@ async function getVetContext(symptoms: string): Promise<string> {
   const { data, error } = await supabase.rpc('search_vet_knowledge', {
     query_embedding: embedding,
     match_count: 5,
+    filter_species: species,
   })
 
   if (error || !data?.length) return 'No additional context available.'
@@ -77,6 +111,22 @@ async function getVetContext(symptoms: string): Promise<string> {
 
 const VALID_URGENCY: Urgency[] = ['emergency', 'urgent', 'monitor', 'home_care', 'healthy']
 
+function pickString(r: Record<string, unknown>, ...keys: string[]): string | null {
+  for (const key of keys) {
+    const val = r[key]
+    if (val != null && String(val).trim()) return String(val)
+  }
+  return null
+}
+
+function pickStringArray(r: Record<string, unknown>, ...keys: string[]): string[] {
+  for (const key of keys) {
+    const val = r[key]
+    if (Array.isArray(val)) return val.map(v => String(v))
+  }
+  return []
+}
+
 function validateAIResponse(raw: unknown): SymptomCheckResult {
   if (typeof raw !== 'object' || raw === null) throw new Error('AI response is not an object')
   const r = raw as Record<string, unknown>
@@ -86,8 +136,8 @@ function validateAIResponse(raw: unknown): SymptomCheckResult {
     urgency_reason: String(r.urgency_reason ?? ''),
     photo_observations: r.photo_observations ? String(r.photo_observations) : null,
     possible_causes: Array.isArray(r.possible_causes) ? r.possible_causes as string[] : [],
-    cat_specific_warning: r.cat_specific_warning ? String(r.cat_specific_warning) : null,
-    additional_cat_info_needed: Array.isArray(r.additional_cat_info_needed) ? r.additional_cat_info_needed as string[] : [],
+    species_specific_warning: pickString(r, 'species_specific_warning', 'cat_specific_warning'),
+    additional_pet_info_needed: pickStringArray(r, 'additional_pet_info_needed', 'additional_cat_info_needed'),
     home_care_steps: Array.isArray(r.home_care_steps) ? r.home_care_steps as string[] : [],
     vet_questions: Array.isArray(r.vet_questions) ? r.vet_questions as string[] : [],
     disclaimer: String(r.disclaimer ?? 'Лапка — информационный инструмент. Не является ветеринарным диагнозом и не заменяет осмотр специалиста.'),
@@ -120,7 +170,7 @@ export async function handleSymptomCheckRequest(request: NextRequest) {
 
     // Parse multipart (photo) or JSON (text only)
     let symptoms = ''
-    let cat_id: string | null = null
+    let pet_id: string | null = null
     let appetite: string | null = null
     let activity: string | null = null
     let duration: string | null = null
@@ -133,7 +183,7 @@ export async function handleSymptomCheckRequest(request: NextRequest) {
     if (contentType.includes('multipart/form-data')) {
       const formData = await request.formData()
       symptoms = (formData.get('symptoms') as string) ?? ''
-      cat_id = (formData.get('cat_id') as string) || null
+      pet_id = (formData.get('pet_id') as string) || (formData.get('cat_id') as string) || null
       appetite = (formData.get('appetite') as string) || null
       activity = (formData.get('activity') as string) || null
       duration = (formData.get('duration') as string) || null
@@ -156,7 +206,7 @@ export async function handleSymptomCheckRequest(request: NextRequest) {
     } else {
       const body = await request.json()
       symptoms = body.symptoms ?? ''
-      cat_id = body.cat_id || null
+      pet_id = body.pet_id || body.cat_id || null
       appetite = body.appetite || null
       activity = body.activity || null
       duration = body.duration || null
@@ -184,30 +234,33 @@ export async function handleSymptomCheckRequest(request: NextRequest) {
     if (stool && !validStool.includes(stool)) stool = null
     const pain_signs = sanitizePainSigns(painSignsRaw)
 
-    // Cat profile context
-    let catContext = ''
-    let verifiedCatId: string | null = null
-    if (cat_id) {
-      const { data: cat } = await supabase
-        .from('cats').select('*').eq('id', cat_id).eq('user_id', user.id).is('deleted_at', null).single()
-      if (!cat) return NextResponse.json({ error: 'Cat not found / Кот не найден.' }, { status: 404 })
+    // Pet profile context
+    let petContext = ''
+    let verifiedPetId: string | null = null
+    let species: PetSpecies = 'cat'
+    if (pet_id) {
+      const { data: pet } = await supabase
+        .from('pets').select('*').eq('id', pet_id).eq('user_id', user.id).is('deleted_at', null).single()
+      if (!pet) return NextResponse.json({ error: 'Pet not found / Питомец не найден.' }, { status: 404 })
 
-      verifiedCatId = cat.id
+      verifiedPetId = pet.id
+      species = sanitizeSpecies(pet.species)
       const parts = [
-        cat.name,
-        cat.breed ? `breed: ${cat.breed}` : null,
-        cat.age_years != null ? `${cat.age_years} years old` : null,
-        cat.sex || null,
-        cat.neutered != null ? (cat.neutered ? 'neutered/spayed' : 'intact') : null,
-        cat.indoor_outdoor ? `lifestyle: ${cat.indoor_outdoor}` : null,
-        cat.diet ? `diet: ${cat.diet} food` : null,
-        cat.vaccinated != null ? (cat.vaccinated ? 'vaccinated' : 'not vaccinated') : null,
-        cat.allergies?.length ? `allergies: ${cat.allergies.join(', ')}` : null,
-        cat.chronic_conditions?.length ? `chronic conditions: ${cat.chronic_conditions.join(', ')}` : null,
-        cat.medications?.length ? `medications: ${cat.medications.join(', ')}` : null,
-        cat.notes ? `additional notes: ${cat.notes}` : null,
+        `species: ${species}`,
+        pet.name,
+        pet.breed ? `breed: ${pet.breed}` : null,
+        pet.age_years != null ? `${pet.age_years} years old` : null,
+        pet.sex || null,
+        pet.neutered != null ? (pet.neutered ? 'neutered/spayed' : 'intact') : null,
+        pet.indoor_outdoor ? `lifestyle: ${pet.indoor_outdoor}` : null,
+        pet.diet ? `diet: ${pet.diet} food` : null,
+        pet.vaccinated != null ? (pet.vaccinated ? 'vaccinated' : 'not vaccinated') : null,
+        pet.allergies?.length ? `allergies: ${pet.allergies.join(', ')}` : null,
+        pet.chronic_conditions?.length ? `chronic conditions: ${pet.chronic_conditions.join(', ')}` : null,
+        pet.medications?.length ? `medications: ${pet.medications.join(', ')}` : null,
+        pet.notes ? `additional notes: ${pet.notes}` : null,
       ].filter(Boolean)
-      catContext = `\n\nCAT PROFILE: ${parts.join(', ')}`
+      petContext = `\n\nPET PROFILE: ${parts.join(', ')}`
     }
 
     // Reserve the credit before expensive external work. If anything below
@@ -224,9 +277,9 @@ export async function handleSymptomCheckRequest(request: NextRequest) {
     reservedUsageLedgerId = reservedUsage?.ledger_id ?? null
     const newBalance = reservedUsage?.new_balance ?? profile.credits - 1
 
-    // RAG search
-    const vetContext = await getVetContext(symptoms)
-    const systemPrompt = SYSTEM_PROMPT.replace('{context}', vetContext)
+    // RAG search filtered by species
+    const vetContext = await getVetContext(symptoms, species)
+    const systemPrompt = systemPromptForSpecies(species).replace('{context}', vetContext)
 
     // Build user message — with or without photo
     type ContentPart =
@@ -250,8 +303,9 @@ export async function handleSymptomCheckRequest(request: NextRequest) {
       painSignsText ? `Pain signs: ${painSignsText}` : null,
     ].filter(Boolean).join('. ')
 
+    const speciesLabel = species === 'dog' ? 'Dog' : 'Cat'
     const userContent: ContentPart[] = [
-      { type: 'text', text: `Cat symptoms: ${symptoms}${quickContext ? `\n\nQuick assessment: ${quickContext}.` : ''}${catContext}` },
+      { type: 'text', text: `${speciesLabel} symptoms: ${symptoms}${quickContext ? `\n\nQuick assessment: ${quickContext}.` : ''}${petContext}` },
     ]
 
     for (const photo of photoBase64List) {
@@ -291,12 +345,12 @@ export async function handleSymptomCheckRequest(request: NextRequest) {
       .from('symptom_checks')
       .insert({
         user_id: user.id,
-        cat_id: verifiedCatId,
+        pet_id: verifiedPetId,
         symptoms_input: symptoms,
         urgency: result.urgency,
         urgency_reason: result.urgency_reason,
         possible_causes: result.possible_causes,
-        cat_specific_warning: result.cat_specific_warning,
+        species_specific_warning: result.species_specific_warning,
         home_care_steps: result.home_care_steps,
         vet_questions: result.vet_questions,
         full_response: { ...result, appetite, activity, duration, stool, pain_signs, photo_count: photoBase64List.length },

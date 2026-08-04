@@ -1,22 +1,24 @@
 import { createClient, createServiceClient } from '@/server/supabase/server'
 import { redirect } from 'next/navigation'
 import type { User } from '@supabase/supabase-js'
-import type { Cat, CatLatestCheck } from '@/shared/types'
+import type { Pet, PetLatestCheck } from '@/shared/types'
 
-export type { CatLatestCheck }
+export type { PetLatestCheck }
 
 export interface DashboardData {
   user: User
   credits: number
   role: 'admin' | string | null
-  cats: Cat[]
+  pets: Pet[]
+  /** @deprecated Use pets */
+  cats: Pet[]
   checks: Array<{
     id: string
     symptoms_input: string
     urgency: string
     urgency_reason: string
     possible_causes: unknown
-    cat_specific_warning: string | null
+    species_specific_warning: string | null
     home_care_steps: unknown
     vet_questions: unknown
     full_response: Record<string, unknown> | null
@@ -24,14 +26,16 @@ export interface DashboardData {
   }>
   totalChecks: number
   latestRequestStatus: 'pending' | 'approved' | 'rejected' | null
-  latestChecksByCat: Record<string, CatLatestCheck>
+  latestChecksByPet: Record<string, PetLatestCheck>
+  /** @deprecated Use latestChecksByPet */
+  latestChecksByCat: Record<string, PetLatestCheck>
 }
 
 const HISTORY_LIMIT = 4
 
 /**
  * Loads everything the dashboard page renders. Reused by `/dashboard` and by
- * any route that puts a modal on top of the dashboard (cat add/edit, etc.) so
+ * any route that puts a modal on top of the dashboard (pet add/edit, etc.) so
  * we don't duplicate fetch logic.
  *
  * Performs the auth check itself: redirects to `/login` if the visitor isn't
@@ -47,16 +51,16 @@ export async function loadDashboard(loginRedirectPath = '/login'): Promise<Dashb
   const [
     { data: profile },
     { data: checks, count: totalChecks },
-    { data: cats },
+    { data: pets },
     { data: latestRequest },
-    { data: recentCatChecks },
+    { data: recentPetChecks },
   ] =
     await Promise.all([
       service.from('profiles').select('credits, plan, role').eq('id', user.id).single(),
       service
         .from('symptom_checks')
         .select(
-          'id, symptoms_input, urgency, urgency_reason, possible_causes, cat_specific_warning, home_care_steps, vet_questions, full_response, created_at',
+          'id, symptoms_input, urgency, urgency_reason, possible_causes, species_specific_warning, home_care_steps, vet_questions, full_response, created_at',
           { count: 'exact' },
         )
         .eq('user_id', user.id)
@@ -64,7 +68,7 @@ export async function loadDashboard(loginRedirectPath = '/login'): Promise<Dashb
         .order('created_at', { ascending: false })
         .limit(HISTORY_LIMIT),
       service
-        .from('cats')
+        .from('pets')
         .select('*')
         .eq('user_id', user.id)
         .is('deleted_at', null)
@@ -78,32 +82,36 @@ export async function loadDashboard(loginRedirectPath = '/login'): Promise<Dashb
         .maybeSingle(),
       service
         .from('symptom_checks')
-        .select('cat_id, urgency, created_at')
+        .select('pet_id, urgency, created_at')
         .eq('user_id', user.id)
         .is('deleted_at', null)
-        .not('cat_id', 'is', null)
+        .not('pet_id', 'is', null)
         .order('created_at', { ascending: false })
         .limit(50),
     ])
 
-  const latestChecksByCat: Record<string, CatLatestCheck> = {}
-  for (const row of recentCatChecks ?? []) {
-    const catId = row.cat_id as string | null
-    if (!catId || latestChecksByCat[catId]) continue
-    latestChecksByCat[catId] = {
+  const latestChecksByPet: Record<string, PetLatestCheck> = {}
+  for (const row of recentPetChecks ?? []) {
+    const petId = row.pet_id as string | null
+    if (!petId || latestChecksByPet[petId]) continue
+    latestChecksByPet[petId] = {
       urgency: row.urgency as string,
       created_at: row.created_at as string,
     }
   }
 
+  const petsList = (pets ?? []) as DashboardData['pets']
+
   return {
     user,
     credits: profile?.credits ?? 0,
     role: (profile?.role as string | null) ?? null,
-    cats: (cats ?? []) as DashboardData['cats'],
+    pets: petsList,
+    cats: petsList,
     checks: (checks ?? []) as DashboardData['checks'],
     totalChecks: totalChecks ?? 0,
     latestRequestStatus: (latestRequest?.status ?? null) as DashboardData['latestRequestStatus'],
-    latestChecksByCat,
+    latestChecksByPet,
+    latestChecksByCat: latestChecksByPet,
   }
 }

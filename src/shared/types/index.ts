@@ -1,13 +1,14 @@
 export type Urgency = 'emergency' | 'urgent' | 'monitor' | 'home_care' | 'healthy'
 export type UserRole = 'user' | 'admin'
+export type PetSpecies = 'cat' | 'dog'
 
 export interface SymptomCheckResult {
   urgency: Urgency
   urgency_reason: string
   photo_observations: string | null
   possible_causes: string[]
-  cat_specific_warning: string | null
-  additional_cat_info_needed: string[]
+  species_specific_warning: string | null
+  additional_pet_info_needed: string[]
   home_care_steps: string[]
   vet_questions: string[]
   disclaimer: string
@@ -19,9 +20,10 @@ export interface SymptomCheckResult {
   pain_signs?: string[]
 }
 
-export interface Cat {
+export interface Pet {
   id: string
   user_id: string
+  species: PetSpecies
   name: string
   breed: string | null
   age_years: number | null
@@ -38,10 +40,16 @@ export interface Cat {
   created_at: string
 }
 
-export interface CatLatestCheck {
+/** @deprecated Use Pet */
+export type Cat = Pet
+
+export interface PetLatestCheck {
   urgency: string
   created_at: string
 }
+
+/** @deprecated Use PetLatestCheck */
+export type CatLatestCheck = PetLatestCheck
 
 export interface Profile {
   id: string
