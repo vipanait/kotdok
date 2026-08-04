@@ -81,6 +81,7 @@ export default function CatModalShell({ cat }: Props) {
           cat={cat}
           modal
           onDirtyChange={setDirty}
+          onCancel={requestClose}
           onSaved={kind => close(`/dashboard?catSaved=${kind}`)}
         />
       </div>

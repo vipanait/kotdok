@@ -227,6 +227,13 @@ body {
     transform: none;
   }
 
+  .app-button-primary:disabled {
+    background: #E5DDD0;
+    color: #8A8276;
+    box-shadow: none;
+    opacity: 1;
+  }
+
   .app-button-sm {
     font-size: 0.8125rem;
     padding: 0.5rem 0.875rem;
@@ -244,11 +251,12 @@ body {
 
   .app-input {
     width: 100%;
-    background: var(--card);
-    border: 1px solid var(--hairline);
+    background: var(--canvas-soft);
+    border: 1px solid rgba(236, 224, 197, 0.95);
     border-radius: 1rem;
     color: var(--text);
     font-size: 0.875rem;
+    font-weight: 600;
     padding: 0.75rem 1rem;
     transition:
       border-color 160ms ease,
@@ -258,12 +266,28 @@ body {
 
   .app-input::placeholder {
     color: var(--text-faint);
+    font-weight: 400;
+    opacity: 1;
   }
 
   .app-input:focus {
+    background: var(--card);
     border-color: rgba(252, 122, 0, 0.5);
     box-shadow: 0 0 0 4px rgba(252, 122, 0, 0.14);
     outline: none;
+  }
+
+  .app-input-empty {
+    color: var(--text-faint);
+    font-weight: 400;
+  }
+
+  select.app-input {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M2.5 4.25L6 7.75L9.5 4.25' stroke='%237A7367' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    padding-right: 2.5rem;
   }
 
   .app-focus-ring:focus-visible,

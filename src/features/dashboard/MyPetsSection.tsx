@@ -189,7 +189,7 @@ function CatLocalModal({
         >
           ×
         </button>
-        <CatForm cat={cat} modal onSaved={onSaved} />
+        <CatForm cat={cat} modal onSaved={onSaved} onCancel={onClose} />
       </div>
     </div>
   )
