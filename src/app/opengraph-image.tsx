@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og'
 import { defaultSeo, siteName } from '@/shared/seo'
 
-export const alt = 'Лапка — AI симптомчекер для кошек'
+export const alt = 'Лапка — AI симптомчекер для кошек и собак'
 export const size = {
   width: 1200,
   height: 630,
@@ -47,7 +47,7 @@ export default function OpenGraphImage() {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
           <div style={{ fontSize: 72, fontWeight: 900, lineHeight: 1.02, maxWidth: 940 }}>
-            AI симптомчекер для кошек
+            AI симптомчекер для кошек и собак
           </div>
           <div style={{ fontSize: 32, lineHeight: 1.3, maxWidth: 840, color: '#4b5563' }}>
             {defaultSeo.description}
