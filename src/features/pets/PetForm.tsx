@@ -209,31 +209,21 @@ export default function PetForm({ pet, modal = false, onSaved, onDirtyChange, on
       <form onSubmit={handleSubmit} className="space-y-6">
         <FormSection title={t.sectionBasic}>
           <Field label={t.species}>
-            <div className="grid grid-cols-2 gap-2">
-              {([
-                ['cat', t.speciesCat],
-                ['dog', t.speciesDog],
-              ] as const).map(([value, label]) => (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => {
-                    setSpecies(value)
-                    if (value !== 'dog') {
-                      setSizeClass(null)
-                      setWalkActivity(null)
-                    }
-                  }}
-                  className={`rounded-xl border px-3 py-2.5 text-sm font-semibold transition-colors ${
-                    species === value
-                      ? 'border-accent bg-accent/10 text-text'
-                      : 'border-hairline bg-canvas-soft/50 text-text-muted hover:bg-canvas-soft'
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+            <select
+              value={species}
+              onChange={e => {
+                const value = e.target.value as PetSpecies
+                setSpecies(value)
+                if (value !== 'dog') {
+                  setSizeClass(null)
+                  setWalkActivity(null)
+                }
+              }}
+              className={inputCls}
+            >
+              <option value="cat">{t.speciesCat}</option>
+              <option value="dog">{t.speciesDog}</option>
+            </select>
           </Field>
 
           <Field label={t.name} error={nameError}>
