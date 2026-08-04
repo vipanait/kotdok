@@ -38,6 +38,11 @@ export interface Cat {
   created_at: string
 }
 
+export interface CatLatestCheck {
+  urgency: string
+  created_at: string
+}
+
 export interface Profile {
   id: string
   credits: number

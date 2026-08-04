@@ -1,10 +1,10 @@
 import Link from 'next/link'
 import AppShell from '@/components/AppShell'
+import AccountMenu from '@/features/auth/AccountMenu'
 import DashboardActions from '@/features/dashboard/DashboardActions'
 import DashboardHistory from '@/features/dashboard/DashboardHistory'
 import ExtraCheckRequestPanel from '@/features/dashboard/ExtraCheckRequestPanel'
 import MyPetsSection from '@/features/dashboard/MyPetsSection'
-import SignOutForm from '@/features/auth/SignOutForm'
 import { getLocale } from '@/server/i18n/get-locale'
 import { getDictionary } from '@/server/i18n/get-dictionary'
 import type { DashboardData } from '@/server/dashboard/load-dashboard'
@@ -23,26 +23,36 @@ export default async function DashboardContent({ data, catSavedParam }: Props) {
   const dict = await getDictionary(locale)
   const t = dict.dashboard
 
-  const { credits, role, cats, checks, totalChecks, latestRequestStatus } = data
+  const { user, credits, role, cats, checks, totalChecks, latestRequestStatus, latestChecksByCat } = data
   const hasMoreChecks = totalChecks > checks.length
   const showRequestPanel = credits === 0 || latestRequestStatus === 'pending'
+  const compactChecks = checks.length <= 1
 
   return (
-    <AppShell right={<SignOutForm label={t.signOut} />}>
+    <AppShell
+      right={
+        <AccountMenu
+          email={user.email ?? ''}
+          signOutLabel={t.signOut}
+          historyLabel={dict.common.checkHistoryNav}
+          menuLabel={dict.common.accountMenu}
+        />
+      }
+    >
       <h1 className="sr-only">{t.title}</h1>
 
       {catSavedParam && (
-        <div className="mb-6 rounded-2xl border border-status-good-fg/10 bg-status-good-bg px-4 py-3 text-sm font-semibold text-status-good-fg shadow-sm">
+        <div className="mb-5 rounded-2xl border border-status-good-fg/10 bg-status-good-bg px-4 py-3 text-sm font-semibold text-status-good-fg shadow-sm">
           {catSavedParam === 'created' ? t.catAdded : catSavedParam === 'deleted' ? t.catDeleted : t.catSaved}
         </div>
       )}
 
       {/* My pets — interactive section with in-place add/edit modal */}
-      <MyPetsSection cats={cats} />
+      <MyPetsSection cats={cats} latestChecksByCat={latestChecksByCat} />
 
       {/* Checks */}
-      <section className="app-card mb-6 p-6 sm:p-7">
-        <div className="mb-6 flex items-center justify-between gap-3">
+      <section className={`app-card mb-5 ${compactChecks ? 'p-4 sm:p-5' : 'p-5 sm:p-6'}`}>
+        <div className="mb-4 flex items-center justify-between gap-3">
           <h2 className="text-xl font-extrabold text-text sm:text-2xl">{t.checkHistory}</h2>
           <span className="text-sm text-text-muted">{t.availableShort.replace('{n}', String(credits))}</span>
         </div>
@@ -56,30 +66,26 @@ export default async function DashboardContent({ data, catSavedParam }: Props) {
           <DashboardActions cats={cats} />
         )}
 
-        <div className="mt-8">
-          <DashboardHistory
-            checks={checks}
-            emptyActionHref={cats.length > 0 ? '/check' : undefined}
-            emptyActionLabel={cats.length > 0 ? t.startFirstCheck : undefined}
-          />
+        <div className="mt-4">
+          <DashboardHistory checks={checks} />
         </div>
 
         {hasMoreChecks && (
-          <div className="mt-4 border-t border-hairline/70 pt-4 text-center">
+          <div className="mt-3 border-t border-hairline/70 pt-3 text-center">
             <Link href="/checks" className="app-link">{t.showAll}</Link>
           </div>
         )}
       </section>
 
       {role === 'admin' && (
-        <section className="mb-6 flex justify-center">
+        <section className="mb-5 flex justify-center">
           <Link href="/admin/statistics" className="app-button-secondary app-button-sm">
             {t.statistics}
           </Link>
         </section>
       )}
 
-      <p className="text-center text-xs text-text-faint mt-6">
+      <p className="text-center text-xs text-text-faint mt-5">
         <Link href="/legal" className="hover:underline">{t.tos}</Link>
       </p>
     </AppShell>

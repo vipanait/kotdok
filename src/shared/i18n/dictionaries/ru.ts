@@ -1,5 +1,5 @@
 const ru = {
-  common: {
+    common: {
     vetDisclaimer: 'Не заменяет осмотр ветеринара',
     signOut: 'Выйти',
     back: '← Назад',
@@ -20,6 +20,8 @@ const ru = {
     redirecting: 'Перенаправление...',
     showPassword: 'Показать пароль',
     hidePassword: 'Скрыть пароль',
+    accountMenu: 'Меню аккаунта',
+    checkHistoryNav: 'История проверок',
   },
   home: {
     signIn: 'Войти',
@@ -142,15 +144,18 @@ const ru = {
     myCats: 'Мои питомцы',
     addCat: '+ Добавить',
     catsSubtitle: 'Профили питомцев помогают учитывать возраст, породу и важные особенности.',
-    catsEmptyTitle: 'Добавьте первого кота',
-    noCats: 'Добавьте профиль кота — это улучшит точность анализа симптомов.',
+    catsEmptyTitle: 'Первый питомец',
+    noCats: 'Добавьте профиль — анализ симптомов станет {accent}.',
+    noCatsAccent: 'точнее',
     addFirstCat: 'Добавить профиль',
     yearsOld: 'год',
+    lastCheckNever: 'Проверок ещё не было',
+    lastCheckPrefix: 'Последняя:',
     checkHistory: 'Проверки',
     checkHistorySubtitle: 'Открывайте прошлые ответы, чтобы сравнить симптомы и рекомендации.',
-    checksEmptyTitle: 'Проверок пока нет',
-    noChecks:
-      'Проверок пока нет. Опишите симптомы кошки — получите ответ за 15 секунд.',
+    checksEmptyTitle: 'Нет проверок',
+    noChecks: 'Опишите симптомы кошки — получите ответ за {accent}.',
+    noChecksAccent: '15 секунд',
     startFirstCheck: 'Начать проверку',
     openCheck: 'Открыть',
     tos: 'Пользовательское соглашение',
