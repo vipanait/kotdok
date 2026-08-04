@@ -54,21 +54,19 @@ export default function MyPetsSection({ cats, latestChecksByCat = {} }: Props) {
     return () => window.clearTimeout(id)
   }, [banner])
 
-  const compact = cats.length <= 1
-
   return (
     <>
       {banner && (
         <div
           role="status"
-          className="mb-4 rounded-2xl border border-status-good-fg/10 bg-status-good-bg px-4 py-3 text-sm font-semibold text-status-good-fg"
+          className="mb-6 rounded-2xl border border-status-good-fg/10 bg-status-good-bg px-4 py-3 text-sm font-semibold text-status-good-fg"
         >
           {banner === 'created' ? t.catAdded : banner === 'deleted' ? t.catDeleted : t.catSaved}
         </div>
       )}
 
-      <section className={`app-card mb-5 ${compact ? 'p-4 sm:p-5' : 'p-5 sm:p-6'}`}>
-        <div className="mb-3 flex items-center justify-between gap-3">
+      <section className="app-card mb-6 p-6 sm:p-7">
+        <div className="mb-5 flex items-center justify-between gap-3">
           <h2 className="text-xl font-extrabold text-text sm:text-2xl">{t.myCats}</h2>
           <button
             type="button"
@@ -81,12 +79,12 @@ export default function MyPetsSection({ cats, latestChecksByCat = {} }: Props) {
         {!cats.length ? (
           <div className="app-empty-state">
             <h3 className="text-base font-bold text-text">{t.catsEmptyTitle}</h3>
-            <p className="mt-1 text-sm leading-relaxed text-text-muted">
+            <p className="mt-1.5 text-sm leading-relaxed text-text-muted">
               <AccentedCopy template={t.noCats} accent={t.noCatsAccent} />
             </p>
           </div>
         ) : (
-          <ul className="grid gap-0.5">
+          <ul className="grid gap-2">
             {cats.map(cat => {
               const latest = latestChecksByCat[cat.id]
               const urgencyKey = latest?.urgency as UrgencyKey | undefined
@@ -105,10 +103,10 @@ export default function MyPetsSection({ cats, latestChecksByCat = {} }: Props) {
                   <button
                     type="button"
                     onClick={() => setModal(cat)}
-                    className="flex w-full items-center justify-between gap-3 rounded-2xl px-2 py-2 text-left transition-colors hover:bg-canvas-soft/60"
+                    className="flex w-full items-center justify-between gap-3 rounded-2xl bg-canvas-soft/70 px-3.5 py-3.5 text-left transition-colors hover:bg-canvas-soft"
                   >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <CatAvatar size={44} />
+                    <div className="flex items-center gap-3.5 min-w-0">
+                      <CatAvatar size={48} />
                       <div className="min-w-0">
                         <div className="text-base font-bold text-text truncate">{cat.name}</div>
                         {(cat.breed || cat.age_years) && (
@@ -130,6 +128,7 @@ export default function MyPetsSection({ cats, latestChecksByCat = {} }: Props) {
                         </div>
                       </div>
                     </div>
+                    <span className="shrink-0 text-text-faint text-lg leading-none" aria-hidden>›</span>
                   </button>
                 </li>
               )

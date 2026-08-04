@@ -33,7 +33,7 @@ export default function DashboardActions({ cats }: Props) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="app-button-primary w-full px-6 py-3.5 text-sm sm:text-base"
+        className="app-button-primary w-full px-6 py-4 text-sm sm:text-base"
       >
         {t.checkSymptomsBtn}
       </button>
