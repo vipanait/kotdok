@@ -169,14 +169,10 @@ export default function CheckForm({ cats, onClose }: Props) {
     <form onSubmit={handleSubmit} className="space-y-5">
       {/* Selected pet card */}
       {selectedCat && (
-        <div className="flex items-center gap-3 rounded-2xl border border-hairline bg-card p-3.5">
-          <CatAvatar size={44} bg="#FFF8ED" />
-          <div className="min-w-0 flex-1">
-            <div className="text-base font-semibold text-text truncate">{selectedCat.name}</div>
-            <div className="text-xs text-text-muted truncate">
-              {[selectedCat.breed, selectedCat.age_years ? `${selectedCat.age_years} ${dict.dashboard.yearsOld}` : null]
-                .filter(Boolean).join(' · ')}
-            </div>
+        <div className="flex items-center gap-3 rounded-2xl border border-hairline bg-card px-4 py-3">
+          <CatAvatar size={40} bg="#FFF8ED" />
+          <div className="min-w-0 flex-1 text-base font-semibold text-text truncate">
+            {selectedCat.name}
           </div>
           {cats.length > 1 && (
             <button
@@ -232,12 +228,6 @@ export default function CheckForm({ cats, onClose }: Props) {
           className="app-input resize-none"
           aria-describedby="symptoms-hint"
         />
-        <p
-          id="symptoms-hint"
-          className={`mt-2 text-xs ${symptomsTooShort ? 'font-medium text-text-muted' : 'text-text-faint'}`}
-        >
-          {symptomsTooShort ? t.symptomsRequired : dict.check.willCharge}
-        </p>
       </div>
 
       {/* Photo dropzone */}
@@ -261,9 +251,10 @@ export default function CheckForm({ cats, onClose }: Props) {
         {photos.length < MAX_PHOTOS && (
           <div
             onClick={() => fileInputRef.current?.click()}
-            className="cursor-pointer rounded-2xl border border-hairline bg-card px-4 py-5 text-center transition-colors hover:border-card-soft-strong hover:bg-canvas-soft/40"
+            className="cursor-pointer rounded-2xl border border-dashed border-hairline bg-card px-4 py-5 text-center transition-colors hover:border-card-soft-strong"
           >
             <div className="flex items-center justify-center gap-2 text-sm font-semibold text-text">
+              <span aria-hidden>📷</span>
               {photos.length === 0
                 ? t.addPhoto
                 : t.morePhotos.replace('{count}', String(photos.length)).replace('{max}', String(MAX_PHOTOS))}
@@ -294,6 +285,9 @@ export default function CheckForm({ cats, onClose }: Props) {
             dict.check.submitButton
           )}
         </button>
+        <p id="symptoms-hint" className="mt-2 text-center text-xs text-text-muted">
+          {symptomsTooShort ? t.symptomsRequired : dict.check.willCharge}
+        </p>
       </div>
     </form>
   )
@@ -419,7 +413,7 @@ function ChipGroup({
             className={`px-3.5 py-1.5 rounded-full text-sm transition-colors ${
               value === opt.value
                 ? 'bg-accent text-white font-semibold shadow-sm'
-                : 'bg-card border border-hairline text-text-muted hover:border-card-soft-strong hover:text-text'
+                : 'bg-card border border-hairline text-text hover:border-card-soft-strong'
             }`}
             aria-pressed={value === opt.value}
           >
@@ -465,7 +459,7 @@ function MultiChipGroup({
               className={`px-3.5 py-1.5 rounded-full text-sm transition-colors ${
                 active
                   ? 'bg-accent text-white font-semibold shadow-sm'
-                  : 'bg-card border border-hairline text-text-muted hover:border-card-soft-strong hover:text-text'
+                  : 'bg-card border border-hairline text-text hover:border-card-soft-strong'
               }`}
             >
               {opt.label}

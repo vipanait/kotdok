@@ -246,70 +246,71 @@ export default function CatForm({ cat, modal = false, onSaved, onDirtyChange, on
               </Field>
             </div>
 
-            <Field label={t.sex}>
-              <ChoiceChips
-                value={sex ?? ''}
-                onChange={v => setSex((v || null) as Cat['sex'])}
-                options={[
-                  { value: 'female', label: t.sexFemale },
-                  { value: 'male', label: t.sexMale },
-                ]}
-                clearLabel={dict.common.notSpecifiedM}
-              />
-            </Field>
-
-            <Field label={t.neutered}>
-              <ChoiceChips
-                value={neutered == null ? '' : neutered ? 'yes' : 'no'}
-                onChange={v => setNeutered(v === '' ? null : v === 'yes')}
-                options={[
-                  { value: 'yes', label: dict.common.yes },
-                  { value: 'no', label: dict.common.no },
-                ]}
-                clearLabel={dict.common.notSpecified}
-              />
-            </Field>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Field label={t.sex}>
+                <select
+                  value={sex ?? ''}
+                  onChange={e => setSex((e.target.value || null) as Cat['sex'])}
+                  className={selectCls(!sex)}
+                >
+                  <option value="">{dict.common.notSpecifiedM}</option>
+                  <option value="female">{t.sexFemale}</option>
+                  <option value="male">{t.sexMale}</option>
+                </select>
+              </Field>
+              <Field label={t.neutered}>
+                <select
+                  value={neutered == null ? '' : neutered ? 'yes' : 'no'}
+                  onChange={e => setNeutered(e.target.value === '' ? null : e.target.value === 'yes')}
+                  className={selectCls(neutered == null)}
+                >
+                  <option value="">{dict.common.notSpecified}</option>
+                  <option value="yes">{dict.common.yes}</option>
+                  <option value="no">{dict.common.no}</option>
+                </select>
+              </Field>
+            </div>
           </FormSection>
 
           <FormSection title={t.sectionLifestyle}>
-            <Field label={t.lifestyle}>
-              <ChoiceChips
-                value={indoorOutdoor ?? ''}
-                onChange={v => setIndoorOutdoor((v || null) as Cat['indoor_outdoor'])}
-                options={[
-                  { value: 'indoor', label: t.lifestyleIndoor },
-                  { value: 'outdoor', label: t.lifestyleOutdoor },
-                  { value: 'both', label: t.lifestyleBoth },
-                ]}
-                clearLabel={dict.common.notSpecifiedM}
-              />
-            </Field>
-
-            <Field label={t.diet}>
-              <ChoiceChips
-                value={diet ?? ''}
-                onChange={v => setDiet((v || null) as Cat['diet'])}
-                options={[
-                  { value: 'dry', label: t.dietDry },
-                  { value: 'wet', label: t.dietWet },
-                  { value: 'mixed', label: t.dietMixed },
-                  { value: 'raw', label: t.dietRaw },
-                ]}
-                clearLabel={dict.common.notSpecified}
-              />
-            </Field>
-
-            <Field label={t.vaccination}>
-              <ChoiceChips
-                value={vaccinated == null ? '' : vaccinated ? 'yes' : 'no'}
-                onChange={v => setVaccinated(v === '' ? null : v === 'yes')}
-                options={[
-                  { value: 'yes', label: t.vaccinationYes },
-                  { value: 'no', label: t.vaccinationNo },
-                ]}
-                clearLabel={dict.common.notSpecified}
-              />
-            </Field>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <Field label={t.lifestyle}>
+                <select
+                  value={indoorOutdoor ?? ''}
+                  onChange={e => setIndoorOutdoor((e.target.value || null) as Cat['indoor_outdoor'])}
+                  className={selectCls(!indoorOutdoor)}
+                >
+                  <option value="">{dict.common.notSpecifiedM}</option>
+                  <option value="indoor">{t.lifestyleIndoor}</option>
+                  <option value="outdoor">{t.lifestyleOutdoor}</option>
+                  <option value="both">{t.lifestyleBoth}</option>
+                </select>
+              </Field>
+              <Field label={t.diet}>
+                <select
+                  value={diet ?? ''}
+                  onChange={e => setDiet((e.target.value || null) as Cat['diet'])}
+                  className={selectCls(!diet)}
+                >
+                  <option value="">{dict.common.notSpecified}</option>
+                  <option value="dry">{t.dietDry}</option>
+                  <option value="wet">{t.dietWet}</option>
+                  <option value="mixed">{t.dietMixed}</option>
+                  <option value="raw">{t.dietRaw}</option>
+                </select>
+              </Field>
+              <Field label={t.vaccination}>
+                <select
+                  value={vaccinated == null ? '' : vaccinated ? 'yes' : 'no'}
+                  onChange={e => setVaccinated(e.target.value === '' ? null : e.target.value === 'yes')}
+                  className={selectCls(vaccinated == null)}
+                >
+                  <option value="">{dict.common.notSpecified}</option>
+                  <option value="yes">{t.vaccinationYes}</option>
+                  <option value="no">{t.vaccinationNo}</option>
+                </select>
+              </Field>
+            </div>
           </FormSection>
 
           <FormSection title={t.sectionHealth}>
@@ -442,6 +443,10 @@ export default function CatForm({ cat, modal = false, onSaved, onDirtyChange, on
 
 const inputCls = 'app-input py-2.5'
 
+function selectCls(empty: boolean) {
+  return empty ? `${inputCls} app-input-empty` : inputCls
+}
+
 function FormSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="app-form-section">
@@ -457,42 +462,6 @@ function Field({ label, children, error }: { label: string; children: React.Reac
       <p className="block text-sm font-semibold text-text mb-1.5">{label}</p>
       {children}
       {error && <span className="app-field-error block">{error}</span>}
-    </div>
-  )
-}
-
-function ChoiceChips({
-  value,
-  onChange,
-  options,
-  clearLabel,
-}: {
-  value: string
-  onChange: (v: string) => void
-  options: { value: string; label: string }[]
-  clearLabel: string
-}) {
-  const items = [{ value: '', label: clearLabel }, ...options]
-  return (
-    <div className="flex flex-wrap gap-2" role="group">
-      {items.map(opt => {
-        const active = value === opt.value
-        return (
-          <button
-            key={opt.value || 'clear'}
-            type="button"
-            aria-pressed={active}
-            onClick={() => onChange(opt.value)}
-            className={`rounded-full px-3.5 py-2 text-sm transition-colors ${
-              active
-                ? 'bg-accent text-white font-semibold shadow-sm'
-                : 'bg-card border border-hairline text-text-muted hover:border-card-soft-strong hover:text-text'
-            }`}
-          >
-            {opt.label}
-          </button>
-        )
-      })}
     </div>
   )
 }
