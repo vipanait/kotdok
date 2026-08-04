@@ -2,18 +2,22 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import type { Cat, CatLatestCheck } from '@/shared/types'
+import type { Pet, PetLatestCheck } from '@/shared/types'
 import { useLocale, useTranslations } from '@/components/LocaleProvider'
-import CatAvatar from '@/components/CatAvatar'
-import CatForm from '@/features/cats/CatForm'
+import PetAvatar from '@/components/PetAvatar'
+import PetForm from '@/features/pets/PetForm'
 import { URGENCY_TEXT_CLASS, type UrgencyKey } from '@/shared/utils/urgency'
 
-type ModalState = null | 'new' | Cat
+type ModalState = null | 'new' | Pet
 type SavedKind = 'created' | 'updated' | 'deleted'
 
 interface Props {
-  cats: Cat[]
-  latestChecksByCat?: Record<string, CatLatestCheck>
+  pets?: Pet[]
+  /** @deprecated Use pets */
+  cats?: Pet[]
+  latestChecksByPet?: Record<string, PetLatestCheck>
+  /** @deprecated Use latestChecksByPet */
+  latestChecksByCat?: Record<string, PetLatestCheck>
 }
 
 function AccentedCopy({ template, accent }: { template: string; accent: string }) {
@@ -28,11 +32,14 @@ function AccentedCopy({ template, accent }: { template: string; accent: string }
   )
 }
 
-/**
- * Interactive "Мои питомцы" section. Wraps the existing list and pops the cat
- * profile form as an in-place modal so the user never leaves the dashboard.
- */
-export default function MyPetsSection({ cats, latestChecksByCat = {} }: Props) {
+export default function MyPetsSection({
+  pets: petsProp,
+  cats,
+  latestChecksByPet: latestProp,
+  latestChecksByCat,
+}: Props) {
+  const pets = petsProp ?? cats ?? []
+  const latestChecksByPet = latestProp ?? latestChecksByCat ?? {}
   const dict = useTranslations()
   const t = dict.dashboard
   const locale = useLocale()
@@ -47,7 +54,6 @@ export default function MyPetsSection({ cats, latestChecksByCat = {} }: Props) {
     router.refresh()
   }
 
-  // Auto-dismiss the banner after a few seconds.
   useEffect(() => {
     if (!banner) return
     const id = window.setTimeout(() => setBanner(null), 4000)
@@ -68,15 +74,11 @@ export default function MyPetsSection({ cats, latestChecksByCat = {} }: Props) {
       <section className="app-card mb-6 p-6 sm:p-7">
         <div className="mb-5 flex items-center justify-between gap-3">
           <h2 className="text-xl font-extrabold text-text sm:text-2xl">{t.myCats}</h2>
-          <button
-            type="button"
-            onClick={() => setModal('new')}
-            className="app-link shrink-0"
-          >
+          <button type="button" onClick={() => setModal('new')} className="app-link shrink-0">
             {t.addCat}
           </button>
         </div>
-        {!cats.length ? (
+        {!pets.length ? (
           <div className="app-empty-state">
             <h3 className="text-base font-bold text-text">{t.catsEmptyTitle}</h3>
             <p className="mt-1.5 text-sm leading-relaxed text-text-muted">
@@ -85,8 +87,8 @@ export default function MyPetsSection({ cats, latestChecksByCat = {} }: Props) {
           </div>
         ) : (
           <ul className="grid gap-2">
-            {cats.map(cat => {
-              const latest = latestChecksByCat[cat.id]
+            {pets.map(pet => {
+              const latest = latestChecksByPet[pet.id]
               const urgencyKey = latest?.urgency as UrgencyKey | undefined
               const statusLabel = urgencyKey && dict.urgency[urgencyKey]?.label
                 ? dict.urgency[urgencyKey].label.charAt(0) + dict.urgency[urgencyKey].label.slice(1).toLowerCase()
@@ -97,21 +99,25 @@ export default function MyPetsSection({ cats, latestChecksByCat = {} }: Props) {
                     month: 'short',
                   })
                 : null
+              const speciesLabel = pet.species === 'dog' ? dict.pets.speciesDog : dict.pets.speciesCat
 
               return (
-                <li key={cat.id}>
+                <li key={pet.id}>
                   <button
                     type="button"
-                    onClick={() => setModal(cat)}
+                    onClick={() => setModal(pet)}
                     className="flex w-full items-center justify-between gap-3 rounded-2xl bg-canvas-soft/70 px-3.5 py-3.5 text-left transition-colors hover:bg-canvas-soft"
                   >
                     <div className="flex items-center gap-3.5 min-w-0">
-                      <CatAvatar size={48} />
+                      <PetAvatar size={48} species={pet.species ?? 'cat'} />
                       <div className="min-w-0">
-                        <div className="text-base font-bold text-text truncate">{cat.name}</div>
-                        {(cat.breed || cat.age_years) && (
+                        <div className="text-base font-bold text-text truncate">
+                          {pet.name}
+                          <span className="ml-2 text-xs font-semibold text-text-faint">{speciesLabel}</span>
+                        </div>
+                        {(pet.breed || pet.age_years) && (
                           <div className="text-sm text-text-faint truncate">
-                            {[cat.breed, cat.age_years ? `${cat.age_years} ${t.yearsOld}` : null].filter(Boolean).join(', ')}
+                            {[pet.breed, pet.age_years ? `${pet.age_years} ${t.yearsOld}` : null].filter(Boolean).join(', ')}
                           </div>
                         )}
                         <div className="mt-0.5 text-xs text-text-muted truncate">
@@ -138,8 +144,8 @@ export default function MyPetsSection({ cats, latestChecksByCat = {} }: Props) {
       </section>
 
       {modal && (
-        <CatLocalModal
-          cat={modal === 'new' ? undefined : modal}
+        <PetLocalModal
+          pet={modal === 'new' ? undefined : modal}
           onClose={() => setModal(null)}
           onSaved={handleSaved}
         />
@@ -148,12 +154,12 @@ export default function MyPetsSection({ cats, latestChecksByCat = {} }: Props) {
   )
 }
 
-function CatLocalModal({
-  cat,
+function PetLocalModal({
+  pet,
   onClose,
   onSaved,
 }: {
-  cat?: Cat
+  pet?: Pet
   onClose: () => void
   onSaved: (kind: SavedKind) => void
 }) {
@@ -189,7 +195,7 @@ function CatLocalModal({
         >
           ×
         </button>
-        <CatForm cat={cat} modal onSaved={onSaved} onCancel={onClose} />
+        <PetForm pet={pet} modal onSaved={onSaved} onCancel={onClose} />
       </div>
     </div>
   )

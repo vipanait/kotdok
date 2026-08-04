@@ -3,24 +3,27 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
-import type { Cat } from '@/shared/types'
+import type { Pet } from '@/shared/types'
 import { useTranslations } from '@/components/LocaleProvider'
 
 const CheckModal = dynamic(() => import('./CheckModal'), { ssr: false })
 
 interface Props {
-  cats: Pick<Cat, 'id' | 'name' | 'breed' | 'age_years' | 'sex'>[]
+  pets?: Pick<Pet, 'id' | 'name' | 'breed' | 'age_years' | 'sex' | 'species'>[]
+  /** @deprecated Use pets */
+  cats?: Pick<Pet, 'id' | 'name' | 'breed' | 'age_years' | 'sex' | 'species'>[]
 }
 
-export default function DashboardActions({ cats }: Props) {
+export default function DashboardActions({ pets: petsProp, cats }: Props) {
+  const pets = petsProp ?? cats ?? []
   const dict = useTranslations()
   const t = dict.dashboard
   const [open, setOpen] = useState(false)
 
-  if (!cats.length) {
+  if (!pets.length) {
     return (
       <div>
-        <Link href="/cats/new" className="app-button-primary w-full px-6 py-3 text-sm">
+        <Link href="/pets/new" className="app-button-primary w-full px-6 py-3 text-sm">
           {t.addCatBtn}
         </Link>
         <p className="mt-2 text-xs leading-relaxed text-text-faint">{t.addCatHint}</p>
@@ -37,7 +40,7 @@ export default function DashboardActions({ cats }: Props) {
       >
         {t.checkSymptomsBtn}
       </button>
-      {open && <CheckModal cats={cats} onClose={() => setOpen(false)} />}
+      {open && <CheckModal pets={pets} onClose={() => setOpen(false)} />}
     </>
   )
 }

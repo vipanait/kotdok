@@ -11,11 +11,14 @@ export interface SymptomCheckRecord {
   urgency: string
   urgency_reason: string
   possible_causes: unknown
-  cat_specific_warning: string | null
+  species_specific_warning?: string | null
+  /** @deprecated Use species_specific_warning */
+  cat_specific_warning?: string | null
   home_care_steps: unknown
   vet_questions: unknown
   full_response: Record<string, unknown> | null
   created_at: string
+  pet_species?: 'cat' | 'dog' | null
 }
 
 interface Props {
@@ -46,7 +49,17 @@ export default function CheckResultContent({ check, showBackLink = false }: Prop
   const possibleCauses: string[] = Array.isArray(check.possible_causes) ? check.possible_causes : []
   const homeCareSteps: string[] = Array.isArray(check.home_care_steps) ? check.home_care_steps : []
   const vetQuestions: string[] = Array.isArray(check.vet_questions) ? check.vet_questions : []
-  const additionalCatInfoNeeded: string[] = Array.isArray(full?.additional_cat_info_needed) ? full.additional_cat_info_needed as string[] : []
+  const speciesWarning = check.species_specific_warning ?? check.cat_specific_warning ?? null
+  const additionalPetInfoNeeded: string[] = Array.isArray(full?.additional_pet_info_needed)
+    ? full.additional_pet_info_needed as string[]
+    : Array.isArray(full?.additional_cat_info_needed)
+      ? full.additional_cat_info_needed as string[]
+      : []
+  const warningTitle = check.pet_species === 'dog'
+    ? t.dogWarning
+    : check.pet_species === 'cat'
+      ? t.catWarning
+      : t.petWarning
   const photoObservations = (full?.photo_observations as string | null) ?? null
   const hasPhoto = !!(full?.has_photo)
   const disclaimer = (full?.disclaimer as string | null) ?? 'Лапка — информационный инструмент. Не является ветеринарным диагнозом и не заменяет осмотр специалиста.'
@@ -87,8 +100,8 @@ export default function CheckResultContent({ check, showBackLink = false }: Prop
   const hasAnyDetails =
     !!check.symptoms_input ||
     possibleCauses.length > 0 ||
-    !!check.cat_specific_warning ||
-    additionalCatInfoNeeded.length > 0 ||
+    !!speciesWarning ||
+    additionalPetInfoNeeded.length > 0 ||
     (hasPhoto && !!photoObservations)
 
   const statusLabel = urgencyText?.label ? capitalize(urgencyText.label) : ''
@@ -168,10 +181,10 @@ export default function CheckResultContent({ check, showBackLink = false }: Prop
           </SectionCard>
         )}
 
-        {check.cat_specific_warning && !isHealthy && (
+        {speciesWarning && !isHealthy && (
           <SectionCard accent={isCritical ? 'urgent' : 'watch'}>
-            <h3 className="mb-1.5 text-base font-bold text-text">{t.catWarning}</h3>
-            <p className="text-sm leading-relaxed text-text-muted">{check.cat_specific_warning}</p>
+            <h3 className="mb-1.5 text-base font-bold text-text">{warningTitle}</h3>
+            <p className="text-sm leading-relaxed text-text-muted">{speciesWarning}</p>
           </SectionCard>
         )}
 
@@ -221,10 +234,10 @@ export default function CheckResultContent({ check, showBackLink = false }: Prop
                 </Section>
               )}
 
-              {additionalCatInfoNeeded.length > 0 && (
+              {additionalPetInfoNeeded.length > 0 && (
                 <Section title={t.additionalCatInfoNeeded}>
                   <ul className="space-y-2">
-                    {additionalCatInfoNeeded.map((item, i) => (
+                    {additionalPetInfoNeeded.map((item, i) => (
                       <li key={i} className="flex gap-3 text-sm text-text">
                         <span className="mt-1.5 block h-1.5 w-1.5 rounded-full bg-text-faint shrink-0" aria-hidden />
                         {item}

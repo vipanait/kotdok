@@ -22,7 +22,7 @@ export default async function ChecksPage() {
   const service = createServiceClient()
   const { data: checks } = await service
     .from('symptom_checks')
-    .select('id, symptoms_input, urgency, urgency_reason, possible_causes, cat_specific_warning, home_care_steps, vet_questions, full_response, created_at')
+    .select('id, symptoms_input, urgency, urgency_reason, possible_causes, species_specific_warning, home_care_steps, vet_questions, full_response, created_at')
     .eq('user_id', user.id)
     .is('deleted_at', null)
     .order('created_at', { ascending: false })

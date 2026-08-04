@@ -54,26 +54,26 @@ describe('handleSymptomCheckRequest', () => {
     expect(createServiceClient).not.toHaveBeenCalled()
   })
 
-  it('returns 404 when the requested cat does not belong to the user', async () => {
+  it('returns 404 when the requested pet does not belong to the user', async () => {
     vi.mocked(getAuthUser).mockResolvedValue(user)
     const profileQuery = singleResult({ data: { credits: 1, plan: 'credits' }, error: null })
-    const catQuery = singleResult({ data: null, error: null })
+    const petQuery = singleResult({ data: null, error: null })
     const from = vi.fn((table: string) => {
       if (table === 'profiles') return profileQuery
-      if (table === 'cats') return catQuery
+      if (table === 'pets') return petQuery
       throw new Error(`Unexpected table: ${table}`)
     })
     vi.mocked(createServiceClient).mockReturnValue({ from } as never)
 
     const response = await handleSymptomCheckRequest(jsonRequest({
       symptoms: 'sneezing a lot',
-      cat_id: 'cat-from-another-user',
+      pet_id: 'pet-from-another-user',
     }) as never)
 
     expect(response.status).toBe(404)
-    await expect(response.json()).resolves.toEqual({ error: 'Cat not found / Кот не найден.' })
-    expect(catQuery.eq).toHaveBeenCalledWith('id', 'cat-from-another-user')
-    expect(catQuery.eq).toHaveBeenCalledWith('user_id', user.id)
-    expect(catQuery.is).toHaveBeenCalledWith('deleted_at', null)
+    await expect(response.json()).resolves.toEqual({ error: 'Pet not found / Питомец не найден.' })
+    expect(petQuery.eq).toHaveBeenCalledWith('id', 'pet-from-another-user')
+    expect(petQuery.eq).toHaveBeenCalledWith('user_id', user.id)
+    expect(petQuery.is).toHaveBeenCalledWith('deleted_at', null)
   })
 })

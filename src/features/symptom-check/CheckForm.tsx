@@ -4,26 +4,29 @@ import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import type { SymptomCheckResult, Cat } from '@/shared/types'
+import type { SymptomCheckResult, Pet } from '@/shared/types'
 import { useTranslations } from '@/components/LocaleProvider'
 import AppShell from '@/components/AppShell'
-import CatAvatar from '@/components/CatAvatar'
+import PetAvatar from '@/components/PetAvatar'
 import CheckResultContent, { type SymptomCheckRecord } from '@/features/symptom-check/CheckResultContent'
 import { csrfHeaders } from '@/shared/security/csrf-client'
 
 interface Props {
-  cats: Pick<Cat, 'id' | 'name' | 'breed' | 'age_years' | 'sex'>[]
+  pets?: Pick<Pet, 'id' | 'name' | 'breed' | 'age_years' | 'sex' | 'species'>[]
+  /** @deprecated Use pets */
+  cats?: Pick<Pet, 'id' | 'name' | 'breed' | 'age_years' | 'sex' | 'species'>[]
   onClose?: () => void
 }
 
-export default function CheckForm({ cats, onClose }: Props) {
+export default function CheckForm({ pets: petsProp, cats, onClose }: Props) {
+  const pets = petsProp ?? cats ?? []
   const router = useRouter()
   const dict = useTranslations()
   const t = dict.check
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const [selectedCatId, setSelectedCatId] = useState<string>(cats[0]?.id ?? '')
-  const [showCatPicker, setShowCatPicker] = useState(false)
+  const [selectedPetId, setSelectedPetId] = useState<string>(pets[0]?.id ?? '')
+  const [showPetPicker, setShowPetPicker] = useState(false)
   const [appetite, setAppetite] = useState<string>('')
   const [activity, setActivity] = useState<string>('')
   const [duration, setDuration] = useState<string>('')
@@ -98,7 +101,7 @@ export default function CheckForm({ cats, onClose }: Props) {
       const formData = new FormData()
       formData.append('symptoms', symptoms)
       photos.forEach(p => formData.append('photo', p))
-      if (selectedCatId) formData.append('cat_id', selectedCatId)
+      if (selectedPetId) formData.append('pet_id', selectedPetId)
       if (appetite) formData.append('appetite', appetite)
       if (activity) formData.append('activity', activity)
       if (duration) formData.append('duration', duration)
@@ -109,7 +112,7 @@ export default function CheckForm({ cats, onClose }: Props) {
       res = await fetch('/api/symptom-check', {
         method: 'POST',
         headers: csrfHeaders({ 'Content-Type': 'application/json' }),
-        body: JSON.stringify({ symptoms, cat_id: selectedCatId || undefined, ...extra }),
+        body: JSON.stringify({ symptoms, pet_id: selectedPetId || undefined, ...extra }),
       })
     }
 
@@ -128,7 +131,7 @@ export default function CheckForm({ cats, onClose }: Props) {
     router.refresh()
   }
 
-  const selectedCat = cats.find(c => c.id === selectedCatId)
+  const selectedPet = pets.find(c => c.id === selectedPetId)
   const symptomsTooShort = symptoms.trim().length < 3
 
   const appetiteOptions = [
@@ -168,16 +171,16 @@ export default function CheckForm({ cats, onClose }: Props) {
   const formContent = (
     <form onSubmit={handleSubmit} className="space-y-5">
       {/* Selected pet card */}
-      {selectedCat && (
+      {selectedPet && (
         <div className="flex items-center gap-3 rounded-2xl border border-hairline bg-card px-4 py-3">
-          <CatAvatar size={40} bg="#FFF8ED" />
+          <PetAvatar size={40} bg="#FFF8ED" species={selectedPet.species ?? 'cat'} />
           <div className="min-w-0 flex-1 text-base font-semibold text-text truncate">
-            {selectedCat.name}
+            {selectedPet.name}
           </div>
-          {cats.length > 1 && (
+          {pets.length > 1 && (
             <button
               type="button"
-              onClick={() => setShowCatPicker(v => !v)}
+              onClick={() => setShowPetPicker(v => !v)}
               className="app-button-secondary px-4 py-1.5 text-xs"
             >
               {dict.check.changeCat}
@@ -186,15 +189,15 @@ export default function CheckForm({ cats, onClose }: Props) {
         </div>
       )}
 
-      {showCatPicker && cats.length > 1 && (
+      {showPetPicker && pets.length > 1 && (
         <div className="rounded-2xl border border-hairline bg-card p-2 grid gap-1">
-          {cats.map(c => (
+          {pets.map(c => (
             <button
               key={c.id}
               type="button"
-              onClick={() => { setSelectedCatId(c.id); setShowCatPicker(false) }}
+              onClick={() => { setSelectedPetId(c.id); setShowPetPicker(false) }}
               className={`text-left rounded-xl px-3 py-2 text-sm transition-colors ${
-                c.id === selectedCatId ? 'bg-canvas-soft font-semibold text-text' : 'text-text-muted hover:bg-canvas-soft/60'
+                c.id === selectedPetId ? 'bg-canvas-soft font-semibold text-text' : 'text-text-muted hover:bg-canvas-soft/60'
               }`}
             >
               {c.name}
@@ -300,7 +303,8 @@ export default function CheckForm({ cats, onClose }: Props) {
     urgency: result.urgency,
     urgency_reason: result.urgency_reason,
     possible_causes: result.possible_causes,
-    cat_specific_warning: result.cat_specific_warning ?? null,
+    cat_specific_warning: result.species_specific_warning ?? null,
+    species_specific_warning: result.species_specific_warning ?? null,
     home_care_steps: result.home_care_steps,
     vet_questions: result.vet_questions,
     full_response: {
@@ -310,7 +314,8 @@ export default function CheckForm({ cats, onClose }: Props) {
       stool: result.stool ?? null,
       pain_signs: result.pain_signs ?? [],
       photo_observations: result.photo_observations ?? null,
-      additional_cat_info_needed: result.additional_cat_info_needed,
+      additional_cat_info_needed: result.additional_pet_info_needed,
+      additional_pet_info_needed: result.additional_pet_info_needed,
       has_photo: result.has_photo,
       disclaimer: result.disclaimer,
     },

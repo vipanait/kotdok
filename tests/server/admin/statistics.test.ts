@@ -52,9 +52,13 @@ describe('admin statistics service', () => {
         },
       ],
       symptomChecks: [
-        { user_id: 'user-1', created_at: '2026-05-02T10:00:00.000Z' },
-        { user_id: 'user-1', created_at: '2026-05-02T11:00:00.000Z' },
-        { user_id: 'user-2', created_at: '2026-04-19T10:00:00.000Z' },
+        { user_id: 'user-1', created_at: '2026-05-02T10:00:00.000Z', pet_id: 'pet-cat' },
+        { user_id: 'user-1', created_at: '2026-05-02T11:00:00.000Z', pet_id: 'pet-dog' },
+        { user_id: 'user-2', created_at: '2026-04-19T10:00:00.000Z', pet_id: 'pet-cat' },
+      ],
+      pets: [
+        { id: 'pet-cat', species: 'cat' },
+        { id: 'pet-dog', species: 'dog' },
       ],
       events: [
         { id: 'event-1', created_at: '2026-05-02T08:00:00.000Z' },
@@ -70,21 +74,27 @@ describe('admin statistics service', () => {
         payingUsers: 1,
         symptomCheckUsers: 2,
         symptomChecks: 3,
+        symptomChecksCat: 2,
+        symptomChecksDog: 1,
+        petsTotal: 2,
+        petsCat: 1,
+        petsDog: 1,
         totalRevenue: 178000,
       },
       daily: [
-        { date: '2026-04-26', registrations: 0, payments: 0, paymentAmount: 0, symptomChecks: 0 },
-        { date: '2026-04-27', registrations: 0, payments: 0, paymentAmount: 0, symptomChecks: 0 },
-        { date: '2026-04-28', registrations: 0, payments: 0, paymentAmount: 0, symptomChecks: 0 },
-        { date: '2026-04-29', registrations: 0, payments: 0, paymentAmount: 0, symptomChecks: 0 },
-        { date: '2026-04-30', registrations: 0, payments: 0, paymentAmount: 0, symptomChecks: 0 },
-        { date: '2026-05-01', registrations: 1, payments: 0, paymentAmount: 0, symptomChecks: 0 },
-        { date: '2026-05-02', registrations: 0, payments: 1, paymentAmount: 49000, symptomChecks: 2 },
+        { date: '2026-04-26', registrations: 0, payments: 0, paymentAmount: 0, symptomChecks: 0, symptomChecksCat: 0, symptomChecksDog: 0 },
+        { date: '2026-04-27', registrations: 0, payments: 0, paymentAmount: 0, symptomChecks: 0, symptomChecksCat: 0, symptomChecksDog: 0 },
+        { date: '2026-04-28', registrations: 0, payments: 0, paymentAmount: 0, symptomChecks: 0, symptomChecksCat: 0, symptomChecksDog: 0 },
+        { date: '2026-04-29', registrations: 0, payments: 0, paymentAmount: 0, symptomChecks: 0, symptomChecksCat: 0, symptomChecksDog: 0 },
+        { date: '2026-04-30', registrations: 0, payments: 0, paymentAmount: 0, symptomChecks: 0, symptomChecksCat: 0, symptomChecksDog: 0 },
+        { date: '2026-05-01', registrations: 1, payments: 0, paymentAmount: 0, symptomChecks: 0, symptomChecksCat: 0, symptomChecksDog: 0 },
+        { date: '2026-05-02', registrations: 0, payments: 1, paymentAmount: 49000, symptomChecks: 2, symptomChecksCat: 1, symptomChecksDog: 1 },
       ],
     })
     expect(service.from).toHaveBeenCalledWith('profiles')
     expect(service.from).toHaveBeenCalledWith('transactions')
     expect(service.from).toHaveBeenCalledWith('symptom_checks')
+    expect(service.from).toHaveBeenCalledWith('pets')
     expect(service.from).toHaveBeenCalledWith('transaction_status_events')
   })
 
@@ -102,12 +112,14 @@ function createStatisticsServiceMock({
   profiles = [],
   transactions = [],
   symptomChecks = [],
+  pets = [],
   events = [],
   profilesError = null,
 }: {
   profiles?: unknown[]
   transactions?: unknown[]
   symptomChecks?: unknown[]
+  pets?: unknown[]
   events?: unknown[]
   profilesError?: { message: string } | null
 }) {
@@ -129,6 +141,13 @@ function createStatisticsServiceMock({
         return {
           select: vi.fn().mockReturnValue({
             is: vi.fn().mockResolvedValue({ data: symptomChecks, error: null }),
+          }),
+        }
+      }
+      if (table === 'pets') {
+        return {
+          select: vi.fn().mockReturnValue({
+            is: vi.fn().mockResolvedValue({ data: pets, error: null }),
           }),
         }
       }

@@ -12,18 +12,20 @@ import type { DashboardData } from '@/server/dashboard/load-dashboard'
 interface Props {
   data: DashboardData
   catSavedParam?: string
+  petSavedParam?: string
 }
 
 /**
  * Visual content of the dashboard. Used both by `/dashboard` and as a backdrop
- * behind cat-modal routes (`/cats/new`, `/cats/[id]/edit`).
+ * behind pet-modal routes (`/pets/new`, `/pets/[id]/edit`).
  */
-export default async function DashboardContent({ data, catSavedParam }: Props) {
+export default async function DashboardContent({ data, catSavedParam, petSavedParam }: Props) {
   const locale = await getLocale()
   const dict = await getDictionary(locale)
   const t = dict.dashboard
 
-  const { credits, role, cats, checks, totalChecks, latestRequestStatus, latestChecksByCat } = data
+  const { credits, role, pets, checks, totalChecks, latestRequestStatus, latestChecksByPet } = data
+  const savedParam = petSavedParam ?? catSavedParam
   const hasMoreChecks = totalChecks > checks.length
   const showRequestPanel = credits === 0 || latestRequestStatus === 'pending'
 
@@ -31,14 +33,14 @@ export default async function DashboardContent({ data, catSavedParam }: Props) {
     <AppShell right={<SignOutForm label={t.signOut} />}>
       <h1 className="sr-only">{t.title}</h1>
 
-      {catSavedParam && (
+      {savedParam && (
         <div className="mb-6 rounded-2xl border border-status-good-fg/10 bg-status-good-bg px-4 py-3 text-sm font-semibold text-status-good-fg shadow-sm">
-          {catSavedParam === 'created' ? t.catAdded : catSavedParam === 'deleted' ? t.catDeleted : t.catSaved}
+          {savedParam === 'created' ? t.catAdded : savedParam === 'deleted' ? t.catDeleted : t.catSaved}
         </div>
       )}
 
       {/* My pets — interactive section with in-place add/edit modal */}
-      <MyPetsSection cats={cats} latestChecksByCat={latestChecksByCat} />
+      <MyPetsSection pets={pets} latestChecksByPet={latestChecksByPet} />
 
       {/* Checks */}
       <section className="app-card mb-6 p-6 sm:p-7">
@@ -53,7 +55,7 @@ export default async function DashboardContent({ data, catSavedParam }: Props) {
             latestRequestStatus={latestRequestStatus}
           />
         ) : (
-          <DashboardActions cats={cats} />
+          <DashboardActions pets={pets} />
         )}
 
         <div className="mt-5">

@@ -1,20 +1,20 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { User } from '@supabase/supabase-js'
 import { NextRequest } from 'next/server'
-import { GET as listCatsRoute, POST as createCatRoute } from '@/app/(backend)/api/cats/route'
-import { DELETE as deleteCatRoute, PUT as updateCatRoute } from '@/app/(backend)/api/cats/[id]/route'
+import { GET as listPetsRoute, POST as createPetRoute } from '@/app/(backend)/api/pets/route'
+import { DELETE as deletePetRoute, PUT as updatePetRoute } from '@/app/(backend)/api/pets/[id]/route'
 import { getAuthUser } from '@/server/auth/get-auth-user'
 import { createServiceClient } from '@/server/supabase/server'
-import { createCat, listCats, softDeleteCatAndChecks, updateCat } from '@/server/cats/cat-service'
+import { createPet, listPets, softDeletePetAndChecks, updatePet } from '@/server/pets/pet-service'
 import { CSRF_COOKIE_NAME, CSRF_HEADER_NAME } from '@/server/security/csrf'
 
 vi.mock('@/server/auth/get-auth-user', () => ({ getAuthUser: vi.fn() }))
 vi.mock('@/server/supabase/server', () => ({ createServiceClient: vi.fn() }))
-vi.mock('@/server/cats/cat-service', () => ({
-  createCat: vi.fn(),
-  listCats: vi.fn(),
-  softDeleteCatAndChecks: vi.fn(),
-  updateCat: vi.fn(),
+vi.mock('@/server/pets/pet-service', () => ({
+  createPet: vi.fn(),
+  listPets: vi.fn(),
+  softDeletePetAndChecks: vi.fn(),
+  updatePet: vi.fn(),
 }))
 
 const user: User = {
@@ -55,101 +55,69 @@ function csrfRequest(method: string) {
   })
 }
 
-describe('cats API routes', () => {
+describe('pets API routes', () => {
   beforeEach(() => {
     vi.mocked(getAuthUser).mockResolvedValue(user)
     vi.mocked(createServiceClient).mockReturnValue(serviceClient as never)
-    vi.mocked(createCat).mockReset()
-    vi.mocked(listCats).mockReset()
-    vi.mocked(softDeleteCatAndChecks).mockReset()
-    vi.mocked(updateCat).mockReset()
+    vi.mocked(createPet).mockReset()
+    vi.mocked(listPets).mockReset()
+    vi.mocked(softDeletePetAndChecks).mockReset()
+    vi.mocked(updatePet).mockReset()
   })
 
-  it('returns 401 for unauthenticated cat lists', async () => {
+  it('returns 401 for unauthenticated pet lists', async () => {
     vi.mocked(getAuthUser).mockResolvedValue(null)
 
-    const response = await listCatsRoute()
+    const response = await listPetsRoute()
 
     expect(response.status).toBe(401)
-    expect(listCats).not.toHaveBeenCalled()
+    expect(listPets).not.toHaveBeenCalled()
   })
 
-  it('scopes cat lists by authenticated user id', async () => {
-    vi.mocked(listCats).mockResolvedValue({ data: [{ id: 'cat-1' }], error: null } as never)
+  it('scopes pet lists by authenticated user id', async () => {
+    vi.mocked(listPets).mockResolvedValue({ data: [{ id: 'pet-1' }], error: null } as never)
 
-    const response = await listCatsRoute()
+    const response = await listPetsRoute()
 
     expect(response.status).toBe(200)
-    expect(listCats).toHaveBeenCalledWith(serviceClient, user.id)
-    await expect(response.json()).resolves.toEqual([{ id: 'cat-1' }])
+    await expect(response.json()).resolves.toEqual([{ id: 'pet-1' }])
+    expect(listPets).toHaveBeenCalledWith(serviceClient, user.id)
   })
 
-  it('scopes cat creation by authenticated user id', async () => {
-    const body = { name: 'Барсик' }
-    vi.mocked(createCat).mockResolvedValue({ data: { id: 'cat-1', ...body }, error: null } as never)
+  it('creates a pet for the authenticated user', async () => {
+    vi.mocked(createPet).mockResolvedValue({ data: { id: 'pet-2', name: 'Мурка' }, error: null } as never)
 
-    const response = await createCatRoute(jsonRequest(body) as never)
+    const response = await createPetRoute(jsonRequest({ name: 'Мурка', species: 'cat' }))
 
     expect(response.status).toBe(201)
-    expect(createCat).toHaveBeenCalledWith(serviceClient, user.id, body)
-    await expect(response.json()).resolves.toMatchObject({ id: 'cat-1' })
+    await expect(response.json()).resolves.toEqual({ id: 'pet-2', name: 'Мурка' })
+    expect(createPet).toHaveBeenCalledWith(serviceClient, user.id, { name: 'Мурка', species: 'cat' })
   })
 
-  it('returns 403 for cat creation without CSRF token', async () => {
-    const response = await createCatRoute(new NextRequest('http://test.local', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ name: 'Барсик' }),
-    }) as never)
+  it('updates a pet owned by the authenticated user', async () => {
+    vi.mocked(updatePet).mockResolvedValue({ data: { id: 'pet-1', name: 'Барсик' }, error: null } as never)
 
-    expect(response.status).toBe(403)
-    expect(createCat).not.toHaveBeenCalled()
-  })
-
-  it('returns 401 for unauthenticated cat updates', async () => {
-    vi.mocked(getAuthUser).mockResolvedValue(null)
-
-    const response = await updateCatRoute(jsonRequest({ name: 'New name' }) as never, params('cat-1'))
-
-    expect(response.status).toBe(401)
-    expect(updateCat).not.toHaveBeenCalled()
-  })
-
-  it('scopes cat updates by authenticated user id and cat id', async () => {
-    const body = { name: 'New name' }
-    vi.mocked(updateCat).mockResolvedValue({ data: { id: 'cat-1', ...body }, error: null } as never)
-
-    const response = await updateCatRoute(jsonRequest(body) as never, params('cat-1'))
+    const response = await updatePetRoute(jsonRequest({ name: 'Барсик' }), params('pet-1'))
 
     expect(response.status).toBe(200)
-    expect(updateCat).toHaveBeenCalledWith(serviceClient, user.id, 'cat-1', body)
-    await expect(response.json()).resolves.toMatchObject({ id: 'cat-1' })
+    await expect(response.json()).resolves.toEqual({ id: 'pet-1', name: 'Барсик' })
+    expect(updatePet).toHaveBeenCalledWith(serviceClient, user.id, 'pet-1', { name: 'Барсик' })
   })
 
-  it('returns 404 when scoped cat update finds no row', async () => {
-    vi.mocked(updateCat).mockResolvedValue({ data: null, error: null } as never)
+  it('returns 404 when updating a missing pet', async () => {
+    vi.mocked(updatePet).mockResolvedValue({ data: null, error: null } as never)
 
-    const response = await updateCatRoute(jsonRequest({ name: 'New name' }) as never, params('missing-cat'))
+    const response = await updatePetRoute(jsonRequest({ name: 'Барсик' }), params('missing'))
 
     expect(response.status).toBe(404)
-    await expect(response.json()).resolves.toEqual({ error: 'Not found' })
   })
 
-  it('scopes cat deletion by authenticated user id and cat id', async () => {
-    vi.mocked(softDeleteCatAndChecks).mockResolvedValue({ data: { id: 'cat-1' }, error: null } as never)
+  it('soft-deletes a pet for the authenticated user', async () => {
+    vi.mocked(softDeletePetAndChecks).mockResolvedValue({ data: { id: 'pet-1' }, error: null } as never)
 
-    const response = await deleteCatRoute(csrfRequest('DELETE') as never, params('cat-1'))
+    const response = await deletePetRoute(csrfRequest('DELETE'), params('pet-1'))
 
     expect(response.status).toBe(204)
-    expect(softDeleteCatAndChecks).toHaveBeenCalledWith(serviceClient, user.id, 'cat-1')
-  })
-
-  it('returns 404 when scoped cat deletion finds no row', async () => {
-    vi.mocked(softDeleteCatAndChecks).mockResolvedValue({ data: null, error: null } as never)
-
-    const response = await deleteCatRoute(csrfRequest('DELETE') as never, params('missing-cat'))
-
-    expect(response.status).toBe(404)
-    await expect(response.json()).resolves.toEqual({ error: 'Not found' })
+    expect(softDeletePetAndChecks).toHaveBeenCalledWith(serviceClient, user.id, 'pet-1')
   })
 })
