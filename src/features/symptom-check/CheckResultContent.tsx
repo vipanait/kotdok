@@ -297,7 +297,15 @@ function DetailsAccordion({
           aria-hidden
           className={`inline-flex h-6 w-6 items-center justify-center rounded-full bg-canvas-soft text-text-muted transition-transform ${open ? 'rotate-180' : ''}`}
         >
-          ⌄
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="block">
+            <path
+              d="M2.5 4.25L6 7.75L9.5 4.25"
+              stroke="currentColor"
+              strokeWidth="1.75"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
         </span>
       </button>
       {open && (
