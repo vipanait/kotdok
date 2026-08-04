@@ -18,6 +18,8 @@ export interface SymptomCheckRecord {
   vet_questions: unknown
   full_response: Record<string, unknown> | null
   created_at: string
+  pet_id?: string | null
+  pet_name?: string | null
   pet_species?: 'cat' | 'dog' | null
 }
 

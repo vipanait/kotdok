@@ -2,6 +2,8 @@ import { createClient, createServiceClient } from '@/server/supabase/server'
 import { redirect } from 'next/navigation'
 import type { User } from '@supabase/supabase-js'
 import type { Pet, PetLatestCheck } from '@/shared/types'
+import type { SymptomCheckRecord } from '@/features/symptom-check/CheckResultContent'
+import { mapSymptomCheckRow, symptomCheckSelect } from '@/server/symptom-check/map-symptom-check'
 
 export type { PetLatestCheck }
 
@@ -10,18 +12,7 @@ export interface DashboardData {
   credits: number
   role: 'admin' | string | null
   pets: Pet[]
-  checks: Array<{
-    id: string
-    symptoms_input: string
-    urgency: string
-    urgency_reason: string
-    possible_causes: unknown
-    species_specific_warning: string | null
-    home_care_steps: unknown
-    vet_questions: unknown
-    full_response: Record<string, unknown> | null
-    created_at: string
-  }>
+  checks: SymptomCheckRecord[]
   totalChecks: number
   latestRequestStatus: 'pending' | 'approved' | 'rejected' | null
   latestChecksByPet: Record<string, PetLatestCheck>
@@ -55,10 +46,7 @@ export async function loadDashboard(loginRedirectPath = '/login'): Promise<Dashb
       service.from('profiles').select('credits, plan, role').eq('id', user.id).single(),
       service
         .from('symptom_checks')
-        .select(
-          'id, symptoms_input, urgency, urgency_reason, possible_causes, species_specific_warning, home_care_steps, vet_questions, full_response, created_at',
-          { count: 'exact' },
-        )
+        .select(symptomCheckSelect(), { count: 'exact' })
         .eq('user_id', user.id)
         .is('deleted_at', null)
         .order('created_at', { ascending: false })
@@ -101,7 +89,7 @@ export async function loadDashboard(loginRedirectPath = '/login'): Promise<Dashb
     credits: profile?.credits ?? 0,
     role: (profile?.role as string | null) ?? null,
     pets: (pets ?? []) as DashboardData['pets'],
-    checks: (checks ?? []) as DashboardData['checks'],
+    checks: (checks ?? []).map(row => mapSymptomCheckRow(row as never)),
     totalChecks: totalChecks ?? 0,
     latestRequestStatus: (latestRequest?.status ?? null) as DashboardData['latestRequestStatus'],
     latestChecksByPet,
