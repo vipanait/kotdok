@@ -95,8 +95,8 @@ export default function CheckResultContent({ check, showBackLink = false }: Prop
 
   return (
     <div className="-mx-6 sm:-mx-8 -mt-6 sm:-mt-8">
-      {/* Status plate — inset callout so the modal reads as one surface */}
-      <div className="px-6 sm:px-8 pt-6">
+      {/* Status plate — leave top-right gutter clear for the modal close button */}
+      <div className="pl-6 pr-14 pt-6 sm:pl-8 sm:pr-16">
         <div className={`rounded-2xl ${URGENCY_BG_CLASS[urgencyKey] ?? 'bg-status-good-bg'} px-5 py-5 sm:px-6`}>
           <div className="text-[11px] font-semibold tracking-wide text-text-muted">{dateStr}</div>
 
