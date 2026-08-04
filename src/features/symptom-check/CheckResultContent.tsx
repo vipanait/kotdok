@@ -235,7 +235,7 @@ export default function CheckResultContent({ check, showBackLink = false }: Prop
               )}
 
               {additionalPetInfoNeeded.length > 0 && (
-                <Section title={t.additionalCatInfoNeeded}>
+                <Section title={t.additionalPetInfoNeeded}>
                   <ul className="space-y-2">
                     {additionalPetInfoNeeded.map((item, i) => (
                       <li key={i} className="flex gap-3 text-sm text-text">

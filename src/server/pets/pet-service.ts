@@ -73,12 +73,3 @@ export async function softDeletePetAndChecks(
 
   return deletedPet
 }
-
-/** @deprecated Use listPets */
-export const listCats = listPets
-/** @deprecated Use createPet */
-export const createCat = createPet
-/** @deprecated Use updatePet */
-export const updateCat = updatePet
-/** @deprecated Use softDeletePetAndChecks */
-export const softDeleteCatAndChecks = softDeletePetAndChecks

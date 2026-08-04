@@ -15,8 +15,6 @@ type SavedKind = 'created' | 'updated' | 'deleted'
 
 interface Props {
   pet?: Pet
-  /** @deprecated Use pet */
-  cat?: Pet
   modal?: boolean
   onSaved?: (kind: SavedKind) => void
   onDirtyChange?: (dirty: boolean) => void
@@ -50,8 +48,7 @@ function parseDecimal(value: string): number | null {
   return Number.isFinite(n) ? n : null
 }
 
-export default function PetForm({ pet: petProp, cat, modal = false, onSaved, onDirtyChange, onCancel }: Props) {
-  const pet = petProp ?? cat
+export default function PetForm({ pet, modal = false, onSaved, onDirtyChange, onCancel }: Props) {
   const router = useRouter()
   const dict = useTranslations()
   const t = dict.pets

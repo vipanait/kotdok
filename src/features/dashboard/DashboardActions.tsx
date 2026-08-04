@@ -9,13 +9,10 @@ import { useTranslations } from '@/components/LocaleProvider'
 const CheckModal = dynamic(() => import('./CheckModal'), { ssr: false })
 
 interface Props {
-  pets?: Pick<Pet, 'id' | 'name' | 'breed' | 'age_years' | 'sex' | 'species'>[]
-  /** @deprecated Use pets */
-  cats?: Pick<Pet, 'id' | 'name' | 'breed' | 'age_years' | 'sex' | 'species'>[]
+  pets: Pick<Pet, 'id' | 'name' | 'breed' | 'age_years' | 'sex' | 'species'>[]
 }
 
-export default function DashboardActions({ pets: petsProp, cats }: Props) {
-  const pets = petsProp ?? cats ?? []
+export default function DashboardActions({ pets }: Props) {
   const dict = useTranslations()
   const t = dict.dashboard
   const [open, setOpen] = useState(false)
@@ -24,9 +21,9 @@ export default function DashboardActions({ pets: petsProp, cats }: Props) {
     return (
       <div>
         <Link href="/pets/new" className="app-button-primary w-full px-6 py-3 text-sm">
-          {t.addCatBtn}
+          {t.addPetBtn}
         </Link>
-        <p className="mt-2 text-xs leading-relaxed text-text-faint">{t.addCatHint}</p>
+        <p className="mt-2 text-xs leading-relaxed text-text-faint">{t.addPetHint}</p>
       </div>
     )
   }

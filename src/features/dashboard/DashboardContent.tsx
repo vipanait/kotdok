@@ -11,7 +11,6 @@ import type { DashboardData } from '@/server/dashboard/load-dashboard'
 
 interface Props {
   data: DashboardData
-  catSavedParam?: string
   petSavedParam?: string
 }
 
@@ -19,13 +18,12 @@ interface Props {
  * Visual content of the dashboard. Used both by `/dashboard` and as a backdrop
  * behind pet-modal routes (`/pets/new`, `/pets/[id]/edit`).
  */
-export default async function DashboardContent({ data, catSavedParam, petSavedParam }: Props) {
+export default async function DashboardContent({ data, petSavedParam }: Props) {
   const locale = await getLocale()
   const dict = await getDictionary(locale)
   const t = dict.dashboard
 
   const { credits, role, pets, checks, totalChecks, latestRequestStatus, latestChecksByPet } = data
-  const savedParam = petSavedParam ?? catSavedParam
   const hasMoreChecks = totalChecks > checks.length
   const showRequestPanel = credits === 0 || latestRequestStatus === 'pending'
 
@@ -33,16 +31,14 @@ export default async function DashboardContent({ data, catSavedParam, petSavedPa
     <AppShell right={<SignOutForm label={t.signOut} />}>
       <h1 className="sr-only">{t.title}</h1>
 
-      {savedParam && (
+      {petSavedParam && (
         <div className="mb-6 rounded-2xl border border-status-good-fg/10 bg-status-good-bg px-4 py-3 text-sm font-semibold text-status-good-fg shadow-sm">
-          {savedParam === 'created' ? t.catAdded : savedParam === 'deleted' ? t.catDeleted : t.catSaved}
+          {petSavedParam === 'created' ? t.petAdded : petSavedParam === 'deleted' ? t.petDeleted : t.petSaved}
         </div>
       )}
 
-      {/* My pets — interactive section with in-place add/edit modal */}
       <MyPetsSection pets={pets} latestChecksByPet={latestChecksByPet} />
 
-      {/* Checks */}
       <section className="app-card mb-6 p-6 sm:p-7">
         <div className="mb-5 flex items-center justify-between gap-3">
           <h2 className="text-xl font-extrabold text-text sm:text-2xl">{t.checkHistory}</h2>
