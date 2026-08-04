@@ -32,13 +32,13 @@ export default function DashboardHistory({ checks, emptyActionHref, emptyActionL
 
   if (!checks.length) {
     return (
-      <div className="app-empty-state mt-2">
+      <div className="app-empty-state py-6 text-center">
         <h3 className="text-base font-bold text-text">{t.checksEmptyTitle}</h3>
-        <p className="mt-1 text-sm leading-relaxed text-text-muted">
+        <p className="mt-2 text-sm leading-relaxed text-text-muted">
           <AccentedCopy template={t.noChecks} accent={t.noChecksAccent} />
         </p>
         {emptyActionHref && emptyActionLabel && (
-          <Link href={emptyActionHref} className="app-button-secondary app-button-sm mt-4">
+          <Link href={emptyActionHref} className="app-button-secondary app-button-sm mt-5">
             {emptyActionLabel}
           </Link>
         )}
@@ -60,7 +60,7 @@ export default function DashboardHistory({ checks, emptyActionHref, emptyActionL
               <button
                 type="button"
                 onClick={() => setSelectedCheck(check)}
-                className="app-focus-ring group flex w-full cursor-pointer items-center gap-3 py-2.5 text-left transition-colors hover:bg-canvas-soft/40 -mx-2 px-2 rounded-xl"
+                className="app-focus-ring group flex w-full cursor-pointer items-center gap-3 py-3.5 text-left transition-colors hover:bg-canvas-soft/40 -mx-2 px-2 rounded-xl"
                 aria-label={`${t.openCheck}: ${check.symptoms_input}`}
               >
                 <div className="min-w-0 flex-1">

@@ -26,7 +26,6 @@ export default async function DashboardContent({ data, catSavedParam }: Props) {
   const { user, credits, role, cats, checks, totalChecks, latestRequestStatus, latestChecksByCat } = data
   const hasMoreChecks = totalChecks > checks.length
   const showRequestPanel = credits === 0 || latestRequestStatus === 'pending'
-  const compactChecks = checks.length <= 1
 
   return (
     <AppShell
@@ -42,7 +41,7 @@ export default async function DashboardContent({ data, catSavedParam }: Props) {
       <h1 className="sr-only">{t.title}</h1>
 
       {catSavedParam && (
-        <div className="mb-5 rounded-2xl border border-status-good-fg/10 bg-status-good-bg px-4 py-3 text-sm font-semibold text-status-good-fg shadow-sm">
+        <div className="mb-6 rounded-2xl border border-status-good-fg/10 bg-status-good-bg px-4 py-3 text-sm font-semibold text-status-good-fg shadow-sm">
           {catSavedParam === 'created' ? t.catAdded : catSavedParam === 'deleted' ? t.catDeleted : t.catSaved}
         </div>
       )}
@@ -51,8 +50,8 @@ export default async function DashboardContent({ data, catSavedParam }: Props) {
       <MyPetsSection cats={cats} latestChecksByCat={latestChecksByCat} />
 
       {/* Checks */}
-      <section className={`app-card mb-5 ${compactChecks ? 'p-4 sm:p-5' : 'p-5 sm:p-6'}`}>
-        <div className="mb-4 flex items-center justify-between gap-3">
+      <section className="app-card mb-6 p-6 sm:p-7">
+        <div className="mb-5 flex items-center justify-between gap-3">
           <h2 className="text-xl font-extrabold text-text sm:text-2xl">{t.checkHistory}</h2>
           <span className="text-sm text-text-muted">{t.availableShort.replace('{n}', String(credits))}</span>
         </div>
@@ -66,26 +65,26 @@ export default async function DashboardContent({ data, catSavedParam }: Props) {
           <DashboardActions cats={cats} />
         )}
 
-        <div className="mt-4">
+        <div className="mt-5">
           <DashboardHistory checks={checks} />
         </div>
 
         {hasMoreChecks && (
-          <div className="mt-3 border-t border-hairline/70 pt-3 text-center">
+          <div className="mt-4 border-t border-hairline/70 pt-4 text-center">
             <Link href="/checks" className="app-link">{t.showAll}</Link>
           </div>
         )}
       </section>
 
       {role === 'admin' && (
-        <section className="mb-5 flex justify-center">
+        <section className="mb-6 flex justify-center">
           <Link href="/admin/statistics" className="app-button-secondary app-button-sm">
             {t.statistics}
           </Link>
         </section>
       )}
 
-      <p className="text-center text-xs text-text-faint mt-5">
+      <p className="text-center text-xs text-text-faint mt-8">
         <Link href="/legal" className="hover:underline">{t.tos}</Link>
       </p>
     </AppShell>
