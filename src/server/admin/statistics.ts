@@ -33,6 +33,12 @@ interface TransactionStatusEventRow {
 interface SymptomCheckRow {
   user_id: string
   created_at: string
+  pet_id: string | null
+}
+
+interface PetRow {
+  id: string
+  species: string | null
 }
 
 export function normalizeAdminStatisticsPeriod(value: unknown): AdminStatisticsPeriod {
@@ -46,7 +52,7 @@ export function normalizeAdminStatisticsPeriod(value: unknown): AdminStatisticsP
 
 export async function getAdminStatistics(days: AdminStatisticsPeriod): Promise<AdminStatistics> {
   const supabase = createServiceClient()
-  const [profilesResult, transactionsResult, symptomChecksResult] = await Promise.all([
+  const [profilesResult, transactionsResult, symptomChecksResult, petsResult] = await Promise.all([
     supabase.from('profiles').select('id, created_at'),
     supabase
       .from('transactions')
@@ -54,16 +60,23 @@ export async function getAdminStatistics(days: AdminStatisticsPeriod): Promise<A
       .eq('current_status', 'succeeded'),
     supabase
       .from('symptom_checks')
-      .select('user_id, created_at')
+      .select('user_id, created_at, pet_id')
+      .is('deleted_at', null),
+    supabase
+      .from('pets')
+      .select('id, species')
       .is('deleted_at', null),
   ])
 
   ensureNoError(profilesResult.error, 'profiles')
   ensureNoError(transactionsResult.error, 'transactions')
   ensureNoError(symptomChecksResult.error, 'symptom checks')
+  ensureNoError(petsResult.error, 'pets')
 
   const transactions = (transactionsResult.data ?? []) as TransactionRow[]
   const successEventDates = await loadSuccessEventDates(supabase, transactions)
+  const pets = (petsResult.data ?? []) as PetRow[]
+  const speciesByPetId = new Map(pets.map(p => [p.id, p.species === 'dog' ? 'dog' : 'cat']))
 
   return buildAdminStatistics({
     days,
@@ -71,6 +84,8 @@ export async function getAdminStatistics(days: AdminStatisticsPeriod): Promise<A
     transactions,
     symptomChecks: (symptomChecksResult.data ?? []) as SymptomCheckRow[],
     successEventDates,
+    speciesByPetId,
+    pets,
   })
 }
 
@@ -103,12 +118,16 @@ function buildAdminStatistics({
   transactions,
   symptomChecks,
   successEventDates,
+  speciesByPetId,
+  pets,
 }: {
   days: AdminStatisticsPeriod
   profiles: ProfileRow[]
   transactions: TransactionRow[]
   symptomChecks: SymptomCheckRow[]
   successEventDates: Map<string, string>
+  speciesByPetId: Map<string, string>
+  pets: PetRow[]
 }): AdminStatistics {
   const dayKeys = buildDayKeys(days)
   const daily = new Map(dayKeys.map(date => [date, {
@@ -117,10 +136,14 @@ function buildAdminStatistics({
     payments: 0,
     paymentAmount: 0,
     symptomChecks: 0,
+    symptomChecksCat: 0,
+    symptomChecksDog: 0,
   } satisfies AdminStatisticsDailyPoint]))
   const payingUsers = new Set<string>()
   const symptomCheckUsers = new Set<string>()
   let symptomChecksTotal = 0
+  let symptomChecksCat = 0
+  let symptomChecksDog = 0
   let totalRevenue = 0
   let currency = 'RUB'
 
@@ -148,9 +171,20 @@ function buildAdminStatistics({
   for (const symptomCheck of symptomChecks) {
     symptomCheckUsers.add(symptomCheck.user_id)
     symptomChecksTotal += 1
+    const species = symptomCheck.pet_id ? speciesByPetId.get(symptomCheck.pet_id) : null
+    if (species === 'dog') symptomChecksDog += 1
+    else symptomChecksCat += 1
+
     const point = daily.get(toDateKey(symptomCheck.created_at))
-    if (point) point.symptomChecks += 1
+    if (point) {
+      point.symptomChecks += 1
+      if (species === 'dog') point.symptomChecksDog += 1
+      else point.symptomChecksCat += 1
+    }
   }
+
+  const petsCat = pets.filter(p => p.species !== 'dog').length
+  const petsDog = pets.filter(p => p.species === 'dog').length
 
   return {
     days,
@@ -160,6 +194,11 @@ function buildAdminStatistics({
       payingUsers: payingUsers.size,
       symptomCheckUsers: symptomCheckUsers.size,
       symptomChecks: symptomChecksTotal,
+      symptomChecksCat,
+      symptomChecksDog,
+      petsTotal: pets.length,
+      petsCat,
+      petsDog,
       totalRevenue,
     },
     daily: Array.from(daily.values()),
