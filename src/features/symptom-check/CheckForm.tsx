@@ -28,6 +28,7 @@ export default function CheckForm({ cats, onClose }: Props) {
   const [activity, setActivity] = useState<string>('')
   const [duration, setDuration] = useState<string>('')
   const [stool, setStool] = useState<string>('')
+  const [painSigns, setPainSigns] = useState<string[]>([])
   const [symptoms, setSymptoms] = useState('')
   const [photos, setPhotos] = useState<File[]>([])
   const [photoPreviews, setPhotoPreviews] = useState<string[]>([])
@@ -85,7 +86,13 @@ export default function CheckForm({ cats, onClose }: Props) {
 
     let res: Response
 
-    const extra = { appetite: appetite || undefined, activity: activity || undefined, duration: duration || undefined, stool: stool || undefined }
+    const extra = {
+      appetite: appetite || undefined,
+      activity: activity || undefined,
+      duration: duration || undefined,
+      stool: stool || undefined,
+      pain_signs: painSigns.length ? painSigns : undefined,
+    }
 
     if (photos.length > 0) {
       const formData = new FormData()
@@ -96,6 +103,7 @@ export default function CheckForm({ cats, onClose }: Props) {
       if (activity) formData.append('activity', activity)
       if (duration) formData.append('duration', duration)
       if (stool) formData.append('stool', stool)
+      if (painSigns.length) formData.append('pain_signs', painSigns.join(','))
       res = await fetch('/api/symptom-check', { method: 'POST', headers: csrfHeaders(), body: formData })
     } else {
       res = await fetch('/api/symptom-check', {
@@ -148,6 +156,15 @@ export default function CheckForm({ cats, onClose }: Props) {
     { value: 'bloody', label: t.stoolBloody },
   ]
 
+  const painSignOptions = [
+    { value: 'tense', label: t.painTense },
+    { value: 'hunched', label: t.painHunched },
+    { value: 'grimace', label: t.painGrimace },
+    { value: 'touch_sensitive', label: t.painTouchSensitive },
+    { value: 'hiding', label: t.painHiding },
+    { value: 'vocalizing', label: t.painVocalizing },
+  ]
+
   const formContent = (
     <form onSubmit={handleSubmit} className="space-y-5">
       {/* Selected pet card */}
@@ -197,6 +214,13 @@ export default function CheckForm({ cats, onClose }: Props) {
         <ChipGroup label={t.duration} value={duration} onChange={setDuration} options={durationOptions} />
         <ChipGroup label={t.stool} value={stool} onChange={setStool} options={stoolOptions} />
       </div>
+
+      <MultiChipGroup
+        label={t.painSigns}
+        values={painSigns}
+        onChange={setPainSigns}
+        options={painSignOptions}
+      />
 
       <div>
         <p className="text-sm font-semibold text-text mb-2">{dict.check.describeMore}</p>
@@ -287,6 +311,7 @@ export default function CheckForm({ cats, onClose }: Props) {
       activity: result.activity ?? null,
       duration: result.duration ?? null,
       stool: result.stool ?? null,
+      pain_signs: result.pain_signs ?? [],
       photo_observations: result.photo_observations ?? null,
       additional_cat_info_needed: result.additional_cat_info_needed,
       has_photo: result.has_photo,
@@ -399,6 +424,52 @@ function ChipGroup({
             {opt.label}
           </button>
         ))}
+      </div>
+    </div>
+  )
+}
+
+function MultiChipGroup({
+  label,
+  values,
+  onChange,
+  options,
+}: {
+  label: string
+  values: string[]
+  onChange: (v: string[]) => void
+  options: { value: string; label: string }[]
+}) {
+  function toggle(value: string) {
+    onChange(
+      values.includes(value)
+        ? values.filter(v => v !== value)
+        : [...values, value],
+    )
+  }
+
+  return (
+    <div>
+      <p className="text-sm font-semibold text-text mb-2">{label}</p>
+      <div className="flex flex-wrap gap-2">
+        {options.map(opt => {
+          const active = values.includes(opt.value)
+          return (
+            <button
+              key={opt.value}
+              type="button"
+              aria-pressed={active}
+              onClick={() => toggle(opt.value)}
+              className={`px-3.5 py-1.5 rounded-full text-sm transition-colors ${
+                active
+                  ? 'bg-accent-soft text-accent-text font-semibold'
+                  : 'bg-card border border-hairline text-text-muted hover:border-card-soft-strong'
+              }`}
+            >
+              {opt.label}
+            </button>
+          )
+        })}
       </div>
     </div>
   )

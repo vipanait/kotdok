@@ -53,6 +53,7 @@ export default function CheckResultContent({ check, showBackLink = false }: Prop
   const activity = (full?.activity as string | null) ?? null
   const duration = (full?.duration as string | null) ?? null
   const stool = (full?.stool as string | null) ?? null
+  const painSigns: string[] = Array.isArray(full?.pain_signs) ? full.pain_signs as string[] : []
 
   const appetiteLabels: Record<string, string> = {
     normal: t.appetiteNormal, reduced: t.appetiteReduced, none: t.appetiteNone,
@@ -65,6 +66,14 @@ export default function CheckResultContent({ check, showBackLink = false }: Prop
   }
   const stoolLabels: Record<string, string> = {
     normal: t.stoolNormal, loose: t.stoolLoose, absent: t.stoolAbsent, bloody: t.stoolBloody,
+  }
+  const painSignLabels: Record<string, string> = {
+    tense: t.painTense,
+    hunched: t.painHunched,
+    grimace: t.painGrimace,
+    touch_sensitive: t.painTouchSensitive,
+    hiding: t.painHiding,
+    vocalizing: t.painVocalizing,
   }
 
   const dateStr = new Date(check.created_at).toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
@@ -170,12 +179,18 @@ export default function CheckResultContent({ check, showBackLink = false }: Prop
               {check.symptoms_input && (
                 <Section title={t.youDescribed}>
                   <p className="text-sm text-text">{check.symptoms_input}</p>
-                  {(appetite || activity || duration || stool) && (
+                  {(appetite || activity || duration || stool || painSigns.length > 0) && (
                     <div className="mt-3 flex flex-wrap gap-2">
                       {appetite && <Chip label={`${t.appetitePrefix}: ${appetiteLabels[appetite] ?? appetite}`} />}
                       {activity && <Chip label={`${t.activityPrefix}: ${activityLabels[activity] ?? activity}`} />}
                       {duration && <Chip label={`${t.durationPrefix}: ${durationLabels[duration] ?? duration}`} />}
                       {stool && <Chip label={`${t.stoolPrefix}: ${stoolLabels[stool] ?? stool}`} />}
+                      {painSigns.map(sign => (
+                        <Chip
+                          key={sign}
+                          label={`${t.painSignsPrefix}: ${painSignLabels[sign] ?? sign}`}
+                        />
+                      ))}
                     </div>
                   )}
                 </Section>

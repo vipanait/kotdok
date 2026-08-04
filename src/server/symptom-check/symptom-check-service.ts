@@ -6,6 +6,7 @@ import OpenAI from 'openai'
 import { createServiceClient } from '@/server/supabase/server'
 import { getAuthUser } from '@/server/auth/get-auth-user'
 import type { SymptomCheckResult, Urgency } from '@/shared/types'
+import { PAIN_SIGN_PROMPT_LABELS, sanitizePainSigns, type PainSign } from '@/shared/utils/check-params'
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
@@ -124,6 +125,7 @@ export async function handleSymptomCheckRequest(request: NextRequest) {
     let activity: string | null = null
     let duration: string | null = null
     let stool: string | null = null
+    let painSignsRaw: unknown = null
     const photoBase64List: { data: string; mimeType: string }[] = []
 
     const contentType = request.headers.get('content-type') ?? ''
@@ -136,6 +138,7 @@ export async function handleSymptomCheckRequest(request: NextRequest) {
       activity = (formData.get('activity') as string) || null
       duration = (formData.get('duration') as string) || null
       stool = (formData.get('stool') as string) || null
+      painSignsRaw = formData.get('pain_signs')
 
       const allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/heic', 'image/heif']
       const files = formData.getAll('photo') as File[]
@@ -158,6 +161,7 @@ export async function handleSymptomCheckRequest(request: NextRequest) {
       activity = body.activity || null
       duration = body.duration || null
       stool = body.stool || null
+      painSignsRaw = body.pain_signs ?? null
     }
 
     symptoms = symptoms.slice(0, 2000)
@@ -178,6 +182,7 @@ export async function handleSymptomCheckRequest(request: NextRequest) {
     if (activity && !validActivity.includes(activity)) activity = null
     if (duration && !validDuration.includes(duration)) duration = null
     if (stool && !validStool.includes(stool)) stool = null
+    const pain_signs = sanitizePainSigns(painSignsRaw)
 
     // Cat profile context
     let catContext = ''
@@ -233,11 +238,16 @@ export async function handleSymptomCheckRequest(request: NextRequest) {
     const DURATION_LABELS: Record<string, string> = { today: 'started today', '2-3days': '2–3 days', 'week+': 'more than a week' }
     const STOOL_LABELS: Record<string, string> = { normal: 'normal stool', loose: 'loose/diarrhea', absent: 'no stool / constipation', bloody: 'blood in stool' }
 
+    const painSignsText = pain_signs.length
+      ? pain_signs.map(s => PAIN_SIGN_PROMPT_LABELS[s as PainSign] ?? s).join(', ')
+      : null
+
     const quickContext = [
       appetite ? `Appetite: ${APPETITE_LABELS[appetite] ?? appetite}` : null,
       activity ? `Activity level: ${ACTIVITY_LABELS[activity] ?? activity}` : null,
       duration ? `Duration: symptoms have ${DURATION_LABELS[duration] ?? duration}` : null,
       stool ? `Stool: ${STOOL_LABELS[stool] ?? stool}` : null,
+      painSignsText ? `Pain signs: ${painSignsText}` : null,
     ].filter(Boolean).join('. ')
 
     const userContent: ContentPart[] = [
@@ -289,7 +299,7 @@ export async function handleSymptomCheckRequest(request: NextRequest) {
         cat_specific_warning: result.cat_specific_warning,
         home_care_steps: result.home_care_steps,
         vet_questions: result.vet_questions,
-        full_response: { ...result, appetite, activity, duration, stool, photo_count: photoBase64List.length },
+        full_response: { ...result, appetite, activity, duration, stool, pain_signs, photo_count: photoBase64List.length },
       })
       .select('id')
       .single()
@@ -315,6 +325,7 @@ export async function handleSymptomCheckRequest(request: NextRequest) {
       activity,
       duration,
       stool,
+      pain_signs,
       check_id: check?.id,
       credits_remaining: newBalance,
     })

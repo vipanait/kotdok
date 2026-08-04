@@ -16,6 +16,7 @@ export interface SymptomCheckResult {
   activity?: string | null
   duration?: string | null
   stool?: string | null
+  pain_signs?: string[]
 }
 
 export interface Cat {
