@@ -34,6 +34,10 @@ describe('sanitizeCat', () => {
     })
   })
 
+  it('parses decimal weight with a comma separator', () => {
+    expect(sanitizeCat({ name: 'Барсик', weight_kg: '4,5' }).weight_kg).toBe(4.5)
+  })
+
   it('falls back safely for unsupported values and long free text', () => {
     const result = sanitizeCat({
       name: '   ',

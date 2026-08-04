@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { PublicPaymentMethod } from '@/shared/types/billing'
 import { useTranslations } from '@/components/LocaleProvider'
 import { csrfHeaders } from '@/shared/security/csrf-client'
@@ -15,6 +15,17 @@ export default function BillingMethodsClient({ initialMethods }: Props) {
   const [confirmId, setConfirmId] = useState<string | null>(null)
   const [busyId, setBusyId] = useState<string | null>(null)
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    if (!confirmId) return
+
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape' && !busyId) setConfirmId(null)
+    }
+
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [busyId, confirmId])
 
   async function handleDelete(id: string) {
     setBusyId(id)

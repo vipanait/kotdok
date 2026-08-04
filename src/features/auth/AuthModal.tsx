@@ -101,10 +101,10 @@ export default function AuthModal({ initialMode }: Props) {
           ×
         </button>
         <div className="p-6 sm:p-8">
-          {mode === 'login' && <LoginPanel onSwitch={switchMode} />}
+          {mode === 'login' && <LoginPanel onSwitch={switchMode} onNavigate={() => setOpen(false)} />}
           {mode === 'register' && <RegisterPanel onSwitch={switchMode} />}
           {mode === 'forgot' && <ForgotPanel onSwitch={switchMode} />}
-          {mode === 'reset' && <ResetPanel />}
+          {mode === 'reset' && <ResetPanel onNavigate={() => setOpen(false)} />}
         </div>
       </div>
     </div>
@@ -113,7 +113,13 @@ export default function AuthModal({ initialMode }: Props) {
 
 /* ------------------------------ Login ------------------------------ */
 
-function LoginPanel({ onSwitch }: { onSwitch: (m: AuthMode) => void }) {
+function LoginPanel({
+  onSwitch,
+  onNavigate,
+}: {
+  onSwitch: (m: AuthMode) => void
+  onNavigate: () => void
+}) {
   const router = useRouter()
   const dict = useTranslations()
   const t = dict.auth.login
@@ -130,6 +136,7 @@ function LoginPanel({ onSwitch }: { onSwitch: (m: AuthMode) => void }) {
     const trimmedEmail = email.trim()
     const { error } = await supabase.auth.signInWithPassword({ email: trimmedEmail, password })
     if (error) { setError(t.errorCredentials); setLoading(false); return }
+    onNavigate()
     router.push(safeNext()); router.refresh()
   }
 
@@ -339,7 +346,7 @@ function ForgotPanel({ onSwitch }: { onSwitch: (m: AuthMode) => void }) {
 
 /* ----------------------------- Reset ------------------------------ */
 
-function ResetPanel() {
+function ResetPanel({ onNavigate }: { onNavigate: () => void }) {
   const router = useRouter()
   const dict = useTranslations()
   const t = dict.auth.resetPassword
@@ -357,6 +364,7 @@ function ResetPanel() {
     const supabase = createClient()
     const { error } = await supabase.auth.updateUser({ password })
     if (error) { setError(t.errorFailed); setLoading(false); return }
+    onNavigate()
     router.push('/dashboard'); router.refresh()
   }
 

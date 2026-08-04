@@ -1,7 +1,8 @@
 function toNumber(val: unknown): number | null {
   if (val == null || val === '') return null
-  const n = Number(val)
-  return isNaN(n) ? null : n
+  const raw = typeof val === 'string' ? val.trim().replace(',', '.') : val
+  const n = Number(raw)
+  return Number.isFinite(n) ? n : null
 }
 
 function toStringArray(val: unknown, maxItems = 20, maxItemLen = 150): string[] {
