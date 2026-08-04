@@ -1,7 +1,9 @@
 import { createClient, createServiceClient } from '@/server/supabase/server'
 import { redirect } from 'next/navigation'
 import type { User } from '@supabase/supabase-js'
-import type { Cat } from '@/shared/types'
+import type { Cat, CatLatestCheck } from '@/shared/types'
+
+export type { CatLatestCheck }
 
 export interface DashboardData {
   user: User
@@ -22,6 +24,7 @@ export interface DashboardData {
   }>
   totalChecks: number
   latestRequestStatus: 'pending' | 'approved' | 'rejected' | null
+  latestChecksByCat: Record<string, CatLatestCheck>
 }
 
 const HISTORY_LIMIT = 4
@@ -41,7 +44,13 @@ export async function loadDashboard(loginRedirectPath = '/login'): Promise<Dashb
 
   const service = createServiceClient()
 
-  const [{ data: profile }, { data: checks, count: totalChecks }, { data: cats }, { data: latestRequest }] =
+  const [
+    { data: profile },
+    { data: checks, count: totalChecks },
+    { data: cats },
+    { data: latestRequest },
+    { data: recentCatChecks },
+  ] =
     await Promise.all([
       service.from('profiles').select('credits, plan, role').eq('id', user.id).single(),
       service
@@ -67,7 +76,25 @@ export async function loadDashboard(loginRedirectPath = '/login'): Promise<Dashb
         .order('created_at', { ascending: false })
         .limit(1)
         .maybeSingle(),
+      service
+        .from('symptom_checks')
+        .select('cat_id, urgency, created_at')
+        .eq('user_id', user.id)
+        .is('deleted_at', null)
+        .not('cat_id', 'is', null)
+        .order('created_at', { ascending: false })
+        .limit(50),
     ])
+
+  const latestChecksByCat: Record<string, CatLatestCheck> = {}
+  for (const row of recentCatChecks ?? []) {
+    const catId = row.cat_id as string | null
+    if (!catId || latestChecksByCat[catId]) continue
+    latestChecksByCat[catId] = {
+      urgency: row.urgency as string,
+      created_at: row.created_at as string,
+    }
+  }
 
   return {
     user,
@@ -77,5 +104,6 @@ export async function loadDashboard(loginRedirectPath = '/login'): Promise<Dashb
     checks: (checks ?? []) as DashboardData['checks'],
     totalChecks: totalChecks ?? 0,
     latestRequestStatus: (latestRequest?.status ?? null) as DashboardData['latestRequestStatus'],
+    latestChecksByCat,
   }
 }

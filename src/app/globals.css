@@ -13,8 +13,8 @@
 
   /* Text */
   --text: #1B1B1B;
-  --text-muted: #7A7367;
-  --text-faint: #A89F8E;
+  --text-muted: #5C564C;
+  --text-faint: #7A7367;
 
   /* Borders */
   --hairline: #ECE0C5;
@@ -122,11 +122,18 @@ body {
   }
 
   .app-empty-state {
-    background: rgba(252, 228, 199, 0.45);
-    border: 1px dashed rgba(244, 221, 183, 0.95);
+    background: var(--card-soft);
+    border: 1px solid rgba(244, 221, 183, 0.55);
     border-radius: 1.25rem;
     color: var(--text-muted);
-    padding: 1rem;
+    padding: 1rem 1.125rem;
+  }
+
+  .app-accent-serif {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 600;
+    color: var(--accent-text);
   }
 
   .app-status-chip {
@@ -143,10 +150,12 @@ body {
 
   .app-kicker {
     color: var(--accent-text);
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+    font-family: var(--font-serif);
+    font-size: 0.8125rem;
+    font-style: italic;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: none;
   }
 
   .app-link {

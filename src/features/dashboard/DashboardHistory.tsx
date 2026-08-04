@@ -12,6 +12,18 @@ interface Props {
   emptyActionLabel?: string
 }
 
+function AccentedCopy({ template, accent }: { template: string; accent: string }) {
+  const parts = template.split('{accent}')
+  if (parts.length < 2) return <>{template}</>
+  return (
+    <>
+      {parts[0]}
+      <span className="app-accent-serif">{accent}</span>
+      {parts.slice(1).join('{accent}')}
+    </>
+  )
+}
+
 export default function DashboardHistory({ checks, emptyActionHref, emptyActionLabel }: Props) {
   const locale = useLocale()
   const dict = useTranslations()
@@ -22,7 +34,9 @@ export default function DashboardHistory({ checks, emptyActionHref, emptyActionL
     return (
       <div className="app-empty-state mt-2">
         <h3 className="text-base font-bold text-text">{t.checksEmptyTitle}</h3>
-        <p className="mt-1 text-sm leading-relaxed">{t.noChecks}</p>
+        <p className="mt-1 text-sm leading-relaxed text-text-muted">
+          <AccentedCopy template={t.noChecks} accent={t.noChecksAccent} />
+        </p>
         {emptyActionHref && emptyActionLabel && (
           <Link href={emptyActionHref} className="app-button-secondary app-button-sm mt-4">
             {emptyActionLabel}
@@ -46,7 +60,7 @@ export default function DashboardHistory({ checks, emptyActionHref, emptyActionL
               <button
                 type="button"
                 onClick={() => setSelectedCheck(check)}
-                className="app-focus-ring group flex w-full cursor-pointer items-center gap-3 py-3 text-left transition-colors hover:bg-canvas-soft/40 -mx-2 px-2 rounded-xl"
+                className="app-focus-ring group flex w-full cursor-pointer items-center gap-3 py-2.5 text-left transition-colors hover:bg-canvas-soft/40 -mx-2 px-2 rounded-xl"
                 aria-label={`${t.openCheck}: ${check.symptoms_input}`}
               >
                 <div className="min-w-0 flex-1">
