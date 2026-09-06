@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { createServiceClient } from '@/server/supabase/server'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import DashboardContent from '@/features/dashboard/DashboardContent'
 import PetModalShell from '@/features/pets/PetModalShell'
 import { loadDashboard } from '@/server/dashboard/load-dashboard'
@@ -14,6 +14,7 @@ export default async function EditPetPage({ params }: { params: Promise<{ id: st
   const { id } = await params
 
   const data = await loadDashboard()
+  if (!data) redirect('/login')
 
   const service = createServiceClient()
   const { data: pet } = await service

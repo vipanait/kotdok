@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { NextRequest } from 'next/server'
 import { POST } from '@/app/(backend)/api/symptom-check/route'
-import { handleSymptomCheckRequest } from '@/server/symptom-check/symptom-check-service'
+import { handleSymptomCheckRequest } from '@/server/symptom-check/symptom-check-http'
 import { CSRF_COOKIE_NAME, CSRF_HEADER_NAME } from '@/server/security/csrf'
 
-vi.mock('@/server/symptom-check/symptom-check-service', () => ({
+vi.mock('@/server/symptom-check/symptom-check-http', () => ({
   handleSymptomCheckRequest: vi.fn(),
 }))
 

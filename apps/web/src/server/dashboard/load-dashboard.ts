@@ -1,5 +1,4 @@
 import { createClient, createServiceClient } from '@/server/supabase/server'
-import { redirect } from 'next/navigation'
 import type { User } from '@supabase/supabase-js'
 import type { Pet, PetLatestCheck } from '@/shared/types'
 import type { SymptomCheckRecord } from '@lapka/contracts'
@@ -25,13 +24,13 @@ const HISTORY_LIMIT = 4
  * any route that puts a modal on top of the dashboard (pet add/edit, etc.) so
  * we don't duplicate fetch logic.
  *
- * Performs the auth check itself: redirects to `/login` if the visitor isn't
- * signed in.
+ * Returns `null` for a signed-out visitor instead of redirecting: where to send
+ * them is the page's decision, not this module's.
  */
-export async function loadDashboard(loginRedirectPath = '/login'): Promise<DashboardData> {
+export async function loadDashboard(): Promise<DashboardData | null> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect(loginRedirectPath)
+  if (!user) return null
 
   const service = createServiceClient()
 

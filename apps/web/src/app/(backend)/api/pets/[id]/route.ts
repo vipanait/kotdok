@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/server/supabase/server'
 import { getAuthUser } from '@/server/auth/get-auth-user'
 import { softDeletePetAndChecks, updatePet } from '@/server/pets/pet-service'
+import { petFailureResponse } from '@/server/pets/pet-http'
 import { csrfForbiddenResponse, verifyCsrf } from '@/server/security/csrf'
 
 export async function PUT(
@@ -15,12 +16,10 @@ export async function PUT(
 
   const { id } = await params
   const body = await request.json()
-  const supabase = createServiceClient()
-  const { data, error } = await updatePet(supabase, user.id, id, body)
+  const result = await updatePet(createServiceClient(), user.id, id, body)
+  if (!result.ok) return petFailureResponse(result.reason, result.message)
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  if (!data) return NextResponse.json({ error: 'Not found' }, { status: 404 })
-  return NextResponse.json(data)
+  return NextResponse.json(result.data)
 }
 
 export async function DELETE(
@@ -33,10 +32,8 @@ export async function DELETE(
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { id } = await params
-  const supabase = createServiceClient()
-  const { data, error } = await softDeletePetAndChecks(supabase, user.id, id)
+  const result = await softDeletePetAndChecks(createServiceClient(), user.id, id)
+  if (!result.ok) return petFailureResponse(result.reason, result.message)
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  if (!data) return NextResponse.json({ error: 'Not found' }, { status: 404 })
   return new NextResponse(null, { status: 204 })
 }
