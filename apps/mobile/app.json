@@ -1,0 +1,21 @@
+{
+  "expo": {
+    "name": "Лапка",
+    "slug": "lapka",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "lapka",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "my.lapka.app"
+    },
+    "android": {
+      "package": "my.lapka.app"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store"
+    ]
+  }
+}
