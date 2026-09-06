@@ -4,12 +4,13 @@
 // docs/api/openapi.yaml is generated from these schemas, so the two cannot
 // drift apart. Nothing here may import Next.js, a server SDK or the DOM.
 
-/** Path prefix every mobile-facing route lives under. */
-export const API_VERSION = 'v1' as const
-
+export * from './version'
 export * from './primitives'
 export * from './errors'
 export * from './profile'
 export * from './pet'
 export * from './check'
 export * from './credits'
+export * from './analysis'
+export * from './deletion'
+export * from './openapi'
