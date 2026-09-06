@@ -13,5 +13,8 @@
     "test:integration": "npm run test:integration --workspace @lapka/web",
     "build": "npm run build --workspace @lapka/web",
     "dev": "npm run dev --workspace @lapka/web"
+  },
+  "overrides": {
+    "react-native": "0.86.3"
   }
 }
