@@ -46,7 +46,9 @@
 
 Публичные значения записаны в `apps/web/.env.test`. Service-role-ключ туда не попадает и в репозиторий не коммитится.
 
-**Ещё не сделано:** переменные окружения Preview в Vercel по-прежнему указывают на production. Чтобы это исправить, нужен service-role-ключ тестового проекта, а Management API его не отдаёт — значение берётся из настроек проекта в дашборде Supabase.
+Preview и Development переведены на этот проект 6 сентября 2026.
+
+**Ещё не настроено в тестовом проекте:** ни один OAuth-провайдер (Supabase отвечает `Unsupported provider: provider is not enabled`), почтовые шаблоны и Redirect URLs под preview-домены. Это понадобится на этапах 4 и 5 и не копируется из production.
 
 ### Переменные окружения
 
@@ -64,7 +66,11 @@
 | `TELEGRAM_APPROVAL_CHAT_ID` | Production, Preview | Sensitive |
 | `TELEGRAM_WEBHOOK_SECRET` | Production, Preview | Sensitive |
 
-**Требует решения владельца.** Preview-окружение получает те же значения, что и production: любой preview-деплой любой ветки работает с боевым service-role-ключом Supabase, боевым ключом OpenAI и боевым Telegram-ботом. Кроме того, ключ service role и ключ OpenAI помечены Non-sensitive, то есть их значения читаются через настройки проекта и API. Это делает пункт 0/04 невыполненным и со стороны хостинга, а не только со стороны Supabase.
+**Исправлено 6 сентября 2026.** `SUPABASE_SERVICE_ROLE_KEY` разделён по окружениям: Production — боевой, Preview — от `lapka-staging`, оба помечены Sensitive; Development — staging-ключ (для Development пометка Sensitive недоступна). `NEXT_PUBLIC_SUPABASE_URL` и `NEXT_PUBLIC_SUPABASE_ANON_KEY` разделены так же. Проверено декодированием: Preview и Development указывают на тестовый проект, Production не тронут.
+
+Пометка Sensitive проверена на деле: `vercel env pull` для production возвращает по service-role, Telegram-токену и вебхук-секретам заглушку вместо значения.
+
+**Осталось:** `OPENAI_API_KEY` по-прежнему Non-sensitive и выгружается целиком; ключи OpenAI и Telegram по решению владельца остаются общими для Production и Preview — preview-сборки тратят боевой AI-бюджет и пишут в боевой чат согласования.
 
 ## Репозиторий и CI
 
