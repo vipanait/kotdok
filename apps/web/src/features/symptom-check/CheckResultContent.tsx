@@ -4,27 +4,10 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useLocale, useTranslations } from '@/components/LocaleProvider'
 import { URGENCY_BG_CLASS, URGENCY_DOT_CLASS, URGENCY_TEXT_CLASS, type UrgencyKey } from '@/shared/utils/urgency'
-
-export interface SymptomCheckRecord {
-  id: string
-  symptoms_input: string
-  urgency: string
-  urgency_reason: string
-  possible_causes: unknown
-  species_specific_warning?: string | null
-  /** @deprecated Use species_specific_warning */
-  cat_specific_warning?: string | null
-  home_care_steps: unknown
-  vet_questions: unknown
-  full_response: Record<string, unknown> | null
-  created_at: string
-  pet_id?: string | null
-  pet_name?: string | null
-  pet_species?: 'cat' | 'dog' | null
-}
+import type { SymptomCheckView } from '@lapka/contracts'
 
 interface Props {
-  check: SymptomCheckRecord
+  check: SymptomCheckView
   showBackLink?: boolean
 }
 
@@ -48,10 +31,10 @@ export default function CheckResultContent({ check, showBackLink = false }: Prop
   const isCritical = CLINIC_CTA_STATUSES.has(urgencyKey)
   const stepBg = isPositive ? 'bg-status-good-fg' : urgencyKey === 'monitor' ? 'bg-status-watch-fg' : 'bg-accent'
 
-  const possibleCauses: string[] = Array.isArray(check.possible_causes) ? check.possible_causes : []
-  const homeCareSteps: string[] = Array.isArray(check.home_care_steps) ? check.home_care_steps : []
-  const vetQuestions: string[] = Array.isArray(check.vet_questions) ? check.vet_questions : []
-  const speciesWarning = check.species_specific_warning ?? check.cat_specific_warning ?? null
+  const possibleCauses = check.possible_causes
+  const homeCareSteps = check.home_care_steps
+  const vetQuestions = check.vet_questions
+  const speciesWarning = check.species_specific_warning
   const additionalPetInfoNeeded: string[] = Array.isArray(full?.additional_pet_info_needed)
     ? full.additional_pet_info_needed as string[]
     : Array.isArray(full?.additional_cat_info_needed)
