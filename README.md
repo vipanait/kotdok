@@ -85,6 +85,32 @@ npm run export:android --workspace @lapka/mobile
 The export commands produce JavaScript bundles and assets, not signed apps.
 Signed development builds are stage 4 of the [roadmap](docs/mobile-api-plan.md).
 
+## Running the mobile app against a real API
+
+The Expo app calls `http://localhost:3000` and signs in against the staging
+Supabase project, so its product screens only work when a site backed by the
+*same* project is listening there. Plain `npm run dev` is not that site: it
+reads `.env.local`, which holds production credentials, and the phone's token
+would be rejected by an API backed by a different project.
+
+Use the staging server instead:
+
+```bash
+npm run dev:staging --workspace @lapka/web
+```
+
+It reads `apps/web/.env.staging` (public values, committed) together with
+`apps/web/.env.staging.local`, which is not committed and holds one line:
+
+```
+SUPABASE_SERVICE_ROLE_KEY=<service role key of the staging project>
+```
+
+Take that key from the staging project in the Supabase dashboard, under
+Project Settings → API Keys. The script refuses to start if the key belongs to
+another project or is not a service role key — pointing a development server at
+production with that key in hand is the mistake worth preventing.
+
 CI routes changes to the group that needs them: web changes run the web checks,
 mobile changes the mobile ones, and shared packages, the root lockfile or build
 settings run both. The rules live in `.github/scripts/changed-groups.mjs` and

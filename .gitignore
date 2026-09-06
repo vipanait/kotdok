@@ -40,6 +40,10 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 !.env.test
+
+# Public staging values for `dev:staging`; the service key lives in
+# .env.staging.local, which stays ignored by the rule above.
+!.env.staging
 # Local Supabase stack only: fixed public CLI keys, no secrets.
 !.env.integration
 # Expo client configuration: EXPO_PUBLIC_* values ship in the bundle anyway.
