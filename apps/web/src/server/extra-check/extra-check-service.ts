@@ -1,6 +1,7 @@
 import 'server-only'
 
 import { createServiceClient } from '@/server/supabase/server'
+import { loadAccount } from '@/server/auth/account-state'
 import { sendExtraCheckRequestToTelegram } from './telegram'
 
 type ResolveAction = 'approve' | 'reject'
@@ -33,6 +34,14 @@ async function loadPreviousRequestsCount(
 
 export async function submitExtraCheckRequest(userId: string): Promise<{ requestId: string }> {
   const supabase = createServiceClient()
+
+  // Same guard every service goes through: a missing or deleting account may
+  // not start new work. The route maps these to the codes it already returns.
+  const account = await loadAccount(supabase, userId)
+  if (!account.ok) {
+    throw new Error(account.reason === 'account_deleting' ? 'account_deleting' : 'profile_not_found')
+  }
+
   const { data, error } = await supabase.rpc('create_extra_check_request', {
     p_user_id: userId,
   })

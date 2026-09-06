@@ -11,6 +11,19 @@ vi.mock('@/server/extra-check/telegram', () => ({
   sendExtraCheckRequestToTelegram: vi.fn(),
 }))
 
+/** Every service starts by loading the account, so each mock has to answer it. */
+function activeProfile(userId: string) {
+  const builder = {
+    select: vi.fn(() => builder),
+    eq: vi.fn(() => builder),
+    maybeSingle: vi.fn(async () => ({
+      data: { id: userId, status: 'active', role: 'user', locale: 'ru', credits: 0 },
+      error: null,
+    })),
+  }
+  return builder
+}
+
 describe('extra-check-service', () => {
   beforeEach(() => {
     vi.mocked(createServiceClient).mockReset()
@@ -30,7 +43,9 @@ describe('extra-check-service', () => {
     const updateEqSecond = vi.fn(async () => ({ error: null }))
     const updateEqFirst = vi.fn(() => ({ eq: updateEqSecond }))
     const update = vi.fn(() => ({ eq: updateEqFirst }))
-    const from = vi.fn(() => ({ select, update }))
+    const from = vi.fn((table: string) =>
+      table === 'profiles' ? activeProfile('user-1') : { select, update },
+    )
     vi.mocked(createServiceClient).mockReturnValue({ rpc, from } as never)
     vi.mocked(sendExtraCheckRequestToTelegram).mockResolvedValue({
       chatId: 123,
@@ -61,7 +76,9 @@ describe('extra-check-service', () => {
     const updateEqSecond = vi.fn(async () => ({ error: null }))
     const updateEqFirst = vi.fn(() => ({ eq: updateEqSecond }))
     const update = vi.fn(() => ({ eq: updateEqFirst }))
-    const from = vi.fn(() => ({ select, update, delete: remove }))
+    const from = vi.fn((table: string) =>
+      table === 'profiles' ? activeProfile('user-1') : { select, update, delete: remove },
+    )
     vi.mocked(createServiceClient).mockReturnValue({ rpc, from } as never)
     vi.mocked(sendExtraCheckRequestToTelegram).mockRejectedValue(new Error('network_error'))
 
@@ -74,7 +91,8 @@ describe('extra-check-service', () => {
       data: null,
       error: { message: 'pending_request_exists' },
     }))
-    vi.mocked(createServiceClient).mockReturnValue({ rpc } as never)
+    const from = vi.fn(() => activeProfile('user-3'))
+    vi.mocked(createServiceClient).mockReturnValue({ rpc, from } as never)
 
     await expect(submitExtraCheckRequest('user-3')).rejects.toThrow('pending_request_exists')
   })
