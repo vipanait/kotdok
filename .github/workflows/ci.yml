@@ -51,6 +51,29 @@ jobs:
           # shellcheck disable=SC2046
           node .github/scripts/changed-groups.mjs $(cat changed.txt) >> "$GITHUB_OUTPUT"
 
+  audit:
+    # Not routed by `changes`: the lockfile is shared by both applications, and
+    # an advisory can be published for a dependency nobody touched. Reads the
+    # lockfile only, so it needs no install and finishes in seconds.
+    #
+    # The threshold is `high` because 13 moderate advisories are open and
+    # accepted — they sit in Expo's build tooling, cannot be fixed without
+    # leaving SDK 57, and never reach a device. See 3.8 in the open questions.
+    # Failing on them would train everyone to ignore this job.
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Audit dependencies
+        run: npm audit --audit-level=high
+
   web:
     needs: changes
     if: needs.changes.outputs.web == 'true'
