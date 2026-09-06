@@ -19,5 +19,9 @@
   },
   "devDependencies": {
     "typescript": "^5"
+  },
+  "dependencies": {
+    "@lapka/contracts": "*",
+    "zod": "^4.3.6"
   }
 }
