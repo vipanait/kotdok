@@ -19,12 +19,11 @@
     "@lapka/shared": "*",
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.103.0",
-    "next": "16.2.3",
+    "next": "16.3.4",
     "openai": "^6.34.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "recharts": "^3.8.1",
-    "resend": "^6.10.0"
+    "recharts": "^3.8.1"
   },
   "devDependencies": {
     "@readme/openapi-parser": "^5",
@@ -35,7 +34,7 @@
     "@types/react-dom": "^19",
     "@vitest/coverage-v8": "^4.1.5",
     "eslint": "^9",
-    "eslint-config-next": "16.2.3",
+    "eslint-config-next": "16.3.4",
     "pg": "^8.23.0",
     "tailwindcss": "^4",
     "typescript": "~6.0.3",
