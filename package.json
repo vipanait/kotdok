@@ -2,39 +2,16 @@
   "name": "lapka.my",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage",
-    "typecheck": "tsc --noEmit",
-    "test:integration": "vitest run --config vitest.integration.config.mts"
-  },
-  "dependencies": {
-    "@supabase/ssr": "^0.10.2",
-    "@supabase/supabase-js": "^2.103.0",
-    "next": "16.2.3",
-    "openai": "^6.34.0",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
-    "recharts": "^3.8.1",
-    "resend": "^6.10.0"
-  },
-  "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/pg": "^8.23.1",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "@vitest/coverage-v8": "^4.1.5",
-    "eslint": "^9",
-    "eslint-config-next": "16.2.3",
-    "pg": "^8.23.0",
-    "tailwindcss": "^4",
-    "typescript": "^5",
-    "vitest": "^4.1.5"
+    "lint": "npm run lint --workspace @lapka/web",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspace @lapka/web",
+    "test:integration": "npm run test:integration --workspace @lapka/web",
+    "build": "npm run build --workspace @lapka/web",
+    "dev": "npm run dev --workspace @lapka/web"
   }
 }
