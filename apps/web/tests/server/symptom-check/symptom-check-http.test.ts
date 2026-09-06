@@ -28,6 +28,12 @@ function jsonRequest(body: unknown) {
   })
 }
 
+function multipartRequest(fields: Record<string, string>) {
+  const body = new FormData()
+  for (const [name, value] of Object.entries(fields)) body.append(name, value)
+  return new Request('http://test.local/api/symptom-check', { method: 'POST', body })
+}
+
 function singleResult(result: unknown) {
   const builder = {
     select: vi.fn(() => builder),
@@ -85,5 +91,23 @@ describe('symptom-check HTTP adapter', () => {
     expect(petQuery.eq).toHaveBeenCalledWith('id', 'pet-from-another-user')
     expect(petQuery.eq).toHaveBeenCalledWith('user_id', user.id)
     expect(petQuery.is).toHaveBeenCalledWith('deleted_at', null)
+  })
+
+  it('refuses a multipart body: photo upload is off until uploads move to storage', async () => {
+    vi.mocked(getAuthUser).mockResolvedValue(user)
+    const from = vi.fn(() => {
+      throw new Error('The analysis must not start for a multipart request')
+    })
+    vi.mocked(createServiceClient).mockReturnValue({ from, rpc: vi.fn() } as never)
+
+    const response = await handleSymptomCheckRequest(
+      multipartRequest({ symptoms: 'limping since morning' }) as never,
+    )
+
+    expect(response.status).toBe(400)
+    await expect(response.json()).resolves.toEqual({
+      error: 'Загрузка фото временно отключена — опишите симптомы текстом',
+    })
+    expect(from).not.toHaveBeenCalled()
   })
 })
