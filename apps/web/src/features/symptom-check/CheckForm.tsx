@@ -8,7 +8,8 @@ import type { SymptomCheckResult, Pet } from '@/shared/types'
 import { useTranslations } from '@/components/LocaleProvider'
 import AppShell from '@/components/AppShell'
 import PetAvatar from '@/components/PetAvatar'
-import CheckResultContent, { type SymptomCheckRecord } from '@/features/symptom-check/CheckResultContent'
+import CheckResultContent from '@/features/symptom-check/CheckResultContent'
+import type { SymptomCheckView } from '@lapka/contracts'
 import { csrfHeaders } from '@/shared/security/csrf-client'
 
 interface Props {
@@ -292,10 +293,11 @@ export default function CheckForm({ pets, onClose }: Props) {
     </form>
   )
 
-  // Build a SymptomCheckRecord-shaped object from the API result so we can
-  // reuse the same renderer used by history.
-  const resultRecord: SymptomCheckRecord | null = result ? {
-    id: 'pending',
+  // Build a renderable view from the API result so we can reuse the same
+  // renderer history uses. The check is already saved, but this screen does not
+  // need its id.
+  const resultRecord: SymptomCheckView | null = result ? {
+    id: null,
     symptoms_input: symptoms,
     urgency: result.urgency,
     urgency_reason: result.urgency_reason,
@@ -315,6 +317,9 @@ export default function CheckForm({ pets, onClose }: Props) {
       disclaimer: result.disclaimer,
     },
     created_at: new Date().toISOString(),
+    pet_id: null,
+    pet_name: null,
+    pet_species: null,
   } : null
 
   const resultContent = resultRecord ? (

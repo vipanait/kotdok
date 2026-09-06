@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useLocale, useTranslations } from '@/components/LocaleProvider'
-import CheckResultContent, { type SymptomCheckRecord } from '@/features/symptom-check/CheckResultContent'
+import CheckResultContent from '@/features/symptom-check/CheckResultContent'
+import type { SymptomCheckRecord } from '@lapka/contracts'
 import { URGENCY_TEXT_CLASS, type UrgencyKey } from '@/shared/utils/urgency'
 
 interface Props {

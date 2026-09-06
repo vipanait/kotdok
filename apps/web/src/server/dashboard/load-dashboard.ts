@@ -2,7 +2,7 @@ import { createClient, createServiceClient } from '@/server/supabase/server'
 import { redirect } from 'next/navigation'
 import type { User } from '@supabase/supabase-js'
 import type { Pet, PetLatestCheck } from '@/shared/types'
-import type { SymptomCheckRecord } from '@/features/symptom-check/CheckResultContent'
+import type { SymptomCheckRecord } from '@lapka/contracts'
 import { mapSymptomCheckRow, symptomCheckSelect } from '@/server/symptom-check/map-symptom-check'
 
 export type { PetLatestCheck }
