@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { User } from '@supabase/supabase-js'
 import { getAuthUser } from '@/server/auth/get-auth-user'
 import { createServiceClient } from '@/server/supabase/server'
-import { handleSymptomCheckRequest } from '@/server/symptom-check/symptom-check-service'
+import { handleSymptomCheckRequest } from '@/server/symptom-check/symptom-check-http'
 
 vi.mock('openai', () => ({
   default: vi.fn(function OpenAI() {
@@ -34,11 +34,12 @@ function singleResult(result: unknown) {
     eq: vi.fn(() => builder),
     is: vi.fn(() => builder),
     single: vi.fn(async () => result),
+    maybeSingle: vi.fn(async () => result),
   }
   return builder
 }
 
-describe('handleSymptomCheckRequest', () => {
+describe('symptom-check HTTP adapter', () => {
   beforeEach(() => {
     vi.mocked(getAuthUser).mockReset()
     vi.mocked(createServiceClient).mockReset()
@@ -56,7 +57,10 @@ describe('handleSymptomCheckRequest', () => {
 
   it('returns 404 when the requested pet does not belong to the user', async () => {
     vi.mocked(getAuthUser).mockResolvedValue(user)
-    const profileQuery = singleResult({ data: { credits: 1, plan: 'credits' }, error: null })
+    const profileQuery = singleResult({
+      data: { id: user.id, status: 'active', role: 'user', locale: 'ru', credits: 1 },
+      error: null,
+    })
     const petQuery = singleResult({ data: null, error: null })
     const from = vi.fn((table: string) => {
       if (table === 'profiles') return profileQuery

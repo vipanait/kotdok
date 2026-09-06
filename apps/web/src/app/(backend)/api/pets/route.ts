@@ -2,17 +2,17 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/server/supabase/server'
 import { getAuthUser } from '@/server/auth/get-auth-user'
 import { createPet, listPets } from '@/server/pets/pet-service'
+import { petFailureResponse } from '@/server/pets/pet-http'
 import { csrfForbiddenResponse, verifyCsrf } from '@/server/security/csrf'
 
 export async function GET() {
   const user = await getAuthUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const supabase = createServiceClient()
-  const { data, error } = await listPets(supabase, user.id)
+  const result = await listPets(createServiceClient(), user.id)
+  if (!result.ok) return petFailureResponse(result.reason, result.message)
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data)
+  return NextResponse.json(result.data)
 }
 
 export async function POST(request: NextRequest) {
@@ -22,9 +22,8 @@ export async function POST(request: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await request.json()
-  const supabase = createServiceClient()
-  const { data, error } = await createPet(supabase, user.id, body)
+  const result = await createPet(createServiceClient(), user.id, body)
+  if (!result.ok) return petFailureResponse(result.reason, result.message)
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data, { status: 201 })
+  return NextResponse.json(result.data, { status: 201 })
 }

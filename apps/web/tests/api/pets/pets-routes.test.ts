@@ -75,7 +75,7 @@ describe('pets API routes', () => {
   })
 
   it('scopes pet lists by authenticated user id', async () => {
-    vi.mocked(listPets).mockResolvedValue({ data: [{ id: 'pet-1' }], error: null } as never)
+    vi.mocked(listPets).mockResolvedValue({ ok: true, data: [{ id: 'pet-1' }] } as never)
 
     const response = await listPetsRoute()
 
@@ -85,7 +85,7 @@ describe('pets API routes', () => {
   })
 
   it('creates a pet for the authenticated user', async () => {
-    vi.mocked(createPet).mockResolvedValue({ data: { id: 'pet-2', name: 'Мурка' }, error: null } as never)
+    vi.mocked(createPet).mockResolvedValue({ ok: true, data: { id: 'pet-2', name: 'Мурка' } } as never)
 
     const response = await createPetRoute(jsonRequest({ name: 'Мурка', species: 'cat' }))
 
@@ -95,7 +95,7 @@ describe('pets API routes', () => {
   })
 
   it('updates a pet owned by the authenticated user', async () => {
-    vi.mocked(updatePet).mockResolvedValue({ data: { id: 'pet-1', name: 'Барсик' }, error: null } as never)
+    vi.mocked(updatePet).mockResolvedValue({ ok: true, data: { id: 'pet-1', name: 'Барсик' } } as never)
 
     const response = await updatePetRoute(jsonRequest({ name: 'Барсик' }), params('pet-1'))
 
@@ -105,7 +105,7 @@ describe('pets API routes', () => {
   })
 
   it('returns 404 when updating a missing pet', async () => {
-    vi.mocked(updatePet).mockResolvedValue({ data: null, error: null } as never)
+    vi.mocked(updatePet).mockResolvedValue({ ok: false, reason: 'not_found' } as never)
 
     const response = await updatePetRoute(jsonRequest({ name: 'Барсик' }), params('missing'))
 
@@ -113,7 +113,7 @@ describe('pets API routes', () => {
   })
 
   it('soft-deletes a pet for the authenticated user', async () => {
-    vi.mocked(softDeletePetAndChecks).mockResolvedValue({ data: { id: 'pet-1' }, error: null } as never)
+    vi.mocked(softDeletePetAndChecks).mockResolvedValue({ ok: true, data: { id: 'pet-1' } } as never)
 
     const response = await deletePetRoute(csrfRequest('DELETE'), params('pet-1'))
 

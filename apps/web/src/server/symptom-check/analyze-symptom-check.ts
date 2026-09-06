@@ -1,13 +1,14 @@
 import 'server-only'
 
-import { NextRequest, NextResponse } from 'next/server'
-import { revalidatePath } from 'next/cache'
 import OpenAI from 'openai'
-import { createServiceClient } from '@/server/supabase/server'
-import { getAuthUser } from '@/server/auth/get-auth-user'
+import type { ErrorCode } from '@lapka/contracts'
+import type { createServiceClient } from '@/server/supabase/server'
+import { loadAccount } from '@/server/auth/account-state'
 import type { PetSpecies, SymptomCheckResult, Urgency } from '@/shared/types'
-import { PAIN_SIGN_PROMPT_LABELS, sanitizePainSigns, type PainSign } from '@/shared/utils/check-params'
+import { PAIN_SIGN_PROMPT_LABELS, type PainSign } from '@/shared/utils/check-params'
 import { sanitizeSpecies } from '@/shared/utils/pet-utils'
+
+type SupabaseService = ReturnType<typeof createServiceClient>
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
@@ -84,9 +85,11 @@ function systemPromptForSpecies(species: PetSpecies): string {
   return species === 'dog' ? DOG_SYSTEM_PROMPT : CAT_SYSTEM_PROMPT
 }
 
-async function getVetContext(symptoms: string, species: PetSpecies): Promise<string> {
-  const supabase = createServiceClient()
-
+async function getVetContext(
+  supabase: SupabaseService,
+  symptoms: string,
+  species: PetSpecies,
+): Promise<string> {
   const embeddingResponse = await openai.embeddings.create({
     model: 'text-embedding-3-small',
     input: symptoms,
@@ -144,104 +147,114 @@ function validateAIResponse(raw: unknown): SymptomCheckResult {
   }
 }
 
-export async function handleSymptomCheckRequest(request: NextRequest) {
+
+/** A photo already decoded by the HTTP adapter. */
+export type AnalysisPhoto = { data: string; mimeType: string }
+
+/** Quick-assessment answers, already narrowed to the allowed values. */
+export type QuickAssessment = {
+  appetite: string | null
+  activity: string | null
+  duration: string | null
+  stool: string | null
+  pain_signs: string[]
+}
+
+export type AnalyzeSymptomCheckInput = QuickAssessment & {
+  userId: string
+  symptoms: string
+  petId: string | null
+  photos: AnalysisPhoto[]
+}
+
+export type AnalyzeSymptomCheckSuccess = {
+  ok: true
+  result: SymptomCheckResult
+  checkId: string
+  creditsRemaining: number
+  hasPhoto: boolean
+  quickAssessment: QuickAssessment
+}
+
+export type AnalyzeSymptomCheckFailure = {
+  ok: false
+  /** The adapter turns this into a status; the message is passed through as-is. */
+  code: ErrorCode
+  message: string
+}
+
+export type AnalyzeSymptomCheckOutcome = AnalyzeSymptomCheckSuccess | AnalyzeSymptomCheckFailure
+
+const APPETITE_LABELS: Record<string, string> = {
+  normal: 'eating normally',
+  reduced: 'eating less than usual',
+  none: 'not eating at all',
+}
+const ACTIVITY_LABELS: Record<string, string> = {
+  normal: 'active and alert',
+  low: 'less active than usual',
+  lethargic: 'very lethargic',
+}
+const DURATION_LABELS: Record<string, string> = {
+  today: 'started today',
+  '2-3days': '2–3 days',
+  'week+': 'more than a week',
+}
+const STOOL_LABELS: Record<string, string> = {
+  normal: 'normal stool',
+  loose: 'loose/diarrhea',
+  absent: 'no stool / constipation',
+  bloody: 'blood in stool',
+}
+
+/**
+ * Runs one analysis: checks the account, resolves the pet, reserves a credit,
+ * asks the model, stores the result, and compensates the credit if anything
+ * after the reservation fails.
+ *
+ * Takes a verified user id and already-parsed input, and returns plain data.
+ * HTTP status codes, cookies and cache revalidation belong to the adapter.
+ */
+export async function analyzeSymptomCheck(
+  supabase: SupabaseService,
+  input: AnalyzeSymptomCheckInput,
+): Promise<AnalyzeSymptomCheckOutcome> {
   let reservedUsageLedgerId: string | null = null
-  let supabaseForRefund: ReturnType<typeof createServiceClient> | null = null
-  let userIdForRefund: string | null = null
+
+  const quickAssessment: QuickAssessment = {
+    appetite: input.appetite,
+    activity: input.activity,
+    duration: input.duration,
+    stool: input.stool,
+    pain_signs: input.pain_signs,
+  }
 
   try {
-    const user = await getAuthUser()
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    userIdForRefund = user.id
-
-    const supabase = createServiceClient()
-    supabaseForRefund = supabase
-
-    // Credits check
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('credits, plan')
-      .eq('id', user.id)
-      .single()
-
-    if (!profile || profile.credits <= 0) {
-      return NextResponse.json({ error: 'Not enough credits / Недостаточно credits.' }, { status: 402 })
+    const account = await loadAccount(supabase, input.userId)
+    if (!account.ok) {
+      // `not_found` keeps the response the route has always produced for a
+      // missing profile; stage 2 gives the v1 routes their own codes.
+      return account.reason === 'account_deleting'
+        ? { ok: false, code: 'account_deleting', message: 'Account is being deleted.' }
+        : { ok: false, code: 'insufficient_credits', message: 'Not enough credits / Недостаточно credits.' }
     }
 
-    // Parse multipart (photo) or JSON (text only)
-    let symptoms = ''
-    let pet_id: string | null = null
-    let appetite: string | null = null
-    let activity: string | null = null
-    let duration: string | null = null
-    let stool: string | null = null
-    let painSignsRaw: unknown = null
-    const photoBase64List: { data: string; mimeType: string }[] = []
-
-    const contentType = request.headers.get('content-type') ?? ''
-
-    if (contentType.includes('multipart/form-data')) {
-      const formData = await request.formData()
-      symptoms = (formData.get('symptoms') as string) ?? ''
-      pet_id = (formData.get('pet_id') as string) || (formData.get('cat_id') as string) || null
-      appetite = (formData.get('appetite') as string) || null
-      activity = (formData.get('activity') as string) || null
-      duration = (formData.get('duration') as string) || null
-      stool = (formData.get('stool') as string) || null
-      painSignsRaw = formData.get('pain_signs')
-
-      const allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/heic', 'image/heif']
-      const files = formData.getAll('photo') as File[]
-      const validFiles = files.filter(f => f && f.size > 0).slice(0, 5)
-      for (const file of validFiles) {
-        if (file.size > 5 * 1024 * 1024) {
-          return NextResponse.json({ error: 'Каждое фото должно быть до 5 МБ' }, { status: 400 })
-        }
-        if (!allowedMimes.includes(file.type)) {
-          return NextResponse.json({ error: 'Допустимы только изображения (JPEG, PNG, WebP)' }, { status: 400 })
-        }
-        const buffer = await file.arrayBuffer()
-        photoBase64List.push({ data: Buffer.from(buffer).toString('base64'), mimeType: file.type })
+    if (account.account.credits <= 0) {
+      return {
+        ok: false,
+        code: 'insufficient_credits',
+        message: 'Not enough credits / Недостаточно credits.',
       }
-    } else {
-      const body = await request.json()
-      symptoms = body.symptoms ?? ''
-      pet_id = body.pet_id || body.cat_id || null
-      appetite = body.appetite || null
-      activity = body.activity || null
-      duration = body.duration || null
-      stool = body.stool || null
-      painSignsRaw = body.pain_signs ?? null
     }
-
-    symptoms = symptoms.slice(0, 2000)
-
-    if (!symptoms || symptoms.trim().length < 3) {
-      return NextResponse.json(
-        { error: 'Опишите симптомы (минимум 3 символа)' },
-        { status: 400 }
-      )
-    }
-
-    // Validate quick params
-    const validAppetite = ['normal', 'reduced', 'none']
-    const validActivity = ['normal', 'low', 'lethargic']
-    const validDuration = ['today', '2-3days', 'week+']
-    const validStool = ['normal', 'loose', 'absent', 'bloody']
-    if (appetite && !validAppetite.includes(appetite)) appetite = null
-    if (activity && !validActivity.includes(activity)) activity = null
-    if (duration && !validDuration.includes(duration)) duration = null
-    if (stool && !validStool.includes(stool)) stool = null
-    const pain_signs = sanitizePainSigns(painSignsRaw)
 
     // Pet profile context
     let petContext = ''
     let verifiedPetId: string | null = null
     let species: PetSpecies = 'cat'
-    if (pet_id) {
+    if (input.petId) {
       const { data: pet } = await supabase
-        .from('pets').select('*').eq('id', pet_id).eq('user_id', user.id).is('deleted_at', null).single()
-      if (!pet) return NextResponse.json({ error: 'Pet not found / Питомец не найден.' }, { status: 404 })
+        .from('pets').select('*').eq('id', input.petId).eq('user_id', input.userId).is('deleted_at', null).single()
+      if (!pet) return { ok: false, code: 'not_found', message: 'Pet not found / Питомец не найден.' }
 
       verifiedPetId = pet.id
       species = sanitizeSpecies(pet.species)
@@ -268,19 +281,22 @@ export async function handleSymptomCheckRequest(request: NextRequest) {
     // Reserve the credit before expensive external work. If anything below
     // fails, the catch block compensates it with refund_symptom_check_usage.
     const { data: usage, error: usageError } = await supabase.rpc('apply_symptom_check_usage', {
-      p_user_id: user.id,
+      p_user_id: input.userId,
       p_symptom_check_id: null,
     })
     if (usageError) {
-      const status = usageError.message.includes('insufficient_credits') ? 402 : 500
-      return NextResponse.json({ error: usageError.message }, { status })
+      return {
+        ok: false,
+        code: usageError.message.includes('insufficient_credits') ? 'insufficient_credits' : 'internal_error',
+        message: usageError.message,
+      }
     }
     const reservedUsage = usage as { new_balance: number; ledger_id: string } | null
     reservedUsageLedgerId = reservedUsage?.ledger_id ?? null
-    const newBalance = reservedUsage?.new_balance ?? profile.credits - 1
+    const newBalance = reservedUsage?.new_balance ?? account.account.credits - 1
 
     // RAG search filtered by species
-    const vetContext = await getVetContext(symptoms, species)
+    const vetContext = await getVetContext(supabase, input.symptoms, species)
     const systemPrompt = systemPromptForSpecies(species).replace('{context}', vetContext)
 
     // Build user message — with or without photo
@@ -288,29 +304,24 @@ export async function handleSymptomCheckRequest(request: NextRequest) {
       | { type: 'text'; text: string }
       | { type: 'image_url'; image_url: { url: string; detail: 'high' } }
 
-    const APPETITE_LABELS: Record<string, string> = { normal: 'eating normally', reduced: 'eating less than usual', none: 'not eating at all' }
-    const ACTIVITY_LABELS: Record<string, string> = { normal: 'active and alert', low: 'less active than usual', lethargic: 'very lethargic' }
-    const DURATION_LABELS: Record<string, string> = { today: 'started today', '2-3days': '2–3 days', 'week+': 'more than a week' }
-    const STOOL_LABELS: Record<string, string> = { normal: 'normal stool', loose: 'loose/diarrhea', absent: 'no stool / constipation', bloody: 'blood in stool' }
-
-    const painSignsText = pain_signs.length
-      ? pain_signs.map(s => PAIN_SIGN_PROMPT_LABELS[s as PainSign] ?? s).join(', ')
+    const painSignsText = input.pain_signs.length
+      ? input.pain_signs.map(s => PAIN_SIGN_PROMPT_LABELS[s as PainSign] ?? s).join(', ')
       : null
 
     const quickContext = [
-      appetite ? `Appetite: ${APPETITE_LABELS[appetite] ?? appetite}` : null,
-      activity ? `Activity level: ${ACTIVITY_LABELS[activity] ?? activity}` : null,
-      duration ? `Duration: symptoms have ${DURATION_LABELS[duration] ?? duration}` : null,
-      stool ? `Stool: ${STOOL_LABELS[stool] ?? stool}` : null,
+      input.appetite ? `Appetite: ${APPETITE_LABELS[input.appetite] ?? input.appetite}` : null,
+      input.activity ? `Activity level: ${ACTIVITY_LABELS[input.activity] ?? input.activity}` : null,
+      input.duration ? `Duration: symptoms have ${DURATION_LABELS[input.duration] ?? input.duration}` : null,
+      input.stool ? `Stool: ${STOOL_LABELS[input.stool] ?? input.stool}` : null,
       painSignsText ? `Pain signs: ${painSignsText}` : null,
     ].filter(Boolean).join('. ')
 
     const speciesLabel = species === 'dog' ? 'Dog' : 'Cat'
     const userContent: ContentPart[] = [
-      { type: 'text', text: `${speciesLabel} symptoms: ${symptoms}${quickContext ? `\n\nQuick assessment: ${quickContext}.` : ''}${petContext}` },
+      { type: 'text', text: `${speciesLabel} symptoms: ${input.symptoms}${quickContext ? `\n\nQuick assessment: ${quickContext}.` : ''}${petContext}` },
     ]
 
-    for (const photo of photoBase64List) {
+    for (const photo of input.photos) {
       userContent.push({
         type: 'image_url',
         image_url: {
@@ -332,7 +343,7 @@ export async function handleSymptomCheckRequest(request: NextRequest) {
     })
 
     const resultText = completion.choices[0].message.content
-    if (!resultText) throw new Error('Empty response from GPT-4o')
+    if (!resultText) throw new Error('Empty response from the model')
 
     let parsed: unknown
     try {
@@ -346,16 +357,16 @@ export async function handleSymptomCheckRequest(request: NextRequest) {
     const { data: check, error: checkError } = await supabase
       .from('symptom_checks')
       .insert({
-        user_id: user.id,
+        user_id: input.userId,
         pet_id: verifiedPetId,
-        symptoms_input: symptoms,
+        symptoms_input: input.symptoms,
         urgency: result.urgency,
         urgency_reason: result.urgency_reason,
         possible_causes: result.possible_causes,
         species_specific_warning: result.species_specific_warning,
         home_care_steps: result.home_care_steps,
         vet_questions: result.vet_questions,
-        full_response: { ...result, appetite, activity, duration, stool, pain_signs, photo_count: photoBase64List.length },
+        full_response: { ...result, ...quickAssessment, photo_count: input.photos.length },
       })
       .select('id')
       .single()
@@ -366,34 +377,29 @@ export async function handleSymptomCheckRequest(request: NextRequest) {
         .from('credit_ledger')
         .update({ symptom_check_id: check.id })
         .eq('id', reservedUsageLedgerId)
-        .eq('user_id', user.id)
+        .eq('user_id', input.userId)
         .eq('reason', 'usage')
       if (ledgerError) console.error('usage ledger attach error:', ledgerError)
     }
     reservedUsageLedgerId = null
 
-    revalidatePath('/dashboard')
-
-    return NextResponse.json({
-      ...result,
-      has_photo: photoBase64List.length > 0,
-      appetite,
-      activity,
-      duration,
-      stool,
-      pain_signs,
-      check_id: check?.id,
-      credits_remaining: newBalance,
-    })
+    return {
+      ok: true,
+      result,
+      checkId: check.id,
+      creditsRemaining: newBalance,
+      hasPhoto: input.photos.length > 0,
+      quickAssessment,
+    }
   } catch (error) {
     console.error('symptom-check error:', error)
-    if (reservedUsageLedgerId && supabaseForRefund && userIdForRefund) {
-      const { error: refundError } = await supabaseForRefund.rpc('refund_symptom_check_usage', {
-        p_user_id: userIdForRefund,
+    if (reservedUsageLedgerId) {
+      const { error: refundError } = await supabase.rpc('refund_symptom_check_usage', {
+        p_user_id: input.userId,
         p_usage_ledger_id: reservedUsageLedgerId,
       })
       if (refundError) console.error('symptom-check credit refund error:', refundError)
     }
-    return NextResponse.json({ error: 'An error occurred / Произошла ошибка.' }, { status: 500 })
+    return { ok: false, code: 'internal_error', message: 'An error occurred / Произошла ошибка.' }
   }
 }

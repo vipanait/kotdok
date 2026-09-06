@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import AppShell from '@/components/AppShell'
 import AdminStatisticsClient from '@/features/admin/AdminStatisticsClient'
-import { requireAdminUser } from '@/server/auth/require-admin-user'
+import { loadAdminUser } from '@/server/auth/admin-user'
 import { getAdminStatistics, normalizeAdminStatisticsPeriod } from '@/server/admin/statistics'
 import { getDictionary } from '@/server/i18n/get-dictionary'
 import { getLocale } from '@/server/i18n/get-locale'
@@ -20,7 +21,14 @@ export default async function AdminStatisticsPage({
   const params = await searchParams
   const days = normalizeAdminStatisticsPeriod(params.days)
 
-  await requireAdminUser(`/admin/statistics?days=${days}`)
+  const admin = await loadAdminUser()
+  if (!admin.ok) {
+    redirect(
+      admin.reason === 'signed_out'
+        ? `/login?next=${encodeURIComponent(`/admin/statistics?days=${days}`)}`
+        : '/dashboard',
+    )
+  }
 
   const locale = await getLocale()
   const dict = await getDictionary(locale)
