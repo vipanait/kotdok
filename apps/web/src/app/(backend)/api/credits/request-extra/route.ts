@@ -5,6 +5,7 @@ import { csrfForbiddenResponse, verifyCsrf } from '@/server/security/csrf'
 
 function statusForError(message: string): number {
   if (message.includes('Unauthorized')) return 401
+  if (message.includes('rate_limited')) return 429
   if (message.includes('account_deleting')) return 403
   if (message.includes('profile_not_found')) return 404
   if (message.includes('credits_remaining')) return 409

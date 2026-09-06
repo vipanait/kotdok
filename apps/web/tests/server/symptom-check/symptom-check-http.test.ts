@@ -67,7 +67,13 @@ describe('symptom-check HTTP adapter', () => {
       if (table === 'pets') return petQuery
       throw new Error(`Unexpected table: ${table}`)
     })
-    vi.mocked(createServiceClient).mockReturnValue({ from } as never)
+    // The limiter runs before the pet lookup; an allowed verdict keeps it out
+    // of the way of what this test is about.
+    const rpc = vi.fn(async () => ({
+      data: { allowed: true, remaining: 9, reset_at: '2026-09-06T13:00:00.000Z' },
+      error: null,
+    }))
+    vi.mocked(createServiceClient).mockReturnValue({ from, rpc } as never)
 
     const response = await handleSymptomCheckRequest(jsonRequest({
       symptoms: 'sneezing a lot',
