@@ -11,7 +11,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:integration": "vitest run --config vitest.integration.config.mts"
+    "test:integration": "vitest run --config vitest.integration.config.mts",
+    "openapi:update": "vitest run tests/unit/contracts/openapi.test.ts -u"
   },
   "dependencies": {
     "@lapka/contracts": "*",
@@ -26,6 +27,7 @@
     "resend": "^6.10.0"
   },
   "devDependencies": {
+    "@readme/openapi-parser": "^5",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/pg": "^8.23.1",
@@ -37,6 +39,7 @@
     "pg": "^8.23.0",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "vitest": "^4.1.5"
+    "vitest": "^4.1.5",
+    "yaml": "^2"
   }
 }
