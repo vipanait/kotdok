@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { Button, StyleSheet, TextInput } from 'react-native'
-import { Link } from 'expo-router'
+import { Link, Redirect } from 'expo-router'
 import { useAuth } from '@/providers/AuthProvider'
 import { Message, Screen } from '@/ui/Screen'
 
 export default function SignUp() {
-  const { signUp } = useAuth()
+  const { session, signUp } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -16,15 +16,20 @@ export default function SignUp() {
     setBusy(true)
     setError(null)
     try {
-      await signUp(email.trim(), password)
-      // Registration is not a session: the address still has to be confirmed.
-      setSent(true)
+      const { confirmationRequired } = await signUp(email.trim(), password)
+      // Only promise a letter when one is actually coming. With confirmation
+      // switched off Supabase signs the user in here and the redirect below
+      // takes over, so telling them to open a link would be a dead end.
+      if (confirmationRequired) setSent(true)
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Не удалось зарегистрироваться')
     } finally {
       setBusy(false)
     }
   }
+
+  // Registration signed us in: nothing left to do on this screen.
+  if (session) return <Redirect href="/pets" />
 
   return (
     <Screen title="Регистрация">
