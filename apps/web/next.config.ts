@@ -9,6 +9,8 @@ const securityHeaders = [
 ]
 
 const nextConfig: NextConfig = {
+  // Workspace packages are published as TypeScript source.
+  transpilePackages: ['@lapka/contracts', '@lapka/shared'],
   async headers() {
     return [
       {

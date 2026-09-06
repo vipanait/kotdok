@@ -1,3 +1,5 @@
-export const locales = ['ru', 'en'] as const
-export type Locale = typeof locales[number]
+import { SUPPORTED_LOCALES, type SupportedLocale } from '@lapka/shared'
+
+export const locales = SUPPORTED_LOCALES
+export type Locale = SupportedLocale
 export const defaultLocale: Locale = 'ru'
