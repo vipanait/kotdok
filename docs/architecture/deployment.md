@@ -2,7 +2,41 @@
 
 Документ ведётся по пункту **0/06** дорожной карты. Статус: **частично заполнен**. Каждая строка помечена источником; незаполненное считается непроверенным, а не «по умолчанию нормальным». Секреты и ключи в документ не попадают.
 
-Последняя проверка: 6 сентября 2026, запуск `docs/verification/runs/stage-0/20260906-063927Z.md`.
+Последняя проверка: 6 сентября 2026, запуск `docs/verification/runs/stage-0.1/20260906-072750Z.md`.
+
+## Хостинг сайта и API
+
+| Параметр | Значение | Источник |
+| --- | --- | --- |
+| Платформа | Vercel, личный аккаунт `panaitvi-4639`, scope `panaitvi-4639s-projects`, команд нет | `vercel whoami`, `vercel project ls` |
+| Проект | `kotdok`, `prj_07jOV73R0hWuHG2I9agVjzLS1SDv`, создан 13 апреля 2026 | `vercel project inspect kotdok` |
+| Production URL | `https://lapka.my` | `vercel project ls` |
+| Root Directory проекта | `.` | `vercel project inspect` |
+| Node.js | 24.x | там же |
+| Framework preset | Next.js; build и output — по умолчанию, переопределены корневым `vercel.json` | там же |
+| Preview-деплои | создаются автоматически на push любой ветки | наблюдение: push `stage-0-baseline` дал preview |
+| Защита preview | включена Vercel Deployment Protection: все пути отдают страницу входа Vercel | `curl` по выданному preview URL |
+| Второй проект аккаунта | `dashboard` — к этому приложению отношения не имеет | `vercel project ls` |
+
+После переноса в `apps/web` сборка на Vercel падала: собранное приложение лежит в `apps/web/.next`, а Vercel искал `.next` в корне. Настройка вынесена в корневой `vercel.json`, чтобы жить в репозитории, а не в параметрах проекта.
+
+### Переменные окружения
+
+Имена и области действия (значения не выводились):
+
+| Переменная | Окружения | Тип |
+| --- | --- | --- |
+| `NEXT_PUBLIC_APP_URL` | Production, Preview, Development | Non-sensitive |
+| `NEXT_PUBLIC_SUPABASE_URL` | Production, Preview, Development | Non-sensitive |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Production, Preview, Development | Non-sensitive |
+| `SUPABASE_SERVICE_ROLE_KEY` | Production, Preview, Development | Non-sensitive |
+| `OPENAI_API_KEY` | Production, Preview, Development | Non-sensitive |
+| `DUMMY_WEBHOOK_SECRET` | Production, Preview | Sensitive |
+| `TELEGRAM_BOT_TOKEN` | Production, Preview | Sensitive |
+| `TELEGRAM_APPROVAL_CHAT_ID` | Production, Preview | Sensitive |
+| `TELEGRAM_WEBHOOK_SECRET` | Production, Preview | Sensitive |
+
+**Требует решения владельца.** Preview-окружение получает те же значения, что и production: любой preview-деплой любой ветки работает с боевым service-role-ключом Supabase, боевым ключом OpenAI и боевым Telegram-ботом. Кроме того, ключ service role и ключ OpenAI помечены Non-sensitive, то есть их значения читаются через настройки проекта и API. Это делает пункт 0/04 невыполненным и со стороны хостинга, а не только со стороны Supabase.
 
 ## Репозиторий и CI
 
@@ -16,7 +50,7 @@
 | Таймаут задачи CI | 15 минут | тот же файл |
 | Интеграционные тесты в CI | не подключены | в workflow нет ни `test:integration`, ни сервиса Postgres |
 
-Локально проверялось на Node v25.2.1; CI использует Node 20. Совместимая версия для обоих окружений на этапе 0.1 не зафиксирована — расхождение отмечено как открытый вопрос.
+В одной цепочке три разные версии Node: локальная разработка 25.2.1, CI 20, Vercel 24.x. Совместимая версия не выбрана — открытый вопрос.
 
 ## База данных
 
@@ -25,7 +59,7 @@
 | Проект Supabase | `bczseshsgpzulqynvukg`, регион `ap-northeast-1` | Supabase Management API, `list_projects` |
 | PostgreSQL | 17.6.1.104 (engine 17, канал ga) | там же |
 | Состояние | ACTIVE_HEALTHY, создан 13 апреля 2026 | там же |
-| История миграций | отсутствует: `supabase_migrations.schema_migrations` пуст | `list_migrations` |
+| История миграций | не соответствует репозиторию: одна служебная запись `20260906071541 feedback`, 14 версий репозитория не отмечены | `list_migrations` |
 | Отдельный тестовый/staging-проект | **отсутствует** — в аккаунте один проект | `list_projects` |
 | Локальный стенд | Supabase CLI 2.115.0 на Docker Engine 29.7.2; БД 127.0.0.1:54322, API 127.0.0.1:54321 | `supabase start` |
 | Резервное копирование | **не проверено** | требуется доступ к настройкам проекта |
@@ -34,7 +68,8 @@
 
 | Что | Зачем нужно | Что блокирует |
 | --- | --- | --- |
-| Фактический хостинг сайта/API и его лимиты запроса и времени выполнения | Проверить пригодность для загрузки фото и синхронного анализа | Этапы 1 (числовые лимиты) и 6 |
+| Лимиты размера запроса и времени выполнения функций Vercel на текущем тарифе | Проверить пригодность для загрузки фото и синхронного анализа | Этапы 1 (числовые лимиты) и 6 |
+| Разделение переменных Production и Preview | Preview сейчас работает с боевыми ключами | Этап 0, пункт 0/04 |
 | Возможность запускать worker (длительность, периодичность, параллелизм) | Фоновая обработка анализа | **Этап 6** — пока зависимость явно блокирующая |
 | Настройки резервного копирования и срок хранения копий | Политика удаления аккаунта | Этап 8 (пункт 8/09) |
 | Отдельный тестовый Supabase-проект | Изоляция тестов от production | **Этап 0, пункт 0/04** |
