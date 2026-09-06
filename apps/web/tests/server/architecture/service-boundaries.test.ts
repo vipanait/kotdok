@@ -28,6 +28,7 @@ const FORBIDDEN = [
  */
 const ADAPTERS = new Set([
   'api/bearer-auth.ts',
+  'api/failure-response.ts',
   'api/response.ts',
   'api/with-api-auth.ts',
   'auth/auth-callback.ts',

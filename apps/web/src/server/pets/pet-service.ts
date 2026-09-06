@@ -45,6 +45,28 @@ export async function listPets(
   return { ok: true, data: (data ?? []) as Pet[] }
 }
 
+export async function getPet(
+  supabase: SupabaseService,
+  userId: string,
+  petId: string,
+): Promise<PetResult<Pet>> {
+  const allowed = await requireActiveAccount(supabase, userId)
+  if (!allowed.ok) return allowed
+
+  const { data, error } = await supabase
+    .from('pets')
+    .select('*')
+    .eq('id', petId)
+    .eq('user_id', userId)
+    .is('deleted_at', null)
+    .maybeSingle()
+
+  if (error) return { ok: false, reason: 'storage_error', message: error.message }
+  // Someone else's pet is indistinguishable from one that never existed.
+  if (!data) return { ok: false, reason: 'not_found' }
+  return { ok: true, data: data as Pet }
+}
+
 export async function createPet(
   supabase: SupabaseService,
   userId: string,
@@ -79,7 +101,10 @@ export async function updatePet(
     .eq('user_id', userId)
     .is('deleted_at', null)
     .select()
-    .single()
+    // maybeSingle, not single: a pet that belongs to someone else matches no
+    // row, and `single` reports that as an error rather than as absence, which
+    // turned "not yours" into a 500.
+    .maybeSingle()
 
   if (error) return { ok: false, reason: 'storage_error', message: error.message }
   if (!data) return { ok: false, reason: 'not_found' }
@@ -102,7 +127,7 @@ export async function softDeletePetAndChecks(
     .eq('user_id', userId)
     .is('deleted_at', null)
     .select()
-    .single()
+    .maybeSingle()
 
   if (deletedPet.error) return { ok: false, reason: 'storage_error', message: deletedPet.error.message }
   if (!deletedPet.data) return { ok: false, reason: 'not_found' }
