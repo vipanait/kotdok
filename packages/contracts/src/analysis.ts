@@ -34,7 +34,11 @@ export const CheckCreateInputSchema = z.strictObject({
   pain_signs: z.array(z.enum(PAIN_SIGNS)).max(PAIN_SIGNS.length).default([]),
 })
 
-export type CheckCreateInput = z.infer<typeof CheckCreateInputSchema>
+/** What a client sends: the defaulted lists may be omitted. */
+export type CheckCreateInput = z.input<typeof CheckCreateInputSchema>
+
+/** What the server works with after parsing, with the defaults filled in. */
+export type ParsedCheckCreateInput = z.output<typeof CheckCreateInputSchema>
 
 /** Header name carrying the client-generated idempotency key on POST /checks. */
 export const IDEMPOTENCY_KEY_HEADER = 'Idempotency-Key'
