@@ -33,6 +33,27 @@ async function loadPreviousRequestsCount(
   return count ?? 0
 }
 
+/**
+ * The status of the user's most recent request, or null if they never asked.
+ * The dashboard reads the same row; this is the API's way in.
+ */
+export async function readExtraCheckRequestStatus(
+  userId: string,
+): Promise<'pending' | 'approved' | 'rejected' | null> {
+  const supabase = createServiceClient()
+
+  const { data, error } = await supabase
+    .from('extra_check_requests')
+    .select('status')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  if (error) throw new Error(error.message)
+  return (data?.status ?? null) as 'pending' | 'approved' | 'rejected' | null
+}
+
 export async function submitExtraCheckRequest(userId: string): Promise<{ requestId: string }> {
   const supabase = createServiceClient()
 
