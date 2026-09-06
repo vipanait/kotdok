@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import type { Client } from 'pg'
 import { loadAccount } from '@/server/auth/account-state'
-import { FIXTURE_PASSWORD, OWNER_A, connect, seedFixtures, type SeededFixtures } from './fixtures'
+import { FIXTURE_PASSWORD, OWNER_A, OWNER_B, connect, seedFixtures, type SeededFixtures } from './fixtures'
 
 /** The service-role client the server layer uses. */
 function serviceClient() {
@@ -156,5 +156,55 @@ describe('the guard every service goes through', () => {
     const result = await loadAccount(serviceClient(), '00000000-0000-4000-8000-000000000000')
 
     expect(result).toEqual({ ok: false, reason: 'not_found' })
+  })
+})
+
+describe('a deleting account loses access on every path', () => {
+  it('cannot read its own rows directly, even with a token issued earlier', async () => {
+    const client = await signedInAsOwnerA()
+
+    const before = await client.from('pets').select('id')
+    expect(before.data?.length).toBeGreaterThan(0)
+
+    await db.query(`update public.profiles set status = 'deleting' where id = $1`, [seeded.ownerAId])
+
+    // Same client, same token: the JWT is still cryptographically valid.
+    for (const table of ['profiles', 'pets', 'symptom_checks', 'credit_transactions']) {
+      const { data, error } = await client.from(table).select('id')
+      expect(error, `${table} errored`).toBeNull()
+      expect(data, `${table} still readable`).toEqual([])
+    }
+
+    await db.query(`update public.profiles set status = 'active' where id = $1`, [seeded.ownerAId])
+  })
+
+  it('lets the same token read again once the account is active', async () => {
+    const client = await signedInAsOwnerA()
+
+    const { data } = await client.from('pets').select('id')
+
+    expect(data?.length).toBeGreaterThan(0)
+  })
+
+  it('does not leak another owner’s rows while one is deleting', async () => {
+    await db.query(`update public.profiles set status = 'deleting' where id = $1`, [seeded.ownerAId])
+
+    const other = createClient(
+      process.env.TEST_SUPABASE_URL!,
+      process.env.TEST_SUPABASE_ANON_KEY!,
+      { auth: { autoRefreshToken: false, persistSession: false } },
+    )
+    const { error } = await other.auth.signInWithPassword({
+      email: OWNER_B.email,
+      password: FIXTURE_PASSWORD,
+    })
+    if (error) throw error
+
+    const { data } = await other.from('pets').select('user_id')
+
+    expect(data?.length).toBeGreaterThan(0)
+    expect(data?.every((row) => row.user_id === seeded.ownerBId)).toBe(true)
+
+    await db.query(`update public.profiles set status = 'active' where id = $1`, [seeded.ownerAId])
   })
 })

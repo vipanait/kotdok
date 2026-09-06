@@ -37,6 +37,7 @@ const REQUIRED_FUNCTIONS = [
   'consume_rate_limit',
   'create_extra_check_request',
   'create_transaction',
+  'current_account_is_active',
   'handle_new_user',
   'mark_transaction_pending',
   'refund_symptom_check_usage',
