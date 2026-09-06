@@ -11,7 +11,17 @@ import { sanitizeSpecies } from '@/shared/utils/pet-utils'
 
 type SupabaseService = ReturnType<typeof createServiceClient>
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+/**
+ * Built on first use, not at import time. A module that cannot be imported
+ * without a secret is a module that cannot be tested, and the failure surfaces
+ * as an unrelated import error rather than as a missing key.
+ */
+let openaiClient: OpenAI | null = null
+
+function openai(): OpenAI {
+  openaiClient ??= new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  return openaiClient
+}
 
 const SHARED_OUTPUT = `OUTPUT FORMAT (always valid JSON, no markdown). All text fields must be in Russian.
 
@@ -91,7 +101,7 @@ async function getVetContext(
   symptoms: string,
   species: PetSpecies,
 ): Promise<string> {
-  const embeddingResponse = await openai.embeddings.create({
+  const embeddingResponse = await openai().embeddings.create({
     model: 'text-embedding-3-small',
     input: symptoms,
   })
@@ -339,7 +349,7 @@ export async function analyzeSymptomCheck(
       })
     }
 
-    const completion = await openai.chat.completions.create({
+    const completion = await openai().chat.completions.create({
       model: 'gpt-5.4',
       messages: [
         { role: 'system', content: systemPrompt },
