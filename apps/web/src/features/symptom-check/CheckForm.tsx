@@ -1,9 +1,8 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import Image from 'next/image'
 import type { SymptomCheckResult, Pet } from '@/shared/types'
 import { useTranslations } from '@/components/LocaleProvider'
 import AppShell from '@/components/AppShell'
@@ -21,7 +20,6 @@ export default function CheckForm({ pets, onClose }: Props) {
   const router = useRouter()
   const dict = useTranslations()
   const t = dict.check
-  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [selectedPetId, setSelectedPetId] = useState<string>(pets[0]?.id ?? '')
   const [showPetPicker, setShowPetPicker] = useState(false)
@@ -31,53 +29,9 @@ export default function CheckForm({ pets, onClose }: Props) {
   const [stool, setStool] = useState<string>('')
   const [painSigns, setPainSigns] = useState<string[]>([])
   const [symptoms, setSymptoms] = useState('')
-  const [photos, setPhotos] = useState<File[]>([])
-  const [photoPreviews, setPhotoPreviews] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<(SymptomCheckResult & { credits_remaining: number }) | null>(null)
   const [error, setError] = useState('')
-
-  const MAX_PHOTOS = 5
-  const MAX_PHOTO_SIZE = 5 * 1024 * 1024
-
-  function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(e.target.files ?? [])
-    if (!files.length) return
-
-    const remaining = MAX_PHOTOS - photos.length
-    const toAdd = files.slice(0, remaining)
-    const skipped = files.length - toAdd.length
-
-    const oversized = toAdd.filter(f => f.size > MAX_PHOTO_SIZE)
-    if (oversized.length) {
-      setError(t.photoSizeError.replace('{names}', oversized.map(f => f.name).join(', ')))
-      if (fileInputRef.current) fileInputRef.current.value = ''
-      return
-    }
-
-    const newPreviews = toAdd.map(f => URL.createObjectURL(f))
-    setPhotos(prev => [...prev, ...toAdd])
-    setPhotoPreviews(prev => [...prev, ...newPreviews])
-    if (skipped > 0) {
-      setError(t.photoCountError.replace('{max}', String(MAX_PHOTOS)).replace('{skipped}', String(skipped)))
-    } else {
-      setError('')
-    }
-    if (fileInputRef.current) fileInputRef.current.value = ''
-  }
-
-  function removePhoto(index: number) {
-    URL.revokeObjectURL(photoPreviews[index])
-    setPhotos(prev => prev.filter((_, i) => i !== index))
-    setPhotoPreviews(prev => prev.filter((_, i) => i !== index))
-  }
-
-  function removeAllPhotos() {
-    photoPreviews.forEach(p => URL.revokeObjectURL(p))
-    setPhotos([])
-    setPhotoPreviews([])
-    if (fileInputRef.current) fileInputRef.current.value = ''
-  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -85,34 +39,19 @@ export default function CheckForm({ pets, onClose }: Props) {
     setError('')
     setResult(null)
 
-    let res: Response
-
-    const extra = {
-      appetite: appetite || undefined,
-      activity: activity || undefined,
-      duration: duration || undefined,
-      stool: stool || undefined,
-      pain_signs: painSigns.length ? painSigns : undefined,
-    }
-
-    if (photos.length > 0) {
-      const formData = new FormData()
-      formData.append('symptoms', symptoms)
-      photos.forEach(p => formData.append('photo', p))
-      if (selectedPetId) formData.append('pet_id', selectedPetId)
-      if (appetite) formData.append('appetite', appetite)
-      if (activity) formData.append('activity', activity)
-      if (duration) formData.append('duration', duration)
-      if (stool) formData.append('stool', stool)
-      if (painSigns.length) formData.append('pain_signs', painSigns.join(','))
-      res = await fetch('/api/symptom-check', { method: 'POST', headers: csrfHeaders(), body: formData })
-    } else {
-      res = await fetch('/api/symptom-check', {
-        method: 'POST',
-        headers: csrfHeaders({ 'Content-Type': 'application/json' }),
-        body: JSON.stringify({ symptoms, pet_id: selectedPetId || undefined, ...extra }),
-      })
-    }
+    const res = await fetch('/api/symptom-check', {
+      method: 'POST',
+      headers: csrfHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({
+        symptoms,
+        pet_id: selectedPetId || undefined,
+        appetite: appetite || undefined,
+        activity: activity || undefined,
+        duration: duration || undefined,
+        stool: stool || undefined,
+        pain_signs: painSigns.length ? painSigns : undefined,
+      }),
+    })
 
     const data = await res.json()
 
@@ -231,41 +170,6 @@ export default function CheckForm({ pets, onClose }: Props) {
         />
       </div>
 
-      {/* Photo dropzone */}
-      <div className="space-y-2">
-        {photoPreviews.length > 0 && (
-          <div className="grid grid-cols-3 gap-2">
-            {photoPreviews.map((src, i) => (
-              <div key={i} className="relative rounded-xl overflow-hidden border border-hairline aspect-square">
-                <Image src={src} alt={`Photo ${i + 1}`} fill className="object-cover" />
-                <button
-                  type="button"
-                  onClick={() => removePhoto(i)}
-                  className="absolute top-1 right-1 bg-black/60 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center hover:bg-black/80 leading-none"
-                >
-                  ×
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-        {photos.length < MAX_PHOTOS && (
-          <div
-            onClick={() => fileInputRef.current?.click()}
-            className="cursor-pointer rounded-2xl border border-dashed border-hairline bg-card px-4 py-5 text-center transition-colors hover:border-card-soft-strong"
-          >
-            <div className="flex items-center justify-center gap-2 text-sm font-semibold text-text">
-              <span aria-hidden>📷</span>
-              {photos.length === 0
-                ? t.addPhoto
-                : t.morePhotos.replace('{count}', String(photos.length)).replace('{max}', String(MAX_PHOTOS))}
-            </div>
-            <p className="text-xs text-text-muted mt-1">{t.photoHint}</p>
-          </div>
-        )}
-        <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handlePhotoChange} />
-      </div>
-
       {error && <div className="bg-status-error-bg text-status-error-fg text-sm rounded-xl px-4 py-3">{error}</div>}
 
       <div className="pt-1">
@@ -280,7 +184,7 @@ export default function CheckForm({ pets, onClose }: Props) {
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
               </svg>
-              {photos.length > 0 ? t.analyzingPhotos : t.analyzing}
+              {t.analyzing}
             </span>
           ) : (
             dict.check.submitButton
@@ -341,7 +245,7 @@ export default function CheckForm({ pets, onClose }: Props) {
         )}
         <button
           type="button"
-          onClick={() => { setResult(null); setSymptoms(''); removeAllPhotos() }}
+          onClick={() => { setResult(null); setSymptoms('') }}
           className="block w-full cursor-pointer text-center text-sm font-semibold text-accent-text transition-colors hover:text-accent"
         >
           {t.newCheckWithCredits.replace('{n}', String(result!.credits_remaining))}
