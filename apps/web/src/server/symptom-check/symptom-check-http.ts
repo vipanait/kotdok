@@ -8,26 +8,21 @@ import { getAuthUser } from '@/server/auth/get-auth-user'
 import { sanitizePainSigns } from '@/shared/utils/check-params'
 import {
   analyzeSymptomCheck,
-  type AnalysisPhoto,
   type AnalyzeSymptomCheckInput,
 } from '@/server/symptom-check/analyze-symptom-check'
 
 /**
- * The HTTP side of an analysis: session, request parsing, upload limits, status
- * codes and cache revalidation. The business rules live in
- * `analyze-symptom-check.ts`, which never sees a Request or a Response.
+ * The HTTP side of an analysis: session, request parsing, status codes and cache
+ * revalidation. The business rules live in `analyze-symptom-check.ts`, which
+ * never sees a Request or a Response.
+ *
+ * Photo upload is off. Bodies were sent as `multipart/form-data` with the images
+ * inline, and Vercel drops any body over 4.5 MB before the function runs, so a
+ * couple of phone photos failed with an unexplained 413. Uploads come back when
+ * they go straight to private storage and only ids reach this route (stage 6);
+ * until then this adapter accepts JSON only, and the analysis service keeps its
+ * photo support with an always-empty list.
  */
-
-const MAX_PHOTOS = 5
-const MAX_PHOTO_BYTES = 5 * 1024 * 1024
-const ALLOWED_PHOTO_MIMES = [
-  'image/jpeg',
-  'image/png',
-  'image/webp',
-  'image/gif',
-  'image/heic',
-  'image/heif',
-]
 
 const VALID_APPETITE = ['normal', 'reduced', 'none']
 const VALID_ACTIVITY = ['normal', 'low', 'lethargic']
@@ -47,51 +42,25 @@ function badRequest(message: string) {
 }
 
 async function parseRequest(request: NextRequest): Promise<ParsedRequest> {
-  let symptoms = ''
-  let petId: string | null = null
-  let appetite: string | null = null
-  let activity: string | null = null
-  let duration: string | null = null
-  let stool: string | null = null
-  let painSignsRaw: unknown = null
-  const photos: AnalysisPhoto[] = []
-
   const contentType = request.headers.get('content-type') ?? ''
 
+  // A form-data body can only be an older client still sending photos: answer it
+  // with a reason instead of letting the platform cut it off with a bare 413.
   if (contentType.includes('multipart/form-data')) {
-    const formData = await request.formData()
-    symptoms = (formData.get('symptoms') as string) ?? ''
-    petId = (formData.get('pet_id') as string) || (formData.get('cat_id') as string) || null
-    appetite = (formData.get('appetite') as string) || null
-    activity = (formData.get('activity') as string) || null
-    duration = (formData.get('duration') as string) || null
-    stool = (formData.get('stool') as string) || null
-    painSignsRaw = formData.get('pain_signs')
-
-    const files = formData.getAll('photo') as File[]
-    const validFiles = files.filter(f => f && f.size > 0).slice(0, MAX_PHOTOS)
-    for (const file of validFiles) {
-      if (file.size > MAX_PHOTO_BYTES) {
-        return { ok: false, response: badRequest('Каждое фото должно быть до 5 МБ') }
-      }
-      if (!ALLOWED_PHOTO_MIMES.includes(file.type)) {
-        return { ok: false, response: badRequest('Допустимы только изображения (JPEG, PNG, WebP)') }
-      }
-      const buffer = await file.arrayBuffer()
-      photos.push({ data: Buffer.from(buffer).toString('base64'), mimeType: file.type })
+    return {
+      ok: false,
+      response: badRequest('Загрузка фото временно отключена — опишите симптомы текстом'),
     }
-  } else {
-    const body = await request.json()
-    symptoms = body.symptoms ?? ''
-    petId = body.pet_id || body.cat_id || null
-    appetite = body.appetite || null
-    activity = body.activity || null
-    duration = body.duration || null
-    stool = body.stool || null
-    painSignsRaw = body.pain_signs ?? null
   }
 
-  symptoms = symptoms.slice(0, 2000)
+  const body = await request.json()
+  const symptoms = String(body.symptoms ?? '').slice(0, 2000)
+  const petId: string | null = body.pet_id || body.cat_id || null
+  const appetite: string | null = body.appetite || null
+  const activity: string | null = body.activity || null
+  const duration: string | null = body.duration || null
+  const stool: string | null = body.stool || null
+  const painSignsRaw: unknown = body.pain_signs ?? null
 
   if (!symptoms || symptoms.trim().length < 3) {
     return { ok: false, response: badRequest('Опишите симптомы (минимум 3 символа)') }
@@ -107,7 +76,7 @@ async function parseRequest(request: NextRequest): Promise<ParsedRequest> {
       duration: narrow(duration, VALID_DURATION),
       stool: narrow(stool, VALID_STOOL),
       pain_signs: sanitizePainSigns(painSignsRaw),
-      photos,
+      photos: [],
     },
   }
 }
