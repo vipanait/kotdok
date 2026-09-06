@@ -121,12 +121,6 @@ function AppPreview({ t }: { t: Dictionary['home'] }) {
         <div className="rounded-xl border border-gray-200 px-4 py-3 text-xs text-gray-400">
           {p.symptomsPlaceholder}
         </div>
-
-        <div className="rounded-xl border border-dashed border-gray-300 py-5 text-center">
-          <div className="text-2xl">📷</div>
-          <p className="mt-1 text-sm font-semibold">{p.addPhoto}</p>
-          <p className="text-[11px] text-gray-400">{p.photoHint}</p>
-        </div>
       </div>
     </div>
   )

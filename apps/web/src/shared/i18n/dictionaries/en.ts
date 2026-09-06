@@ -38,7 +38,7 @@ const en: Dictionary = {
       catDetails: 'Orange cat · 1 year · 4.5 kg · Indoor',
       profileFilled: 'Profile complete',
       describeSymptoms: 'Describe symptoms',
-      moreDetail: 'The more detail — the more accurate. You can add photos.',
+      moreDetail: 'The more detail — the more accurate.',
       appetiteLabel: 'Appetite',
       appetiteOptions: ['Eating normally', 'Eating less', 'Not eating'],
       activityLabel: 'Activity',
@@ -49,8 +49,6 @@ const en: Dictionary = {
       stoolOptions: ['Normal', 'Loose (diarrhea)', 'Absent', 'Bloody'],
       symptomsPlaceholder:
         'Describe in detail: what is happening, when it started, how the pet is behaving...',
-      addPhoto: 'Add photo (optional)',
-      photoHint: 'Wound, eye, skin, posture — up to 5 MB each',
     },
   },
   auth: {
@@ -280,14 +278,7 @@ const en: Dictionary = {
     painVocalizing: 'Distress vocalizing',
     symptomsPlaceholder:
       'Describe in detail: what is happening, when it started, how the pet is behaving...',
-    photoSizeError: 'Each photo must be up to 5 MB. Over limit: {names}',
-    photoCountError: 'You can add no more than {max} photos. {skipped} photo(s) skipped.',
-    addPhoto: 'Add photo (optional)',
-    morePhotos: 'More photos ({count}/{max})',
-    photoHint: 'Wound, eye, skin, posture — up to 5 MB each',
-    analyzingPhotos: 'Analyzing photos (~20 sec)...',
     analyzing: 'Analyzing (~15 sec)...',
-    analyzeWithPhotos: 'Analyze {n} photo(s) + symptoms',
     checkSymptoms: 'Check symptoms',
     errorGeneric: 'An error occurred. Please try again.',
     notedDuringCheck: 'Noted during check',
@@ -315,7 +306,7 @@ const en: Dictionary = {
     toAccount: 'Back to account',
     creditsRemaining: 'Credits remaining: {n}',
     modalHeading: 'Describe symptoms',
-    modalSubheading: 'The more detail — the more accurate. You can add photos.',
+    modalSubheading: 'The more detail — the more accurate.',
     stepLabel: 'STEP 1 OF 1',
     changePet: 'Change',
     describeMore: 'Describe in more detail',
@@ -326,7 +317,7 @@ const en: Dictionary = {
     symptoms: 'Symptoms',
     pageHeading: 'Describe symptoms',
     pageSubheading:
-      'The more detail — the more accurate. Indicate how long ago, how often, and how the pet is behaving. You can add photos.',
+      'The more detail — the more accurate. Indicate how long ago, how often, and how the pet is behaving.',
   },
   urgency: {
     emergency: { label: 'EMERGENCY', action: 'Go to a veterinary clinic immediately' },
