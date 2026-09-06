@@ -121,10 +121,18 @@ jobs:
       - name: Typecheck
         run: npm run typecheck --workspace @lapka/mobile
 
-      # JavaScript export only. Signed native builds are stage 4 and need Apple
-      # and Google credentials this workflow does not have.
+      - name: Test
+        run: npm run test --workspace @lapka/mobile
+
+      # JavaScript export only. Signed native builds need Apple and Google
+      # credentials this workflow does not have.
       - name: Export iOS bundle
         run: npm run export:ios --workspace @lapka/mobile
 
       - name: Export Android bundle
         run: npm run export:android --workspace @lapka/mobile
+
+      # A client build must never carry a server key. grep cannot see inside
+      # Hermes bytecode, so this decodes what is actually in there.
+      - name: Check the bundles carry nothing server-only
+        run: npm run verify:bundle --workspace @lapka/mobile

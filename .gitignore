@@ -42,6 +42,8 @@ yarn-error.log*
 !.env.test
 # Local Supabase stack only: fixed public CLI keys, no secrets.
 !.env.integration
+# Expo client configuration: EXPO_PUBLIC_* values ship in the bundle anyway.
+!apps/mobile/.env
 
 # vercel
 .vercel
