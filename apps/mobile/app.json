@@ -6,14 +6,12 @@
     "orientation": "portrait",
     "scheme": "lapka",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "my.lapka.app"
     },
     "android": {
-      "package": "my.lapka.app",
-      "edgeToEdgeEnabled": true
+      "package": "my.lapka.app"
     }
   }
 }
