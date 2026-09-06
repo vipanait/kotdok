@@ -11,6 +11,12 @@ vi.mock('@/server/extra-check/telegram', () => ({
   sendExtraCheckRequestToTelegram: vi.fn(),
 }))
 
+/** The limiter runs before the work; an allowed verdict keeps it out of the way. */
+const allowedRateLimit = {
+  data: { allowed: true, remaining: 4, reset_at: '2026-09-06T13:00:00.000Z' },
+  error: null,
+}
+
 /** Every service starts by loading the account, so each mock has to answer it. */
 function activeProfile(userId: string) {
   const builder = {
@@ -32,6 +38,7 @@ describe('extra-check-service', () => {
 
   it('creates a request, sends Telegram message and stores Telegram ids', async () => {
     const rpc = vi.fn(async (name: string) => {
+      if (name === 'consume_rate_limit') return allowedRateLimit
       if (name === 'create_extra_check_request') {
         return { data: { request_id: 'req-1' }, error: null }
       }
@@ -66,7 +73,11 @@ describe('extra-check-service', () => {
   })
 
   it('deletes pending request when Telegram delivery fails', async () => {
-    const rpc = vi.fn(async () => ({ data: { request_id: 'req-2' }, error: null }))
+    const rpc = vi.fn(async (name: string) =>
+      name === 'consume_rate_limit'
+        ? allowedRateLimit
+        : { data: { request_id: 'req-2' }, error: null },
+    )
     const countNeq = vi.fn(async () => ({ count: 1, error: null }))
     const countEq = vi.fn(() => ({ neq: countNeq }))
     const select = vi.fn(() => ({ eq: countEq }))
@@ -87,10 +98,11 @@ describe('extra-check-service', () => {
   })
 
   it('passes through conflict errors from create rpc', async () => {
-    const rpc = vi.fn(async () => ({
-      data: null,
-      error: { message: 'pending_request_exists' },
-    }))
+    const rpc = vi.fn(async (name: string) =>
+      name === 'consume_rate_limit'
+        ? allowedRateLimit
+        : { data: null, error: { message: 'pending_request_exists' } },
+    )
     const from = vi.fn(() => activeProfile('user-3'))
     vi.mocked(createServiceClient).mockReturnValue({ rpc, from } as never)
 

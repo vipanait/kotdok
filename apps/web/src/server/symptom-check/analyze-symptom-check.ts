@@ -4,6 +4,7 @@ import OpenAI from 'openai'
 import type { ErrorCode } from '@lapka/contracts'
 import type { createServiceClient } from '@/server/supabase/server'
 import { loadAccount } from '@/server/auth/account-state'
+import { consumeRateLimit } from '@/server/api/rate-limit'
 import type { PetSpecies, SymptomCheckResult, Urgency } from '@/shared/types'
 import { PAIN_SIGN_PROMPT_LABELS, type PainSign } from '@/shared/utils/check-params'
 import { sanitizeSpecies } from '@/shared/utils/pet-utils'
@@ -245,6 +246,13 @@ export async function analyzeSymptomCheck(
         code: 'insufficient_credits',
         message: 'Not enough credits / Недостаточно credits.',
       }
+    }
+
+    // Before the credit is reserved and long before the model is called, so an
+    // abusive caller costs nothing but a database round trip.
+    const rate = await consumeRateLimit(supabase, 'analysis_create', input.userId)
+    if (!rate.allowed) {
+      return { ok: false, code: 'rate_limited', message: 'Too many analyses, try again later.' }
     }
 
     // Pet profile context

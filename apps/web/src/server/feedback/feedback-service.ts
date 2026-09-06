@@ -2,6 +2,7 @@ import 'server-only'
 
 import type { createServiceClient } from '@/server/supabase/server'
 import { loadAccount } from '@/server/auth/account-state'
+import { consumeRateLimit } from '@/server/api/rate-limit'
 import type { FeedbackRating } from '@/shared/types'
 
 type SupabaseService = ReturnType<typeof createServiceClient>
@@ -35,6 +36,9 @@ export async function submitFeedback(
       reason: account.reason === 'account_deleting' ? 'account_deleting' : 'account_not_found',
     }
   }
+
+  const rate = await consumeRateLimit(supabase, 'feedback_submit', userId, now)
+  if (!rate.allowed) return { ok: false, reason: 'too_many_requests' }
 
   const since = new Date(now.getTime() - COOLDOWN_MS).toISOString()
   const { data: recentFeedback } = await supabase

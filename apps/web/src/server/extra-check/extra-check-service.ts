@@ -2,6 +2,7 @@ import 'server-only'
 
 import { createServiceClient } from '@/server/supabase/server'
 import { loadAccount } from '@/server/auth/account-state'
+import { consumeRateLimit } from '@/server/api/rate-limit'
 import { sendExtraCheckRequestToTelegram } from './telegram'
 
 type ResolveAction = 'approve' | 'reject'
@@ -41,6 +42,9 @@ export async function submitExtraCheckRequest(userId: string): Promise<{ request
   if (!account.ok) {
     throw new Error(account.reason === 'account_deleting' ? 'account_deleting' : 'profile_not_found')
   }
+
+  const rate = await consumeRateLimit(supabase, 'extra_check_request', userId)
+  if (!rate.allowed) throw new Error('rate_limited')
 
   const { data, error } = await supabase.rpc('create_extra_check_request', {
     p_user_id: userId,

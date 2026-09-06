@@ -14,6 +14,7 @@ afterAll(async () => {
 })
 
 const REQUIRED_TABLES = [
+  'api_rate_limits',
   'credit_ledger',
   'credit_transactions',
   'extra_check_requests',
@@ -33,6 +34,7 @@ const REQUIRED_FUNCTIONS = [
   'apply_symptom_check_usage',
   'apply_transaction_success',
   'apply_transaction_terminal',
+  'consume_rate_limit',
   'create_extra_check_request',
   'create_transaction',
   'handle_new_user',
@@ -115,8 +117,12 @@ describe('migrated schema', () => {
       expect(row.privs, `${row.grantee} on ${row.table_name}`).toBe('SELECT')
     }
 
+    // Every table is readable under RLS except the rate limit counters, which
+    // would expose one user's request pattern to another.
     const covered = new Set(rows.map((row) => row.table_name))
-    for (const table of REQUIRED_TABLES) expect(covered.has(table)).toBe(true)
+    for (const table of REQUIRED_TABLES) {
+      expect(covered.has(table), table).toBe(table !== 'api_rate_limits')
+    }
   })
 
   it('keeps the account lifecycle column server-owned', async () => {
