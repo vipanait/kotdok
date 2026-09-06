@@ -1,4 +1,5 @@
 import { createClient, createServiceClient } from '@/server/supabase/server'
+import { loadAccount } from '@/server/auth/account-state'
 import type { User } from '@supabase/supabase-js'
 import type { Pet, PetLatestCheck } from '@/shared/types'
 import type { SymptomCheckRecord } from '@lapka/contracts'
@@ -24,8 +25,9 @@ const HISTORY_LIMIT = 4
  * any route that puts a modal on top of the dashboard (pet add/edit, etc.) so
  * we don't duplicate fetch logic.
  *
- * Returns `null` for a signed-out visitor instead of redirecting: where to send
- * them is the page's decision, not this module's.
+ * Returns `null` for a visitor who may not see it — signed out, or an account
+ * whose deletion has started — instead of redirecting: where to send them is
+ * the page's decision, not this module's.
  */
 export async function loadDashboard(): Promise<DashboardData | null> {
   const supabase = await createClient()
@@ -33,6 +35,10 @@ export async function loadDashboard(): Promise<DashboardData | null> {
   if (!user) return null
 
   const service = createServiceClient()
+
+  // The same guard the API uses: a deleting account gets nothing anywhere.
+  const account = await loadAccount(service, user.id)
+  if (!account.ok) return null
 
   const [
     { data: profile },
