@@ -18,7 +18,6 @@ import {
 import { GET as listChecks } from '@/app/(backend)/api/v1/checks/route'
 import { GET as getCheck } from '@/app/(backend)/api/v1/checks/[id]/route'
 import { GET as meRoute } from '@/app/(backend)/api/v1/me/route'
-import { loadDashboard } from '@/server/dashboard/load-dashboard'
 import {
   CHECK_IDS,
   FIXTURE_PASSWORD,
@@ -282,7 +281,8 @@ describe('balance', () => {
   it('is the same number the site shows', async () => {
     const fromApi = (await (await meRoute(request(tokenA, 'http://test.local/api/v1/me'), undefined)).json()).credits
 
-    // loadDashboard reads through the user's own session, exactly as the page does.
+    // The dashboard renders `profiles.credits` for the signed-in user; reading
+    // the same column is what "the site and the API agree" means here.
     const { rows } = await db.query<{ credits: number }>(
       `select credits from public.profiles where id = $1`,
       [seeded.ownerAId],
@@ -290,7 +290,31 @@ describe('balance', () => {
 
     expect(fromApi).toBe(rows[0].credits)
     expect(fromApi).toBe(OWNER_A.expectedCredits)
-    expect(typeof loadDashboard).toBe('function')
+  })
+
+  it('moves together with the ledger when a credit is spent', async () => {
+    const service = createClient(
+      process.env.TEST_SUPABASE_URL!,
+      process.env.TEST_SUPABASE_SERVICE_ROLE_KEY!,
+      { auth: { autoRefreshToken: false, persistSession: false } },
+    )
+    await service.rpc('apply_symptom_check_usage', {
+      p_user_id: seeded.ownerAId,
+      p_symptom_check_id: null,
+    })
+
+    const fromApi = (await (await meRoute(request(tokenA, 'http://test.local/api/v1/me'), undefined)).json()).credits
+    const { rows } = await db.query<{ ledger_sum: string }>(
+      `select coalesce(sum(delta), 0) as ledger_sum from public.credit_ledger where user_id = $1`,
+      [seeded.ownerAId],
+    )
+
+    expect(fromApi).toBe(OWNER_A.expectedCredits - 1)
+    expect(Number(rows[0].ledger_sum)).toBe(fromApi)
+
+    seeded = await seedFixtures(db)
+    tokenA = await signIn(OWNER_A.email)
+    tokenB = await signIn(OWNER_B.email)
   })
 
   it('cannot be written through any product route', async () => {
