@@ -29,7 +29,13 @@ function useAuthLinks() {
         return
       }
 
-      const { error } = await supabase.auth.exchangeCodeForSession(link.code)
+      const { error } =
+        link.credential.via === 'code'
+          ? await supabase.auth.exchangeCodeForSession(link.credential.code)
+          : await supabase.auth.setSession({
+              access_token: link.credential.accessToken,
+              refresh_token: link.credential.refreshToken,
+            })
       if (error) {
         // A reused or expired code must not produce a session, and the user
         // should be told why rather than shown an empty screen.

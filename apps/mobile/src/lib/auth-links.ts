@@ -10,11 +10,25 @@
 
 export const APP_SCHEME = 'lapka'
 
+/**
+ * What the link carries to prove the user opened it.
+ *
+ * Which one arrives is the project's decision, not the app's. With the PKCE
+ * flow Supabase sends a code to exchange; with the implicit flow it puts the
+ * session straight in the fragment. Links issued server-side, by an admin tool
+ * rather than by the app, are always the second kind. Reading whichever came
+ * beats assuming, which is how password recovery came to be broken: the client
+ * was on the implicit flow while this file expected a code.
+ */
+export type AuthCredential =
+  | { via: 'code'; code: string }
+  | { via: 'tokens'; accessToken: string; refreshToken: string }
+
 export type AuthLink =
-  /** Email confirmation or a magic link: Supabase returns a code to exchange. */
-  | { kind: 'verify'; code: string }
+  /** Email confirmation or a magic link. */
+  | { kind: 'verify'; credential: AuthCredential }
   /** Password recovery: the app shows the "set a new password" screen. */
-  | { kind: 'recover'; code: string }
+  | { kind: 'recover'; credential: AuthCredential }
   /** The provider reported a failure; show it rather than a blank screen. */
   | { kind: 'error'; code: string; description: string | null }
 
@@ -51,15 +65,28 @@ export function parseAuthLink(raw: string): AuthLink | null {
     }
   }
 
-  const code = read('code') ?? read('token_hash')
-  if (!code) return null
+  const credential = readCredential(read)
+  if (!credential) return null
 
   if (path === 'auth/recover' || read('type') === 'recovery') {
-    return { kind: 'recover', code }
+    return { kind: 'recover', credential }
   }
   if (path === 'auth/callback' || path === 'auth/confirm') {
-    return { kind: 'verify', code }
+    return { kind: 'verify', credential }
   }
+
+  return null
+}
+
+/** A code to exchange, or a session handed over whole — whichever the link has. */
+function readCredential(read: (key: string) => string | null): AuthCredential | null {
+  const code = read('code') ?? read('token_hash')
+  if (code) return { via: 'code', code }
+
+  const accessToken = read('access_token')
+  const refreshToken = read('refresh_token')
+  // Half a session is no session: without both tokens there is nothing to set.
+  if (accessToken && refreshToken) return { via: 'tokens', accessToken, refreshToken }
 
   return null
 }

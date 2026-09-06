@@ -11,7 +11,13 @@ type AuthState = {
   /** Set when the session ended for a reason worth telling the user about. */
   notice: string | null
   signIn(email: string, password: string): Promise<void>
-  signUp(email: string, password: string): Promise<void>
+  /**
+   * Registers the address. Whether a session comes back is the project's
+   * decision, not the app's: with confirmation required Supabase withholds it
+   * until the address is verified, and without it the user is signed in at
+   * once. The caller is told which happened instead of guessing.
+   */
+  signUp(email: string, password: string): Promise<{ confirmationRequired: boolean }>
   requestPasswordReset(email: string): Promise<void>
   signOut(): Promise<void>
   dismissNotice(): void
@@ -83,7 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
 
       async signUp(email, password) {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           // Built by the app, never taken from input, so a crafted link cannot
@@ -91,6 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           options: { emailRedirectTo: authRedirectUrl('verify') },
         })
         if (error) throw error
+        return { confirmationRequired: data.session === null }
       },
 
       async requestPasswordReset(email) {

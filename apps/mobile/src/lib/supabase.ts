@@ -33,5 +33,10 @@ export const supabase: SupabaseClient = createClient(env.supabaseUrl, env.supaba
     // The app handles links itself and accepts only its own scheme, so the
     // client must not try to read a session out of whatever URL opened it.
     detectSessionInUrl: false,
+    // Ask for the flow that keeps tokens out of the link: the email carries a
+    // code, and the session is fetched over TLS against a verifier this device
+    // kept to itself. The default is the implicit flow, which puts the session
+    // in the URL fragment for anything that can read the link to take.
+    flowType: 'pkce',
   },
 })
