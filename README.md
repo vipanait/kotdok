@@ -57,6 +57,42 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Checks
+
+```bash
+npm run lint
+npm run typecheck
+npm test
+npm run build
+```
+
+## Local database and integration tests
+
+Integration tests run against a throwaway local Supabase stack, never against a
+hosted project. [Docker](https://docs.docker.com/get-started/get-docker/) and the
+[Supabase CLI](https://supabase.com/docs/guides/local-development) are required.
+
+```bash
+supabase start          # Postgres on 127.0.0.1:54322, API on 127.0.0.1:54321
+supabase db reset       # applies every migration to an empty database
+npm run test:integration
+```
+
+`supabase/migrations/20260101000000_init_baseline.sql` recreates the original
+schema, so a clean database can be built from the repository alone. Migration
+filenames must keep a unique 14-digit version prefix — the CLI rejects the set
+otherwise.
+
+`npm run test:integration` reads `.env.integration`, which holds only the fixed
+public keys the Supabase CLI ships for every local stack. The guard in
+`tests/support/db-guard.ts` refuses any destructive operation whose target is
+not `127.0.0.1:54322` / `127.0.0.1:54321`, so the suite cannot reset a hosted
+database even if those URLs are edited by mistake.
+
+Fixtures (`tests/integration/fixtures.ts`) seed two unrelated owners with their
+own pets, symptom checks, balances, credit ledger movements and one billing
+transaction; reseeding produces the same data set.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

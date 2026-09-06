@@ -1,22 +1,24 @@
-import { configDefaults, defineConfig } from 'vitest/config'
+import { defineConfig } from 'vitest/config'
 import { loadEnv } from 'vite'
 import { fileURLToPath } from 'node:url'
 
 const root = fileURLToPath(new URL('.', import.meta.url))
-const testEnv = loadEnv('test', root, '')
 
-for (const [key, value] of Object.entries(testEnv)) {
+// `integration` mode loads .env.integration: the disposable local stack only.
+for (const [key, value] of Object.entries(loadEnv('integration', root, ''))) {
   process.env[key] = value
 }
 
 export default defineConfig({
   test: {
     environment: 'node',
-    // Integration tests need the live local stack; they run via
-    // vitest.integration.config.mts, not in the default suite.
-    exclude: [...configDefaults.exclude, '.orch/**', 'tests/integration/**'],
     globals: false,
     restoreMocks: true,
+    include: ['tests/integration/**/*.test.ts'],
+    // One live database, shared fixtures: no parallel files.
+    fileParallelism: false,
+    hookTimeout: 60_000,
+    testTimeout: 60_000,
   },
   resolve: {
     alias: {
@@ -24,5 +26,5 @@ export default defineConfig({
       'server-only': fileURLToPath(new URL('./tests/mocks/server-only.ts', import.meta.url)),
     },
   },
-  cacheDir: `${root}node_modules/.vitest`,
+  cacheDir: `${root}node_modules/.vitest-integration`,
 })

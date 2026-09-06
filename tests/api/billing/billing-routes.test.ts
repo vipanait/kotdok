@@ -6,10 +6,6 @@ import { DELETE as deletePaymentMethodRoute } from '@/app/(backend)/api/billing/
 import { GET as listPaymentMethodsRoute } from '@/app/(backend)/api/billing/payment-methods/route'
 import { CSRF_COOKIE_NAME, CSRF_HEADER_NAME } from '@/server/security/csrf'
 
-function params(id: string) {
-  return { params: Promise.resolve({ id }) }
-}
-
 function csrfRequest(method: string) {
   const token = 'test-csrf-token'
   return new NextRequest('http://test.local', {
@@ -24,7 +20,7 @@ function csrfRequest(method: string) {
 
 describe('billing API routes', () => {
   it('returns disabled response for transaction reads', async () => {
-    const response = await getTransactionRoute(new Request('http://test.local') as never, params('tx-1'))
+    const response = await getTransactionRoute()
 
     expect(response.status).toBe(503)
     await expect(response.json()).resolves.toEqual({

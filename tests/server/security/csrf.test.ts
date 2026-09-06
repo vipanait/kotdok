@@ -10,7 +10,9 @@ import {
 
 const token = 'test-csrf-token'
 
-function request(init: RequestInit = {}) {
+type NextRequestInit = NonNullable<ConstructorParameters<typeof NextRequest>[1]>
+
+function request(init: NextRequestInit = {}) {
   return new NextRequest('http://test.local/api/pets', {
     method: 'POST',
     ...init,
