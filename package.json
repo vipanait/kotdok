@@ -2,10 +2,16 @@
   "name": "lapka.my",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "24.x"
+  },
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
+  "overrides": {
+    "react-native": "0.86.3"
+  },
   "scripts": {
     "lint": "npm run lint --workspace @lapka/web",
     "typecheck": "npm run typecheck --workspaces --if-present",
@@ -14,8 +20,5 @@
     "build": "npm run build --workspace @lapka/web",
     "dev": "npm run dev --workspace @lapka/web",
     "test:ci-routing": "node --test .github/scripts/changed-groups.test.mjs"
-  },
-  "overrides": {
-    "react-native": "0.86.3"
   }
 }
