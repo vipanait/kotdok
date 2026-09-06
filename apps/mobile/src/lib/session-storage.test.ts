@@ -1,9 +1,11 @@
 import { describe, expect, it, vi } from 'vitest'
 import {
+  CHUNK_BYTES,
   MAX_CHUNKS,
   SECURE_STORE_VALUE_LIMIT,
   SessionWriteError,
   createSessionStorage,
+  utf8ByteLength,
   type SecureStorage,
 } from './session-storage'
 
@@ -75,11 +77,60 @@ describe('session storage', () => {
     const store = workingStore()
     const storage = createSessionStorage({ storage: store, onWriteFailure: vi.fn() })
 
-    await storage.setItem('session', 'x'.repeat(SECURE_STORE_VALUE_LIMIT * 3 + 17))
+    await storage.setItem('session', 'x'.repeat(CHUNK_BYTES * 3 + 17))
 
     for (const value of store.values.values()) {
-      expect(value.length).toBeLessThanOrEqual(SECURE_STORE_VALUE_LIMIT)
+      expect(utf8ByteLength(value)).toBeLessThanOrEqual(SECURE_STORE_VALUE_LIMIT)
     }
+  })
+
+  it('measures chunks in bytes, not characters', async () => {
+    // 2048 Cyrillic characters are 4096 bytes. Splitting on String.length
+    // would produce chunks that pass a character check and still overrun the
+    // limit this module exists to respect — on Android, where it is real.
+    const store = workingStore()
+    const storage = createSessionStorage({ storage: store, onWriteFailure: vi.fn() })
+    const cyrillic = 'я'.repeat(CHUNK_BYTES)
+    expect(cyrillic.length).toBeLessThan(utf8ByteLength(cyrillic))
+
+    await storage.setItem('session', cyrillic)
+
+    for (const [key, value] of store.values) {
+      if (key === 'session') continue
+      expect(utf8ByteLength(value)).toBeLessThanOrEqual(CHUNK_BYTES)
+    }
+    await expect(storage.getItem('session')).resolves.toBe(cyrillic)
+  })
+
+  it('never splits a character across two chunks', async () => {
+    // An emoji is a surrogate pair and four bytes; a chunk that ended mid-pair
+    // would come back as two replacement characters.
+    const store = workingStore()
+    const storage = createSessionStorage({ storage: store, onWriteFailure: vi.fn() })
+    const value = '🐈'.repeat(CHUNK_BYTES)
+
+    await storage.setItem('session', value)
+
+    await expect(storage.getItem('session')).resolves.toBe(value)
+  })
+
+  it('leaves the previous session readable when a write fails', async () => {
+    // A keychain that goes away mid-write must not take a working session with
+    // it: the chunks it wrote go to the unused generation, and the header
+    // still points at the old one.
+    const store = workingStore()
+    const storage = createSessionStorage({ storage: store, onWriteFailure: vi.fn() })
+    await storage.setItem('session', 'first')
+
+    let writes = 0
+    store.setItemAsync = vi.fn(async (key: string, value: string) => {
+      writes += 1
+      if (writes === 1) throw new Error('keychain locked')
+      store.values.set(key, value)
+    })
+    await storage.setItem('session', realisticSession())
+
+    await expect(storage.getItem('session')).resolves.toBe('first')
   })
 
   it('survives a cold start: a value written by one instance reads back in the next', async () => {
@@ -167,7 +218,9 @@ describe('session storage', () => {
     const storage = createSessionStorage({ storage: store, onWriteFailure: vi.fn() })
     await storage.setItem('session', realisticSession())
 
-    store.values.delete('session.1')
+    // Keys carry the generation: session.a.1, not session.1.
+    const chunk = [...store.values.keys()].find((key) => key.startsWith('session.'))
+    store.values.delete(chunk as string)
 
     await expect(storage.getItem('session')).resolves.toBeNull()
   })
