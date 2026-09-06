@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAuthUser } from '@/server/auth/get-auth-user'
 import { createServiceClient } from '@/server/supabase/server'
+import { submitFeedback } from '@/server/feedback/feedback-service'
 import type { FeedbackRating } from '@/shared/types'
 import { csrfForbiddenResponse, verifyCsrf } from '@/server/security/csrf'
 
@@ -19,42 +20,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid rating' }, { status: 400 })
     }
     rating = body.rating
-    comment = typeof body.comment === 'string' ? body.comment.slice(0, 500) : undefined
+    comment = typeof body.comment === 'string' ? body.comment : undefined
   } catch {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
   }
 
-  const supabase = createServiceClient()
+  const result = await submitFeedback(createServiceClient(), user.id, { rating, comment })
 
-  const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
-  const { data: recentFeedback } = await supabase
-    .from('user_feedback')
-    .select('id')
-    .eq('user_id', user.id)
-    .gte('created_at', since)
-    .limit(1)
-    .maybeSingle()
-
-  if (recentFeedback) {
-    return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
-  }
-
-  const { error: insertError } = await supabase
-    .from('user_feedback')
-    .insert({ user_id: user.id, rating, comment: comment ?? null })
-
-  if (insertError) {
-    console.error('feedback insert error:', insertError)
-    return NextResponse.json({ error: 'Failed to save feedback' }, { status: 500 })
-  }
-
-  const { error: profileError } = await supabase
-    .from('profiles')
-    .update({ feedback_submitted_at: new Date().toISOString() })
-    .eq('id', user.id)
-
-  if (profileError) {
-    console.error('feedback profile update error:', profileError)
+  if (!result.ok) {
+    switch (result.reason) {
+      case 'too_many_requests':
+        return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+      case 'account_deleting':
+        return NextResponse.json({ error: 'Account is being deleted' }, { status: 403 })
+      case 'account_not_found':
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      default:
+        return NextResponse.json({ error: 'Failed to save feedback' }, { status: 500 })
+    }
   }
 
   return NextResponse.json({ ok: true })
