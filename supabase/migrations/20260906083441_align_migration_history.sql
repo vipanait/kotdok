@@ -1,0 +1,15 @@
+-- One-time repair of the migration history. No schema change.
+--
+-- The production schema was built by hand: supabase_migrations.schema_migrations
+-- was empty, so none of the repository's migrations were marked as applied and
+-- `supabase db push` would have tried to replay all of them — including
+-- `alter table public.cats rename to pets`, which has no IF EXISTS guard.
+--
+-- The repair deleted the ad-hoc rows the Management API had recorded and
+-- inserted one row per migration file. Every version was verified as genuinely
+-- applied first: the per-object schema fingerprint of a database built from
+-- these migrations is byte-identical to the production one.
+--
+-- This file exists so the two histories agree. Its version is the one the
+-- Management API assigned to the repair; running it locally is deliberately a
+-- no-op, because a fresh database records its history correctly on its own.
