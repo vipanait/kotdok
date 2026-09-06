@@ -12,7 +12,9 @@ for (const [key, value] of Object.entries(testEnv)) {
 export default defineConfig({
   test: {
     environment: 'node',
-    exclude: [...configDefaults.exclude, '.orch/**'],
+    // Integration tests need the live local stack; they run via
+    // vitest.integration.config.mts, not in the default suite.
+    exclude: [...configDefaults.exclude, '.orch/**', 'tests/integration/**'],
     globals: false,
     restoreMocks: true,
   },
