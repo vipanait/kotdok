@@ -42,29 +42,60 @@ Quick health check:
 First, run the development server:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run dev --workspace @lapka/web
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+You can start editing the page by modifying `apps/web/src/app`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Repository layout
+
+```
+apps/web/            Next.js site and API
+apps/mobile/         Expo client (placeholder screen until stage 4)
+packages/contracts/  API contracts shared by both apps (skeleton until stage 1)
+packages/shared/     portable helpers and dictionaries (skeleton until stage 1)
+supabase/            migrations and local stack config
+docs/                roadmap, verification reports, architecture notes
+```
+
+npm workspaces, one lockfile at the repository root. `npm ci` from a clean
+checkout installs every workspace.
+
 ## Checks
 
+Each application is checked on its own; the web build needs neither Xcode, the
+Android SDK, nor a running Metro.
+
 ```bash
-npm run lint
-npm run typecheck
-npm test
-npm run build
+npm run lint --workspace @lapka/web
+npm run typecheck --workspaces --if-present
+npm run test --workspace @lapka/web
+npm run test:integration --workspace @lapka/web
+npm run build --workspace @lapka/web
+
+npm run typecheck --workspace @lapka/mobile
+npm run export:ios --workspace @lapka/mobile
+npm run export:android --workspace @lapka/mobile
 ```
+
+The export commands produce JavaScript bundles and assets, not signed apps.
+Signed development builds are stage 4 of the [roadmap](docs/mobile-api-plan.md).
+
+CI routes changes to the group that needs them: web changes run the web checks,
+mobile changes the mobile ones, and shared packages, the root lockfile or build
+settings run both. The rules live in `.github/scripts/changed-groups.mjs` and
+are covered by `npm run test:ci-routing`.
+
+## Dependency versions
+
+React 19.2.4 is shared by Next.js and React Native. React Native is pinned to
+0.86.3, the version Expo SDK 57 bundles; `@expo/cli` declares it as an optional
+peer with range `*`, so the root `overrides` entry keeps npm from hoisting a
+newer copy beside it.
 
 ## Local database and integration tests
 
@@ -75,7 +106,7 @@ hosted project. [Docker](https://docs.docker.com/get-started/get-docker/) and th
 ```bash
 supabase start          # Postgres on 127.0.0.1:54322, API on 127.0.0.1:54321
 supabase db reset       # applies every migration to an empty database
-npm run test:integration
+npm run test:integration --workspace @lapka/web
 ```
 
 `supabase/migrations/20260101000000_init_baseline.sql` recreates the original
@@ -83,13 +114,13 @@ schema, so a clean database can be built from the repository alone. Migration
 filenames must keep a unique 14-digit version prefix — the CLI rejects the set
 otherwise.
 
-`npm run test:integration` reads `.env.integration`, which holds only the fixed
+`npm run test:integration --workspace @lapka/web` reads `apps/web/.env.integration`, which holds only the fixed
 public keys the Supabase CLI ships for every local stack. The guard in
-`tests/support/db-guard.ts` refuses any destructive operation whose target is
+`apps/web/tests/support/db-guard.ts` refuses any destructive operation whose target is
 not `127.0.0.1:54322` / `127.0.0.1:54321`, so the suite cannot reset a hosted
 database even if those URLs are edited by mistake.
 
-Fixtures (`tests/integration/fixtures.ts`) seed two unrelated owners with their
+Fixtures (`apps/web/tests/integration/fixtures.ts`) seed two unrelated owners with their
 own pets, symptom checks, balances, credit ledger movements and one billing
 transaction; reseeding produces the same data set.
 

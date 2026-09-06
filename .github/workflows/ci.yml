@@ -7,9 +7,55 @@ on:
   pull_request:
 
 jobs:
-  app:
+  changes:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 5
+    outputs:
+      web: ${{ steps.groups.outputs.web }}
+      mobile: ${{ steps.groups.outputs.mobile }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # Routing rules live in .github/scripts/changed-groups.mjs and are covered
+      # by node --test, so they can be changed without watching a CI run.
+      - name: Verify routing rules
+        run: npm run test:ci-routing
+
+      - name: Decide which groups to run
+        id: groups
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            base="${{ github.event.pull_request.base.sha }}"
+            head="${{ github.event.pull_request.head.sha }}"
+          else
+            base="${{ github.event.before }}"
+            head="${{ github.sha }}"
+          fi
+
+          # A first push on a branch reports an all-zero base; run everything.
+          if [ -z "$base" ] || [ "$base" = "0000000000000000000000000000000000000000" ]; then
+            printf 'web=true\nmobile=true\n' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          git diff --name-only "$base" "$head" > changed.txt
+          cat changed.txt
+          # shellcheck disable=SC2046
+          node .github/scripts/changed-groups.mjs $(cat changed.txt) >> "$GITHUB_OUTPUT"
+
+  web:
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
       - name: Checkout
@@ -25,18 +71,60 @@ jobs:
         run: npm ci
 
       - name: Lint
-        run: npm run lint
+        run: npm run lint --workspace @lapka/web
+
+      - name: Typecheck
+        run: npm run typecheck --workspaces --if-present
 
       - name: Test
-        run: npm run test
+        run: npm run test --workspace @lapka/web
+
+      - name: Start local Supabase
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Apply migrations to a disposable database
+        run: supabase start
+
+      - name: Integration tests
+        run: npm run test:integration --workspace @lapka/web
 
       - name: Build
-        run: npm run build
+        run: npm run build --workspace @lapka/web
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://example.supabase.co' }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'dummy-anon-key' }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-role-key' }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY || 'dummy-openai-key' }}
           DUMMY_WEBHOOK_SECRET: ${{ secrets.DUMMY_WEBHOOK_SECRET || 'dummy-ci-secret' }}
-          NEXT_PUBLIC_APP_URL: http://localhost:3000
-          APP_BASE_URL: http://localhost:3000
+
+  mobile:
+    needs: changes
+    if: needs.changes.outputs.mobile == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck --workspace @lapka/mobile
+
+      # JavaScript export only. Signed native builds are stage 4 and need Apple
+      # and Google credentials this workflow does not have.
+      - name: Export iOS bundle
+        run: npm run export:ios --workspace @lapka/mobile
+
+      - name: Export Android bundle
+        run: npm run export:android --workspace @lapka/mobile
