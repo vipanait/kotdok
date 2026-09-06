@@ -36,9 +36,21 @@ function parseEnv(path) {
     if (trimmed === '' || trimmed.startsWith('#')) continue
     const at = trimmed.indexOf('=')
     if (at === -1) continue
-    values[trimmed.slice(0, at).trim()] = trimmed.slice(at + 1).trim()
+    values[trimmed.slice(0, at).trim()] = unquote(trimmed.slice(at + 1).trim())
   }
   return values
+}
+
+/**
+ * Drops surrounding quotes. `vercel env pull` writes values quoted, so a key
+ * copied from a file it produced arrives as `"eyJ…"`. Left as-is the quotes
+ * become part of the key: the checks below would no longer recognise a JWT,
+ * wave it through unverified, and Supabase would refuse it with an error that
+ * says nothing about quotes.
+ */
+function unquote(value) {
+  const quoted = /^(["'])(.*)\1$/.exec(value)
+  return quoted ? quoted[2] : value
 }
 
 function stop(message) {
@@ -88,8 +100,8 @@ if (serviceKey === '' || serviceKey.startsWith('placeholder')) {
 
 const payload = claims(serviceKey)
 if (payload) {
-  // Legacy keys carry the role and project. Newer `sb_secret_…` keys are opaque,
-  // so there is nothing to check and the URL above is what is left to trust.
+  // A legacy key carries its role and project, so an obviously wrong one can be
+  // named precisely before any request goes out.
   if (payload.role !== 'service_role') {
     stop(`SUPABASE_SERVICE_ROLE_KEY has role "${payload.role}", not service_role.`)
   }
@@ -101,10 +113,47 @@ if (payload) {
   }
 }
 
+/**
+ * Asks the project itself whether the key opens it.
+ *
+ * The checks above only work on legacy keys. A newer `sb_secret_…` key is
+ * opaque — and so is a typo, or a line of the file pasted by mistake, which
+ * would sail past a shape check and fail later as an unexplained 401 from
+ * whichever route happened to run first. One request settles it: the endpoint
+ * is refused to anything but a service key, so a 200 proves both the role and
+ * the project.
+ */
+async function keyOpensProject() {
+  const response = await fetch(`${url.replace(/\/$/, '')}/auth/v1/admin/users?page=1&per_page=1`, {
+    headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
+  })
+  return response.status
+}
+
+let status
+try {
+  status = await keyOpensProject()
+} catch (cause) {
+  stop(
+    `Could not reach ${url} to check the key: ${cause instanceof Error ? cause.message : cause}\n` +
+      'The site talks to this project for everything, so there is no point starting without it.',
+  )
+}
+
+if (status !== 200) {
+  stop(
+    `The Supabase project ${ref} answered ${status} for SUPABASE_SERVICE_ROLE_KEY.\n` +
+      'That key is not a service role key for this project. Take it from Project\n' +
+      'Settings → API Keys in the staging project, and check nothing was truncated.',
+  )
+}
+
 console.log(`Serving http://localhost:3000 against the Supabase project ${ref}.`)
 
 spawn('next', ['dev'], {
   cwd: webRoot,
   stdio: 'inherit',
   env: { ...process.env, ...env },
-}).on('exit', (code) => process.exit(code ?? 0))
+})
+  .on('error', (cause) => stop(`Could not start next dev: ${cause.message}`))
+  .on('exit', (code) => process.exit(code ?? 0))
