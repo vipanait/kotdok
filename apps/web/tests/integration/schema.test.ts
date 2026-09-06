@@ -97,6 +97,40 @@ describe('migrated schema', () => {
     expect(rows.map((row) => row.proname)).toEqual(REQUIRED_FUNCTIONS)
   })
 
+  it('gives user-facing roles read access but no direct writes', async () => {
+    const { rows } = await client.query<{ grantee: string; table_name: string; privs: string }>(
+      `select grantee, table_name, string_agg(privilege_type, ',' order by privilege_type) as privs
+       from information_schema.role_table_grants
+       where table_schema = 'public' and grantee in ('anon', 'authenticated')
+       group by grantee, table_name
+       order by table_name, grantee`,
+    )
+
+    // Every public table is reachable for reads — RLS decides which rows — and
+    // no table may be written with a user token. Hosted Supabase grants all
+    // privileges by default, which let a signed-in user set their own credits
+    // and role through PostgREST until the lockdown migration.
+    expect(rows).not.toHaveLength(0)
+    for (const row of rows) {
+      expect(row.privs, `${row.grantee} on ${row.table_name}`).toBe('SELECT')
+    }
+
+    const covered = new Set(rows.map((row) => row.table_name))
+    for (const table of REQUIRED_TABLES) expect(covered.has(table)).toBe(true)
+  })
+
+  it('keeps the account lifecycle column server-owned', async () => {
+    const { rows } = await client.query<{ definition: string }>(
+      `select pg_get_constraintdef(con.oid) as definition
+       from pg_constraint con join pg_class rel on rel.oid = con.conrelid
+       join pg_namespace n on n.oid = rel.relnamespace
+       where n.nspname = 'public' and rel.relname = 'profiles' and con.conname = 'profiles_status_check'`,
+    )
+
+    expect(rows[0]?.definition).toContain("'active'")
+    expect(rows[0]?.definition).toContain("'deleting'")
+  })
+
   it('creates a profile for every new auth user', async () => {
     const { rows } = await client.query<{ tgname: string }>(
       `select t.tgname from pg_trigger t

@@ -12,6 +12,14 @@
 
 create extension if not exists vector with schema public;
 
+-- Hosted Supabase projects ship default privileges that grant every table in
+-- `public` to anon, authenticated and service_role as it is created. The local
+-- stack does not, so without this the stand would be more locked down than
+-- production and a privilege problem would be invisible in tests. Reproduce the
+-- platform behaviour here; a later migration tightens it deliberately.
+alter default privileges in schema public grant all on tables to anon, authenticated, service_role;
+alter default privileges in schema public grant all on sequences to anon, authenticated, service_role;
+
 -- ---------------------------------------------------------------------------
 -- profiles
 -- ---------------------------------------------------------------------------
