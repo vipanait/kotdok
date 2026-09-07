@@ -13,8 +13,17 @@ afterAll(async () => {
   await client?.end()
 })
 
+/**
+ * Tables only the service role touches: no read policy, no privileges for anon
+ * or authenticated. Counters would expose one person's request pattern to
+ * another, and a job record is read back through a route that checks ownership
+ * itself.
+ */
+const SERVICE_ONLY_TABLES = new Set(['api_rate_limits', 'check_jobs'])
+
 const REQUIRED_TABLES = [
   'api_rate_limits',
+  'check_jobs',
   'credit_ledger',
   'credit_transactions',
   'extra_check_requests',
@@ -118,11 +127,10 @@ describe('migrated schema', () => {
       expect(row.privs, `${row.grantee} on ${row.table_name}`).toBe('SELECT')
     }
 
-    // Every table is readable under RLS except the rate limit counters, which
-    // would expose one user's request pattern to another.
+    // Every table is readable under RLS except the service-only ones.
     const covered = new Set(rows.map((row) => row.table_name))
     for (const table of REQUIRED_TABLES) {
-      expect(covered.has(table), table).toBe(table !== 'api_rate_limits')
+      expect(covered.has(table), table).toBe(!SERVICE_ONLY_TABLES.has(table))
     }
   })
 
