@@ -14,9 +14,13 @@ const urgencyShort: Record<(typeof URGENCY_LEVELS)[number], { text: string; colo
   healthy: { text: 'Всё в порядке', colour: '#1a1a1a' },
 }
 
-/** Dates are shown as the phone would write them, not as the API sends them. */
+/**
+ * Dates as the phone writes them, not as the API sends them — and in the
+ * phone's own language rather than a hard-coded one. Someone reading the app in
+ * English should not meet a Russian month here.
+ */
 function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('ru-RU', {
+  return new Date(iso).toLocaleDateString(undefined, {
     day: 'numeric',
     month: 'long',
     hour: '2-digit',
