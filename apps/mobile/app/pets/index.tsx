@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useState } from 'react'
-import { ActivityIndicator, Button, FlatList, StyleSheet, Text, View } from 'react-native'
-import { Redirect } from 'expo-router'
+import { useCallback, useState } from 'react'
+import { ActivityIndicator, Button, FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
+import { Redirect, router, useFocusEffect } from 'expo-router'
 import type { Pet } from '@lapka/contracts'
 import { ApiError } from '@lapka/shared'
 import { withFreshSession } from '@/lib/api'
+import { speciesLabels } from '@/features/pets/labels'
 import { useAuth } from '@/providers/AuthProvider'
 import { Message, Screen } from '@/ui/Screen'
 
@@ -30,9 +31,13 @@ export default function Pets() {
     }
   }, [])
 
-  useEffect(() => {
-    if (session) void load()
-  }, [session, load])
+  // Reloading on focus rather than on mount: coming back from adding or editing
+  // a pet has to show it, and the list is one small request.
+  useFocusEffect(
+    useCallback(() => {
+      if (session) void load()
+    }, [session, load]),
+  )
 
   if (sessionLoading) {
     return (
@@ -54,16 +59,25 @@ export default function Pets() {
           data={pets}
           keyExtractor={(pet) => pet.id}
           ListEmptyComponent={
-            error ? null : <Message text="Пока никого нет. Добавьте питомца на сайте." tone="info" />
+            error ? null : <Message text="Пока никого нет. Добавьте первого." tone="info" />
           }
           renderItem={({ item }) => (
-            <View style={styles.row}>
+            <Pressable
+              style={styles.row}
+              accessibilityRole="button"
+              accessibilityLabel={`${item.name}, ${speciesLabels[item.species]}`}
+              onPress={() => router.push(`/pets/${item.id}`)}
+            >
               <Text style={styles.name}>{item.name}</Text>
-              <Text style={styles.meta}>{item.species === 'dog' ? 'Собака' : 'Кошка'}</Text>
-            </View>
+              <View style={styles.metaRow}>
+                <Text style={styles.meta}>{speciesLabels[item.species]}</Text>
+                {item.breed ? <Text style={styles.meta}>{item.breed}</Text> : null}
+              </View>
+            </Pressable>
           )}
         />
       )}
+      <Button title="Добавить питомца" onPress={() => router.push('/pets/new')} />
       <Button title="Обновить" onPress={() => void load()} />
       <Button title="Выйти" onPress={() => void signOut()} />
     </Screen>
@@ -73,5 +87,6 @@ export default function Pets() {
 const styles = StyleSheet.create({
   row: { paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#eee' },
   name: { fontSize: 18 },
+  metaRow: { flexDirection: 'row', gap: 8 },
   meta: { color: '#666' },
 })
