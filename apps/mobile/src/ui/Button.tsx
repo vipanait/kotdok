@@ -1,4 +1,5 @@
 import { ActivityIndicator, Pressable, StyleSheet, View, type ViewStyle } from 'react-native'
+import { Icon, type IconName } from './Icon'
 import { Text } from './Text'
 import { CONTROL_HEIGHT, TAP_TARGET, colour, radius, space } from './theme'
 
@@ -106,6 +107,42 @@ export function LinkRow({ children }: { children: React.ReactNode }) {
   return <View style={styles.linkRow}>{children}</View>
 }
 
+/**
+ * An action drawn as a glyph: back, add, dismiss.
+ *
+ * It always carries a label even though nothing shows it — a bare arrow is
+ * announced as nothing at all by a screen reader.
+ */
+export function IconButton({
+  icon,
+  label: name,
+  onPress,
+  soft = false,
+  style,
+}: {
+  icon: IconName
+  label: string
+  onPress: () => void
+  soft?: boolean
+  style?: ViewStyle
+}) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={name}
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.iconButton,
+        soft ? styles.iconButtonSoft : null,
+        { opacity: pressed ? 0.6 : 1 },
+        style,
+      ]}
+    >
+      <Icon name={icon} color={soft ? colour.accentText : colour.text} />
+    </Pressable>
+  )
+}
+
 const styles = StyleSheet.create({
   base: {
     minHeight: CONTROL_HEIGHT,
@@ -119,4 +156,12 @@ const styles = StyleSheet.create({
   },
   link: { minHeight: TAP_TARGET, justifyContent: 'center', paddingVertical: 10 },
   linkRow: { flexDirection: 'row', justifyContent: 'space-between', gap: space.row },
+  iconButton: {
+    minWidth: TAP_TARGET,
+    minHeight: TAP_TARGET,
+    borderRadius: radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconButtonSoft: { backgroundColor: colour.accentSoft },
 })

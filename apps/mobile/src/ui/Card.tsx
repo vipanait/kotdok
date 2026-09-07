@@ -1,4 +1,5 @@
 import { Image, Pressable, StyleSheet, View, type ViewStyle } from 'react-native'
+import { Icon, type IconName } from './Icon'
 import { Text } from './Text'
 import { colour, radius, shadow, space, urgency as urgencyScale } from './theme'
 
@@ -7,26 +8,33 @@ const art = {
   dog: require('../../assets/art/avatar-dog.png'),
 } as const
 
-/** A white card. Pressable when it leads somewhere, plain when it does not. */
+/**
+ * A card. White with a soft shadow by default; `outlined` is the flatter one
+ * the history uses, where a column of shadows would read as a pile.
+ */
 export function Card({
   children,
   onPress,
+  outlined = false,
   accessibilityLabel,
   style,
 }: {
   children: React.ReactNode
   onPress?: () => void
+  outlined?: boolean
   accessibilityLabel?: string
   style?: ViewStyle
 }) {
-  if (!onPress) return <View style={[styles.card, style]}>{children}</View>
+  const skin = [styles.card, outlined ? styles.outlined : shadow.card, style]
+
+  if (!onPress) return <View style={skin}>{children}</View>
 
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       onPress={onPress}
-      style={({ pressed }) => [styles.card, { opacity: pressed ? 0.9 : 1 }, style]}
+      style={({ pressed }) => [...skin, { opacity: pressed ? 0.9 : 1 }]}
     >
       {children}
     </Pressable>
@@ -41,12 +49,16 @@ export function Card({
  */
 export function Avatar({ species }: { species: 'cat' | 'dog' }) {
   return (
-    <Image
-      source={art[species]}
-      style={styles.avatar}
-      resizeMode="contain"
-      accessible={false}
-    />
+    <Image source={art[species]} style={styles.avatar} resizeMode="contain" accessible={false} />
+  )
+}
+
+/** A round tinted disc with a glyph in it, where there is no portrait to show. */
+export function IconAvatar({ icon, size = 48 }: { icon: IconName; size?: number }) {
+  return (
+    <View style={[styles.iconAvatar, { width: size, height: size }]}>
+      <Icon name={icon} size={Math.round(size / 2)} color={colour.accentText} />
+    </View>
   )
 }
 
@@ -54,10 +66,12 @@ export function Avatar({ species }: { species: 'cat' | 'dog' }) {
 export function Banner({
   text,
   tone = 'info',
+  icon,
   style,
 }: {
   text: string
   tone?: 'info' | 'error'
+  icon?: IconName
   style?: ViewStyle
 }) {
   const isError = tone === 'error'
@@ -71,7 +85,14 @@ export function Banner({
         style,
       ]}
     >
-      <Text tone={isError ? 'danger' : 'default'}>{text}</Text>
+      <Icon
+        name={icon ?? (isError ? 'alert' : 'info')}
+        size={20}
+        color={isError ? colour.danger : colour.accentText}
+      />
+      <Text tone={isError ? 'danger' : 'default'} style={styles.bannerText}>
+        {text}
+      </Text>
     </View>
   )
 }
@@ -81,11 +102,13 @@ export type UrgencyLevel = keyof typeof urgencyScale
 /** The answer, and the loudest thing on the result screen. */
 export function UrgencyCard({
   level,
+  icon,
   label,
   action,
   reason,
 }: {
   level: UrgencyLevel
+  icon: IconName
   label: string
   action: string
   reason: string
@@ -94,15 +117,20 @@ export function UrgencyCard({
 
   return (
     <View style={[styles.urgency, { backgroundColor: tone.background }]}>
-      <Text variant="urgencyTitle" style={{ color: tone.signal, letterSpacing: 0.5 }}>
-        {label}
-      </Text>
+      <View style={styles.urgencyHead}>
+        <Icon name={icon} color={tone.signal} />
+        <Text variant="urgencyTitle" style={[styles.urgencyLabel, { color: tone.signal }]}>
+          {label}
+        </Text>
+      </View>
       <Text variant="h3" style={styles.urgencyAction}>
         {action}
       </Text>
-      <Text tone="muted" style={styles.urgencyReason}>
-        {reason}
-      </Text>
+      {reason ? (
+        <Text tone="muted" style={styles.urgencyReason}>
+          {reason}
+        </Text>
+      ) : null}
     </View>
   )
 }
@@ -114,9 +142,40 @@ export function UrgencyBadge({ level, label }: { level: UrgencyLevel; label: str
   return (
     <View style={[styles.badge, { backgroundColor: tone.background }]}>
       <Text variant="caption" style={{ color: tone.signal, fontWeight: '700' }}>
-        {label.toUpperCase()}
+        {label}
       </Text>
     </View>
+  )
+}
+
+/** A row in a list of settings: glyph, name, current value, chevron. */
+export function SettingRow({
+  icon,
+  title,
+  value,
+  onPress,
+}: {
+  icon?: IconName
+  title: string
+  value?: string
+  onPress: () => void
+}) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={value ? `${title}: ${value}` : title}
+      onPress={onPress}
+      style={({ pressed }) => [styles.setting, { opacity: pressed ? 0.6 : 1 }]}
+    >
+      {icon ? <Icon name={icon} size={20} color={colour.text} /> : null}
+      <Text style={styles.settingTitle}>{title}</Text>
+      {value ? (
+        <Text variant="label" tone="faint">
+          {value}
+        </Text>
+      ) : null}
+      <Icon name="chevron" size={20} color={colour.faint} />
+    </Pressable>
   )
 }
 
@@ -126,20 +185,33 @@ const styles = StyleSheet.create({
     borderRadius: radius.card,
     padding: 16,
     marginBottom: space.row,
-    ...shadow.card,
   },
+  outlined: { borderWidth: 1, borderColor: colour.line },
   avatar: { width: 48, height: 48 },
+  iconAvatar: {
+    borderRadius: radius.pill,
+    backgroundColor: colour.accentSoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   banner: {
-    padding: 14,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
     borderRadius: radius.field,
     marginBottom: space.block,
   },
+  bannerText: { flex: 1 },
   urgency: {
     padding: space.block,
     borderRadius: radius.card,
     marginBottom: space.block,
     ...shadow.card,
   },
+  urgencyHead: { flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
+  urgencyLabel: { flex: 1, letterSpacing: 0.56 },
   urgencyAction: { marginTop: space.row },
   urgencyReason: { marginTop: space.row },
   badge: {
@@ -150,4 +222,13 @@ const styles = StyleSheet.create({
     borderRadius: radius.pill,
     justifyContent: 'center',
   },
+  setting: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.row,
+    minHeight: 56,
+    borderBottomWidth: 1,
+    borderBottomColor: colour.line,
+  },
+  settingTitle: { flex: 1 },
 })

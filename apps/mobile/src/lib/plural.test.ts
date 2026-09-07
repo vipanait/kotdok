@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { checksWord, plural } from './plural'
+import { checksWord, plural, years } from './plural'
 
 describe('russian plurals', () => {
   it('uses the singular for one and the ones that end in it', () => {
@@ -26,6 +26,13 @@ describe('russian plurals', () => {
     for (const count of [11, 12, 13, 14, 111, 112]) {
       expect(checksWord(count), String(count)).toBe('проверок')
     }
+  })
+
+  it('spells out an age with its own three words', () => {
+    expect(years(1)).toBe('1 год')
+    expect(years(3)).toBe('3 года')
+    expect(years(5)).toBe('5 лет')
+    expect(years(13)).toBe('13 лет')
   })
 
   it('works for any three words, not only this one', () => {
