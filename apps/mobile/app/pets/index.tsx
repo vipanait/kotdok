@@ -13,7 +13,7 @@ import { Message, Screen } from '@/ui/Screen'
  * querying Supabase directly, so the phone and the site see the same rules.
  */
 export default function Pets() {
-  const { session, loading: sessionLoading, signOut } = useAuth()
+  const { session, loading: sessionLoading } = useAuth()
   const [pets, setPets] = useState<Pet[] | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -79,8 +79,8 @@ export default function Pets() {
       )}
       <Button title="Проверить симптомы" onPress={() => router.push('/check/new')} />
       <Button title="Добавить питомца" onPress={() => router.push('/pets/new')} />
-      <Button title="Обновить" onPress={() => void load()} />
-      <Button title="Выйти" onPress={() => void signOut()} />
+      <Button title="История" onPress={() => router.push('/checks')} />
+      <Button title="Профиль" onPress={() => router.push('/profile')} />
     </Screen>
   )
 }
