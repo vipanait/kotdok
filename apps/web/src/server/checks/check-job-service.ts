@@ -150,10 +150,17 @@ async function finish(
   jobId: string,
   patch: { status: 'completed' | 'failed'; check_id?: string; error_code?: ErrorCode },
 ): Promise<void> {
-  await supabase
+  const { error } = await supabase
     .from('check_jobs')
     .update({ ...patch, updated_at: new Date().toISOString() })
     .eq('id', jobId)
+
+  // The analysis itself is done either way, so this must not throw. But a job
+  // left saying `processing` is one a client polls until it gives up, with no
+  // trace of why — so it is said out loud rather than swallowed.
+  if (error) {
+    console.error(`could not close check job ${jobId} as ${patch.status}:`, error.message)
+  }
 }
 
 /**

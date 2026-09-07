@@ -39,6 +39,18 @@ export default function NewCheck() {
   // is not charged a second time.
   const key = useRef<string | null>(null)
 
+  /**
+   * Whether this screen is still the one the person is looking at.
+   *
+   * Polling outlives the screen otherwise: a person who leaves while the
+   * analysis runs would be yanked to a result from wherever they had got to,
+   * because the loop finishes and calls replace regardless.
+   */
+  const onScreen = useRef(true)
+  useEffect(() => () => {
+    onScreen.current = false
+  }, [])
+
   useEffect(() => {
     void withFreshSession((api) => api.listPets())
       .then(setPets)
@@ -54,6 +66,9 @@ export default function NewCheck() {
 
     while (Date.now() < deadline) {
       const job = await withFreshSession((api) => api.getCheckJob(jobId))
+      // Left the screen while we were asking: the answer is in the history, and
+      // dragging them out of wherever they are now would be worse than silence.
+      if (!onScreen.current) return
 
       if (job.status === 'completed' && job.check_id) {
         router.replace(`/check/${job.check_id}`)
@@ -68,6 +83,7 @@ export default function NewCheck() {
       }
 
       await new Promise((resolve) => setTimeout(resolve, POLL_EVERY_MS))
+      if (!onScreen.current) return
     }
 
     // The work is still going; the answer will be in the history when it lands.
@@ -88,6 +104,7 @@ export default function NewCheck() {
       const accepted = await withFreshSession((api) => api.createCheck(key.current!, input.value))
       await waitForResult(accepted.job_id)
     } catch (cause) {
+      if (!onScreen.current) return
       setError(cause instanceof Error ? cause.message : 'Не удалось отправить проверку')
       setWaiting(false)
     }
