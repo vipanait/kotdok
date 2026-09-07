@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { Button, StyleSheet, TextInput } from 'react-native'
 import { Link, Redirect } from 'expo-router'
 import { useAuth } from '@/providers/AuthProvider'
-import { Message, Screen } from '@/ui/Screen'
+import { Banner } from '@/ui/Card'
+import { Screen } from '@/ui/Screen'
 
 export default function SignUp() {
   const { session, signUp } = useAuth()
@@ -34,7 +35,7 @@ export default function SignUp() {
   return (
     <Screen title="Регистрация">
       {sent ? (
-        <Message text="Отправили письмо. Откройте ссылку из него, чтобы подтвердить почту." tone="info" />
+        <Banner text="Отправили письмо. Откройте ссылку из него, чтобы подтвердить почту."  />
       ) : null}
       <TextInput
         style={styles.input}
@@ -51,7 +52,7 @@ export default function SignUp() {
         value={password}
         onChangeText={setPassword}
       />
-      {error ? <Message text={error} /> : null}
+      {error ? <Banner text={error} tone="error" /> : null}
       <Button title={busy ? 'Отправляем…' : 'Зарегистрироваться'} onPress={submit} disabled={busy} />
       <Link href="/sign-in">Уже есть аккаунт</Link>
     </Screen>

@@ -4,7 +4,8 @@ import { Link, router } from 'expo-router'
 import { withFreshSession } from '@/lib/api'
 import { PetFields } from '@/features/pets/PetFields'
 import { emptyPetForm, formToInput, type PetForm } from '@/features/pets/pet-form'
-import { Message, Screen } from '@/ui/Screen'
+import { Banner } from '@/ui/Card'
+import { Screen } from '@/ui/Screen'
 
 export default function NewPet() {
   const [form, setForm] = useState<PetForm>(emptyPetForm())
@@ -39,7 +40,7 @@ export default function NewPet() {
   return (
     <Screen title="Новый питомец" scroll>
       <PetFields form={form} onChange={change} />
-      {error ? <Message text={error} /> : null}
+      {error ? <Banner text={error} tone="error" /> : null}
       <Button title={busy ? 'Сохраняем…' : 'Сохранить'} onPress={submit} disabled={busy} />
       <Link href="/pets">Отмена</Link>
     </Screen>

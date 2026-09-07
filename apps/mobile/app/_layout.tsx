@@ -1,10 +1,13 @@
 import { useEffect } from 'react'
 import { Stack, useRouter } from 'expo-router'
+import { useFonts } from 'expo-font'
 import * as Linking from 'expo-linking'
 import { StatusBar } from 'expo-status-bar'
+import { View } from 'react-native'
 import { AuthProvider } from '@/providers/AuthProvider'
 import { parseAuthLink } from '@/lib/auth-links'
 import { supabase } from '@/lib/supabase'
+import { colour } from '@/ui/theme'
 
 /**
  * Handles links that bring the user back from an email, at cold start and while
@@ -58,10 +61,25 @@ function useAuthLinks() {
 export default function RootLayout() {
   useAuthLinks()
 
+  // The two faces the design is drawn in. Holding the first frame until they
+  // land avoids the flash where every heading is the system font and then
+  // jumps — jarring on a screen someone is reading for reassurance.
+  const [fontsReady] = useFonts({
+    Nunito: require('../assets/fonts/Nunito.ttf'),
+    Manrope: require('../assets/fonts/Manrope.ttf'),
+  })
+
+  if (!fontsReady) return <View style={{ flex: 1, backgroundColor: colour.canvas }} />
+
   return (
     <AuthProvider>
-      <StatusBar style="auto" />
-      <Stack screenOptions={{ headerShown: false }} />
+      <StatusBar style="dark" />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: colour.canvas },
+        }}
+      />
     </AuthProvider>
   )
 }

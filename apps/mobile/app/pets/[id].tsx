@@ -4,7 +4,8 @@ import { Link, router, useLocalSearchParams } from 'expo-router'
 import { withFreshSession } from '@/lib/api'
 import { PetFields } from '@/features/pets/PetFields'
 import { formToInput, petToForm, type PetForm } from '@/features/pets/pet-form'
-import { Message, Screen } from '@/ui/Screen'
+import { Banner } from '@/ui/Card'
+import { Screen } from '@/ui/Screen'
 
 export default function EditPet() {
   const { id } = useLocalSearchParams<{ id: string }>()
@@ -79,7 +80,7 @@ export default function EditPet() {
   if (!form) {
     return (
       <Screen title="Питомец">
-        {error ? <Message text={error} /> : <ActivityIndicator />}
+        {error ? <Banner text={error} tone="error" /> : <ActivityIndicator />}
         {error ? <Link href="/pets">К списку</Link> : null}
       </Screen>
     )
@@ -88,7 +89,7 @@ export default function EditPet() {
   return (
     <Screen title={form.name || 'Питомец'} scroll>
       <PetFields form={form} onChange={change} />
-      {error ? <Message text={error} /> : null}
+      {error ? <Banner text={error} tone="error" /> : null}
       <Button title={busy ? 'Сохраняем…' : 'Сохранить'} onPress={save} disabled={busy} />
       <Button title="Удалить питомца" color="#b3261e" onPress={confirmRemove} disabled={busy} />
       <Link href="/pets">К списку</Link>
