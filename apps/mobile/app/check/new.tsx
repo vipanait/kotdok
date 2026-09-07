@@ -23,7 +23,8 @@ import {
   type CheckForm,
 } from '@/features/checks/check-form'
 import { Choice, Field } from '@/ui/Form'
-import { Message, Screen } from '@/ui/Screen'
+import { Banner } from '@/ui/Card'
+import { Screen } from '@/ui/Screen'
 
 /** How often to ask, and for how long before saying so. */
 const POLL_EVERY_MS = 1500
@@ -114,7 +115,7 @@ export default function NewCheck() {
     return (
       <Screen title="Смотрим симптомы">
         <ActivityIndicator />
-        <Message text="Это занимает до минуты. Не закрывайте экран." tone="info" />
+        <Banner text="Это занимает до минуты. Не закрывайте экран."  />
       </Screen>
     )
   }
@@ -185,7 +186,7 @@ export default function NewCheck() {
         </View>
       </View>
 
-      {error ? <Message text={error} /> : null}
+      {error ? <Banner text={error} tone="error" /> : null}
       <Button title="Проверить" onPress={submit} />
       <Link href="/pets">Отмена</Link>
     </Screen>

@@ -1,5 +1,6 @@
 import { Link } from 'expo-router'
-import { Message, Screen } from '@/ui/Screen'
+import { Banner } from '@/ui/Card'
+import { Screen } from '@/ui/Screen'
 
 /**
  * Where a link that matches no route ends up.
@@ -15,7 +16,7 @@ import { Message, Screen } from '@/ui/Screen'
 export default function NotFound() {
   return (
     <Screen title="Страница не найдена">
-      <Message text="Ссылка не открывается. Возможно, она устарела или потерялась по дороге." tone="info" />
+      <Banner text="Ссылка не открывается. Возможно, она устарела или потерялась по дороге."  />
       <Link href="/">На главную</Link>
     </Screen>
   )

@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { Button, StyleSheet, TextInput } from 'react-native'
 import { useRouter } from 'expo-router'
 import { supabase } from '@/lib/supabase'
-import { Message, Screen } from '@/ui/Screen'
+import { Banner } from '@/ui/Card'
+import { Screen } from '@/ui/Screen'
 
 /** Reached only through a recovery link, which has already made a session. */
 export default function ResetPassword() {
@@ -33,7 +34,7 @@ export default function ResetPassword() {
         value={password}
         onChangeText={setPassword}
       />
-      {error ? <Message text={error} /> : null}
+      {error ? <Banner text={error} tone="error" /> : null}
       <Button title={busy ? 'Сохраняем…' : 'Сохранить'} onPress={submit} disabled={busy} />
     </Screen>
   )

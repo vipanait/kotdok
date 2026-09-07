@@ -1,61 +1,71 @@
 import type { ReactNode } from 'react'
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { Text } from './Text'
+import { colour, space } from './theme'
 
 /**
- * Plain layout for stage 4. The visual style is transferred in stage 7.
+ * The frame every screen sits in: cream ground, one gutter, one title.
  *
- * `scroll` is for the screens that outgrew a phone: a form does not centre, it
- * starts at the top and moves out from under the keyboard.
+ * `dock` is the concept's fixed footer — the main action stays reachable while
+ * a long form scrolls under it. The pet form has sixteen fields, and a Save
+ * button at the bottom of that is a Save button nobody finds.
  */
 export function Screen({
   title,
   children,
+  dock,
   scroll = false,
+  centered = false,
 }: {
-  title: string
+  title?: string
   children: ReactNode
+  dock?: ReactNode
   scroll?: boolean
+  centered?: boolean
 }) {
-  if (!scroll) {
-    return (
-      <SafeAreaView style={styles.safe}>
-        <View style={styles.body}>
-          <Text style={styles.title}>{title}</Text>
-          {children}
-        </View>
-      </SafeAreaView>
-    )
-  }
+  const heading = title ? (
+    <View style={styles.header}>
+      <Text variant="h1">{title}</Text>
+    </View>
+  ) : null
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
       <KeyboardAvoidingView
-        style={styles.safe}
+        style={styles.fill}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <ScrollView
-          contentContainerStyle={styles.scrollBody}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="on-drag"
-        >
-          <Text style={styles.title}>{title}</Text>
-          {children}
-        </ScrollView>
+        {heading}
+        {scroll ? (
+          <ScrollView
+            style={styles.fill}
+            contentContainerStyle={[styles.body, centered ? styles.centered : null]}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="on-drag"
+          >
+            {children}
+          </ScrollView>
+        ) : (
+          <View style={[styles.fill, styles.body, centered ? styles.centered : null]}>
+            {children}
+          </View>
+        )}
+        {dock ? <View style={styles.dock}>{dock}</View> : null}
       </KeyboardAvoidingView>
     </SafeAreaView>
   )
 }
 
-export function Message({ text, tone = 'error' }: { text: string; tone?: 'error' | 'info' }) {
-  return <Text style={tone === 'error' ? styles.error : styles.info}>{text}</Text>
-}
-
 const styles = StyleSheet.create({
-  safe: { flex: 1 },
-  body: { flex: 1, padding: 24, gap: 12, justifyContent: 'center' },
-  scrollBody: { padding: 24, gap: 16, paddingBottom: 48 },
-  title: { fontSize: 26, fontWeight: '600', marginBottom: 8 },
-  error: { color: '#b3261e' },
-  info: { color: '#444' },
+  safe: { flex: 1, backgroundColor: colour.canvas },
+  fill: { flex: 1 },
+  header: { paddingHorizontal: space.gutter, paddingTop: 12, paddingBottom: space.block },
+  body: { paddingHorizontal: space.gutter, paddingBottom: 40 },
+  centered: { flexGrow: 1, justifyContent: 'center' },
+  dock: {
+    paddingHorizontal: space.gutter,
+    paddingVertical: 12,
+    backgroundColor: colour.canvas,
+  },
 })

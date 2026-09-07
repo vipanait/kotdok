@@ -7,7 +7,8 @@ import { withFreshSession } from '@/lib/api'
 import { useAuth } from '@/providers/AuthProvider'
 import { checksWord } from '@/features/profile/plural'
 import { Choice } from '@/ui/Form'
-import { Message, Screen } from '@/ui/Screen'
+import { Banner } from '@/ui/Card'
+import { Screen } from '@/ui/Screen'
 
 const localeLabels = { ru: 'Русский', en: 'English' } as const
 
@@ -74,7 +75,7 @@ export default function Profile() {
   if (!profile) {
     return (
       <Screen title="Профиль">
-        {error ? <Message text={error} /> : <ActivityIndicator />}
+        {error ? <Banner text={error} tone="error" /> : <ActivityIndicator />}
       </Screen>
     )
   }
@@ -89,7 +90,7 @@ export default function Profile() {
       {profile.capabilities.extra_check_request ? (
         <View style={styles.block}>
           {extra?.status ? (
-            <Message text={extraStatusText[extra.status] ?? extra.status} tone="info" />
+            <Banner text={extraStatusText[extra.status] ?? extra.status}  />
           ) : (
             <Button
               title="Попросить ещё одну проверку"
@@ -108,8 +109,8 @@ export default function Profile() {
         onChange={(locale) => locale && void changeLocale(locale)}
       />
 
-      {notice ? <Message text={notice} tone="info" /> : null}
-      {error ? <Message text={error} /> : null}
+      {notice ? <Banner text={notice}  /> : null}
+      {error ? <Banner text={error} tone="error" /> : null}
 
       <Button title="История проверок" onPress={() => router.push('/checks')} />
       <Button title="К питомцам" onPress={() => router.push('/pets')} />

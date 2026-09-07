@@ -3,7 +3,8 @@ import { ActivityIndicator, Button, FlatList, Pressable, StyleSheet, Text, View 
 import { router, useFocusEffect } from 'expo-router'
 import { URGENCY_LEVELS, type SymptomCheckRecord } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
-import { Message, Screen } from '@/ui/Screen'
+import { Banner } from '@/ui/Card'
+import { Screen } from '@/ui/Screen'
 
 /** Short forms of the wording on the result screen, for a list that has to fit. */
 const urgencyShort: Record<(typeof URGENCY_LEVELS)[number], { text: string; colour: string }> = {
@@ -72,7 +73,7 @@ export default function History() {
 
   return (
     <Screen title="История">
-      {error ? <Message text={error} /> : null}
+      {error ? <Banner text={error} tone="error" /> : null}
       {items === null ? (
         <ActivityIndicator />
       ) : (
@@ -82,7 +83,7 @@ export default function History() {
           onEndReached={() => void loadMore()}
           onEndReachedThreshold={0.4}
           ListEmptyComponent={
-            error ? null : <Message text="Проверок пока не было." tone="info" />
+            error ? null : <Banner text="Проверок пока не было."  />
           }
           ListFooterComponent={loadingMore ? <ActivityIndicator /> : null}
           renderItem={({ item }) => {

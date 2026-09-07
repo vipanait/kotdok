@@ -3,7 +3,8 @@ import { ActivityIndicator, StyleSheet, Text, View } from 'react-native'
 import { Link, useLocalSearchParams } from 'expo-router'
 import { URGENCY_LEVELS, type SymptomCheckRecord } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
-import { Message, Screen } from '@/ui/Screen'
+import { Banner } from '@/ui/Card'
+import { Screen } from '@/ui/Screen'
 
 /**
  * Urgency is the first thing a worried owner reads, so it is said in words
@@ -65,7 +66,7 @@ export default function CheckResult() {
   if (!check) {
     return (
       <Screen title="Проверка">
-        {error ? <Message text={error} /> : <ActivityIndicator />}
+        {error ? <Banner text={error} tone="error" /> : <ActivityIndicator />}
         <Link href="/pets">К питомцам</Link>
       </Screen>
     )
@@ -80,7 +81,7 @@ export default function CheckResult() {
       <Text style={styles.reason}>{check.urgency_reason}</Text>
 
       {check.species_specific_warning ? (
-        <Message text={check.species_specific_warning} />
+        <Banner text={check.species_specific_warning} tone="error" />
       ) : null}
 
       <Section title="Возможные причины" items={check.possible_causes} />
@@ -92,9 +93,9 @@ export default function CheckResult() {
         <Text style={styles.item}>{check.symptoms_input}</Text>
       </View>
 
-      <Message
+      <Banner
         text="Это не диагноз. Решение о лечении принимает только ветеринарный врач."
-        tone="info"
+        
       />
       <Link href="/pets">К питомцам</Link>
     </Screen>

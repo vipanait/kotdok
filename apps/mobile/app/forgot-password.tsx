@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { Button, StyleSheet, TextInput } from 'react-native'
 import { Link } from 'expo-router'
 import { useAuth } from '@/providers/AuthProvider'
-import { Message, Screen } from '@/ui/Screen'
+import { Banner } from '@/ui/Card'
+import { Screen } from '@/ui/Screen'
 
 export default function ForgotPassword() {
   const { requestPasswordReset } = useAuth()
@@ -26,7 +27,7 @@ export default function ForgotPassword() {
 
   return (
     <Screen title="Восстановление пароля">
-      {sent ? <Message text="Если такая почта зарегистрирована, письмо отправлено." tone="info" /> : null}
+      {sent ? <Banner text="Если такая почта зарегистрирована, письмо отправлено."  /> : null}
       <TextInput
         style={styles.input}
         placeholder="Почта"
@@ -35,7 +36,7 @@ export default function ForgotPassword() {
         value={email}
         onChangeText={setEmail}
       />
-      {error ? <Message text={error} /> : null}
+      {error ? <Banner text={error} tone="error" /> : null}
       <Button title={busy ? 'Отправляем…' : 'Отправить ссылку'} onPress={submit} disabled={busy} />
       <Link href="/sign-in">Назад ко входу</Link>
     </Screen>
