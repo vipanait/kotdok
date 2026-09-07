@@ -77,6 +77,7 @@ export default function Pets() {
           )}
         />
       )}
+      <Button title="Проверить симптомы" onPress={() => router.push('/check/new')} />
       <Button title="Добавить питомца" onPress={() => router.push('/pets/new')} />
       <Button title="Обновить" onPress={() => void load()} />
       <Button title="Выйти" onPress={() => void signOut()} />
