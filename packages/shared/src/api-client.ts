@@ -70,8 +70,42 @@ export type HttpResponse = {
 
 export type FetchLike = (
   url: string,
-  init?: { method?: string; headers?: Record<string, string>; body?: string },
+  init?: {
+    method?: string
+    headers?: Record<string, string>
+    body?: string
+    /** Opaque here: typing it would drag in DOM or Node types. */
+    signal?: unknown
+  },
 ) => Promise<HttpResponse>
+
+/**
+ * A request that never answers.
+ *
+ * Distinct from every server error because nothing was decided: the write may
+ * have landed or may not have. A caller must not treat it as "no".
+ */
+export class ApiTimeoutError extends Error {
+  constructor(readonly path: string, readonly afterMs: number) {
+    super(`No answer from ${path} after ${afterMs}ms`)
+    this.name = 'ApiTimeoutError'
+  }
+}
+
+/**
+ * The timers and abort machinery, reached through `globalThis` so this package
+ * still compiles with neither DOM nor Node types. All three exist in React
+ * Native, in Node 18+ and in browsers; the client degrades to no timeout if a
+ * runtime somehow lacks them, rather than failing to start.
+ */
+const platform = globalThis as {
+  AbortController?: new () => { signal: unknown; abort(): void }
+  setTimeout?: (handler: () => void, ms: number) => unknown
+  clearTimeout?: (handle: unknown) => void
+}
+
+/** Long enough for a cold serverless start, short enough to not look frozen. */
+export const DEFAULT_TIMEOUT_MS = 30_000
 
 export type ApiClientOptions = {
   /** Origin of the API, without the version segment. */
@@ -80,6 +114,12 @@ export type ApiClientOptions = {
   getAccessToken?: () => Promise<string | null> | string | null
   /** Injectable for tests; defaults to the platform fetch. */
   fetch?: FetchLike
+  /**
+   * How long to wait for an answer before giving up. Without this a stalled
+   * server leaves the app showing whatever it last knew, with no spinner ending
+   * and no error — data that is merely old, presented as current.
+   */
+  timeoutMs?: number
 }
 
 type RequestOptions = {
@@ -118,15 +158,40 @@ export function createApiClient(options: ApiClientOptions) {
     }
     if (request.body !== undefined) headers['content-type'] = 'application/json'
 
-    const response = await doFetch(buildUrl(options.baseUrl, path, request.query), {
-      method: request.method ?? 'GET',
-      headers,
-      body: request.body === undefined ? undefined : JSON.stringify(request.body),
-    })
+    const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS
+    const controller = platform.AbortController ? new platform.AbortController() : null
+    let timedOut = false
+    const timer =
+      controller && platform.setTimeout
+        ? platform.setTimeout(() => {
+            timedOut = true
+            controller.abort()
+          }, timeoutMs)
+        : null
 
-    if (response.status === 204) return undefined as T
+    let response: HttpResponse
+    let payload: unknown
+    try {
+      response = await doFetch(buildUrl(options.baseUrl, path, request.query), {
+        method: request.method ?? 'GET',
+        headers,
+        body: request.body === undefined ? undefined : JSON.stringify(request.body),
+        signal: controller?.signal,
+      })
 
-    const payload = await response.json().catch(() => null)
+      if (response.status === 204) return undefined as T
+
+      // Reading the body is inside the same deadline: a server can answer with
+      // headers and then stall, which looks identical to a hang from here.
+      payload = await response.json().catch(() => null)
+    } catch (cause) {
+      // The abort surfaces as whatever the platform throws, so the flag is what
+      // tells a timeout apart from an ordinary network failure.
+      if (timedOut) throw new ApiTimeoutError(path, timeoutMs)
+      throw cause
+    } finally {
+      if (timer !== null) platform.clearTimeout?.(timer)
+    }
 
     if (!response.ok) {
       const envelope = ApiErrorEnvelopeSchema.safeParse(payload)

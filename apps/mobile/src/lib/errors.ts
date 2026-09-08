@@ -8,7 +8,7 @@
  * reworded upstream message must not silently turn back into English here.
  */
 
-import { ApiError } from '@lapka/shared'
+import { ApiError, ApiTimeoutError } from '@lapka/shared'
 
 /**
  * A message this app wrote itself.
@@ -77,6 +77,9 @@ function codeOf(cause: unknown): string | null {
  */
 export function errorMessage(cause: unknown, fallback: string): string {
   if (cause instanceof AppError) return cause.message
+  // Said apart from "no connection": the phone reached the server, the server
+  // simply never answered, and a write may still have gone through.
+  if (cause instanceof ApiTimeoutError) return 'Сервер не ответил. Попробуйте ещё раз'
   if (cause instanceof ApiError) return apiMessages[cause.code] ?? fallback
 
   const code = codeOf(cause)

@@ -9,6 +9,16 @@ import { colour, space } from './theme'
 export type ScreenAction = { icon: IconName; label: string; onPress: () => void }
 
 /**
+ * How wide the content column is allowed to get.
+ *
+ * The concept is drawn at 390 points and every measurement in it — the 20 pt
+ * gutter, the 52 pt controls, the line length — assumes a phone held in one
+ * hand. Left unbounded on a tablet the same layout puts a name field across a
+ * forearm of glass. The column stops here and centres instead.
+ */
+const COLUMN_MAX_WIDTH = 480
+
+/**
  * The frame every screen sits in: cream ground, one gutter, one title.
  *
  * `dock` is the concept's fixed footer — the main action stays reachable while
@@ -33,7 +43,7 @@ export function Screen({
   centered?: boolean
 }) {
   const heading = title ? (
-    <View style={styles.header}>
+    <View style={[styles.header, styles.column]}>
       {onBack ? (
         <IconButton icon="back" label="Назад" onPress={onBack} style={styles.back} />
       ) : null}
@@ -56,18 +66,22 @@ export function Screen({
         {scroll ? (
           <ScrollView
             style={styles.fill}
-            contentContainerStyle={[styles.body, centered ? styles.centered : null]}
+            contentContainerStyle={[styles.body, styles.column, centered ? styles.centered : null]}
             keyboardShouldPersistTaps="handled"
             keyboardDismissMode="on-drag"
           >
             {children}
           </ScrollView>
         ) : (
-          <View style={[styles.fill, styles.body, centered ? styles.centered : null]}>
+          <View style={[styles.fill, styles.body, styles.column, centered ? styles.centered : null]}>
             {children}
           </View>
         )}
-        {dock ? <View style={styles.dock}>{dock}</View> : null}
+        {dock ? (
+          <View style={styles.dockBar}>
+            <View style={[styles.dock, styles.column]}>{dock}</View>
+          </View>
+        ) : null}
       </KeyboardAvoidingView>
     </SafeAreaView>
   )
@@ -81,7 +95,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     paddingHorizontal: space.gutter,
-    paddingTop: 12,
+    // The concept puts 12 here, measured against a drawn status bar. A real
+    // iPhone's island is taller than the drawing, so the same 12 reads as the
+    // title crowding it.
+    paddingTop: 24,
     paddingBottom: space.block,
   },
   // The arrow's 44 pt target overhangs the gutter so the glyph inside it, and
@@ -89,10 +106,13 @@ const styles = StyleSheet.create({
   back: { marginLeft: -12 },
   title: { flex: 1 },
   body: { paddingHorizontal: space.gutter, paddingBottom: 40 },
+  // Header, content and dock share one column so they stay in line with each
+  // other on a screen wider than the phone the design was drawn for.
+  column: { width: '100%', maxWidth: COLUMN_MAX_WIDTH, alignSelf: 'center' },
   centered: { flexGrow: 1, justifyContent: 'center' },
+  dockBar: { backgroundColor: colour.canvas },
   dock: {
     paddingHorizontal: space.gutter,
     paddingVertical: 12,
-    backgroundColor: colour.canvas,
   },
 })
