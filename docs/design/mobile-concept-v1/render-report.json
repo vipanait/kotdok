@@ -1,0 +1,440 @@
+{
+  "screens": [
+    {
+      "id": "01",
+      "name": "Загрузка сессии",
+      "ref": "6.1",
+      "contentHeight": 766,
+      "viewportHeight": 766,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "02",
+      "name": "Вход · с иллюстрацией",
+      "ref": "6.2",
+      "contentHeight": 766,
+      "viewportHeight": 766,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "03",
+      "name": "Вход · ошибка",
+      "ref": "6.2",
+      "contentHeight": 766,
+      "viewportHeight": 766,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "04",
+      "name": "Регистрация",
+      "ref": "6.3",
+      "contentHeight": 766,
+      "viewportHeight": 766,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "05",
+      "name": "Питомцы · пусто",
+      "ref": "6.7",
+      "contentHeight": 634,
+      "viewportHeight": 634,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "06",
+      "name": "Питомцы · список",
+      "ref": "6.8",
+      "contentHeight": 550,
+      "viewportHeight": 550,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "07",
+      "name": "Новый питомец · кот",
+      "ref": "6.9",
+      "contentHeight": 775,
+      "viewportHeight": 502,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "08",
+      "name": "Питомец · собака",
+      "ref": "6.10",
+      "contentHeight": 1389,
+      "viewportHeight": 550,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "09",
+      "name": "Проверка · шаг 1",
+      "ref": "6.12",
+      "contentHeight": 510,
+      "viewportHeight": 510,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "10",
+      "name": "Проверка · шаг 2",
+      "ref": "6.13",
+      "contentHeight": 938,
+      "viewportHeight": 510,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "11",
+      "name": "Ожидание анализа",
+      "ref": "6.14",
+      "contentHeight": 766,
+      "viewportHeight": 766,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "12",
+      "name": "Результат · экстренно",
+      "ref": "6.15",
+      "contentHeight": 982,
+      "viewportHeight": 626,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "13",
+      "name": "Результат · наблюдаем",
+      "ref": "6.15",
+      "contentHeight": 896,
+      "viewportHeight": 626,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "14",
+      "name": "Удаление питомца",
+      "ref": "6.11",
+      "contentHeight": 775,
+      "viewportHeight": 626,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "15",
+      "name": "Шторка · питание",
+      "ref": "4.5",
+      "contentHeight": 1185,
+      "viewportHeight": 502,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "16",
+      "name": "История · заполнена",
+      "ref": "6.17",
+      "contentHeight": 626,
+      "viewportHeight": 626,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "17",
+      "name": "История · пусто",
+      "ref": "6.17",
+      "contentHeight": 626,
+      "viewportHeight": 626,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "18",
+      "name": "Профиль · баланс",
+      "ref": "6.18",
+      "contentHeight": 526,
+      "viewportHeight": 526,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "19",
+      "name": "Профиль · нулевой баланс",
+      "ref": "6.18",
+      "contentHeight": 526,
+      "viewportHeight": 526,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "20",
+      "name": "Дополнительная проверка",
+      "ref": "6.19",
+      "contentHeight": 586,
+      "viewportHeight": 586,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "21",
+      "name": "Ожидание · нет проверок",
+      "ref": "6.14",
+      "contentHeight": 642,
+      "viewportHeight": 642,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "22",
+      "name": "Питомцы · нет сети",
+      "ref": "7",
+      "contentHeight": 550,
+      "viewportHeight": 550,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "23",
+      "name": "Подтверждение почты",
+      "ref": "6.4",
+      "contentHeight": 776,
+      "viewportHeight": 766,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "24",
+      "name": "Восстановление пароля",
+      "ref": "6.5",
+      "contentHeight": 766,
+      "viewportHeight": 766,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "25",
+      "name": "Ссылка отправлена",
+      "ref": "6.5",
+      "contentHeight": 766,
+      "viewportHeight": 766,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "26",
+      "name": "Новый пароль",
+      "ref": "6.6",
+      "contentHeight": 766,
+      "viewportHeight": 766,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "27",
+      "name": "Запрос · ожидает",
+      "ref": "6.19",
+      "contentHeight": 586,
+      "viewportHeight": 586,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "28",
+      "name": "Запрос · одобрен",
+      "ref": "6.19",
+      "contentHeight": 586,
+      "viewportHeight": 586,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "29",
+      "name": "Запрос · отклонён",
+      "ref": "6.19",
+      "contentHeight": 586,
+      "viewportHeight": 586,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "30",
+      "name": "Отзыв · раскрыт",
+      "ref": "6.16",
+      "contentHeight": 1072,
+      "viewportHeight": 626,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "31",
+      "name": "Отзыв · отправлен",
+      "ref": "6.16",
+      "contentHeight": 840,
+      "viewportHeight": 626,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "32",
+      "name": "Питомец · Мурка",
+      "ref": "6.10",
+      "contentHeight": 979,
+      "viewportHeight": 550,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "33",
+      "name": "История питомца",
+      "ref": "6.17",
+      "contentHeight": 626,
+      "viewportHeight": 626,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "34",
+      "name": "Питомцы · загрузка",
+      "ref": "7",
+      "contentHeight": 626,
+      "viewportHeight": 626,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "35",
+      "name": "Ожидание · ошибка анализа",
+      "ref": "6.14",
+      "contentHeight": 642,
+      "viewportHeight": 642,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "36",
+      "name": "Ожидание · долгий ответ",
+      "ref": "6.14",
+      "contentHeight": 642,
+      "viewportHeight": 642,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "37",
+      "name": "Шторка · язык",
+      "ref": "6.18",
+      "contentHeight": 526,
+      "viewportHeight": 526,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "38",
+      "name": "Шторка · размер",
+      "ref": "4.5",
+      "contentHeight": 1185,
+      "viewportHeight": 502,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "39",
+      "name": "Шторка · выгул",
+      "ref": "4.5",
+      "contentHeight": 1185,
+      "viewportHeight": 502,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "40",
+      "name": "Шторка · стул",
+      "ref": "4.5",
+      "contentHeight": 938,
+      "viewportHeight": 510,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "41",
+      "name": "Фото · будущий этап",
+      "ref": "6.20",
+      "contentHeight": 600,
+      "viewportHeight": 510,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "42",
+      "name": "Описание · ошибка",
+      "ref": "6.12",
+      "contentHeight": 510,
+      "viewportHeight": 510,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    }
+  ],
+  "errors": [],
+  "newUserRoute": "passed",
+  "returningUserRoute": "passed",
+  "optionalSelect": "passed",
+  "smallScreens": [
+    {
+      "id": "05",
+      "fits": true,
+      "horizontalOverflow": false
+    },
+    {
+      "id": "12",
+      "fits": true,
+      "horizontalOverflow": false
+    }
+  ]
+}

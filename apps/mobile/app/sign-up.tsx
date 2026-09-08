@@ -1,8 +1,11 @@
 import { useState } from 'react'
-import { Button, StyleSheet, TextInput } from 'react-native'
-import { Link, Redirect } from 'expo-router'
+import { Redirect, router } from 'expo-router'
 import { useAuth } from '@/providers/AuthProvider'
-import { Message, Screen } from '@/ui/Screen'
+import { errorMessage } from '@/lib/errors'
+import { AuthShell } from '@/features/auth/AuthShell'
+import { Button, LinkButton } from '@/ui/Button'
+import { Banner } from '@/ui/Card'
+import { Field } from '@/ui/Field'
 
 export default function SignUp() {
   const { session, signUp } = useAuth()
@@ -22,7 +25,7 @@ export default function SignUp() {
       // takes over, so telling them to open a link would be a dead end.
       if (confirmationRequired) setSent(true)
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Не удалось зарегистрироваться')
+      setError(errorMessage(cause, 'Не удалось зарегистрироваться'))
     } finally {
       setBusy(false)
     }
@@ -32,32 +35,36 @@ export default function SignUp() {
   if (session) return <Redirect href="/pets" />
 
   return (
-    <Screen title="Регистрация">
+    <AuthShell title="Регистрация">
       {sent ? (
-        <Message text="Отправили письмо. Откройте ссылку из него, чтобы подтвердить почту." tone="info" />
+        <Banner
+          text="Отправили письмо. Откройте ссылку из него, чтобы подтвердить почту."
+          icon="mail"
+        />
       ) : null}
-      <TextInput
-        style={styles.input}
-        placeholder="Почта"
-        autoCapitalize="none"
-        keyboardType="email-address"
+
+      <Field
+        label="Почта"
         value={email}
         onChangeText={setEmail}
+        placeholder="anna@example.com"
+        autoCapitalize="none"
+        autoComplete="email"
+        keyboardType="email-address"
       />
-      <TextInput
-        style={styles.input}
-        placeholder="Пароль"
-        secureTextEntry
+      <Field
+        label="Пароль"
         value={password}
         onChangeText={setPassword}
+        secureTextEntry
+        autoComplete="password"
+        autoCapitalize="none"
       />
-      {error ? <Message text={error} /> : null}
-      <Button title={busy ? 'Отправляем…' : 'Зарегистрироваться'} onPress={submit} disabled={busy} />
-      <Link href="/sign-in">Уже есть аккаунт</Link>
-    </Screen>
+
+      {error ? <Banner text={error} tone="error" /> : null}
+
+      <Button title="Зарегистрироваться" onPress={submit} busy={busy} />
+      <LinkButton title="Уже есть аккаунт" onPress={() => router.replace('/sign-in')} />
+    </AuthShell>
   )
 }
-
-const styles = StyleSheet.create({
-  input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 8, padding: 12 },
-})

@@ -25,3 +25,6 @@ export function plural(count: number, one: string, few: string, many: string): s
 
 /** "проверка / проверки / проверок" — the balance shown on the profile. */
 export const checksWord = (count: number) => plural(count, 'проверка', 'проверки', 'проверок')
+
+/** "1 год / 3 года / 5 лет" — a pet's age on its card. */
+export const years = (count: number) => `${count} ${plural(count, 'год', 'года', 'лет')}`

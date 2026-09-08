@@ -1,12 +1,14 @@
 import { useState } from 'react'
-import { Button, StyleSheet, TextInput } from 'react-native'
-import { useRouter } from 'expo-router'
+import { router } from 'expo-router'
 import { supabase } from '@/lib/supabase'
-import { Message, Screen } from '@/ui/Screen'
+import { errorMessage } from '@/lib/errors'
+import { AuthShell } from '@/features/auth/AuthShell'
+import { Button } from '@/ui/Button'
+import { Banner } from '@/ui/Card'
+import { Field } from '@/ui/Field'
 
 /** Reached only through a recovery link, which has already made a session. */
 export default function ResetPassword() {
-  const router = useRouter()
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
@@ -18,27 +20,26 @@ export default function ResetPassword() {
     setBusy(false)
 
     if (cause) {
-      setError(cause.message)
+      setError(errorMessage(cause, 'Не удалось сохранить пароль'))
       return
     }
     router.replace('/pets')
   }
 
   return (
-    <Screen title="Новый пароль">
-      <TextInput
-        style={styles.input}
-        placeholder="Новый пароль"
-        secureTextEntry
+    <AuthShell title="Новый пароль">
+      <Field
+        label="Новый пароль"
         value={password}
         onChangeText={setPassword}
+        secureTextEntry
+        autoComplete="password"
+        autoCapitalize="none"
       />
-      {error ? <Message text={error} /> : null}
-      <Button title={busy ? 'Сохраняем…' : 'Сохранить'} onPress={submit} disabled={busy} />
-    </Screen>
+
+      {error ? <Banner text={error} tone="error" /> : null}
+
+      <Button title="Сохранить" onPress={submit} busy={busy} />
+    </AuthShell>
   )
 }
-
-const styles = StyleSheet.create({
-  input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 8, padding: 12 },
-})

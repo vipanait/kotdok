@@ -1,8 +1,11 @@
 import { useState } from 'react'
-import { Button, StyleSheet, TextInput } from 'react-native'
-import { Link } from 'expo-router'
+import { router } from 'expo-router'
 import { useAuth } from '@/providers/AuthProvider'
-import { Message, Screen } from '@/ui/Screen'
+import { errorMessage } from '@/lib/errors'
+import { AuthShell } from '@/features/auth/AuthShell'
+import { Button, LinkButton } from '@/ui/Button'
+import { Banner } from '@/ui/Card'
+import { Field } from '@/ui/Field'
 
 export default function ForgotPassword() {
   const { requestPasswordReset } = useAuth()
@@ -18,30 +21,33 @@ export default function ForgotPassword() {
       await requestPasswordReset(email.trim())
       setSent(true)
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Не удалось отправить письмо')
+      setError(errorMessage(cause, 'Не удалось отправить письмо'))
     } finally {
       setBusy(false)
     }
   }
 
   return (
-    <Screen title="Восстановление пароля">
-      {sent ? <Message text="Если такая почта зарегистрирована, письмо отправлено." tone="info" /> : null}
-      <TextInput
-        style={styles.input}
-        placeholder="Почта"
-        autoCapitalize="none"
-        keyboardType="email-address"
+    <AuthShell title="Восстановление пароля">
+      {/* Deliberately says nothing about whether the address is registered. */}
+      {sent ? (
+        <Banner text="Если такая почта зарегистрирована, письмо отправлено." icon="mail" />
+      ) : null}
+
+      <Field
+        label="Почта"
         value={email}
         onChangeText={setEmail}
+        placeholder="anna@example.com"
+        autoCapitalize="none"
+        autoComplete="email"
+        keyboardType="email-address"
       />
-      {error ? <Message text={error} /> : null}
-      <Button title={busy ? 'Отправляем…' : 'Отправить ссылку'} onPress={submit} disabled={busy} />
-      <Link href="/sign-in">Назад ко входу</Link>
-    </Screen>
+
+      {error ? <Banner text={error} tone="error" /> : null}
+
+      <Button title="Отправить ссылку" onPress={submit} busy={busy} />
+      <LinkButton title="Назад ко входу" onPress={() => router.replace('/sign-in')} />
+    </AuthShell>
   )
 }
-
-const styles = StyleSheet.create({
-  input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 8, padding: 12 },
-})
