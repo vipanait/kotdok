@@ -1,0 +1,56 @@
+[
+  {
+    "file": "avatar-cat.png",
+    "width": 1254,
+    "height": 1254,
+    "hasAlpha": true,
+    "transparentPixels": 619283,
+    "softEdgePixels": 129644,
+    "opaquePixels": 823589
+  },
+  {
+    "file": "avatar-dog.png",
+    "width": 1254,
+    "height": 1254,
+    "hasAlpha": true,
+    "transparentPixels": 753133,
+    "softEdgePixels": 67196,
+    "opaquePixels": 752187
+  },
+  {
+    "file": "kitten-paw.png",
+    "width": 1254,
+    "height": 1254,
+    "hasAlpha": true,
+    "transparentPixels": 1039670,
+    "softEdgePixels": 36430,
+    "opaquePixels": 496416
+  },
+  {
+    "file": "paw.png",
+    "width": 1254,
+    "height": 1254,
+    "hasAlpha": true,
+    "transparentPixels": 1090027,
+    "softEdgePixels": 28969,
+    "opaquePixels": 453520
+  },
+  {
+    "file": "pets-together.png",
+    "width": 1254,
+    "height": 1254,
+    "hasAlpha": true,
+    "transparentPixels": 1064397,
+    "softEdgePixels": 30051,
+    "opaquePixels": 478068
+  },
+  {
+    "file": "welcome-pets.png",
+    "width": 1254,
+    "height": 1254,
+    "hasAlpha": true,
+    "transparentPixels": 742890,
+    "softEdgePixels": 60469,
+    "opaquePixels": 769157
+  }
+]

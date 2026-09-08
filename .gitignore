@@ -60,3 +60,8 @@ next-env.d.ts
 .idea/
 
 .orch/
+
+# The design concept's delivery archive: the same six PNGs and two SVGs that
+# already sit in docs/design/mobile-concept-v1/assets/, zipped for hand-off.
+# 11 MB of exact duplicates is not worth carrying in history.
+docs/design/**/lapka-transparent-assets.zip

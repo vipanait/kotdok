@@ -1,0 +1,18 @@
+{
+  "tool": "built-in image_gen",
+  "date": "2026-09-07",
+  "assets": [
+    {
+      "file": "assets/source-v1/kitten-paw.png",
+      "prompt": "Use case: stylized-concept. Asset type: hero illustration for the Russian pet wellbeing mobile app Lapka. Create a single exceptionally charming fluffy cream-and-biscuit longhaired kitten sitting, front three-quarter view, lifting one front paw toward viewer so soft muted pink paw pads show. Small natural dark eyes, gentle curious expression, realistic fine fur rendered as a premium tactile 3D illustration, soft rounded proportions but not a toy with giant eyes. A very small deep teal #0B6B5E fabric neckerchief. All paws and ears fully within frame, centered composition occupying 75% of square canvas, generous breathing room. Warm cream seamless solid background exactly #FBF6EE, faint natural contact shadow only. Warm diffused studio lighting. Calm, caring, sophisticated editorial art direction for adult pet owners. No text, no logo, no watermark, no props, no hearts, no sparkle, no medical equipment. High detail fluffy fur silhouette."
+    },
+    {
+      "file": "assets/source-v1/pets-together.png",
+      "prompt": "Use case: stylized-concept. Asset type: small decorative illustration for a warm premium pet care mobile app Lapka, empty pet list. A fluffy cream kitten and a small floppy-eared biscuit-colored puppy nestled side by side in a simple soft oatmeal oval pet bed, kitten resting a paw on the edge. Both looking gently toward viewer, calm natural small eyes, realistic fine soft fur, premium tactile 3D editorial illustration, not cartoon emoji. Tiny dark teal #0B6B5E fabric detail on bedding. Solid seamless background #FBF6EE, soft contact shadow. Centered entire subjects fully visible, occupy 70% of square, generous empty space. Soft warm diffused studio light. No text, no logo, no icons, no hearts, no medical equipment."
+    },
+    {
+      "file": "assets/source-v1/paw.png",
+      "prompt": "Use case: stylized-concept. Asset type: decorative illustration for the analysis waiting screen in Lapka pet care app. A single soft fluffy cream kitten front paw, upright, pads facing viewer, natural anatomical four small toe pads and one large central pad in muted dusty pink. Cropped foreleg tapering softly at the bottom of composition, no cut stump. Sophisticated premium 3D rendering with fine cream fur, extremely tactile and comforting. Isolated on solid seamless warm ivory #FBF6EE background, soft diffused light, subtle shadow. Centered paw occupying 65% square, generous negative space. No text, no logos, no sparkles, no medical props. Anatomically coherent, no extra toes."
+    }
+  ]
+}

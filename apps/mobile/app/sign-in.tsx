@@ -1,8 +1,11 @@
 import { useState } from 'react'
-import { Button, TextInput, StyleSheet } from 'react-native'
-import { Link, Redirect, useLocalSearchParams } from 'expo-router'
+import { Redirect, router, useLocalSearchParams } from 'expo-router'
 import { useAuth } from '@/providers/AuthProvider'
-import { Message, Screen } from '@/ui/Screen'
+import { errorMessage } from '@/lib/errors'
+import { AuthShell } from '@/features/auth/AuthShell'
+import { Button, LinkButton, LinkRow } from '@/ui/Button'
+import { Banner } from '@/ui/Card'
+import { Field } from '@/ui/Field'
 
 export default function SignIn() {
   const { session, signIn, notice, dismissNotice } = useAuth()
@@ -21,42 +24,46 @@ export default function SignIn() {
     try {
       await signIn(email.trim(), password)
     } catch (cause) {
-      // The provider's reason is shown rather than swallowed: a wrong password
-      // and an unconfirmed address need different actions from the user.
-      setError(cause instanceof Error ? cause.message : 'Не удалось войти')
+      // The reason is kept rather than flattened: a wrong password and an
+      // unconfirmed address need different actions from the user.
+      setError(errorMessage(cause, 'Не удалось войти'))
     } finally {
       setBusy(false)
     }
   }
 
+  const message = notice ?? params.notice
+
   return (
-    <Screen title="Вход">
-      {(notice ?? params.notice) ? <Message text={(notice ?? params.notice)!} tone="info" /> : null}
-      <TextInput
-        style={styles.input}
-        placeholder="Почта"
-        autoCapitalize="none"
-        keyboardType="email-address"
-        textContentType="emailAddress"
+    <AuthShell title="Вход">
+      {message ? <Banner text={message} /> : null}
+
+      <Field
+        label="Почта"
         value={email}
         onChangeText={setEmail}
+        placeholder="anna@example.com"
+        autoCapitalize="none"
+        autoComplete="email"
+        keyboardType="email-address"
       />
-      <TextInput
-        style={styles.input}
-        placeholder="Пароль"
-        secureTextEntry
-        textContentType="password"
+      <Field
+        label="Пароль"
         value={password}
         onChangeText={setPassword}
+        secureTextEntry
+        autoComplete="password"
+        autoCapitalize="none"
       />
-      {error ? <Message text={error} /> : null}
-      <Button title={busy ? 'Входим…' : 'Войти'} onPress={submit} disabled={busy} />
-      <Link href="/sign-up">Создать аккаунт</Link>
-      <Link href="/forgot-password">Забыли пароль?</Link>
-    </Screen>
+
+      {error ? <Banner text={error} tone="error" /> : null}
+
+      <Button title="Войти" onPress={submit} busy={busy} />
+
+      <LinkRow>
+        <LinkButton title="Создать аккаунт" onPress={() => router.push('/sign-up')} />
+        <LinkButton title="Забыли пароль?" onPress={() => router.push('/forgot-password')} />
+      </LinkRow>
+    </AuthShell>
   )
 }
-
-const styles = StyleSheet.create({
-  input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 8, padding: 12 },
-})
