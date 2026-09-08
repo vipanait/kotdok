@@ -1,8 +1,38 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { Session } from '@supabase/supabase-js'
+import * as WebBrowser from 'expo-web-browser'
 import { sessionStorage, setSessionWriteFailureHandler, supabase } from '@/lib/supabase'
 import { setSessionLostHandler } from '@/lib/api'
 import { authRedirectUrl } from '@/lib/auth-links'
+import {
+  createProviderSignIn,
+  type ProviderId,
+  type ProviderOutcome,
+} from '@/lib/provider-sign-in'
+
+/**
+ * The provider sign-in with its real browser and real client.
+ *
+ * Built once, outside the component: it holds no state of its own, and the
+ * pieces it needs are module-level too.
+ */
+const signInWithProvider = createProviderSignIn({
+  async authorize(provider, redirectUrl) {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider,
+      // `skipBrowserRedirect` leaves the opening to us, which is how a closed
+      // browser becomes knowable. Supabase still stores the PKCE verifier here,
+      // so the exchange later has something to prove the code is ours.
+      options: { redirectTo: redirectUrl, skipBrowserRedirect: true },
+    })
+    return { url: data?.url ?? null, error }
+  },
+  openBrowser: (url, redirectUrl) => WebBrowser.openAuthSessionAsync(url, redirectUrl),
+  async exchangeCode(code) {
+    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    return { error }
+  },
+})
 
 type AuthState = {
   session: Session | null
@@ -11,6 +41,12 @@ type AuthState = {
   /** Set when the session ended for a reason worth telling the user about. */
   notice: string | null
   signIn(email: string, password: string): Promise<void>
+  /**
+   * Google or Yandex ID through the system browser. Returns what happened, so
+   * the screen can tell a cancellation apart from a failure instead of guessing
+   * from the absence of a session.
+   */
+  signInWithProvider(provider: ProviderId): Promise<ProviderOutcome>
   /**
    * Registers the address. Whether a session comes back is the project's
    * decision, not the app's: with confirmation required Supabase withholds it
@@ -87,6 +123,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const { error } = await supabase.auth.signInWithPassword({ email, password })
         if (error) throw error
       },
+
+      signInWithProvider,
 
       async signUp(email, password) {
         const { data, error } = await supabase.auth.signUp({
