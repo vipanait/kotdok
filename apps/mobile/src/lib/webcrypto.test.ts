@@ -1,45 +1,73 @@
 import { describe, expect, it, vi } from 'vitest'
-import { installSubtleDigest, isSha256 } from './webcrypto'
+import { installWebCrypto, isSha256, type CryptoParts } from './webcrypto'
 
 const bytes = new Uint8Array([1, 2, 3])
 
+function parts(overrides: Partial<CryptoParts> = {}): CryptoParts {
+  return {
+    digest: vi.fn(async () => new ArrayBuffer(32)),
+    getRandomValues: vi.fn((array) => array),
+    ...overrides,
+  }
+}
+
 describe('the WebCrypto stand-in', () => {
-  it('installs a digest where Hermes has none', async () => {
+  it('provides both operations where Hermes has neither', async () => {
     const scope: Record<string, any> = {}
-    const digest = vi.fn(async () => new ArrayBuffer(32))
+    const p = parts()
 
-    expect(installSubtleDigest(scope, digest)).toBe(true)
+    expect(installWebCrypto(scope, p)).toEqual({ subtle: true, getRandomValues: true })
+
     await scope.crypto.subtle.digest('SHA-256', bytes)
-    expect(digest).toHaveBeenCalledWith('SHA-256', bytes)
+    scope.crypto.getRandomValues(new Uint32Array(4))
+    expect(p.digest).toHaveBeenCalledWith('SHA-256', bytes)
+    expect(p.getRandomValues).toHaveBeenCalled()
   })
 
-  it('keeps an existing implementation', async () => {
-    const real = vi.fn(async () => new ArrayBuffer(32))
-    const scope: Record<string, any> = { crypto: { subtle: { digest: real } } }
-    const ours = vi.fn(async () => new ArrayBuffer(32))
+  it('never leaves crypto defined but half-equipped', () => {
+    // The auth client asks whether `crypto` exists, then calls
+    // getRandomValues on it. An object with only `subtle` crashes the sign-in.
+    const scope: Record<string, any> = {}
+    installWebCrypto(scope, parts())
 
-    expect(installSubtleDigest(scope, ours)).toBe(false)
-    await scope.crypto.subtle.digest('SHA-256', bytes)
-    expect(real).toHaveBeenCalled()
-    expect(ours).not.toHaveBeenCalled()
+    expect(typeof scope.crypto.getRandomValues).toBe('function')
+    expect(typeof scope.crypto.subtle.digest).toBe('function')
   })
 
-  it('adds itself to a crypto object that only lacks subtle', async () => {
-    const getRandomValues = vi.fn()
-    const scope: Record<string, any> = { crypto: { getRandomValues } }
+  it('keeps implementations the runtime already has', async () => {
+    const realDigest = vi.fn(async () => new ArrayBuffer(32))
+    const realRandom = vi.fn((array: ArrayBufferView) => array)
+    const scope: Record<string, any> = {
+      crypto: { subtle: { digest: realDigest }, getRandomValues: realRandom },
+    }
+    const p = parts()
 
-    expect(installSubtleDigest(scope, vi.fn(async () => new ArrayBuffer(32)))).toBe(true)
-    // The rest of the object survives: the runtime's own entropy stays in place.
-    expect(scope.crypto.getRandomValues).toBe(getRandomValues)
+    expect(installWebCrypto(scope, p)).toEqual({ subtle: false, getRandomValues: false })
+
+    await scope.crypto.subtle.digest('SHA-256', bytes)
+    scope.crypto.getRandomValues(new Uint32Array(1))
+    expect(realDigest).toHaveBeenCalled()
+    expect(realRandom).toHaveBeenCalled()
+    expect(p.digest).not.toHaveBeenCalled()
+    expect(p.getRandomValues).not.toHaveBeenCalled()
+  })
+
+  it('adds only the missing half to a crypto that has entropy but no subtle', async () => {
+    const realRandom = vi.fn((array: ArrayBufferView) => array)
+    const scope: Record<string, any> = { crypto: { getRandomValues: realRandom } }
+
+    expect(installWebCrypto(scope, parts())).toEqual({ subtle: true, getRandomValues: false })
+    expect(scope.crypto.getRandomValues).toBe(realRandom)
+    expect(typeof scope.crypto.subtle.digest).toBe('function')
   })
 
   it('refuses an algorithm it cannot actually compute', async () => {
-    const digest = vi.fn(async () => new ArrayBuffer(64))
+    const p = parts()
     const scope: Record<string, any> = {}
-    installSubtleDigest(scope, digest)
+    installWebCrypto(scope, p)
 
     await expect(scope.crypto.subtle.digest('SHA-512', bytes)).rejects.toThrow(/SHA-256/)
-    expect(digest).not.toHaveBeenCalled()
+    expect(p.digest).not.toHaveBeenCalled()
   })
 
   it('answers to the spellings callers use', () => {

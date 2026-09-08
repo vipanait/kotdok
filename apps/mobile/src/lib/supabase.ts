@@ -5,13 +5,16 @@ import * as Crypto from 'expo-crypto'
 import * as SecureStore from 'expo-secure-store'
 import { env } from '@/lib/env'
 import { createSessionStorage, type SessionStorage } from '@/lib/session-storage'
-import { installSubtleDigest } from '@/lib/webcrypto'
+import { installWebCrypto } from '@/lib/webcrypto'
 
-// Before the client exists, because it decides how to hash the PKCE verifier
-// the first time it is asked and warns about the fallback rather than failing.
-installSubtleDigest(globalThis, (_algorithm, data) =>
-  Crypto.digest(Crypto.CryptoDigestAlgorithm.SHA256, data as BufferSource),
-)
+// Before the client exists: it decides how to build and hash the PKCE verifier
+// the first time it is asked, and warns about the weaker path rather than
+// failing, so a late install would go unnoticed.
+installWebCrypto(globalThis, {
+  digest: (_algorithm, data) =>
+    Crypto.digest(Crypto.CryptoDigestAlgorithm.SHA256, data as BufferSource),
+  getRandomValues: (array) => Crypto.getRandomValues(array as never),
+})
 
 /**
  * The Supabase client and the storage behind it.
