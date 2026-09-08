@@ -24,7 +24,7 @@ import {
   type CheckForm,
 } from '@/features/checks/check-form'
 import { Button, LinkButton } from '@/ui/Button'
-import { Banner } from '@/ui/Card'
+import { Banner, IconAvatar } from '@/ui/Card'
 import { Chips, Field, Segment, Select } from '@/ui/Field'
 import { Screen } from '@/ui/Screen'
 import { Steps, SummaryCard } from '@/ui/Section'
@@ -40,7 +40,8 @@ const SEGMENT_FITS = 3
 
 export default function NewCheck() {
   const [form, setForm] = useState<CheckForm>(emptyCheckForm())
-  const [pets, setPets] = useState<Pet[]>([])
+  const [pets, setPets] = useState<Pet[] | null>(null)
+  const [petsError, setPetsError] = useState<string | null>(null)
   const [step, setStep] = useState<1 | 2>(1)
   const [symptomsError, setSymptomsError] = useState<string | null>(null)
   const [failure, setFailure] = useState<{ text: string; kind: AppError['kind'] | null } | null>(
@@ -67,18 +68,26 @@ export default function NewCheck() {
     [],
   )
 
-  useEffect(() => {
-    void withFreshSession((api) => api.listPets())
-      .then((list) => {
-        setPets(list)
-        // The check is about one animal; starting on the first one saves a tap
-        // for the many people who own exactly one.
-        setForm((current) =>
-          current.petId === null && list.length > 0 ? { ...current, petId: list[0].id } : current,
-        )
-      })
-      .catch(() => setPets([]))
+  const loadPets = useCallback(async () => {
+    setPetsError(null)
+    try {
+      const list = await withFreshSession((api) => api.listPets())
+      setPets(list)
+      // The check is about one animal; starting on the first one saves a tap
+      // for the many people who own exactly one.
+      setForm((current) =>
+        current.petId === null && list.length > 0 ? { ...current, petId: list[0].id } : current,
+      )
+    } catch (cause) {
+      // Deliberately not an empty list: "add a pet first" would be a lie when
+      // the pets exist and the network does not.
+      setPetsError(errorMessage(cause, 'Не удалось загрузить питомцев'))
+    }
   }, [])
+
+  useEffect(() => {
+    void loadPets()
+  }, [loadPets])
 
   function change(patch: Partial<CheckForm>) {
     setForm((current) => ({ ...current, ...patch }))
@@ -149,6 +158,48 @@ export default function NewCheck() {
     return <Waiting failure={failure} onRetry={() => void submit()} />
   }
 
+  if (petsError) {
+    return (
+      <Screen title="Проверка симптомов">
+        <Banner text={petsError} tone="error" icon="wifi" />
+        <Button title="Повторить" kind="secondary" onPress={() => void loadPets()} />
+      </Screen>
+    )
+  }
+
+  if (pets === null) {
+    return (
+      <Screen title="Проверка симптомов">
+        <ActivityIndicator color={colour.accent} />
+      </Screen>
+    )
+  }
+
+  /**
+   * A check is about an animal, not about symptoms in the abstract.
+   *
+   * The analysis leans on species, age and chronic conditions; without a pet it
+   * would answer in generalities and still cost a check from the balance. So
+   * the form is not offered at all — the way out is to add the pet.
+   */
+  if (pets.length === 0) {
+    return (
+      <Screen title="Проверка симптомов" centered>
+        <View style={styles.emptyArt}>
+          <IconAvatar icon="paw" size={72} />
+        </View>
+        <Text variant="h2" center style={styles.emptyTitle}>
+          Сначала добавьте питомца
+        </Text>
+        <Text tone="muted" center style={styles.emptyCopy}>
+          Ответ опирается на вид, возраст и хронические болезни. Без них проверка
+          получится общей, а списана будет как обычная.
+        </Text>
+        <Button title="Добавить питомца" onPress={() => router.push('/pets/new')} />
+      </Screen>
+    )
+  }
+
   const chosen = pets.find((pet) => pet.id === form.petId)
 
   if (step === 1) {
@@ -165,7 +216,7 @@ export default function NewCheck() {
       >
         <Steps current={1} of={2} />
 
-        {pets.length === 0 ? null : pets.length <= SEGMENT_FITS ? (
+        {pets.length <= SEGMENT_FITS ? (
           <Segment
             label="Питомец"
             clearable={false}
@@ -311,6 +362,9 @@ function Waiting({
 
 const styles = StyleSheet.create({
   summaryCopy: { flex: 1, minWidth: 0 },
+  emptyArt: { alignItems: 'center', marginBottom: 24 },
+  emptyTitle: { marginBottom: space.row },
+  emptyCopy: { marginBottom: 24, alignSelf: 'center', maxWidth: 310 },
   waitingTitle: { marginBottom: 24 },
   waitingArt: { width: 216, height: 216, alignSelf: 'center', marginBottom: space.section },
   spinner: { marginBottom: 24 },

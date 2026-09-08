@@ -95,6 +95,15 @@ export type CheckFormResult =
 export function formToCheckInput(form: CheckForm): CheckFormResult {
   const symptoms = form.symptoms.trim()
 
+  // The contract accepts a check with no pet; the product does not. The answer
+  // leans on species, age and chronic conditions, so without them it would be
+  // general advice charged at the price of a check. The screen refuses to open
+  // the form at all when there are no pets — this is the backstop for the case
+  // where the last one is deleted from another device while the form is open.
+  if (form.petId === null) {
+    return { ok: false, message: 'Выберите питомца — без него проверку не сделать' }
+  }
+
   if (symptoms.length < SYMPTOMS_MIN) {
     return { ok: false, message: `Опишите симптомы — хотя бы ${SYMPTOMS_MIN} символа` }
   }
