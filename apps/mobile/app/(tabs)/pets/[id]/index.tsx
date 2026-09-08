@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import { withFreshSession } from '@/lib/api'
 import { errorMessage } from '@/lib/errors'
+import { useText } from '@/i18n'
 import { PetFields } from '@/features/pets/PetFields'
 import { formToInput, petToForm, type PetForm } from '@/features/pets/pet-form'
 import { Button, LinkButton } from '@/ui/Button'
@@ -13,6 +14,7 @@ import { space } from '@/ui/theme'
 
 export default function EditPet() {
   const { id } = useLocalSearchParams<{ id: string }>()
+  const t = useText()
   const [form, setForm] = useState<PetForm | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
@@ -24,9 +26,9 @@ export default function EditPet() {
       const pet = await withFreshSession((api) => api.getPet(id))
       setForm(petToForm(pet))
     } catch (cause) {
-      setError(errorMessage(cause, 'Не удалось загрузить питомца'))
+      setError(errorMessage(t, cause, t.errors.loadPetFailed))
     }
-  }, [id])
+  }, [id, t])
 
   useEffect(() => {
     void load()
@@ -39,7 +41,7 @@ export default function EditPet() {
   async function save() {
     if (!form) return
 
-    const input = formToInput(form)
+    const input = formToInput(t, form)
     if (!input.ok) {
       setError(input.message)
       return
@@ -51,7 +53,7 @@ export default function EditPet() {
       await withFreshSession((api) => api.updatePet(id, input.value))
       router.replace('/pets')
     } catch (cause) {
-      setError(errorMessage(cause, 'Не удалось сохранить изменения'))
+      setError(errorMessage(t, cause, t.errors.saveChangesFailed))
     } finally {
       setBusy(false)
     }
@@ -66,29 +68,29 @@ export default function EditPet() {
       router.replace('/pets')
     } catch (cause) {
       setAsking(false)
-      setError(errorMessage(cause, 'Не удалось удалить питомца'))
+      setError(errorMessage(t, cause, t.errors.removePetFailed))
       setBusy(false)
     }
   }
 
   if (!form) {
     return (
-      <Screen title="Питомец" onBack={() => router.back()}>
+      <Screen title={t.pets.fallbackTitle} onBack={() => router.back()}>
         {error ? <Banner text={error} tone="error" /> : null}
-        {error ? <LinkButton title="К списку" onPress={() => router.replace('/pets')} /> : null}
+        {error ? <LinkButton title={t.common.toList} onPress={() => router.replace('/pets')} /> : null}
       </Screen>
     )
   }
 
   return (
     <Screen
-      title={form.name || 'Питомец'}
+      title={form.name || t.pets.fallbackTitle}
       onBack={() => router.back()}
       scroll
-      dock={<Button title="Сохранить" onPress={save} busy={busy} />}
+      dock={<Button title={t.common.save} onPress={save} busy={busy} />}
     >
       <SettingRow
-        title="История проверок"
+        title={t.pets.history}
         onPress={() => router.push(`/pets/${id}/checks`)}
       />
       <View style={styles.spacer} />
@@ -101,18 +103,18 @@ export default function EditPet() {
       {/* Deleting a pet takes its checks with it, so this asks rather than
           acting on a single tap. */}
       <Button
-        title="Удалить питомца"
+        title={t.pets.remove}
         kind="outlineDanger"
         disabled={busy}
         onPress={() => setAsking(true)}
       />
-      <LinkButton title="К списку" onPress={() => router.replace('/pets')} />
+      <LinkButton title={t.common.toList} onPress={() => router.replace('/pets')} />
 
       <ConfirmDialog
         visible={asking}
-        title="Удалить питомца?"
-        message="Вместе с ним исчезнет история его проверок. Отменить это будет нельзя."
-        confirmTitle="Удалить"
+        title={t.pets.removeTitle}
+        message={t.pets.removeBody}
+        confirmTitle={t.pets.removeConfirm}
         busy={busy}
         onConfirm={() => void remove()}
         onCancel={() => setAsking(false)}

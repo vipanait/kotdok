@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { ru } from '@/i18n/ru'
 import {
   AGE_MAX,
   LIST_MAX_ITEMS,
@@ -17,7 +18,7 @@ function filled(overrides: Partial<PetForm> = {}): PetForm {
 
 describe('pet form', () => {
   it('sends a name and leaves the untouched fields empty rather than zero', () => {
-    const result = formToInput(filled())
+    const result = formToInput(ru, filled())
 
     expect(result).toMatchObject({
       ok: true,
@@ -26,7 +27,7 @@ describe('pet form', () => {
   })
 
   it('refuses a name of only spaces, which the field makes easy to type', () => {
-    expect(formToInput(filled({ name: '   ' }))).toEqual({
+    expect(formToInput(ru, filled({ name: '   ' }))).toEqual({
       ok: false,
       field: 'name',
       message: 'Введите имя питомца',
@@ -49,11 +50,11 @@ describe('pet form', () => {
   })
 
   it('names the field that is wrong, so the screen can point at it', () => {
-    expect(formToInput(filled({ ageYears: 'три' }))).toMatchObject({
+    expect(formToInput(ru, filled({ ageYears: 'три' }))).toMatchObject({
       ok: false,
       field: 'ageYears',
     })
-    expect(formToInput(filled({ weightKg: '500' }))).toMatchObject({
+    expect(formToInput(ru, filled({ weightKg: '500' }))).toMatchObject({
       ok: false,
       field: 'weightKg',
     })
@@ -70,13 +71,13 @@ describe('pet form', () => {
   })
 
   it('drops dog-only fields for a cat, which the contract rejects outright', () => {
-    const result = formToInput(filled({ species: 'cat', sizeClass: 'large', walkActivity: 'sport' }))
+    const result = formToInput(ru, filled({ species: 'cat', sizeClass: 'large', walkActivity: 'sport' }))
 
     expect(result).toMatchObject({ ok: true, value: { size_class: null, walk_activity: null } })
   })
 
   it('keeps dog-only fields for a dog', () => {
-    const result = formToInput(filled({ species: 'dog', sizeClass: 'large', walkActivity: 'sport' }))
+    const result = formToInput(ru, filled({ species: 'dog', sizeClass: 'large', walkActivity: 'sport' }))
 
     expect(result).toMatchObject({
       ok: true,
@@ -106,7 +107,7 @@ describe('pet form', () => {
       created_at: '2026-09-06T11:51:53.000Z',
     }
 
-    const result = formToInput(petToForm(pet))
+    const result = formToInput(ru, petToForm(pet))
 
     expect(result).toMatchObject({
       ok: true,

@@ -1,6 +1,6 @@
 import { ActivityIndicator, Pressable, StyleSheet, View, type ViewStyle } from 'react-native'
 import { Icon, type IconName } from './Icon'
-import { Text } from './Text'
+import { CONTROL_FONT_LIMIT, Text } from './Text'
 import { CONTROL_HEIGHT, TAP_TARGET, colour, radius, space } from './theme'
 
 type Kind = 'primary' | 'secondary' | 'danger' | 'outlineDanger'
@@ -70,7 +70,13 @@ export function Button({
       {busy ? (
         <ActivityIndicator color={kind === 'primary' || kind === 'danger' ? '#fff' : colour.accent} />
       ) : (
-        <Text variant="action" tone={off ? 'faint' : label[kind]}>
+        <Text
+          variant="action"
+          tone={off ? 'faint' : label[kind]}
+          maxFontSizeMultiplier={CONTROL_FONT_LIMIT}
+          numberOfLines={2}
+          center
+        >
           {title}
         </Text>
       )}
@@ -95,7 +101,13 @@ export function LinkButton({
       onPress={onPress}
       style={({ pressed }) => [styles.link, { opacity: pressed ? 0.6 : 1 }]}
     >
-      <Text variant="bodyStrong" tone="accent" style={{ textAlign: align }}>
+      <Text
+        variant="bodyStrong"
+        tone="accent"
+        maxFontSizeMultiplier={CONTROL_FONT_LIMIT}
+        numberOfLines={2}
+        style={{ textAlign: align }}
+      >
         {title}
       </Text>
     </Pressable>

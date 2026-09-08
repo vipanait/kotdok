@@ -6,6 +6,7 @@ import {
   type ProviderNotice,
 } from '@/features/auth/provider-notice'
 import { errorMessage } from '@/lib/errors'
+import { useText } from '@/i18n'
 import { AuthShell, authFieldSpacing } from '@/features/auth/AuthShell'
 import { ProviderButtons } from '@/features/auth/ProviderButtons'
 import { Button, LinkButton } from '@/ui/Button'
@@ -14,6 +15,7 @@ import { Field } from '@/ui/Field'
 
 export default function SignUp() {
   const { session, signUp } = useAuth()
+  const t = useText()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -31,7 +33,7 @@ export default function SignUp() {
       // takes over, so telling them to open a link would be a dead end.
       if (confirmationRequired) setSent(true)
     } catch (cause) {
-      setError(errorMessage(cause, 'Не удалось зарегистрироваться'))
+      setError(errorMessage(t, cause, t.errors.signUpFailed))
     } finally {
       setBusy(false)
     }
@@ -41,26 +43,26 @@ export default function SignUp() {
   if (session) return <Redirect href="/pets" />
 
   return (
-    <AuthShell title="Регистрация">
+    <AuthShell title={t.auth.signUpTitle}>
       {sent ? (
         <Banner
-          text="Отправили письмо. Откройте ссылку из него, чтобы подтвердить почту."
+          text={t.auth.confirmSent}
           icon="mail"
         />
       ) : null}
 
       <Field
-        label="Почта"
+        label={t.auth.email}
         value={email}
         onChangeText={setEmail}
-        placeholder="anna@example.com"
+        placeholder={t.auth.emailPlaceholder}
         autoCapitalize="none"
         autoComplete="email"
         keyboardType="email-address"
         style={authFieldSpacing}
       />
       <Field
-        label="Пароль"
+        label={t.auth.password}
         value={password}
         onChangeText={setPassword}
         secureTextEntry
@@ -71,8 +73,8 @@ export default function SignUp() {
 
       {error ? <Banner text={error} tone="error" /> : null}
 
-      <Button title="Зарегистрироваться" onPress={submit} busy={busy} />
-      <LinkButton title="Уже есть аккаунт" onPress={() => router.replace('/sign-in')} />
+      <Button title={t.auth.signUp} onPress={submit} busy={busy} />
+      <LinkButton title={t.auth.haveAccount} onPress={() => router.replace('/sign-in')} />
 
       {providerNotice ? (
         <Banner text={providerNotice.text} tone={providerNotice.tone} />

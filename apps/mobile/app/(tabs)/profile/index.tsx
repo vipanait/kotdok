@@ -6,7 +6,7 @@ import type { PublicProfile } from '@lapka/contracts'
 import { SUPPORTED_LOCALES } from '@lapka/shared'
 import { withFreshSession } from '@/lib/api'
 import { useAuth } from '@/providers/AuthProvider'
-import { checksWord } from '@/lib/plural'
+import { dictionary, useSetLocale, useText } from '@/i18n'
 import { Button } from '@/ui/Button'
 import { Banner, SettingRow } from '@/ui/Card'
 import { OptionSheet } from '@/ui/Field'
@@ -14,9 +14,12 @@ import { Screen } from '@/ui/Screen'
 import { Text } from '@/ui/Text'
 import { colour, radius, shadow, space } from '@/ui/theme'
 
+/** A language names itself in itself, whatever the interface is set to. */
 const localeLabels = { ru: 'Русский', en: 'English' } as const
 
 export default function Profile() {
+  const t = useText()
+  const setLocale = useSetLocale()
   const { signOut } = useAuth()
   const [profile, setProfile] = useState<PublicProfile | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
@@ -26,11 +29,14 @@ export default function Profile() {
   const load = useCallback(async () => {
     setError(null)
     try {
-      setProfile(await withFreshSession((api) => api.getMe()))
+      const me = await withFreshSession((api) => api.getMe())
+      setProfile(me)
+      // The account's own choice governs the interface from here on.
+      setLocale(me.locale)
     } catch {
-      setError('Не удалось загрузить профиль')
+      setError(t.errors.loadProfileFailed)
     }
-  }, [])
+  }, [t, setLocale])
 
   useFocusEffect(
     useCallback(() => {
@@ -42,15 +48,16 @@ export default function Profile() {
     setError(null)
     try {
       setProfile(await withFreshSession((api) => api.updateMe({ locale })))
-      setNotice('Язык сохранён. Ответы анализа придут на нём.')
+      setLocale(locale)
+      setNotice(dictionary(locale).profile.localeSaved)
     } catch {
-      setError('Не удалось сменить язык')
+      setError(t.errors.changeLocaleFailed)
     }
   }
 
   if (!profile) {
     return (
-      <Screen title="Профиль">
+      <Screen title={t.profile.title}>
         {error ? <Banner text={error} tone="error" /> : <ActivityIndicator color={colour.accent} />}
       </Screen>
     )
@@ -60,13 +67,13 @@ export default function Profile() {
 
   return (
     <Screen
-      title="Профиль"
+      title={t.profile.title}
       scroll
       dock={
         <>
-          <Button title="Выйти" kind="secondary" onPress={() => void signOut()} />
+          <Button title={t.profile.signOut} kind="secondary" onPress={() => void signOut()} />
           <Text variant="caption" tone="faint" center style={styles.version}>
-            Версия {Constants.expoConfig?.version ?? '—'}
+            {t.profile.version(Constants.expoConfig?.version ?? '—')}
           </Text>
         </>
       }
@@ -75,10 +82,10 @@ export default function Profile() {
         <Text variant="balance" tone={empty ? 'muted' : 'accent'} style={styles.count}>
           {profile.credits}
         </Text>
-        <Text tone="muted">{checksWord(profile.credits)} осталось</Text>
+        <Text tone="muted">{t.profile.checksLeft(profile.credits)}</Text>
         {empty && profile.capabilities.extra_check_request ? (
           <Button
-            title="Запросить дополнительную проверку"
+            title={t.profile.extraRequest}
             onPress={() => router.push('/profile/extra-check')}
             style={styles.balanceAction}
           />
@@ -90,19 +97,19 @@ export default function Profile() {
 
       <SettingRow
         icon="globe"
-        title="Язык"
+        title={t.profile.language}
         value={localeLabels[profile.locale]}
         onPress={() => setPickingLocale(true)}
       />
       <SettingRow
         icon="history"
-        title="История проверок"
+        title={t.profile.history}
         onPress={() => router.push('/profile/checks')}
       />
 
       <OptionSheet
         visible={pickingLocale}
-        title="Язык"
+        title={t.profile.language}
         allowNone={false}
         options={SUPPORTED_LOCALES.map((value) => ({ value, label: localeLabels[value] }))}
         value={profile.locale}

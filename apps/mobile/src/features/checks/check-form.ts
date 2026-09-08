@@ -8,6 +8,7 @@
  * problem.
  */
 
+import type { Dictionary } from '@/i18n'
 import {
   ACTIVITY_VALUES,
   APPETITE_VALUES,
@@ -39,41 +40,6 @@ export const emptyCheckForm = (petId: string | null = null): CheckForm => ({
   painSigns: [],
 })
 
-export const appetiteLabels = {
-  normal: 'Ест нормально',
-  reduced: 'Ест меньше',
-  none: 'Не ест',
-} as const
-
-export const activityLabels = {
-  normal: 'Бодрый',
-  low: 'Менее активный',
-  lethargic: 'Вялый',
-} as const
-
-export const durationLabels = {
-  today: 'Сегодня',
-  '2-3days': '2–3 дня',
-  'week+': 'Больше недели',
-} as const
-
-export const stoolLabels = {
-  normal: 'Нормальный',
-  loose: 'Жидкий (понос)',
-  absent: 'Отсутствует',
-  bloody: 'С кровью',
-} as const
-
-/** Pain signs are worded on the site; the values themselves are the contract's. */
-export const painLabels: Record<(typeof PAIN_SIGNS)[number], string> = {
-  tense: 'Напряжён / скован',
-  hunched: 'Сгорбленная поза',
-  grimace: 'Прищур / гримаса',
-  touch_sensitive: 'Болезненно на касание',
-  hiding: 'Прячется больше обычного',
-  vocalizing: 'Жалобные звуки',
-}
-
 export function toggleSign(
   signs: readonly (typeof PAIN_SIGNS)[number][],
   sign: (typeof PAIN_SIGNS)[number],
@@ -92,7 +58,7 @@ export type CheckFormResult =
  * out loud: two characters of symptoms produce an analysis of nothing, and the
  * person is charged a credit for it.
  */
-export function formToCheckInput(form: CheckForm): CheckFormResult {
+export function formToCheckInput(t: Dictionary, form: CheckForm): CheckFormResult {
   const symptoms = form.symptoms.trim()
 
   // The contract accepts a check with no pet; the product does not. The answer
@@ -101,14 +67,14 @@ export function formToCheckInput(form: CheckForm): CheckFormResult {
   // the form at all when there are no pets — this is the backstop for the case
   // where the last one is deleted from another device while the form is open.
   if (form.petId === null) {
-    return { ok: false, message: 'Выберите питомца — без него проверку не сделать' }
+    return { ok: false, message: t.validation.petRequired }
   }
 
   if (symptoms.length < SYMPTOMS_MIN) {
-    return { ok: false, message: `Опишите симптомы — хотя бы ${SYMPTOMS_MIN} символа` }
+    return { ok: false, message: t.validation.symptomsMin(SYMPTOMS_MIN) }
   }
   if (symptoms.length > SYMPTOMS_MAX) {
-    return { ok: false, message: `Слишком длинное описание, предел ${SYMPTOMS_MAX} символов` }
+    return { ok: false, message: t.validation.symptomsMax(SYMPTOMS_MAX) }
   }
 
   return {

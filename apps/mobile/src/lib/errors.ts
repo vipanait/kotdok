@@ -9,6 +9,7 @@
  */
 
 import { ApiError, ApiTimeoutError } from '@lapka/shared'
+import type { Dictionary } from '@/i18n'
 
 /**
  * A message this app wrote itself.
@@ -31,38 +32,38 @@ export class AppError extends Error {
  * Supabase auth error codes.
  * https://supabase.com/docs/guides/auth/debugging/error-codes
  */
-const authMessages: Record<string, string> = {
-  invalid_credentials: 'Неверная почта или пароль',
-  email_not_confirmed: 'Почта ещё не подтверждена. Откройте ссылку из письма',
-  email_address_invalid: 'Проверьте адрес почты',
-  email_exists: 'Такая почта уже зарегистрирована',
-  user_already_exists: 'Такая почта уже зарегистрирована',
-  weak_password: 'Пароль слишком простой — сделайте его длиннее',
-  same_password: 'Это тот же пароль. Придумайте новый',
-  over_email_send_rate_limit: 'Слишком много писем подряд. Попробуйте через минуту',
-  over_request_rate_limit: 'Слишком много попыток. Попробуйте через минуту',
-  validation_failed: 'Заполните оба поля',
-  user_not_found: 'Такой учётной записи нет',
-  session_expired: 'Сессия истекла. Войдите ещё раз',
-  signup_disabled: 'Регистрация сейчас закрыта',
-  otp_expired: 'Ссылка больше не действует',
-}
+const authMessages = (t: Dictionary): Record<string, string> => ({
+  invalid_credentials: t.errors.invalidCredentials,
+  email_not_confirmed: t.errors.emailNotConfirmed,
+  email_address_invalid: t.errors.emailInvalid,
+  email_exists: t.errors.emailTaken,
+  user_already_exists: t.errors.emailTaken,
+  weak_password: t.errors.weakPassword,
+  same_password: t.errors.samePassword,
+  over_email_send_rate_limit: t.errors.tooManyEmails,
+  over_request_rate_limit: t.errors.tooManyAttempts,
+  validation_failed: t.errors.fillBoth,
+  user_not_found: t.errors.noSuchAccount,
+  session_expired: t.errors.sessionExpired,
+  signup_disabled: t.errors.signUpClosed,
+  otp_expired: t.auth.linkExpired,
+})
 
 /** The API's own codes, from `packages/contracts/src/errors.ts`. */
-const apiMessages: Record<string, string> = {
-  bad_request: 'Проверьте заполненные поля',
-  unauthorized: 'Нужно войти заново',
-  forbidden: 'Нет доступа',
-  not_found: 'Не найдено',
-  conflict: 'Это уже было сделано',
-  insufficient_credits: 'Не хватает проверок на балансе',
-  payload_too_large: 'Слишком много данных',
-  unsupported_media_type: 'Неподдерживаемый формат',
-  rate_limited: 'Слишком часто. Подождите немного',
-  account_deleting: 'Учётная запись удаляется',
-  dependency_unavailable: 'Сервис временно недоступен',
-  internal_error: 'Что-то пошло не так на нашей стороне',
-}
+const apiMessages = (t: Dictionary): Record<string, string> => ({
+  bad_request: t.errors.badRequest,
+  unauthorized: t.errors.unauthorized,
+  forbidden: t.errors.forbidden,
+  not_found: t.errors.notFound,
+  conflict: t.errors.conflict,
+  insufficient_credits: t.errors.insufficientCredits,
+  payload_too_large: t.errors.payloadTooLarge,
+  unsupported_media_type: t.errors.unsupportedMedia,
+  rate_limited: t.errors.rateLimited,
+  account_deleting: t.errors.accountDeleting,
+  dependency_unavailable: t.errors.dependencyUnavailable,
+  internal_error: t.errors.internal,
+})
 
 /** Supabase's errors carry a code; the type is not exported, so this asks. */
 function codeOf(cause: unknown): string | null {
@@ -75,15 +76,16 @@ function codeOf(cause: unknown): string | null {
  * @param fallback what to say when the cause is unrecognised — the screen knows
  * which action failed, and "Не удалось войти" beats a stray English sentence.
  */
-export function errorMessage(cause: unknown, fallback: string): string {
+export function errorMessage(t: Dictionary, cause: unknown, fallback: string): string {
   if (cause instanceof AppError) return cause.message
   // Said apart from "no connection": the phone reached the server, the server
   // simply never answered, and a write may still have gone through.
-  if (cause instanceof ApiTimeoutError) return 'Сервер не ответил. Попробуйте ещё раз'
-  if (cause instanceof ApiError) return apiMessages[cause.code] ?? fallback
+  if (cause instanceof ApiTimeoutError) return t.errors.noAnswer
+  if (cause instanceof ApiError) return apiMessages(t)[cause.code] ?? fallback
 
   const code = codeOf(cause)
-  if (code && authMessages[code]) return authMessages[code]
+  const auth = authMessages(t)
+  if (code && auth[code]) return auth[code]
 
   // Older Supabase releases and network failures arrive without a code. Their
   // message is English, so it is dropped rather than shown.

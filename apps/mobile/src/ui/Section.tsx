@@ -54,12 +54,26 @@ export function Accordion({
   )
 }
 
-/** How far through a two-step form this is. */
-export function Steps({ current, of }: { current: number; of: number }) {
+/**
+ * How far through a two-step form this is.
+ *
+ * The wording comes in rather than living here: "Шаг 1 из 2" and "Step 1 of 2"
+ * put their numbers in different places, so the sentence belongs to whoever
+ * holds the dictionary.
+ */
+export function Steps({
+  current,
+  of,
+  label,
+}: {
+  current: number
+  of: number
+  label: (current: number, of: number) => string
+}) {
   return (
     <View style={styles.stepsBlock}>
       <Text variant="caption" tone="faint" style={styles.stepMeta}>
-        Шаг {current} из {of}
+        {label(current, of)}
       </Text>
       <View style={styles.steps}>
         {Array.from({ length: of }, (_, index) => (

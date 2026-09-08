@@ -4,8 +4,7 @@ import { router, useFocusEffect } from 'expo-router'
 import type { Pet } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
 import { errorMessage } from '@/lib/errors'
-import { speciesLabels } from '@/features/pets/labels'
-import { years } from '@/lib/plural'
+import { useText, type Dictionary } from '@/i18n'
 import { Button } from '@/ui/Button'
 import { Avatar, Card } from '@/ui/Card'
 import { Banner } from '@/ui/Card'
@@ -15,10 +14,10 @@ import { Text } from '@/ui/Text'
 import { colour, radius, shadow, space } from '@/ui/theme'
 
 /** "Кот · Сибирская · 3 года" — only the parts this pet actually has. */
-function describe(pet: Pet): string {
-  const parts: string[] = [speciesLabels[pet.species]]
+function describe(t: Dictionary, pet: Pet): string {
+  const parts: string[] = [t.species[pet.species]]
   if (pet.breed) parts.push(pet.breed)
-  if (pet.age_years !== null) parts.push(years(pet.age_years))
+  if (pet.age_years !== null) parts.push(t.petAge(pet.age_years))
   return parts.join(' · ')
 }
 
@@ -44,6 +43,7 @@ function Skeletons() {
  * Supabase directly, so the phone and the site see the same rules.
  */
 export default function Pets() {
+  const t = useText()
   const [pets, setPets] = useState<Pet[] | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -55,9 +55,9 @@ export default function Pets() {
       // The list that is already on screen stays there: a lost connection is
       // not a reason to forget the pets we last saw.
       setPets((current) => current ?? [])
-      setError(errorMessage(cause, 'Нет связи с сервером'))
+      setError(errorMessage(t, cause, t.common.offline))
     }
-  }, [])
+  }, [t])
 
   // Reloading on focus rather than on mount: coming back from adding or editing
   // a pet has to show it, and the list is one small request.
@@ -71,23 +71,23 @@ export default function Pets() {
 
   return (
     <Screen
-      title="Питомцы"
+      title={t.pets.title}
       action={
         empty
           ? undefined
-          : { icon: 'plus', label: 'Добавить питомца', onPress: () => router.push('/pets/new') }
+          : { icon: 'plus', label: t.pets.add, onPress: () => router.push('/pets/new') }
       }
       centered={empty}
       dock={
         empty ? null : (
-          <Button title="Проверить симптомы" onPress={() => router.push('/check')} />
+          <Button title={t.pets.checkSymptoms} onPress={() => router.push('/check')} />
         )
       }
     >
       {error ? (
         <>
           <Banner text={error} tone="error" icon="wifi" />
-          <Button title="Повторить" kind="secondary" onPress={() => void load()} />
+          <Button title={t.common.retry} kind="secondary" onPress={() => void load()} />
           <View style={styles.spacer} />
         </>
       ) : null}
@@ -103,12 +103,12 @@ export default function Pets() {
             accessible={false}
           />
           <Text variant="h2" center style={styles.emptyTitle}>
-            Здесь будут ваши питомцы
+            {t.pets.emptyTitle}
           </Text>
           <Text tone="muted" center style={styles.emptyCopy}>
-            Пока никого нет. Добавьте первого.
+            {t.pets.emptyBody}
           </Text>
-          <Button title="Добавить питомца" onPress={() => router.push('/pets/new')} />
+          <Button title={t.pets.add} onPress={() => router.push('/pets/new')} />
         </View>
       ) : (
         <FlatList
@@ -118,14 +118,14 @@ export default function Pets() {
           renderItem={({ item }) => (
             <Card
               onPress={() => router.push(`/pets/${item.id}`)}
-              accessibilityLabel={`${item.name}, ${describe(item)}`}
+              accessibilityLabel={`${item.name}, ${describe(t, item)}`}
               style={styles.petCard}
             >
               <Avatar species={item.species} />
               <View style={styles.petCopy}>
                 <Text variant="h2">{item.name}</Text>
                 <Text variant="caption" tone="faint" style={styles.petMeta}>
-                  {describe(item)}
+                  {describe(t, item)}
                 </Text>
               </View>
               <Icon name="chevron" size={20} color={colour.faint} />

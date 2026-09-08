@@ -1,4 +1,5 @@
 import { Modal, StyleSheet, View } from 'react-native'
+import { useText } from '@/i18n'
 import { Button } from './Button'
 import { Text } from './Text'
 import { colour, radius, space } from './theme'
@@ -15,7 +16,7 @@ export function ConfirmDialog({
   title,
   message,
   confirmTitle,
-  cancelTitle = 'Отмена',
+  cancelTitle,
   busy = false,
   onConfirm,
   onCancel,
@@ -29,6 +30,8 @@ export function ConfirmDialog({
   onConfirm: () => void
   onCancel: () => void
 }) {
+  const t = useText()
+
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
       <View style={styles.overlay}>
@@ -39,7 +42,7 @@ export function ConfirmDialog({
           </Text>
           <Button title={confirmTitle} kind="danger" busy={busy} onPress={onConfirm} />
           <Button
-            title={cancelTitle}
+            title={cancelTitle ?? t.common.cancel}
             kind="secondary"
             disabled={busy}
             onPress={onCancel}
