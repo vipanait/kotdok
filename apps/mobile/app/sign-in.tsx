@@ -1,6 +1,10 @@
 import { useState } from 'react'
 import { Redirect, router, useLocalSearchParams } from 'expo-router'
 import { useAuth } from '@/providers/AuthProvider'
+import {
+  providerNoticeFor,
+  type ProviderNotice,
+} from '@/features/auth/provider-notice'
 import { errorMessage } from '@/lib/errors'
 import { AuthShell, authFieldSpacing } from '@/features/auth/AuthShell'
 import { ProviderButtons } from '@/features/auth/ProviderButtons'
@@ -14,6 +18,7 @@ export default function SignIn() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [providerNotice, setProviderNotice] = useState<ProviderNotice | null>(null)
   const [busy, setBusy] = useState(false)
 
   if (session) return <Redirect href="/pets" />
@@ -68,7 +73,11 @@ export default function SignIn() {
         <LinkButton title="Забыли пароль?" onPress={() => router.push('/forgot-password')} />
       </LinkRow>
 
-      <ProviderButtons />
+      {providerNotice ? (
+        <Banner text={providerNotice.text} tone={providerNotice.tone} />
+      ) : null}
+
+      <ProviderButtons onOutcome={(outcome) => setProviderNotice(providerNoticeFor(outcome))} />
     </AuthShell>
   )
 }
