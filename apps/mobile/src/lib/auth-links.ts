@@ -11,6 +11,50 @@
 export const APP_SCHEME = 'lapka'
 
 /**
+ * Where a provider sends the user back after the system browser.
+ *
+ * Deliberately not the path the emails use. On Android the browser hands the
+ * link to the system as well, so a shared path would let the listener in
+ * `app/_layout.tsx` exchange the same authorization code a second time — the
+ * first exchange has already spent it, and the user would be shown a failure
+ * right after a successful sign-in. `parseAuthLink` does not know this path and
+ * therefore ignores it, which is the whole mechanism: no flags, no timers.
+ */
+export const PROVIDER_RETURN_PATH = 'auth/provider'
+export const PROVIDER_RETURN_URL = `${APP_SCHEME}://${PROVIDER_RETURN_PATH}`
+
+/** What came back from the provider: something to exchange, or a refusal. */
+export type ProviderReturn =
+  | { kind: 'code'; code: string }
+  | { kind: 'error'; code: string; description: string | null }
+
+/**
+ * @returns what the provider sent back, or null when the address is not ours.
+ *   Null means the caller has nothing to exchange — never "try it anyway".
+ */
+export function parseProviderReturn(raw: string): ProviderReturn | null {
+  let url: URL
+  try {
+    url = new URL(raw)
+  } catch {
+    return null
+  }
+
+  if (url.protocol !== `${APP_SCHEME}:`) return null
+  if (`${url.host}${url.pathname}`.replace(/\/+$/, '') !== PROVIDER_RETURN_PATH) return null
+
+  // Supabase puts the code in the query; a provider's error may land in either.
+  const fragment = new URLSearchParams(url.hash.replace(/^#/, ''))
+  const read = (key: string) => url.searchParams.get(key) ?? fragment.get(key)
+
+  const error = read('error') ?? read('error_code')
+  if (error) return { kind: 'error', code: error, description: read('error_description') }
+
+  const code = read('code')
+  return code ? { kind: 'code', code } : null
+}
+
+/**
  * What the link carries to prove the user opened it.
  *
  * Which one arrives is the project's decision, not the app's. With the PKCE

@@ -1,6 +1,10 @@
 import { useState } from 'react'
 import { Redirect, router } from 'expo-router'
 import { useAuth } from '@/providers/AuthProvider'
+import {
+  providerNoticeFor,
+  type ProviderNotice,
+} from '@/features/auth/provider-notice'
 import { errorMessage } from '@/lib/errors'
 import { AuthShell, authFieldSpacing } from '@/features/auth/AuthShell'
 import { ProviderButtons } from '@/features/auth/ProviderButtons'
@@ -13,6 +17,7 @@ export default function SignUp() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [providerNotice, setProviderNotice] = useState<ProviderNotice | null>(null)
   const [sent, setSent] = useState(false)
   const [busy, setBusy] = useState(false)
 
@@ -69,7 +74,11 @@ export default function SignUp() {
       <Button title="Зарегистрироваться" onPress={submit} busy={busy} />
       <LinkButton title="Уже есть аккаунт" onPress={() => router.replace('/sign-in')} />
 
-      <ProviderButtons />
+      {providerNotice ? (
+        <Banner text={providerNotice.text} tone={providerNotice.tone} />
+      ) : null}
+
+      <ProviderButtons onOutcome={(outcome) => setProviderNotice(providerNoticeFor(outcome))} />
     </AuthShell>
   )
 }
