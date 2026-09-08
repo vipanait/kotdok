@@ -4,6 +4,7 @@ import * as WebBrowser from 'expo-web-browser'
 import { draftStorage, sessionStorage, setSessionWriteFailureHandler, supabase } from '@/lib/supabase'
 import { setSessionLostHandler } from '@/lib/api'
 import { authRedirectUrl } from '@/lib/auth-links'
+import { deviceLocale } from '@/lib/device-locale'
 import {
   createProviderSignIn,
   type ProviderId,
@@ -140,7 +141,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           password,
           // Built by the app, never taken from input, so a crafted link cannot
           // redirect the confirmation somewhere else.
-          options: { emailRedirectTo: authRedirectUrl('verify') },
+          options: {
+          emailRedirectTo: authRedirectUrl('verify'),
+          // Read once, here: it is the only moment the account does not yet
+          // have a language, and the trigger that creates the profile takes it
+          // from this. Later the person's own choice governs, and nothing
+          // overwrites it from the device again.
+          data: { locale: deviceLocale() },
+        },
         })
         if (error) throw error
         return { confirmationRequired: data.session === null }
