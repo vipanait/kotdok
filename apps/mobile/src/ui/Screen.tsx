@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { IconButton } from './Button'
-import { Text } from './Text'
+import { CONTROL_FONT_LIMIT, Text } from './Text'
 import type { IconName } from './Icon'
 import { colour, space } from './theme'
 
@@ -47,7 +47,17 @@ export function Screen({
       {onBack ? (
         <IconButton icon="back" label="Назад" onPress={onBack} style={styles.back} />
       ) : null}
-      <Text variant="h1" style={styles.title} numberOfLines={1}>
+      {/* Two lines and a ceiling. One line turned "Проверка симптомов" into
+          "Пров…" at the largest accessibility size; no ceiling turned it into
+          two lines of ninety points that pushed the screen's actual content
+          off the bottom. The title names the screen — what the reader came
+          for is below it, and scales without limit. */}
+      <Text
+        variant="h1"
+        style={styles.title}
+        numberOfLines={2}
+        maxFontSizeMultiplier={CONTROL_FONT_LIMIT}
+      >
         {title}
       </Text>
       {action ? (
