@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { router } from 'expo-router'
 import { useAuth } from '@/providers/AuthProvider'
 import { errorMessage } from '@/lib/errors'
-import { AuthShell } from '@/features/auth/AuthShell'
+import { AuthShell, authFieldSpacing } from '@/features/auth/AuthShell'
 import { Button, LinkButton } from '@/ui/Button'
 import { Banner } from '@/ui/Card'
 import { Field } from '@/ui/Field'
@@ -42,6 +42,7 @@ export default function ForgotPassword() {
         autoCapitalize="none"
         autoComplete="email"
         keyboardType="email-address"
+        style={authFieldSpacing}
       />
 
       {error ? <Banner text={error} tone="error" /> : null}
