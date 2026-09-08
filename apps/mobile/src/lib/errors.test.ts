@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { ApiError, ApiTimeoutError } from '@lapka/shared'
+import { ApiContractError, ApiError, ApiTimeoutError } from '@lapka/shared'
 import { ru } from '@/i18n/ru'
-import { AppError, errorMessage } from './errors'
+import { AppError, describeFailure, errorMessage } from './errors'
 
 describe('error messages', () => {
   it('translates a Supabase auth code', () => {
@@ -48,5 +48,42 @@ describe('error messages', () => {
   it('does not invent a message for an unknown code', () => {
     const cause = Object.assign(new Error('nope'), { code: 'some_future_code' })
     expect(errorMessage(ru, cause, 'Не удалось войти')).toBe('Не удалось войти')
+  })
+})
+
+describe('what a failure banner should look like', () => {
+  const fallback = 'Не удалось загрузить питомцев'
+
+  it('calls it a lost connection only when nothing came back', () => {
+    // What `fetch` throws differs by platform, so the test uses the two shapes
+    // React Native has actually been seen to produce.
+    expect(describeFailure(ru, new TypeError('Network request failed'), fallback)).toEqual({
+      text: fallback,
+      offline: true,
+    })
+    expect(describeFailure(ru, new Error('Network request failed'), fallback)).toEqual({
+      text: fallback,
+      offline: true,
+    })
+  })
+
+  it('does not blame the network for anything the server said', () => {
+    const answered = [
+      new ApiError('internal_error', 500, 'x'),
+      new ApiTimeoutError('/pets', 30_000),
+      new ApiContractError('/pets', []),
+      new AppError('Анализ не удался', 'analysis_failed'),
+      Object.assign(new Error('Invalid login credentials'), { code: 'invalid_credentials' }),
+    ]
+
+    for (const cause of answered) {
+      expect(describeFailure(ru, cause, fallback).offline).toBe(false)
+    }
+  })
+
+  it('says the server fell over, rather than showing the fallback', () => {
+    expect(describeFailure(ru, new ApiError('internal_error', 500, 'x'), fallback).text).toBe(
+      ru.errors.internal,
+    )
   })
 })

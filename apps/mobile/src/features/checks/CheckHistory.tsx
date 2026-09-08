@@ -3,6 +3,7 @@ import { ActivityIndicator, FlatList, Image, StyleSheet, View } from 'react-nati
 import { router, useFocusEffect } from 'expo-router'
 import type { SymptomCheckRecord } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
+import { describeFailure } from '@/lib/errors'
 import { dictionary, useLocale, useText } from '@/i18n'
 import { urgencyText } from '@/features/checks/urgency'
 import { Button } from '@/ui/Button'
@@ -42,7 +43,7 @@ export function CheckHistory({ petId }: { petId?: string }) {
 
   const [items, setItems] = useState<SymptomCheckRecord[] | null>(null)
   const [cursor, setCursor] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
   const [loadingMore, setLoadingMore] = useState(false)
 
   const loadFirst = useCallback(async () => {
@@ -51,9 +52,9 @@ export function CheckHistory({ petId }: { petId?: string }) {
       const page = await withFreshSession((api) => api.listChecks({ pet_id: petId }))
       setItems(page.items)
       setCursor(page.next_cursor)
-    } catch {
+    } catch (cause) {
       setItems([])
-      setError(ui.common.offline)
+      setError(describeFailure(ui, cause, ui.errors.loadHistoryFailed))
     }
   }, [petId, ui])
 
@@ -74,8 +75,8 @@ export function CheckHistory({ petId }: { petId?: string }) {
       // pages never overlap and never repeat a row.
       setItems((current) => [...(current ?? []), ...page.items])
       setCursor(page.next_cursor)
-    } catch {
-      setError(ui.common.offline)
+    } catch (cause) {
+      setError(describeFailure(ui, cause, ui.errors.loadHistoryFailed))
     } finally {
       setLoadingMore(false)
     }
@@ -89,7 +90,10 @@ export function CheckHistory({ petId }: { petId?: string }) {
     return (
       <View style={styles.empty}>
         {error ? (
-          <Banner text={error} tone="error" />
+          <>
+            <Banner text={error.text} tone="error" icon={error.offline ? 'wifi' : 'alert'} />
+            <Button title={ui.common.retry} kind="secondary" onPress={() => void loadFirst()} />
+          </>
         ) : (
           <>
             <Image
@@ -113,7 +117,9 @@ export function CheckHistory({ petId }: { petId?: string }) {
 
   return (
     <>
-      {error ? <Banner text={error} tone="error" /> : null}
+      {error ? (
+        <Banner text={error.text} tone="error" icon={error.offline ? 'wifi' : 'alert'} />
+      ) : null}
       <FlatList
         data={items}
         keyExtractor={(check) => check.id}

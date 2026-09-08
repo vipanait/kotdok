@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native'
 import { router, useFocusEffect } from 'expo-router'
 import type { ExtraCheckRequestStatus } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
+import { describeFailure } from '@/lib/errors'
 import { useText, type Dictionary } from '@/i18n'
 import { Button } from '@/ui/Button'
 import { Banner } from '@/ui/Card'
@@ -20,14 +21,17 @@ const outcome = (t: Dictionary): Record<string, { text: string; tone: 'info' | '
 export default function ExtraCheck() {
   const t = useText()
   const [request, setRequest] = useState<ExtraCheckRequestStatus | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
   const [busy, setBusy] = useState(false)
 
   const load = useCallback(async () => {
+    // Cleared first: returning to a screen that has since started working
+    // should not keep showing the failure it opened with.
+    setError(null)
     try {
       setRequest(await withFreshSession((api) => api.getExtraCheckRequest()))
-    } catch {
-      setError(t.errors.loadRequestFailed)
+    } catch (cause) {
+      setError(describeFailure(t, cause, t.errors.loadRequestFailed))
     }
   }, [t])
 
@@ -42,8 +46,8 @@ export default function ExtraCheck() {
     setError(null)
     try {
       setRequest(await withFreshSession((api) => api.requestExtraCheck()))
-    } catch {
-      setError(t.errors.sendRequestFailed)
+    } catch (cause) {
+      setError(describeFailure(t, cause, t.errors.sendRequestFailed))
     } finally {
       setBusy(false)
     }
@@ -72,7 +76,9 @@ export default function ExtraCheck() {
       <View style={styles.gap} />
 
       {state ? <Banner text={state.text} tone={state.tone} /> : null}
-      {error ? <Banner text={error} tone="error" /> : null}
+      {error ? (
+        <Banner text={error.text} tone="error" icon={error.offline ? 'wifi' : 'alert'} />
+      ) : null}
     </Screen>
   )
 }

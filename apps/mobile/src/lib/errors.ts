@@ -8,7 +8,7 @@
  * reworded upstream message must not silently turn back into English here.
  */
 
-import { ApiError, ApiTimeoutError } from '@lapka/shared'
+import { ApiContractError, ApiError, ApiTimeoutError } from '@lapka/shared'
 import type { Dictionary } from '@/i18n'
 
 /**
@@ -95,4 +95,44 @@ export function errorMessage(t: Dictionary, cause: unknown, fallback: string): s
 /** No connection at all, which is worth saying differently from a rejection. */
 export function isOffline(cause: unknown): boolean {
   return cause instanceof TypeError || (cause instanceof Error && cause.name === 'AbortError')
+}
+
+/**
+ * A failure as a banner needs it: the sentence, and whether the network was the
+ * thing that failed.
+ *
+ * The two are not the same picture. A crossed-out aerial over "что-то пошло не
+ * так на нашей стороне" tells the reader to go and check their wi-fi, which is
+ * working; the server is the one that fell over. `offline` is left for the
+ * screen to turn into an icon, so this file keeps knowing nothing about the ui.
+ */
+export function describeFailure(
+  t: Dictionary,
+  cause: unknown,
+  fallback: string,
+): { text: string; offline: boolean } {
+  return { text: errorMessage(t, cause, fallback), offline: !serverSpoke(cause) }
+}
+
+/**
+ * Whether the request got as far as an answer.
+ *
+ * Asked this way round on purpose. `fetch` rejects with whatever the platform
+ * feels like — a `TypeError` on some versions, a bare `Error` on others — so a
+ * test for "was it a network failure" is a test against a moving target, and a
+ * wrong answer puts the aerial over a sentence about the server. Everything
+ * this app recognises as the server having spoken is listed here; anything else
+ * never left the phone.
+ */
+function serverSpoke(cause: unknown): boolean {
+  return (
+    cause instanceof AppError ||
+    cause instanceof ApiError ||
+    // Reached, and then gave up waiting — which has its own sentence.
+    cause instanceof ApiTimeoutError ||
+    // Answered, but not with what the contract says. Still an answer.
+    cause instanceof ApiContractError ||
+    // Supabase rejected it, in words of its own.
+    codeOf(cause) !== null
+  )
 }

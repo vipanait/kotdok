@@ -3,7 +3,7 @@ import { FlatList, Image, StyleSheet, View } from 'react-native'
 import { router, useFocusEffect } from 'expo-router'
 import type { Pet } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
-import { errorMessage } from '@/lib/errors'
+import { describeFailure } from '@/lib/errors'
 import { useText, type Dictionary } from '@/i18n'
 import { Button } from '@/ui/Button'
 import { Avatar, Card } from '@/ui/Card'
@@ -45,7 +45,7 @@ function Skeletons() {
 export default function Pets() {
   const t = useText()
   const [pets, setPets] = useState<Pet[] | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
 
   const load = useCallback(async () => {
     setError(null)
@@ -55,7 +55,7 @@ export default function Pets() {
       // The list that is already on screen stays there: a lost connection is
       // not a reason to forget the pets we last saw.
       setPets((current) => current ?? [])
-      setError(errorMessage(t, cause, t.common.offline))
+      setError(describeFailure(t, cause, t.common.offline))
     }
   }, [t])
 
@@ -86,7 +86,7 @@ export default function Pets() {
     >
       {error ? (
         <>
-          <Banner text={error} tone="error" icon="wifi" />
+          <Banner text={error.text} tone="error" icon={error.offline ? 'wifi' : 'alert'} />
           <Button title={t.common.retry} kind="secondary" onPress={() => void load()} />
           <View style={styles.spacer} />
         </>

@@ -192,6 +192,7 @@ export const ru = {
     saveChangesFailed: 'Не удалось сохранить изменения',
     removePetFailed: 'Не удалось удалить питомца',
     loadProfileFailed: 'Не удалось загрузить профиль',
+    loadHistoryFailed: 'Не удалось загрузить историю',
     changeLocaleFailed: 'Не удалось сменить язык',
     submitCheckFailed: 'Не удалось отправить проверку',
     loadRequestFailed: 'Не удалось загрузить состояние запроса',
