@@ -147,6 +147,10 @@ jobs:
       - name: Test
         run: npm run test --workspace @lapka/mobile
 
+      # The API client is shared, so its rules are tested where they live.
+      - name: Test shared package
+        run: npm run test --workspace @lapka/shared
+
       # JavaScript export only. Signed native builds need Apple and Google
       # credentials this workflow does not have.
       - name: Export iOS bundle

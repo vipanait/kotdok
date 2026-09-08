@@ -2,7 +2,6 @@ import { useCallback, useState } from 'react'
 import { FlatList, Image, StyleSheet, View } from 'react-native'
 import { router, useFocusEffect } from 'expo-router'
 import type { Pet } from '@lapka/contracts'
-import { ApiError } from '@lapka/shared'
 import { withFreshSession } from '@/lib/api'
 import { errorMessage } from '@/lib/errors'
 import { speciesLabels } from '@/features/pets/labels'
@@ -56,11 +55,7 @@ export default function Pets() {
       // The list that is already on screen stays there: a lost connection is
       // not a reason to forget the pets we last saw.
       setPets((current) => current ?? [])
-      setError(
-        cause instanceof ApiError
-          ? errorMessage(cause, 'Не удалось загрузить питомцев')
-          : 'Нет связи с сервером',
-      )
+      setError(errorMessage(cause, 'Нет связи с сервером'))
     }
   }, [])
 
