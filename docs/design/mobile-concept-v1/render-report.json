@@ -12,7 +12,7 @@
     },
     {
       "id": "02",
-      "name": "Вход · с иллюстрацией",
+      "name": "Вход",
       "ref": "6.2",
       "contentHeight": 766,
       "viewportHeight": 766,
@@ -224,7 +224,7 @@
       "id": "23",
       "name": "Подтверждение почты",
       "ref": "6.4",
-      "contentHeight": 776,
+      "contentHeight": 766,
       "viewportHeight": 766,
       "widthOverflow": false,
       "fonts": true,
@@ -419,12 +419,115 @@
       "widthOverflow": false,
       "fonts": true,
       "images": true
+    },
+    {
+      "id": "43",
+      "name": "Вход через сервис · ожидание",
+      "ref": "6.2.1",
+      "contentHeight": 798,
+      "viewportHeight": 766,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "44",
+      "name": "Вход через сервис · ошибка",
+      "ref": "6.2.1",
+      "contentHeight": 766,
+      "viewportHeight": 766,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
     }
   ],
   "errors": [],
+  "auth": [
+    {
+      "id": "02",
+      "logo": true,
+      "pets": false,
+      "tagline": "Маленькие лапки. Большая забота",
+      "providers": 2
+    },
+    {
+      "id": "03",
+      "logo": true,
+      "pets": false,
+      "tagline": "Маленькие лапки. Большая забота",
+      "providers": 2
+    },
+    {
+      "id": "04",
+      "logo": true,
+      "pets": false,
+      "tagline": "Маленькие лапки. Большая забота",
+      "providers": 2
+    },
+    {
+      "id": "23",
+      "logo": true,
+      "pets": false,
+      "tagline": "Маленькие лапки. Большая забота",
+      "providers": 2
+    },
+    {
+      "id": "24",
+      "logo": true,
+      "pets": false,
+      "tagline": "Маленькие лапки. Большая забота",
+      "providers": 0
+    },
+    {
+      "id": "25",
+      "logo": true,
+      "pets": false,
+      "tagline": "Маленькие лапки. Большая забота",
+      "providers": 0
+    },
+    {
+      "id": "26",
+      "logo": true,
+      "pets": false,
+      "tagline": "Маленькие лапки. Большая забота",
+      "providers": 0
+    },
+    {
+      "id": "43",
+      "logo": true,
+      "pets": false,
+      "tagline": "Маленькие лапки. Большая забота",
+      "providers": 2
+    },
+    {
+      "id": "44",
+      "logo": true,
+      "pets": false,
+      "tagline": "Маленькие лапки. Большая забота",
+      "providers": 2
+    }
+  ],
   "newUserRoute": "passed",
   "returningUserRoute": "passed",
   "optionalSelect": "passed",
+  "oauth": [
+    {
+      "id": "02",
+      "provider": "Google",
+      "button": "Продолжить с Google",
+      "target": "06",
+      "result": "passed"
+    },
+    {
+      "id": "04",
+      "provider": "Яндекс ID",
+      "button": "Войти с Яндекс ID",
+      "target": "05",
+      "result": "passed"
+    }
+  ],
+  "oauthCancel": "passed",
+  "oauthRetry": "passed",
   "smallScreens": [
     {
       "id": "05",
@@ -433,6 +536,11 @@
     },
     {
       "id": "12",
+      "fits": true,
+      "horizontalOverflow": false
+    },
+    {
+      "id": "17",
       "fits": true,
       "horizontalOverflow": false
     }
