@@ -67,6 +67,9 @@ export default function RootLayout() {
   const [fontsReady] = useFonts({
     Nunito: require('../assets/fonts/Nunito.ttf'),
     Manrope: require('../assets/fonts/Manrope.ttf'),
+    // Google's own face, for Google's own button and nothing else: their
+    // branding guidelines ask for it by name.
+    GoogleSans: require('../assets/fonts/GoogleSans.ttf'),
   })
 
   if (!fontsReady) return <View style={{ flex: 1, backgroundColor: colour.canvas }} />

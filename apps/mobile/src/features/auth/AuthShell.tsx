@@ -1,32 +1,32 @@
 import type { ReactNode } from 'react'
-import { Image, StyleSheet, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import { Logo } from '@/ui/Logo'
 import { Screen } from '@/ui/Screen'
 import { Text } from '@/ui/Text'
 import { space } from '@/ui/theme'
 
 /**
- * The frame the four sign-in screens share: the wordmark, the pair of animals,
- * a title, the form.
+ * The frame the four sign-in screens share: the wordmark, the promise under
+ * it, a title, the form.
  *
- * The artwork stays put through every state of every one of them — including
- * the one where the form complains. A person who mistyped a password has not
- * stopped being welcome, and moving the welcome out from under them makes an
- * ordinary typo feel like a fault.
+ * The masthead is the same on every one of them — sign-in, registration,
+ * recovery, a new password — and stays put through every state, including the
+ * ones where the form complains or a letter has just been sent. A person who
+ * mistyped a password has not stopped being welcome.
+ *
+ * The pair of animals that used to stand here is gone: the concept moved the
+ * welcome into words, and kept the illustrations for the screens that are
+ * empty rather than the ones that are asking for something.
  */
 export function AuthShell({ title, children }: { title: string; children: ReactNode }) {
   return (
     <Screen scroll>
-      <View style={styles.brand}>
+      <View style={styles.masthead}>
         <Logo />
+        <Text variant="tagline" tone="accent" center style={styles.tagline}>
+          Маленькие лапки. Большая забота
+        </Text>
       </View>
-
-      <Image
-        source={require('../../../assets/art/welcome-pets.png')}
-        style={styles.hero}
-        resizeMode="contain"
-        accessible={false}
-      />
 
       <Text variant="h1" style={styles.title}>
         {title}
@@ -37,8 +37,17 @@ export function AuthShell({ title, children }: { title: string; children: ReactN
   )
 }
 
+/** Auth forms breathe a little tighter than the rest, to leave room below. */
+export const authFieldSpacing = { marginBottom: 16 }
+
 const styles = StyleSheet.create({
-  brand: { alignItems: 'center', marginTop: 8, marginBottom: 8 },
-  hero: { width: 232, height: 232, alignSelf: 'center', marginTop: 4, marginBottom: 8 },
-  title: { marginBottom: space.block },
+  masthead: {
+    minHeight: 144,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 16,
+    marginBottom: 24,
+  },
+  tagline: { maxWidth: 310 },
+  title: { marginBottom: 16 },
 })

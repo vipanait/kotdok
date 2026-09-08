@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { router } from 'expo-router'
 import { supabase } from '@/lib/supabase'
 import { errorMessage } from '@/lib/errors'
-import { AuthShell } from '@/features/auth/AuthShell'
+import { AuthShell, authFieldSpacing } from '@/features/auth/AuthShell'
 import { Button } from '@/ui/Button'
 import { Banner } from '@/ui/Card'
 import { Field } from '@/ui/Field'
@@ -35,6 +35,7 @@ export default function ResetPassword() {
         secureTextEntry
         autoComplete="password"
         autoCapitalize="none"
+        style={authFieldSpacing}
       />
 
       {error ? <Banner text={error} tone="error" /> : null}
