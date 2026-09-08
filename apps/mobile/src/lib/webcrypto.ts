@@ -1,20 +1,25 @@
 /**
  * Enough of WebCrypto for PKCE to be PKCE.
  *
- * Hermes has no `crypto.subtle`. Supabase's auth client checks for it before
- * hashing the PKCE verifier and, finding nothing, falls back to the `plain`
- * challenge method — the challenge then *is* the verifier, and an intercepted
- * authorization code can be exchanged by whoever intercepted it. The client
- * says so in a warning that is easy to miss, and everything keeps working, so
- * nothing looks broken.
+ * Hermes has no `crypto` at all. The Supabase auth client copes in two ways,
+ * both bad: it hashes nothing and falls back to the `plain` challenge method,
+ * so the challenge *is* the verifier and an intercepted authorization code can
+ * be exchanged by whoever intercepted it; and it builds the verifier itself out
+ * of `Math.random`, which is not a source of secrets. Everything keeps working,
+ * so nothing looks broken.
  *
- * `expo-crypto` can do the one thing that is missing: SHA-256 over bytes. This
- * installs it as `crypto.subtle.digest` and leaves the rest of the API absent
- * rather than pretending to implement it.
+ * `expo-crypto` has both missing pieces. They are installed together on
+ * purpose: the client decides which path to take by asking whether `crypto`
+ * exists at all, so an object carrying one of them and not the other turns a
+ * quiet weakness into a crash — which is exactly what happened when this file
+ * first provided `subtle` alone.
  */
 
-/** The shape of the one operation we provide. */
+/** The shape of the two operations we provide. */
 export type Digest = (algorithm: unknown, data: BufferSource) => Promise<ArrayBuffer>
+export type GetRandomValues = <T extends ArrayBufferView>(array: T) => T
+
+export type CryptoParts = { digest: Digest; getRandomValues: GetRandomValues }
 
 /**
  * Whatever holds `crypto` — `globalThis` in the app, a plain object in tests.
@@ -22,6 +27,8 @@ export type Digest = (algorithm: unknown, data: BufferSource) => Promise<ArrayBu
  * present and read-only, which is exactly the claim this file exists to doubt.
  */
 type Scope = { crypto?: unknown }
+
+type PartialCrypto = { subtle?: { digest?: unknown }; getRandomValues?: unknown }
 
 /** SHA-256 under the names WebCrypto callers use for it. */
 const SHA_256 = new Set(['SHA-256', 'sha-256', 'SHA256', 'sha256'])
@@ -32,14 +39,16 @@ export function isSha256(algorithm: unknown): boolean {
 }
 
 /**
- * Installs `crypto.subtle.digest` on the given scope when it is missing.
+ * Fills in what the runtime lacks, and leaves alone what it has.
  *
- * @returns true when it installed something, false when a real implementation
- *   was already there — a runtime that has WebCrypto keeps it.
+ * @returns which pieces were installed, so a caller — or a test — can tell
+ *   "the runtime already had this" apart from "we provided it".
  */
-export function installSubtleDigest(scope: Scope, digest: Digest): boolean {
-  const existing = scope.crypto as { subtle?: { digest?: unknown } } | undefined
-  if (typeof existing?.subtle?.digest === 'function') return false
+export function installWebCrypto(
+  scope: Scope,
+  parts: CryptoParts,
+): { subtle: boolean; getRandomValues: boolean } {
+  const existing = scope.crypto as PartialCrypto | undefined
 
   const subtle = {
     async digest(algorithm: unknown, data: BufferSource): Promise<ArrayBuffer> {
@@ -48,15 +57,29 @@ export function installSubtleDigest(scope: Scope, digest: Digest): boolean {
       if (!isSha256(algorithm)) {
         throw new Error('Only SHA-256 is available in this environment')
       }
-      return digest(algorithm, data)
+      return parts.digest(algorithm, data)
     },
   }
 
-  if (existing) {
-    Object.defineProperty(existing, 'subtle', { value: subtle, configurable: true })
-  } else {
-    scope.crypto = { subtle }
+  if (!existing) {
+    scope.crypto = { subtle, getRandomValues: parts.getRandomValues }
+    return { subtle: true, getRandomValues: true }
   }
 
-  return true
+  const installed = { subtle: false, getRandomValues: false }
+
+  if (typeof existing.subtle?.digest !== 'function') {
+    Object.defineProperty(existing, 'subtle', { value: subtle, configurable: true })
+    installed.subtle = true
+  }
+
+  if (typeof existing.getRandomValues !== 'function') {
+    Object.defineProperty(existing, 'getRandomValues', {
+      value: parts.getRandomValues,
+      configurable: true,
+    })
+    installed.getRandomValues = true
+  }
+
+  return installed
 }
