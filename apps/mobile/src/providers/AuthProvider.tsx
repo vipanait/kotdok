@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import * as WebBrowser from 'expo-web-browser'
-import { sessionStorage, setSessionWriteFailureHandler, supabase } from '@/lib/supabase'
+import { draftStorage, sessionStorage, setSessionWriteFailureHandler, supabase } from '@/lib/supabase'
 import { setSessionLostHandler } from '@/lib/api'
 import { authRedirectUrl } from '@/lib/auth-links'
 import {
@@ -85,6 +85,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const endSession = useCallback(async (reason: string | null) => {
     await supabase.auth.signOut().catch(() => {})
     await sessionStorage.clearAll()
+    // The half-written check goes with the session: the next person to sign in
+    // on this phone must not find someone else's notes about their animal.
+    await draftStorage.clearAll()
     setSession(null)
     setNotice(reason)
   }, [])
