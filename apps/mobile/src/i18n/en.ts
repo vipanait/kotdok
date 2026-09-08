@@ -191,6 +191,7 @@ export const en: Dictionary = {
     saveChangesFailed: 'Could not save the changes',
     removePetFailed: 'Could not delete the pet',
     loadProfileFailed: 'Could not load the profile',
+    loadHistoryFailed: 'Could not load the history',
     changeLocaleFailed: 'Could not change the language',
     submitCheckFailed: 'Could not send the check',
     loadRequestFailed: 'Could not load the state of the request',

@@ -10,7 +10,7 @@ import {
   type Pet,
 } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
-import { AppError, errorMessage } from '@/lib/errors'
+import { AppError, describeFailure, errorMessage } from '@/lib/errors'
 import { useText, type Dictionary } from '@/i18n'
 import { useAuth } from '@/providers/AuthProvider'
 import { draftStorage } from '@/lib/supabase'
@@ -47,7 +47,7 @@ export default function NewCheck() {
   const t = useText()
   const [form, setForm] = useState<CheckForm>(emptyCheckForm())
   const [pets, setPets] = useState<Pet[] | null>(null)
-  const [petsError, setPetsError] = useState<string | null>(null)
+  const [petsError, setPetsError] = useState<{ text: string; offline: boolean } | null>(null)
   const [step, setStep] = useState<1 | 2>(1)
   const [symptomsError, setSymptomsError] = useState<string | null>(null)
   const [failure, setFailure] = useState<{ text: string; kind: AppError['kind'] | null } | null>(
@@ -145,13 +145,18 @@ export default function NewCheck() {
     } catch (cause) {
       // Deliberately not an empty list: "add a pet first" would be a lie when
       // the pets exist and the network does not.
-      setPetsError(errorMessage(t, cause, t.errors.loadPetsFailed))
+      setPetsError(describeFailure(t, cause, t.errors.loadPetsFailed))
     }
   }, [t])
 
-  useEffect(() => {
-    void loadPets()
-  }, [loadPets])
+  // On focus rather than on mount. The tab keeps this screen alive, so a person
+  // who adds their first pet and comes back here would otherwise still be told
+  // to add one — and a failed load would stay failed until the app restarted.
+  useFocusEffect(
+    useCallback(() => {
+      void loadPets()
+    }, [loadPets]),
+  )
 
   function change(patch: Partial<CheckForm>) {
     setForm((current) => ({ ...current, ...patch }))
@@ -227,7 +232,11 @@ export default function NewCheck() {
   if (petsError) {
     return (
       <Screen title={t.check.title}>
-        <Banner text={petsError} tone="error" icon="wifi" />
+        <Banner
+          text={petsError.text}
+          tone="error"
+          icon={petsError.offline ? 'wifi' : 'alert'}
+        />
         <Button title={t.common.retry} kind="secondary" onPress={() => void loadPets()} />
       </Screen>
     )

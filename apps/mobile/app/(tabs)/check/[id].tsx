@@ -4,10 +4,10 @@ import { router, useLocalSearchParams } from 'expo-router'
 import * as Clipboard from 'expo-clipboard'
 import type { SymptomCheckRecord } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
-import { errorMessage } from '@/lib/errors'
+import { describeFailure } from '@/lib/errors'
 import { dictionary, useText } from '@/i18n'
 import { urgencyText } from '@/features/checks/urgency'
-import { LinkButton } from '@/ui/Button'
+import { Button, LinkButton } from '@/ui/Button'
 import { Banner, UrgencyCard } from '@/ui/Card'
 import { Screen } from '@/ui/Screen'
 import { Accordion, Bullets } from '@/ui/Section'
@@ -18,7 +18,7 @@ export default function CheckResult() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const ui = useText()
   const [check, setCheck] = useState<SymptomCheckRecord | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
   const [copied, setCopied] = useState(false)
 
   const load = useCallback(async () => {
@@ -26,7 +26,7 @@ export default function CheckResult() {
     try {
       setCheck(await withFreshSession((api) => api.getCheck(id)))
     } catch (cause) {
-      setError(errorMessage(ui, cause, ui.common.offline))
+      setError(describeFailure(ui, cause, ui.common.offline))
     }
   }, [id, ui])
 
@@ -46,10 +46,15 @@ export default function CheckResult() {
   if (!check) {
     return (
       <Screen title={ui.result.fallbackTitle} onBack={() => router.back()}>
-        {error ? <Banner text={error} tone="error" /> : <ActivityIndicator color={colour.accent} />}
         {error ? (
-          <LinkButton title={ui.common.toPets} onPress={() => router.replace('/pets')} />
-        ) : null}
+          <>
+            <Banner text={error.text} tone="error" icon={error.offline ? 'wifi' : 'alert'} />
+            <Button title={ui.common.retry} kind="secondary" onPress={() => void load()} />
+            <LinkButton title={ui.common.toPets} onPress={() => router.replace('/pets')} />
+          </>
+        ) : (
+          <ActivityIndicator color={colour.accent} />
+        )}
       </Screen>
     )
   }

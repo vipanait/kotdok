@@ -5,6 +5,7 @@ import Constants from 'expo-constants'
 import type { PublicProfile } from '@lapka/contracts'
 import { SUPPORTED_LOCALES } from '@lapka/shared'
 import { withFreshSession } from '@/lib/api'
+import { describeFailure } from '@/lib/errors'
 import { useAuth } from '@/providers/AuthProvider'
 import { dictionary, useSetLocale, useText } from '@/i18n'
 import { Button } from '@/ui/Button'
@@ -23,7 +24,7 @@ export default function Profile() {
   const { signOut } = useAuth()
   const [profile, setProfile] = useState<PublicProfile | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
   const [pickingLocale, setPickingLocale] = useState(false)
 
   const load = useCallback(async () => {
@@ -33,8 +34,8 @@ export default function Profile() {
       setProfile(me)
       // The account's own choice governs the interface from here on.
       setLocale(me.locale)
-    } catch {
-      setError(t.errors.loadProfileFailed)
+    } catch (cause) {
+      setError(describeFailure(t, cause, t.errors.loadProfileFailed))
     }
   }, [t, setLocale])
 
@@ -50,15 +51,24 @@ export default function Profile() {
       setProfile(await withFreshSession((api) => api.updateMe({ locale })))
       setLocale(locale)
       setNotice(dictionary(locale).profile.localeSaved)
-    } catch {
-      setError(t.errors.changeLocaleFailed)
+    } catch (cause) {
+      setError(describeFailure(t, cause, t.errors.changeLocaleFailed))
     }
   }
 
   if (!profile) {
     return (
       <Screen title={t.profile.title}>
-        {error ? <Banner text={error} tone="error" /> : <ActivityIndicator color={colour.accent} />}
+        {error ? (
+          <>
+            <Banner text={error.text} tone="error" icon={error.offline ? 'wifi' : 'alert'} />
+            {/* Without this the screen is a dead end: the reload happens on
+                focus, and the tab is already focused. */}
+            <Button title={t.common.retry} kind="secondary" onPress={() => void load()} />
+          </>
+        ) : (
+          <ActivityIndicator color={colour.accent} />
+        )}
       </Screen>
     )
   }
@@ -93,7 +103,9 @@ export default function Profile() {
       </View>
 
       {notice ? <Banner text={notice} /> : null}
-      {error ? <Banner text={error} tone="error" /> : null}
+      {error ? (
+        <Banner text={error.text} tone="error" icon={error.offline ? 'wifi' : 'alert'} />
+      ) : null}
 
       <SettingRow
         icon="globe"
