@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { ActivityIndicator, Image, StyleSheet, View } from 'react-native'
-import { router } from 'expo-router'
+import { ActivityIndicator, AppState, Image, StyleSheet, View } from 'react-native'
+import { router, useFocusEffect } from 'expo-router'
 import {
   ACTIVITY_VALUES,
   APPETITE_VALUES,
@@ -11,15 +11,20 @@ import {
 } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
 import { AppError, errorMessage } from '@/lib/errors'
+import { useText, type Dictionary } from '@/i18n'
+import { useAuth } from '@/providers/AuthProvider'
+import { draftStorage } from '@/lib/supabase'
 import {
-  activityLabels,
-  appetiteLabels,
-  durationLabels,
+  DRAFT_KEY,
+  isWorthKeeping,
+  parseDraft,
+  serialiseDraft,
+  type CheckDraft,
+} from '@/features/checks/check-draft'
+import {
   emptyCheckForm,
   formToCheckInput,
   newIdempotencyKey,
-  painLabels,
-  stoolLabels,
   toggleSign,
   type CheckForm,
 } from '@/features/checks/check-form'
@@ -39,6 +44,7 @@ const GIVE_UP_AFTER_MS = 3 * 60 * 1000
 const SEGMENT_FITS = 3
 
 export default function NewCheck() {
+  const t = useText()
   const [form, setForm] = useState<CheckForm>(emptyCheckForm())
   const [pets, setPets] = useState<Pet[] | null>(null)
   const [petsError, setPetsError] = useState<string | null>(null)
@@ -48,6 +54,59 @@ export default function NewCheck() {
     null,
   )
   const [waiting, setWaiting] = useState(false)
+  const { session } = useAuth()
+  const userId = session?.user.id ?? null
+
+  /**
+   * The draft, read once and written back at the moments a phone can take the
+   * app away: leaving the screen, and going to the background. Writing on every
+   * keystroke would put the keychain in the typing path for no gain.
+   */
+  const latest = useRef<CheckDraft>({ form, step })
+  latest.current = { form, step }
+
+  const keepDraft = useCallback(async () => {
+    if (!userId) return
+    const { form: current, step: at } = latest.current
+
+    if (!isWorthKeeping(current)) {
+      await draftStorage.removeItem(DRAFT_KEY)
+      return
+    }
+    await draftStorage.setItem(DRAFT_KEY, serialiseDraft(userId, { form: current, step: at }))
+  }, [userId])
+
+  const forgetDraft = useCallback(async () => {
+    await draftStorage.removeItem(DRAFT_KEY)
+  }, [])
+
+  // Restored once per account. A draft belonging to whoever used the phone
+  // before is refused inside `parseDraft`, not here.
+  const restored = useRef(false)
+  useEffect(() => {
+    if (!userId || restored.current) return
+    restored.current = true
+
+    void draftStorage.getItem(DRAFT_KEY).then((raw) => {
+      const draft = parseDraft(raw, userId)
+      if (!draft) return
+      setForm(draft.form)
+      setStep(draft.step)
+    })
+  }, [userId])
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state !== 'active') void keepDraft()
+    })
+    return () => subscription.remove()
+  }, [keepDraft])
+
+  useFocusEffect(
+    useCallback(() => () => {
+      void keepDraft()
+    }, [keepDraft]),
+  )
 
   // Kept across renders so a retry after a lost answer reuses the same key and
   // is not charged a second time.
@@ -75,15 +134,20 @@ export default function NewCheck() {
       setPets(list)
       // The check is about one animal; starting on the first one saves a tap
       // for the many people who own exactly one.
-      setForm((current) =>
-        current.petId === null && list.length > 0 ? { ...current, petId: list[0].id } : current,
-      )
+      setForm((current) => {
+        // A draft can name a pet that has since been deleted, on this phone or
+        // another. Falling back to the first keeps the form usable instead of
+        // failing at the very end on a pet the server no longer knows.
+        const stillThere = list.some((pet) => pet.id === current.petId)
+        if (stillThere || list.length === 0) return current
+        return { ...current, petId: list[0].id }
+      })
     } catch (cause) {
       // Deliberately not an empty list: "add a pet first" would be a lie when
       // the pets exist and the network does not.
-      setPetsError(errorMessage(cause, 'Не удалось загрузить питомцев'))
+      setPetsError(errorMessage(t, cause, t.errors.loadPetsFailed))
     }
-  }, [])
+  }, [t])
 
   useEffect(() => {
     void loadPets()
@@ -108,8 +172,8 @@ export default function NewCheck() {
       }
       if (job.status === 'failed') {
         throw job.error_code === 'insufficient_credits'
-          ? new AppError('Не хватает проверок на балансе', 'insufficient_credits')
-          : new AppError('Анализ не удался. Попробуйте ещё раз', 'analysis_failed')
+          ? new AppError(t.errors.insufficientCredits, 'insufficient_credits')
+          : new AppError(t.errors.analysisFailed, 'analysis_failed')
       }
 
       await new Promise((resolve) => setTimeout(resolve, POLL_EVERY_MS))
@@ -117,11 +181,11 @@ export default function NewCheck() {
     }
 
     // The work is still going; the answer will be in the history when it lands.
-    throw new AppError('Анализ занимает дольше обычного. Загляните в историю позже', 'still_running')
-  }, [])
+    throw new AppError(t.errors.analysisSlow, 'still_running')
+  }, [t])
 
   function next() {
-    const input = formToCheckInput(form)
+    const input = formToCheckInput(t, form)
     if (!input.ok) {
       setSymptomsError(input.message)
       return
@@ -131,7 +195,7 @@ export default function NewCheck() {
   }
 
   async function submit() {
-    const input = formToCheckInput(form)
+    const input = formToCheckInput(t, form)
     if (!input.ok) {
       setSymptomsError(input.message)
       setStep(1)
@@ -143,11 +207,13 @@ export default function NewCheck() {
     setFailure(null)
     try {
       const accepted = await withFreshSession((api) => api.createCheck(key.current!, input.value))
+      // Sent and charged: keeping it now would offer to send it a second time.
+      await forgetDraft()
       await waitForResult(accepted.job_id)
     } catch (cause) {
       if (!onScreen.current) return
       setFailure({
-        text: errorMessage(cause, 'Не удалось отправить проверку'),
+        text: errorMessage(t, cause, t.errors.submitCheckFailed),
         kind: cause instanceof AppError ? cause.kind : null,
       })
       setWaiting(false)
@@ -155,21 +221,21 @@ export default function NewCheck() {
   }
 
   if (waiting || failure) {
-    return <Waiting failure={failure} onRetry={() => void submit()} />
+    return <Waiting t={t} failure={failure} onRetry={() => void submit()} />
   }
 
   if (petsError) {
     return (
-      <Screen title="Проверка симптомов">
+      <Screen title={t.check.title}>
         <Banner text={petsError} tone="error" icon="wifi" />
-        <Button title="Повторить" kind="secondary" onPress={() => void loadPets()} />
+        <Button title={t.common.retry} kind="secondary" onPress={() => void loadPets()} />
       </Screen>
     )
   }
 
   if (pets === null) {
     return (
-      <Screen title="Проверка симптомов">
+      <Screen title={t.check.title}>
         <ActivityIndicator color={colour.accent} />
       </Screen>
     )
@@ -184,18 +250,17 @@ export default function NewCheck() {
    */
   if (pets.length === 0) {
     return (
-      <Screen title="Проверка симптомов" centered>
+      <Screen title={t.check.title} centered>
         <View style={styles.emptyArt}>
           <IconAvatar icon="paw" size={72} />
         </View>
         <Text variant="h2" center style={styles.emptyTitle}>
-          Сначала добавьте питомца
+          {t.check.needPetTitle}
         </Text>
         <Text tone="muted" center style={styles.emptyCopy}>
-          Ответ опирается на вид, возраст и хронические болезни. Без них проверка
-          получится общей, а списана будет как обычная.
+          {t.check.needPetBody}
         </Text>
-        <Button title="Добавить питомца" onPress={() => router.push('/pets/new')} />
+        <Button title={t.pets.add} onPress={() => router.push('/pets/new')} />
       </Screen>
     )
   }
@@ -205,20 +270,20 @@ export default function NewCheck() {
   if (step === 1) {
     return (
       <Screen
-        title="Проверка симптомов"
+        title={t.check.title}
         scroll
         dock={
           <>
-            <Button title="Далее" onPress={next} />
-            <LinkButton title="Отмена" onPress={() => router.replace('/pets')} />
+            <Button title={t.common.next} onPress={next} />
+            <LinkButton title={t.common.cancel} onPress={() => router.replace('/pets')} />
           </>
         }
       >
-        <Steps current={1} of={2} />
+        <Steps current={1} of={2} label={t.check.step} />
 
         {pets.length <= SEGMENT_FITS ? (
           <Segment
-            label="Питомец"
+            label={t.check.pet}
             clearable={false}
             options={pets.map((pet) => ({ value: pet.id, label: pet.name }))}
             value={form.petId}
@@ -226,7 +291,7 @@ export default function NewCheck() {
           />
         ) : (
           <Select
-            label="Питомец"
+            label={t.check.pet}
             options={pets.map((pet) => ({ value: pet.id, label: pet.name }))}
             value={form.petId}
             onChange={(petId) => change({ petId })}
@@ -234,71 +299,71 @@ export default function NewCheck() {
         )}
 
         <Field
-          label="Что происходит *"
+          label={t.check.symptoms}
           value={form.symptoms}
           onChangeText={(symptoms) => change({ symptoms })}
-          placeholder="Вялый второй день, ест мало, прячется"
+          placeholder={t.check.symptomsPlaceholder}
           error={symptomsError}
           multiline
         />
 
-        <Banner text="Пишите как есть, своими словами. Чем подробнее — тем точнее ответ." />
+        <Banner text={t.check.symptomsHint} />
       </Screen>
     )
   }
 
   return (
     <Screen
-      title="Проверка симптомов"
+      title={t.check.title}
       scroll
       dock={
         <>
-          <Button title="Проверить" onPress={() => void submit()} />
-          <LinkButton title="Назад" onPress={() => setStep(1)} />
+          <Button title={t.check.submit} onPress={() => void submit()} />
+          <LinkButton title={t.common.back} onPress={() => setStep(1)} />
         </>
       }
     >
-      <Steps current={2} of={2} />
+      <Steps current={2} of={2} label={t.check.step} />
 
       <SummaryCard>
         <View style={styles.summaryCopy}>
-          <Text variant="h3">{chosen?.name ?? 'Без питомца'}</Text>
+          <Text variant="h3">{chosen?.name ?? t.check.noPet}</Text>
           <Text variant="label" tone="muted" numberOfLines={1}>
             {form.symptoms}
           </Text>
         </View>
-        <LinkButton title="Изменить" onPress={() => setStep(1)} />
+        <LinkButton title={t.check.change} onPress={() => setStep(1)} />
       </SummaryCard>
 
-      <Banner text="Всё необязательно, но каждый ответ уточняет результат." />
+      <Banner text={t.check.optionalHint} />
 
       <Segment
-        label="Аппетит"
-        options={APPETITE_VALUES.map((value) => ({ value, label: appetiteLabels[value] }))}
+        label={t.check.appetite}
+        options={APPETITE_VALUES.map((value) => ({ value, label: t.appetite[value] }))}
         value={form.appetite}
         onChange={(appetite) => change({ appetite })}
       />
       <Segment
-        label="Активность"
-        options={ACTIVITY_VALUES.map((value) => ({ value, label: activityLabels[value] }))}
+        label={t.check.activity}
+        options={ACTIVITY_VALUES.map((value) => ({ value, label: t.activity[value] }))}
         value={form.activity}
         onChange={(activity) => change({ activity })}
       />
       <Segment
-        label="Симптомы длятся"
-        options={DURATION_VALUES.map((value) => ({ value, label: durationLabels[value] }))}
+        label={t.check.duration}
+        options={DURATION_VALUES.map((value) => ({ value, label: t.duration[value] }))}
         value={form.duration}
         onChange={(duration) => change({ duration })}
       />
       <Select
-        label="Стул"
-        options={STOOL_VALUES.map((value) => ({ value, label: stoolLabels[value] }))}
+        label={t.check.stool}
+        options={STOOL_VALUES.map((value) => ({ value, label: t.stool[value] }))}
         value={form.stool}
         onChange={(stool) => change({ stool })}
       />
       <Chips
-        label="Признаки боли"
-        options={PAIN_SIGNS.map((value) => ({ value, label: painLabels[value] }))}
+        label={t.check.painSigns}
+        options={PAIN_SIGNS.map((value) => ({ value, label: t.pain[value] }))}
         values={form.painSigns}
         onToggle={(sign) => change({ painSigns: toggleSign(form.painSigns, sign) })}
       />
@@ -315,18 +380,20 @@ export default function NewCheck() {
  * between explanations they do not have.
  */
 function Waiting({
+  t,
   failure,
   onRetry,
 }: {
+  t: Dictionary
   failure: { text: string; kind: AppError['kind'] | null } | null
   onRetry: () => void
 }) {
   const recovery =
     failure?.kind === 'insufficient_credits'
-      ? { title: 'Запросить проверку', onPress: () => router.push('/profile/extra-check') }
+      ? { title: t.check.requestCheck, onPress: () => router.push('/profile/extra-check') }
       : failure?.kind === 'still_running'
-        ? { title: 'Открыть историю', onPress: () => router.replace('/profile/checks') }
-        : { title: 'Попробовать ещё раз', onPress: onRetry }
+        ? { title: t.check.openHistory, onPress: () => router.replace('/profile/checks') }
+        : { title: t.check.tryAgain, onPress: onRetry }
 
   return (
     <Screen
@@ -335,13 +402,13 @@ function Waiting({
         failure ? (
           <>
             <Button title={recovery.title} onPress={recovery.onPress} />
-            <LinkButton title="К питомцам" onPress={() => router.replace('/pets')} />
+            <LinkButton title={t.common.toPets} onPress={() => router.replace('/pets')} />
           </>
         ) : null
       }
     >
       <Text variant="h1" center style={styles.waitingTitle}>
-        Смотрим симптомы
+        {t.check.waitingTitle}
       </Text>
       <Image
         source={require('../../../assets/art/paw.png')}
@@ -354,7 +421,7 @@ function Waiting({
       {failure ? (
         <Banner text={failure.text} tone="error" />
       ) : (
-        <Banner text="Это занимает до минуты. Не закрывайте экран." />
+        <Banner text={t.check.waitingBody} />
       )}
     </Screen>
   )

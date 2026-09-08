@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { router } from 'expo-router'
 import { useAuth } from '@/providers/AuthProvider'
 import { errorMessage } from '@/lib/errors'
+import { useText } from '@/i18n'
 import { AuthShell, authFieldSpacing } from '@/features/auth/AuthShell'
 import { Button, LinkButton } from '@/ui/Button'
 import { Banner } from '@/ui/Card'
@@ -9,6 +10,7 @@ import { Field } from '@/ui/Field'
 
 export default function ForgotPassword() {
   const { requestPasswordReset } = useAuth()
+  const t = useText()
   const [email, setEmail] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [sent, setSent] = useState(false)
@@ -21,24 +23,24 @@ export default function ForgotPassword() {
       await requestPasswordReset(email.trim())
       setSent(true)
     } catch (cause) {
-      setError(errorMessage(cause, 'Не удалось отправить письмо'))
+      setError(errorMessage(t, cause, t.errors.sendFailed))
     } finally {
       setBusy(false)
     }
   }
 
   return (
-    <AuthShell title="Восстановление пароля">
+    <AuthShell title={t.auth.recoverTitle}>
       {/* Deliberately says nothing about whether the address is registered. */}
       {sent ? (
-        <Banner text="Если такая почта зарегистрирована, письмо отправлено." icon="mail" />
+        <Banner text={t.auth.resetSent} icon="mail" />
       ) : null}
 
       <Field
-        label="Почта"
+        label={t.auth.email}
         value={email}
         onChangeText={setEmail}
-        placeholder="anna@example.com"
+        placeholder={t.auth.emailPlaceholder}
         autoCapitalize="none"
         autoComplete="email"
         keyboardType="email-address"
@@ -47,8 +49,8 @@ export default function ForgotPassword() {
 
       {error ? <Banner text={error} tone="error" /> : null}
 
-      <Button title="Отправить ссылку" onPress={submit} busy={busy} />
-      <LinkButton title="Назад ко входу" onPress={() => router.replace('/sign-in')} />
+      <Button title={t.auth.sendLink} onPress={submit} busy={busy} />
+      <LinkButton title={t.auth.backToSignIn} onPress={() => router.replace('/sign-in')} />
     </AuthShell>
   )
 }

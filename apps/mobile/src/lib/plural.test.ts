@@ -1,30 +1,35 @@
 import { describe, expect, it } from 'vitest'
-import { checksWord, plural, years } from './plural'
+import { ru } from '@/i18n/ru'
+import { plural } from './plural'
+
+/** The phrases the rule actually serves, which is where it is worth testing. */
+const checksOf = (count: number) => ru.profile.checksLeft(count).split(' ')[0]
+const years = (count: number) => ru.petAge(count)
 
 describe('russian plurals', () => {
   it('uses the singular for one and the ones that end in it', () => {
-    expect(checksWord(1)).toBe('проверка')
-    expect(checksWord(21)).toBe('проверка')
-    expect(checksWord(101)).toBe('проверка')
+    expect(checksOf(1)).toBe('проверка')
+    expect(checksOf(21)).toBe('проверка')
+    expect(checksOf(101)).toBe('проверка')
   })
 
   it('uses the few form for two to four', () => {
-    expect(checksWord(2)).toBe('проверки')
-    expect(checksWord(3)).toBe('проверки')
-    expect(checksWord(4)).toBe('проверки')
-    expect(checksWord(22)).toBe('проверки')
+    expect(checksOf(2)).toBe('проверки')
+    expect(checksOf(3)).toBe('проверки')
+    expect(checksOf(4)).toBe('проверки')
+    expect(checksOf(22)).toBe('проверки')
   })
 
   it('uses the many form for zero and from five up', () => {
-    expect(checksWord(0)).toBe('проверок')
-    expect(checksWord(5)).toBe('проверок')
-    expect(checksWord(10)).toBe('проверок')
+    expect(checksOf(0)).toBe('проверок')
+    expect(checksOf(5)).toBe('проверок')
+    expect(checksOf(10)).toBe('проверок')
   })
 
   it('treats the teens as the exception they are', () => {
     // The trap: 11 ends in 1 and 12 in 2, yet both take the many form.
     for (const count of [11, 12, 13, 14, 111, 112]) {
-      expect(checksWord(count), String(count)).toBe('проверок')
+      expect(checksOf(count), String(count)).toBe('проверок')
     }
   })
 

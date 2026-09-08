@@ -1,9 +1,11 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import * as WebBrowser from 'expo-web-browser'
-import { sessionStorage, setSessionWriteFailureHandler, supabase } from '@/lib/supabase'
+import { draftStorage, sessionStorage, setSessionWriteFailureHandler, supabase } from '@/lib/supabase'
 import { setSessionLostHandler } from '@/lib/api'
 import { authRedirectUrl } from '@/lib/auth-links'
+import { deviceLocale } from '@/lib/device-locale'
+import { useText } from '@/i18n'
 import {
   createProviderSignIn,
   type ProviderId,
@@ -73,6 +75,7 @@ export function useAuth(): AuthState {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const t = useText()
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
   const [notice, setNotice] = useState<string | null>(null)
@@ -85,6 +88,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const endSession = useCallback(async (reason: string | null) => {
     await supabase.auth.signOut().catch(() => {})
     await sessionStorage.clearAll()
+    // The half-written check goes with the session: the next person to sign in
+    // on this phone must not find someone else's notes about their animal.
+    await draftStorage.clearAll()
     setSession(null)
     setNotice(reason)
   }, [])
@@ -93,10 +99,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // A session that cannot be written down disappears on the next launch. Ending
     // it now, with an explanation, beats letting the user discover that later.
     setSessionWriteFailureHandler(() => {
-      void endSession('Не удалось сохранить вход на этом устройстве. Войдите ещё раз.')
+      void endSession(t.session.notSaved)
     })
-    setSessionLostHandler(() => endSession('Сессия истекла. Войдите ещё раз.'))
-  }, [endSession])
+    setSessionLostHandler(() => endSession(t.session.expired))
+  }, [endSession, t])
 
   useEffect(() => {
     let active = true
@@ -129,7 +135,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (error) throw error
       },
 
-      signInWithProvider,
+      // The words come from here, where the interface's language is known;
+      // the module that runs the exchange has no dictionary of its own.
+      signInWithProvider: (provider) => signInWithProvider(provider, t.provider),
 
       async signUp(email, password) {
         const { data, error } = await supabase.auth.signUp({
@@ -137,7 +145,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           password,
           // Built by the app, never taken from input, so a crafted link cannot
           // redirect the confirmation somewhere else.
-          options: { emailRedirectTo: authRedirectUrl('verify') },
+          options: {
+          emailRedirectTo: authRedirectUrl('verify'),
+          // Read once, here: it is the only moment the account does not yet
+          // have a language, and the trigger that creates the profile takes it
+          // from this. Later the person's own choice governs, and nothing
+          // overwrites it from the device again.
+          data: { locale: deviceLocale() },
+        },
         })
         if (error) throw error
         return { confirmationRequired: data.session === null }
@@ -152,7 +167,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       signOut: () => endSession(null),
     }),
-    [session, loading, notice, endSession],
+    [session, loading, notice, endSession, t],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

@@ -1,15 +1,7 @@
 import { PET_DIETS, PET_LIFESTYLES, PET_SIZE_CLASSES, PET_WALK_ACTIVITIES } from '@lapka/contracts'
+import { useText } from '@/i18n'
 import { Field, Segment, Select } from '@/ui/Field'
 import { Accordion } from '@/ui/Section'
-import {
-  dietLabels,
-  lifestyleLabels,
-  placeholders,
-  sexLabels,
-  sizeLabels,
-  speciesLabels,
-  walkLabels,
-} from './labels'
 import { AGE_MAX, WEIGHT_MAX, type PetForm } from './pet-form'
 
 /** Yes / no / not stated, which a switch cannot express. */
@@ -17,14 +9,14 @@ function Tristate({
   label,
   value,
   onChange,
-  yes = 'Да',
-  no = 'Нет',
+  yes,
+  no,
 }: {
   label: string
   value: boolean | null
   onChange: (value: boolean | null) => void
-  yes?: string
-  no?: string
+  yes: string
+  no: string
 }) {
   return (
     <Segment
@@ -40,9 +32,12 @@ function Tristate({
 }
 
 /** "2 из 4" — what a closed section is holding, without opening it. */
-function tally(answers: ReadonlyArray<unknown>): string | undefined {
+function tally(
+  answers: ReadonlyArray<unknown>,
+  count: (filled: number, total: number) => string,
+): string | undefined {
   const filled = answers.filter((value) => value !== null && value !== '').length
-  return filled === 0 ? undefined : `${filled} из ${answers.length}`
+  return filled === 0 ? undefined : count(filled, answers.length)
 }
 
 /**
@@ -61,8 +56,9 @@ export function PetFields({
   form: PetForm
   onChange: (patch: Partial<PetForm>) => void
 }) {
-  const hint = placeholders(form.species)
-  const sex = sexLabels(form.species)
+  const t = useText()
+  const hint = t.placeholders[form.species]
+  const sex = form.species === 'dog' ? t.sexDog : t.sexCat
   const isDog = form.species === 'dog'
 
   const lifestyleAnswers = isDog
@@ -72,42 +68,42 @@ export function PetFields({
   return (
     <>
       <Segment
-        label="Вид"
+        label={t.petForm.species}
         clearable={false}
         options={[
-          { value: 'cat' as const, label: speciesLabels.cat },
-          { value: 'dog' as const, label: speciesLabels.dog },
+          { value: 'cat' as const, label: t.species.cat },
+          { value: 'dog' as const, label: t.species.dog },
         ]}
         value={form.species}
         onChange={(species) => onChange({ species: species ?? 'cat' })}
       />
 
       <Field
-        label="Имя *"
+        label={t.petForm.name}
         value={form.name}
         onChangeText={(name) => onChange({ name })}
         placeholder={hint.name}
       />
       <Field
-        label="Порода"
+        label={t.petForm.breed}
         value={form.breed}
         onChangeText={(breed) => onChange({ breed })}
         placeholder={hint.breed}
       />
       <Field
-        label={`Возраст (лет), до ${AGE_MAX}`}
+        label={t.petForm.age(AGE_MAX)}
         value={form.ageYears}
         onChangeText={(ageYears) => onChange({ ageYears })}
         keyboardType="numeric"
       />
       <Field
-        label={`Вес (кг), до ${WEIGHT_MAX}`}
+        label={t.petForm.weight(WEIGHT_MAX)}
         value={form.weightKg}
         onChangeText={(weightKg) => onChange({ weightKg })}
         keyboardType="numeric"
       />
       <Segment
-        label="Пол"
+        label={t.petForm.sex}
         options={[
           { value: 'male' as const, label: sex.male },
           { value: 'female' as const, label: sex.female },
@@ -117,58 +113,63 @@ export function PetFields({
       />
 
       <Accordion
-        title="Здоровье"
-        count={tally([
-          form.neutered,
-          form.vaccinated,
-          form.allergies,
-          form.chronicConditions,
-          form.medications,
-        ])}
+        title={t.petForm.health}
+        count={tally(
+          [
+            form.neutered,
+            form.vaccinated,
+            form.allergies,
+            form.chronicConditions,
+            form.medications,
+          ],
+          t.petForm.filledOf,
+        )}
       >
         <Tristate
-          label="Стерилизован(а)/кастрирован(а)"
+          label={t.petForm.neutered}
+          yes={t.petForm.yes}
+          no={t.petForm.no}
           value={form.neutered}
           onChange={(neutered) => onChange({ neutered })}
         />
         <Tristate
-          label="Вакцинация"
+          label={t.petForm.vaccinated}
           value={form.vaccinated}
           onChange={(vaccinated) => onChange({ vaccinated })}
-          yes="Привит(а)"
-          no="Нет"
+          yes={t.petForm.vaccinatedYes}
+          no={t.petForm.no}
         />
         <Field
-          label="Аллергии"
+          label={t.petForm.allergies}
           value={form.allergies}
           onChangeText={(allergies) => onChange({ allergies })}
-          placeholder="курица, рыба — через запятую"
+          placeholder={t.petForm.allergiesHint}
           autoCapitalize="none"
         />
         <Field
-          label="Хронические болезни"
+          label={t.petForm.chronic}
           value={form.chronicConditions}
           onChangeText={(chronicConditions) => onChange({ chronicConditions })}
           placeholder={hint.chronic}
         />
         <Field
-          label="Принимает препараты"
+          label={t.petForm.medications}
           value={form.medications}
           onChangeText={(medications) => onChange({ medications })}
           placeholder={hint.medications}
         />
       </Accordion>
 
-      <Accordion title="Образ жизни" count={tally(lifestyleAnswers)}>
+      <Accordion title={t.petForm.lifestyle} count={tally(lifestyleAnswers, t.petForm.filledOf)}>
         <Segment
-          label="Содержание"
-          options={PET_LIFESTYLES.map((value) => ({ value, label: lifestyleLabels[value] }))}
+          label={t.petForm.keeping}
+          options={PET_LIFESTYLES.map((value) => ({ value, label: t.lifestyle[value] }))}
           value={form.indoorOutdoor}
           onChange={(indoorOutdoor) => onChange({ indoorOutdoor })}
         />
         <Select
-          label="Питание"
-          options={PET_DIETS.map((value) => ({ value, label: dietLabels[value] }))}
+          label={t.petForm.diet}
+          options={PET_DIETS.map((value) => ({ value, label: t.diet[value] }))}
           value={form.diet}
           onChange={(diet) => onChange({ diet })}
         />
@@ -177,14 +178,14 @@ export function PetFields({
         {isDog ? (
           <>
             <Select
-              label="Размер"
-              options={PET_SIZE_CLASSES.map((value) => ({ value, label: sizeLabels[value] }))}
+              label={t.petForm.size}
+              options={PET_SIZE_CLASSES.map((value) => ({ value, label: t.size[value] }))}
               value={form.sizeClass}
               onChange={(sizeClass) => onChange({ sizeClass })}
             />
             <Select
-              label="Выгул"
-              options={PET_WALK_ACTIVITIES.map((value) => ({ value, label: walkLabels[value] }))}
+              label={t.petForm.walk}
+              options={PET_WALK_ACTIVITIES.map((value) => ({ value, label: t.walk[value] }))}
               value={form.walkActivity}
               onChange={(walkActivity) => onChange({ walkActivity })}
             />
@@ -192,9 +193,9 @@ export function PetFields({
         ) : null}
       </Accordion>
 
-      <Accordion title="Заметки" count={tally([form.notes])}>
+      <Accordion title={t.petForm.notes} count={tally([form.notes], t.petForm.filledOf)}>
         <Field
-          label="Заметки"
+          label={t.petForm.notes}
           value={form.notes}
           onChangeText={(notes) => onChange({ notes })}
           multiline

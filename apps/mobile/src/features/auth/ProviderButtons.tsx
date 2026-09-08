@@ -3,6 +3,7 @@ import { ActivityIndicator, Image, Pressable, StyleSheet, View } from 'react-nat
 import { SvgXml } from 'react-native-svg'
 import { useAuth } from '@/providers/AuthProvider'
 import type { ProviderId, ProviderOutcome } from '@/lib/provider-sign-in'
+import { useText } from '@/i18n'
 import { Text } from '@/ui/Text'
 import { YANDEX_ID_SVG } from '@/ui/yandex-id'
 import { TAP_TARGET, colour, font, provider, radius, type } from '@/ui/theme'
@@ -29,6 +30,7 @@ import { TAP_TARGET, colour, font, provider, radius, type } from '@/ui/theme'
  */
 export function ProviderButtons({ onOutcome }: { onOutcome: (outcome: ProviderOutcome) => void }) {
   const { signInWithProvider } = useAuth()
+  const t = useText()
   const [busy, setBusy] = useState<ProviderId | null>(null)
 
   async function start(provider: ProviderId) {
@@ -45,14 +47,14 @@ export function ProviderButtons({ onOutcome }: { onOutcome: (outcome: ProviderOu
       <View style={styles.divider}>
         <View style={styles.rule} />
         <Text variant="caption" tone="faint">
-          или войти с помощью
+          {t.auth.dividerProviders}
         </Text>
         <View style={styles.rule} />
       </View>
 
       <View style={styles.buttons}>
         <ProviderButton
-          label="Войти с Яндекс ID"
+          label={t.auth.yandex}
           colours={provider.yandex}
           icon={<SvgXml xml={YANDEX_ID_SVG} width={24} height={24} />}
           loading={busy === 'custom:yandex'}
@@ -60,7 +62,7 @@ export function ProviderButtons({ onOutcome }: { onOutcome: (outcome: ProviderOu
           onPress={() => start('custom:yandex')}
         />
         <ProviderButton
-          label="Продолжить с Google"
+          label={t.auth.google}
           colours={provider.google}
           face={font.google}
           icon={

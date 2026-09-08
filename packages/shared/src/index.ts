@@ -14,6 +14,7 @@ export function isSupportedLocale(value: string): value is SupportedLocale {
 }
 
 export * from './api-client'
+export * from './locale'
 
 /**
  * Normalises a database timestamp to UTC ISO 8601 with an offset, which is what

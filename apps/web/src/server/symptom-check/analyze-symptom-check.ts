@@ -1,7 +1,7 @@
 import 'server-only'
 
 import OpenAI from 'openai'
-import type { ErrorCode } from '@lapka/contracts'
+import type { ErrorCode, Locale } from '@lapka/contracts'
 import type { createServiceClient } from '@/server/supabase/server'
 import { loadAccount } from '@/server/auth/account-state'
 import { consumeRateLimit } from '@/server/api/rate-limit'
@@ -23,24 +23,9 @@ function openai(): OpenAI {
   return openaiClient
 }
 
-const SHARED_OUTPUT = `OUTPUT FORMAT (always valid JSON, no markdown). All text fields must be in Russian.
+import { DISCLAIMER, REASSURANCE, outputFormat } from './analysis-language'
 
-{
-  "urgency": "emergency|urgent|monitor|home_care|healthy",
-  "urgency_reason": "одно предложение почему",
-  "photo_observations": "что видно на фото, или null если фото нет",
-  "possible_causes": ["причина 1", "причина 2", "причина 3"],
-  "species_specific_warning": "видоспецифичное предупреждение или null",
-  "additional_pet_info_needed": ["какой информации о питомце не хватает для более точной оценки"],
-  "home_care_steps": ["шаг 1", "шаг 2"],
-  "vet_questions": ["вопрос 1", "вопрос 2"],
-  "disclaimer": "Лапка — информационный инструмент. Не является ветеринарным диагнозом и не заменяет осмотр специалиста."
-}
-
-CONTEXT FROM VET DATABASE:
-{context}`
-
-const CAT_SYSTEM_PROMPT = `You are a specialized feline health triage assistant.
+const catSystemPrompt = (locale: Locale) => `You are a specialized feline health triage assistant.
 You have deep knowledge of cat-specific diseases, physiology, and behavioral signs of illness.
 
 CRITICAL RULES:
@@ -60,13 +45,13 @@ HOME CARE: minor wounds, mild hairball, normal grooming changes
 HEALTHY (nothing to do): the described behavior is a normal feline trait or a one-off harmless event — e.g. seasonal shedding, purring while kneading, a single sneeze with no other signs, brief post-play panting, normal grooming, occasional zoomies. Use this ONLY when you are confident no action is needed and there are no red flags in the description, quick-assessment answers, photo, or cat profile. If there is any doubt, prefer MONITOR or HOME CARE.
 
 For HEALTHY:
-- home_care_steps should be empty or contain at most one short reassurance ("Продолжайте обычный уход").
+- home_care_steps should be empty or contain at most one short reassurance ("${REASSURANCE[locale]}").
 - vet_questions should be an empty array.
 - species_specific_warning should be null unless the breed/age genuinely changes the picture.
 
-${SHARED_OUTPUT}`
+${outputFormat(locale)}`
 
-const DOG_SYSTEM_PROMPT = `You are a specialized canine health triage assistant.
+const dogSystemPrompt = (locale: Locale) => `You are a specialized canine health triage assistant.
 You have deep knowledge of dog-specific diseases, physiology, and behavioral signs of illness.
 
 CRITICAL RULES:
@@ -86,14 +71,14 @@ HOME CARE: minor scrapes, mild itch after known allergen exposure without distre
 HEALTHY (nothing to do): the described behavior is a normal canine trait or a one-off harmless event — e.g. occasional zoomies, brief panting after exercise that resolves, one sneeze with no other signs, normal shedding. Use this ONLY when you are confident no action is needed and there are no red flags. If there is any doubt, prefer MONITOR or HOME CARE.
 
 For HEALTHY:
-- home_care_steps should be empty or contain at most one short reassurance ("Продолжайте обычный уход").
+- home_care_steps should be empty or contain at most one short reassurance ("${REASSURANCE[locale]}").
 - vet_questions should be an empty array.
 - species_specific_warning should be null unless the breed/age genuinely changes the picture.
 
-${SHARED_OUTPUT}`
+${outputFormat(locale)}`
 
-function systemPromptForSpecies(species: PetSpecies): string {
-  return species === 'dog' ? DOG_SYSTEM_PROMPT : CAT_SYSTEM_PROMPT
+function systemPromptForSpecies(species: PetSpecies, locale: Locale): string {
+  return species === 'dog' ? dogSystemPrompt(locale) : catSystemPrompt(locale)
 }
 
 async function getVetContext(
@@ -141,7 +126,7 @@ function pickStringArray(r: Record<string, unknown>, ...keys: string[]): string[
   return []
 }
 
-function validateAIResponse(raw: unknown): SymptomCheckResult {
+function validateAIResponse(raw: unknown, locale: Locale): SymptomCheckResult {
   if (typeof raw !== 'object' || raw === null) throw new Error('AI response is not an object')
   const r = raw as Record<string, unknown>
   if (!VALID_URGENCY.includes(r.urgency as Urgency)) throw new Error(`Invalid urgency: ${r.urgency}`)
@@ -154,7 +139,7 @@ function validateAIResponse(raw: unknown): SymptomCheckResult {
     additional_pet_info_needed: pickStringArray(r, 'additional_pet_info_needed', 'additional_cat_info_needed'),
     home_care_steps: Array.isArray(r.home_care_steps) ? r.home_care_steps as string[] : [],
     vet_questions: Array.isArray(r.vet_questions) ? r.vet_questions as string[] : [],
-    disclaimer: String(r.disclaimer ?? 'Лапка — информационный инструмент. Не является ветеринарным диагнозом и не заменяет осмотр специалиста.'),
+    disclaimer: String(r.disclaimer ?? DISCLAIMER[locale]),
   }
 }
 
@@ -250,6 +235,11 @@ export async function analyzeSymptomCheck(
         : { ok: false, code: 'insufficient_credits', message: 'Not enough credits / Недостаточно credits.' }
     }
 
+    // The language the answer must be written in. Already on the account, so
+    // no caller has to remember to pass it — and no caller can pass a
+    // different one than the person actually chose.
+    const locale = account.account.locale
+
     if (account.account.credits <= 0) {
       return {
         ok: false,
@@ -315,7 +305,7 @@ export async function analyzeSymptomCheck(
 
     // RAG search filtered by species
     const vetContext = await getVetContext(supabase, input.symptoms, species)
-    const systemPrompt = systemPromptForSpecies(species).replace('{context}', vetContext)
+    const systemPrompt = systemPromptForSpecies(species, locale).replace('{context}', vetContext)
 
     // Build user message — with or without photo
     type ContentPart =
@@ -369,7 +359,7 @@ export async function analyzeSymptomCheck(
     } catch {
       throw new Error('AI returned invalid JSON')
     }
-    const result = validateAIResponse(parsed)
+    const result = validateAIResponse(parsed, locale)
 
     // Save check first so the ledger entry can reference it.
     const { data: check, error: checkError } = await supabase
@@ -384,6 +374,10 @@ export async function analyzeSymptomCheck(
         species_specific_warning: result.species_specific_warning,
         home_care_steps: result.home_care_steps,
         vet_questions: result.vet_questions,
+        // The language these words are in, kept with them: the account's
+        // language may change afterwards, and a result must not be relabelled
+        // in a language it was never written in.
+        locale,
         full_response: { ...result, ...quickAssessment, photo_count: input.photos.length },
       })
       .select('id')

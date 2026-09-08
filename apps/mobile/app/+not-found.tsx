@@ -1,4 +1,5 @@
 import { router } from 'expo-router'
+import { useText } from '@/i18n'
 import { Button } from '@/ui/Button'
 import { Banner } from '@/ui/Card'
 import { Screen } from '@/ui/Screen'
@@ -15,10 +16,11 @@ import { Screen } from '@/ui/Screen'
  * is nothing a person can do with it anyway.
  */
 export default function NotFound() {
+  const t = useText()
   return (
-    <Screen title="Страница не найдена">
-      <Banner text="Ссылка не открывается. Возможно, она устарела или потерялась по дороге." />
-      <Button title="На главную" onPress={() => router.replace('/')} />
+    <Screen title={t.notFound.title}>
+      <Banner text={t.notFound.body} />
+      <Button title={t.notFound.home} onPress={() => router.replace('/')} />
     </Screen>
   )
 }

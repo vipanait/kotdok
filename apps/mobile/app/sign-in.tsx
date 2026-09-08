@@ -6,6 +6,7 @@ import {
   type ProviderNotice,
 } from '@/features/auth/provider-notice'
 import { errorMessage } from '@/lib/errors'
+import { useText } from '@/i18n'
 import { AuthShell, authFieldSpacing } from '@/features/auth/AuthShell'
 import { ProviderButtons } from '@/features/auth/ProviderButtons'
 import { Button, LinkButton, LinkRow } from '@/ui/Button'
@@ -15,6 +16,7 @@ import { Field } from '@/ui/Field'
 export default function SignIn() {
   const { session, signIn, notice, dismissNotice } = useAuth()
   const params = useLocalSearchParams<{ notice?: string }>()
+  const t = useText()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -32,7 +34,7 @@ export default function SignIn() {
     } catch (cause) {
       // The reason is kept rather than flattened: a wrong password and an
       // unconfirmed address need different actions from the user.
-      setError(errorMessage(cause, 'Не удалось войти'))
+      setError(errorMessage(t, cause, t.errors.signInFailed))
     } finally {
       setBusy(false)
     }
@@ -41,21 +43,21 @@ export default function SignIn() {
   const message = notice ?? params.notice
 
   return (
-    <AuthShell title="Вход">
+    <AuthShell title={t.auth.signInTitle}>
       {message ? <Banner text={message} /> : null}
 
       <Field
-        label="Почта"
+        label={t.auth.email}
         value={email}
         onChangeText={setEmail}
-        placeholder="anna@example.com"
+        placeholder={t.auth.emailPlaceholder}
         autoCapitalize="none"
         autoComplete="email"
         keyboardType="email-address"
         style={authFieldSpacing}
       />
       <Field
-        label="Пароль"
+        label={t.auth.password}
         value={password}
         onChangeText={setPassword}
         secureTextEntry
@@ -66,11 +68,11 @@ export default function SignIn() {
 
       {error ? <Banner text={error} tone="error" /> : null}
 
-      <Button title="Войти" onPress={submit} busy={busy} />
+      <Button title={t.auth.signIn} onPress={submit} busy={busy} />
 
       <LinkRow>
-        <LinkButton title="Создать аккаунт" onPress={() => router.push('/sign-up')} />
-        <LinkButton title="Забыли пароль?" onPress={() => router.push('/forgot-password')} />
+        <LinkButton title={t.auth.createAccount} onPress={() => router.push('/sign-up')} />
+        <LinkButton title={t.auth.forgotPassword} onPress={() => router.push('/forgot-password')} />
       </LinkRow>
 
       {providerNotice ? (

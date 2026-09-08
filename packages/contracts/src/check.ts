@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { IsoDateTimeSchema, PetSpeciesSchema, UrgencySchema, UuidSchema } from './primitives'
+import { IsoDateTimeSchema, LocaleSchema, PetSpeciesSchema, UrgencySchema, UuidSchema } from './primitives'
 
 /**
  * A stored symptom check as history and the result screen show it.
@@ -20,6 +20,11 @@ export const SymptomCheckRecordSchema = z.strictObject({
   /** Raw model output plus the quick-assessment answers; shape varies by version. */
   full_response: z.record(z.string(), z.unknown()).nullable(),
   created_at: IsoDateTimeSchema,
+  /**
+   * The language the analysis was written in, which is not always the language
+   * the reader has set now: the account's choice can change after the fact.
+   */
+  locale: LocaleSchema,
   pet_id: UuidSchema.nullable(),
   pet_name: z.string().nullable(),
   pet_species: PetSpeciesSchema.nullable(),
