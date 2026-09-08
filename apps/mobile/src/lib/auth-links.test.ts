@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { APP_SCHEME, authRedirectUrl, parseAuthLink } from './auth-links'
+import {
+  APP_SCHEME,
+  PROVIDER_RETURN_URL,
+  authRedirectUrl,
+  parseAuthLink,
+  parseProviderReturn,
+} from './auth-links'
 
 describe('links that come back into the app', () => {
   it('reads an email confirmation', () => {
@@ -76,5 +82,35 @@ describe('links that come back into the app', () => {
   it('builds its own redirect rather than accepting one', () => {
     expect(authRedirectUrl('verify')).toBe(`${APP_SCHEME}://auth/callback`)
     expect(authRedirectUrl('recover')).toBe(`${APP_SCHEME}://auth/recover`)
+  })
+})
+
+describe('what a provider sends back', () => {
+  it('reads the code out of the return address', () => {
+    expect(parseProviderReturn(`${PROVIDER_RETURN_URL}?code=abc123`)).toEqual({
+      kind: 'code',
+      code: 'abc123',
+    })
+  })
+
+  it('reads the provider’s refusal instead of a code', () => {
+    expect(
+      parseProviderReturn(`${PROVIDER_RETURN_URL}?error=access_denied&error_description=Denied`),
+    ).toEqual({ kind: 'error', code: 'access_denied', description: 'Denied' })
+  })
+
+  it.each([
+    ['a web address wearing our path', 'https://evil.example.com/auth/provider?code=abc'],
+    ['the path the emails use', `${APP_SCHEME}://auth/callback?code=abc`],
+    ['our path with nothing on it', PROVIDER_RETURN_URL],
+    ['nonsense', 'not a url'],
+  ])('ignores %s', (_name, link) => {
+    expect(parseProviderReturn(link)).toBeNull()
+  })
+
+  it('is not mistaken for a link from an email', () => {
+    // The two paths are separate so that Android's second delivery of the same
+    // link cannot spend the authorization code a second time.
+    expect(parseAuthLink(`${PROVIDER_RETURN_URL}?code=abc123`)).toBeNull()
   })
 })
