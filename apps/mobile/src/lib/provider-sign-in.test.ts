@@ -34,16 +34,19 @@ describe('signing in with a provider', () => {
     await expect(createProviderSignIn(d)('google')).resolves.toEqual({ kind: 'cancelled' })
   })
 
-  it('fails when the provider refuses', async () => {
+  it('fails when the provider refuses, and hands the reason to the log', async () => {
+    const reportRefusal = vi.fn()
     const d = deps({
       openBrowser: vi.fn(async () => ({
         type: 'success',
         url: `${PROVIDER_RETURN_URL}?error=access_denied&error_description=Denied`,
       })),
+      reportRefusal,
     })
 
     expect((await createProviderSignIn(d)('google')).kind).toBe('failed')
     expect(d.exchangeCode).not.toHaveBeenCalled()
+    expect(reportRefusal).toHaveBeenCalledWith('access_denied', 'Denied')
   })
 
   it('never exchanges a code that came back to somebody else’s address', async () => {

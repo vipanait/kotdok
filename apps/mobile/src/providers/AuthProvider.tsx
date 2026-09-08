@@ -32,6 +32,11 @@ const signInWithProvider = createProviderSignIn({
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     return { error }
   },
+  reportRefusal(code, description) {
+    // Development only: on a phone there is no other place to read what the
+    // provider objected to, and the user's banner deliberately does not say.
+    if (__DEV__) console.warn(`Provider refused the sign-in: ${code}`, description)
+  },
 })
 
 type AuthState = {
