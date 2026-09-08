@@ -44,8 +44,8 @@
       "id": "05",
       "name": "Питомцы · пусто",
       "ref": "6.7",
-      "contentHeight": 634,
-      "viewportHeight": 634,
+      "contentHeight": 622,
+      "viewportHeight": 622,
       "widthOverflow": false,
       "fonts": true,
       "images": true
@@ -54,8 +54,8 @@
       "id": "06",
       "name": "Питомцы · список",
       "ref": "6.8",
-      "contentHeight": 550,
-      "viewportHeight": 550,
+      "contentHeight": 538,
+      "viewportHeight": 538,
       "widthOverflow": false,
       "fonts": true,
       "images": true
@@ -65,7 +65,7 @@
       "name": "Новый питомец · кот",
       "ref": "6.9",
       "contentHeight": 775,
-      "viewportHeight": 502,
+      "viewportHeight": 490,
       "widthOverflow": false,
       "fonts": true,
       "images": true
@@ -75,7 +75,7 @@
       "name": "Питомец · собака",
       "ref": "6.10",
       "contentHeight": 1389,
-      "viewportHeight": 550,
+      "viewportHeight": 538,
       "widthOverflow": false,
       "fonts": true,
       "images": true
@@ -84,8 +84,8 @@
       "id": "09",
       "name": "Проверка · шаг 1",
       "ref": "6.12",
-      "contentHeight": 510,
-      "viewportHeight": 510,
+      "contentHeight": 498,
+      "viewportHeight": 498,
       "widthOverflow": false,
       "fonts": true,
       "images": true
@@ -95,7 +95,7 @@
       "name": "Проверка · шаг 2",
       "ref": "6.13",
       "contentHeight": 938,
-      "viewportHeight": 510,
+      "viewportHeight": 498,
       "widthOverflow": false,
       "fonts": true,
       "images": true
@@ -115,7 +115,7 @@
       "name": "Результат · экстренно",
       "ref": "6.15",
       "contentHeight": 982,
-      "viewportHeight": 626,
+      "viewportHeight": 614,
       "widthOverflow": false,
       "fonts": true,
       "images": true
@@ -125,7 +125,7 @@
       "name": "Результат · наблюдаем",
       "ref": "6.15",
       "contentHeight": 896,
-      "viewportHeight": 626,
+      "viewportHeight": 614,
       "widthOverflow": false,
       "fonts": true,
       "images": true
@@ -135,7 +135,7 @@
       "name": "Удаление питомца",
       "ref": "6.11",
       "contentHeight": 775,
-      "viewportHeight": 626,
+      "viewportHeight": 614,
       "widthOverflow": false,
       "fonts": true,
       "images": true
@@ -145,7 +145,7 @@
       "name": "Шторка · питание",
       "ref": "4.5",
       "contentHeight": 1185,
-      "viewportHeight": 502,
+      "viewportHeight": 490,
       "widthOverflow": false,
       "fonts": true,
       "images": true
@@ -154,8 +154,8 @@
       "id": "16",
       "name": "История · заполнена",
       "ref": "6.17",
-      "contentHeight": 626,
-      "viewportHeight": 626,
+      "contentHeight": 614,
+      "viewportHeight": 614,
       "widthOverflow": false,
       "fonts": true,
       "images": true
@@ -164,8 +164,8 @@
       "id": "17",
       "name": "История · пусто",
       "ref": "6.17",
-      "contentHeight": 626,
-      "viewportHeight": 626,
+      "contentHeight": 614,
+      "viewportHeight": 614,
       "widthOverflow": false,
       "fonts": true,
       "images": true
@@ -174,8 +174,8 @@
       "id": "18",
       "name": "Профиль · баланс",
       "ref": "6.18",
-      "contentHeight": 526,
-      "viewportHeight": 526,
+      "contentHeight": 514,
+      "viewportHeight": 514,
       "widthOverflow": false,
       "fonts": true,
       "images": true
@@ -184,8 +184,8 @@
       "id": "19",
       "name": "Профиль · нулевой баланс",
       "ref": "6.18",
-      "contentHeight": 526,
-      "viewportHeight": 526,
+      "contentHeight": 514,
+      "viewportHeight": 514,
       "widthOverflow": false,
       "fonts": true,
       "images": true
@@ -194,8 +194,8 @@
       "id": "20",
       "name": "Дополнительная проверка",
       "ref": "6.19",
-      "contentHeight": 586,
-      "viewportHeight": 586,
+      "contentHeight": 574,
+      "viewportHeight": 574,
       "widthOverflow": false,
       "fonts": true,
       "images": true
@@ -214,8 +214,8 @@
       "id": "22",
       "name": "Питомцы · нет сети",
       "ref": "7",
-      "contentHeight": 550,
-      "viewportHeight": 550,
+      "contentHeight": 538,
+      "viewportHeight": 538,
       "widthOverflow": false,
       "fonts": true,
       "images": true
@@ -264,8 +264,8 @@
       "id": "27",
       "name": "Запрос · ожидает",
       "ref": "6.19",
-      "contentHeight": 586,
-      "viewportHeight": 586,
+      "contentHeight": 574,
+      "viewportHeight": 574,
       "widthOverflow": false,
       "fonts": true,
       "images": true
@@ -274,8 +274,8 @@
       "id": "28",
       "name": "Запрос · одобрен",
       "ref": "6.19",
-      "contentHeight": 586,
-      "viewportHeight": 586,
+      "contentHeight": 574,
+      "viewportHeight": 574,
       "widthOverflow": false,
       "fonts": true,
       "images": true
@@ -284,8 +284,8 @@
       "id": "29",
       "name": "Запрос · отклонён",
       "ref": "6.19",
-      "contentHeight": 586,
-      "viewportHeight": 586,
+      "contentHeight": 574,
+      "viewportHeight": 574,
       "widthOverflow": false,
       "fonts": true,
       "images": true
@@ -295,7 +295,7 @@
       "name": "Отзыв · раскрыт",
       "ref": "6.16",
       "contentHeight": 1072,
-      "viewportHeight": 626,
+      "viewportHeight": 614,
       "widthOverflow": false,
       "fonts": true,
       "images": true
@@ -305,7 +305,7 @@
       "name": "Отзыв · отправлен",
       "ref": "6.16",
       "contentHeight": 840,
-      "viewportHeight": 626,
+      "viewportHeight": 614,
       "widthOverflow": false,
       "fonts": true,
       "images": true
@@ -315,7 +315,7 @@
       "name": "Питомец · Мурка",
       "ref": "6.10",
       "contentHeight": 979,
-      "viewportHeight": 550,
+      "viewportHeight": 538,
       "widthOverflow": false,
       "fonts": true,
       "images": true
@@ -324,8 +324,8 @@
       "id": "33",
       "name": "История питомца",
       "ref": "6.17",
-      "contentHeight": 626,
-      "viewportHeight": 626,
+      "contentHeight": 614,
+      "viewportHeight": 614,
       "widthOverflow": false,
       "fonts": true,
       "images": true
@@ -334,8 +334,8 @@
       "id": "34",
       "name": "Питомцы · загрузка",
       "ref": "7",
-      "contentHeight": 626,
-      "viewportHeight": 626,
+      "contentHeight": 614,
+      "viewportHeight": 614,
       "widthOverflow": false,
       "fonts": true,
       "images": true
@@ -364,8 +364,8 @@
       "id": "37",
       "name": "Шторка · язык",
       "ref": "6.18",
-      "contentHeight": 526,
-      "viewportHeight": 526,
+      "contentHeight": 514,
+      "viewportHeight": 514,
       "widthOverflow": false,
       "fonts": true,
       "images": true
@@ -375,7 +375,7 @@
       "name": "Шторка · размер",
       "ref": "4.5",
       "contentHeight": 1185,
-      "viewportHeight": 502,
+      "viewportHeight": 490,
       "widthOverflow": false,
       "fonts": true,
       "images": true
@@ -385,7 +385,7 @@
       "name": "Шторка · выгул",
       "ref": "4.5",
       "contentHeight": 1185,
-      "viewportHeight": 502,
+      "viewportHeight": 490,
       "widthOverflow": false,
       "fonts": true,
       "images": true
@@ -395,7 +395,7 @@
       "name": "Шторка · стул",
       "ref": "4.5",
       "contentHeight": 938,
-      "viewportHeight": 510,
+      "viewportHeight": 498,
       "widthOverflow": false,
       "fonts": true,
       "images": true
@@ -405,7 +405,7 @@
       "name": "Фото · будущий этап",
       "ref": "6.20",
       "contentHeight": 600,
-      "viewportHeight": 510,
+      "viewportHeight": 498,
       "widthOverflow": false,
       "fonts": true,
       "images": true
@@ -414,8 +414,8 @@
       "id": "42",
       "name": "Описание · ошибка",
       "ref": "6.12",
-      "contentHeight": 510,
-      "viewportHeight": 510,
+      "contentHeight": 498,
+      "viewportHeight": 498,
       "widthOverflow": false,
       "fonts": true,
       "images": true

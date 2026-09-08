@@ -95,7 +95,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     paddingHorizontal: space.gutter,
-    paddingTop: 12,
+    // The concept puts 12 here, measured against a drawn status bar. A real
+    // iPhone's island is taller than the drawing, so the same 12 reads as the
+    // title crowding it.
+    paddingTop: 24,
     paddingBottom: space.block,
   },
   // The arrow's 44 pt target overhangs the gutter so the glyph inside it, and
