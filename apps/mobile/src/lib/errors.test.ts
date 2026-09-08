@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { ApiError } from '@lapka/shared'
+import { ApiError, ApiTimeoutError } from '@lapka/shared'
 import { AppError, errorMessage } from './errors'
 
 describe('error messages', () => {
@@ -20,6 +20,12 @@ describe('error messages', () => {
     const cause = new AppError('Не хватает проверок на балансе', 'insufficient_credits')
     expect(errorMessage(cause, 'Не удалось отправить проверку')).toBe(
       'Не хватает проверок на балансе',
+    )
+  })
+
+  it('says a stalled server is not the same as no connection', () => {
+    expect(errorMessage(new ApiTimeoutError('/pets', 30_000), 'Нет связи с сервером')).toBe(
+      'Сервер не ответил. Попробуйте ещё раз',
     )
   })
 
