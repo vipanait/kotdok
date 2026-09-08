@@ -52,6 +52,12 @@ export const font = {
   /** Headings. Softer than the body face, which is the point. */
   display: 'Nunito',
   body: 'Manrope',
+  /**
+   * Google's own face, used on Google's own button and nowhere else. Their
+   * branding guidelines ask for it; the concept records that as a deliberate
+   * exception to the two faces above.
+   */
+  google: 'GoogleSans',
 } as const
 
 export const type = {
@@ -65,8 +71,22 @@ export const type = {
   caption: { fontFamily: font.body, fontSize: 12, lineHeight: 16, fontWeight: '400' },
   segment: { fontFamily: font.body, fontSize: 13, lineHeight: 18, fontWeight: '500' },
   tab: { fontFamily: font.body, fontSize: 11, lineHeight: 14, fontWeight: '500' },
+  tagline: { fontFamily: font.body, fontSize: 17, lineHeight: 24, fontWeight: '600' },
+  provider: { fontFamily: font.body, fontSize: 14, lineHeight: 20, fontWeight: '500' },
   urgencyTitle: { fontFamily: font.display, fontSize: 28, lineHeight: 32, fontWeight: '800' },
   balance: { fontFamily: font.display, fontSize: 48, lineHeight: 56, fontWeight: '700' },
+} as const
+
+/**
+ * Sign-in providers own their marks and the buttons around them.
+ *
+ * These are not Lapka's palette and must not be nudged towards it — a
+ * recoloured Google button is a breach of their guidelines, not a refinement.
+ * Sources and rules: `assets/provider-sources.md` in the design concept.
+ */
+export const provider = {
+  google: { background: '#FFFFFF', border: '#747775', text: '#1F1F1F' },
+  yandex: { background: '#FFFFFF', border: '#B3B3B3', text: '#000000' },
 } as const
 
 export const radius = {
