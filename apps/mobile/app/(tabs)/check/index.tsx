@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { ActivityIndicator, Image, StyleSheet, View } from 'react-native'
-import { router } from 'expo-router'
+import { ActivityIndicator, AppState, Image, StyleSheet, View } from 'react-native'
+import { router, useFocusEffect } from 'expo-router'
 import {
   ACTIVITY_VALUES,
   APPETITE_VALUES,
@@ -11,6 +11,15 @@ import {
 } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
 import { AppError, errorMessage } from '@/lib/errors'
+import { useAuth } from '@/providers/AuthProvider'
+import { draftStorage } from '@/lib/supabase'
+import {
+  DRAFT_KEY,
+  isWorthKeeping,
+  parseDraft,
+  serialiseDraft,
+  type CheckDraft,
+} from '@/features/checks/check-draft'
 import {
   activityLabels,
   appetiteLabels,
@@ -48,6 +57,59 @@ export default function NewCheck() {
     null,
   )
   const [waiting, setWaiting] = useState(false)
+  const { session } = useAuth()
+  const userId = session?.user.id ?? null
+
+  /**
+   * The draft, read once and written back at the moments a phone can take the
+   * app away: leaving the screen, and going to the background. Writing on every
+   * keystroke would put the keychain in the typing path for no gain.
+   */
+  const latest = useRef<CheckDraft>({ form, step })
+  latest.current = { form, step }
+
+  const keepDraft = useCallback(async () => {
+    if (!userId) return
+    const { form: current, step: at } = latest.current
+
+    if (!isWorthKeeping(current)) {
+      await draftStorage.removeItem(DRAFT_KEY)
+      return
+    }
+    await draftStorage.setItem(DRAFT_KEY, serialiseDraft(userId, { form: current, step: at }))
+  }, [userId])
+
+  const forgetDraft = useCallback(async () => {
+    await draftStorage.removeItem(DRAFT_KEY)
+  }, [])
+
+  // Restored once per account. A draft belonging to whoever used the phone
+  // before is refused inside `parseDraft`, not here.
+  const restored = useRef(false)
+  useEffect(() => {
+    if (!userId || restored.current) return
+    restored.current = true
+
+    void draftStorage.getItem(DRAFT_KEY).then((raw) => {
+      const draft = parseDraft(raw, userId)
+      if (!draft) return
+      setForm(draft.form)
+      setStep(draft.step)
+    })
+  }, [userId])
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state !== 'active') void keepDraft()
+    })
+    return () => subscription.remove()
+  }, [keepDraft])
+
+  useFocusEffect(
+    useCallback(() => () => {
+      void keepDraft()
+    }, [keepDraft]),
+  )
 
   // Kept across renders so a retry after a lost answer reuses the same key and
   // is not charged a second time.
@@ -75,9 +137,14 @@ export default function NewCheck() {
       setPets(list)
       // The check is about one animal; starting on the first one saves a tap
       // for the many people who own exactly one.
-      setForm((current) =>
-        current.petId === null && list.length > 0 ? { ...current, petId: list[0].id } : current,
-      )
+      setForm((current) => {
+        // A draft can name a pet that has since been deleted, on this phone or
+        // another. Falling back to the first keeps the form usable instead of
+        // failing at the very end on a pet the server no longer knows.
+        const stillThere = list.some((pet) => pet.id === current.petId)
+        if (stillThere || list.length === 0) return current
+        return { ...current, petId: list[0].id }
+      })
     } catch (cause) {
       // Deliberately not an empty list: "add a pet first" would be a lie when
       // the pets exist and the network does not.
@@ -143,6 +210,8 @@ export default function NewCheck() {
     setFailure(null)
     try {
       const accepted = await withFreshSession((api) => api.createCheck(key.current!, input.value))
+      // Sent and charged: keeping it now would offer to send it a second time.
+      await forgetDraft()
       await waitForResult(accepted.job_id)
     } catch (cause) {
       if (!onScreen.current) return
