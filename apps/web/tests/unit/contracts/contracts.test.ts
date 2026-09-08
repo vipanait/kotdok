@@ -114,6 +114,7 @@ describe('symptom check contracts', () => {
     vet_questions: ['when did it start?'],
     full_response: {},
     created_at: '2026-05-01T10:00:00.000Z',
+    locale: 'ru',
     pet_id: '11111111-1111-4111-8111-000000000002',
     pet_name: 'Рекс',
     pet_species: 'dog',

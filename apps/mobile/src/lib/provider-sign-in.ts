@@ -47,14 +47,26 @@ export type ProviderSignInDeps = {
  * written for developers, arrives in whatever language the provider chose, and
  * occasionally names internals that are none of the user's business.
  */
-const FAILED_TO_START = 'Не удалось начать вход. Попробуйте ещё раз.'
-const FAILED_TO_FINISH = 'Не удалось завершить вход. Попробуйте ещё раз.'
-const PROVIDER_REFUSED = 'Провайдер не подтвердил вход.'
+/**
+ * What went wrong, in the reader's language.
+ *
+ * Passed in rather than kept here: this module has no React and therefore no
+ * dictionary of its own, and a sign-in screen that speaks English should not
+ * apologise in Russian.
+ */
+export type ProviderMessages = {
+  failedToStart: string
+  failedToFinish: string
+  refused: string
+}
 
 export function createProviderSignIn(deps: ProviderSignInDeps) {
-  return async function signInWithProvider(provider: ProviderId): Promise<ProviderOutcome> {
+  return async function signInWithProvider(
+    provider: ProviderId,
+    messages: ProviderMessages,
+  ): Promise<ProviderOutcome> {
     const started = await deps.authorize(provider, PROVIDER_RETURN_URL)
-    if (started.error || !started.url) return { kind: 'failed', message: FAILED_TO_START }
+    if (started.error || !started.url) return { kind: 'failed', message: messages.failedToStart }
 
     const returned = await deps.openBrowser(started.url, PROVIDER_RETURN_URL)
     // Anything but an address means the browser closed without an answer.
@@ -62,14 +74,14 @@ export function createProviderSignIn(deps: ProviderSignInDeps) {
 
     const parsed = parseProviderReturn(returned.url)
     // Null is an address that is not ours: whatever it carries is not a code.
-    if (!parsed) return { kind: 'failed', message: FAILED_TO_FINISH }
+    if (!parsed) return { kind: 'failed', message: messages.failedToFinish }
     if (parsed.kind === 'error') {
       deps.reportRefusal?.(parsed.code, parsed.description)
-      return { kind: 'failed', message: PROVIDER_REFUSED }
+      return { kind: 'failed', message: messages.refused }
     }
 
     const exchanged = await deps.exchangeCode(parsed.code)
-    if (exchanged.error) return { kind: 'failed', message: FAILED_TO_FINISH }
+    if (exchanged.error) return { kind: 'failed', message: messages.failedToFinish }
 
     return { kind: 'session' }
   }

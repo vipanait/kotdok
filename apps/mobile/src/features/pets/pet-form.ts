@@ -7,6 +7,7 @@
  * where they become numbers, lists and nulls — or a named complaint.
  */
 
+import type { Dictionary } from '@/i18n'
 import {
   PET_DIETS,
   PET_LIFESTYLES,
@@ -124,18 +125,18 @@ export type FormResult =
  * contract rejects them outright, and a person who once filled them in for a
  * dog should not be blocked by a value they can no longer see.
  */
-export function formToInput(form: PetForm): FormResult {
+export function formToInput(t: Dictionary, form: PetForm): FormResult {
   const name = form.name.trim()
-  if (name === '') return { ok: false, field: 'name', message: 'Введите имя питомца' }
+  if (name === '') return { ok: false, field: 'name', message: t.validation.nameRequired }
 
   const age = parseOptionalNumber(form.ageYears, AGE_MAX)
   if (!age.ok) {
-    return { ok: false, field: 'ageYears', message: `Возраст — число от 0 до ${AGE_MAX}` }
+    return { ok: false, field: 'ageYears', message: t.validation.ageRange(AGE_MAX) }
   }
 
   const weight = parseOptionalNumber(form.weightKg, WEIGHT_MAX)
   if (!weight.ok) {
-    return { ok: false, field: 'weightKg', message: `Вес — число от 0 до ${WEIGHT_MAX}` }
+    return { ok: false, field: 'weightKg', message: t.validation.weightRange(WEIGHT_MAX) }
   }
 
   const isDog = form.species === 'dog'

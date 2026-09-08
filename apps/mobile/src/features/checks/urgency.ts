@@ -1,44 +1,31 @@
 import type { URGENCY_LEVELS } from '@lapka/contracts'
+import type { Dictionary } from '@/i18n'
 import type { IconName } from '@/ui/Icon'
 
 export type UrgencyLevel = (typeof URGENCY_LEVELS)[number]
 
 /**
- * Urgency said three ways: a word, an action, and a glyph.
+ * The glyph each level wears. Language-independent, unlike the words.
  *
- * Colour alone would not be an answer. Someone who cannot tell the red card
- * from the amber one still has to learn whether to drive to a clinic tonight,
- * so the level always arrives as words first — the colour only agrees with it.
- *
- * Wording is the concept's, `levels` in screens.js.
+ * Urgency is said three ways: a word, an action, and this. Colour alone would
+ * not be an answer — someone who cannot tell the red card from the amber one
+ * still has to learn whether to drive to a clinic tonight.
  */
-export const urgencyText: Record<
-  UrgencyLevel,
-  { label: string; action: string; icon: IconName }
-> = {
-  emergency: {
-    label: 'ЭКСТРЕННО',
-    action: 'Немедленно в ветеринарную клинику',
-    icon: 'alert',
-  },
-  urgent: {
-    label: 'СРОЧНО',
-    action: 'К ветеринару в течение 24 часов',
-    icon: 'alert',
-  },
-  monitor: {
-    label: 'НАБЛЮДАЕМ',
-    action: 'Наблюдайте 48 часов, при ухудшении — к врачу',
-    icon: 'clock',
-  },
-  home_care: {
-    label: 'ДОМАШНИЙ УХОД',
-    action: 'Можно лечить дома',
-    icon: 'home',
-  },
-  healthy: {
-    label: 'ВСЁ В ПОРЯДКЕ',
-    action: 'Ничего делать не нужно',
-    icon: 'check',
-  },
+const ICONS: Record<UrgencyLevel, IconName> = {
+  emergency: 'alert',
+  urgent: 'alert',
+  monitor: 'clock',
+  home_care: 'home',
+  healthy: 'check',
+}
+
+/**
+ * @param t the words for the language the *analysis* was written in, which is
+ * not always the language the reader has set now.
+ */
+export function urgencyText(
+  t: Dictionary,
+  level: UrgencyLevel,
+): { label: string; action: string; icon: IconName } {
+  return { ...t.urgency[level], icon: ICONS[level] }
 }

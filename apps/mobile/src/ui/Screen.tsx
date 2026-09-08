@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { useText } from '@/i18n'
 import { IconButton } from './Button'
 import { CONTROL_FONT_LIMIT, Text } from './Text'
 import type { IconName } from './Icon'
@@ -42,10 +43,12 @@ export function Screen({
   scroll?: boolean
   centered?: boolean
 }) {
+  const t = useText()
+
   const heading = title ? (
     <View style={[styles.header, styles.column]}>
       {onBack ? (
-        <IconButton icon="back" label="Назад" onPress={onBack} style={styles.back} />
+        <IconButton icon="back" label={t.common.back} onPress={onBack} style={styles.back} />
       ) : null}
       {/* Two lines and a ceiling. One line turned "Проверка симптомов" into
           "Пров…" at the largest accessibility size; no ceiling turned it into

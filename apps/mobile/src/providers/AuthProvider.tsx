@@ -5,6 +5,7 @@ import { draftStorage, sessionStorage, setSessionWriteFailureHandler, supabase }
 import { setSessionLostHandler } from '@/lib/api'
 import { authRedirectUrl } from '@/lib/auth-links'
 import { deviceLocale } from '@/lib/device-locale'
+import { useText } from '@/i18n'
 import {
   createProviderSignIn,
   type ProviderId,
@@ -74,6 +75,7 @@ export function useAuth(): AuthState {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const t = useText()
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
   const [notice, setNotice] = useState<string | null>(null)
@@ -97,10 +99,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // A session that cannot be written down disappears on the next launch. Ending
     // it now, with an explanation, beats letting the user discover that later.
     setSessionWriteFailureHandler(() => {
-      void endSession('Не удалось сохранить вход на этом устройстве. Войдите ещё раз.')
+      void endSession(t.session.notSaved)
     })
-    setSessionLostHandler(() => endSession('Сессия истекла. Войдите ещё раз.'))
-  }, [endSession])
+    setSessionLostHandler(() => endSession(t.session.expired))
+  }, [endSession, t])
 
   useEffect(() => {
     let active = true
@@ -133,7 +135,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (error) throw error
       },
 
-      signInWithProvider,
+      // The words come from here, where the interface's language is known;
+      // the module that runs the exchange has no dictionary of its own.
+      signInWithProvider: (provider) => signInWithProvider(provider, t.provider),
 
       async signUp(email, password) {
         const { data, error } = await supabase.auth.signUp({
@@ -163,7 +167,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       signOut: () => endSession(null),
     }),
-    [session, loading, notice, endSession],
+    [session, loading, notice, endSession, t],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

@@ -17,6 +17,7 @@ const CHECK_SELECT = `
   vet_questions,
   full_response,
   created_at,
+  locale,
   pet_id,
   pets ( name, species )
 `
@@ -34,6 +35,7 @@ type CheckRow = {
   vet_questions: unknown
   full_response: Record<string, unknown> | null
   created_at: string
+  locale: string
   pet_id: string | null
   pets?: PetJoin | PetJoin[]
 }
@@ -79,6 +81,10 @@ export function mapSymptomCheckRow(row: CheckRow): SymptomCheckRecord {
     vet_questions: toStringArray(row.vet_questions),
     full_response: row.full_response,
     created_at: row.created_at,
+    // Rows written before the column existed were all produced by a prompt
+    // hard-coded to Russian, and the migration backfilled them as such; this
+    // guards only against a row read through an older path.
+    locale: row.locale === 'en' ? 'en' : 'ru',
     pet_id: row.pet_id,
     pet_name: pet?.name ?? null,
     pet_species: toSpecies(pet?.species),
