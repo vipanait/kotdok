@@ -18,6 +18,17 @@ const tones = {
   inverse: colour.surface,
 } as const
 
+/**
+ * How far a control's own label may grow with the system font.
+ *
+ * Body text scales without limit, as it should. A button does not: its height
+ * is fixed by the design, and at the largest accessibility size an unbounded
+ * label turned the docked action into a third of the screen and pushed the
+ * form it belonged to out of sight. Capping the label keeps both on screen —
+ * the person who needs large text still gets it, and still gets the form.
+ */
+export const CONTROL_FONT_LIMIT = 1.5
+
 export function Text({
   variant = 'body',
   tone = 'default',
