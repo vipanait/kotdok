@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { Redirect, router, useLocalSearchParams } from 'expo-router'
 import { useAuth } from '@/providers/AuthProvider'
 import { errorMessage } from '@/lib/errors'
-import { AuthShell } from '@/features/auth/AuthShell'
+import { AuthShell, authFieldSpacing } from '@/features/auth/AuthShell'
+import { ProviderButtons } from '@/features/auth/ProviderButtons'
 import { Button, LinkButton, LinkRow } from '@/ui/Button'
 import { Banner } from '@/ui/Card'
 import { Field } from '@/ui/Field'
@@ -46,6 +47,7 @@ export default function SignIn() {
         autoCapitalize="none"
         autoComplete="email"
         keyboardType="email-address"
+        style={authFieldSpacing}
       />
       <Field
         label="Пароль"
@@ -54,6 +56,7 @@ export default function SignIn() {
         secureTextEntry
         autoComplete="password"
         autoCapitalize="none"
+        style={authFieldSpacing}
       />
 
       {error ? <Banner text={error} tone="error" /> : null}
@@ -64,6 +67,8 @@ export default function SignIn() {
         <LinkButton title="Создать аккаунт" onPress={() => router.push('/sign-up')} />
         <LinkButton title="Забыли пароль?" onPress={() => router.push('/forgot-password')} />
       </LinkRow>
+
+      <ProviderButtons />
     </AuthShell>
   )
 }

@@ -12,3 +12,24 @@
 @keyframes spin{to{transform:rotate(360deg)}}
 @media(max-height:700px){.auth-hero{width:144px;height:144px}.empty-art{width:160px;height:160px;margin:0 auto 8px}.loading-art{width:144px;height:144px;margin-bottom:16px}.loading h1{margin-bottom:16px}.scroll.centered{padding-bottom:20px}.loading .spinner{margin:12px auto}.empty h2{margin-bottom:8px}.empty p{margin-bottom:16px}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* v1.2 — shared identity on every auth screen, including errors and sent states. */
+@font-face{font-family:GoogleSans;src:url(assets/GoogleSans.ttf);font-weight:500;font-display:block}
+.auth .scroll{padding-bottom:20px}
+.auth-masthead{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;min-height:144px;margin-bottom:24px}
+.auth-masthead .auth-brand{width:128px;margin:0}
+.auth-masthead .auth-hero{width:160px;height:144px;margin:0;object-fit:contain}
+.auth h1{margin-bottom:16px}
+.auth .field{margin-bottom:16px}
+.oauth-divider{display:flex;align-items:center;gap:12px;color:var(--faint);font:400 12px/16px Manrope;margin:12px 0}
+.oauth-divider:before,.oauth-divider:after{content:'';height:1px;flex:1;background:var(--line)}
+.oauth-buttons{display:flex;flex-direction:column;gap:8px}
+.oauth-button{min-height:44px;border-radius:999px;width:100%;padding:10px 16px;display:flex;align-items:center;justify-content:center;gap:12px;font:500 14px/20px Manrope;border:1px solid #747775}
+.oauth-button img{width:20px;height:20px;object-fit:contain;flex-shrink:0}
+.oauth-button.google{background:#fff;color:#1F1F1F;font-family:GoogleSans,Manrope,sans-serif}
+.oauth-button.yandex{background:#fff;color:#000;border-color:#B3B3B3}
+.oauth-button.yandex img{width:24px;height:24px}
+.oauth-button:disabled{opacity:.6;cursor:default}
+@media(max-height:700px){.auth-masthead{min-height:112px;gap:20px;margin-bottom:12px}.auth-masthead .auth-hero{width:136px;height:112px}}
+
+.auth-tagline{font:600 17px/24px Manrope;text-align:center;color:var(--accenttext);max-width:310px;margin:0}

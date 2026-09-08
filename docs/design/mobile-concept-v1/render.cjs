@@ -15,7 +15,7 @@ const url = pathToFileURL(path.join(root, 'index.html')).href;
  const errors=[]; page.on('pageerror',e=>errors.push(String(e)));
  await page.goto(url+'?mode=raw&id=02');await page.evaluate(()=>document.fonts.ready);
  const screens=await page.evaluate(()=>window.designScreens);
- const report={screens:[],errors};
+ const report={screens:[],errors,auth:[]};
  for(const screen of screens){
    await page.goto(url+'?mode=raw&id='+screen.id);await page.evaluate(async()=>{await document.fonts.load('700 30px Nunito');await document.fonts.load('400 15px Manrope');await document.fonts.ready});
    await page.evaluate(async()=>Promise.all([...document.images].map(i=>i.decode().catch(()=>{}))));
@@ -24,13 +24,20 @@ const url = pathToFileURL(path.join(root, 'index.html')).href;
    await page.screenshot({path:path.join(root,'screens',screen.id+'.png')});
    const dimensions=await page.evaluate(()=>{let sc=document.querySelector('.scroll');return {contentHeight:sc.scrollHeight,viewportHeight:sc.clientHeight,widthOverflow:sc.scrollWidth>sc.clientWidth,fonts:document.fonts.check('700 30px Nunito')&&document.fonts.check('400 15px Manrope'),images:[...document.images].every(i=>i.complete&&i.naturalWidth>0)}});
    report.screens.push({...screen,...dimensions});
+   if(['02','03','04','23','24','25','26','43','44'].includes(screen.id)){
+     const auth=await page.evaluate(()=>({logo:!!document.querySelector('.auth-masthead .brand'),pets:!!document.querySelector('.auth-masthead [src$="welcome-pets.png"]'),tagline:document.querySelector('.auth-tagline')?.textContent,providers:document.querySelectorAll('[data-oauth]').length}));
+     const expected=['24','25','26'].includes(screen.id)?0:2;
+     if(!auth.logo||auth.pets||!auth.tagline||auth.providers!==expected)throw new Error('Auth contract failed on '+screen.id);
+     report.auth.push({id:screen.id,...auth});
+   }
+
    if(dimensions.contentHeight>dimensions.viewportHeight+2){
      await page.evaluate(()=>{let s=document.querySelector('.screen'),sc=s.querySelector('.scroll');sc.scrollTop=0;s.style.height=(s.clientHeight+sc.scrollHeight-sc.clientHeight)+'px';sc.style.overflow='visible';});
      await page.locator('.screen').screenshot({path:path.join(root,'screens',screen.id+'-full.png')});
    }
  }
  await page.setViewportSize({width:1760,height:2000});await page.goto(url+'?mode=overview');await page.evaluate(()=>document.fonts.ready);await page.evaluate(async()=>Promise.all([...document.images].map(i=>i.decode())));await page.locator('.overview').screenshot({path:path.join(root,'overview.png')});
- await page.evaluate(()=>{document.querySelector('.overview').style.width='916px';document.querySelector('.overview-grid').style.gridTemplateColumns='repeat(2,390px)';document.querySelector('.overview-grid').innerHTML=['02','06'].map(labeled).join('');document.querySelector('.overview-top h1').textContent='Лапка · обновлённые экраны';document.querySelector('.overview-top .brand').remove()});await page.evaluate(async()=>Promise.all([...document.images].map(i=>i.decode())));await page.locator('.overview').screenshot({path:path.join(root,'updated-screens.png')});
+ await page.evaluate(()=>{document.querySelector('.overview').style.width='916px';document.querySelector('.overview-grid').style.gridTemplateColumns='repeat(2,390px)';document.querySelector('.overview-grid').innerHTML=['02','04','24','17'].map(labeled).join('');document.querySelector('.overview-top h1').textContent='Лапка · обновлённые экраны';document.querySelector('.overview-top .brand').remove()});await page.evaluate(async()=>Promise.all([...document.images].map(i=>i.decode())));await page.locator('.overview').screenshot({path:path.join(root,'updated-screens.png')});
  await page.setViewportSize({width:1640,height:1800});await page.goto(url+'?mode=system');await page.evaluate(()=>document.fonts.ready);await page.evaluate(async()=>Promise.all([...document.images].map(i=>i.decode())));await page.locator('.system-board').screenshot({path:path.join(root,'design-system.png')});
  // Review the two specified user journeys against the rendered prototype.
  await page.setViewportSize({width:1100,height:940});
@@ -47,14 +54,21 @@ const url = pathToFileURL(path.join(root, 'index.html')).href;
  await page.goto(url+'?mode=prototype&id=08');await screen().locator('[data-select-label="Питание"]').click();await at('15');await click('Не указано');await at('08');
  if(await screen().locator('[data-select-label="Питание"] span').textContent()!=='Не указано')throw new Error('Optional selection did not reset');
  report.optionalSelect='passed';
+ report.oauth=[];
+ for(const scenario of [{id:'02',provider:'Google',button:'Продолжить с Google',target:'06'},{id:'04',provider:'Яндекс ID',button:'Войти с Яндекс ID',target:'05'}]){
+   await page.goto(url+'?mode=prototype&id='+scenario.id);await click(scenario.button);await at('43');await at(scenario.target);report.oauth.push({...scenario,result:'passed'});
+ }
+ await page.goto(url+'?mode=prototype&id=04');await click('Продолжить с Google');await at('43');await click('Отмена');await at('04');report.oauthCancel='passed';
+ await page.goto(url+'?mode=prototype&id=44');await click('Продолжить с Google');await at('43');await at('06');report.oauthRetry='passed';
+
  report.smallScreens=[];
  await page.setViewportSize({width:360,height:640});
- for(const id of ['05','12']){
+ for(const id of ['05','12','17']){
    await page.goto(url+'?mode=raw&id='+id);await page.addStyleTag({content:'.screen,body.raw #app{width:360px;height:640px}'});await page.evaluate(()=>document.fonts.ready);await page.evaluate(async()=>Promise.all([...document.images].map(i=>i.decode())));
    const fit=await page.evaluate(()=>{const sc=document.querySelector('.scroll'),target=document.querySelector('.empty')||document.querySelector('.urgency');const a=sc.getBoundingClientRect(),b=target.getBoundingClientRect();return {fits:b.top>=a.top-1&&b.bottom<=a.bottom+1,horizontalOverflow:sc.scrollWidth>sc.clientWidth}});
    report.smallScreens.push({id,...fit});await page.screenshot({path:path.join(root,'screens',id+'-360.png')});
  }
  fs.writeFileSync(path.join(root,'render-report.json'),JSON.stringify(report,null,2));
- console.log(JSON.stringify({screens:report.screens.length,errors,widthOverflow:report.screens.filter(x=>x.widthOverflow).map(x=>x.id),badAssets:report.screens.filter(x=>!x.fonts||!x.images).map(x=>x.id),newUserRoute:report.newUserRoute,returningUserRoute:report.returningUserRoute,optionalSelect:report.optionalSelect,smallScreens:report.smallScreens}));
+ console.log(JSON.stringify({screens:report.screens.length,errors,widthOverflow:report.screens.filter(x=>x.widthOverflow).map(x=>x.id),badAssets:report.screens.filter(x=>!x.fonts||!x.images).map(x=>x.id),newUserRoute:report.newUserRoute,returningUserRoute:report.returningUserRoute,optionalSelect:report.optionalSelect,smallScreens:report.smallScreens,auth:report.auth,oauth:report.oauth,oauthCancel:report.oauthCancel,oauthRetry:report.oauthRetry}));
  await browser.close();
 })().catch(e=>{console.error(e);process.exitCode=1});

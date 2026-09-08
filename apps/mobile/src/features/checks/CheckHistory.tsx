@@ -1,12 +1,12 @@
 import { useCallback, useState } from 'react'
-import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native'
+import { ActivityIndicator, FlatList, Image, StyleSheet, View } from 'react-native'
 import { router, useFocusEffect } from 'expo-router'
 import type { SymptomCheckRecord } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
 import { speciesLabels } from '@/features/pets/labels'
 import { urgencyText } from '@/features/checks/urgency'
 import { Button } from '@/ui/Button'
-import { Banner, Card, IconAvatar, UrgencyBadge } from '@/ui/Card'
+import { Banner, Card, UrgencyBadge } from '@/ui/Card'
 import { Text } from '@/ui/Text'
 import { colour, space } from '@/ui/theme'
 
@@ -88,9 +88,12 @@ export function CheckHistory({ petId }: { petId?: string }) {
           <Banner text={error} tone="error" />
         ) : (
           <>
-            <View style={styles.emptyArt}>
-              <IconAvatar icon="history" size={72} />
-            </View>
+            <Image
+              source={require('../../../assets/art/welcome-pets.png')}
+              style={styles.emptyArt}
+              resizeMode="contain"
+              accessible={false}
+            />
             <Text variant="h2" center style={styles.emptyTitle}>
               Проверок пока не было
             </Text>
@@ -144,7 +147,7 @@ const styles = StyleSheet.create({
   cardTitle: { marginTop: space.row, marginBottom: 4 },
   cardDate: { marginTop: space.row, textAlign: 'right' },
   empty: { flex: 1, justifyContent: 'center' },
-  emptyArt: { alignItems: 'center', marginBottom: 24 },
+  emptyArt: { width: 228, height: 228, alignSelf: 'center', marginBottom: 8 },
   emptyTitle: { marginBottom: space.row },
   emptyCopy: { marginBottom: 24, alignSelf: 'center', maxWidth: 310 },
 })
