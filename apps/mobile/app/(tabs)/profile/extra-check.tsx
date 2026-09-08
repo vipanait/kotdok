@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native'
 import { router, useFocusEffect } from 'expo-router'
 import type { ExtraCheckRequestStatus } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
+import { useText, type Dictionary } from '@/i18n'
 import { Button } from '@/ui/Button'
 import { Banner } from '@/ui/Card'
 import { Screen } from '@/ui/Screen'
@@ -10,13 +11,14 @@ import { Text } from '@/ui/Text'
 import { space } from '@/ui/theme'
 
 /** What the last request came to, in the words the person needs to hear. */
-const outcome: Record<string, { text: string; tone: 'info' | 'error' }> = {
-  pending: { text: 'Запрос отправлен. Ответим в течение дня.', tone: 'info' },
-  approved: { text: 'Проверка добавлена на баланс.', tone: 'info' },
-  rejected: { text: 'В этот раз не получилось.', tone: 'error' },
-}
+const outcome = (t: Dictionary): Record<string, { text: string; tone: 'info' | 'error' }> => ({
+  pending: { text: t.profile.extraPending, tone: 'info' },
+  approved: { text: t.profile.extraApproved, tone: 'info' },
+  rejected: { text: t.profile.extraRejected, tone: 'error' },
+})
 
 export default function ExtraCheck() {
+  const t = useText()
   const [request, setRequest] = useState<ExtraCheckRequestStatus | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
@@ -25,9 +27,9 @@ export default function ExtraCheck() {
     try {
       setRequest(await withFreshSession((api) => api.getExtraCheckRequest()))
     } catch {
-      setError('Не удалось загрузить состояние запроса')
+      setError(t.errors.loadRequestFailed)
     }
-  }, [])
+  }, [t])
 
   useFocusEffect(
     useCallback(() => {
@@ -41,21 +43,21 @@ export default function ExtraCheck() {
     try {
       setRequest(await withFreshSession((api) => api.requestExtraCheck()))
     } catch {
-      setError('Не удалось отправить запрос')
+      setError(t.errors.sendRequestFailed)
     } finally {
       setBusy(false)
     }
   }
 
-  const state = request?.status ? outcome[request.status] : null
+  const state = request?.status ? outcome(t)[request.status] : null
 
   return (
     <Screen
-      title="Дополнительная проверка"
+      title={t.profile.extraTitle}
       onBack={() => router.back()}
       dock={
         <Button
-          title="Отправить запрос"
+          title={t.profile.extraSend}
           onPress={() => void send()}
           busy={busy}
           // A pending request is already in the queue; sending it again would
@@ -65,7 +67,7 @@ export default function ExtraCheck() {
       }
     >
       <Text tone="muted">
-        Расскажем, что случилось, и добавим одну проверку. Обычно отвечаем в течение дня.
+        {t.profile.extraBody}
       </Text>
       <View style={styles.gap} />
 

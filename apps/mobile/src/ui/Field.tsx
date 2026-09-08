@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Modal, Pressable, StyleSheet, TextInput, View, type ViewStyle } from 'react-native'
+import { useText } from '@/i18n'
 import { IconButton } from './Button'
 import { Icon } from './Icon'
 import { Text } from './Text'
@@ -45,6 +46,7 @@ export function Field({
   autoComplete?: 'email' | 'password' | 'off'
   style?: ViewStyle
 }) {
+  const t = useText()
   const [focused, setFocused] = useState(false)
   const [revealed, setRevealed] = useState(false)
 
@@ -80,7 +82,7 @@ export function Field({
         {secureTextEntry ? (
           <IconButton
             icon="eye"
-            label={revealed ? 'Скрыть пароль' : 'Показать пароль'}
+            label={revealed ? t.auth.hidePassword : t.auth.showPassword}
             onPress={() => setRevealed((was) => !was)}
           />
         ) : null}
@@ -96,7 +98,6 @@ export function Field({
 
 export type Option<Value extends string> = { value: Value; label: string }
 
-const NOT_STATED = 'Не указано'
 
 /**
  * Two or three options, all visible.
@@ -121,9 +122,11 @@ export function Segment<Value extends string>({
   onChange: (value: Value | null) => void
   clearable?: boolean
 }) {
+  const t = useText()
+
   return (
     <View style={styles.group}>
-      <Label hint={clearable && value === null ? NOT_STATED : undefined}>{label}</Label>
+      <Label hint={clearable && value === null ? t.common.notStated : undefined}>{label}</Label>
       <View style={styles.segment}>
         {options.map((option) => {
           const chosen = option.value === value
@@ -158,6 +161,7 @@ export function Select<Value extends string>({
   value: Value | null
   onChange: (value: Value | null) => void
 }) {
+  const t = useText()
   const [open, setOpen] = useState(false)
   const chosen = options.find((option) => option.value === value)
 
@@ -166,12 +170,12 @@ export function Select<Value extends string>({
       <Label>{label}</Label>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={`${label}: ${chosen?.label ?? NOT_STATED}`}
+        accessibilityLabel={`${label}: ${chosen?.label ?? t.common.notStated}`}
         onPress={() => setOpen(true)}
         style={styles.control}
       >
         <Text tone={chosen ? 'default' : 'faint'} style={styles.grow}>
-          {chosen?.label ?? NOT_STATED}
+          {chosen?.label ?? t.common.notStated}
         </Text>
         <Icon name="down" size={20} color={colour.faint} />
       </Pressable>
@@ -213,6 +217,8 @@ export function OptionSheet<Value extends string>({
   onClose: () => void
   allowNone?: boolean
 }) {
+  const t = useText()
+
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <Pressable style={styles.backdrop} onPress={onClose} accessible={false}>
@@ -232,7 +238,7 @@ export function OptionSheet<Value extends string>({
                 onClose()
               }}
             >
-              <Text tone="faint">{NOT_STATED}</Text>
+              <Text tone="faint">{t.common.notStated}</Text>
               {value === null ? <Text tone="accent">✓</Text> : null}
             </Pressable>
           ) : null}

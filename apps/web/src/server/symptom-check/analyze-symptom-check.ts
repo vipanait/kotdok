@@ -374,6 +374,10 @@ export async function analyzeSymptomCheck(
         species_specific_warning: result.species_specific_warning,
         home_care_steps: result.home_care_steps,
         vet_questions: result.vet_questions,
+        // The language these words are in, kept with them: the account's
+        // language may change afterwards, and a result must not be relabelled
+        // in a language it was never written in.
+        locale,
         full_response: { ...result, ...quickAssessment, photo_count: input.photos.length },
       })
       .select('id')

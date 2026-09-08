@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import type { SymptomCheckResult, Pet } from '@/shared/types'
-import { useTranslations } from '@/components/LocaleProvider'
+import { useLocale, useTranslations } from '@/components/LocaleProvider'
 import AppShell from '@/components/AppShell'
 import PetAvatar from '@/components/PetAvatar'
 import CheckResultContent from '@/features/symptom-check/CheckResultContent'
@@ -19,6 +19,7 @@ interface Props {
 export default function CheckForm({ pets, onClose }: Props) {
   const router = useRouter()
   const dict = useTranslations()
+  const locale = useLocale()
   const t = dict.check
 
   const [selectedPetId, setSelectedPetId] = useState<string>(pets[0]?.id ?? '')
@@ -209,6 +210,9 @@ export default function CheckForm({ pets, onClose }: Props) {
     species_specific_warning: result.species_specific_warning ?? null,
     home_care_steps: result.home_care_steps,
     vet_questions: result.vet_questions,
+    // The answer has just come back in the language this page is being read
+    // in; the stored row records the same.
+    locale,
     full_response: {
       appetite: result.appetite ?? null,
       activity: result.activity ?? null,

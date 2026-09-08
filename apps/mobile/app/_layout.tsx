@@ -5,6 +5,7 @@ import * as Linking from 'expo-linking'
 import { StatusBar } from 'expo-status-bar'
 import { View } from 'react-native'
 import { AuthProvider } from '@/providers/AuthProvider'
+import { LocaleProvider } from '@/i18n'
 import { parseAuthLink } from '@/lib/auth-links'
 import { supabase } from '@/lib/supabase'
 import { colour } from '@/ui/theme'
@@ -75,14 +76,16 @@ export default function RootLayout() {
   if (!fontsReady) return <View style={{ flex: 1, backgroundColor: colour.canvas }} />
 
   return (
-    <AuthProvider>
-      <StatusBar style="dark" />
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: colour.canvas },
-        }}
-      />
-    </AuthProvider>
+    <LocaleProvider>
+      <AuthProvider>
+        <StatusBar style="dark" />
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: colour.canvas },
+          }}
+        />
+      </AuthProvider>
+    </LocaleProvider>
   )
 }
