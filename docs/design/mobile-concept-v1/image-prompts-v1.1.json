@@ -1,0 +1,33 @@
+{
+  "version": "1.1",
+  "tool": "built-in image_gen; user-authorized local Apple Vision / alpha cleanup",
+  "assets": [
+    {
+      "file": "assets/transparent/welcome-pets.png",
+      "prompt": "Use case: stylized-concept. Supporting reference: the attached image defines the kitten and puppy character designs and soft premium 3D fluffy fur style. Create a NEW welcoming illustration for mobile app login: this cream fluffy kitten sitting close beside this small golden floppy-eared puppy, both sitting upright with paws visible, kitten raising one front paw in a little greeting, puppy gently leaning toward kitten. Sweet calm natural dark eyes, adult-friendly sophisticated rendering. The kitten wears a tiny deep teal #0B6B5E neckerchief. No bed, no props. Compact balanced pair, entire ears, bodies, tails, and paws inside frame, occupying 85% of square with modest 7% margins. Soft studio light, natural cream and biscuit fur, same identities as reference. Background must be genuinely transparent RGBA alpha, no checkerboard pattern, no ground, no drop shadow, no colored backdrop, no text, no logo."
+    },
+    {
+      "file": "assets/transparent/avatar-cat.png",
+      "prompt": "Use case: stylized-concept. Reference image defines character identity and fur style. Create one isolated avatar icon: ONLY the head of the fluffy cream kitten from the reference, front view, both ears fully visible, rounded soft cheek fur, gentle naturally proportioned green-grey eyes and pink nose, subtle happy expression. Clean rounded lower chin, no body, no shoulders, no scarf, no paw. Premium tactile detailed 3D fur illustration, same character. Designed to remain recognizable in a 48px pet list avatar. Head occupies 85 percent square with modest margins and clear silhouette. Genuine transparent RGBA PNG alpha background. No circle, no border, no ground, no shadow, no checkerboard pattern, no text, no logos."
+    },
+    {
+      "file": "assets/transparent/avatar-dog.png",
+      "prompt": "Use case: stylized-concept. Reference image defines the puppy character identity and premium fluffy 3D fur style. Create one isolated avatar icon: ONLY the head of the golden biscuit-colored floppy-eared puppy from the reference. Front view, both rounded floppy ears fully visible, gentle naturally proportioned dark brown eyes, rounded muzzle, black nose, sweet friendly closed-mouth expression. Clean rounded lower chin, no neck, no body, no shoulders, no clothing. Same sophisticated detailed tactile fur illustration as reference. Designed to be recognizable at 48px in a pet list. Head occupies 85 percent square with modest margins and clear silhouette. Genuine transparent RGBA PNG alpha background. No circle, no border, no ground, no drop shadow, no checkerboard pattern, no text, no logos."
+    }
+  ],
+  "backgroundRemoval": {
+    "files": [
+      "assets/transparent/kitten-paw.png",
+      "assets/transparent/pets-together.png",
+      "assets/transparent/paw.png"
+    ],
+    "method": "Local Apple Vision VNGenerateForegroundInstanceMaskRequest and CIBlendWithMask",
+    "source": "assets/source-v1",
+    "script": "remove-background.swift"
+  },
+  "alphaCleanup": "For generated RGBA files: alpha <= 2 -> 0, alpha >= 250 -> 255; transitional edge alpha preserved.",
+  "discardedAttempt": {
+    "prompt": "Use case: background-extraction. Edit this exact image: remove the entire cream background and all floor/contact shadows, replace with genuine transparent alpha channel. Keep the kitten and puppy and their pet bed exactly as in the input: same pose, face, fur, colors, bed, teal tab, composition and proportions. Preserve fine fur edges with natural semitransparent alpha, no beige fringe, no white halo. Export RGBA PNG with truly transparent pixels outside subjects, not a checkerboard painted into an opaque image. No text, no other changes.",
+    "reason": "Generator returned RGB with baked-in checkerboard; not used in final assets."
+  }
+}
