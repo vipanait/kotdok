@@ -6,8 +6,8 @@ describe('what the screens say after the provider', () => {
     expect(providerNoticeFor({ kind: 'session' })).toBeNull()
   })
 
-  it('reports a cancellation without dressing it as a fault', () => {
-    expect(providerNoticeFor({ kind: 'cancelled' })).toEqual({ text: 'Вход отменён', tone: 'info' })
+  it('says nothing about a cancellation the user performed themselves', () => {
+    expect(providerNoticeFor({ kind: 'cancelled' })).toBeNull()
   })
 
   it('passes a failure through as an error', () => {

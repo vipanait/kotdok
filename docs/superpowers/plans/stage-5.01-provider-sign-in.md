@@ -23,7 +23,7 @@
 - Идентификаторы провайдеров ровно такие: `google` и `custom:yandex`. Второй совпадает с тем, что
   зовёт сайт и что заведено в Supabase.
 - Тексты для пользователя — по-русски, без технических кодов ошибок.
-- Отмена — не ошибка: `Banner` с тоном `info`. Сбой — `Banner` с тоном `error`.
+- Отмена — не ошибка и не сообщение: экран входа возвращается молча. Сбой — `Banner` с тоном `error`.
 - Внешние провайдеры в автоматических тестах не вызываются: браузер и клиент Supabase подменяются.
 - Файлы мобильного приложения не импортируют Next.js и серверные SDK; `packages/*` не трогаем.
 - Android в этот заход не проверяется. Ни один пункт отчёта не помечается пройденным на Android.
@@ -485,14 +485,11 @@ function ProviderButton({
 В `apps/mobile/app/sign-in.tsx` завести состояние сообщения и передать обработчик:
 
 ```tsx
-const [providerNotice, setProviderNotice] = useState<{ text: string; tone: 'info' | 'error' } | null>(null)
-
-function handleProviderOutcome(outcome: ProviderOutcome) {
-  if (outcome.kind === 'session') return setProviderNotice(null)
-  if (outcome.kind === 'cancelled') return setProviderNotice({ text: 'Вход отменён', tone: 'info' })
-  setProviderNotice({ text: outcome.message, tone: 'error' })
-}
+const [providerNotice, setProviderNotice] = useState<ProviderNotice | null>(null)
 ```
+
+Решение о тексте и тоне живёт в `src/features/auth/provider-notice.ts` — оно одно на два экрана и
+покрыто тестом: успех и отмена не говорят ничего, сбой отдаётся тоном `error`.
 
 Баннер рисуется там же, где уже рисуется ошибка входа:
 
@@ -505,7 +502,7 @@ function handleProviderOutcome(outcome: ProviderOutcome) {
 - [ ] **Шаг 3: То же на экране регистрации**
 
 В `apps/mobile/app/sign-up.tsx` повторить шаг 2 — там уже есть `Banner` и `ProviderButtons`.
-Текст отмены тот же: «Вход отменён».
+Поведение то же: молчание при отмене, баннер при сбое.
 
 - [ ] **Шаг 4: Проверить типы, тесты и сборку бандлов**
 
@@ -543,7 +540,7 @@ npm run ios --workspace @lapka/mobile
 
 Учётные данные вводит владелец проекта; агент открывает экраны, снимает скриншоты и фиксирует, что
 вернулось. Сценарии: вход Яндексом; вход Google; отмена на экране провайдера (ожидание — экран входа
-и «Вход отменён» тоном `info`); повторный вход после выхода (ожидание — тот же пользователь, те же
+без сообщения); повторный вход после выхода (ожидание — тот же пользователь, те же
 питомцы, дубликат профиля не создаётся).
 
 - [ ] **Шаг 3: Сверить, кому принадлежит сессия**
