@@ -19,7 +19,10 @@ afterAll(async () => {
  * another, and a job record is read back through a route that checks ownership
  * itself.
  */
-const SERVICE_ONLY_TABLES = new Set(['api_rate_limits', 'check_jobs'])
+// `financial_archive` joins them for a stronger reason than the other two:
+// it holds bookkeeping about people who have asked to be forgotten, and the
+// only thing that should ever read it is a human answering a payment dispute.
+const SERVICE_ONLY_TABLES = new Set(['api_rate_limits', 'check_jobs', 'financial_archive'])
 
 const REQUIRED_TABLES = [
   'api_rate_limits',
@@ -27,6 +30,7 @@ const REQUIRED_TABLES = [
   'credit_ledger',
   'credit_transactions',
   'extra_check_requests',
+  'financial_archive',
   'packages',
   'payment_methods',
   'pets',
@@ -43,6 +47,7 @@ const REQUIRED_FUNCTIONS = [
   'apply_symptom_check_usage',
   'apply_transaction_success',
   'apply_transaction_terminal',
+  'archive_account_financials',
   'consume_rate_limit',
   'create_extra_check_request',
   'create_transaction',
