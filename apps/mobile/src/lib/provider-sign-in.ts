@@ -32,6 +32,14 @@ export type ProviderSignInDeps = {
   openBrowser(url: string, redirectUrl: string): Promise<{ type: string; url?: string }>
   /** Turns the authorization code into a session. */
   exchangeCode(code: string): Promise<{ error: { message: string } | null }>
+  /**
+   * Somewhere to put the provider's own words about a refusal.
+   *
+   * The user is told something readable; whoever is debugging needs the code
+   * the provider actually sent, and on a phone there is nowhere else to read
+   * it. Never given the authorization code or a token — only the failure.
+   */
+  reportRefusal?(code: string, description: string | null): void
 }
 
 /**
@@ -55,7 +63,10 @@ export function createProviderSignIn(deps: ProviderSignInDeps) {
     const parsed = parseProviderReturn(returned.url)
     // Null is an address that is not ours: whatever it carries is not a code.
     if (!parsed) return { kind: 'failed', message: FAILED_TO_FINISH }
-    if (parsed.kind === 'error') return { kind: 'failed', message: PROVIDER_REFUSED }
+    if (parsed.kind === 'error') {
+      deps.reportRefusal?.(parsed.code, parsed.description)
+      return { kind: 'failed', message: PROVIDER_REFUSED }
+    }
 
     const exchanged = await deps.exchangeCode(parsed.code)
     if (exchanged.error) return { kind: 'failed', message: FAILED_TO_FINISH }
