@@ -1,6 +1,7 @@
 import 'server-only'
 
 import { createHash } from 'node:crypto'
+import { DELETION_RECORD_RETENTION_DAYS } from '@lapka/contracts'
 import type { createServiceClient } from '@/server/supabase/server'
 import { consumeReauthProof } from '@/server/auth/reauth'
 
@@ -63,4 +64,26 @@ export async function requestAccountDeletion(
   if (data !== true) return { ok: false, reason: 'not_found' }
 
   return { ok: true }
+}
+
+/**
+ * Marks the cleanup finished and starts the clock on the record itself.
+ *
+ * The retention is passed from one named constant rather than defaulted in SQL,
+ * so the published figure lives in a single place the owner can point at and
+ * the database cannot quietly disagree with the policy page.
+ *
+ * Called by the cleanup worker (stage 8/05) as its last step. Until that
+ * exists, this is what the tests drive.
+ */
+export async function completeDeletionJob(
+  supabase: SupabaseService,
+  userId: string,
+): Promise<boolean> {
+  const { data, error } = await supabase.rpc('complete_deletion_job', {
+    p_user_id: userId,
+    p_retain_for: `${DELETION_RECORD_RETENTION_DAYS} days`,
+  })
+
+  return !error && data === true
 }
