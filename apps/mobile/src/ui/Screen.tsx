@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { KeyboardAvoidingView, ScrollView, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useText } from '@/i18n'
@@ -44,6 +44,7 @@ export function Screen({
   centered?: boolean
 }) {
   const t = useText()
+  const [dockHeight, setDockHeight] = useState(0)
 
   const heading = title ? (
     <View style={[styles.header, styles.column]}>
@@ -71,38 +72,62 @@ export function Screen({
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
+      {heading}
       {/*
-        `padding` on both platforms, not just iOS.
+        The dock floats over the scroller instead of standing under it.
 
-        Android was left to `adjustResize`, which is the usual advice and was
-        wrong here: the app draws behind the system bars, so the window never
-        shrinks when the keyboard opens and the dock stays where it was. On a
-        tablet that put Save five hundred points underneath the keyboard —
-        measured, not guessed: the dock sat at y=2485 with the keyboard's top
-        edge at y≈1962, and it did not move whether the keyboard was up or down.
+        Standing under it, the dock's keyboard padding stole that height from
+        the scroller above: the scroller's bottom edge stopped short of the
+        keyboard, so React Native saw no overlap and never brought the focused
+        field into view. Measured on an iPhone 13 with Notes focused — field
+        off-screen, dock sitting where it should have been, unchanged by moving
+        the scroller out of the dock's KeyboardAvoidingView.
+
+        Floating, the scroller reaches the keyboard and scrolls the field into
+        view itself; the padding below keeps that field clear of the dock rather
+        than under it. The height is measured, not assumed: a dock with one
+        button is shorter than one with two.
       */}
-      <KeyboardAvoidingView style={styles.fill} behavior="padding">
-        {heading}
-        {scroll ? (
-          <ScrollView
-            style={styles.fill}
-            contentContainerStyle={[styles.body, styles.column, centered ? styles.centered : null]}
-            keyboardShouldPersistTaps="handled"
-            keyboardDismissMode="on-drag"
+      {scroll ? (
+        <ScrollView
+          style={styles.fill}
+          contentContainerStyle={[
+            styles.body,
+            styles.column,
+            centered ? styles.centered : null,
+            { paddingBottom: styles.body.paddingBottom + dockHeight },
+          ]}
+          keyboardShouldPersistTaps="handled"
+          // `interactive`, not `on-drag`: the field worth scrolling to is the
+          // one being typed into, and `on-drag` shut the keyboard the moment
+          // anyone reached for it.
+          keyboardDismissMode="interactive"
+          automaticallyAdjustKeyboardInsets
+        >
+          {children}
+        </ScrollView>
+      ) : (
+        <View style={[styles.fill, styles.body, styles.column, centered ? styles.centered : null]}>
+          {children}
+        </View>
+      )}
+      {/*
+        `padding` on both platforms, not just iOS. Android was left to
+        `adjustResize`, which is the usual advice and was wrong here: the app
+        draws behind the system bars, so the window never shrinks and the dock
+        stayed put. Measured on a tablet: Save sat at y=2485 with the keyboard's
+        top edge at y≈1962, unmoved whether the keyboard was up or down.
+      */}
+      {dock ? (
+        <KeyboardAvoidingView behavior="padding" style={styles.dockLayer}>
+          <View
+            style={styles.dockBar}
+            onLayout={(event) => setDockHeight(event.nativeEvent.layout.height)}
           >
-            {children}
-          </ScrollView>
-        ) : (
-          <View style={[styles.fill, styles.body, styles.column, centered ? styles.centered : null]}>
-            {children}
-          </View>
-        )}
-        {dock ? (
-          <View style={styles.dockBar}>
             <View style={[styles.dock, styles.column]}>{dock}</View>
           </View>
-        ) : null}
-      </KeyboardAvoidingView>
+        </KeyboardAvoidingView>
+      ) : null}
     </SafeAreaView>
   )
 }
@@ -130,7 +155,10 @@ const styles = StyleSheet.create({
   // other on a screen wider than the phone the design was drawn for.
   column: { width: '100%', maxWidth: COLUMN_MAX_WIDTH, alignSelf: 'center' },
   centered: { flexGrow: 1, justifyContent: 'center' },
-  dockBar: { backgroundColor: colour.canvas },
+  // The dock floats over the scroller's last inches; the scroller pads itself
+  // by the measured height so nothing ends up underneath it.
+  dockLayer: { position: 'absolute', left: 0, right: 0, bottom: 0 },
+  dockBar: { backgroundColor: '#ff0000' },
   dock: {
     paddingHorizontal: space.gutter,
     paddingVertical: 12,

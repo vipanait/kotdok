@@ -32,6 +32,10 @@ const ADAPTERS = new Set([
   'api/response.ts',
   'api/with-api-auth.ts',
   'auth/auth-callback.ts',
+  // Reads the browser's cookies to answer *when* the caller last
+  // authenticated, which re-authentication needs and the user object does not
+  // carry. Same nature as `get-auth-user.ts` beside it: an adapter, not a rule.
+  'auth/get-auth-session.ts',
   'auth/get-auth-user.ts',
   'auth/sign-out.ts',
   'billing/billing-disabled.ts',
