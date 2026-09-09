@@ -3,8 +3,9 @@ import { createClient } from '@supabase/supabase-js'
 import type { Client } from 'pg'
 import { createServiceClient } from '@/server/supabase/server'
 import { issueReauthProof } from '@/server/auth/reauth'
-import { requestAccountDeletion } from '@/server/account/deletion-service'
+import { completeDeletionJob, requestAccountDeletion } from '@/server/account/deletion-service'
 import { loadAccount } from '@/server/auth/account-state'
+import { DELETION_RECORD_RETENTION_DAYS } from '@lapka/contracts'
 import { FIXTURE_PASSWORD, OWNER_A, connect, seedFixtures, type SeededFixtures } from './fixtures'
 
 /**
@@ -173,23 +174,30 @@ describe('retention of the record itself', () => {
     ).toBe(1)
   })
 
-  it('removes one whose retention has run out', async () => {
-    await db.query(`select public.complete_deletion_job($1, interval '30 days')`, [seeded.ownerAId])
+  it('keeps the record for exactly the published period', async () => {
+    // The owner chose thirty days published and sixty days of record on
+    // 9 September. The constant and the database have to agree, or the policy
+    // page promises one thing while the row does another.
+    await expect(completeDeletionJob(service(), seeded.ownerAId)).resolves.toBe(true)
 
-    const { rows } = await db.query<{ retain_until: string; status: string }>(
-      `select retain_until, status from public.deletion_jobs where user_id = $1`,
+    const { rows } = await db.query<{ days: number }>(
+      `select extract(day from (retain_until - completed_at))::int as days
+         from public.deletion_jobs where user_id = $1`,
       [seeded.ownerAId],
     )
-    expect(rows[0].status).toBe('completed')
-    expect(rows[0].retain_until).not.toBeNull()
+    expect(rows[0].days).toBe(DELETION_RECORD_RETENTION_DAYS)
 
     const early = await db.query<{ n: number }>(
-      `select public.purge_expired_deletion_jobs(now() + interval '29 days') as n`,
+      `select public.purge_expired_deletion_jobs(
+         now() + make_interval(days => $1::int - 1)) as n`,
+      [DELETION_RECORD_RETENTION_DAYS],
     )
     expect(Number(early.rows[0].n)).toBe(0)
 
     const late = await db.query<{ n: number }>(
-      `select public.purge_expired_deletion_jobs(now() + interval '31 days') as n`,
+      `select public.purge_expired_deletion_jobs(
+         now() + make_interval(days => $1::int + 1)) as n`,
+      [DELETION_RECORD_RETENTION_DAYS],
     )
     expect(Number(late.rows[0].n)).toBe(1)
   })

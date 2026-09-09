@@ -10,6 +10,27 @@ import { IsoDateTimeSchema } from './primitives'
  * 202 response still leaves the client able to poll for status after its session
  * is gone.
  */
+/**
+ * How long we say deletion takes, and how long the record of it is kept.
+ *
+ * Chosen by the owner on 9 September 2026, closing open question 1.8. Thirty
+ * days is the usual published figure and lines up with the two anchors people
+ * cite — one month under GDPR art. 12(3), thirty days under 152-ФЗ art. 21. In
+ * practice the work takes minutes; the promise covers retries, an external
+ * service being down, and backups rotating, not the speed of the happy path.
+ *
+ * The record outlives the promise by another thirty days so that somebody who
+ * comes back after the deadline can still read their receipt and see that it
+ * finished. It is deliberately not longer: the job is still a record about a
+ * person who asked to be forgotten.
+ *
+ * Neither number belongs to the financial archive, which answers to retention
+ * obligations rather than to us — see open question 1.7.
+ */
+export const DELETION_COMPLETION_DAYS = 30
+
+export const DELETION_RECORD_RETENTION_DAYS = 60
+
 export const DELETION_RECEIPT_HEADER = 'X-Deletion-Receipt'
 
 /** 32 bytes of client randomness, hex encoded. */
