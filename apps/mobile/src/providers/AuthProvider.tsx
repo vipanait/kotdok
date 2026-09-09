@@ -5,7 +5,7 @@ import { draftStorage, sessionStorage, setSessionWriteFailureHandler, supabase }
 import { setSessionLostHandler } from '@/lib/api'
 import { authRedirectUrl } from '@/lib/auth-links'
 import { deviceLocale } from '@/lib/device-locale'
-import { useText } from '@/i18n'
+import { useSetLocale, useText } from '@/i18n'
 import {
   createProviderSignIn,
   type ProviderId,
@@ -76,6 +76,7 @@ export function useAuth(): AuthState {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const t = useText()
+  const setLocale = useSetLocale()
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
   const [notice, setNotice] = useState<string | null>(null)
@@ -85,15 +86,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    * deliberate sign-out and for the cases where continuing would leave the app
    * pretending to be signed in.
    */
-  const endSession = useCallback(async (reason: string | null) => {
-    await supabase.auth.signOut().catch(() => {})
-    await sessionStorage.clearAll()
-    // The half-written check goes with the session: the next person to sign in
-    // on this phone must not find someone else's notes about their animal.
-    await draftStorage.clearAll()
-    setSession(null)
-    setNotice(reason)
-  }, [])
+  const endSession = useCallback(
+    async (reason: string | null) => {
+      await supabase.auth.signOut().catch(() => {})
+      await sessionStorage.clearAll()
+      // The half-written check goes with the session: the next person to sign in
+      // on this phone must not find someone else's notes about their animal.
+      await draftStorage.clearAll()
+      // And so does the language. It came from the account, not from the phone,
+      // so once the account is gone the phone's own setting is the only thing
+      // left that anybody chose. Without this the sign-in screen kept answering
+      // in the last person's language — seen on an English tablet still reading
+      // Russian after a sign-out.
+      setLocale(deviceLocale())
+      setSession(null)
+      setNotice(reason)
+    },
+    [setLocale],
+  )
 
   useEffect(() => {
     // A session that cannot be written down disappears on the next launch. Ending

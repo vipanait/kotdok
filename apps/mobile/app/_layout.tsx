@@ -5,8 +5,9 @@ import * as Linking from 'expo-linking'
 import { StatusBar } from 'expo-status-bar'
 import { View } from 'react-native'
 import { AuthProvider } from '@/providers/AuthProvider'
-import { LocaleProvider } from '@/i18n'
+import { LocaleProvider, dictionary } from '@/i18n'
 import { parseAuthLink } from '@/lib/auth-links'
+import { deviceLocale } from '@/lib/device-locale'
 import { supabase } from '@/lib/supabase'
 import { colour } from '@/ui/theme'
 
@@ -19,6 +20,12 @@ function useAuthLinks() {
   const router = useRouter()
 
   useEffect(() => {
+    // This runs above `LocaleProvider`, so there is no dictionary hook to
+    // reach for. The device's language is the right source anyway: a link
+    // from an email arrives before anyone has signed in, and the account's
+    // own choice is not known yet.
+    const t = dictionary(deviceLocale())
+
     async function handle(raw: string | null) {
       if (!raw) return
 
@@ -28,22 +35,34 @@ function useAuthLinks() {
       if (link.kind === 'error') {
         router.replace({
           pathname: '/sign-in',
-          params: { notice: link.description ?? 'Ссылка больше не действует.' },
+          params: { notice: link.description ?? t.auth.linkExpired },
         })
         return
       }
 
-      const { error } =
-        link.credential.via === 'code'
-          ? await supabase.auth.exchangeCodeForSession(link.credential.code)
-          : await supabase.auth.setSession({
-              access_token: link.credential.accessToken,
-              refresh_token: link.credential.refreshToken,
-            })
-      if (error) {
-        // A reused or expired code must not produce a session, and the user
-        // should be told why rather than shown an empty screen.
-        router.replace({ pathname: '/sign-in', params: { notice: 'Ссылка больше не действует.' } })
+      // Caught, not just checked. A reused or expired credential comes back as
+      // `{ error }`, but a malformed one is thrown: a token that is not valid
+      // base64 makes `setSession` raise "Invalid UTF-8 sequence" before it can
+      // return anything. Left uncaught that is an unhandled rejection — no
+      // notice, and the reader is stranded on whatever screen the link routed
+      // to. Both endings are the same to the person holding the phone, so both
+      // get the same sentence.
+      let failed = false
+      try {
+        const { error } =
+          link.credential.via === 'code'
+            ? await supabase.auth.exchangeCodeForSession(link.credential.code)
+            : await supabase.auth.setSession({
+                access_token: link.credential.accessToken,
+                refresh_token: link.credential.refreshToken,
+              })
+        failed = Boolean(error)
+      } catch {
+        failed = true
+      }
+
+      if (failed) {
+        router.replace({ pathname: '/sign-in', params: { notice: t.auth.linkExpired } })
         return
       }
 

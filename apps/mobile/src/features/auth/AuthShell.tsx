@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { StyleSheet, View } from 'react-native'
+import { useText } from '@/i18n'
 import { Logo } from '@/ui/Logo'
 import { Screen } from '@/ui/Screen'
 import { Text } from '@/ui/Text'
@@ -19,12 +20,14 @@ import { space } from '@/ui/theme'
  * empty rather than the ones that are asking for something.
  */
 export function AuthShell({ title, children }: { title: string; children: ReactNode }) {
+  const t = useText()
+
   return (
     <Screen scroll>
       <View style={styles.masthead}>
         <Logo />
         <Text variant="tagline" tone="accent" center style={styles.tagline}>
-          Маленькие лапки. Большая забота
+          {t.auth.tagline}
         </Text>
       </View>
 
