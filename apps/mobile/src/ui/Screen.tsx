@@ -71,38 +71,51 @@ export function Screen({
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
+      {heading}
       {/*
-        `padding` on both platforms, not just iOS.
+        The scroller keeps its full height and handles the keyboard itself.
 
-        Android was left to `adjustResize`, which is the usual advice and was
-        wrong here: the app draws behind the system bars, so the window never
-        shrinks when the keyboard opens and the dock stays where it was. On a
-        tablet that put Save five hundred points underneath the keyboard —
-        measured, not guessed: the dock sat at y=2485 with the keyboard's top
-        edge at y≈1962, and it did not move whether the keyboard was up or down.
+        It used to sit inside the dock's `KeyboardAvoidingView`, which shrank it
+        when the keyboard opened. React Native only scrolls a focused input into
+        view when the keyboard overlaps the scroller — and it no longer did, so
+        the last fields of a sixteen-field form ended up below the fold with
+        nobody to bring them back. Measured on an iPhone 13: focused Notes was
+        off-screen entirely, the dock sitting where the field should have been.
       */}
-      <KeyboardAvoidingView style={styles.fill} behavior="padding">
-        {heading}
-        {scroll ? (
-          <ScrollView
-            style={styles.fill}
-            contentContainerStyle={[styles.body, styles.column, centered ? styles.centered : null]}
-            keyboardShouldPersistTaps="handled"
-            keyboardDismissMode="on-drag"
-          >
-            {children}
-          </ScrollView>
-        ) : (
-          <View style={[styles.fill, styles.body, styles.column, centered ? styles.centered : null]}>
-            {children}
-          </View>
-        )}
-        {dock ? (
+      {scroll ? (
+        <ScrollView
+          style={styles.fill}
+          contentContainerStyle={[styles.body, styles.column, centered ? styles.centered : null]}
+          keyboardShouldPersistTaps="handled"
+          // `interactive`, not `on-drag`: the field worth scrolling to is the
+          // one being typed into, and `on-drag` shut the keyboard the moment
+          // anyone reached for it.
+          keyboardDismissMode="interactive"
+          automaticallyAdjustKeyboardInsets
+        >
+          {children}
+        </ScrollView>
+      ) : (
+        <View style={[styles.fill, styles.body, styles.column, centered ? styles.centered : null]}>
+          {children}
+        </View>
+      )}
+      {/*
+        `padding` on both platforms, not just iOS. Android was left to
+        `adjustResize`, which is the usual advice and was wrong here: the app
+        draws behind the system bars, so the window never shrinks and the dock
+        stayed put. Measured on a tablet: Save sat at y=2485 with the keyboard's
+        top edge at y≈1962, unmoved whether the keyboard was up or down.
+
+        Only the dock is wrapped now, not the scroller — see above.
+      */}
+      {dock ? (
+        <KeyboardAvoidingView behavior="padding">
           <View style={styles.dockBar}>
             <View style={[styles.dock, styles.column]}>{dock}</View>
           </View>
-        ) : null}
-      </KeyboardAvoidingView>
+        </KeyboardAvoidingView>
+      ) : null}
     </SafeAreaView>
   )
 }
