@@ -38,6 +38,7 @@ describe('OpenAPI document', () => {
     expect(Object.keys(document.paths).sort()).toEqual([
       '/account-deletion',
       '/account-deletion/status',
+      '/auth/reauth',
       '/check-jobs/{job_id}',
       '/checks',
       '/checks/{id}',

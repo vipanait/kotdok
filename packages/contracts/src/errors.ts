@@ -15,6 +15,13 @@ export const ERROR_CODES = {
   unsupported_media_type: 'unsupported_media_type',
   rate_limited: 'rate_limited',
   account_deleting: 'account_deleting',
+  /**
+   * The session is valid, but the person authenticated too long ago for what
+   * they are asking. The client's next move is to re-authenticate, which is a
+   * different thing from signing in again — hence its own code rather than
+   * `unauthorized`.
+   */
+  reauth_required: 'reauth_required',
   dependency_unavailable: 'dependency_unavailable',
   internal_error: 'internal_error',
 } as const
@@ -37,6 +44,7 @@ export const ERROR_STATUS: Record<ErrorCode, number> = {
   unsupported_media_type: 415,
   rate_limited: 429,
   account_deleting: 403,
+  reauth_required: 401,
   dependency_unavailable: 503,
   internal_error: 500,
 }

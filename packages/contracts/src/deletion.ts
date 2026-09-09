@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { IsoDateTimeSchema } from './primitives'
 
 /**
  * Account deletion. The full cleanup is stage 8 and the user-facing flow is
@@ -13,6 +14,36 @@ export const DELETION_RECEIPT_HEADER = 'X-Deletion-Receipt'
 
 /** 32 bytes of client randomness, hex encoded. */
 export const DeletionReceiptSecretSchema = z.string().regex(/^[0-9a-f]{64}$/)
+
+/**
+ * Operations a re-authentication proof can be minted for. One name, one
+ * meaning: a proof issued for deleting an account must not open anything else,
+ * and the list is closed so a typo cannot invent a new permission.
+ */
+export const REAUTH_OPERATIONS = ['account_deletion'] as const
+
+export const ReauthOperationSchema = z.enum(REAUTH_OPERATIONS)
+
+export type ReauthOperation = z.infer<typeof ReauthOperationSchema>
+
+export const ReauthRequestSchema = z.strictObject({
+  operation: ReauthOperationSchema,
+})
+
+export type ReauthRequest = z.infer<typeof ReauthRequestSchema>
+
+/**
+ * The proof, and when it stops being one.
+ *
+ * The token is returned once and never again: the server keeps only its hash,
+ * so a client that loses it asks for another rather than recovering this one.
+ */
+export const ReauthProofSchema = z.strictObject({
+  token: z.string().min(1),
+  expires_at: IsoDateTimeSchema,
+})
+
+export type ReauthProof = z.infer<typeof ReauthProofSchema>
 
 export const AccountDeletionRequestSchema = z.strictObject({
   receipt_secret: DeletionReceiptSecretSchema,

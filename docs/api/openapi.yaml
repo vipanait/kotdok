@@ -37,6 +37,7 @@ components:
                 - unsupported_media_type
                 - rate_limited
                 - account_deleting
+                - reauth_required
                 - dependency_unavailable
                 - internal_error
             message:
@@ -680,6 +681,7 @@ components:
                 - unsupported_media_type
                 - rate_limited
                 - account_deleting
+                - reauth_required
                 - dependency_unavailable
                 - internal_error
             - type: "null"
@@ -794,6 +796,30 @@ components:
       required:
         - rating
       additionalProperties: false
+    ReauthRequest:
+      type: object
+      properties:
+        operation:
+          type: string
+          enum:
+            - account_deletion
+      required:
+        - operation
+      additionalProperties: false
+    ReauthProof:
+      type: object
+      properties:
+        token:
+          type: string
+          minLength: 1
+        expires_at:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+      required:
+        - token
+        - expires_at
+      additionalProperties: false
     AccountDeletionRequest:
       type: object
       properties:
@@ -859,6 +885,80 @@ paths:
                 error:
                   code: dependency_unavailable
                   message: Service is not ready
+                  request_id: 01J000000000000000000000
+  /auth/reauth:
+    post:
+      summary: Prove a fresh authentication before a sensitive operation
+      description: Freshness is read from the access token's `amr` claim, which records when the person
+        actually authenticated and does not move when the token is refreshed. The proof it returns
+        is bound to one user and one operation, expires, and is spent once.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReauthRequest"
+      responses:
+        "200":
+          description: A proof, good once and not for long
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReauthProof"
+        "400":
+          description: Request body or query is invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: bad_request
+                  message: Request body or query is invalid
+                  request_id: 01J000000000000000000000
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
                   request_id: 01J000000000000000000000
   /me:
     get:
@@ -2021,6 +2121,17 @@ paths:
                 error:
                   code: forbidden
                   message: Authenticated but not allowed to perform this operation
+                  request_id: 01J000000000000000000000
+        "404":
+          description: No such resource for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: not_found
+                  message: No such resource for this user
                   request_id: 01J000000000000000000000
         "429":
           description: Too many requests

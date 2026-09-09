@@ -22,19 +22,29 @@ afterAll(async () => {
 // `financial_archive` joins them for a stronger reason than the other two:
 // it holds bookkeeping about people who have asked to be forgotten, and the
 // only thing that should ever read it is a human answering a payment dispute.
-const SERVICE_ONLY_TABLES = new Set(['api_rate_limits', 'check_jobs', 'financial_archive'])
+// `deletion_jobs` and `reauth_proofs` join them: one is a record of somebody
+// being erased, the other is a set of tokens that authorise it.
+const SERVICE_ONLY_TABLES = new Set([
+  'api_rate_limits',
+  'check_jobs',
+  'deletion_jobs',
+  'financial_archive',
+  'reauth_proofs',
+])
 
 const REQUIRED_TABLES = [
   'api_rate_limits',
   'check_jobs',
   'credit_ledger',
   'credit_transactions',
+  'deletion_jobs',
   'extra_check_requests',
   'financial_archive',
   'packages',
   'payment_methods',
   'pets',
   'profiles',
+  'reauth_proofs',
   'symptom_checks',
   'transaction_status_events',
   'transactions',
@@ -49,12 +59,14 @@ const REQUIRED_FUNCTIONS = [
   'apply_transaction_terminal',
   'archive_account_financials',
   'consume_rate_limit',
+  'consume_reauth_proof',
   'create_extra_check_request',
   'create_transaction',
   'current_account_is_active',
   'handle_new_user',
   'mark_transaction_pending',
   'refund_symptom_check_usage',
+  'request_account_deletion',
   'resolve_extra_check_request',
   'search_vet_knowledge',
 ]
