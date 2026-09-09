@@ -3,6 +3,7 @@ import { NextRequest } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import type { Client } from 'pg'
 import { POST as webDeletionRoute } from '@/app/(backend)/api/account-deletion/route'
+import { POST as webReauthRoute } from '@/app/(backend)/api/account-deletion/reauth/route'
 import { POST as apiDeletionRoute } from '@/app/(backend)/api/v1/account-deletion/route'
 import { CSRF_COOKIE_NAME, CSRF_HEADER_NAME } from '@/server/security/csrf'
 import { createServiceClient } from '@/server/supabase/server'
@@ -18,8 +19,15 @@ import { FIXTURE_PASSWORD, OWNER_A, OWNER_B, connect, seedFixtures, type SeededF
  * signed in is established by Next, and the rules that follow are ours.
  */
 let signedInAs: string | null = null
+/** The access token the browser's session would carry, for the freshness check. */
+let sessionToken: string | null = null
+
 vi.mock('@/server/auth/get-auth-user', () => ({
   getAuthUser: async () => (signedInAs ? { id: signedInAs } : null),
+}))
+vi.mock('@/server/auth/get-auth-session', () => ({
+  getAuthSession: async () =>
+    signedInAs && sessionToken ? { user: { id: signedInAs }, accessToken: sessionToken } : null,
 }))
 
 /**
@@ -241,5 +249,70 @@ describe('both adapters', () => {
     expect(jobs.rows.map((r) => r.user_id).sort()).toEqual(
       [seeded.ownerAId, seeded.ownerBId].sort(),
     )
+  })
+})
+
+describe('proving ownership from the site', () => {
+  /** A token's payload, unsigned: the freshness check reads a claim, not a signature. */
+  function tokenAuthenticatedAt(secondsAgo: number): string {
+    const payload = { amr: [{ method: 'password', timestamp: Math.floor(Date.now() / 1000) - secondsAgo }] }
+    return `h.${Buffer.from(JSON.stringify(payload), 'utf8').toString('base64url')}.s`
+  }
+
+  function reauthRequest(csrf = true): NextRequest {
+    const headers: Record<string, string> = { 'content-type': 'application/json' }
+    if (csrf) {
+      headers.cookie = `${CSRF_COOKIE_NAME}=${CSRF}`
+      headers[CSRF_HEADER_NAME] = CSRF
+    }
+    return new NextRequest('https://lapka.my/api/account-deletion/reauth', {
+      method: 'POST',
+      headers,
+      body: '{}',
+    })
+  }
+
+  it('refuses without a CSRF token', async () => {
+    signedInAs = seeded.ownerBId
+    sessionToken = tokenAuthenticatedAt(5)
+
+    expect((await webReauthRoute(reauthRequest(false))).status).toBe(403)
+  })
+
+  it('refuses a session that authenticated too long ago', async () => {
+    // Reading this page, or having read it a month ago, is not ownership.
+    signedInAs = seeded.ownerBId
+    sessionToken = tokenAuthenticatedAt(60 * 60)
+
+    const response = await webReauthRoute(reauthRequest())
+    expect(response.status).toBe(401)
+    expect(await response.json()).toEqual({ error: 'reauth_required' })
+  })
+
+  it('issues a proof to somebody who has just signed in', async () => {
+    // Signing in on the page *is* the proof of ownership 9/02 asks for.
+    signedInAs = seeded.ownerBId
+    sessionToken = tokenAuthenticatedAt(5)
+
+    const response = await webReauthRoute(reauthRequest())
+    expect(response.status).toBe(200)
+    expect(response.headers.get('cache-control')).toBe('no-store')
+
+    const body = (await response.json()) as { token: string }
+    expect(body.token).toMatch(/^[0-9a-f]{64}$/)
+
+    // Stored as a hash, like every other proof.
+    const { rows } = await db.query<{ token_hash: string }>(
+      `select token_hash from public.reauth_proofs where user_id = $1 order by created_at desc limit 1`,
+      [seeded.ownerBId],
+    )
+    expect(rows[0].token_hash).not.toBe(body.token)
+  })
+
+  it('refuses when nobody is signed in at all', async () => {
+    signedInAs = null
+    sessionToken = null
+
+    expect((await webReauthRoute(reauthRequest())).status).toBe(401)
   })
 })
