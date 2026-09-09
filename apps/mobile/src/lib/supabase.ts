@@ -51,6 +51,20 @@ export const draftStorage: SessionStorage = createSessionStorage({
   onWriteFailure: () => {},
 })
 
+/**
+ * Where the deletion receipt lives.
+ *
+ * Its own instance for a reason that matters: this one has to **survive
+ * signing out**. Everything else about the account is cleared the moment the
+ * deletion is accepted — that is the point of accepting it — and the receipt is
+ * the only way left to ask whether the work finished. Kept in the keychain
+ * because it is a bearer secret: whoever holds it can read the status.
+ */
+export const receiptStorage: SessionStorage = createSessionStorage({
+  storage: SecureStore,
+  onWriteFailure: () => {},
+})
+
 export const supabase: SupabaseClient = createClient(env.supabaseUrl, env.supabaseAnonKey, {
   auth: {
     storage: sessionStorage,
