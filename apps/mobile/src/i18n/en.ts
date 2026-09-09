@@ -179,6 +179,7 @@ export const en: Dictionary = {
     unsupportedMedia: 'Unsupported format',
     rateLimited: 'Too often. Wait a moment',
     accountDeleting: 'The account is being deleted',
+    reauthRequired: 'Confirm it is you: sign in again',
     dependencyUnavailable: 'The service is temporarily unavailable',
     internal: 'Something went wrong on our side',
     signInFailed: 'Could not sign in',
