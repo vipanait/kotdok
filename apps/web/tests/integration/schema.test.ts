@@ -68,6 +68,8 @@ const REQUIRED_FUNCTIONS = [
   'mark_transaction_pending',
   'purge_expired_deletion_jobs',
   'refund_symptom_check_usage',
+  'refuse_credit_change_for_inactive_account',
+  'refuse_write_for_inactive_account',
   'request_account_deletion',
   'resolve_extra_check_request',
   'search_vet_knowledge',
