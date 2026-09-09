@@ -118,6 +118,13 @@ export default function Profile() {
         title={t.profile.history}
         onPress={() => router.push('/profile/checks')}
       />
+      {/* Findable rather than buried: 9/01 asks for a visible entry, and a
+          deletion nobody can find is a deletion the stores will fail us for. */}
+      <SettingRow
+        icon="logout"
+        title={t.deletion.entry}
+        onPress={() => router.push('/profile/delete-account')}
+      />
 
       <OptionSheet
         visible={pickingLocale}
