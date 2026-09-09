@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native'
+import { KeyboardAvoidingView, ScrollView, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useText } from '@/i18n'
 import { IconButton } from './Button'
@@ -71,10 +71,17 @@ export function Screen({
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
-      <KeyboardAvoidingView
-        style={styles.fill}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
+      {/*
+        `padding` on both platforms, not just iOS.
+
+        Android was left to `adjustResize`, which is the usual advice and was
+        wrong here: the app draws behind the system bars, so the window never
+        shrinks when the keyboard opens and the dock stays where it was. On a
+        tablet that put Save five hundred points underneath the keyboard —
+        measured, not guessed: the dock sat at y=2485 with the keyboard's top
+        edge at y≈1962, and it did not move whether the keyboard was up or down.
+      */}
+      <KeyboardAvoidingView style={styles.fill} behavior="padding">
         {heading}
         {scroll ? (
           <ScrollView
