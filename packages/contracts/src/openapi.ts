@@ -19,6 +19,8 @@ import {
   AccountDeletionStatusSchema,
   DELETION_RECEIPT_HEADER,
   HealthSchema,
+  ReauthProofSchema,
+  ReauthRequestSchema,
 } from './deletion'
 
 /**
@@ -45,6 +47,8 @@ const COMPONENTS: Array<[string, z.ZodType]> = [
   ['UploadGrant', UploadGrantSchema],
   ['ExtraCheckRequestStatus', ExtraCheckRequestStatusSchema],
   ['FeedbackInput', FeedbackInputSchema],
+  ['ReauthRequest', ReauthRequestSchema],
+  ['ReauthProof', ReauthProofSchema],
   ['AccountDeletionRequest', AccountDeletionRequestSchema],
   ['AccountDeletionAccepted', AccountDeletionAcceptedSchema],
   ['AccountDeletionStatus', AccountDeletionStatusSchema],
@@ -103,6 +107,7 @@ function commonErrors(...extra: ErrorCode[]): Record<string, unknown> {
     payload_too_large: 'Upload exceeds the published size limit',
     unsupported_media_type: 'File format is not accepted',
     rate_limited: 'Too many requests',
+    reauth_required: 'Signed in, but the last authentication is too old for this operation',
     account_deleting: 'Account is being deleted',
     dependency_unavailable: 'A dependency is temporarily unavailable',
     internal_error: 'Unexpected server error',
@@ -162,6 +167,21 @@ export function buildOpenApiDocument(): Record<string, unknown> {
           responses: {
             '200': json('Health', 'Service is reachable'),
             '503': errorResponse('dependency_unavailable', 'Service is not ready'),
+          },
+        },
+      },
+      '/auth/reauth': {
+        post: {
+          summary: 'Prove a fresh authentication before a sensitive operation',
+          description:
+            'Freshness is read from the access token\'s `amr` claim, which records when the ' +
+            'person actually authenticated and does not move when the token is refreshed. The ' +
+            'proof it returns is bound to one user and one operation, expires, and is spent once.',
+          requestBody: body('ReauthRequest'),
+          responses: {
+            '200': json('ReauthProof', 'A proof, good once and not for long'),
+            '401': errorResponse('reauth_required', 'The last authentication is too old'),
+            ...commonErrors('bad_request'),
           },
         },
       },
@@ -335,7 +355,8 @@ export function buildOpenApiDocument(): Record<string, unknown> {
           requestBody: body('AccountDeletionRequest'),
           responses: {
             '202': json('AccountDeletionAccepted', 'Request accepted'),
-            ...commonErrors('bad_request', 'forbidden'),
+            '401': errorResponse('reauth_required', 'No valid proof of fresh authentication'),
+            ...commonErrors('bad_request', 'forbidden', 'not_found'),
           },
         },
       },
