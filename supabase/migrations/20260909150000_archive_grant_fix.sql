@@ -1,0 +1,22 @@
+-- Give the archive function back to the only role that calls it.
+--
+-- `20260908150000_financial_archive.sql` ended with
+--
+--   revoke all on function public.archive_account_financials(uuid)
+--     from public, anon, authenticated;
+--
+-- and stopped there. `service_role` inherits its execute right from `public`,
+-- so that line locked out the trusted server along with everyone else: every
+-- call through PostgREST returned an error the caller was not checking, and the
+-- financial rows stayed where they were.
+--
+-- It went unnoticed because the test that covers the function calls it over a
+-- direct connection as the owner, where privileges never came into it. The
+-- deletion test that finally caught it goes through the service client, the way
+-- the cleanup job will, and failed on the foreign key the archive was supposed
+-- to have cleared.
+--
+-- A revoke is still right — nothing but the trusted server should be able to
+-- move somebody's bookkeeping — it was simply half a change.
+
+grant execute on function public.archive_account_financials(uuid) to service_role;
