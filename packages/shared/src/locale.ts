@@ -1,4 +1,11 @@
-import { SUPPORTED_LOCALES, type SupportedLocale } from './index'
+/** Locales the product ships, matching the profiles.locale check constraint. */
+export const SUPPORTED_LOCALES = ['ru', 'en'] as const
+
+export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number]
+
+export function isSupportedLocale(value: string): value is SupportedLocale {
+  return (SUPPORTED_LOCALES as readonly string[]).includes(value)
+}
 
 /**
  * Reading a language tag the way the outside world writes it.
@@ -19,9 +26,7 @@ export function localeFromTag(tag: string | null | undefined): SupportedLocale |
   // language, and it is the only part this product distinguishes.
   const language = tag.trim().toLowerCase().split(/[-_]/)[0]
 
-  return (SUPPORTED_LOCALES as readonly string[]).includes(language)
-    ? (language as SupportedLocale)
-    : null
+  return isSupportedLocale(language) ? language : null
 }
 
 /**
