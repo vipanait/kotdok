@@ -40,16 +40,28 @@ function useAuthLinks() {
         return
       }
 
-      const { error } =
-        link.credential.via === 'code'
-          ? await supabase.auth.exchangeCodeForSession(link.credential.code)
-          : await supabase.auth.setSession({
-              access_token: link.credential.accessToken,
-              refresh_token: link.credential.refreshToken,
-            })
-      if (error) {
-        // A reused or expired code must not produce a session, and the user
-        // should be told why rather than shown an empty screen.
+      // Caught, not just checked. A reused or expired credential comes back as
+      // `{ error }`, but a malformed one is thrown: a token that is not valid
+      // base64 makes `setSession` raise "Invalid UTF-8 sequence" before it can
+      // return anything. Left uncaught that is an unhandled rejection — no
+      // notice, and the reader is stranded on whatever screen the link routed
+      // to. Both endings are the same to the person holding the phone, so both
+      // get the same sentence.
+      let failed = false
+      try {
+        const { error } =
+          link.credential.via === 'code'
+            ? await supabase.auth.exchangeCodeForSession(link.credential.code)
+            : await supabase.auth.setSession({
+                access_token: link.credential.accessToken,
+                refresh_token: link.credential.refreshToken,
+              })
+        failed = Boolean(error)
+      } catch {
+        failed = true
+      }
+
+      if (failed) {
         router.replace({ pathname: '/sign-in', params: { notice: t.auth.linkExpired } })
         return
       }
