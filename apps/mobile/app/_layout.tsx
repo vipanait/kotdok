@@ -5,8 +5,9 @@ import * as Linking from 'expo-linking'
 import { StatusBar } from 'expo-status-bar'
 import { View } from 'react-native'
 import { AuthProvider } from '@/providers/AuthProvider'
-import { LocaleProvider } from '@/i18n'
+import { LocaleProvider, dictionary } from '@/i18n'
 import { parseAuthLink } from '@/lib/auth-links'
+import { deviceLocale } from '@/lib/device-locale'
 import { supabase } from '@/lib/supabase'
 import { colour } from '@/ui/theme'
 
@@ -19,6 +20,12 @@ function useAuthLinks() {
   const router = useRouter()
 
   useEffect(() => {
+    // This runs above `LocaleProvider`, so there is no dictionary hook to
+    // reach for. The device's language is the right source anyway: a link
+    // from an email arrives before anyone has signed in, and the account's
+    // own choice is not known yet.
+    const t = dictionary(deviceLocale())
+
     async function handle(raw: string | null) {
       if (!raw) return
 
@@ -28,7 +35,7 @@ function useAuthLinks() {
       if (link.kind === 'error') {
         router.replace({
           pathname: '/sign-in',
-          params: { notice: link.description ?? 'Ссылка больше не действует.' },
+          params: { notice: link.description ?? t.auth.linkExpired },
         })
         return
       }
@@ -43,7 +50,7 @@ function useAuthLinks() {
       if (error) {
         // A reused or expired code must not produce a session, and the user
         // should be told why rather than shown an empty screen.
-        router.replace({ pathname: '/sign-in', params: { notice: 'Ссылка больше не действует.' } })
+        router.replace({ pathname: '/sign-in', params: { notice: t.auth.linkExpired } })
         return
       }
 
