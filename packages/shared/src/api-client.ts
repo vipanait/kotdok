@@ -1,8 +1,8 @@
 import {
-  ApiErrorEnvelopeSchema,
   API_VERSION,
   AccountDeletionAcceptedSchema,
   AccountDeletionStatusSchema,
+  ApiErrorEnvelopeSchema,
   CheckHistoryPageSchema,
   CheckJobAcceptedSchema,
   CheckJobStatusSchema,
@@ -12,6 +12,7 @@ import {
   IDEMPOTENCY_KEY_HEADER,
   PetSchema,
   PublicProfileSchema,
+  ReauthProofSchema,
   SymptomCheckRecordSchema,
   UploadGrantSchema,
   type AccountDeletionRequest,
@@ -22,6 +23,7 @@ import {
   type PetCreateInput,
   type PetUpdateInput,
   type ProfileUpdateInput,
+  type ReauthRequest,
   type UploadRequest,
 } from '@lapka/contracts'
 import { z } from 'zod'
@@ -249,6 +251,15 @@ export function createApiClient(options: ApiClientOptions) {
       call('/credits/extra-request', ExtraCheckRequestStatusSchema, { method: 'POST' }),
 
     sendFeedback: (body: FeedbackInput) => call<void>('/feedback', null, { method: 'POST', body }),
+
+    /**
+     * Asks for a proof that the person authenticated a moment ago.
+     *
+     * Fails with `reauth_required` when they did not — which is not an error to
+     * show, but an instruction: send them back through sign-in and try again.
+     */
+    requestReauth: (body: ReauthRequest) =>
+      call('/auth/reauth', ReauthProofSchema, { method: 'POST', body }),
 
     requestAccountDeletion: (body: AccountDeletionRequest) =>
       call('/account-deletion', AccountDeletionAcceptedSchema, { method: 'POST', body }),
