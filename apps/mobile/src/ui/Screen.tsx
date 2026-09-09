@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
   // The dock floats over the scroller's last inches; the scroller pads itself
   // by the measured height so nothing ends up underneath it.
   dockLayer: { position: 'absolute', left: 0, right: 0, bottom: 0 },
-  dockBar: { backgroundColor: colour.canvas },
+  dockBar: { backgroundColor: '#ff0000' },
   dock: {
     paddingHorizontal: space.gutter,
     paddingVertical: 12,
