@@ -63,11 +63,19 @@ const url = pathToFileURL(path.join(root, 'index.html')).href;
 
  report.smallScreens=[];
  await page.setViewportSize({width:360,height:640});
- for(const id of ['05','12','17']){
+ for(const id of ['05','12','17','45']){
    await page.goto(url+'?mode=raw&id='+id);await page.addStyleTag({content:'.screen,body.raw #app{width:360px;height:640px}'});await page.evaluate(()=>document.fonts.ready);await page.evaluate(async()=>Promise.all([...document.images].map(i=>i.decode())));
    const fit=await page.evaluate(()=>{const sc=document.querySelector('.scroll'),target=document.querySelector('.empty')||document.querySelector('.urgency');const a=sc.getBoundingClientRect(),b=target.getBoundingClientRect();return {fits:b.top>=a.top-1&&b.bottom<=a.bottom+1,horizontalOverflow:sc.scrollWidth>sc.clientWidth}});
    report.smallScreens.push({id,...fit});await page.screenshot({path:path.join(root,'screens',id+'-360.png')});
  }
+ // Expanded notes preview: heading supplies the visible label.
+ await page.setViewportSize({width:390,height:844});
+ await page.goto(url+'?mode=raw&id=07');await page.evaluate(()=>document.fonts.ready);
+ const notes=page.locator('details').filter({has:page.locator('summary',{hasText:'Заметки'})});
+ await notes.locator('summary').click();await notes.scrollIntoViewIfNeeded();
+ if(await notes.locator('.label').count() || await notes.locator('textarea').getAttribute('aria-label')!=='Заметки')throw new Error('Notes label contract failed');
+ await notes.screenshot({path:path.join(root,'notes-detail.png')});
+ report.notesLabel='passed';
  fs.writeFileSync(path.join(root,'render-report.json'),JSON.stringify(report,null,2));
  console.log(JSON.stringify({screens:report.screens.length,errors,widthOverflow:report.screens.filter(x=>x.widthOverflow).map(x=>x.id),badAssets:report.screens.filter(x=>!x.fonts||!x.images).map(x=>x.id),newUserRoute:report.newUserRoute,returningUserRoute:report.returningUserRoute,optionalSelect:report.optionalSelect,smallScreens:report.smallScreens,auth:report.auth,oauth:report.oauth,oauthCancel:report.oauthCancel,oauthRetry:report.oauthRetry}));
  await browser.close();
