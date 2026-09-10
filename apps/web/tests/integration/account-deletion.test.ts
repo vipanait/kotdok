@@ -36,11 +36,6 @@ async function count(sql: string, params: unknown[]): Promise<number> {
 /** Everything the fixtures do not seed but a real account would have. */
 async function addTheRest(userId: string): Promise<void> {
   await db.query(
-    `insert into public.credit_transactions (user_id, amount, type, stripe_session_id)
-     values ($1, 5, 'purchase', 'cs_test_fixture')`,
-    [userId],
-  )
-  await db.query(
     `insert into public.extra_check_requests (user_id, granted_ledger_id)
      select $1, id from public.credit_ledger where user_id = $1 order by created_at limit 1`,
     [userId],
@@ -71,7 +66,7 @@ async function deleteAccount(userId: string): Promise<number> {
   return Number(rows[0].archive_account_financials)
 }
 
-describe('deleting an account that has paid', () => {
+describe('deleting an account that has spent checks', () => {
   it('is refused outright before the financial rows are moved', async () => {
     await expect(
       db.query(`delete from auth.users where id = $1`, [seeded.ownerAId]),
@@ -82,7 +77,8 @@ describe('deleting an account that has paid', () => {
     await addTheRest(seeded.ownerAId)
 
     // One purchase, one status event, four ledger movements, one v1 receipt.
-    await expect(deleteAccount(seeded.ownerAId)).resolves.toBe(7)
+    // Four ledger rows, and nothing else: the payment tables are gone.
+    await expect(deleteAccount(seeded.ownerAId)).resolves.toBe(4)
 
     expect(await count(`select count(*) n from auth.users where id = $1`, [seeded.ownerAId])).toBe(0)
 
@@ -91,12 +87,9 @@ describe('deleting an account that has paid', () => {
       ['pets', 'user_id'],
       ['symptom_checks', 'user_id'],
       ['check_jobs', 'user_id'],
-      ['payment_methods', 'user_id'],
       ['user_feedback', 'user_id'],
       ['extra_check_requests', 'user_id'],
-      ['transactions', 'user_id'],
       ['credit_ledger', 'user_id'],
-      ['credit_transactions', 'user_id'],
     ] as const) {
       expect({
         table,
@@ -119,18 +112,19 @@ describe('deleting an account that has paid', () => {
       [seeded.ownerAId],
     )
 
+    // Only the ledger now: payments left the product on 10 September, and the
+    // ledger is the last financial record an account still carries.
     expect(rows.map((row) => row.source).sort()).toEqual([
       'credit_ledger',
       'credit_ledger',
       'credit_ledger',
       'credit_ledger',
-      'credit_transactions',
-      'transaction_status_events',
-      'transactions',
     ])
 
-    const purchase = rows.find((row) => row.source === 'transactions')!.record
-    expect(purchase).toMatchObject({ amount: 50000, currency: 'RUB', current_status: 'succeeded' })
+    const granted = rows
+      .map((row) => row.record as { reason?: string; delta?: number })
+      .find((record) => record.reason === 'admin_grant')
+    expect(granted).toMatchObject({ delta: 5 })
 
     // The archive is keyed by an identifier that now points at nothing. If an
     // address or a name got in, it would be a second copy of the profile.

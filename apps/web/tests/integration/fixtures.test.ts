@@ -37,9 +37,6 @@ async function fingerprint(db: Client, owners: SeededFixtures): Promise<string[]
        union all
        select format('ledger %s %s %s balance=%s', u.email, cl.delta, cl.reason, cl.balance_after)
        from public.credit_ledger cl join auth.users u on u.id = cl.user_id
-       union all
-       select format('transaction %s %s units=%s amount=%s', u.email, t.current_status, t.units_total, t.amount)
-       from public.transactions t join auth.users u on u.id = t.user_id
      ) s order by line`,
   )
   void owners
@@ -103,17 +100,6 @@ describe('integration fixtures', () => {
       expect(Number(row.ledger_sum)).toBe(row.credits)
       expect(row.last_balance).toBe(row.credits)
     }
-  })
-
-  it('records one succeeded test transaction for owner A only', async () => {
-    const { rows } = await client.query<{ user_id: string; current_status: string; units_total: number }>(
-      `select user_id, current_status, units_total from public.transactions`,
-    )
-
-    expect(rows).toHaveLength(1)
-    expect(rows[0].user_id).toBe(seeded.ownerAId)
-    expect(rows[0].current_status).toBe('succeeded')
-    expect(rows[0].units_total).toBe(5)
   })
 
   it('produces the same data set when redeployed', async () => {
