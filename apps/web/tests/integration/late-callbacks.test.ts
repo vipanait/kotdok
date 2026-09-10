@@ -112,38 +112,6 @@ describe('a late approval from Telegram', () => {
   })
 })
 
-describe('a late payment webhook', () => {
-  it('cannot open a transaction for an account that is leaving', async () => {
-    await expect(
-      db.query(
-        `insert into public.transactions
-           (user_id, provider, package_id, units_total, unit_price, amount, currency)
-         select $1, 'dummy', p.id, p.units, p.unit_price, p.amount, p.currency
-           from public.packages p where p.code = 'pack_5_rub_v1'`,
-        [seeded.ownerAId],
-      ),
-    ).rejects.toThrow(/not accepting writes/)
-  })
-
-  it('cannot move the balance', async () => {
-    await expect(
-      db.query(`update public.profiles set credits = credits + 10 where id = $1`, [
-        seeded.ownerAId,
-      ]),
-    ).rejects.toThrow(/not accepting credits/)
-  })
-
-  it('cannot write the ledger row that would explain it', async () => {
-    await expect(
-      db.query(
-        `insert into public.credit_ledger (user_id, delta, reason, balance_after)
-         values ($1, 10, 'admin_grant', 15)`,
-        [seeded.ownerAId],
-      ),
-    ).rejects.toThrow(/not accepting writes/)
-  })
-})
-
 describe('a late refund', () => {
   it('is refused rather than credited', async () => {
     const { rows } = await db.query<{ id: string }>(

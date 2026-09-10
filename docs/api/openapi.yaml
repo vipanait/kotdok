@@ -84,12 +84,9 @@ components:
         capabilities:
           type: object
           properties:
-            billing:
-              type: boolean
             extra_check_request:
               type: boolean
           required:
-            - billing
             - extra_check_request
           additionalProperties: false
       required:

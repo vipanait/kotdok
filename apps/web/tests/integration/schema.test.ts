@@ -36,36 +36,26 @@ const REQUIRED_TABLES = [
   'api_rate_limits',
   'check_jobs',
   'credit_ledger',
-  'credit_transactions',
   'deletion_jobs',
   'extra_check_requests',
   'financial_archive',
-  'packages',
-  'payment_methods',
   'pets',
   'profiles',
   'reauth_proofs',
   'symptom_checks',
-  'transaction_status_events',
-  'transactions',
   'user_feedback',
   'vet_knowledge',
 ]
 
 const REQUIRED_FUNCTIONS = [
-  'apply_refund',
   'apply_symptom_check_usage',
-  'apply_transaction_success',
-  'apply_transaction_terminal',
   'archive_account_financials',
   'complete_deletion_job',
   'consume_rate_limit',
   'consume_reauth_proof',
   'create_extra_check_request',
-  'create_transaction',
   'current_account_is_active',
   'handle_new_user',
-  'mark_transaction_pending',
   'purge_expired_deletion_jobs',
   'refund_symptom_check_usage',
   'refuse_credit_change_for_inactive_account',
@@ -114,12 +104,13 @@ describe('migrated schema', () => {
     expect(definitions).toContain(
       'credit_ledger.credit_ledger_user_id_fkey -> FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE RESTRICT',
     )
-    expect(definitions).toContain(
-      'transactions.transactions_user_id_fkey -> FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE RESTRICT',
-    )
+    // Payments left on 10 September; `transactions` and its RESTRICT went with
+    // them, so the ledger is the only thing still standing between a user row
+    // and its deletion.
+    expect(definitions.filter((line) => line.startsWith('transactions.'))).toEqual([])
   })
 
-  it('creates every billing and triage function', async () => {
+  it('creates every credit and triage function, and no payment ones', async () => {
     const { rows } = await client.query<{ proname: string }>(
       `select distinct p.proname from pg_proc p join pg_namespace n on n.oid = p.pronamespace
        where n.nspname = 'public'

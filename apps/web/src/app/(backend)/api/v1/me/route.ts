@@ -19,7 +19,6 @@ function publicProfile(account: AccountContext) {
     account_status: account.status,
     capabilities: {
       // Purchases are switched off; the provider in the tree is a stub.
-      billing: false,
       extra_check_request: true,
     },
   })
