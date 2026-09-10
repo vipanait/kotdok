@@ -124,7 +124,6 @@ export default function EditPet() {
         disabled={busy}
         onPress={() => setAsking(true)}
       />
-      <LinkButton title={t.common.toList} onPress={() => router.replace('/pets')} />
 
       <ConfirmDialog
         visible={asking}

@@ -7,7 +7,7 @@ import {
 } from '@/features/auth/provider-notice'
 import { errorMessage } from '@/lib/errors'
 import { useText } from '@/i18n'
-import { AuthShell, authFieldSpacing } from '@/features/auth/AuthShell'
+import { AuthShell, authFieldSpacing, authSubmitSpacing } from '@/features/auth/AuthShell'
 import { ProviderButtons } from '@/features/auth/ProviderButtons'
 import { Button, LinkButton, LinkRow } from '@/ui/Button'
 import { Banner } from '@/ui/Card'
@@ -63,7 +63,7 @@ export default function SignIn() {
         secureTextEntry
         autoComplete="password"
         autoCapitalize="none"
-        style={authFieldSpacing}
+        style={authSubmitSpacing}
       />
 
       {error ? <Banner text={error} tone="error" /> : null}
