@@ -74,7 +74,7 @@
       "id": "08",
       "name": "Питомец · собака",
       "ref": "6.10",
-      "contentHeight": 1389,
+      "contentHeight": 1345,
       "viewportHeight": 538,
       "widthOverflow": false,
       "fonts": true,
@@ -314,7 +314,7 @@
       "id": "32",
       "name": "Питомец · Мурка",
       "ref": "6.10",
-      "contentHeight": 979,
+      "contentHeight": 935,
       "viewportHeight": 538,
       "widthOverflow": false,
       "fonts": true,
@@ -424,7 +424,7 @@
       "id": "43",
       "name": "Вход через сервис · ожидание",
       "ref": "6.2.1",
-      "contentHeight": 798,
+      "contentHeight": 806,
       "viewportHeight": 766,
       "widthOverflow": false,
       "fonts": true,
@@ -436,6 +436,16 @@
       "ref": "6.2.1",
       "contentHeight": 766,
       "viewportHeight": 766,
+      "widthOverflow": false,
+      "fonts": true,
+      "images": true
+    },
+    {
+      "id": "45",
+      "name": "Проверка · нет питомцев",
+      "ref": "6.12",
+      "contentHeight": 622,
+      "viewportHeight": 622,
       "widthOverflow": false,
       "fonts": true,
       "images": true
@@ -543,6 +553,12 @@
       "id": "17",
       "fits": true,
       "horizontalOverflow": false
+    },
+    {
+      "id": "45",
+      "fits": true,
+      "horizontalOverflow": false
     }
-  ]
+  ],
+  "notesLabel": "passed"
 }
