@@ -4,7 +4,6 @@ import OpenAI from 'openai'
 import type { ErrorCode, Locale } from '@lapka/contracts'
 import type { createServiceClient } from '@/server/supabase/server'
 import { loadAccount } from '@/server/auth/account-state'
-import { consumeRateLimit } from '@/server/api/rate-limit'
 import type { PetSpecies, SymptomCheckResult, Urgency } from '@/shared/types'
 import { PAIN_SIGN_PROMPT_LABELS, type PainSign } from '@/shared/utils/check-params'
 import { sanitizeSpecies } from '@/shared/utils/pet-utils'
@@ -204,9 +203,13 @@ const STOOL_LABELS: Record<string, string> = {
 }
 
 /**
- * Runs one analysis: checks the account, resolves the pet, reserves a credit,
- * asks the model, stores the result, and compensates the credit if anything
- * after the reservation fails.
+ * Runs one analysis: checks the account, resolves the pet, asks the model and
+ * stores the result.
+ *
+ * It does not touch the balance. The check is reserved when the job is accepted
+ * and released when the job finally fails, both inside `check_jobs` — because by
+ * the time this runs the request that paid for it may be long gone, and a
+ * reservation that lives in one place cannot be spent twice or returned twice.
  *
  * Takes a verified user id and already-parsed input, and returns plain data.
  * HTTP status codes, cookies and cache revalidation belong to the adapter.
@@ -215,8 +218,6 @@ export async function analyzeSymptomCheck(
   supabase: SupabaseService,
   input: AnalyzeSymptomCheckInput,
 ): Promise<AnalyzeSymptomCheckOutcome> {
-  let reservedUsageLedgerId: string | null = null
-
   const quickAssessment: QuickAssessment = {
     appetite: input.appetite,
     activity: input.activity,
@@ -239,21 +240,6 @@ export async function analyzeSymptomCheck(
     // no caller has to remember to pass it — and no caller can pass a
     // different one than the person actually chose.
     const locale = account.account.locale
-
-    if (account.account.credits <= 0) {
-      return {
-        ok: false,
-        code: 'insufficient_credits',
-        message: 'Not enough credits / Недостаточно credits.',
-      }
-    }
-
-    // Before the credit is reserved and long before the model is called, so an
-    // abusive caller costs nothing but a database round trip.
-    const rate = await consumeRateLimit(supabase, 'analysis_create', input.userId)
-    if (!rate.allowed) {
-      return { ok: false, code: 'rate_limited', message: 'Too many analyses, try again later.' }
-    }
 
     // Pet profile context
     let petContext = ''
@@ -285,23 +271,6 @@ export async function analyzeSymptomCheck(
       ].filter(Boolean)
       petContext = `\n\nPET PROFILE: ${parts.join(', ')}`
     }
-
-    // Reserve the credit before expensive external work. If anything below
-    // fails, the catch block compensates it with refund_symptom_check_usage.
-    const { data: usage, error: usageError } = await supabase.rpc('apply_symptom_check_usage', {
-      p_user_id: input.userId,
-      p_symptom_check_id: null,
-    })
-    if (usageError) {
-      return {
-        ok: false,
-        code: usageError.message.includes('insufficient_credits') ? 'insufficient_credits' : 'internal_error',
-        message: usageError.message,
-      }
-    }
-    const reservedUsage = usage as { new_balance: number; ledger_id: string } | null
-    reservedUsageLedgerId = reservedUsage?.ledger_id ?? null
-    const newBalance = reservedUsage?.new_balance ?? account.account.credits - 1
 
     // RAG search filtered by species
     const vetContext = await getVetContext(supabase, input.symptoms, species)
@@ -384,34 +353,20 @@ export async function analyzeSymptomCheck(
       .single()
     if (checkError || !check) throw new Error(checkError?.message ?? 'symptom_check_save_failed')
 
-    if (reservedUsageLedgerId) {
-      const { error: ledgerError } = await supabase
-        .from('credit_ledger')
-        .update({ symptom_check_id: check.id })
-        .eq('id', reservedUsageLedgerId)
-        .eq('user_id', input.userId)
-        .eq('reason', 'usage')
-      if (ledgerError) console.error('usage ledger attach error:', ledgerError)
-    }
-    reservedUsageLedgerId = null
-
     return {
       ok: true,
       result,
       checkId: check.id,
-      creditsRemaining: newBalance,
+      // What the account has now. The check this analysis is for was taken when
+      // the job was accepted, so this is already the balance after it.
+      creditsRemaining: account.account.credits,
       hasPhoto: input.photos.length > 0,
       quickAssessment,
     }
   } catch (error) {
     console.error('symptom-check error:', error)
-    if (reservedUsageLedgerId) {
-      const { error: refundError } = await supabase.rpc('refund_symptom_check_usage', {
-        p_user_id: input.userId,
-        p_usage_ledger_id: reservedUsageLedgerId,
-      })
-      if (refundError) console.error('symptom-check credit refund error:', refundError)
-    }
+    // Nothing to compensate here: the job holds the reservation and returns it
+    // when it gives up, once, whatever went wrong on the way.
     return { ok: false, code: 'internal_error', message: 'An error occurred / Произошла ошибка.' }
   }
 }
