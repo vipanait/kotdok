@@ -23,7 +23,7 @@ import { useAuth } from '@/providers/AuthProvider'
 import { draftStorage } from '@/lib/supabase'
 import {
   DRAFT_KEY,
-  isWorthKeeping,
+  shouldKeepDraft,
   parseDraft,
   serialiseDraft,
   type CheckDraft,
@@ -76,11 +76,21 @@ export default function NewCheck() {
   const latest = useRef<CheckDraft>({ form, step })
   latest.current = { form, step }
 
+  /**
+   * Whether this question is done with — sent, or abandoned by pressing Cancel.
+   *
+   * Anything else that takes somebody off this screen is an interruption, and
+   * the draft is here for those: describing symptoms is work, and losing it to
+   * a mistyped tap is not forgiven.
+   */
+  const finished = useRef(false)
+
   const keepDraft = useCallback(async () => {
     if (!userId) return
+
     const { form: current, step: at } = latest.current
 
-    if (!isWorthKeeping(current)) {
+    if (!shouldKeepDraft({ finished: finished.current, form: current })) {
       await draftStorage.removeItem(DRAFT_KEY)
       return
     }
@@ -113,15 +123,34 @@ export default function NewCheck() {
     return () => subscription.remove()
   }, [keepDraft])
 
-  useFocusEffect(
-    useCallback(() => () => {
-      void keepDraft()
-    }, [keepDraft]),
-  )
-
   // Kept across renders so a retry after a lost answer reuses the same key and
   // is not charged a second time.
   const key = useRef<string | null>(null)
+
+  /** Empties the screen so the next check starts where a first one would. */
+  const startFresh = useCallback(() => {
+    finished.current = false
+    key.current = null
+    setForm(emptyCheckForm())
+    setStep(1)
+    setSymptomsError(null)
+    setFailure(null)
+    setWaiting(false)
+  }, [])
+
+  useFocusEffect(
+    useCallback(() => {
+      // On the way in, not on the way out: the tab keeps this screen alive, so
+      // coming back to it has to be the same as arriving for the first time.
+      // Clearing on the way out would empty the fields while they are still on
+      // screen, in the moment the result is being opened.
+      if (finished.current) startFresh()
+
+      return () => {
+        void keepDraft()
+      }
+    }, [keepDraft, startFresh]),
+  )
 
   /**
    * Whether this screen is still the one the person is looking at.
@@ -183,10 +212,21 @@ export default function NewCheck() {
       if (!onScreen.current) return
 
       if (job.status === 'completed' && job.check_id) {
-        router.replace(`/check/${job.check_id}`)
+        // Pushed, not replaced. Replacing put the result *in place of* the
+        // form, so the tab had nothing else in it: coming back to «Проверка»
+        // reopened last week's answer and there was no way to start another
+        // check from here at all. Pushed, the form stays underneath — back and
+        // the tab bar both return to it, and it empties itself on the way in.
+        router.push(`/check/${job.check_id}`)
         return
       }
       if (job.status === 'failed') {
+        // The key is spent. It names a question the server has already answered
+        // — with a refusal — and reusing it would hand back that same refusal
+        // for ever, even once the reason for it is gone. A lost answer is the
+        // opposite case and deliberately keeps its key: there the job may well
+        // have succeeded.
+        key.current = null
         throw job.error_code === 'insufficient_credits'
           ? new AppError(t.errors.insufficientCredits, 'insufficient_credits')
           : new AppError(t.errors.analysisFailed, 'analysis_failed')
@@ -199,6 +239,19 @@ export default function NewCheck() {
     // The work is still going; the answer will be in the history when it lands.
     throw new AppError(t.errors.analysisSlow, 'still_running')
   }, [t])
+
+  /**
+   * Cancel, and mean it.
+   *
+   * The one place somebody says this question is not worth keeping. Leaving any
+   * other way keeps the draft, which is why this cannot simply navigate: the
+   * screen saves what is in the fields on its way out.
+   */
+  function abandon() {
+    finished.current = true
+    void forgetDraft()
+    router.replace('/pets')
+  }
 
   function next() {
     const input = formToCheckInput(t, form)
@@ -224,6 +277,7 @@ export default function NewCheck() {
     try {
       const accepted = await withFreshSession((api) => api.createCheck(key.current!, input.value))
       // Sent and charged: keeping it now would offer to send it a second time.
+      finished.current = true
       await forgetDraft()
       await waitForResult(accepted.job_id)
     } catch (cause) {
@@ -300,7 +354,7 @@ export default function NewCheck() {
         dock={
           <>
             <Button title={t.common.next} onPress={next} />
-            <LinkButton title={t.common.cancel} onPress={() => router.replace('/pets')} />
+            <LinkButton title={t.common.cancel} onPress={abandon} />
           </>
         }
       >

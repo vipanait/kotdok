@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { PAIN_SIGNS, SYMPTOMS_MAX } from '@lapka/contracts'
-import { emptyCheckForm } from './check-form'
-import { DRAFT_KEY, isWorthKeeping, parseDraft, serialiseDraft } from './check-draft'
+import { emptyCheckForm, type CheckForm } from './check-form'
+import { DRAFT_KEY, isWorthKeeping, parseDraft, serialiseDraft, shouldKeepDraft } from './check-draft'
 
 const ME = 'user-1'
 const SOMEONE_ELSE = 'user-2'
@@ -79,5 +79,34 @@ describe('symptom check draft', () => {
 
   it('uses one key, so a second draft cannot outlive the first', () => {
     expect(DRAFT_KEY).toBe('lapka.check-draft')
+  })
+})
+
+describe('whether a draft survives leaving the screen', () => {
+  const written: CheckForm = { ...emptyCheckForm(), symptoms: 'вялый второй день' }
+
+  it('keeps what was typed when the screen is merely left', () => {
+    // A tab, a phone call, the app being killed. This is what the draft is for:
+    // describing symptoms is work, and it is not re-typed cheerfully.
+    expect(shouldKeepDraft({ finished: false, form: written })).toBe(true)
+  })
+
+  it('drops it once the check has been accepted', () => {
+    // The defect this pins: the draft is deleted on submit and was then saved
+    // again on the way out, so the next check opened on the previous answers —
+    // and reused its idempotency key, which the server answers with the
+    // previous result.
+    expect(shouldKeepDraft({ finished: true, form: written })).toBe(false)
+  })
+
+  it('drops it when Cancel was pressed', () => {
+    // Same flag, different reason: Cancel is somebody saying out loud that this
+    // question is not worth keeping, and it used to keep it anyway.
+    expect(shouldKeepDraft({ finished: true, form: written })).toBe(false)
+  })
+
+  it('drops an empty form either way', () => {
+    expect(shouldKeepDraft({ finished: false, form: emptyCheckForm() })).toBe(false)
+    expect(shouldKeepDraft({ finished: true, form: emptyCheckForm() })).toBe(false)
   })
 })
