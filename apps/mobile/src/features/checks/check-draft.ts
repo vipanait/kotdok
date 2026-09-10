@@ -43,6 +43,19 @@ export function isWorthKeeping(form: CheckForm): boolean {
   )
 }
 
+/**
+ * Whether the draft on screen is still worth storing.
+ *
+ * `sent` is the half that was missing and cost people their next check. The
+ * draft is deleted the moment a check is accepted — and was then written back
+ * on the way out, because leaving the screen saves whatever is in the fields
+ * and nothing had cleared them. The next check opened on the previous one's
+ * answers, with the previous one's idempotency key behind them.
+ */
+export function shouldKeepDraft(state: { sent: boolean; form: CheckForm }): boolean {
+  return !state.sent && isWorthKeeping(state.form)
+}
+
 export function serialiseDraft(userId: string, draft: CheckDraft): string {
   return JSON.stringify({ userId, step: draft.step, form: draft.form })
 }
