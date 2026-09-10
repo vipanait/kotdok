@@ -43,6 +43,15 @@ export function AuthShell({ title, children }: { title: string; children: ReactN
 /** Auth forms breathe a little tighter than the rest, to leave room below. */
 export const authFieldSpacing = { marginBottom: 16 }
 
+/**
+ * The last field before the button that submits the form.
+ *
+ * Eight points more than between the fields, so the button reads as the end of
+ * the form rather than as another row of it. Recovery and the new password are
+ * one field and one button, and have nothing to separate.
+ */
+export const authSubmitSpacing = { marginBottom: 24 }
+
 const styles = StyleSheet.create({
   masthead: {
     minHeight: 144,

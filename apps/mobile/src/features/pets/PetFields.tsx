@@ -196,6 +196,7 @@ export function PetFields({
       <Accordion title={t.petForm.notes} count={tally([form.notes], t.petForm.filledOf)}>
         <Field
           label={t.petForm.notes}
+          labelHidden
           value={form.notes}
           onChangeText={(notes) => onChange({ notes })}
           multiline

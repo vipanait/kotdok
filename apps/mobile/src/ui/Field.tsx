@@ -24,6 +24,7 @@ function Label({ children, hint }: { children: string; hint?: string }) {
 
 export function Field({
   label,
+  labelHidden = false,
   value,
   onChangeText,
   placeholder,
@@ -36,6 +37,8 @@ export function Field({
   style,
 }: {
   label: string
+  /** Draw the name or not; either way the field answers to it out loud. */
+  labelHidden?: boolean
   value: string
   onChangeText: (text: string) => void
   placeholder?: string
@@ -57,7 +60,10 @@ export function Field({
 
   return (
     <View style={[styles.group, style]}>
-      <Label>{label}</Label>
+      {/* A field inside a section named after it would say its name twice. The
+          name still exists — screen readers read it, they just do not see the
+          heading above it. */}
+      {labelHidden ? null : <Label>{label}</Label>}
       <View
         style={[
           styles.control,
@@ -305,10 +311,9 @@ export function Chips<Value extends string>({
               onPress={() => onToggle(option.value)}
               style={[styles.chip, chosen ? styles.chipChosen : null]}
             >
-              <Text tone={chosen ? 'accent' : 'default'}>
-                {chosen ? '✓ ' : ''}
-                {option.label}
-              </Text>
+              {/* Chosen reads from the colour and the border. A tick as well
+                  put the labels of a row on two different left edges. */}
+              <Text tone={chosen ? 'accent' : 'default'}>{option.label}</Text>
             </Pressable>
           )
         })}
