@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Modal, Pressable, StyleSheet, TextInput, View, type ViewStyle } from 'react-native'
 import { useText } from '@/i18n'
 import { IconButton } from './Button'
 import { Icon } from './Icon'
+import { useRevealOnFocus } from './Screen'
 import { Text } from './Text'
 import { CONTROL_HEIGHT, TAP_TARGET, colour, radius, space } from './theme'
 
@@ -49,6 +50,10 @@ export function Field({
   const t = useText()
   const [focused, setFocused] = useState(false)
   const [revealed, setRevealed] = useState(false)
+  // The screen scrolls this field clear of the keyboard, and needs to be able
+  // to ask it where it is to do that.
+  const input = useRef<TextInput>(null)
+  const revealing = useRevealOnFocus()
 
   return (
     <View style={[styles.group, style]}>
@@ -66,8 +71,15 @@ export function Field({
           style={[styles.text, multiline ? styles.textMultiline : null]}
           value={value}
           onChangeText={onChangeText}
-          onFocus={() => setFocused(true)}
-          onBlur={() => setFocused(false)}
+          ref={input}
+          onFocus={() => {
+            setFocused(true)
+            revealing?.hold(input.current)
+          }}
+          onBlur={() => {
+            setFocused(false)
+            revealing?.release(input.current)
+          }}
           placeholder={placeholder}
           placeholderTextColor={colour.faint}
           keyboardType={keyboardType ?? 'default'}
