@@ -1,8 +1,18 @@
-import { useState, type ReactNode } from 'react'
-import { KeyboardAvoidingView, ScrollView, StyleSheet, View } from 'react-native'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react'
+import { Keyboard, KeyboardAvoidingView, ScrollView, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useText } from '@/i18n'
 import { IconButton } from './Button'
+import { hiddenBelowKeyboard } from './keyboard-reveal'
 import { CONTROL_FONT_LIMIT, Text } from './Text'
 import type { IconName } from './Icon'
 import { colour, space } from './theme'
@@ -18,6 +28,41 @@ export type ScreenAction = { icon: IconName; label: string; onPress: () => void 
  * forearm of glass. The column stops here and centres instead.
  */
 const COLUMN_MAX_WIDTH = 480
+
+/**
+ * How long to let iOS finish its own scrolling before measuring.
+ *
+ * UIKit reacts to the same keyboard it just raised, and measuring mid-animation
+ * would scroll by a distance that is already being travelled.
+ */
+const REVEAL_SETTLE_MS = 150
+
+/** Anything that can say where it is on screen — in practice, a `TextInput`. */
+type Locatable = {
+  measureInWindow(callback: (x: number, y: number, width: number, height: number) => void): void
+}
+
+const RevealContext = createContext<{
+  hold: (field: Locatable | null) => void
+  release: (field: Locatable | null) => void
+} | null>(null)
+
+/**
+ * Keeps the field being typed into clear of the keyboard and the dock.
+ *
+ * iOS scrolls to a focused field on its own, but only far enough to show the
+ * caret. For a one-line field that is the whole field; for the notes box it is
+ * the top line and nothing else. Measured on an iPhone 13: notes occupied
+ * y=489..597 with the keyboard's top edge at 509 — twenty points of a
+ * hundred-and-eight point field. The dock, which rides up with the keyboard,
+ * covered another seventy-six below that.
+ *
+ * So the screen finishes the job: it asks the field where it ended up, and
+ * scrolls by whatever is still hidden under the keyboard and the dock.
+ */
+export function useRevealOnFocus() {
+  return useContext(RevealContext)
+}
 
 /**
  * The frame every screen sits in: cream ground, one gutter, one title.
@@ -46,6 +91,54 @@ export function Screen({
   const t = useText()
   const [dockHeight, setDockHeight] = useState(0)
 
+  const scroller = useRef<ScrollView>(null)
+  /** Where the scroller currently stands, so a relative move can be absolute. */
+  const scrolled = useRef(0)
+  /** The same height as `dockHeight`, readable from a callback that never re-renders. */
+  const dockDepth = useRef(0)
+  const focusedField = useRef<Locatable | null>(null)
+
+  const reveal = useCallback(() => {
+    const field = focusedField.current
+    const keyboard = Keyboard.metrics()
+    if (!field || !keyboard) return
+
+    setTimeout(() => {
+      field.measureInWindow((_x, y, _width, height) => {
+        const hidden = hiddenBelowKeyboard({ top: y, height }, keyboard.screenY, dockDepth.current)
+        if (hidden === 0) return
+        scroller.current?.scrollTo({ y: scrolled.current + hidden, animated: true })
+      })
+    }, REVEAL_SETTLE_MS)
+  }, [])
+
+  useEffect(() => {
+    // `DidShow` for the keyboard arriving, `DidChangeFrame` for it growing —
+    // switching to an emoji keyboard or a taller predictive bar moves the line
+    // the field has to stay above.
+    const shown = Keyboard.addListener('keyboardDidShow', reveal)
+    const resized = Keyboard.addListener('keyboardDidChangeFrame', reveal)
+    return () => {
+      shown.remove()
+      resized.remove()
+    }
+  }, [reveal])
+
+  const revealing = useMemo(
+    () => ({
+      hold: (field: Locatable | null) => {
+        focusedField.current = field
+        // Moving between fields with the keyboard already up raises no event of
+        // its own, so the focus itself has to ask.
+        reveal()
+      },
+      release: (field: Locatable | null) => {
+        if (focusedField.current === field) focusedField.current = null
+      },
+    }),
+    [reveal],
+  )
+
   const heading = title ? (
     <View style={[styles.header, styles.column]}>
       {onBack ? (
@@ -71,64 +164,77 @@ export function Screen({
   ) : null
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
-      {heading}
-      {/*
-        The dock floats over the scroller instead of standing under it.
+    <RevealContext.Provider value={revealing}>
+      <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
+        {heading}
+        {/*
+          The dock floats over the scroller instead of standing under it.
 
-        Standing under it, the dock's keyboard padding stole that height from
-        the scroller above: the scroller's bottom edge stopped short of the
-        keyboard, so React Native saw no overlap and never brought the focused
-        field into view. Measured on an iPhone 13 with Notes focused — field
-        off-screen, dock sitting where it should have been, unchanged by moving
-        the scroller out of the dock's KeyboardAvoidingView.
+          Standing under it, the dock's keyboard padding stole that height from
+          the scroller above: the scroller's bottom edge stopped short of the
+          keyboard, so React Native saw no overlap and never brought the focused
+          field into view. Measured on an iPhone 13 with Notes focused — field
+          off-screen, dock sitting where it should have been, unchanged by moving
+          the scroller out of the dock's KeyboardAvoidingView.
 
-        Floating, the scroller reaches the keyboard and scrolls the field into
-        view itself; the padding below keeps that field clear of the dock rather
-        than under it. The height is measured, not assumed: a dock with one
-        button is shorter than one with two.
-      */}
-      {scroll ? (
-        <ScrollView
-          style={styles.fill}
-          contentContainerStyle={[
-            styles.body,
-            styles.column,
-            centered ? styles.centered : null,
-            { paddingBottom: styles.body.paddingBottom + dockHeight },
-          ]}
-          keyboardShouldPersistTaps="handled"
-          // `interactive`, not `on-drag`: the field worth scrolling to is the
-          // one being typed into, and `on-drag` shut the keyboard the moment
-          // anyone reached for it.
-          keyboardDismissMode="interactive"
-          automaticallyAdjustKeyboardInsets
-        >
-          {children}
-        </ScrollView>
-      ) : (
-        <View style={[styles.fill, styles.body, styles.column, centered ? styles.centered : null]}>
-          {children}
-        </View>
-      )}
-      {/*
-        `padding` on both platforms, not just iOS. Android was left to
-        `adjustResize`, which is the usual advice and was wrong here: the app
-        draws behind the system bars, so the window never shrinks and the dock
-        stayed put. Measured on a tablet: Save sat at y=2485 with the keyboard's
-        top edge at y≈1962, unmoved whether the keyboard was up or down.
-      */}
-      {dock ? (
-        <KeyboardAvoidingView behavior="padding" style={styles.dockLayer}>
-          <View
-            style={styles.dockBar}
-            onLayout={(event) => setDockHeight(event.nativeEvent.layout.height)}
+          Floating, the scroller reaches the keyboard, and the padding below
+          keeps the last field clear of the dock rather than under it. The height
+          is measured, not assumed: a dock with one button is shorter than one
+          with two. Getting the *focused* field clear of both is a separate job,
+          done by `reveal` above — the dock's own height is what it subtracts.
+        */}
+        {scroll ? (
+          <ScrollView
+            ref={scroller}
+            onScroll={(event) => {
+              scrolled.current = event.nativeEvent.contentOffset.y
+            }}
+            scrollEventThrottle={16}
+            style={styles.fill}
+            contentContainerStyle={[
+              styles.body,
+              styles.column,
+              centered ? styles.centered : null,
+              { paddingBottom: styles.body.paddingBottom + dockHeight },
+            ]}
+            keyboardShouldPersistTaps="handled"
+            // `interactive`, not `on-drag`: the field worth scrolling to is the
+            // one being typed into, and `on-drag` shut the keyboard the moment
+            // anyone reached for it.
+            keyboardDismissMode="interactive"
+            automaticallyAdjustKeyboardInsets
           >
-            <View style={[styles.dock, styles.column]}>{dock}</View>
+            {children}
+          </ScrollView>
+        ) : (
+          <View
+            style={[styles.fill, styles.body, styles.column, centered ? styles.centered : null]}
+          >
+            {children}
           </View>
-        </KeyboardAvoidingView>
-      ) : null}
-    </SafeAreaView>
+        )}
+        {/*
+          `padding` on both platforms, not just iOS. Android was left to
+          `adjustResize`, which is the usual advice and was wrong here: the app
+          draws behind the system bars, so the window never shrinks and the dock
+          stayed put. Measured on a tablet: Save sat at y=2485 with the keyboard's
+          top edge at y≈1962, unmoved whether the keyboard was up or down.
+        */}
+        {dock ? (
+          <KeyboardAvoidingView behavior="padding" style={styles.dockLayer}>
+            <View
+              style={styles.dockBar}
+              onLayout={(event) => {
+                setDockHeight(event.nativeEvent.layout.height)
+                dockDepth.current = event.nativeEvent.layout.height
+              }}
+            >
+              <View style={[styles.dock, styles.column]}>{dock}</View>
+            </View>
+          </KeyboardAvoidingView>
+        ) : null}
+      </SafeAreaView>
+    </RevealContext.Provider>
   )
 }
 
@@ -158,7 +264,9 @@ const styles = StyleSheet.create({
   // The dock floats over the scroller's last inches; the scroller pads itself
   // by the measured height so nothing ends up underneath it.
   dockLayer: { position: 'absolute', left: 0, right: 0, bottom: 0 },
-  dockBar: { backgroundColor: '#ff0000' },
+  // Opaque, and the canvas colour: the dock floats over the scroller now, so
+  // anything translucent would show the content sliding underneath it.
+  dockBar: { backgroundColor: colour.canvas },
   dock: {
     paddingHorizontal: space.gutter,
     paddingVertical: 12,
