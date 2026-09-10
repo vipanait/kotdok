@@ -1,5 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { ActivityIndicator, AppState, Image, StyleSheet, View } from 'react-native'
+import {
+  ActivityIndicator,
+  AppState,
+  Image,
+  StyleSheet,
+  useWindowDimensions,
+  View,
+} from 'react-native'
 import { router, useFocusEffect } from 'expo-router'
 import {
   ACTIVITY_VALUES,
@@ -29,7 +36,7 @@ import {
   type CheckForm,
 } from '@/features/checks/check-form'
 import { Button, LinkButton } from '@/ui/Button'
-import { Banner, IconAvatar } from '@/ui/Card'
+import { Banner } from '@/ui/Card'
 import { Chips, Field, Segment, Select } from '@/ui/Field'
 import { Screen } from '@/ui/Screen'
 import { Steps, SummaryCard } from '@/ui/Section'
@@ -45,6 +52,10 @@ const SEGMENT_FITS = 3
 
 export default function NewCheck() {
   const t = useText()
+  // The illustration is the first thing to give ground on a small screen: the
+  // heading and the button below it are what the screen is for. 360 is the
+  // width the concept's narrow artboard is drawn at.
+  const narrow = useWindowDimensions().width <= 360
   const [form, setForm] = useState<CheckForm>(emptyCheckForm())
   const [pets, setPets] = useState<Pet[] | null>(null)
   const [petsError, setPetsError] = useState<{ text: string; offline: boolean } | null>(null)
@@ -259,10 +270,15 @@ export default function NewCheck() {
    */
   if (pets.length === 0) {
     return (
-      <Screen title={t.check.title} centered>
-        <View style={styles.emptyArt}>
-          <IconAvatar icon="paw" size={72} />
-        </View>
+      <Screen title={t.check.title} scroll centered>
+        {/* Decorative: the heading below already says what the screen is for,
+            and a screen reader announcing two kittens helps nobody. */}
+        <Image
+          source={require('../../../assets/art/welcome-pets.png')}
+          style={[styles.emptyArt, narrow ? styles.emptyArtNarrow : null]}
+          resizeMode="contain"
+          accessible={false}
+        />
         <Text variant="h2" center style={styles.emptyTitle}>
           {t.check.needPetTitle}
         </Text>
@@ -438,7 +454,10 @@ function Waiting({
 
 const styles = StyleSheet.create({
   summaryCopy: { flex: 1, minWidth: 0 },
-  emptyArt: { alignItems: 'center', marginBottom: 24 },
+  // The pair stands rather than sits, so it needs the height; a narrow phone
+  // gets the smaller one, which leaves the button above the fold.
+  emptyArt: { width: 228, height: 228, alignSelf: 'center', marginBottom: 8 },
+  emptyArtNarrow: { width: 160, height: 160 },
   emptyTitle: { marginBottom: space.row },
   emptyCopy: { marginBottom: 24, alignSelf: 'center', maxWidth: 310 },
   waitingTitle: { marginBottom: 24 },
