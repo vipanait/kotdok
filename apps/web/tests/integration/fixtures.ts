@@ -1,7 +1,8 @@
 // Deterministic integration fixtures (plan item 0/03).
 //
 // Two unrelated owners, each with pets and symptom checks, different balances,
-// credit movements that add up to those balances, and one billing transaction.
+// credit movements that add up to those balances. No payments: this version
+// grants checks, it does not sell them.
 // Every business value is fixed; only the auth user ids are generated, because
 // they come from the real Auth admin API rather than a hand-written insert.
 
@@ -145,51 +146,17 @@ export async function seedFixtures(
     ],
   )
 
-  const packageId = (
-    await client.query<{ id: string }>(`select id from public.packages where code = 'pack_5_rub_v1'`)
-  ).rows[0].id
-
-  await client.query(
-    `insert into public.payment_methods (user_id, provider, provider_pm_id, brand, last4, is_default)
-     values ($1, 'dummy', 'pm_fixture_owner_a', 'dummy', '4242', true)`,
-    [ownerAId],
-  )
-
-  const transactionId = (
-    await client.query<{ id: string }>(
-      `insert into public.transactions
-         (user_id, provider, provider_payment_id, package_id, units_total, unit_price, amount, currency, current_status)
-       select $1, 'dummy', 'pay_fixture_owner_a', p.id, p.units, p.unit_price, p.amount, p.currency, 'succeeded'
-       from public.packages p where p.id = $2
-       returning id`,
-      [ownerAId, packageId],
-    )
-  ).rows[0].id
-
-  const eventId = (
-    await client.query<{ id: string }>(
-      `insert into public.transaction_status_events (transaction_id, status, reason, provider_event_id)
-       values ($1, 'succeeded', 'fixture', 'evt_fixture_owner_a') returning id`,
-      [transactionId],
-    )
-  ).rows[0].id
-
-  await client.query(`update public.transactions set current_status_event_id = $2 where id = $1`, [
-    transactionId,
-    eventId,
-  ])
-
   // Ledger movements must add up to profiles.credits for each owner.
   await client.query(
-    `insert into public.credit_ledger (user_id, delta, reason, transaction_id, symptom_check_id, balance_after, created_at)
+    `insert into public.credit_ledger (user_id, delta, reason, symptom_check_id, balance_after, created_at)
      values
-       ($1,  2, 'signup_bonus', null, null, 2, timestamp with time zone '2026-04-30 08:00:00+00'),
-       ($1,  5, 'purchase',     $3,   null, 7, timestamp with time zone '2026-04-30 09:00:00+00'),
-       ($1, -1, 'usage',        null, $4,   6, timestamp with time zone '2026-05-01 10:00:00+00'),
-       ($1, -1, 'usage',        null, $5,   5, timestamp with time zone '2026-05-01 10:00:01+00'),
-       ($2,  2, 'signup_bonus', null, null, 2, timestamp with time zone '2026-04-30 08:00:00+00'),
-       ($2, -1, 'usage',        null, $6,   1, timestamp with time zone '2026-05-02 09:00:00+00')`,
-    [ownerAId, ownerBId, transactionId, CHECK_IDS.aFirst, CHECK_IDS.aSecond, CHECK_IDS.bOnly],
+       ($1,  2, 'signup_bonus', null, 2, timestamp with time zone '2026-04-30 08:00:00+00'),
+       ($1,  5, 'admin_grant',  null, 7, timestamp with time zone '2026-04-30 09:00:00+00'),
+       ($1, -1, 'usage',        $3,   6, timestamp with time zone '2026-05-01 10:00:00+00'),
+       ($1, -1, 'usage',        $4,   5, timestamp with time zone '2026-05-01 10:00:01+00'),
+       ($2,  2, 'signup_bonus', null, 2, timestamp with time zone '2026-04-30 08:00:00+00'),
+       ($2, -1, 'usage',        $5,   1, timestamp with time zone '2026-05-02 09:00:00+00')`,
+    [ownerAId, ownerBId, CHECK_IDS.aFirst, CHECK_IDS.aSecond, CHECK_IDS.bOnly],
   )
 
   return { ownerAId, ownerBId }

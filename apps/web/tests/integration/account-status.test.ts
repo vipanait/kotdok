@@ -169,7 +169,7 @@ describe('a deleting account loses access on every path', () => {
     await db.query(`update public.profiles set status = 'deleting' where id = $1`, [seeded.ownerAId])
 
     // Same client, same token: the JWT is still cryptographically valid.
-    for (const table of ['profiles', 'pets', 'symptom_checks', 'credit_transactions']) {
+    for (const table of ['profiles', 'pets', 'symptom_checks', 'credit_ledger']) {
       const { data, error } = await client.from(table).select('id')
       expect(error, `${table} errored`).toBeNull()
       expect(data, `${table} still readable`).toEqual([])

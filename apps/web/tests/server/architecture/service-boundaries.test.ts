@@ -38,7 +38,6 @@ const ADAPTERS = new Set([
   'auth/get-auth-session.ts',
   'auth/get-auth-user.ts',
   'auth/sign-out.ts',
-  'billing/billing-disabled.ts',
   'i18n/get-locale.ts',
   'pets/pet-http.ts',
   'security/csrf.ts',

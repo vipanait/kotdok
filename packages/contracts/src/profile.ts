@@ -17,8 +17,6 @@ export const PublicProfileSchema = z.strictObject({
   credits: z.int().min(0),
   account_status: AccountStatusSchema,
   capabilities: z.strictObject({
-    /** Purchases are switched off; the provider in the tree is a stub. */
-    billing: z.boolean(),
     /** Asking for one more free check. */
     extra_check_request: z.boolean(),
   }),

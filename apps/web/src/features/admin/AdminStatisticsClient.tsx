@@ -12,7 +12,6 @@ import {
 } from 'recharts'
 import { useLocale, useTranslations } from '@/components/LocaleProvider'
 import type { AdminStatistics, AdminStatisticsDailyPoint, AdminStatisticsPeriod } from '@/shared/types/admin'
-import { formatMoney } from '@/shared/utils/billing-format'
 
 interface Props {
   statistics: AdminStatistics
@@ -28,7 +27,6 @@ export default function AdminStatisticsClient({ statistics }: Props) {
 
   const cards = [
     { label: t.registeredUsers, value: formatNumber(statistics.totals.registeredUsers, locale) },
-    { label: t.payingUsers, value: formatNumber(statistics.totals.payingUsers, locale) },
     { label: t.symptomCheckUsers, value: formatNumber(statistics.totals.symptomCheckUsers, locale) },
     { label: t.symptomChecks, value: formatNumber(statistics.totals.symptomChecks, locale) },
     { label: t.symptomChecksCat, value: formatNumber(statistics.totals.symptomChecksCat, locale) },
@@ -36,7 +34,6 @@ export default function AdminStatisticsClient({ statistics }: Props) {
     { label: t.petsTotal, value: formatNumber(statistics.totals.petsTotal, locale) },
     { label: t.petsCat, value: formatNumber(statistics.totals.petsCat, locale) },
     { label: t.petsDog, value: formatNumber(statistics.totals.petsDog, locale) },
-    { label: t.totalRevenue, value: formatMoney(statistics.totals.totalRevenue, statistics.currency) },
   ]
 
   function changePeriod(days: AdminStatisticsPeriod) {
@@ -86,23 +83,10 @@ export default function AdminStatisticsClient({ statistics }: Props) {
             locale={locale}
           />
           <LineChart
-            title={t.paymentsChart}
-            points={statistics.daily}
-            valueKey="payments"
-            locale={locale}
-          />
-          <LineChart
             title={t.symptomChecksChart}
             points={statistics.daily}
             valueKey="symptomChecks"
             locale={locale}
-          />
-          <LineChart
-            title={t.paymentAmountChart}
-            points={statistics.daily}
-            valueKey="paymentAmount"
-            locale={locale}
-            formatValue={value => formatMoney(value, statistics.currency)}
           />
         </div>
       </div>
@@ -119,7 +103,7 @@ function LineChart({
 }: {
   title: string
   points: AdminStatisticsDailyPoint[]
-  valueKey: keyof Pick<AdminStatisticsDailyPoint, 'registrations' | 'payments' | 'paymentAmount' | 'symptomChecks'>
+  valueKey: keyof Pick<AdminStatisticsDailyPoint, 'registrations' | 'symptomChecks'>
   locale: string
   formatValue?: (value: number) => string
 }) {

@@ -144,10 +144,13 @@ describe('extra check requests', () => {
     expect(second.status).toBe('already_resolved')
     expect(await creditsOf(seeded.ownerAId)).toBe(1)
 
+    // Counted through the request's own link rather than by reason: the
+    // fixtures grant checks the same way, and this test is about this request.
     const { rows: ledger } = await db.query<{ count: string }>(
-      `select count(*) as count from public.credit_ledger
-       where user_id = $1 and reason = 'admin_grant'`,
-      [seeded.ownerAId],
+      `select count(*) as count from public.credit_ledger l
+       join public.extra_check_requests r on r.granted_ledger_id = l.id
+       where r.id = $1`,
+      [requestId],
     )
     expect(ledger[0].count).toBe('1')
   })

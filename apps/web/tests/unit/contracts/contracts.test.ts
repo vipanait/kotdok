@@ -19,7 +19,7 @@ const profile = {
   role: 'user',
   credits: 3,
   account_status: 'active',
-  capabilities: { billing: false, extra_check_request: true },
+  capabilities: { extra_check_request: true },
 }
 
 const pet = {
