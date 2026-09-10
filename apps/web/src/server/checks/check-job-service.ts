@@ -1,17 +1,21 @@
 /**
  * Running an analysis as a job.
  *
- * The contract has always described creating a check as accepting work rather
- * than returning a result. That shape is kept here even though the work happens
- * inside the request: photographs and the background worker were moved to the
- * end of the queue, so there is nowhere to hand the job to yet. A client polls
- * the job either way, which is what stops stage 6 from becoming a breaking
- * change for anything already written against this.
+ * Two halves that never run in the same request: accepting the work, and doing
+ * it. Accepting is one database transaction — the account is checked, the check
+ * is reserved and the job is recorded, or none of that happens. Doing it is a
+ * worker that claims a job, holds a lease while it talks to the model, and is
+ * refused if it comes back after the lease expired.
+ *
+ * The balance lives here rather than inside the analysis, because the request
+ * that paid is gone by the time the answer arrives. One reservation per job,
+ * released once if the job finally fails.
  *
  * No `next/*` import belongs in this file — the route adapter turns these
  * outcomes into responses.
  */
 
+import { createHash, randomUUID } from 'node:crypto'
 import type { ErrorCode, ParsedCheckCreateInput } from '@lapka/contracts'
 import { toUtcIso } from '@lapka/shared'
 import type { createServiceClient } from '@/server/supabase/server'
@@ -23,6 +27,16 @@ import {
 
 type SupabaseService = ReturnType<typeof createServiceClient>
 
+/**
+ * How long a worker may hold a job.
+ *
+ * Longer than both the model timeout and the platform's own limit on a
+ * function, so a worker killed mid-call cannot go on holding work it will never
+ * finish. The number is the one settled in
+ * `docs/architecture/jobs-uploads-deletion.md`.
+ */
+const LEASE_SECONDS = 360
+
 export type CreateCheckJobInput = ParsedCheckCreateInput & {
   userId: string
   /** From the `Idempotency-Key` header, when the client sent one. */
@@ -32,8 +46,9 @@ export type CreateCheckJobInput = ParsedCheckCreateInput & {
 /**
  * The analysis itself, injected so the job machinery can be tested without an
  * AI provider. What is worth testing here is what happens around the call —
- * whether the job is recorded, a retry is refused a second credit, a failure
- * leaves a code — and none of that should depend on a network key being set.
+ * whether the lease is respected, whether a final failure returns the check,
+ * whether a late worker is refused — and none of that should depend on a
+ * network key being set.
  */
 export type Analyse = (
   supabase: SupabaseService,
@@ -53,21 +68,57 @@ export type CheckJobRecord = {
   updated_at: string
 }
 
+/** What the worker needs to run a job it has just claimed. */
+type ClaimedJob = {
+  id: string
+  user_id: string
+  payload: Record<string, unknown>
+}
+
 /**
- * Accepts an analysis and runs it.
+ * What one turn of the worker did.
+ *
+ * `lost` is not a failure: it means the lease had expired and somebody else now
+ * owns the job. The right response is to drop what was computed, which is what
+ * makes a killed-and-restarted worker safe.
+ */
+export type WorkOutcome = 'idle' | 'completed' | 'retryable' | 'failed' | 'lost'
+
+/**
+ * The inputs, in a form that is the same for two identical requests.
+ *
+ * Keys sorted, absent and null treated alike, pain signs ordered — a client that
+ * builds the same request twice must produce the same fingerprint, or its retry
+ * would look like a different question wearing a used key.
+ */
+export function fingerprintCheckInput(input: ParsedCheckCreateInput): string {
+  const canonical = {
+    symptoms: input.symptoms.trim(),
+    pet_id: input.pet_id ?? null,
+    appetite: input.appetite ?? null,
+    activity: input.activity ?? null,
+    duration: input.duration ?? null,
+    stool: input.stool ?? null,
+    pain_signs: [...input.pain_signs].sort(),
+  }
+
+  return createHash('sha256').update(JSON.stringify(canonical)).digest('hex')
+}
+
+/**
+ * Accepts an analysis.
  *
  * @returns the job to poll, or why nothing was started. A refusal here means no
- *   job exists at all: a client that gets one has nothing to poll for, and a
- *   credit was never touched.
+ *   job exists at all: a client that gets one has nothing to poll for, and the
+ *   balance was never touched.
  */
 export async function createCheckJob(
   supabase: SupabaseService,
   input: CreateCheckJobInput,
-  analyse: Analyse = analyzeSymptomCheck,
 ): Promise<CreateCheckJobOutcome> {
-  // Photographs are switched off product-wide until stage 6. Saying so plainly
-  // beats accepting the ids and quietly analysing text only, which would look
-  // to the sender like the pictures were considered.
+  // Photographs left the product on 10 September and come back in a later
+  // version. Saying so plainly beats accepting the ids and quietly analysing
+  // text only, which would look to the sender like the pictures were considered.
   if (input.upload_ids.length > 0) {
     return {
       ok: false,
@@ -76,91 +127,181 @@ export async function createCheckJob(
     }
   }
 
-  if (input.idempotencyKey) {
-    const existing = await findByIdempotencyKey(supabase, input.userId, input.idempotencyKey)
-    // A repeat of a request already accepted returns the same job rather than
-    // starting a second analysis and spending a second credit.
-    if (existing) return { ok: true, jobId: existing, reused: true }
-  }
-
-  const { data: created, error: insertError } = await supabase
-    .from('check_jobs')
-    .insert({
-      user_id: input.userId,
-      status: 'processing',
-      idempotency_key: input.idempotencyKey,
-    })
-    .select('id')
-    .single()
-
-  if (insertError || !created) {
-    // A duplicate key means the same request arrived twice at once. The other
-    // one is doing the work; point the caller at it.
-    if (input.idempotencyKey) {
-      const existing = await findByIdempotencyKey(supabase, input.userId, input.idempotencyKey)
-      if (existing) return { ok: true, jobId: existing, reused: true }
-    }
-    return { ok: false, code: 'internal_error', message: 'Не удалось принять проверку' }
-  }
-
-  const jobId: string = created.id
-
-  const outcome = await analyse(supabase, {
-    userId: input.userId,
+  const payload = {
     symptoms: input.symptoms,
-    petId: input.pet_id ?? null,
-    photos: [],
+    pet_id: input.pet_id ?? null,
     appetite: input.appetite ?? null,
     activity: input.activity ?? null,
     duration: input.duration ?? null,
     stool: input.stool ?? null,
     pain_signs: input.pain_signs,
+  }
+
+  const { data, error } = await supabase.rpc('enqueue_check_job', {
+    p_user_id: input.userId,
+    p_payload: payload,
+    p_fingerprint: fingerprintCheckInput(input),
+    p_idempotency_key: input.idempotencyKey,
   })
 
-  if (outcome.ok) {
-    await finish(supabase, jobId, { status: 'completed', check_id: outcome.checkId })
-    return { ok: true, jobId, reused: false }
+  if (error || !data) {
+    return { ok: false, code: 'internal_error', message: 'Не удалось принять проверку' }
   }
 
-  await finish(supabase, jobId, { status: 'failed', error_code: outcome.code })
+  const outcome = data as { status: string; job_id?: string }
 
-  // The job exists and records the failure, so the caller can poll it — but the
-  // refusal is also returned directly, because a client that asked once and got
-  // an answer immediately should not have to poll to learn it failed.
-  return { ok: false, code: outcome.code, message: outcome.message }
+  switch (outcome.status) {
+    case 'created':
+      return { ok: true, jobId: outcome.job_id!, reused: false }
+    case 'reused':
+      return { ok: true, jobId: outcome.job_id!, reused: true }
+    case 'conflict':
+      return {
+        ok: false,
+        code: 'conflict',
+        message: 'Этот ключ уже использован для другого запроса',
+      }
+    case 'inactive':
+      return { ok: false, code: 'account_deleting', message: 'Аккаунт удаляется' }
+    case 'insufficient_credits':
+      return { ok: false, code: 'insufficient_credits', message: 'Проверки на балансе закончились' }
+    default:
+      return { ok: false, code: 'internal_error', message: 'Не удалось принять проверку' }
+  }
 }
 
-async function findByIdempotencyKey(
+/**
+ * Codes that will say the same thing however many times they are tried.
+ *
+ * A deleted pet stays deleted and a leaving account keeps leaving; spending
+ * another call to the model to be told so again costs money and changes
+ * nothing. Everything else — the model timing out, the network, us — is worth
+ * one more attempt.
+ */
+function isFinal(code: ErrorCode): boolean {
+  return code === 'not_found' || code === 'account_deleting' || code === 'bad_request'
+}
+
+/**
+ * Takes one job and runs it, if there is one.
+ *
+ * Safe to call from several places at once: the request that created the job,
+ * the status poll the client is already making, and the sweeper all reach for
+ * work the same way, and the claim is what settles who gets it.
+ */
+export async function runNextCheckJob(
   supabase: SupabaseService,
-  userId: string,
-  key: string,
-): Promise<string | null> {
-  const { data } = await supabase
-    .from('check_jobs')
-    .select('id')
-    .eq('user_id', userId)
-    .eq('idempotency_key', key)
-    .maybeSingle()
+  analyse: Analyse = analyzeSymptomCheck,
+  worker: string = randomUUID(),
+): Promise<WorkOutcome> {
+  const { data, error } = await supabase.rpc('claim_check_job', {
+    p_worker: worker,
+    p_lease_seconds: LEASE_SECONDS,
+  })
 
-  return data?.id ?? null
+  if (error) {
+    console.error('could not claim a check job:', error.message)
+    return 'idle'
+  }
+  if (!data) return 'idle'
+
+  const job = data as ClaimedJob
+  const payload = job.payload ?? {}
+
+  let outcome: AnalyzeSymptomCheckOutcome
+  try {
+    outcome = await analyse(supabase, {
+      userId: job.user_id,
+      symptoms: String(payload.symptoms ?? ''),
+      petId: (payload.pet_id as string | null) ?? null,
+      photos: [],
+      appetite: (payload.appetite as string | null) ?? null,
+      activity: (payload.activity as string | null) ?? null,
+      duration: (payload.duration as string | null) ?? null,
+      stool: (payload.stool as string | null) ?? null,
+      pain_signs: (payload.pain_signs as string[] | undefined) ?? [],
+    } as AnalyzeSymptomCheckInput)
+  } catch (cause) {
+    // A throw is not a verdict: the next attempt may well succeed, and the
+    // lease is what stops this one from being held for ever.
+    console.error('check job threw:', cause)
+    await report(supabase, job.id, worker, 'internal_error', false)
+    return 'retryable'
+  }
+
+  if (outcome.ok) {
+    const { data: held } = await supabase.rpc('complete_check_job', {
+      p_job_id: job.id,
+      p_worker: worker,
+      p_check_id: outcome.checkId,
+    })
+    // False means the lease expired and another worker owns the job now. The
+    // check is saved either way; what must not happen is this worker also
+    // marking the job done and pointing the reservation at its own result.
+    return held === true ? 'completed' : 'lost'
+  }
+
+  const final = isFinal(outcome.code)
+  const held = await report(supabase, job.id, worker, outcome.code, final)
+  if (!held) return 'lost'
+  return final ? 'failed' : 'retryable'
 }
 
-async function finish(
+async function report(
   supabase: SupabaseService,
   jobId: string,
-  patch: { status: 'completed' | 'failed'; check_id?: string; error_code?: ErrorCode },
-): Promise<void> {
-  const { error } = await supabase
-    .from('check_jobs')
-    .update({ ...patch, updated_at: new Date().toISOString() })
-    .eq('id', jobId)
+  worker: string,
+  code: ErrorCode,
+  final: boolean,
+): Promise<boolean> {
+  const { data, error } = await supabase.rpc('fail_check_job', {
+    p_job_id: jobId,
+    p_worker: worker,
+    p_error_code: code,
+    p_final: final,
+  })
 
-  // The analysis itself is done either way, so this must not throw. But a job
-  // left saying `processing` is one a client polls until it gives up, with no
-  // trace of why — so it is said out loud rather than swallowed.
   if (error) {
-    console.error(`could not close check job ${jobId} as ${patch.status}:`, error.message)
+    // The job keeps its lease and the sweeper will pick it up. Said out loud
+    // rather than swallowed: a job nobody reports on is a job a client polls
+    // until it gives up.
+    console.error(`could not report check job ${jobId}:`, error.message)
+    return false
   }
+
+  return data === true
+}
+
+/**
+ * Runs jobs until there are none left or the budget is spent.
+ *
+ * The budget exists because the platform will kill this eventually, and a
+ * worker that stops on its own terms leaves nothing half-claimed.
+ */
+export async function drainCheckJobs(
+  supabase: SupabaseService,
+  limit = 5,
+  analyse: Analyse = analyzeSymptomCheck,
+): Promise<{ ran: number; outcomes: WorkOutcome[] }> {
+  const outcomes: WorkOutcome[] = []
+
+  for (let i = 0; i < limit; i += 1) {
+    const outcome = await runNextCheckJob(supabase, analyse)
+    if (outcome === 'idle') break
+    outcomes.push(outcome)
+  }
+
+  return { ran: outcomes.length, outcomes }
+}
+
+/** Puts expired leases back in the queue and gives up on the ones out of attempts. */
+export async function recoverStuckCheckJobs(supabase: SupabaseService): Promise<number> {
+  const { data, error } = await supabase.rpc('recover_stuck_check_jobs', {})
+  if (error) {
+    console.error('could not recover stuck check jobs:', error.message)
+    return 0
+  }
+  return typeof data === 'number' ? data : 0
 }
 
 /**
