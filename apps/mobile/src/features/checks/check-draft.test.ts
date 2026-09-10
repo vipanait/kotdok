@@ -85,8 +85,10 @@ describe('symptom check draft', () => {
 describe('whether a draft survives leaving the screen', () => {
   const written: CheckForm = { ...emptyCheckForm(), symptoms: 'вялый второй день' }
 
-  it('keeps what was typed but not sent', () => {
-    expect(shouldKeepDraft({ sent: false, form: written })).toBe(true)
+  it('keeps what was typed when the screen is merely left', () => {
+    // A tab, a phone call, the app being killed. This is what the draft is for:
+    // describing symptoms is work, and it is not re-typed cheerfully.
+    expect(shouldKeepDraft({ finished: false, form: written })).toBe(true)
   })
 
   it('drops it once the check has been accepted', () => {
@@ -94,11 +96,17 @@ describe('whether a draft survives leaving the screen', () => {
     // again on the way out, so the next check opened on the previous answers —
     // and reused its idempotency key, which the server answers with the
     // previous result.
-    expect(shouldKeepDraft({ sent: true, form: written })).toBe(false)
+    expect(shouldKeepDraft({ finished: true, form: written })).toBe(false)
+  })
+
+  it('drops it when Cancel was pressed', () => {
+    // Same flag, different reason: Cancel is somebody saying out loud that this
+    // question is not worth keeping, and it used to keep it anyway.
+    expect(shouldKeepDraft({ finished: true, form: written })).toBe(false)
   })
 
   it('drops an empty form either way', () => {
-    expect(shouldKeepDraft({ sent: false, form: emptyCheckForm() })).toBe(false)
-    expect(shouldKeepDraft({ sent: true, form: emptyCheckForm() })).toBe(false)
+    expect(shouldKeepDraft({ finished: false, form: emptyCheckForm() })).toBe(false)
+    expect(shouldKeepDraft({ finished: true, form: emptyCheckForm() })).toBe(false)
   })
 })

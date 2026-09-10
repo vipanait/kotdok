@@ -46,14 +46,19 @@ export function isWorthKeeping(form: CheckForm): boolean {
 /**
  * Whether the draft on screen is still worth storing.
  *
- * `sent` is the half that was missing and cost people their next check. The
- * draft is deleted the moment a check is accepted — and was then written back
- * on the way out, because leaving the screen saves whatever is in the fields
- * and nothing had cleared them. The next check opened on the previous one's
- * answers, with the previous one's idempotency key behind them.
+ * `finished` is the half that was missing and cost people their next check. It
+ * means this question is done with, one way or the other: sent, or abandoned by
+ * pressing Cancel. Everything else that takes somebody off this screen — a tab,
+ * a phone call, the app being killed — is an interruption, and the draft exists
+ * for exactly those.
+ *
+ * Without it the draft was deleted the moment a check was accepted and written
+ * straight back on the way out, because leaving the screen saves whatever is in
+ * the fields and nothing had cleared them. The next check opened on the
+ * previous one's answers, with the previous one's idempotency key behind them.
  */
-export function shouldKeepDraft(state: { sent: boolean; form: CheckForm }): boolean {
-  return !state.sent && isWorthKeeping(state.form)
+export function shouldKeepDraft(state: { finished: boolean; form: CheckForm }): boolean {
+  return !state.finished && isWorthKeeping(state.form)
 }
 
 export function serialiseDraft(userId: string, draft: CheckDraft): string {

@@ -77,21 +77,20 @@ export default function NewCheck() {
   latest.current = { form, step }
 
   /**
-   * Whether this question has already been sent.
+   * Whether this question is done with — sent, or abandoned by pressing Cancel.
    *
-   * The draft is deleted when a check is accepted — and was then written
-   * straight back, because leaving the screen saves whatever is still in the
-   * fields, and nothing cleared them. The next check opened on last week's
-   * answers.
+   * Anything else that takes somebody off this screen is an interruption, and
+   * the draft is here for those: describing symptoms is work, and losing it to
+   * a mistyped tap is not forgiven.
    */
-  const sent = useRef(false)
+  const finished = useRef(false)
 
   const keepDraft = useCallback(async () => {
     if (!userId) return
 
     const { form: current, step: at } = latest.current
 
-    if (!shouldKeepDraft({ sent: sent.current, form: current })) {
+    if (!shouldKeepDraft({ finished: finished.current, form: current })) {
       await draftStorage.removeItem(DRAFT_KEY)
       return
     }
@@ -130,7 +129,7 @@ export default function NewCheck() {
 
   /** Empties the screen so the next check starts where a first one would. */
   const startFresh = useCallback(() => {
-    sent.current = false
+    finished.current = false
     key.current = null
     setForm(emptyCheckForm())
     setStep(1)
@@ -145,7 +144,7 @@ export default function NewCheck() {
       // coming back to it has to be the same as arriving for the first time.
       // Clearing on the way out would empty the fields while they are still on
       // screen, in the moment the result is being opened.
-      if (sent.current) startFresh()
+      if (finished.current) startFresh()
 
       return () => {
         void keepDraft()
@@ -241,6 +240,19 @@ export default function NewCheck() {
     throw new AppError(t.errors.analysisSlow, 'still_running')
   }, [t])
 
+  /**
+   * Cancel, and mean it.
+   *
+   * The one place somebody says this question is not worth keeping. Leaving any
+   * other way keeps the draft, which is why this cannot simply navigate: the
+   * screen saves what is in the fields on its way out.
+   */
+  function abandon() {
+    finished.current = true
+    void forgetDraft()
+    router.replace('/pets')
+  }
+
   function next() {
     const input = formToCheckInput(t, form)
     if (!input.ok) {
@@ -265,7 +277,7 @@ export default function NewCheck() {
     try {
       const accepted = await withFreshSession((api) => api.createCheck(key.current!, input.value))
       // Sent and charged: keeping it now would offer to send it a second time.
-      sent.current = true
+      finished.current = true
       await forgetDraft()
       await waitForResult(accepted.job_id)
     } catch (cause) {
@@ -342,7 +354,7 @@ export default function NewCheck() {
         dock={
           <>
             <Button title={t.common.next} onPress={next} />
-            <LinkButton title={t.common.cancel} onPress={() => router.replace('/pets')} />
+            <LinkButton title={t.common.cancel} onPress={abandon} />
           </>
         }
       >
