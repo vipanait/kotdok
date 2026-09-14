@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ActivityIndicator, Image, Pressable, StyleSheet, View } from 'react-native'
+import { ActivityIndicator, Image, Platform, Pressable, StyleSheet, View } from 'react-native'
 import { SvgXml } from 'react-native-svg'
 import { useAuth } from '@/providers/AuthProvider'
 import type { ProviderId, ProviderOutcome } from '@/lib/provider-sign-in'
@@ -7,9 +7,11 @@ import { useText } from '@/i18n'
 import { Text } from '@/ui/Text'
 import { YANDEX_ID_SVG } from '@/ui/yandex-id'
 import { TAP_TARGET, colour, font, provider, radius, type } from '@/ui/theme'
+import { AppleButton } from './AppleButton'
+import { providerOrder } from './provider-order'
 
 /**
- * Signing in with Yandex ID or Google.
+ * Signing in with Apple, Yandex ID or Google.
  *
  * Offered on the two screens where an account is reached — sign-in and
  * registration — and deliberately not on password recovery, where the task is
@@ -25,7 +27,7 @@ import { TAP_TARGET, colour, font, provider, radius, type } from '@/ui/theme'
  * both screens already own a banner, and a component that renders its own
  * message would put a second one in a different place on each of them.
  *
- * While one provider is running the other is disabled. Two sign-ins racing
+ * While one provider is running the others are disabled. Two sign-ins racing
  * would leave whichever finished second holding a code the first already spent.
  */
 export function ProviderButtons({ onOutcome }: { onOutcome: (outcome: ProviderOutcome) => void }) {
@@ -53,30 +55,62 @@ export function ProviderButtons({ onOutcome }: { onOutcome: (outcome: ProviderOu
       </View>
 
       <View style={styles.buttons}>
-        <ProviderButton
-          label={t.auth.yandex}
-          colours={provider.yandex}
-          icon={<SvgXml xml={YANDEX_ID_SVG} width={24} height={24} />}
-          loading={busy === 'custom:yandex'}
-          disabled={busy !== null}
-          onPress={() => start('custom:yandex')}
-        />
-        <ProviderButton
-          label={t.auth.google}
-          colours={provider.google}
-          face={font.google}
-          icon={
-            <Image
-              source={require('../../../assets/art/google-g.png')}
-              style={styles.googleMark}
-              resizeMode="contain"
-              accessible={false}
-            />
+        {providerOrder(Platform.OS).map((id) => {
+          switch (id) {
+            case 'apple':
+              return (
+                <AppleButton
+                  key={id}
+                  label={t.auth.apple}
+                  loading={busy === 'apple'}
+                  disabled={busy !== null}
+                  onPress={() => start('apple')}
+                />
+              )
+            case 'custom:yandex':
+              return (
+                <ProviderButton
+                  key={id}
+                  label={t.auth.yandex}
+                  colours={provider.yandex}
+                  icon={<SvgXml xml={YANDEX_ID_SVG} width={24} height={24} />}
+                  loading={busy === 'custom:yandex'}
+                  disabled={busy !== null}
+                  onPress={() => start('custom:yandex')}
+                />
+              )
+            case 'google':
+              return (
+                <ProviderButton
+                  key={id}
+                  label={t.auth.google}
+                  colours={provider.google}
+                  face={font.google}
+                  icon={
+                    <Image
+                      source={require('../../../assets/art/google-g.png')}
+                      style={styles.googleMark}
+                      resizeMode="contain"
+                      accessible={false}
+                    />
+                  }
+                  loading={busy === 'google'}
+                  disabled={busy !== null}
+                  onPress={() => start('google')}
+                />
+              )
           }
-          loading={busy === 'google'}
-          disabled={busy !== null}
-          onPress={() => start('google')}
-        />
+        })}
+
+        {/*
+          Apple's system button can neither show a spinner nor be restyled, so
+          while its token is being exchanged the whole group carries one on top.
+        */}
+        {busy === 'apple' && Platform.OS === 'ios' ? (
+          <View style={styles.busyOverlay} accessibilityLabel={t.auth.apple} accessibilityState={{ busy: true }}>
+            <ActivityIndicator color={colour.text} />
+          </View>
+        ) : null}
       </View>
     </View>
   )
@@ -125,6 +159,13 @@ const styles = StyleSheet.create({
   divider: { flexDirection: 'row', alignItems: 'center', gap: 12, marginVertical: 12 },
   rule: { flex: 1, height: 1, backgroundColor: colour.line },
   buttons: { gap: 8 },
+  busyOverlay: {
+    ...StyleSheet.absoluteFill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    // The screen's own cream (`colour.canvas`), see-through, so the buttons fade rather than vanish.
+    backgroundColor: 'rgba(251, 246, 238, 0.7)',
+  },
   button: {
     minHeight: TAP_TARGET,
     width: '100%',
