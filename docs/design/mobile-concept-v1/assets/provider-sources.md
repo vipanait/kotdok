@@ -15,4 +15,14 @@
 - `yandex-id.svg` — круглый знак «Я», извлечённый без изменения контуров из SVG кнопки-иконки на [официальной странице оформления](https://yandex.ru/dev/id/doc/ru/codes/buttons-design), без перерисовки.
 - Для соседства с Google показана светлая дополнительная версия, подпись «Войти с Яндекс ID», высота 44. При реализации использовать вариант конструктора/SDK провайдера и его штатные отступы, шрифт и границу.
 
+## Apple
+
+- [Официальные правила](https://developer.apple.com/design/human-interface-guidelines/sign-in-with-apple).
+- `apple-logo-black.svg` — чёрный логотип для кнопки с текстом из образа Logo-Sign-in-with-Apple.dmg в
+  [Apple Design Resources](https://developer.apple.com/design/resources/), файл `Sign in with Apple - Left Aligned/SVG/Logo - SIWA - Left-aligned - Black - Medium.svg`,
+  скачан 14 сентября 2026. Без перерисовки, обрезки и добавленных отступов; рисуется на всю высоту кнопки.
+- iOS: системная `AppleAuthenticationButton`, стиль `WHITE_OUTLINE`, тип `CONTINUE`, скругление
+  капсулой. Android и сайт: белый фон, чёрные логотип и текст, текст 43% высоты кнопки.
+- Подписи только из вариантов Apple; для Лапки — «Продолжить с Apple» / «Continue with Apple».
+
 В прототипе кнопки локальные и не отправляют данные провайдерам. Для приложения использовать поддерживаемые способы входа и актуальные брендовые компоненты; этап разработки — 5 в `docs/mobile-api-plan.md`.
