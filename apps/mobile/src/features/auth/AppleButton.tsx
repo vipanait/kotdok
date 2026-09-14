@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     // Apple: at least 8% of the width between the title and the trailing edge.
-    paddingRight: 24,
+    paddingRight: '8%',
     borderRadius: radius.pill,
     borderWidth: 1,
     backgroundColor: provider.apple.background,

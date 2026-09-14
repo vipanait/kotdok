@@ -48,9 +48,23 @@ export function ProviderButtons({ onOutcome }: { onOutcome: (outcome: ProviderOu
     <View>
       <View style={styles.divider}>
         <View style={styles.rule} />
-        <Text variant="caption" tone="faint">
-          {t.auth.dividerProviders}
-        </Text>
+        {/*
+          Apple's system button can neither show a spinner nor be covered, so
+          while its token is being exchanged the busy state shows here instead,
+          next to it, rather than on top of any button.
+        */}
+        {busy === 'apple' && Platform.OS === 'ios' ? (
+          <ActivityIndicator
+            color={colour.text}
+            size="small"
+            accessibilityLabel={t.auth.apple}
+            accessibilityState={{ busy: true }}
+          />
+        ) : (
+          <Text variant="caption" tone="faint">
+            {t.auth.dividerProviders}
+          </Text>
+        )}
         <View style={styles.rule} />
       </View>
 
@@ -101,16 +115,6 @@ export function ProviderButtons({ onOutcome }: { onOutcome: (outcome: ProviderOu
               )
           }
         })}
-
-        {/*
-          Apple's system button can neither show a spinner nor be restyled, so
-          while its token is being exchanged the whole group carries one on top.
-        */}
-        {busy === 'apple' && Platform.OS === 'ios' ? (
-          <View style={styles.busyOverlay} accessibilityLabel={t.auth.apple} accessibilityState={{ busy: true }}>
-            <ActivityIndicator color={colour.text} />
-          </View>
-        ) : null}
       </View>
     </View>
   )
@@ -159,13 +163,6 @@ const styles = StyleSheet.create({
   divider: { flexDirection: 'row', alignItems: 'center', gap: 12, marginVertical: 12 },
   rule: { flex: 1, height: 1, backgroundColor: colour.line },
   buttons: { gap: 8 },
-  busyOverlay: {
-    ...StyleSheet.absoluteFill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    // The screen's own cream (`colour.canvas`), see-through, so the buttons fade rather than vanish.
-    backgroundColor: 'rgba(251, 246, 238, 0.7)',
-  },
   button: {
     minHeight: TAP_TARGET,
     width: '100%',
