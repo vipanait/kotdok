@@ -8,7 +8,9 @@
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "my.lapka.app"
+      "bundleIdentifier": "my.lapka.app",
+      "appleTeamId": "5KT7H5RVKF",
+      "usesAppleSignIn": true
     },
     "android": {
       "package": "my.lapka.app"
@@ -17,7 +19,8 @@
       "expo-router",
       "expo-secure-store",
       "expo-font",
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-apple-authentication"
     ]
   }
 }
