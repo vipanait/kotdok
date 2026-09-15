@@ -87,7 +87,7 @@ export const type = {
 export const provider = {
   google: { background: '#FFFFFF', border: '#747775', text: '#1F1F1F' },
   yandex: { background: '#FFFFFF', border: '#B3B3B3', text: '#000000' },
-  apple: { background: '#FFFFFF', border: '#000000', text: '#000000' },
+  apple: { background: '#FFFFFF', border: '#747775', text: '#000000' },
 } as const
 
 export const radius = {

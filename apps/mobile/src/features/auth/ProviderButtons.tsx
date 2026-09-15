@@ -7,8 +7,13 @@ import { useText } from '@/i18n'
 import { Text } from '@/ui/Text'
 import { YANDEX_ID_SVG } from '@/ui/yandex-id'
 import { TAP_TARGET, colour, font, provider, radius, type } from '@/ui/theme'
-import { AppleButton } from './AppleButton'
+import { APPLE_MARK_ASPECT, APPLE_MARK_SVG } from '@/ui/apple-logo'
 import { providerOrder } from './provider-order'
+
+/**
+ * As tall as Google's G next to it, so the three marks read as one row.
+ */
+const APPLE_MARK_HEIGHT = 20
 
 /**
  * Signing in with Apple, Yandex ID or Google.
@@ -20,6 +25,9 @@ import { providerOrder } from './provider-order'
  * The marks and the buttons around them belong to the providers: white ground,
  * their border, their wording, their icon at its own size, and Google's own
  * face on Google's own label. None of it is nudged towards Lapka's palette.
+ * Apple's button is the one exception to "their own button": it is drawn like
+ * its neighbours, by the owner's decision of 15 September 2026 — see
+ * `ui/apple-logo.ts`.
  * Rules and sources: `assets/provider-sources.md` in the design concept.
  *
  * A press opens the system browser and comes back with an outcome. What the
@@ -34,9 +42,9 @@ export function ProviderButtons({ onOutcome }: { onOutcome: (outcome: ProviderOu
   const { signInWithProvider } = useAuth()
   const t = useText()
   const [busy, setBusy] = useState<ProviderId | null>(null)
-  // pointerEvents does not reliably block a VoiceOver double-tap on the
-  // native Apple button, and two sign-ins racing would spend each other's
-  // code/nonce — so a ref (synchronous, unlike state) guards re-entry too.
+  // State updates are asynchronous, so two quick presses can both see
+  // `busy === null`; two sign-ins racing would spend each other's code or
+  // nonce. A ref is read synchronously and guards re-entry.
   const running = useRef(false)
 
   async function start(provider: ProviderId) {
@@ -55,27 +63,9 @@ export function ProviderButtons({ onOutcome }: { onOutcome: (outcome: ProviderOu
     <View>
       <View style={styles.divider}>
         <View style={styles.rule} />
-        {/*
-          Apple's system button can neither show a spinner nor be covered, so
-          while its token is being exchanged the busy state shows here instead,
-          next to it, rather than on top of any button.
-        */}
-        {/* Fixed height so the row does not grow when the 20pt spinner
-            replaces the 16pt caption. */}
-        <View style={styles.dividerSlot}>
-          {busy === 'apple' && Platform.OS === 'ios' ? (
-            <ActivityIndicator
-              color={colour.text}
-              size="small"
-              accessibilityLabel={t.auth.apple}
-              accessibilityState={{ busy: true }}
-            />
-          ) : (
-            <Text variant="caption" tone="faint">
-              {t.auth.dividerProviders}
-            </Text>
-          )}
-        </View>
+        <Text variant="caption" tone="faint">
+          {t.auth.dividerProviders}
+        </Text>
         <View style={styles.rule} />
       </View>
 
@@ -84,9 +74,17 @@ export function ProviderButtons({ onOutcome }: { onOutcome: (outcome: ProviderOu
           switch (id) {
             case 'apple':
               return (
-                <AppleButton
+                <ProviderButton
                   key={id}
                   label={t.auth.apple}
+                  colours={provider.apple}
+                  icon={
+                    <SvgXml
+                      xml={APPLE_MARK_SVG}
+                      width={APPLE_MARK_HEIGHT * APPLE_MARK_ASPECT}
+                      height={APPLE_MARK_HEIGHT}
+                    />
+                  }
                   loading={busy === 'apple'}
                   disabled={busy !== null}
                   onPress={() => start('apple')}
@@ -173,7 +171,6 @@ function ProviderButton({
 const styles = StyleSheet.create({
   divider: { flexDirection: 'row', alignItems: 'center', gap: 12, marginVertical: 12 },
   rule: { flex: 1, height: 1, backgroundColor: colour.line },
-  dividerSlot: { height: 20, justifyContent: 'center', alignItems: 'center' },
   buttons: { gap: 8 },
   button: {
     minHeight: TAP_TARGET,
