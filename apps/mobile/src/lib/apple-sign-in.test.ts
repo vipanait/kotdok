@@ -1,4 +1,3 @@
-import { createHash } from 'node:crypto'
 import { describe, expect, it, vi } from 'vitest'
 import { createAppleSignIn, usesNativeAppleSignIn, type AppleSignInDeps } from './apple-sign-in'
 import { ru } from '@/i18n/ru'
@@ -6,7 +5,10 @@ import { ru } from '@/i18n/ru'
 const messages = ru.provider
 const TOKEN = 'header.payload.signature'
 
-const sha256 = async (value: string) => createHash('sha256').update(value).digest('hex')
+const sha256 = async (value: string) =>
+  Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value))), (b) =>
+    b.toString(16).padStart(2, '0'),
+  ).join('')
 
 /** What expo-apple-authentication rejects with: an Error carrying a string code. */
 function nativeError(code: string) {

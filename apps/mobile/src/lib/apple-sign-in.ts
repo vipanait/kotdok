@@ -63,6 +63,9 @@ export function createAppleSignIn(deps: AppleSignInDeps) {
       return { kind: 'failed', message: messages.failedToStart }
     }
 
+    // expo-apple-authentication itself rejects (ERR_REQUEST_FAILED, handled
+    // above) when the token is missing; this branch is defensive, for a
+    // module that stops doing so.
     if (!identityToken) {
       deps.reportFailure?.('apple', 'no identity token')
       return { kind: 'failed', message: messages.failedToFinish }

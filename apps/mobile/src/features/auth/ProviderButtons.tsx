@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { ActivityIndicator, Image, Platform, Pressable, StyleSheet, View } from 'react-native'
 import { SvgXml } from 'react-native-svg'
 import { useAuth } from '@/providers/AuthProvider'
@@ -34,12 +34,19 @@ export function ProviderButtons({ onOutcome }: { onOutcome: (outcome: ProviderOu
   const { signInWithProvider } = useAuth()
   const t = useText()
   const [busy, setBusy] = useState<ProviderId | null>(null)
+  // pointerEvents does not reliably block a VoiceOver double-tap on the
+  // native Apple button, and two sign-ins racing would spend each other's
+  // code/nonce — so a ref (synchronous, unlike state) guards re-entry too.
+  const running = useRef(false)
 
   async function start(provider: ProviderId) {
+    if (running.current) return
+    running.current = true
     setBusy(provider)
     try {
       onOutcome(await signInWithProvider(provider))
     } finally {
+      running.current = false
       setBusy(null)
     }
   }
@@ -53,18 +60,22 @@ export function ProviderButtons({ onOutcome }: { onOutcome: (outcome: ProviderOu
           while its token is being exchanged the busy state shows here instead,
           next to it, rather than on top of any button.
         */}
-        {busy === 'apple' && Platform.OS === 'ios' ? (
-          <ActivityIndicator
-            color={colour.text}
-            size="small"
-            accessibilityLabel={t.auth.apple}
-            accessibilityState={{ busy: true }}
-          />
-        ) : (
-          <Text variant="caption" tone="faint">
-            {t.auth.dividerProviders}
-          </Text>
-        )}
+        {/* Fixed height so the row does not grow when the 20pt spinner
+            replaces the 16pt caption. */}
+        <View style={styles.dividerSlot}>
+          {busy === 'apple' && Platform.OS === 'ios' ? (
+            <ActivityIndicator
+              color={colour.text}
+              size="small"
+              accessibilityLabel={t.auth.apple}
+              accessibilityState={{ busy: true }}
+            />
+          ) : (
+            <Text variant="caption" tone="faint">
+              {t.auth.dividerProviders}
+            </Text>
+          )}
+        </View>
         <View style={styles.rule} />
       </View>
 
@@ -162,6 +173,7 @@ function ProviderButton({
 const styles = StyleSheet.create({
   divider: { flexDirection: 'row', alignItems: 'center', gap: 12, marginVertical: 12 },
   rule: { flex: 1, height: 1, backgroundColor: colour.line },
+  dividerSlot: { height: 20, justifyContent: 'center', alignItems: 'center' },
   buttons: { gap: 8 },
   button: {
     minHeight: TAP_TARGET,
