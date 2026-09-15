@@ -616,7 +616,7 @@ function AppleButton({ onClick, loading, label }: { onClick: () => void; loading
       type="button"
       onClick={onClick}
       disabled={loading}
-      className="flex h-[46px] w-full items-center justify-center rounded-xl border border-black bg-white pr-6 text-[20px] font-medium text-black transition-colors hover:bg-canvas-soft disabled:opacity-50"
+      className="flex h-[46px] w-full items-center justify-center rounded-xl border border-black bg-white pr-[8%] text-[20px] font-medium text-black transition-colors hover:opacity-90 disabled:opacity-50"
     >
       <AppleLogo />
       {loading ? dict.common.redirecting : label}
@@ -668,7 +668,7 @@ function YandexIcon() {
 /** Apple's logo for a button with a title, from Apple Design Resources, unmodified. */
 function AppleLogo() {
   return (
-    <svg height="44" viewBox="0 0 31 44" aria-hidden="true">
+    <svg width="31" height="44" viewBox="0 0 31 44" aria-hidden="true" className="shrink-0">
       {/* Generator: Sketch 61 (89581) - https://sketch.com */}
       <g stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
         <rect fill="#FFFFFF" x="0" y="0" width="31" height="44"></rect>

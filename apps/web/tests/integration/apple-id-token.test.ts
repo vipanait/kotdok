@@ -38,7 +38,7 @@ describe('an Apple identity token that Apple did not sign', () => {
   it('meets a stack that can read Apple’s keys', async () => {
     // Without Apple's keys a forged token is refused too, for the wrong reason.
     // This makes that case fail loudly instead of passing quietly.
-    const response = await fetch(`${APPLE_ISSUER}/auth/keys`)
+    const response = await fetch(`${APPLE_ISSUER}/auth/keys`, { signal: AbortSignal.timeout(10_000) })
     expect(response.ok).toBe(true)
   })
 
