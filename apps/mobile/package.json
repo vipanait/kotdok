@@ -49,6 +49,13 @@
       "exclude": [
         "react"
       ]
+    },
+    "autolinking": {
+      "exclude": [
+        "react-native-gesture-handler",
+        "react-native-reanimated",
+        "react-native-worklets"
+      ]
     }
   }
 }
