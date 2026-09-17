@@ -79,6 +79,15 @@ describe('the status behind a receipt', () => {
   })
 
   it('reports completion once it is true', async () => {
+    // The previous test forced the job to `action_required` with a raw update,
+    // bypassing the worker entirely. `complete_deletion_job` now refuses to
+    // complete a job that is not `pending`/`in_progress` (a stale runner must
+    // not overwrite one already handled), so put it back where a claimed job
+    // actually sits before completing it — the same state the real worker
+    // would find it in.
+    await db.query(`update public.deletion_jobs set status = 'in_progress' where user_id = $1`, [
+      seeded.ownerAId,
+    ])
     await db.query(`select public.complete_deletion_job($1, interval '60 days')`, [seeded.ownerAId])
 
     await expect(readDeletionStatus(service(), RECEIPT)).resolves.toEqual({

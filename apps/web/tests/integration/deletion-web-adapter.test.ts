@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { NextRequest } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import type { Client } from 'pg'
@@ -9,6 +9,11 @@ import { CSRF_COOKIE_NAME, CSRF_HEADER_NAME } from '@/server/security/csrf'
 import { createServiceClient } from '@/server/supabase/server'
 import { issueReauthProof } from '@/server/auth/reauth'
 import { FIXTURE_PASSWORD, OWNER_A, OWNER_B, connect, seedFixtures, type SeededFixtures } from './fixtures'
+
+const scheduled = vi.hoisted(() => [] as string[])
+vi.mock('@/server/account/deletion-after', () => ({
+  scheduleDeletionProcessing: (userId: string) => void scheduled.push(userId),
+}))
 
 /**
  * The cookie session, stubbed.
@@ -88,6 +93,10 @@ afterAll(async () => {
   await db.end()
 })
 
+beforeEach(() => {
+  scheduled.length = 0
+})
+
 describe('the web adapter', () => {
   it('refuses a request with no CSRF token, before looking at anything else', async () => {
     const response = await webDeletionRoute(
@@ -106,6 +115,7 @@ describe('the web adapter', () => {
     expect(
       (await db.query(`select 1 from public.deletion_jobs`)).rowCount,
     ).toBe(0)
+    expect(scheduled.filter((id) => id === seeded.ownerAId)).toHaveLength(0)
   })
 
   it('refuses a valid CSRF token with no session', async () => {
@@ -118,6 +128,7 @@ describe('the web adapter', () => {
 
     expect(response.status).toBe(401)
     expect((await db.query(`select 1 from public.deletion_jobs`)).rowCount).toBe(0)
+    expect(scheduled.filter((id) => id === seeded.ownerAId)).toHaveLength(0)
   })
 
   it('refuses a session without a proof of fresh authentication', async () => {
@@ -129,6 +140,7 @@ describe('the web adapter', () => {
 
     expect(response.status).toBe(401)
     expect((await db.query(`select 1 from public.deletion_jobs`)).rowCount).toBe(0)
+    expect(scheduled.filter((id) => id === seeded.ownerAId)).toHaveLength(0)
   })
 
   it('accepts a complete request, and says accepted rather than done', async () => {
@@ -150,6 +162,7 @@ describe('the web adapter', () => {
       [seeded.ownerAId],
     )
     expect(rows[0].status).toBe('deleting')
+    expect(scheduled.filter((id) => id === seeded.ownerAId)).toHaveLength(1)
   })
 })
 
@@ -176,6 +189,7 @@ describe('the api adapter', () => {
       (await db.query(`select 1 from public.deletion_jobs where user_id = $1`, [seeded.ownerBId]))
         .rowCount,
     ).toBe(0)
+    expect(scheduled.filter((id) => id === seeded.ownerBId)).toHaveLength(0)
   })
 
   it('accepts, and says accepted rather than done', async () => {
@@ -205,6 +219,7 @@ describe('the api adapter', () => {
     // The job is pending, which is a different thing from the answer being
     // "completed" — 9/03 asks for exactly that distinction.
     expect(rows[0].status).toBe('pending')
+    expect(scheduled.filter((id) => id === seeded.ownerBId)).toHaveLength(1)
   })
 })
 
@@ -235,6 +250,7 @@ describe('both adapters', () => {
       [seeded.ownerAId],
     )
     expect(Number(rows[0].n)).toBe(1)
+    expect(scheduled.filter((id) => id === seeded.ownerAId)).toHaveLength(0)
   })
 
   it('leaves the other owner where they were', async () => {
