@@ -39,6 +39,18 @@
 `user_feedback` → `profiles` → `auth.users` (`payment_methods` и таблицы `auth`
 уходят каскадом).
 
+**Уточнение 17 сентября 2026 (8/05).** Таблицы оплат переехали в схему `retired` 10 сентября, но
+держат аккаунт по-прежнему: `retired.transactions.user_id → auth.users` — **RESTRICT**,
+`retired.credit_transactions.user_id → profiles` — **NO ACTION**. А на production, где применена миграция
+`20260910090000_check_job_queue` из ветки `server/stage-6-job-reliability` (2.16), `check_jobs.usage_ledger_id →
+credit_ledger` — **SET NULL**: удаление записей баланса обновляет задачи анализа, а обновление для
+аккаунта не в статусе `active` запрещено защитой от поздних записей. Поэтому `check_jobs` удаляются первыми. Порядок, который выполняет
+`delete_account_data`:
+
+`check_jobs` → `extra_check_requests` → `credit_ledger` (в архив) → `retired.transaction_status_events`
+и `retired.transactions` (в архив) → `retired.credit_transactions` (в архив) → `symptom_checks` →
+`pets` → `profiles` (`user_feedback` каскадом) → `auth.users` отдельным шагом обработчика.
+
 Обратный порядок не работает нигде: `credit_ledger` держит и проверки, и
 транзакции одновременно, поэтому он обязан уйти раньше обеих.
 

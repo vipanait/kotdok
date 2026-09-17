@@ -27,6 +27,7 @@ const FORBIDDEN = [
  * why the list is explicit rather than a glob.
  */
 const ADAPTERS = new Set([
+  'account/deletion-after.ts',
   'api/bearer-auth.ts',
   'api/failure-response.ts',
   'api/response.ts',

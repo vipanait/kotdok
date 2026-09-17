@@ -99,9 +99,11 @@ describe('after the account is gone', () => {
     )
 
     expect(Object.keys(rows[0]).sort()).toEqual([
+      'attempts',
       'completed_at',
       'error_code',
       'id',
+      'lease_until',
       'progress',
       'receipt_hash',
       'requested_at',
@@ -112,7 +114,9 @@ describe('after the account is gone', () => {
     ])
 
     // No address, no name, no locale — and the receipt kept as a hash, so the
-    // table cannot be read to impersonate one.
+    // table cannot be read to impersonate one. `attempts` and `lease_until`
+    // (stage 8/05) are the worker's own bookkeeping — a retry counter and a
+    // lock timestamp — and say nothing about the person being deleted.
     expect(JSON.stringify(rows[0])).not.toContain('fixture.local')
     expect(rows[0].receipt_hash).toMatch(/^[0-9a-f]{64}$/)
   })
@@ -175,6 +179,15 @@ describe('retention of the record itself', () => {
   })
 
   it('keeps the record for exactly the published period', async () => {
+    // The previous test already completed this job with no retention set.
+    // `complete_deletion_job` now refuses to touch a job that is not
+    // `pending`/`in_progress` — a stale runner must not overwrite one already
+    // handled — so put it back to `pending` first, as a retry would find it,
+    // before completing it again with a real deadline this time.
+    await db.query(`update public.deletion_jobs set status = 'pending' where user_id = $1`, [
+      seeded.ownerAId,
+    ])
+
     // The owner chose thirty days published and sixty days of record on
     // 9 September. The constant and the database have to agree, or the policy
     // page promises one thing while the row does another.

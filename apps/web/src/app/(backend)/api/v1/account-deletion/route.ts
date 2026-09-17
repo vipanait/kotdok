@@ -8,13 +8,15 @@ import { createServiceClient } from '@/server/supabase/server'
 import { apiError, apiSuccess } from '@/server/api/response'
 import { withApiAuth, type ApiContext } from '@/server/api/with-api-auth'
 import { requestAccountDeletion } from '@/server/account/deletion-service'
+import { scheduleDeletionProcessing } from '@/server/account/deletion-after'
 
 /**
  * Accepts a request to delete the account (stage 8/03).
  *
- * Answers only that the request was accepted. The work is a job, and the person
- * follows it with the receipt they made themselves — never with an id or an
- * address echoed back here.
+ * Answers only that the request was accepted, and starts the cleanup after the
+ * answer is sent (stage 8/05). The work is a job, and the person follows it
+ * with the receipt they made themselves — never with an id or an address
+ * echoed back here.
  *
  * A second request from the same person does not reach this handler at all:
  * `withApiAuth` refuses an account already marked `deleting`, which is also how
@@ -50,6 +52,8 @@ export const POST = withApiAuth(async (request: NextRequest, context: ApiContext
     console.error(`[${context.requestId}] deletion request failed`)
     return apiError(context.requestId, 'internal_error', 'Could not accept the request')
   }
+
+  scheduleDeletionProcessing(context.account.userId)
 
   const response = apiSuccess(
     context.requestId,

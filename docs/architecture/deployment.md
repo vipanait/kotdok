@@ -65,6 +65,12 @@ Preview и Development переведены на этот проект 6 сен�
 | `TELEGRAM_BOT_TOKEN` | Production, Preview | Sensitive |
 | `TELEGRAM_APPROVAL_CHAT_ID` | Production, Preview | Sensitive |
 | `TELEGRAM_WEBHOOK_SECRET` | Production, Preview | Sensitive |
+| `CRON_SECRET` | Production | Sensitive |
+
+**`CRON_SECRET`** (с 17 сентября 2026) — Vercel передаёт его маршрутам крона в заголовке
+`Authorization: Bearer …`. Без него `/api/cron/deletion-jobs` отвечает `401` и ежедневная
+подстраховка удаления аккаунтов не работает; заявки при этом обрабатываются сразу после приёма.
+Значение — не короче 32 случайных байт.
 
 **Исправлено 6 сентября 2026.** `SUPABASE_SERVICE_ROLE_KEY` разделён по окружениям: Production — боевой, Preview — от `lapka-staging`, оба помечены Sensitive; Development — staging-ключ (для Development пометка Sensitive недоступна). `NEXT_PUBLIC_SUPABASE_URL` и `NEXT_PUBLIC_SUPABASE_ANON_KEY` разделены так же. Проверено декодированием: Preview и Development указывают на тестовый проект, Production не тронут.
 

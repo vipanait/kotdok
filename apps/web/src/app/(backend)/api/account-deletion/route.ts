@@ -4,6 +4,7 @@ import { getAuthUser } from '@/server/auth/get-auth-user'
 import { csrfForbiddenResponse, verifyCsrf } from '@/server/security/csrf'
 import { createServiceClient } from '@/server/supabase/server'
 import { requestAccountDeletion } from '@/server/account/deletion-service'
+import { scheduleDeletionProcessing } from '@/server/account/deletion-after'
 
 /**
  * The site's way in to account deletion (stage 9/03).
@@ -51,6 +52,8 @@ export async function POST(request: NextRequest) {
     const status = outcome.reason === 'reauth_required' ? 401 : outcome.reason === 'not_found' ? 404 : 500
     return NextResponse.json({ error: outcome.reason }, { status })
   }
+
+  scheduleDeletionProcessing(user.id)
 
   const response = NextResponse.json({ status: 'accepted' }, { status: 202 })
   response.headers.set('Cache-Control', 'no-store')
