@@ -104,6 +104,25 @@ Preview и Development переведены на этот проект 6 сен�
 | Локальный стенд | Supabase CLI 2.115.0 на Docker Engine 29.7.2; БД 127.0.0.1:54322, API 127.0.0.1:54321 | `supabase start` |
 | Резервное копирование | **не проверено** | требуется доступ к настройкам проекта |
 
+### Адреса возврата авторизации в production
+
+**Authentication → URL Configuration** рабочего проекта `bczseshsgpzulqynvukg`. Состояние на 17 сентября 2026:
+
+| Поле | Значение | Кому нужно |
+| --- | --- | --- |
+| Site URL | `https://lapka.my` | сайт; сюда же Supabase отправляет, если адрес возврата не из списка |
+| Redirect URLs | `https://lapka.my/auth/callback`, `https://kotdok.vercel.app/auth/callback` | вход на сайте |
+| | `lapka://auth/provider` | вход в приложении через Google и Яндекс ([auth-links.ts](../../apps/mobile/src/lib/auth-links.ts), `PROVIDER_RETURN_URL`) |
+| | `lapka://auth/callback`, `lapka://auth/recover` | ссылки из писем: подтверждение почты и сброс пароля в приложении |
+
+Все адреса `lapka://` нужно вносить в **каждый** проект, к которому подключается сборка приложения. Настройка staging ([oauth-staging-setup.md](oauth-staging-setup.md), раздел 3) в production сама не переносится.
+
+Как выглядит ошибка. 17 сентября первая TestFlight-сборка смотрела в production, а `lapka://` там не было. После входа через Google или Яндекс окно браузера не закрывалось и показывало главную `lapka.my`. Supabase подменил неизвестный адрес на Site URL, приложение кода не получило. Вход через Apple на iPhone идёт через системное окно без адреса возврата, поэтому ошибка его не затронула.
+
+Проверка без входа в аккаунт. Запросить `GET /auth/v1/authorize?provider=google&redirect_to=lapka%3A%2F%2Fauth%2Fprovider&code_challenge=…&code_challenge_method=s256`, взять `state` из адреса провайдера и вызвать `GET /auth/v1/callback?state=<state>&error=access_denied`. Ответ `302` на `lapka://auth/provider?error=…` значит, что адрес принят. Ответ на `https://lapka.my/?error=…` значит, что адреса в списке нет. 17 сентября после добавления адресов проверено так для Google и `custom:yandex`, затем вход в TestFlight-сборке прошёл.
+
+Какой проект зашит в сборку, видно по `main.jsbundle` внутри архива: `grep -ao 'https://[a-z0-9]*\.supabase\.co' …/Lapka.app/main.jsbundle`. Локальный `apps/mobile/.env` указывает на staging и об архиве ничего не говорит.
+
 ## Не проверено и блокирует
 
 | Что | Зачем нужно | Что блокирует |
