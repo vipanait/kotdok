@@ -5,7 +5,13 @@ import { withFreshSession } from '@/lib/api'
 import { describeFailure } from '@/lib/errors'
 import { useText } from '@/i18n'
 import { PetFields } from '@/features/pets/PetFields'
-import { formToInput, petToForm, type PetForm } from '@/features/pets/pet-form'
+import {
+  formToInput,
+  petToForm,
+  remainingError,
+  type FieldError,
+  type PetForm,
+} from '@/features/pets/pet-form'
 import { Button, LinkButton } from '@/ui/Button'
 import { Banner, SettingRow } from '@/ui/Card'
 import { ConfirmDialog } from '@/ui/Dialog'
@@ -17,6 +23,7 @@ export default function EditPet() {
   const t = useText()
   const [form, setForm] = useState<PetForm | null>(null)
   const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
+  const [invalid, setInvalid] = useState<FieldError | null>(null)
   const [busy, setBusy] = useState(false)
   const [asking, setAsking] = useState(false)
 
@@ -36,6 +43,7 @@ export default function EditPet() {
 
   function change(patch: Partial<PetForm>) {
     setForm((current) => (current ? { ...current, ...patch } : current))
+    setInvalid((current) => remainingError(current, patch))
   }
 
   async function save() {
@@ -43,10 +51,12 @@ export default function EditPet() {
 
     const input = formToInput(t, form)
     if (!input.ok) {
-      setError({ text: input.message, offline: false })
+      setInvalid({ field: input.field, message: input.message })
+      setError(null)
       return
     }
 
+    setInvalid(null)
     setBusy(true)
     setError(null)
     try {
@@ -104,7 +114,7 @@ export default function EditPet() {
       />
       <View style={styles.spacer} />
 
-      <PetFields form={form} onChange={change} />
+      <PetFields form={form} onChange={change} invalid={invalid} />
 
       {error ? (
         <Banner

@@ -114,9 +114,23 @@ export function parseOptionalNumber(text: string, max: number): NumberResult {
 export const AGE_MAX = 50
 export const WEIGHT_MAX = 200
 
-export type FormResult =
-  | { ok: true; value: PetCreateInput }
-  | { ok: false; field: keyof PetForm; message: string }
+/** A complaint about one field, shown under that field. */
+export type FieldError = { field: keyof PetForm; message: string }
+
+export type FormResult = { ok: true; value: PetCreateInput } | ({ ok: false } & FieldError)
+
+/**
+ * The complaint still standing after an edit.
+ *
+ * Touching the field it is about retires it: the person is fixing it, and a red
+ * line under what they are typing reads as the new text being wrong too.
+ */
+export function remainingError(
+  error: FieldError | null,
+  patch: Partial<PetForm>,
+): FieldError | null {
+  return error && error.field in patch ? null : error
+}
 
 /**
  * @returns what to send, or the first field to complain about.

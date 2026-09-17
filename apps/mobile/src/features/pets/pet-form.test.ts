@@ -9,6 +9,7 @@ import {
   parseList,
   parseOptionalNumber,
   petToForm,
+  remainingError,
   type PetForm,
 } from './pet-form'
 
@@ -130,5 +131,13 @@ describe('pet form', () => {
         notes: 'боится грозы',
       },
     })
+  })
+
+  it('drops a complaint once its own field is edited, and keeps it for edits elsewhere', () => {
+    const missingName = { field: 'name' as const, message: 'Введите имя питомца' }
+
+    expect(remainingError(missingName, { name: 'Б' })).toBeNull()
+    expect(remainingError(missingName, { breed: 'Сибирская' })).toBe(missingName)
+    expect(remainingError(null, { name: 'Б' })).toBeNull()
   })
 })

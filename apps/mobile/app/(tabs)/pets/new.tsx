@@ -4,7 +4,13 @@ import { withFreshSession } from '@/lib/api'
 import { errorMessage } from '@/lib/errors'
 import { useText } from '@/i18n'
 import { PetFields } from '@/features/pets/PetFields'
-import { emptyPetForm, formToInput, type PetForm } from '@/features/pets/pet-form'
+import {
+  emptyPetForm,
+  formToInput,
+  remainingError,
+  type FieldError,
+  type PetForm,
+} from '@/features/pets/pet-form'
 import { Button, LinkButton } from '@/ui/Button'
 import { Banner } from '@/ui/Card'
 import { Screen } from '@/ui/Screen'
@@ -13,19 +19,23 @@ export default function NewPet() {
   const t = useText()
   const [form, setForm] = useState<PetForm>(emptyPetForm())
   const [error, setError] = useState<string | null>(null)
+  const [invalid, setInvalid] = useState<FieldError | null>(null)
   const [busy, setBusy] = useState(false)
 
   function change(patch: Partial<PetForm>) {
     setForm((current) => ({ ...current, ...patch }))
+    setInvalid((current) => remainingError(current, patch))
   }
 
   async function submit() {
     const input = formToInput(t, form)
     if (!input.ok) {
-      setError(input.message)
+      setInvalid({ field: input.field, message: input.message })
+      setError(null)
       return
     }
 
+    setInvalid(null)
     setBusy(true)
     setError(null)
     try {
@@ -52,7 +62,7 @@ export default function NewPet() {
         </>
       }
     >
-      <PetFields form={form} onChange={change} />
+      <PetFields form={form} onChange={change} invalid={invalid} />
       {error ? <Banner text={error} tone="error" /> : null}
     </Screen>
   )
