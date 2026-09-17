@@ -45,6 +45,7 @@ export const en: Dictionary = {
     dividerProviders: 'or continue with',
     yandex: 'Sign in with Yandex ID',
     google: 'Continue with Google',
+    apple: 'Continue with Apple',
     linkExpired: 'That link is no longer valid.',
   },
 

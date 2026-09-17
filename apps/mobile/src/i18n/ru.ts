@@ -45,6 +45,7 @@ export const ru = {
     dividerProviders: 'или войти с помощью',
     yandex: 'Войти с Яндекс ID',
     google: 'Продолжить с Google',
+    apple: 'Продолжить с Apple',
     linkExpired: 'Ссылка больше не действует.',
   },
 

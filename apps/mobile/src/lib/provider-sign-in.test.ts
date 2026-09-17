@@ -96,4 +96,11 @@ describe('signing in with a provider', () => {
 
     expect(outcome).toEqual({ kind: 'failed', message: expect.not.stringContaining('invalid') })
   })
+
+  it('sends Apple through the same browser flow on platforms without the sheet', async () => {
+    const d = deps()
+
+    await expect(createProviderSignIn(d)('apple', messages)).resolves.toEqual({ kind: 'session' })
+    expect(d.authorize).toHaveBeenCalledWith('apple', PROVIDER_RETURN_URL)
+  })
 })

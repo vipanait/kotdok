@@ -1,5 +1,5 @@
 /**
- * Signing in with Google or Yandex ID through the system browser.
+ * Signing in with Google, Yandex ID or Apple through the system browser.
  *
  * The browser and the auth client arrive as dependencies rather than imports,
  * so every decision made here — what counts as a cancellation, which address
@@ -13,7 +13,7 @@
 
 import { PROVIDER_RETURN_URL, parseProviderReturn } from './auth-links'
 
-export type ProviderId = 'google' | 'custom:yandex'
+export type ProviderId = 'google' | 'custom:yandex' | 'apple'
 
 export type ProviderOutcome =
   /** The session exists. Screens react to the auth state, not to this value. */

@@ -1,6 +1,9 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { Session } from '@supabase/supabase-js'
+import { Platform } from 'react-native'
 import * as WebBrowser from 'expo-web-browser'
+import * as AppleAuthentication from 'expo-apple-authentication'
+import * as Crypto from 'expo-crypto'
 import { draftStorage, sessionStorage, setSessionWriteFailureHandler, supabase } from '@/lib/supabase'
 import { setSessionLostHandler } from '@/lib/api'
 import { authRedirectUrl } from '@/lib/auth-links'
@@ -11,6 +14,7 @@ import {
   type ProviderId,
   type ProviderOutcome,
 } from '@/lib/provider-sign-in'
+import { createAppleSignIn, usesNativeAppleSignIn } from '@/lib/apple-sign-in'
 
 /**
  * The provider sign-in with its real browser and real client.
@@ -41,6 +45,29 @@ const signInWithProvider = createProviderSignIn({
   },
 })
 
+/**
+ * Apple's system sheet with the real module and the real client, built once for
+ * the same reasons as the browser flow above.
+ */
+const signInWithApple = createAppleSignIn({
+  randomNonce: () => Crypto.randomUUID(),
+  sha256: (value) => Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, value),
+  requestCredential: (hashedNonce) =>
+    AppleAuthentication.signInAsync({
+      // Email only. The app shows no names anywhere, and Apple asks apps not to
+      // collect what they do not use.
+      requestedScopes: [AppleAuthentication.AppleAuthenticationScope.EMAIL],
+      nonce: hashedNonce,
+    }),
+  async signInWithIdToken(token, nonce) {
+    const { error } = await supabase.auth.signInWithIdToken({ provider: 'apple', token, nonce })
+    return { error }
+  },
+  reportFailure(stage, detail) {
+    if (__DEV__) console.warn(`Apple sign-in failed at ${stage}: ${detail}`)
+  },
+})
+
 type AuthState = {
   session: Session | null
   /** True until the stored session has been read, so screens do not flash. */
@@ -49,9 +76,10 @@ type AuthState = {
   notice: string | null
   signIn(email: string, password: string): Promise<void>
   /**
-   * Google or Yandex ID through the system browser. Returns what happened, so
-   * the screen can tell a cancellation apart from a failure instead of guessing
-   * from the absence of a session.
+   * Google, Yandex ID or Apple. Apple on iOS goes through the system sheet,
+   * everything else through the system browser; the screen does not need to
+   * know which. Returns what happened, so the screen can tell a cancellation
+   * apart from a failure instead of guessing from the absence of a session.
    */
   signInWithProvider(provider: ProviderId): Promise<ProviderOutcome>
   /**
@@ -147,7 +175,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // The words come from here, where the interface's language is known;
       // the module that runs the exchange has no dictionary of its own.
-      signInWithProvider: (provider) => signInWithProvider(provider, t.provider),
+      signInWithProvider: (provider) =>
+        provider === 'apple' && usesNativeAppleSignIn(Platform.OS)
+          ? signInWithApple(t.provider)
+          : signInWithProvider(provider, t.provider),
 
       async signUp(email, password) {
         const { data, error } = await supabase.auth.signUp({
