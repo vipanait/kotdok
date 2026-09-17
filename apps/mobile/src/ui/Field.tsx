@@ -167,17 +167,24 @@ export function Segment<Value extends string>({
   )
 }
 
-/** Four or more options, behind a sheet. */
+/**
+ * Four or more options, behind a sheet.
+ *
+ * `allowNone={false}` for a choice that cannot be left open, like the pet a
+ * check is about.
+ */
 export function Select<Value extends string>({
   label,
   options,
   value,
   onChange,
+  allowNone = true,
 }: {
   label: string
   options: ReadonlyArray<Option<Value>>
   value: Value | null
   onChange: (value: Value | null) => void
+  allowNone?: boolean
 }) {
   const t = useText()
   const [open, setOpen] = useState(false)
@@ -205,6 +212,7 @@ export function Select<Value extends string>({
         value={value}
         onChange={onChange}
         onClose={() => setOpen(false)}
+        allowNone={allowNone}
       />
     </View>
   )

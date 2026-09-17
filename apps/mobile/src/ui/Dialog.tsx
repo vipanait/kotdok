@@ -1,6 +1,6 @@
 import { Modal, StyleSheet, View } from 'react-native'
 import { useText } from '@/i18n'
-import { Button } from './Button'
+import { Button, LinkButton } from './Button'
 import { Text } from './Text'
 import { colour, radius, space } from './theme'
 
@@ -48,6 +48,50 @@ export function ConfirmDialog({
             onPress={onCancel}
             style={styles.second}
           />
+        </View>
+      </View>
+    </Modal>
+  )
+}
+
+/**
+ * "Save the changes?" on the way out of a form.
+ *
+ * Three answers, because two would force a guess: saving, throwing the changes
+ * away, and staying to keep editing are all things people mean.
+ */
+export function SaveChangesDialog({
+  visible,
+  busy = false,
+  onSave,
+  onDiscard,
+  onStay,
+}: {
+  visible: boolean
+  busy?: boolean
+  onSave: () => void
+  onDiscard: () => void
+  onStay: () => void
+}) {
+  const t = useText()
+
+  return (
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onStay}>
+      <View style={styles.overlay}>
+        <View accessibilityViewIsModal style={styles.dialog}>
+          <Text variant="h2">{t.unsaved.title}</Text>
+          <Text tone="muted" style={styles.message}>
+            {t.unsaved.body}
+          </Text>
+          <Button title={t.common.save} busy={busy} onPress={onSave} />
+          <Button
+            title={t.unsaved.discard}
+            kind="outlineDanger"
+            disabled={busy}
+            onPress={onDiscard}
+            style={styles.second}
+          />
+          <LinkButton title={t.unsaved.stay} onPress={onStay} />
         </View>
       </View>
     </Modal>

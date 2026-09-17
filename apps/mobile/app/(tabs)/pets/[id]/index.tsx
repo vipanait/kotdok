@@ -5,10 +5,18 @@ import { withFreshSession } from '@/lib/api'
 import { describeFailure } from '@/lib/errors'
 import { useText } from '@/i18n'
 import { PetFields } from '@/features/pets/PetFields'
-import { formToInput, petToForm, type PetForm } from '@/features/pets/pet-form'
+import {
+  formToInput,
+  petFormChanged,
+  petToForm,
+  remainingError,
+  type FieldError,
+  type PetForm,
+} from '@/features/pets/pet-form'
 import { Button, LinkButton } from '@/ui/Button'
 import { Banner, SettingRow } from '@/ui/Card'
-import { ConfirmDialog } from '@/ui/Dialog'
+import { useUnsavedChanges } from '@/features/unsaved/useUnsavedChanges'
+import { ConfirmDialog, SaveChangesDialog } from '@/ui/Dialog'
 import { Screen } from '@/ui/Screen'
 import { colour, space } from '@/ui/theme'
 
@@ -16,7 +24,10 @@ export default function EditPet() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const t = useText()
   const [form, setForm] = useState<PetForm | null>(null)
+  // What the server holds, to tell an edit from a form that was only looked at.
+  const [saved, setSaved] = useState<PetForm | null>(null)
   const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
+  const [invalid, setInvalid] = useState<FieldError | null>(null)
   const [busy, setBusy] = useState(false)
   const [asking, setAsking] = useState(false)
 
@@ -25,6 +36,7 @@ export default function EditPet() {
     try {
       const pet = await withFreshSession((api) => api.getPet(id))
       setForm(petToForm(pet))
+      setSaved(petToForm(pet))
     } catch (cause) {
       setError(describeFailure(t, cause, t.errors.loadPetFailed))
     }
@@ -34,24 +46,32 @@ export default function EditPet() {
     void load()
   }, [load])
 
+  const unsaved = useUnsavedChanges(
+    form !== null && saved !== null && petFormChanged(saved, form),
+  )
+
   function change(patch: Partial<PetForm>) {
     setForm((current) => (current ? { ...current, ...patch } : current))
+    setInvalid((current) => remainingError(current, patch))
   }
 
-  async function save() {
+  /** @param then where to go once saved: the list, or wherever the person was headed. */
+  async function save(then: () => void = () => router.replace('/pets')) {
     if (!form) return
 
     const input = formToInput(t, form)
     if (!input.ok) {
-      setError({ text: input.message, offline: false })
+      setInvalid({ field: input.field, message: input.message })
+      setError(null)
       return
     }
 
+    setInvalid(null)
     setBusy(true)
     setError(null)
     try {
       await withFreshSession((api) => api.updatePet(id, input.value))
-      router.replace('/pets')
+      unsaved.leave(then)
     } catch (cause) {
       setError(describeFailure(t, cause, t.errors.saveChangesFailed))
     } finally {
@@ -65,7 +85,7 @@ export default function EditPet() {
     try {
       await withFreshSession((api) => api.deletePet(id))
       setAsking(false)
-      router.replace('/pets')
+      unsaved.leave(() => router.replace('/pets'))
     } catch (cause) {
       setAsking(false)
       setError(describeFailure(t, cause, t.errors.removePetFailed))
@@ -96,7 +116,7 @@ export default function EditPet() {
       title={form.name || t.pets.fallbackTitle}
       onBack={() => router.back()}
       scroll
-      dock={<Button title={t.common.save} onPress={save} busy={busy} />}
+      dock={<Button title={t.common.save} onPress={() => void save()} busy={busy} />}
     >
       <SettingRow
         title={t.pets.history}
@@ -104,7 +124,7 @@ export default function EditPet() {
       />
       <View style={styles.spacer} />
 
-      <PetFields form={form} onChange={change} />
+      <PetFields form={form} onChange={change} invalid={invalid} />
 
       {error ? (
         <Banner
@@ -133,6 +153,18 @@ export default function EditPet() {
         busy={busy}
         onConfirm={() => void remove()}
         onCancel={() => setAsking(false)}
+      />
+
+      <SaveChangesDialog
+        visible={unsaved.pending !== null}
+        busy={busy}
+        onSave={() => {
+          const next = unsaved.pending
+          unsaved.stay()
+          if (next) void save(next)
+        }}
+        onDiscard={() => unsaved.pending && unsaved.leave(unsaved.pending)}
+        onStay={unsaved.stay}
       />
     </Screen>
   )

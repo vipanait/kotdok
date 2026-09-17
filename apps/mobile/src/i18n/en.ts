@@ -42,7 +42,7 @@ export const en: Dictionary = {
     backToSignIn: 'Back to sign in',
     confirmSent: 'We have sent you an email. Open the link in it to confirm your address.',
     resetSent: 'If that address is registered, the email is on its way.',
-    dividerProviders: 'or continue with',
+    dividerProviders: 'or',
     yandex: 'Sign in with Yandex ID',
     google: 'Continue with Google',
     apple: 'Continue with Apple',
@@ -62,6 +62,13 @@ export const en: Dictionary = {
     removeTitle: 'Delete this pet?',
     removeBody: 'Their check history goes with them. This cannot be undone.',
     removeConfirm: 'Delete',
+  },
+
+  unsaved: {
+    title: 'Save your changes?',
+    body: 'If you leave without saving, the changes will be lost.',
+    discard: "Don't save",
+    stay: 'Keep editing',
   },
 
   petForm: {

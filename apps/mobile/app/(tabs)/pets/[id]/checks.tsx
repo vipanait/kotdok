@@ -10,7 +10,10 @@ export default function PetChecks() {
 
   return (
     <Screen title={t.history.title} onBack={() => router.back()}>
-      <CheckHistory petId={id} />
+      <CheckHistory
+        petId={id}
+        resultHref={(checkId) => `/pets/${id}/check/${checkId}`}
+      />
     </Screen>
   )
 }
