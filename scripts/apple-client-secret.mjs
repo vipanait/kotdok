@@ -18,7 +18,7 @@ import { readFileSync } from 'node:fs'
 import { basename } from 'node:path'
 import { createPrivateKey, sign } from 'node:crypto'
 
-const TEAM_ID = '5KT7H5RVKF'
+const TEAM_ID = 'KAY8S7KK98'
 // The Services ID: only the browser flow (Android, the site) uses this secret.
 const CLIENT_ID = 'my.lapka.web'
 // Apple refuses anything longer than 15 777 000 seconds (about 182 days).

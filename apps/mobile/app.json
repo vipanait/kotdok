@@ -4,13 +4,18 @@
     "slug": "lapka",
     "version": "0.1.0",
     "orientation": "portrait",
+    "icon": "./assets/brand/icon.png",
     "scheme": "lapka",
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "my.lapka.app",
-      "appleTeamId": "5KT7H5RVKF",
-      "usesAppleSignIn": true
+      "appleTeamId": "KAY8S7KK98",
+      "usesAppleSignIn": true,
+      "buildNumber": "1",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "my.lapka.app"
