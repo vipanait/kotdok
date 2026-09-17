@@ -8,6 +8,7 @@ import {
   formToInput,
   parseList,
   parseOptionalNumber,
+  petFormChanged,
   petToForm,
   remainingError,
   type PetForm,
@@ -139,5 +140,13 @@ describe('pet form', () => {
     expect(remainingError(missingName, { name: 'Б' })).toBeNull()
     expect(remainingError(missingName, { breed: 'Сибирская' })).toBe(missingName)
     expect(remainingError(null, { name: 'Б' })).toBeNull()
+  })
+
+  it('counts a form as changed only when a value differs from where it started', () => {
+    const start = filled()
+
+    expect(petFormChanged(start, { ...start })).toBe(false)
+    expect(petFormChanged(start, { ...start, notes: 'боится грозы' })).toBe(true)
+    expect(petFormChanged(start, { ...start, neutered: false })).toBe(true)
   })
 })

@@ -81,6 +81,11 @@ export function petToForm(pet: Pet): PetForm {
   }
 }
 
+/** Whether anything a person could see differs — what "unsaved changes" means. */
+export function petFormChanged(before: PetForm, after: PetForm): boolean {
+  return (Object.keys(before) as (keyof PetForm)[]).some((key) => before[key] !== after[key])
+}
+
 /** Lists are typed as one line, the way the site asks for them. */
 export function formatList(items: readonly string[]): string {
   return items.join(', ')

@@ -64,6 +64,13 @@ export const ru = {
     removeConfirm: 'Удалить',
   },
 
+  unsaved: {
+    title: 'Сохранить изменения?',
+    body: 'Если уйти без сохранения, изменения пропадут.',
+    discard: 'Не сохранять',
+    stay: 'Остаться',
+  },
+
   petForm: {
     species: 'Вид',
     name: 'Имя *',

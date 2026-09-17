@@ -64,6 +64,13 @@ export const en: Dictionary = {
     removeConfirm: 'Delete',
   },
 
+  unsaved: {
+    title: 'Save your changes?',
+    body: 'If you leave without saving, the changes will be lost.',
+    discard: "Don't save",
+    stay: 'Keep editing',
+  },
+
   petForm: {
     species: 'Species',
     name: 'Name *',
