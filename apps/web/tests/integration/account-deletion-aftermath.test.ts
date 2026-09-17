@@ -179,6 +179,15 @@ describe('retention of the record itself', () => {
   })
 
   it('keeps the record for exactly the published period', async () => {
+    // The previous test already completed this job with no retention set.
+    // `complete_deletion_job` now refuses to touch a job that is not
+    // `pending`/`in_progress` — a stale runner must not overwrite one already
+    // handled — so put it back to `pending` first, as a retry would find it,
+    // before completing it again with a real deadline this time.
+    await db.query(`update public.deletion_jobs set status = 'pending' where user_id = $1`, [
+      seeded.ownerAId,
+    ])
+
     // The owner chose thirty days published and sixty days of record on
     // 9 September. The constant and the database have to agree, or the policy
     // page promises one thing while the row does another.

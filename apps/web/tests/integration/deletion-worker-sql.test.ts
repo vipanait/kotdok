@@ -91,6 +91,73 @@ async function rowsOf(userId: string): Promise<Record<string, number>> {
 }
 
 describe('delete_account_data', () => {
+  it('refuses an account that has not requested deletion', async () => {
+    const before = await rowsOf(seeded.ownerAId)
+
+    await expect(db.query(`select public.delete_account_data($1)`, [seeded.ownerAId])).rejects.toThrow()
+
+    expect(await rowsOf(seeded.ownerAId)).toEqual(before)
+  })
+
+  it('archives a retired.credit_transactions row with no created_at', async () => {
+    await requestDeletion(seeded.ownerAId)
+    await db.query(
+      `insert into retired.credit_transactions (user_id, amount, type, created_at) values ($1, 3, 'purchase', null)`,
+      [seeded.ownerAId],
+    )
+
+    await db.query(`select public.delete_account_data($1)`, [seeded.ownerAId])
+
+    expect(
+      await count(
+        `select count(*) n from public.financial_archive where subject_ref = $1 and source = 'credit_transactions'`,
+        [seeded.ownerAId],
+      ),
+    ).toBe(1)
+  })
+
+  it('rolls back everything when a later delete fails', async () => {
+    await addTheRest(seeded.ownerAId)
+    await requestDeletion(seeded.ownerAId)
+    const before = await rowsOf(seeded.ownerAId)
+    const archivedBefore = await count(
+      `select count(*) n from public.financial_archive where subject_ref = $1`,
+      [seeded.ownerAId],
+    )
+
+    await db.query(`
+      create function public.deletion_worker_sql_test_explode() returns trigger
+      language plpgsql as $$
+      begin
+        raise exception 'simulated failure deleting profile';
+      end;
+      $$
+    `)
+    await db.query(`
+      create trigger deletion_worker_sql_test_explode
+      before delete on public.profiles
+      for each row execute function public.deletion_worker_sql_test_explode()
+    `)
+
+    try {
+      await expect(db.query(`select public.delete_account_data($1)`, [seeded.ownerAId])).rejects.toThrow()
+
+      expect(await rowsOf(seeded.ownerAId)).toEqual(before)
+      expect(
+        await count(`select count(*) n from public.financial_archive where subject_ref = $1`, [seeded.ownerAId]),
+      ).toBe(archivedBefore)
+    } finally {
+      await db.query(`drop trigger if exists deletion_worker_sql_test_explode on public.profiles`)
+      await db.query(`drop function if exists public.deletion_worker_sql_test_explode()`)
+      // The failed attempt above left the account exactly as it was, on
+      // purpose — including its retired.transactions row, which restricts
+      // deleting the Auth user. Finish the deletion for real now that the
+      // fault is gone, so this account does not linger and break the next
+      // test's fixture reset.
+      await db.query(`select public.delete_account_data($1)`, [seeded.ownerAId])
+    }
+  })
+
   it('removes every row of a long-lived account and archives the money', async () => {
     await addTheRest(seeded.ownerAId)
     await requestDeletion(seeded.ownerAId)
@@ -216,6 +283,54 @@ describe('the job lifecycle functions', () => {
     expect(rows[0]).toEqual({ attempts: 5, error_code: 'data_step_failed', lease_until: null })
     const claim = await db.query<{ p: unknown }>(`select public.claim_deletion_job($1, 120) p`, [seeded.ownerAId])
     expect(claim.rows[0].p).toBeNull()
+  })
+
+  it('leaves a completed job alone when a failure is recorded against it', async () => {
+    await requestDeletion(seeded.ownerAId)
+    await db.query(`select public.claim_deletion_job($1, 120)`, [seeded.ownerAId])
+    await db.query(`select public.complete_deletion_job($1)`, [seeded.ownerAId])
+
+    const { rows: status } = await db.query<{ s: string }>(
+      `select public.record_deletion_failure($1, 'data_step_failed', 5) s`,
+      [seeded.ownerAId],
+    )
+
+    expect(status[0].s).toBe('completed')
+    const { rows } = await db.query(`select status, attempts from public.deletion_jobs where user_id = $1`, [
+      seeded.ownerAId,
+    ])
+    expect(rows[0]).toEqual({ status: 'completed', attempts: 0 })
+  })
+
+  it('refuses to mark a step on a job that already completed', async () => {
+    await requestDeletion(seeded.ownerAId)
+    await db.query(`select public.claim_deletion_job($1, 120)`, [seeded.ownerAId])
+    await db.query(`select public.complete_deletion_job($1)`, [seeded.ownerAId])
+
+    await expect(db.query(`select public.mark_deletion_step($1, 'data')`, [seeded.ownerAId])).rejects.toThrow()
+  })
+
+  it('answers true both times a finished job is completed again, without moving completed_at', async () => {
+    await requestDeletion(seeded.ownerAId)
+    await db.query(`select public.claim_deletion_job($1, 120)`, [seeded.ownerAId])
+
+    const first = await db.query<{ done: boolean }>(`select public.complete_deletion_job($1) done`, [
+      seeded.ownerAId,
+    ])
+    const { rows: firstJob } = await db.query(`select completed_at from public.deletion_jobs where user_id = $1`, [
+      seeded.ownerAId,
+    ])
+
+    const second = await db.query<{ done: boolean }>(`select public.complete_deletion_job($1) done`, [
+      seeded.ownerAId,
+    ])
+    const { rows: secondJob } = await db.query(`select completed_at from public.deletion_jobs where user_id = $1`, [
+      seeded.ownerAId,
+    ])
+
+    expect(first.rows[0].done).toBe(true)
+    expect(second.rows[0].done).toBe(true)
+    expect(secondJob[0].completed_at).toEqual(firstJob[0].completed_at)
   })
 
   it('lists due jobs oldest first and skips leased, finished and abandoned ones', async () => {
