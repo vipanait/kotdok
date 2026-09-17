@@ -25,9 +25,16 @@ function formatDate(iso: string, locale: string): string {
  * The list of past results, whole or narrowed to one pet.
  *
  * Both screens share it so a check reads the same wherever it is met — the
- * level in words, what was described, and when.
+ * level in words, what was described, and when. Each says where a result opens,
+ * so it opens in the screen's own tab rather than in the check tab.
  */
-export function CheckHistory({ petId }: { petId?: string }) {
+export function CheckHistory({
+  petId,
+  resultHref,
+}: {
+  petId?: string
+  resultHref: (checkId: string) => string
+}) {
   const ui = useText()
   const locale = useLocale()
 
@@ -134,7 +141,7 @@ export function CheckHistory({ petId }: { petId?: string }) {
           return (
             <Card
               outlined
-              onPress={() => router.push(`/check/${item.id}`)}
+              onPress={() => router.push(resultHref(item.id))}
               accessibilityLabel={`${heading(item)}, ${level.label}, ${formatDate(item.created_at, locale)}`}
             >
               <UrgencyBadge level={item.urgency} label={level.label} />

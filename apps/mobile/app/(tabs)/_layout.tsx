@@ -1,6 +1,7 @@
 import { Redirect } from 'expo-router'
 import { Tabs } from 'expo-router/tabs'
 import { useEffect } from 'react'
+import { guardTabSwitch } from '@/features/unsaved/tab-guard'
 import { withFreshSession } from '@/lib/api'
 import { useAuth } from '@/providers/AuthProvider'
 import { useSetLocale, useText } from '@/i18n'
@@ -39,8 +40,21 @@ export default function TabsLayout() {
 
   return (
     <Tabs
+      screenListeners={({ navigation, route }) => ({
+        // Another tab is about to take over and empty this one's stack. A form
+        // with unsaved changes gets to ask first; pressing the tab already open
+        // is a pop, which the form's screen stops by itself.
+        tabPress: (event) => {
+          if (navigation.isFocused()) return
+          if (guardTabSwitch(() => navigation.navigate(route.name))) event.preventDefault()
+        },
+      })}
       screenOptions={{
         headerShown: false,
+        // A tab opens where it starts. Kept depth made the profile tab reopen
+        // on a result read from its history, with the profile itself a back
+        // arrow or two away. Tapping the tab you are on already did this.
+        popToTopOnBlur: true,
         sceneStyle: { backgroundColor: colour.canvas },
         tabBarActiveTintColor: colour.accent,
         tabBarInactiveTintColor: colour.faint,

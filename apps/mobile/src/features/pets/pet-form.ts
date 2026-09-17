@@ -81,6 +81,11 @@ export function petToForm(pet: Pet): PetForm {
   }
 }
 
+/** Whether anything a person could see differs — what "unsaved changes" means. */
+export function petFormChanged(before: PetForm, after: PetForm): boolean {
+  return (Object.keys(before) as (keyof PetForm)[]).some((key) => before[key] !== after[key])
+}
+
 /** Lists are typed as one line, the way the site asks for them. */
 export function formatList(items: readonly string[]): string {
   return items.join(', ')
@@ -114,9 +119,23 @@ export function parseOptionalNumber(text: string, max: number): NumberResult {
 export const AGE_MAX = 50
 export const WEIGHT_MAX = 200
 
-export type FormResult =
-  | { ok: true; value: PetCreateInput }
-  | { ok: false; field: keyof PetForm; message: string }
+/** A complaint about one field, shown under that field. */
+export type FieldError = { field: keyof PetForm; message: string }
+
+export type FormResult = { ok: true; value: PetCreateInput } | ({ ok: false } & FieldError)
+
+/**
+ * The complaint still standing after an edit.
+ *
+ * Touching the field it is about retires it: the person is fixing it, and a red
+ * line under what they are typing reads as the new text being wrong too.
+ */
+export function remainingError(
+  error: FieldError | null,
+  patch: Partial<PetForm>,
+): FieldError | null {
+  return error && error.field in patch ? null : error
+}
 
 /**
  * @returns what to send, or the first field to complain about.

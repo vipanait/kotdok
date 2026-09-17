@@ -47,9 +47,6 @@ import { colour, space } from '@/ui/theme'
 const POLL_EVERY_MS = 1500
 const GIVE_UP_AFTER_MS = 3 * 60 * 1000
 
-/** Beyond three names the row stops fitting, so the sheet takes over. */
-const SEGMENT_FITS = 3
-
 export default function NewCheck() {
   const t = useText()
   // The illustration is the first thing to give ground on a small screen: the
@@ -360,22 +357,18 @@ export default function NewCheck() {
       >
         <Steps current={1} of={2} label={t.check.step} />
 
-        {pets.length <= SEGMENT_FITS ? (
-          <Segment
-            label={t.check.pet}
-            clearable={false}
-            options={pets.map((pet) => ({ value: pet.id, label: pet.name }))}
-            value={form.petId}
-            onChange={(petId) => change({ petId })}
-          />
-        ) : (
+        {/* Nothing to choose with one animal: it is already picked, and the
+            second step names it. With more, a sheet rather than a row of names,
+            which stops fitting as soon as somebody has a few. */}
+        {pets.length > 1 ? (
           <Select
             label={t.check.pet}
+            allowNone={false}
             options={pets.map((pet) => ({ value: pet.id, label: pet.name }))}
             value={form.petId}
             onChange={(petId) => change({ petId })}
           />
-        )}
+        ) : null}
 
         <Field
           label={t.check.symptoms}

@@ -2,7 +2,7 @@ import { PET_DIETS, PET_LIFESTYLES, PET_SIZE_CLASSES, PET_WALK_ACTIVITIES } from
 import { useText } from '@/i18n'
 import { Field, Segment, Select } from '@/ui/Field'
 import { Accordion } from '@/ui/Section'
-import { AGE_MAX, WEIGHT_MAX, type PetForm } from './pet-form'
+import { AGE_MAX, WEIGHT_MAX, type FieldError, type PetForm } from './pet-form'
 
 /** Yes / no / not stated, which a switch cannot express. */
 function Tristate({
@@ -48,15 +48,21 @@ function tally(
  * Sixteen fields in one scroll is what the concept set out to fix: the six
  * everyone fills in stay on screen, and the rest wait behind three sections
  * that say how much is inside them.
+ *
+ * `invalid` is shown under the field it names, not at the foot of the form:
+ * the foot is below the notes, a long way from the name that is missing.
  */
 export function PetFields({
   form,
   onChange,
+  invalid = null,
 }: {
   form: PetForm
   onChange: (patch: Partial<PetForm>) => void
+  invalid?: FieldError | null
 }) {
   const t = useText()
+  const errorFor = (field: keyof PetForm) => (invalid?.field === field ? invalid.message : null)
   const hint = t.placeholders[form.species]
   const sex = form.species === 'dog' ? t.sexDog : t.sexCat
   const isDog = form.species === 'dog'
@@ -82,6 +88,7 @@ export function PetFields({
         label={t.petForm.name}
         value={form.name}
         onChangeText={(name) => onChange({ name })}
+        error={errorFor('name')}
         placeholder={hint.name}
       />
       <Field
@@ -94,12 +101,14 @@ export function PetFields({
         label={t.petForm.age(AGE_MAX)}
         value={form.ageYears}
         onChangeText={(ageYears) => onChange({ ageYears })}
+        error={errorFor('ageYears')}
         keyboardType="numeric"
       />
       <Field
         label={t.petForm.weight(WEIGHT_MAX)}
         value={form.weightKg}
         onChangeText={(weightKg) => onChange({ weightKg })}
+        error={errorFor('weightKg')}
         keyboardType="numeric"
       />
       <Segment
