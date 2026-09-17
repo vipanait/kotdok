@@ -114,7 +114,11 @@ Manual configuration**:
   - `http://localhost:3000/auth/callback`
   - адрес preview-деплоя, если вход проверяется на нём (у Vercel-превью он свой на каждый деплой,
     поэтому удобнее шаблон вида `https://*-panaitvi-4639s-projects.vercel.app/auth/callback`);
-  - `lapka://auth/callback` и `lapka://auth/recover` — возврат в мобильное приложение.
+  - `lapka://auth/provider` — возврат в мобильное приложение после Google и Яндекса;
+  - `lapka://auth/callback` и `lapka://auth/recover` — возврат в мобильное приложение из писем.
+
+Production настраивается отдельно, список там свой: [deployment.md](deployment.md), «Адреса возврата
+авторизации в production».
 
 Без этого списка Supabase не отправит пользователя обратно, а вернёт его на Site URL — вход внешне
 «проходит», но приложение сессию не получает.
