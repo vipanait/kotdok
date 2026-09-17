@@ -19,7 +19,6 @@
       "bundleIdentifier": "my.lapka.app",
       "appleTeamId": "KAY8S7KK98",
       "usesAppleSignIn": true,
-      "buildNumber": "1",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
