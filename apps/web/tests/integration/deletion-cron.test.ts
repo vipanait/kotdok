@@ -62,6 +62,18 @@ describe('the deletion cron', () => {
     expect(rows[0].n).toBe(0)
   })
 
+  it('keeps processing the rest of the batch when one job throws', async () => {
+    await requestDeletion(seeded.ownerAId)
+    await requestDeletion(seeded.ownerBId)
+
+    const summary = await runDeletionCron(createServiceClient(), async (userId) => {
+      if (userId === seeded.ownerAId) throw new Error('boom')
+      return 'completed'
+    })
+
+    expect(summary).toMatchObject({ processed: 2, completed: 1, retried: 1, actionRequired: 0 })
+  })
+
   it('removes finished job records whose retention ran out', async () => {
     await requestDeletion(seeded.ownerAId)
     await db.query(

@@ -31,24 +31,30 @@ export function isCronAuthorized(header: string | null, secret: string | undefin
  */
 export async function runDeletionCron(
   supabase: SupabaseService,
-  process: (userId: string) => Promise<DeletionRunResult> = (userId) =>
+  processJob: (userId: string) => Promise<DeletionRunResult> = (userId) =>
     processDeletionJob(createDeletionWorkerDeps(supabase), userId),
 ) {
+  const { data: purged, error: purgeError } = await supabase.rpc('purge_expired_deletion_jobs')
+  if (purgeError) throw new Error('purge_expired_deletion_jobs failed')
+
   const { data: due, error } = await supabase.rpc('due_deletion_jobs', { p_limit: DELETION_CRON_BATCH })
   if (error) throw new Error('due_deletion_jobs failed')
 
-  const summary = { processed: 0, completed: 0, retried: 0, actionRequired: 0, purged: 0 }
+  const summary = { processed: 0, completed: 0, retried: 0, actionRequired: 0, purged: Number(purged ?? 0) }
   for (const userId of (due ?? []) as string[]) {
-    const result = await process(userId)
+    // One job's own bug must never abort the batch: every other due job still
+    // deserves its turn, and today's failure is tomorrow's retry.
+    let result: DeletionRunResult
+    try {
+      result = await processJob(userId)
+    } catch {
+      result = 'retry'
+    }
     summary.processed++
     if (result === 'completed') summary.completed++
     if (result === 'retry') summary.retried++
     if (result === 'action_required') summary.actionRequired++
   }
-
-  const { data: purged, error: purgeError } = await supabase.rpc('purge_expired_deletion_jobs')
-  if (purgeError) throw new Error('purge_expired_deletion_jobs failed')
-  summary.purged = Number(purged ?? 0)
 
   return summary
 }

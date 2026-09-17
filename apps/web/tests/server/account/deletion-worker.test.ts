@@ -37,6 +37,15 @@ describe('processing a deletion job', () => {
     expect(d.recordFailure).not.toHaveBeenCalled()
   })
 
+  it('treats a claim that throws as not claimed, logging and doing nothing else', async () => {
+    const d = deps({ claim: vi.fn(async () => { throw new Error('database down') }) })
+
+    await expect(processDeletionJob(d, USER)).resolves.toBe('not_claimed')
+    expect(d.log).toHaveBeenCalledWith('claim_failed')
+    expect(d.deleteAccountData).not.toHaveBeenCalled()
+    expect(d.recordFailure).not.toHaveBeenCalled()
+  })
+
   it('resumes after the data step without running it again', async () => {
     const d = deps({ claim: vi.fn(async () => ({ data: '2026-09-17T10:00:00Z' })) })
 

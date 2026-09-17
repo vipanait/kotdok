@@ -27,7 +27,11 @@ export const DELETION_LEASE_SECONDS = 120
 export const DELETION_MAX_ATTEMPTS = 5
 
 export type DeletionStep = 'data' | 'auth'
-export type DeletionErrorCode = 'data_step_failed' | 'auth_step_failed' | 'complete_step_failed'
+export type DeletionErrorCode =
+  | 'claim_failed'
+  | 'data_step_failed'
+  | 'auth_step_failed'
+  | 'complete_step_failed'
 export type DeletionRunResult = 'completed' | 'retry' | 'action_required' | 'not_claimed'
 
 export type DeletionWorkerDeps = {
@@ -47,7 +51,13 @@ export async function processDeletionJob(
   deps: DeletionWorkerDeps,
   userId: string,
 ): Promise<DeletionRunResult> {
-  const progress = await deps.claim(userId)
+  let progress: Record<string, unknown> | null
+  try {
+    progress = await deps.claim(userId)
+  } catch {
+    deps.log?.('claim_failed')
+    return 'not_claimed'
+  }
   if (progress === null) return 'not_claimed'
 
   let code: DeletionErrorCode = 'data_step_failed'
