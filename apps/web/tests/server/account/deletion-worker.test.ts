@@ -103,4 +103,16 @@ describe('processing a deletion job', () => {
       expect(JSON.stringify(call)).not.toContain('no user')
     }
   })
+
+  it('still resolves to retry when recording the failure fails too', async () => {
+    const log = vi.fn()
+    const d = deps({
+      log,
+      deleteAccountData: vi.fn(async () => { throw new Error('data delete failed') }),
+      recordFailure: vi.fn(async () => { throw new Error('database down') }),
+    })
+
+    await expect(processDeletionJob(d, USER)).resolves.toBe('retry')
+    expect(d.log).toHaveBeenCalledWith('data_step_failed')
+  })
 })

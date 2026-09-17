@@ -1,7 +1,7 @@
 import 'server-only'
 
-import { DELETION_RECORD_RETENTION_DAYS } from '@lapka/contracts'
 import type { createServiceClient } from '@/server/supabase/server'
+import { completeDeletionJob } from '@/server/account/deletion-service'
 
 type SupabaseService = ReturnType<typeof createServiceClient>
 
@@ -68,8 +68,14 @@ export async function processDeletionJob(
     return 'completed'
   } catch {
     deps.log?.(code)
-    const status = await deps.recordFailure(userId, code)
-    return status === 'action_required' ? 'action_required' : 'retry'
+    try {
+      const status = await deps.recordFailure(userId, code)
+      return status === 'action_required' ? 'action_required' : 'retry'
+    } catch {
+      // If recording the failure fails, the lease expires and the daily cron
+      // picks up the job again. Return 'retry' to let the caller continue.
+      return 'retry'
+    }
   }
 }
 
@@ -96,11 +102,7 @@ export function createDeletionWorkerDeps(supabase: SupabaseService): DeletionWor
     },
     markStep: (userId, step) => rpc<void>('mark_deletion_step', { p_user_id: userId, p_step: step }),
     async complete(userId) {
-      const done = await rpc<boolean>('complete_deletion_job', {
-        p_user_id: userId,
-        p_retain_for: `${DELETION_RECORD_RETENTION_DAYS} days`,
-      })
-      if (done !== true) throw new Error('complete failed')
+      if (!(await completeDeletionJob(supabase, userId))) throw new Error('complete failed')
     },
     recordFailure: (userId, code) =>
       rpc<'in_progress' | 'action_required'>('record_deletion_failure', {
