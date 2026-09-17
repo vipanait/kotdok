@@ -71,6 +71,13 @@ export const ru = {
     stay: 'Остаться',
   },
 
+  updates: {
+    title: 'Приложение обновилось',
+    body: 'Новая версия уже загружена. Перезапустить приложение сейчас, чтобы она заработала?',
+    restart: 'Перезапустить',
+    later: 'Позже',
+  },
+
   petForm: {
     species: 'Вид',
     name: 'Имя *',
@@ -147,6 +154,7 @@ export const ru = {
     history: 'История проверок',
     signOut: 'Выйти',
     version: (value: string) => `Версия ${value}`,
+    update: (when: string, id: string) => `Обновление от ${when} · ${id}`,
     localeSaved: 'Язык сохранён. Ответы анализа придут на нём.',
     extraTitle: 'Дополнительная проверка',
     extraRequest: 'Запросить дополнительную проверку',

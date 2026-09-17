@@ -71,6 +71,13 @@ export const en: Dictionary = {
     stay: 'Keep editing',
   },
 
+  updates: {
+    title: 'The app has been updated',
+    body: 'A new version is downloaded. Restart the app now to start using it?',
+    restart: 'Restart',
+    later: 'Later',
+  },
+
   petForm: {
     species: 'Species',
     name: 'Name *',
@@ -147,6 +154,7 @@ export const en: Dictionary = {
     history: 'Check history',
     signOut: 'Sign out',
     version: (value: string) => `Version ${value}`,
+    update: (when: string, id: string) => `Update of ${when} · ${id}`,
     localeSaved: 'Language saved. Analyses will arrive in it.',
     extraTitle: 'An extra check',
     extraRequest: 'Request an extra check',

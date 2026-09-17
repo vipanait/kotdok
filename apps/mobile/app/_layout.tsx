@@ -5,6 +5,7 @@ import * as Linking from 'expo-linking'
 import { StatusBar } from 'expo-status-bar'
 import { View } from 'react-native'
 import { AuthProvider } from '@/providers/AuthProvider'
+import { UpdatePrompt } from '@/features/updates/UpdatePrompt'
 import { LocaleProvider, dictionary } from '@/i18n'
 import { parseAuthLink } from '@/lib/auth-links'
 import { deviceLocale } from '@/lib/device-locale'
@@ -104,6 +105,7 @@ export default function RootLayout() {
             contentStyle: { backgroundColor: colour.canvas },
           }}
         />
+        <UpdatePrompt />
       </AuthProvider>
     </LocaleProvider>
   )

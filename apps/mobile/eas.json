@@ -1,0 +1,28 @@
+{
+  "cli": {
+    "version": ">= 24.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "store": {
+      "environment": "production",
+      "distribution": "store",
+      "autoIncrement": true,
+      "env": {
+        "EXPO_NO_DOTENV": "1"
+      }
+    },
+    "preview": {
+      "extends": "store",
+      "channel": "preview"
+    },
+    "production": {
+      "extends": "store",
+      "channel": "production"
+    }
+  },
+  "submit": {
+    "preview": {},
+    "production": {}
+  }
+}

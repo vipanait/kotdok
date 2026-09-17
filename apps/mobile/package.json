@@ -8,11 +8,13 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "typecheck": "tsc --noEmit",
-    "export:ios": "expo export --platform ios --output-dir dist/ios",
-    "export:android": "expo export --platform android --output-dir dist/android",
+    "export:ios": "expo export --clear --platform ios --output-dir dist/ios",
+    "export:android": "expo export --clear --platform android --output-dir dist/android",
     "doctor": "expo-doctor",
     "test": "vitest run",
-    "verify:bundle": "node scripts/check-bundle.mjs dist/ios dist/android"
+    "verify:bundle": "node scripts/check-bundle.mjs dist/ios dist/android",
+    "update:preview": "node scripts/publish-update.mjs preview",
+    "update:production": "node scripts/publish-update.mjs production"
   },
   "dependencies": {
     "@lapka/contracts": "*",
@@ -28,6 +30,7 @@
     "expo-router": "~57.0.19",
     "expo-secure-store": "~57.0.3",
     "expo-status-bar": "~57.0.1",
+    "expo-updates": "~57.0.22",
     "expo-web-browser": "~57.0.2",
     "react": "19.2.4",
     "react-native": "0.86.3",
