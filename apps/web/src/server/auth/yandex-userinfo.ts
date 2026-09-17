@@ -1,6 +1,29 @@
 import 'server-only'
 
-/** Yandex returns `id` / `default_email`; Supabase custom OAuth requires `sub` / `email`. */
+/**
+ * Mail domains whose mailboxes belong to the Yandex account itself.
+ *
+ * Signing in with Yandex proves ownership of such an address. Any other
+ * address in a Yandex ID is only what the user typed as a contact, and Yandex
+ * never says it checked it.
+ */
+const YANDEX_MAIL_DOMAINS = new Set(['yandex.ru', 'ya.ru', 'yandex.com', 'yandex.by', 'yandex.kz', 'yandex.ua'])
+
+function isYandexMailbox(email: string): boolean {
+  const at = email.lastIndexOf('@')
+  return at > 0 && YANDEX_MAIL_DOMAINS.has(email.slice(at + 1).trim().toLowerCase())
+}
+
+/**
+ * Yandex returns `id` / `default_email`; Supabase custom OAuth requires `sub` / `email`.
+ *
+ * It also needs `email_verified`: Supabase treats an address without it as
+ * unconfirmed, and that decides account linking. An unconfirmed Yandex address
+ * never joins an existing account (a separate, empty one is created instead),
+ * and when the same person later signs in with Apple or Google, Supabase
+ * removes the unconfirmed Yandex identity from the account. Only Yandex's own
+ * mailboxes are vouched for; see OPEN_QUESTIONS 2.14 and 1.19.
+ */
 export function normalizeYandexUserinfo(raw: Record<string, unknown>): Record<string, unknown> {
   const id = raw.id != null ? String(raw.id) : undefined
   const emails = Array.isArray(raw.emails) ? raw.emails.filter((e): e is string => typeof e === 'string') : []
@@ -14,10 +37,14 @@ export function normalizeYandexUserinfo(raw: Record<string, unknown>): Record<st
     (typeof raw.real_name === 'string' && raw.real_name) ||
     (typeof raw.first_name === 'string' ? raw.first_name : undefined)
 
+  // Whatever the raw response says about verification is not ours to pass on.
+  const rest = { ...raw }
+  delete rest.email_verified
+
   return {
-    ...raw,
+    ...rest,
     ...(id ? { sub: id, id } : {}),
-    ...(email ? { email } : {}),
+    ...(email ? { email, email_verified: isYandexMailbox(email) } : {}),
     ...(name ? { name } : {}),
   }
 }
