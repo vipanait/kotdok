@@ -7,7 +7,7 @@ export default function AllChecks() {
   const t = useText()
   return (
     <Screen title={t.history.title} onBack={() => router.back()}>
-      <CheckHistory />
+      <CheckHistory resultHref={(checkId) => `/profile/check/${checkId}`} />
     </Screen>
   )
 }
