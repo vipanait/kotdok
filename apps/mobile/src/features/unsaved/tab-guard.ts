@@ -11,12 +11,37 @@
 export type TabGuard = (proceed: () => void) => void
 
 let current: TabGuard | null = null
+const listeners = new Set<() => void>()
+
+function changed() {
+  for (const listener of listeners) listener()
+}
 
 /** @returns the function that removes this guard, and only this one. */
 export function setTabGuard(guard: TabGuard): () => void {
   current = guard
+  changed()
   return () => {
-    if (current === guard) current = null
+    if (current === guard) {
+      current = null
+      changed()
+    }
+  }
+}
+
+/**
+ * Whether some screen is holding unsaved changes right now. Anything that would
+ * throw the screen away — restarting the app for an update — waits for false.
+ */
+export function hasUnsavedChanges(): boolean {
+  return current !== null
+}
+
+/** For `useSyncExternalStore`. @returns the unsubscribe function. */
+export function subscribeUnsavedChanges(listener: () => void): () => void {
+  listeners.add(listener)
+  return () => {
+    listeners.delete(listener)
   }
 }
 

@@ -2,7 +2,14 @@
   "expo": {
     "name": "Лапка",
     "slug": "lapka",
+    "owner": "vitaliypanaits-team",
     "version": "0.1.0",
+    "runtimeVersion": {
+      "policy": "fingerprint"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/295bb623-316a-4f43-8c1a-8fe0f79688ec"
+    },
     "orientation": "portrait",
     "icon": "./assets/brand/icon.png",
     "scheme": "lapka",
@@ -26,6 +33,12 @@
       "expo-font",
       "expo-web-browser",
       "expo-apple-authentication"
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "295bb623-316a-4f43-8c1a-8fe0f79688ec"
+      }
+    }
   }
 }

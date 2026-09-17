@@ -17,6 +17,7 @@ export function ConfirmDialog({
   message,
   confirmTitle,
   cancelTitle,
+  confirmKind = 'danger',
   busy = false,
   onConfirm,
   onCancel,
@@ -26,6 +27,8 @@ export function ConfirmDialog({
   message: string
   confirmTitle: string
   cancelTitle?: string
+  /** Danger by default: most questions here guard something that costs. */
+  confirmKind?: 'danger' | 'primary'
   busy?: boolean
   onConfirm: () => void
   onCancel: () => void
@@ -40,7 +43,7 @@ export function ConfirmDialog({
           <Text tone="muted" style={styles.message}>
             {message}
           </Text>
-          <Button title={confirmTitle} kind="danger" busy={busy} onPress={onConfirm} />
+          <Button title={confirmTitle} kind={confirmKind} busy={busy} onPress={onConfirm} />
           <Button
             title={cancelTitle ?? t.common.cancel}
             kind="secondary"

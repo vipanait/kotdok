@@ -2,12 +2,14 @@ import { useCallback, useState } from 'react'
 import { ActivityIndicator, StyleSheet, View } from 'react-native'
 import { router, useFocusEffect } from 'expo-router'
 import Constants from 'expo-constants'
+import * as Updates from 'expo-updates'
 import type { PublicProfile } from '@lapka/contracts'
 import { SUPPORTED_LOCALES } from '@lapka/shared'
+import { runningUpdate } from '@/features/updates/update-state'
 import { withFreshSession } from '@/lib/api'
 import { describeFailure } from '@/lib/errors'
 import { useAuth } from '@/providers/AuthProvider'
-import { dictionary, useSetLocale, useText } from '@/i18n'
+import { dictionary, useLocale, useSetLocale, useText } from '@/i18n'
 import { Button } from '@/ui/Button'
 import { Banner, SettingRow } from '@/ui/Card'
 import { OptionSheet } from '@/ui/Field'
@@ -20,7 +22,10 @@ const localeLabels = { ru: 'Русский', en: 'English' } as const
 
 export default function Profile() {
   const t = useText()
+  const locale = useLocale()
   const setLocale = useSetLocale()
+  const { currentlyRunning } = Updates.useUpdates()
+  const update = runningUpdate(currentlyRunning)
   const { signOut } = useAuth()
   const [profile, setProfile] = useState<PublicProfile | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
@@ -85,6 +90,20 @@ export default function Profile() {
           <Text variant="caption" tone="faint" center style={styles.version}>
             {t.profile.version(Constants.expoConfig?.version ?? '—')}
           </Text>
+          {/* So a tester can see that a published update has arrived. */}
+          {update ? (
+            <Text variant="caption" tone="faint" center>
+              {t.profile.update(
+                update.createdAt.toLocaleString(locale, {
+                  day: 'numeric',
+                  month: 'long',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                }),
+                update.id,
+              )}
+            </Text>
+          ) : null}
         </>
       }
     >
