@@ -143,6 +143,33 @@ Preview и Development переведены на этот проект 6 сен�
 
 Маршрут крона на Vercel описывается массивом `crons` в `vercel.json`, отвечает на `GET`, срабатывает только на production-деплое и обязан сверять заголовок `Authorization` со значением `Bearer ${CRON_SECRET}` — иначе он доступен всем. Ручной прогон для проверки: `vercel crons run <path>`. Источник: [документация](https://vercel.com/docs/cron-jobs/manage-cron-jobs). Сколько записей `crons` разрешено на Hobby — не проверено; один эндпоинт, выполняющий все суточные подметания последовательно, снимает вопрос.
 
+## Сборки приложения и обновления без магазина
+
+Проект Expo — `@vitaliypanaits-team/lapka` (id `295bb623-316a-4f43-8c1a-8fe0f79688ec`), заведён 17 сентября 2026. Настройки — [`apps/mobile/eas.json`](../../apps/mobile/eas.json) и `updates`/`runtimeVersion` в `app.json`.
+
+| Профиль сборки | Канал обновлений | Куда идёт | Сервер |
+| --- | --- | --- | --- |
+| `preview` | `preview` | TestFlight | production |
+| `production` | `production` | App Store | production |
+
+Оба профиля берут переменные окружения `production` из Expo (`eas env:list --environment production`): `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY`, `EXPO_PUBLIC_API_URL=https://lapka.my`. Это клиентские значения, секретов среди них нет. Локальные `.env` (staging) и `.env.local` (адрес машины разработчика) выключены через `EXPO_NO_DOTENV=1`. Номер сборки ведёт Expo (`appVersionSource: remote`) и увеличивает сам.
+
+**Обновление без новой сборки** (правки JS, экранов, текстов, картинок):
+
+```bash
+npm run update:preview --workspace @lapka/mobile
+```
+
+`update:production` — то же для App Store. Скрипт [`publish-update.mjs`](../../apps/mobile/scripts/publish-update.mjs) отказывается работать с незакоммиченными изменениями, собирает бандл с переменными production и очищенным кэшем Metro, проверяет его `check-bundle.mjs --target store` (есть production-проект и `https://lapka.my`, нет staging и адресов `192.168.`) и отправляет ровно проверенный экспорт. Установленное приложение скачивает обновление при запуске и показывает его со следующего открытия.
+
+**Когда нужна новая сборка:** новая нативная библиотека, плагины и разрешения в `app.json`, иконка, Bundle ID, обновление Expo SDK. `runtimeVersion` считается отпечатком нативной части (`policy: fingerprint`), поэтому обновление не попадёт в сборку с другой нативной частью, а подождёт новую. Отпечаток не зависит от локальной папки `ios/` — проверено 17 сентября.
+
+Ловушки, найденные при настройке:
+
+- Кэш Metro не зависит от `EXPO_PUBLIC_*`: без `--clear` экспорт для production вернул бандл, собранный ранее со staging. Поэтому `--clear` стоит и в скрипте обновления, и в `export:ios`/`export:android`.
+- Бандл — байткод Hermes, строки в нём лежат подряд, и `strings` склеивает соседние: библиотечное `http://localhost:` превращалось в `localhost:3000…`. Запрет на `localhost` поэтому снят; адрес API закреплён требованием `https://lapka.my`.
+- Первая TestFlight-сборка 17 сентября сделана без `expo-updates` и обновлений не получает — нужна новая сборка.
+
 ## Известные предупреждения
 
 Зафиксированы как исходное состояние, не исправлялись:
