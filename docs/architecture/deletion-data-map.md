@@ -41,10 +41,11 @@
 
 **Уточнение 17 сентября 2026 (8/05).** Таблицы оплат переехали в схему `retired` 10 сентября, но
 держат аккаунт по-прежнему: `retired.transactions.user_id → auth.users` — **RESTRICT**,
-`retired.credit_transactions.user_id → profiles` — **NO ACTION**. А на production, где применена миграция
-`20260910090000_check_job_queue` из ветки `server/stage-6-job-reliability` (2.16), `check_jobs.usage_ledger_id →
-credit_ledger` — **SET NULL**: удаление записей баланса обновляет задачи анализа, а обновление для
-аккаунта не в статусе `active` запрещено защитой от поздних записей. Поэтому `check_jobs` удаляются первыми. Порядок, который выполняет
+`retired.credit_transactions.user_id → profiles` — **NO ACTION**. Ветка этапа 6
+(`server/stage-6-job-reliability`) добавляет `check_jobs.usage_ledger_id → credit_ledger` — **SET NULL**:
+удаление записей баланса обновило бы задачи анализа, а обновление для аккаунта не в статусе `active`
+запрещено защитой от поздних записей. Эта миграция стояла на production и откачена 17 сентября (2.16),
+но вернётся вместе с этапом 6, поэтому `check_jobs` удаляются первыми заранее. Порядок, который выполняет
 `delete_account_data`:
 
 `check_jobs` → `extra_check_requests` → `credit_ledger` (в архив) → `retired.transaction_status_events`
