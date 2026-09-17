@@ -52,8 +52,8 @@ credit_ledger` — `ON DELETE SET NULL`. Удаление записей бал�
 записей (`refuse_late_writes`) запрещает любое обновление для аккаунта не в статусе `active`.
 Поэтому `delete_account_data` удаляет `check_jobs` первыми.
 
-Отдельно: номер новой миграции должен быть позже `20260910090000_check_job_queue` из незаконченной ветки
-`server/stage-6-job-reliability`, которой нет в `main` но есть на production.
+Отдельно: на production применена миграция `20260910090000_check_job_queue` из незаконченной ветки
+`server/stage-6-job-reliability`, которой нет в `main`. Номер новой миграции должен быть позже неё.
 
 ## Решение
 
