@@ -42,7 +42,7 @@ export const ru = {
     backToSignIn: 'Назад ко входу',
     confirmSent: 'Отправили письмо. Откройте ссылку из него, чтобы подтвердить почту.',
     resetSent: 'Если такая почта зарегистрирована, письмо отправлено.',
-    dividerProviders: 'или войти с помощью',
+    dividerProviders: 'или',
     yandex: 'Войти с Яндекс ID',
     google: 'Продолжить с Google',
     apple: 'Продолжить с Apple',
