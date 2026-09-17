@@ -74,17 +74,29 @@ credit_ledger` — `ON DELETE SET NULL`. Удаление записей бал�
 - `due_deletion_jobs(p_limit integer) returns setof uuid` — задачи `pending`/`in_progress` со
   свободной или истёкшей арендой, старые первыми.
 - `delete_account_data(p_user_id uuid) returns void` — всё в одной транзакции и безопасно при
-  повторе:
+  повторе. Сначала отказ: если у пользователя есть строка `profiles` со статусом, отличным от
+  `deleting`, функция поднимает исключение и не трогает данные — отсутствие профиля (повторный
+  запуск) по-прежнему разрешено. Затем:
   1. `archive_account_financials(p_user_id)` (удаляет `extra_check_requests`, архивирует и удаляет
      `credit_ledger`);
   2. архив и удаление `retired.transaction_status_events` и `retired.transactions` пользователя;
   3. архив и удаление `retired.credit_transactions`;
   4. удаление `symptom_checks` (`check_jobs` уходят каскадом), `pets` (включая помеченных
      `deleted_at`), `profiles` (`user_feedback` уходит каскадом).
+  Каждая вставка в архив берёт время события через `coalesce(created_at, now())` — у
+  `retired.credit_transactions` (наследие billing v1) колонка `created_at` нулевая и без пояса, у
+  двух других таблиц это защитная мера на случай будущих нулевых значений.
+- `mark_deletion_step`, `record_deletion_failure` и `complete_deletion_job` защищены от устаревшего
+  исполнителя одинаково: их `update` берёт строку только при `status in ('pending', 'in_progress')`.
+  Если строка не нашлась, `mark_deletion_step` поднимает исключение (`no_data_found`),
+  `record_deletion_failure` возвращает текущий статус задачи вместо `null`, а `complete_deletion_job`
+  возвращает `true`, если задача уже `completed`, и `false` иначе — так исполнитель, у которого
+  истекла аренда, не может переписать задачу, которую уже забрал следующий запуск.
 - Все функции `security definer`, `set search_path = public`, выполнять может только `service_role`.
 
-`complete_deletion_job` и `purge_expired_deletion_jobs` уже есть. Аренду при завершении снимать не
-нужно: задачу в статусе `completed` никто не захватывает.
+`complete_deletion_job` переопределён в этой же миграции (см. выше) с тем же телом и защитой по
+статусу; `purge_expired_deletion_jobs` не менялся. Аренду при завершении снимать не нужно: задачу в
+статусе `completed` никто не захватывает.
 
 ### Обработчик
 
@@ -94,7 +106,9 @@ credit_ledger` — `ON DELETE SET NULL`. Удаление записей бал�
 processDeletionJob(deps, userId) -> 'completed' | 'retry' | 'action_required' | 'not_claimed'
 ```
 
-1. `claim` — не захватил: `not_claimed`, ничего не делает.
+1. `claim` — не захватил: `not_claimed`, ничего не делает. Если сам вызов `claim` бросает
+   исключение (например, база недоступна), это тоже `not_claimed`: в журнал пишется код
+   `claim_failed`, попытка не засчитывается, ничего больше не выполняется.
 2. Если в `progress` нет `data`: `deleteAccountData`, затем `markStep('data')`.
 3. Если нет `auth`: `deleteAuthUser`; «пользователь не найден» считается успехом; затем
    `markStep('auth')`.
@@ -167,3 +181,5 @@ RPC и `auth.admin.deleteUser`. Аренда — 120 секунд, предел 
   дней это не важно.
 - **Расхождение миграций production и `main`** (`check_job_queue`). Не мешает этой работе, но
   записывается в открытые вопросы.
+- Задача, которую платформа каждый раз обрывает до записи сбоя, не набирает попыток и повторяется
+  ежедневно, не доходя до `action_required`; счёт попыток при захвате отложен.
