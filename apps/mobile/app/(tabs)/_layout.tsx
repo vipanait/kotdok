@@ -41,6 +41,10 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
+        // A tab opens where it starts. Kept depth made the profile tab reopen
+        // on a result read from its history, with the profile itself a back
+        // arrow or two away. Tapping the tab you are on already did this.
+        popToTopOnBlur: true,
         sceneStyle: { backgroundColor: colour.canvas },
         tabBarActiveTintColor: colour.accent,
         tabBarInactiveTintColor: colour.faint,
