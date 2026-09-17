@@ -123,9 +123,15 @@ $$;
  * The order follows docs/architecture/deletion-data-map.md, with two changes
  * found on 17 September 2026:
  *
- * - `check_jobs` go first. A spent check points at its ledger row with
- *   `ON DELETE SET NULL`; deleting the ledger would update those rows, and the
- *   late-write guard refuses any update for an account that is not `active`.
+ * - `check_jobs` go first. On production, `check_jobs.usage_ledger_id` points
+ *   at its ledger row with `ON DELETE SET NULL` — added by
+ *   `20260910090000_check_job_queue` on the unmerged `server/stage-6-job-reliability`
+ *   branch, which is already applied there even though this branch's schema
+ *   does not have the column yet. Deleting the ledger would update those rows,
+ *   and the late-write guard refuses any update for an account that is not
+ *   `active`. Deleting `check_jobs` first is required on production for that
+ *   reason, and harmless here: on this branch's schema `check_jobs` has no
+ *   such column, and the delete simply removes the job records.
  * - The payment tables moved to `retired` on 10 September still hold the
  *   account: `retired.transactions` restricts deleting the Auth user and
  *   `retired.credit_transactions` blocks deleting the profile. Both are

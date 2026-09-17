@@ -99,9 +99,11 @@ describe('after the account is gone', () => {
     )
 
     expect(Object.keys(rows[0]).sort()).toEqual([
+      'attempts',
       'completed_at',
       'error_code',
       'id',
+      'lease_until',
       'progress',
       'receipt_hash',
       'requested_at',
@@ -112,7 +114,9 @@ describe('after the account is gone', () => {
     ])
 
     // No address, no name, no locale — and the receipt kept as a hash, so the
-    // table cannot be read to impersonate one.
+    // table cannot be read to impersonate one. `attempts` and `lease_until`
+    // (stage 8/05) are the worker's own bookkeeping — a retry counter and a
+    // lock timestamp — and say nothing about the person being deleted.
     expect(JSON.stringify(rows[0])).not.toContain('fixture.local')
     expect(rows[0].receipt_hash).toMatch(/^[0-9a-f]{64}$/)
   })
