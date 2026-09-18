@@ -12,7 +12,8 @@ vi.mock('@/server/extra-check/telegram', () => ({
   sendExtraCheckRequestToTelegram: vi.fn(async () => ({ chatId: 1, messageId: 2 })),
   getTelegramApprovalChatId: () => '1',
   getTelegramWebhookSecret: () => 'secret',
-  getOptionalTelegramWebhookSecret: () => 'secret',
+  isTelegramWebhookAuthorized: () => true,
+  isApprovalChat: () => true,
 }))
 
 const { GET: getExtra, POST: postExtra } = await import(

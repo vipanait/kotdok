@@ -68,6 +68,15 @@ export type SessionStorageOptions = {
    * disappears on the next launch without the user being told.
    */
   onWriteFailure: (error: SessionWriteError) => void
+  /**
+   * Keys `clearAll` must sweep even when this run never touched them.
+   *
+   * `known` only holds what this instance read or wrote, and a phone that was
+   * launched and then signed out of has touched almost nothing. Anything whose
+   * key is fixed — the draft of a half-written check — is named here so signing
+   * out removes it rather than leaving it for the next person.
+   */
+  alwaysClear?: readonly string[]
 }
 
 export type SessionStorage = {
@@ -259,7 +268,12 @@ export function createSessionStorage(options: SessionStorageOptions): SessionSto
     },
 
     async clearAll() {
-      await forget([...known])
+      const listed = await Promise.all((options.alwaysClear ?? []).map(async (key) => {
+        const header = parseHeader(await read(key))
+        // The key itself holds the header; the chunks hang off it.
+        return header ? [key, ...spread(key, header)] : [key]
+      }))
+      await forget([...new Set([...known, ...listed.flat()])])
     },
   }
 }

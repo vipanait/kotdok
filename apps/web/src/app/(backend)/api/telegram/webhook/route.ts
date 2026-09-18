@@ -3,7 +3,9 @@ import { resolveExtraCheckRequest } from '@/server/extra-check/extra-check-servi
 import {
   answerTelegramCallbackQuery,
   editTelegramMessageAfterDecision,
-  getOptionalTelegramWebhookSecret,
+  getTelegramApprovalChatId,
+  isApprovalChat,
+  isTelegramWebhookAuthorized,
 } from '@/server/extra-check/telegram'
 
 interface CallbackQueryUpdate {
@@ -34,10 +36,10 @@ function parseCallbackData(data: string | undefined): { requestId: string; actio
 }
 
 function hasValidSecret(request: NextRequest): boolean {
-  const expected = getOptionalTelegramWebhookSecret()
-  if (!expected) return true
-  const actual = request.headers.get('x-telegram-bot-api-secret-token')
-  return actual === expected
+  return isTelegramWebhookAuthorized(
+    request.headers.get('x-telegram-bot-api-secret-token'),
+    process.env.TELEGRAM_WEBHOOK_SECRET,
+  )
 }
 
 export async function POST(request: NextRequest) {
@@ -45,9 +47,21 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 })
   }
 
-  const body = await request.json() as CallbackQueryUpdate
+  let body: CallbackQueryUpdate
+  try {
+    body = await request.json() as CallbackQueryUpdate
+  } catch {
+    return NextResponse.json({ error: 'invalid_body' }, { status: 400 })
+  }
+
   const callbackQuery = body.callback_query
   if (!callbackQuery) return NextResponse.json({ ok: true })
+
+  // A decision only counts from the chat the buttons were posted to: Telegram
+  // does not check that callback data belongs to a button it sent.
+  if (!isApprovalChat(callbackQuery.message?.chat?.id, getTelegramApprovalChatId())) {
+    return NextResponse.json({ error: 'forbidden' }, { status: 403 })
+  }
 
   const parsed = parseCallbackData(callbackQuery.data)
   if (!parsed) {

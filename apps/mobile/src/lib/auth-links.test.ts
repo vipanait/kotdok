@@ -36,30 +36,39 @@ describe('links that come back into the app', () => {
     })
   })
 
-  it('reads a session handed over in the fragment, not just a code', () => {
-    // What a link issued server-side looks like, and what the implicit flow
-    // sends. Expecting only a code is what left password recovery broken.
+  it('refuses a session handed over whole, whoever it belongs to', () => {
+    // A ready-made session in a link is a sign-in nobody on this phone asked
+    // for: anyone can send one, and the account it opens is the sender's.
     expect(
       parseAuthLink(
         'lapka://auth/recover#access_token=header.body.sig&refresh_token=r3fr3sh&type=recovery',
       ),
-    ).toEqual({
-      kind: 'recover',
-      credential: { via: 'tokens', accessToken: 'header.body.sig', refreshToken: 'r3fr3sh' },
-    })
+    ).toBeNull()
+    expect(parseAuthLink('lapka://auth/callback#access_token=a&refresh_token=r')).toBeNull()
   })
 
-  it('prefers the code when a link somehow carries both', () => {
+  it('reads the code when a link also carries a session', () => {
     expect(
       parseAuthLink('lapka://auth/callback?code=abc#access_token=xyz&refresh_token=r'),
     ).toEqual({ kind: 'verify', credential: { via: 'code', code: 'abc' } })
   })
 
-  it('ignores a link carrying half a session', () => {
-    // One token without the other cannot produce a session, and acting on it
-    // would leave the app believing it signed someone in.
-    expect(parseAuthLink('lapka://auth/recover#access_token=header.body.sig')).toBeNull()
-    expect(parseAuthLink('lapka://auth/recover#refresh_token=r3fr3sh')).toBeNull()
+  it('reads a one-time token as something to verify, not as a code', () => {
+    // `token_hash` is not a PKCE code: exchanging it can only fail. It is
+    // checked with the server, and the link says what it was issued for.
+    expect(parseAuthLink('lapka://auth/recover?token_hash=h4sh&type=recovery')).toEqual({
+      kind: 'recover',
+      credential: { via: 'otp', tokenHash: 'h4sh', type: 'recovery' },
+    })
+    expect(parseAuthLink('lapka://auth/callback?token_hash=h4sh&type=signup')).toEqual({
+      kind: 'verify',
+      credential: { via: 'otp', tokenHash: 'h4sh', type: 'signup' },
+    })
+  })
+
+  it('refuses a one-time token that does not say what it is for', () => {
+    expect(parseAuthLink('lapka://auth/callback?token_hash=h4sh')).toBeNull()
+    expect(parseAuthLink('lapka://auth/callback?token_hash=h4sh&type=nonsense')).toBeNull()
   })
 
   it('surfaces a provider error instead of a blank screen', () => {

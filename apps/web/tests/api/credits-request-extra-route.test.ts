@@ -51,6 +51,32 @@ describe('credits/request-extra route', () => {
     })
   })
 
+  it('answers an unexpected failure with a code, not the storage error', async () => {
+    // A PostgREST or Telegram message names tables, constraints and hosts. The
+    // reader gets nothing actionable from it, and neither should anyone else.
+    vi.mocked(getAuthUser).mockResolvedValue({ id: 'user-1' } as never)
+    vi.mocked(submitExtraCheckRequest).mockRejectedValue(
+      new Error('insert or update on table "extra_check_requests" violates foreign key'),
+    )
+
+    const response = await POST(csrfRequest())
+
+    expect(response.status).toBe(500)
+    await expect(response.json()).resolves.toEqual({ error: 'request_failed' })
+  })
+
+  it('keeps the dispatch failure short of the provider’s own words', async () => {
+    vi.mocked(getAuthUser).mockResolvedValue({ id: 'user-1' } as never)
+    vi.mocked(submitExtraCheckRequest).mockRejectedValue(
+      new Error('telegram_dispatch_failed:telegram_api_error:chat not found for bot 12345'),
+    )
+
+    const response = await POST(csrfRequest())
+
+    expect(response.status).toBe(502)
+    await expect(response.json()).resolves.toEqual({ error: 'telegram_dispatch_failed' })
+  })
+
   it('returns 409 for existing pending request', async () => {
     vi.mocked(getAuthUser).mockResolvedValue({ id: 'user-1' } as never)
     vi.mocked(submitExtraCheckRequest).mockRejectedValue(new Error('pending_request_exists'))

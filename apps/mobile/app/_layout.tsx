@@ -8,9 +8,18 @@ import { AuthProvider } from '@/providers/AuthProvider'
 import { UpdatePrompt } from '@/features/updates/UpdatePrompt'
 import { LocaleProvider, dictionary } from '@/i18n'
 import { parseAuthLink } from '@/lib/auth-links'
+import { redeemAuthLink, type LinkAuth } from '@/features/auth/redeem-link'
 import { deviceLocale } from '@/lib/device-locale'
 import { supabase } from '@/lib/supabase'
 import { colour } from '@/ui/theme'
+
+/** The real client behind the rules in `redeemAuthLink`. */
+const linkAuth: LinkAuth = {
+  hasSession: async () => Boolean((await supabase.auth.getSession()).data.session),
+  exchangeCodeForSession: (code) => supabase.auth.exchangeCodeForSession(code),
+  verifyOtp: ({ tokenHash, type }) =>
+    supabase.auth.verifyOtp({ token_hash: tokenHash, type }),
+}
 
 /**
  * Handles links that bring the user back from an email, at cold start and while
@@ -34,35 +43,25 @@ function useAuthLinks() {
       if (!link) return
 
       if (link.kind === 'error') {
-        router.replace({
-          pathname: '/sign-in',
-          params: { notice: link.description ?? t.auth.linkExpired },
-        })
+        // The app's own sentence, not the sender's: whatever a link puts in
+        // `error_description` would otherwise be shown as if the app said it,
+        // which is a free phishing line inside a screen people trust.
+        if (__DEV__) console.warn(`Link refused: ${link.code}`, link.description)
+        router.replace({ pathname: '/sign-in', params: { notice: t.auth.linkExpired } })
         return
       }
 
-      // Caught, not just checked. A reused or expired credential comes back as
-      // `{ error }`, but a malformed one is thrown: a token that is not valid
-      // base64 makes `setSession` raise "Invalid UTF-8 sequence" before it can
-      // return anything. Left uncaught that is an unhandled rejection — no
-      // notice, and the reader is stranded on whatever screen the link routed
-      // to. Both endings are the same to the person holding the phone, so both
-      // get the same sentence.
-      let failed = false
-      try {
-        const { error } =
-          link.credential.via === 'code'
-            ? await supabase.auth.exchangeCodeForSession(link.credential.code)
-            : await supabase.auth.setSession({
-                access_token: link.credential.accessToken,
-                refresh_token: link.credential.refreshToken,
-              })
-        failed = Boolean(error)
-      } catch {
-        failed = true
+      const outcome = await redeemAuthLink(link.credential, linkAuth)
+
+      // Somebody is signed in on this phone, so the link was not acted on. A
+      // recovery link still has somewhere useful to go: the screen it asks for
+      // changes the password of the account already open here.
+      if (outcome === 'already-signed-in') {
+        if (link.kind === 'recover') router.replace('/reset-password')
+        return
       }
 
-      if (failed) {
+      if (outcome === 'invalid') {
         router.replace({ pathname: '/sign-in', params: { notice: t.auth.linkExpired } })
         return
       }

@@ -57,16 +57,26 @@ export function parseProviderReturn(raw: string): ProviderReturn | null {
 /**
  * What the link carries to prove the user opened it.
  *
- * Which one arrives is the project's decision, not the app's. With the PKCE
- * flow Supabase sends a code to exchange; with the implicit flow it puts the
- * session straight in the fragment. Links issued server-side, by an admin tool
- * rather than by the app, are always the second kind. Reading whichever came
- * beats assuming, which is how password recovery came to be broken: the client
- * was on the implicit flow while this file expected a code.
+ * Both kinds still have to be checked before they are worth anything: a PKCE
+ * code is useless without the verifier this device kept, and a one-time token
+ * is verified against the server. What is deliberately not accepted is a
+ * finished session — an `access_token` and `refresh_token` sitting in the
+ * fragment. Anyone can put a working session in a link and send it, and the
+ * account it opens is theirs, so acting on one hands the person's next symptom
+ * description to the sender.
  */
 export type AuthCredential =
   | { via: 'code'; code: string }
-  | { via: 'tokens'; accessToken: string; refreshToken: string }
+  | { via: 'otp'; tokenHash: string; type: EmailOtpType }
+
+/** What an emailed one-time token was issued for; Supabase needs it back. */
+const OTP_TYPES = ['signup', 'invite', 'magiclink', 'recovery', 'email_change', 'email'] as const
+
+export type EmailOtpType = (typeof OTP_TYPES)[number]
+
+function readOtpType(raw: string | null): EmailOtpType | null {
+  return OTP_TYPES.find(type => type === raw) ?? null
+}
 
 export type AuthLink =
   /** Email confirmation or a magic link. */
@@ -122,15 +132,18 @@ export function parseAuthLink(raw: string): AuthLink | null {
   return null
 }
 
-/** A code to exchange, or a session handed over whole — whichever the link has. */
+/** A code to exchange, or a one-time token to verify. Nothing else counts. */
 function readCredential(read: (key: string) => string | null): AuthCredential | null {
-  const code = read('code') ?? read('token_hash')
+  const code = read('code')
   if (code) return { via: 'code', code }
 
-  const accessToken = read('access_token')
-  const refreshToken = read('refresh_token')
-  // Half a session is no session: without both tokens there is nothing to set.
-  if (accessToken && refreshToken) return { via: 'tokens', accessToken, refreshToken }
+  const tokenHash = read('token_hash')
+  if (tokenHash) {
+    // Without knowing what it was issued for there is nothing to verify it as,
+    // and guessing would turn a recovery token into a sign-in.
+    const type = readOtpType(read('type'))
+    return type ? { via: 'otp', tokenHash, type } : null
+  }
 
   return null
 }

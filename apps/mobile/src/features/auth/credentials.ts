@@ -16,7 +16,7 @@ import type { Dictionary } from '@/i18n'
  * Mirrors `minimum_password_length` in `supabase/config.toml`. Said to the
  * person up front, so they do not learn it from a refusal.
  */
-export const PASSWORD_MIN = 6
+export const PASSWORD_MIN = 8
 
 /**
  * Loose on purpose: something, an @, something with a dot. The server has the

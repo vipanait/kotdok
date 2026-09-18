@@ -3,6 +3,7 @@ import 'react-native-url-polyfill/auto'
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import * as Crypto from 'expo-crypto'
 import * as SecureStore from 'expo-secure-store'
+import { DRAFT_KEY } from '@/features/checks/check-draft'
 import { env } from '@/lib/env'
 import { createSessionStorage, type SessionStorage } from '@/lib/session-storage'
 import { installWebCrypto } from '@/lib/webcrypto'
@@ -31,8 +32,24 @@ export function setSessionWriteFailureHandler(handler: (error: Error) => void): 
   onWriteFailure = handler
 }
 
+/**
+ * The keychain, told to keep what it stores on this phone alone.
+ *
+ * Without `keychainAccessible` iOS decides for itself, and the default lets a
+ * value travel in an encrypted backup — a session restored onto a second device
+ * is a sign-in nobody performed there.
+ */
+const keychain = {
+  getItemAsync: (key: string) => SecureStore.getItemAsync(key),
+  setItemAsync: (key: string, value: string) =>
+    SecureStore.setItemAsync(key, value, {
+      keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+    }),
+  deleteItemAsync: (key: string) => SecureStore.deleteItemAsync(key),
+}
+
 export const sessionStorage: SessionStorage = createSessionStorage({
-  storage: SecureStore,
+  storage: keychain,
   onWriteFailure: (error: Error) => onWriteFailure(error),
 })
 
@@ -47,8 +64,11 @@ export const sessionStorage: SessionStorage = createSessionStorage({
  * symptoms, and that belongs to the person who typed it.
  */
 export const draftStorage: SessionStorage = createSessionStorage({
-  storage: SecureStore,
+  storage: keychain,
   onWriteFailure: () => {},
+  // Named so signing out removes the draft even when the check tab was never
+  // opened since launch, and nothing here has read that key.
+  alwaysClear: [DRAFT_KEY],
 })
 
 /**
@@ -61,7 +81,7 @@ export const draftStorage: SessionStorage = createSessionStorage({
  * because it is a bearer secret: whoever holds it can read the status.
  */
 export const receiptStorage: SessionStorage = createSessionStorage({
-  storage: SecureStore,
+  storage: keychain,
   onWriteFailure: () => {},
 })
 

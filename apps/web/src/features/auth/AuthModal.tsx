@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/features/auth/lib/supabase-browser'
 import { useTranslations } from '@/components/LocaleProvider'
+import { DEFAULT_NEXT_PATH, getSafeNextPath } from '@/shared/security/safe-next'
+import { PASSWORD_MIN } from '@/shared/security/password'
 
 export type AuthMode = 'login' | 'register' | 'forgot' | 'reset'
 
@@ -13,10 +15,8 @@ interface Props {
 }
 
 function safeNext(): string {
-  if (typeof window === 'undefined') return '/dashboard'
-  const next = new URLSearchParams(window.location.search).get('next')
-  if (!next || !next.startsWith('/') || next.startsWith('//')) return '/dashboard'
-  return next
+  if (typeof window === 'undefined') return DEFAULT_NEXT_PATH
+  return getSafeNextPath(new URLSearchParams(window.location.search).get('next'))
 }
 
 const ROUTE_FOR_MODE: Record<AuthMode, string> = {
@@ -339,7 +339,7 @@ function RegisterPanel({ onSwitch }: { onSwitch: (m: AuthMode) => void }) {
               label={dict.auth.login.password}
               value={password}
               onChange={setPassword}
-              minLength={6}
+              minLength={PASSWORD_MIN}
               autoComplete="new-password"
             />
             <p className="mt-1 text-xs text-text-faint">{t.passwordHint}</p>
@@ -434,7 +434,7 @@ function ResetPanel({ onNavigate }: { onNavigate: () => void }) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
-    if (password.length < 6) { setError(t.errorTooShort); return }
+    if (password.length < PASSWORD_MIN) { setError(t.errorTooShort); return }
     if (password !== confirm) { setError(t.errorMismatch); return }
     setLoading(true)
     const supabase = createClient()
@@ -455,7 +455,7 @@ function ResetPanel({ onNavigate }: { onNavigate: () => void }) {
               label={t.newPassword}
               value={password}
               onChange={setPassword}
-              minLength={6}
+              minLength={PASSWORD_MIN}
               autoComplete="new-password"
             />
           </div>
@@ -464,7 +464,7 @@ function ResetPanel({ onNavigate }: { onNavigate: () => void }) {
               label={t.confirmPassword}
               value={confirm}
               onChange={setConfirm}
-              minLength={6}
+              minLength={PASSWORD_MIN}
               autoComplete="new-password"
             />
           </div>

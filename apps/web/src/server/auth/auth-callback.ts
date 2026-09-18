@@ -3,10 +3,7 @@ import 'server-only'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
-export function getSafeNextPath(next: string | null): string {
-  if (!next || !next.startsWith('/') || next.startsWith('//')) return '/dashboard'
-  return next
-}
+export { getSafeNextPath } from '@/shared/security/safe-next'
 
 export async function exchangeCodeForSession(code: string) {
   const cookieStore = await cookies()
