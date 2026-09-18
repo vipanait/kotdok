@@ -255,6 +255,27 @@ describe('session storage', () => {
     expect(store.values.size).toBe(0)
   })
 
+  it('sweeps a well-known key nothing read this run', async () => {
+    // The draft of a half-written check is the case: if the check tab was never
+    // opened since launch, this run has never touched that key, and a sign-out
+    // used to leave somebody's notes about their animal in the keychain for
+    // whoever signs in next.
+    const store = workingStore()
+    await createSessionStorage({ storage: store, onWriteFailure: vi.fn() }).setItem(
+      'lapka.check-draft',
+      realisticSession(),
+    )
+
+    const next = createSessionStorage({
+      storage: store,
+      onWriteFailure: vi.fn(),
+      alwaysClear: ['lapka.check-draft'],
+    })
+    await next.clearAll()
+
+    expect(store.values.size).toBe(0)
+  })
+
   it('removes every chunk of one value without touching another', async () => {
     const store = workingStore()
     const storage = createSessionStorage({ storage: store, onWriteFailure: vi.fn() })

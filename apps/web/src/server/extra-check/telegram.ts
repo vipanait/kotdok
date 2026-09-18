@@ -1,5 +1,7 @@
 import 'server-only'
 
+import { timingSafeEqual } from 'node:crypto'
+
 type ExtraCheckAction = 'approve' | 'reject'
 
 interface TelegramApiResponse<T> {
@@ -33,8 +35,31 @@ export function getTelegramWebhookSecret(): string {
   return secret
 }
 
-export function getOptionalTelegramWebhookSecret(): string | null {
-  return process.env.TELEGRAM_WEBHOOK_SECRET ?? null
+/**
+ * Does this request carry the secret Telegram was told to send?
+ *
+ * Fails closed: a deployment with no secret configured refuses every caller.
+ * The webhook approves extra checks, which spend money, so "not configured"
+ * has to mean "nobody gets in" rather than "everybody does".
+ */
+export function isTelegramWebhookAuthorized(
+  header: string | null,
+  secret: string | undefined,
+): boolean {
+  if (!secret || !header) return false
+  const expected = Buffer.from(secret, 'utf8')
+  const actual = Buffer.from(header, 'utf8')
+  return actual.length === expected.length && timingSafeEqual(actual, expected)
+}
+
+/**
+ * Did this callback come from the chat the approval buttons were posted to?
+ *
+ * Telegram does not check that callback data matches a button it sent, so the
+ * chat is what ties a decision back to the reviewers.
+ */
+export function isApprovalChat(chatId: number | undefined, expected: string): boolean {
+  return chatId != null && String(chatId) === expected
 }
 
 function buildTelegramApiUrl(method: string): string {

@@ -24,12 +24,17 @@ afterAll(async () => {
 // only thing that should ever read it is a human answering a payment dispute.
 // `deletion_jobs` and `reauth_proofs` join them: one is a record of somebody
 // being erased, the other is a set of tokens that authorise it.
+// `vet_knowledge` joins them for a different reason: nothing in either app
+// reads the corpus with a user token — the analysis looks it up with the
+// service role — so the read grant only ever offered the whole corpus, and
+// every embedding in it, to anyone holding the anon key that ships in the app.
 const SERVICE_ONLY_TABLES = new Set([
   'api_rate_limits',
   'check_jobs',
   'deletion_jobs',
   'financial_archive',
   'reauth_proofs',
+  'vet_knowledge',
 ])
 
 const REQUIRED_TABLES = [
@@ -149,6 +154,41 @@ describe('migrated schema', () => {
     for (const table of REQUIRED_TABLES) {
       expect(covered.has(table), table).toBe(!SERVICE_ONLY_TABLES.has(table))
     }
+  })
+
+  it('lets nobody but the service role search the corpus', async () => {
+    // The anon key ships inside the app, so an exposed search is an open
+    // endpoint: `match_count` decides how much work one call can ask for.
+    const { rows } = await client.query<{
+      args: string; anon: boolean; authed: boolean; service: boolean
+    }>(
+      `select pg_get_function_identity_arguments(p.oid) as args,
+              has_function_privilege('anon', p.oid, 'execute') as anon,
+              has_function_privilege('authenticated', p.oid, 'execute') as authed,
+              has_function_privilege('service_role', p.oid, 'execute') as service
+       from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+       where n.nspname = 'public' and p.proname = 'search_vet_knowledge'`,
+    )
+
+    expect(rows).not.toHaveLength(0)
+    for (const row of rows) {
+      expect(row.anon, `anon on search_vet_knowledge(${row.args})`).toBe(false)
+      expect(row.authed, `authenticated on search_vet_knowledge(${row.args})`).toBe(false)
+      expect(row.service, `service_role on search_vet_knowledge(${row.args})`).toBe(true)
+    }
+  })
+
+  it('caps how much one corpus search can ask for', async () => {
+    await client.query('insert into public.vet_knowledge (content, species, embedding) '
+      + "select 'chunk ' || i, 'cat', array_fill(0.001::real, array[1536])::vector "
+      + 'from generate_series(1, 40) as i')
+
+    const { rows } = await client.query<{ count: string }>(
+      `select count(*)::text as count from public.search_vet_knowledge(
+         array_fill(0.001::real, array[1536])::vector, 1000000, 'cat')`,
+    )
+
+    expect(Number(rows[0].count)).toBeLessThanOrEqual(20)
   })
 
   it('keeps the account lifecycle column server-owned', async () => {
