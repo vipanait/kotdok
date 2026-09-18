@@ -9,6 +9,8 @@ import { errorMessage } from '@/lib/errors'
 import { useText } from '@/i18n'
 import { AuthShell, authFieldSpacing, authSubmitSpacing } from '@/features/auth/AuthShell'
 import { ProviderButtons } from '@/features/auth/ProviderButtons'
+import { LegalNote } from '@/features/auth/LegalNote'
+import { PASSWORD_MIN, credentialsProblem } from '@/features/auth/credentials'
 import { Button, LinkButton } from '@/ui/Button'
 import { Banner } from '@/ui/Card'
 import { Field } from '@/ui/Field'
@@ -24,6 +26,12 @@ export default function SignUp() {
   const [busy, setBusy] = useState(false)
 
   async function submit() {
+    const problem = credentialsProblem(t, { kind: 'sign-up', email, password })
+    if (problem) {
+      setError(problem)
+      return
+    }
+
     setBusy(true)
     setError(null)
     try {
@@ -54,7 +62,10 @@ export default function SignUp() {
       <Field
         label={t.auth.email}
         value={email}
-        onChangeText={setEmail}
+        onChangeText={(value) => {
+          setEmail(value)
+          setError(null)
+        }}
         placeholder={t.auth.emailPlaceholder}
         autoCapitalize="none"
         autoComplete="email"
@@ -64,7 +75,11 @@ export default function SignUp() {
       <Field
         label={t.auth.password}
         value={password}
-        onChangeText={setPassword}
+        onChangeText={(value) => {
+          setPassword(value)
+          setError(null)
+        }}
+        hint={t.auth.passwordHint(PASSWORD_MIN)}
         secureTextEntry
         autoComplete="password"
         autoCapitalize="none"
@@ -81,6 +96,7 @@ export default function SignUp() {
       ) : null}
 
       <ProviderButtons onOutcome={(outcome) => setProviderNotice(providerNoticeFor(outcome))} />
+      <LegalNote />
     </AuthShell>
   )
 }

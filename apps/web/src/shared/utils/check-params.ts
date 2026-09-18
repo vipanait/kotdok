@@ -13,6 +13,7 @@ export const ACTIVITY_LABELS: Record<string, string> = {
 export const DURATION_LABELS: Record<string, string> = {
   today: 'Сегодня',
   '2-3days': '2–3 дня',
+  '4-7days': '4–7 дней',
   'week+': 'Больше недели',
 }
 

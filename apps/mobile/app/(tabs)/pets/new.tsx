@@ -15,7 +15,7 @@ import {
 import { Button, LinkButton } from '@/ui/Button'
 import { Banner } from '@/ui/Card'
 import { useUnsavedChanges } from '@/features/unsaved/useUnsavedChanges'
-import { SaveChangesDialog } from '@/ui/Dialog'
+import { ConfirmDialog, SaveChangesDialog } from '@/ui/Dialog'
 import { Screen } from '@/ui/Screen'
 
 export default function NewPet() {
@@ -24,7 +24,19 @@ export default function NewPet() {
   const [error, setError] = useState<string | null>(null)
   const [invalid, setInvalid] = useState<FieldError | null>(null)
   const [busy, setBusy] = useState(false)
-  const unsaved = useUnsavedChanges(petFormChanged(emptyPetForm(), form))
+  const [discarding, setDiscarding] = useState(false)
+  const changed = petFormChanged(emptyPetForm(), form)
+  const unsaved = useUnsavedChanges(changed)
+
+  /**
+   * «Отмена» already says what the person wants, so it is not answered with
+   * «Сохранить изменения?» — that question is for leaving some other way. Here
+   * the only thing left to ask is whether they meant to lose what they typed.
+   */
+  function cancel() {
+    if (changed) setDiscarding(true)
+    else router.back()
+  }
 
   function change(patch: Partial<PetForm>) {
     setForm((current) => ({ ...current, ...patch }))
@@ -65,12 +77,25 @@ export default function NewPet() {
       dock={
         <>
           <Button title={t.common.save} onPress={() => void submit()} busy={busy} />
-          <LinkButton title={t.common.cancel} onPress={() => router.back()} />
+          <LinkButton title={t.common.cancel} onPress={cancel} />
         </>
       }
     >
       <PetFields form={form} onChange={change} invalid={invalid} />
       {error ? <Banner text={error} tone="error" /> : null}
+
+      <ConfirmDialog
+        visible={discarding}
+        title={t.unsaved.discardTitle}
+        message={t.unsaved.discardBody}
+        confirmTitle={t.unsaved.discard}
+        cancelTitle={t.unsaved.keepEditing}
+        onConfirm={() => {
+          setDiscarding(false)
+          unsaved.leave(() => router.back())
+        }}
+        onCancel={() => setDiscarding(false)}
+      />
 
       <SaveChangesDialog
         visible={unsaved.pending !== null}

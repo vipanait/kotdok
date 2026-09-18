@@ -6,7 +6,7 @@ import { ErrorCodeSchema } from './errors'
 // posts and the analysis service already validates.
 export const APPETITE_VALUES = ['normal', 'reduced', 'none'] as const
 export const ACTIVITY_VALUES = ['normal', 'low', 'lethargic'] as const
-export const DURATION_VALUES = ['today', '2-3days', 'week+'] as const
+export const DURATION_VALUES = ['today', '2-3days', '4-7days', 'week+'] as const
 export const STOOL_VALUES = ['normal', 'loose', 'absent', 'bloody'] as const
 export const PAIN_SIGNS = [
   'tense',

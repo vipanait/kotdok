@@ -194,6 +194,7 @@ const ACTIVITY_LABELS: Record<string, string> = {
 const DURATION_LABELS: Record<string, string> = {
   today: 'started today',
   '2-3days': '2–3 days',
+  '4-7days': '4–7 days',
   'week+': 'more than a week',
 }
 const STOOL_LABELS: Record<string, string> = {

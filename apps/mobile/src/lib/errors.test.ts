@@ -12,6 +12,14 @@ describe('error messages', () => {
     expect(errorMessage(ru, cause, 'Не удалось войти')).toBe(ru.errors.invalidCredentials)
   })
 
+  it('does not claim two fields were empty when Supabase finds a field malformed', () => {
+    // The recovery screen has one field, and said «Заполните оба поля».
+    const cause = Object.assign(new Error('Unable to validate email address'), {
+      code: 'validation_failed',
+    })
+    expect(errorMessage(ru, cause, 'Не удалось')).toBe(ru.errors.badRequest)
+  })
+
   it('translates an API code', () => {
     const cause = new ApiError('insufficient_credits', 402, 'not enough credits')
     expect(errorMessage(ru, cause, 'Не удалось')).toBe(ru.errors.insufficientCredits)

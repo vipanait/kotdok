@@ -48,6 +48,25 @@ export default function TabsLayout() {
           if (navigation.isFocused()) return
           if (guardTabSwitch(() => navigation.navigate(route.name))) event.preventDefault()
         },
+        /**
+         * Empty this tab now that it has been left.
+         *
+         * `popToTopOnBlur` below only pops once the tab transition animation
+         * reports that it finished, and a screen going somewhere else in the
+         * same breath — «Новая проверка» on a result, «Проверить симптомы» on
+         * an empty history — interrupts it. The profile then reopened two
+         * screens deep, on a result read minutes ago.
+         *
+         * `POP_TO_TOP` is what `StackActions.popToTop()` builds; expo-router
+         * does not re-export the helper.
+         */
+        blur: () => {
+          const tab = navigation.getState()?.routes.find((open) => open.key === route.key)
+          const stack = tab?.state
+          if (stack?.type === 'stack' && stack.key && (stack.index ?? 0) > 0) {
+            navigation.dispatch({ type: 'POP_TO_TOP', target: stack.key })
+          }
+        },
       })}
       screenOptions={{
         headerShown: false,

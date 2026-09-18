@@ -74,6 +74,11 @@ export function outputFormat(locale: Locale): string {
   "disclaimer": "${DISCLAIMER[locale]}"
 }
 
+CONSISTENCY: every text field must agree with the chosen urgency level. The app shows the level with a fixed instruction (EMERGENCY — go to a clinic now, URGENT — see a vet within 24 hours, MONITOR — watch for 48 hours and see a vet if it gets worse, HOME CARE — can be handled at home, HEALTHY — nothing to do), and your text appears right under it.
+- Never advise a vet visit sooner or more firmly than the level says. If you think the pet should be seen within 24 hours, choose URGENT; if immediately, choose EMERGENCY.
+- For MONITOR, describe what to watch and which changes mean it is time to see a vet — do not also say to see a vet soon.
+- urgency_reason explains why this level, not a different one.
+
 CONTEXT FROM VET DATABASE:
 {context}`
 }

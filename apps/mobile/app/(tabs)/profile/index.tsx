@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { ActivityIndicator, StyleSheet, View } from 'react-native'
 import { router, useFocusEffect } from 'expo-router'
 import Constants from 'expo-constants'
@@ -16,6 +16,9 @@ import { OptionSheet } from '@/ui/Field'
 import { Screen } from '@/ui/Screen'
 import { Text } from '@/ui/Text'
 import { colour, radius, shadow, space } from '@/ui/theme'
+
+/** Long enough to read the sentence twice, short enough not to become part of the page. */
+const NOTICE_VISIBLE_MS = 5000
 
 /** A language names itself in itself, whatever the interface is set to. */
 const localeLabels = { ru: 'Русский', en: 'English' } as const
@@ -47,8 +50,23 @@ export default function Profile() {
   useFocusEffect(
     useCallback(() => {
       void load()
+      // A confirmation belongs to the moment it confirms. Coming back to the
+      // profile later, it would announce a change nobody just made.
+      return () => setNotice(null)
     }, [load]),
   )
+
+  /**
+   * The confirmation goes away on its own.
+   *
+   * It stayed for as long as the tab lived — a quarter of an hour in testing —
+   * and pushed the settings below it down for all of that time.
+   */
+  useEffect(() => {
+    if (!notice) return
+    const timer = setTimeout(() => setNotice(null), NOTICE_VISIBLE_MS)
+    return () => clearTimeout(timer)
+  }, [notice])
 
   async function changeLocale(locale: (typeof SUPPORTED_LOCALES)[number]) {
     setError(null)

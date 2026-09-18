@@ -9,6 +9,8 @@ import { errorMessage } from '@/lib/errors'
 import { useText } from '@/i18n'
 import { AuthShell, authFieldSpacing, authSubmitSpacing } from '@/features/auth/AuthShell'
 import { ProviderButtons } from '@/features/auth/ProviderButtons'
+import { LegalNote } from '@/features/auth/LegalNote'
+import { credentialsProblem } from '@/features/auth/credentials'
 import { Button, LinkButton, LinkRow } from '@/ui/Button'
 import { Banner } from '@/ui/Card'
 import { Field } from '@/ui/Field'
@@ -26,9 +28,15 @@ export default function SignIn() {
   if (session) return <Redirect href="/pets" />
 
   async function submit() {
+    dismissNotice()
+    const problem = credentialsProblem(t, { kind: 'sign-in', email, password })
+    if (problem) {
+      setError(problem)
+      return
+    }
+
     setBusy(true)
     setError(null)
-    dismissNotice()
     try {
       await signIn(email.trim(), password)
     } catch (cause) {
@@ -49,7 +57,12 @@ export default function SignIn() {
       <Field
         label={t.auth.email}
         value={email}
-        onChangeText={setEmail}
+        onChangeText={(value) => {
+          // The complaint was about what was there before; keeping it on screen
+          // while it is being fixed reads as the fix being wrong too.
+          setEmail(value)
+          setError(null)
+        }}
         placeholder={t.auth.emailPlaceholder}
         autoCapitalize="none"
         autoComplete="email"
@@ -59,7 +72,10 @@ export default function SignIn() {
       <Field
         label={t.auth.password}
         value={password}
-        onChangeText={setPassword}
+        onChangeText={(value) => {
+          setPassword(value)
+          setError(null)
+        }}
         secureTextEntry
         autoComplete="password"
         autoCapitalize="none"
@@ -80,6 +96,7 @@ export default function SignIn() {
       ) : null}
 
       <ProviderButtons onOutcome={(outcome) => setProviderNotice(providerNoticeFor(outcome))} />
+      <LegalNote />
     </AuthShell>
   )
 }

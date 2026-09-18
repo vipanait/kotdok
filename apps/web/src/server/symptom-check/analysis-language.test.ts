@@ -46,6 +46,17 @@ describe('the language the analysis answers in', () => {
     }
   })
 
+  it('asks the text to agree with the level it sits under', () => {
+    // A MONITOR answer once told people to see a vet soon, right under the
+    // app's own "watch for 48 hours". The rule is in the shared part, so it
+    // holds for cats and dogs and in every language.
+    for (const locale of SUPPORTED_LOCALES) {
+      const format = outputFormat(locale)
+      expect(format, locale).toContain('CONSISTENCY')
+      expect(format, locale).toContain('choose URGENT')
+    }
+  })
+
   it('carries the disclaimer into the skeleton, so the model echoes it back', () => {
     for (const locale of SUPPORTED_LOCALES) {
       expect(outputFormat(locale), locale).toContain(DISCLAIMER[locale])

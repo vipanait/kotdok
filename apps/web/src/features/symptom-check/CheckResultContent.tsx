@@ -61,7 +61,7 @@ export default function CheckResultContent({ check, showBackLink = false }: Prop
     normal: t.activityNormal, low: t.activityLow, lethargic: t.activityLethargic,
   }
   const durationLabels: Record<string, string> = {
-    today: t.durationToday, '2-3days': t.duration2_3days, 'week+': t.durationWeekPlus,
+    today: t.durationToday, '2-3days': t.duration2_3days, '4-7days': t.duration4_7days, 'week+': t.durationWeekPlus,
   }
   const stoolLabels: Record<string, string> = {
     normal: t.stoolNormal, loose: t.stoolLoose, absent: t.stoolAbsent, bloody: t.stoolBloody,
