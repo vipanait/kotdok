@@ -181,6 +181,19 @@ export type AnalyzeSymptomCheckFailure = {
 
 export type AnalyzeSymptomCheckOutcome = AnalyzeSymptomCheckSuccess | AnalyzeSymptomCheckFailure
 
+/**
+ * What to answer when reserving the credit fails.
+ *
+ * The database's own sentence stays out of it: `message` is handed to the
+ * caller unchanged by the route, and PostgREST writes about tables, columns and
+ * constraints. Only running out of credits is something the caller can act on.
+ */
+export function usageFailure(message: string): AnalyzeSymptomCheckFailure {
+  return message.includes('insufficient_credits')
+    ? { ok: false, code: 'insufficient_credits', message: 'Not enough credits / Недостаточно credits.' }
+    : { ok: false, code: 'internal_error', message: 'An error occurred / Произошла ошибка.' }
+}
+
 const APPETITE_LABELS: Record<string, string> = {
   normal: 'eating normally',
   reduced: 'eating less than usual',
@@ -294,11 +307,11 @@ export async function analyzeSymptomCheck(
       p_symptom_check_id: null,
     })
     if (usageError) {
-      return {
-        ok: false,
-        code: usageError.message.includes('insufficient_credits') ? 'insufficient_credits' : 'internal_error',
-        message: usageError.message,
+      const failure = usageFailure(usageError.message)
+      if (failure.code === 'internal_error') {
+        console.error('reserving a symptom check credit failed:', usageError.message)
       }
+      return failure
     }
     const reservedUsage = usage as { new_balance: number; ledger_id: string } | null
     reservedUsageLedgerId = reservedUsage?.ledger_id ?? null
