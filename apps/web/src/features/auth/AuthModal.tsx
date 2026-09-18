@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/features/auth/lib/supabase-browser'
 import { useTranslations } from '@/components/LocaleProvider'
+import { DEFAULT_NEXT_PATH, getSafeNextPath } from '@/shared/security/safe-next'
 
 export type AuthMode = 'login' | 'register' | 'forgot' | 'reset'
 
@@ -13,10 +14,8 @@ interface Props {
 }
 
 function safeNext(): string {
-  if (typeof window === 'undefined') return '/dashboard'
-  const next = new URLSearchParams(window.location.search).get('next')
-  if (!next || !next.startsWith('/') || next.startsWith('//')) return '/dashboard'
-  return next
+  if (typeof window === 'undefined') return DEFAULT_NEXT_PATH
+  return getSafeNextPath(new URLSearchParams(window.location.search).get('next'))
 }
 
 const ROUTE_FOR_MODE: Record<AuthMode, string> = {
