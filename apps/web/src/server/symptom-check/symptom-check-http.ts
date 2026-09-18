@@ -26,7 +26,7 @@ import {
 
 const VALID_APPETITE = ['normal', 'reduced', 'none']
 const VALID_ACTIVITY = ['normal', 'low', 'lethargic']
-const VALID_DURATION = ['today', '2-3days', 'week+']
+const VALID_DURATION = ['today', '2-3days', '4-7days', 'week+']
 const VALID_STOOL = ['normal', 'loose', 'absent', 'bloody']
 
 function narrow(value: string | null, allowed: string[]): string | null {

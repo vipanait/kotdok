@@ -4,6 +4,7 @@ import { useAuth } from '@/providers/AuthProvider'
 import { errorMessage } from '@/lib/errors'
 import { useText } from '@/i18n'
 import { AuthShell, authFieldSpacing } from '@/features/auth/AuthShell'
+import { credentialsProblem } from '@/features/auth/credentials'
 import { Button, LinkButton } from '@/ui/Button'
 import { Banner } from '@/ui/Card'
 import { Field } from '@/ui/Field'
@@ -17,6 +18,12 @@ export default function ForgotPassword() {
   const [busy, setBusy] = useState(false)
 
   async function submit() {
+    const problem = credentialsProblem(t, { kind: 'recover', email })
+    if (problem) {
+      setError(problem)
+      return
+    }
+
     setBusy(true)
     setError(null)
     try {
@@ -39,7 +46,10 @@ export default function ForgotPassword() {
       <Field
         label={t.auth.email}
         value={email}
-        onChangeText={setEmail}
+        onChangeText={(value) => {
+          setEmail(value)
+          setError(null)
+        }}
         placeholder={t.auth.emailPlaceholder}
         autoCapitalize="none"
         autoComplete="email"

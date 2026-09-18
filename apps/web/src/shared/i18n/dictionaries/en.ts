@@ -267,6 +267,7 @@ const en: Dictionary = {
     duration: 'Symptoms duration',
     durationToday: 'Today',
     duration2_3days: '2–3 days',
+    duration4_7days: '4–7 days',
     durationWeekPlus: 'More than a week',
     stool: 'Stool',
     stoolNormal: 'Normal',

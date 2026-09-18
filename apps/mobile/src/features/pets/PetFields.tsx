@@ -90,12 +90,14 @@ export function PetFields({
         onChangeText={(name) => onChange({ name })}
         error={errorFor('name')}
         placeholder={hint.name}
+        autoCorrect={false}
       />
       <Field
         label={t.petForm.breed}
         value={form.breed}
         onChangeText={(breed) => onChange({ breed })}
         placeholder={hint.breed}
+        autoCorrect={false}
       />
       <Field
         label={t.petForm.age(AGE_MAX)}

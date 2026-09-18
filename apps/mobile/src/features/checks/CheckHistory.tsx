@@ -15,10 +15,16 @@ import { colour, space } from '@/ui/theme'
  * Dates as a person writes them, not as the API sends them.
  *
  * The interface's language, not the device's: a phone set to English would
- * otherwise put "7 September" under a card written in Russian.
+ * otherwise put "7 September" under a card written in Russian. With the time,
+ * because two checks made on one day were otherwise the same line twice.
  */
 function formatDate(iso: string, locale: string): string {
-  return new Date(iso).toLocaleDateString(locale, { day: 'numeric', month: 'long' })
+  return new Date(iso).toLocaleString(locale, {
+    day: 'numeric',
+    month: 'long',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
 }
 
 /**

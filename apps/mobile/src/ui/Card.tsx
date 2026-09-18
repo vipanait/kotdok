@@ -62,7 +62,19 @@ export function IconAvatar({ icon, size = 48 }: { icon: IconName; size?: number 
   )
 }
 
-/** An aside: a hint in accent, a problem in red. */
+const bannerTones = {
+  info: { background: colour.accentSoft, icon: 'info', iconColour: colour.accentText, text: 'default' },
+  error: { background: colour.dangerSoft, icon: 'alert', iconColour: colour.danger, text: 'danger' },
+  note: { background: colour.soft, icon: 'alert', iconColour: colour.text, text: 'default' },
+} as const
+
+/**
+ * An aside: a hint in accent, a problem in red, and a caution in neutral.
+ *
+ * `note` is for something the person should heed that is not the app failing —
+ * the analysis's species warning. Red made it look like a broken form, and
+ * warm colours belong to the urgency scale, which already sits above it.
+ */
 export function Banner({
   text,
   tone = 'info',
@@ -70,27 +82,19 @@ export function Banner({
   style,
 }: {
   text: string
-  tone?: 'info' | 'error'
+  tone?: keyof typeof bannerTones
   icon?: IconName
   style?: ViewStyle
 }) {
-  const isError = tone === 'error'
+  const look = bannerTones[tone]
 
   return (
     <View
       accessibilityRole="alert"
-      style={[
-        styles.banner,
-        { backgroundColor: isError ? colour.dangerSoft : colour.accentSoft },
-        style,
-      ]}
+      style={[styles.banner, { backgroundColor: look.background }, style]}
     >
-      <Icon
-        name={icon ?? (isError ? 'alert' : 'info')}
-        size={20}
-        color={isError ? colour.danger : colour.accentText}
-      />
-      <Text tone={isError ? 'danger' : 'default'} style={styles.bannerText}>
+      <Icon name={icon ?? look.icon} size={20} color={look.iconColour} />
+      <Text tone={look.text} style={styles.bannerText}>
         {text}
       </Text>
     </View>

@@ -266,6 +266,7 @@ const ru = {
     duration: 'Симптомы длятся',
     durationToday: 'Сегодня',
     duration2_3days: '2–3 дня',
+    duration4_7days: '4–7 дней',
     durationWeekPlus: 'Больше недели',
     stool: 'Стул',
     stoolNormal: 'Нормальный',
