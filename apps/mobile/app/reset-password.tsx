@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase'
 import { errorMessage } from '@/lib/errors'
 import { useText } from '@/i18n'
 import { AuthShell, authFieldSpacing } from '@/features/auth/AuthShell'
+import { PASSWORD_MIN, credentialsProblem } from '@/features/auth/credentials'
 import { Button } from '@/ui/Button'
 import { Banner } from '@/ui/Card'
 import { Field } from '@/ui/Field'
@@ -16,6 +17,12 @@ export default function ResetPassword() {
   const [busy, setBusy] = useState(false)
 
   async function submit() {
+    const problem = credentialsProblem(t, { kind: 'new-password', password })
+    if (problem) {
+      setError(problem)
+      return
+    }
+
     setBusy(true)
     setError(null)
     const { error: cause } = await supabase.auth.updateUser({ password })
@@ -33,7 +40,11 @@ export default function ResetPassword() {
       <Field
         label={t.auth.newPassword}
         value={password}
-        onChangeText={setPassword}
+        onChangeText={(value) => {
+          setPassword(value)
+          setError(null)
+        }}
+        hint={t.auth.passwordHint(PASSWORD_MIN)}
         secureTextEntry
         autoComplete="password"
         autoCapitalize="none"

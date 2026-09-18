@@ -87,6 +87,7 @@ export default function CheckForm({ pets, onClose }: Props) {
   const durationOptions = [
     { value: 'today', label: t.durationToday },
     { value: '2-3days', label: t.duration2_3days },
+    { value: '4-7days', label: t.duration4_7days },
     { value: 'week+', label: t.durationWeekPlus },
   ]
 

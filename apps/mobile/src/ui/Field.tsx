@@ -29,11 +29,13 @@ export function Field({
   onChangeText,
   placeholder,
   error,
+  hint,
   keyboardType,
   multiline,
   secureTextEntry,
   autoCapitalize,
   autoComplete,
+  autoCorrect,
   style,
 }: {
   label: string
@@ -43,11 +45,18 @@ export function Field({
   onChangeText: (text: string) => void
   placeholder?: string
   error?: string | null
+  /** A standing note under the field, such as a rule it has to meet. An error takes its place. */
+  hint?: string
   keyboardType?: 'default' | 'numeric' | 'email-address'
   multiline?: boolean
   secureTextEntry?: boolean
   autoCapitalize?: 'none' | 'sentences'
   autoComplete?: 'email' | 'password' | 'off'
+  /**
+   * Off for names: iOS knows no pet called Barsik and quietly makes it Barack.
+   * Left to the platform when not given.
+   */
+  autoCorrect?: boolean
   style?: ViewStyle
 }) {
   const t = useText()
@@ -93,6 +102,7 @@ export function Field({
           secureTextEntry={secureTextEntry && !revealed}
           autoCapitalize={autoCapitalize ?? 'sentences'}
           autoComplete={autoComplete}
+          autoCorrect={autoCorrect}
           accessibilityLabel={label}
         />
         {/* Typing a password blind on a phone keyboard is how people end up
@@ -109,6 +119,10 @@ export function Field({
         <Text variant="caption" tone="danger" style={styles.errorText}>
           {error}
         </Text>
+      ) : hint ? (
+        <Text variant="caption" tone="faint" style={styles.errorText}>
+          {hint}
+        </Text>
       ) : null}
     </View>
   )
@@ -118,10 +132,12 @@ export type Option<Value extends string> = { value: Value; label: string }
 
 
 /**
- * Two or three options, all visible.
+ * Two to four short options, all visible.
  *
- * Beyond three the labels stop fitting and the row starts wrapping, which is
- * why `Select` exists — the split is by option count, not by field.
+ * Longer labels, or more of them, stop fitting and the row starts wrapping,
+ * which is why `Select` exists. Four is for answers that are short and read as
+ * a scale — how long symptoms have lasted — where hiding one behind a sheet
+ * would hide the scale.
  *
  * Tapping the chosen one clears it when `clearable`, and the label says so
  * while nothing is chosen: most of these are optional, and a person who tapped

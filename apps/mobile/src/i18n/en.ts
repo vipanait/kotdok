@@ -47,6 +47,9 @@ export const en: Dictionary = {
     google: 'Continue with Google',
     apple: 'Continue with Apple',
     linkExpired: 'That link is no longer valid.',
+    passwordHint: (min: number) => `At least ${min} characters`,
+    legalPrefix: 'By continuing you accept the',
+    legalLink: 'Terms of Use',
   },
 
   pets: {
@@ -69,6 +72,9 @@ export const en: Dictionary = {
     body: 'If you leave without saving, the changes will be lost.',
     discard: "Don't save",
     stay: 'Keep editing',
+    discardTitle: 'Discard this pet?',
+    discardBody: 'What you have entered so far will be lost.',
+    keepEditing: 'Keep editing',
   },
 
   updates: {
@@ -122,9 +128,10 @@ export const en: Dictionary = {
     painSigns: 'Signs of pain',
     needPetTitle: 'Add a pet first',
     needPetBody:
-      'The answer leans on species, age and chronic conditions. Without them the check comes out general, and it still costs one.',
+      'The answer leans on species, age and chronic conditions, so a check is always about a particular pet.',
     waitingTitle: 'Looking at the symptoms',
-    waitingBody: 'This takes up to a minute. Please keep this screen open.',
+    waitingBody:
+      'This takes up to a minute. You can leave this screen — the result will open here when you come back, and it will be in the history.',
     requestCheck: 'Request a check',
     openHistory: 'Open the history',
     tryAgain: 'Try again',
@@ -139,10 +146,11 @@ export const en: Dictionary = {
     copied: 'Copied',
     youDescribed: 'What you described',
     disclaimer: 'This is not a diagnosis. Only a veterinarian decides on treatment.',
+    newCheck: 'New check',
   },
 
   history: {
-    title: 'History',
+    title: 'Check history',
     emptyTitle: 'No checks yet',
     emptyBody: 'Results will appear here once you check some symptoms',
   },
@@ -172,7 +180,7 @@ export const en: Dictionary = {
     goesTitle: 'What will be deleted',
     goes: 'Your profile, your pets, every symptom check and its result, requests for extra checks, and feedback.',
     staysTitle: 'What stays',
-    stays: 'Records of payments — we are required to keep those apart from the account. They will no longer be connected to you.',
+    stays: 'Records of checks added to and spent from your balance — we are required to keep those apart from the account. They will no longer be connected to you.',
     timing: (days: number) => `Deletion takes up to ${days} days. Usually sooner.`,
     confirm: 'Delete account',
     confirmTitle: 'Delete the account?',
@@ -211,6 +219,9 @@ export const en: Dictionary = {
     tooManyEmails: 'Too many emails in a row. Try again in a minute',
     tooManyAttempts: 'Too many attempts. Try again in a minute',
     fillBoth: 'Fill in both fields',
+    emailRequired: 'Enter your email',
+    passwordRequired: 'Enter a password',
+    passwordShort: (min: number) => `The password must be at least ${min} characters`,
     noSuchAccount: 'There is no such account',
     sessionExpired: 'The session has expired. Sign in again',
     signUpClosed: 'Registration is closed at the moment',
@@ -294,7 +305,12 @@ export const en: Dictionary = {
   },
   appetite: { normal: 'Eating normally', reduced: 'Eating less', none: 'Not eating' },
   activity: { normal: 'Alert', low: 'Less active', lethargic: 'Lethargic' },
-  duration: { today: 'Today', '2-3days': '2–3 days', 'week+': 'More than a week' },
+  duration: {
+    today: 'Today',
+    '2-3days': '2–3 days',
+    '4-7days': '4–7 days',
+    'week+': 'More than a week',
+  },
   stool: { normal: 'Normal', loose: 'Loose (diarrhoea)', absent: 'None', bloody: 'With blood' },
   pain: {
     tense: 'Tense / stiff',

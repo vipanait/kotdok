@@ -29,6 +29,13 @@ import {
   type CheckDraft,
 } from '@/features/checks/check-draft'
 import {
+  forgetPendingCheck,
+  pendingCheck,
+  rememberFinishedCheck,
+  rememberPendingCheck,
+  takeFinishedCheck,
+} from '@/features/checks/pending-check'
+import {
   emptyCheckForm,
   formToCheckInput,
   newIdempotencyKey,
@@ -135,26 +142,16 @@ export default function NewCheck() {
     setWaiting(false)
   }, [])
 
-  useFocusEffect(
-    useCallback(() => {
-      // On the way in, not on the way out: the tab keeps this screen alive, so
-      // coming back to it has to be the same as arriving for the first time.
-      // Clearing on the way out would empty the fields while they are still on
-      // screen, in the moment the result is being opened.
-      if (finished.current) startFresh()
-
-      return () => {
-        void keepDraft()
-      }
-    }, [keepDraft, startFresh]),
-  )
+  /** Whether this tab is the one in front, which is not the same as mounted. */
+  const focused = useRef(false)
 
   /**
-   * Whether this screen is still the one the person is looking at.
+   * Whether this screen still exists.
    *
-   * Polling outlives the screen otherwise: a person who leaves while the
-   * analysis runs would be yanked to a result from wherever they had got to,
-   * because the loop finishes and calls replace regardless.
+   * Leaving the tab takes it apart, and the loop asking whether the answer has
+   * arrived goes with it. Nothing may be shown after that: the state it would
+   * set belongs to a screen that is gone. What was being waited for is in
+   * `pending-check`, and the wait resumes on the way back in.
    */
   const onScreen = useRef(true)
   useEffect(
@@ -197,6 +194,9 @@ export default function NewCheck() {
 
   function change(patch: Partial<CheckForm>) {
     setForm((current) => ({ ...current, ...patch }))
+    // Retired by editing the description, the one field it is about: a red
+    // «хотя бы 3 символа» under a paragraph reads as the paragraph being wrong.
+    if ('symptoms' in patch) setSymptomsError(null)
   }
 
   const waitForResult = useCallback(async (jobId: string) => {
@@ -204,8 +204,8 @@ export default function NewCheck() {
 
     while (Date.now() < deadline) {
       const job = await withFreshSession((api) => api.getCheckJob(jobId))
-      // Left the screen while we were asking: the answer is in the history, and
-      // dragging them out of wherever they are now would be worse than silence.
+      // The screen is gone; the job is remembered and the wait picks up again
+      // when this tab is next opened.
       if (!onScreen.current) return
 
       if (job.status === 'completed' && job.check_id) {
@@ -214,7 +214,16 @@ export default function NewCheck() {
         // reopened last week's answer and there was no way to start another
         // check from here at all. Pushed, the form stays underneath — back and
         // the tab bar both return to it, and it empties itself on the way in.
-        router.push(`/check/${job.check_id}`)
+        //
+        // Only while this tab is in front. A person who was told they could
+        // leave must not be pulled out of wherever they went; the answer waits
+        // for them here.
+        if (focused.current) {
+          forgetPendingCheck()
+          router.push(`/check/${job.check_id}`)
+        } else if (userId) {
+          rememberFinishedCheck(userId, job.check_id)
+        }
         return
       }
       if (job.status === 'failed') {
@@ -235,7 +244,55 @@ export default function NewCheck() {
 
     // The work is still going; the answer will be in the history when it lands.
     throw new AppError(t.errors.analysisSlow, 'still_running')
-  }, [t])
+  }, [t, userId])
+
+  /**
+   * Waiting for an answer, however that wait started — sending the check, or
+   * coming back to this tab while one is still running.
+   */
+  const watch = useCallback(
+    async (jobId: string) => {
+      setWaiting(true)
+      setFailure(null)
+      try {
+        await waitForResult(jobId)
+      } catch (cause) {
+        // Whatever went wrong, it is no longer worth waiting for: a failed job
+        // answers the same way for ever, and a slow one is in the history.
+        forgetPendingCheck()
+        if (!onScreen.current) return
+        setFailure({
+          text: errorMessage(t, cause, t.errors.submitCheckFailed),
+          kind: cause instanceof AppError ? cause.kind : null,
+        })
+        setWaiting(false)
+      }
+    },
+    [t, waitForResult],
+  )
+
+  useFocusEffect(
+    useCallback(() => {
+      focused.current = true
+      // On the way in, not on the way out: clearing on the way out would empty
+      // the fields while they are still on screen, in the moment the result is
+      // being opened.
+      if (finished.current) startFresh()
+
+      const done = takeFinishedCheck(userId)
+      if (done) {
+        router.push(`/check/${done}`)
+      } else {
+        const job = pendingCheck(userId)
+        if (job) void watch(job)
+      }
+
+      return () => {
+        focused.current = false
+        void keepDraft()
+      }
+    }, [keepDraft, startFresh, userId, watch]),
+  )
 
   /**
    * Cancel, and mean it.
@@ -271,12 +328,14 @@ export default function NewCheck() {
     key.current ??= newIdempotencyKey()
     setWaiting(true)
     setFailure(null)
+    let jobId: string
     try {
       const accepted = await withFreshSession((api) => api.createCheck(key.current!, input.value))
+      jobId = accepted.job_id
       // Sent and charged: keeping it now would offer to send it a second time.
       finished.current = true
+      if (userId) rememberPendingCheck(userId, jobId)
       await forgetDraft()
-      await waitForResult(accepted.job_id)
     } catch (cause) {
       if (!onScreen.current) return
       setFailure({
@@ -284,7 +343,10 @@ export default function NewCheck() {
         kind: cause instanceof AppError ? cause.kind : null,
       })
       setWaiting(false)
+      return
     }
+
+    await watch(jobId)
   }
 
   if (waiting || failure) {
@@ -357,9 +419,9 @@ export default function NewCheck() {
       >
         <Steps current={1} of={2} label={t.check.step} />
 
-        {/* Nothing to choose with one animal: it is already picked, and the
-            second step names it. With more, a sheet rather than a row of names,
-            which stops fitting as soon as somebody has a few. */}
+        {/* With several animals, a sheet rather than a row of names, which
+            stops fitting as soon as somebody has a few. With one there is
+            nothing to choose, so it is named instead. */}
         {pets.length > 1 ? (
           <Select
             label={t.check.pet}
@@ -368,7 +430,14 @@ export default function NewCheck() {
             value={form.petId}
             onChange={(petId) => change({ petId })}
           />
-        ) : null}
+        ) : (
+          <View style={styles.onlyPet}>
+            <Text variant="label" tone="muted">
+              {t.check.pet}
+            </Text>
+            <Text variant="h3">{chosen?.name ?? pets[0].name}</Text>
+          </View>
+        )}
 
         <Field
           label={t.check.symptoms}
@@ -501,6 +570,7 @@ function Waiting({
 
 const styles = StyleSheet.create({
   summaryCopy: { flex: 1, minWidth: 0 },
+  onlyPet: { marginBottom: space.block, gap: 6 },
   // The pair stands rather than sits, so it needs the height; a narrow phone
   // gets the smaller one, which leaves the button above the fold.
   emptyArt: { width: 228, height: 228, alignSelf: 'center', marginBottom: 8 },

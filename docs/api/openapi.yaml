@@ -601,6 +601,7 @@ components:
               enum:
                 - today
                 - 2-3days
+                - 4-7days
                 - week+
             - type: "null"
         stool:

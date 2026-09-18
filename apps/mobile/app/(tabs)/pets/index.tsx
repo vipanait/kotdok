@@ -46,9 +46,11 @@ export default function Pets() {
   const t = useText()
   const [pets, setPets] = useState<Pet[] | null>(null)
   const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
+  const [loading, setLoading] = useState(false)
 
   const load = useCallback(async () => {
     setError(null)
+    setLoading(true)
     try {
       setPets(await withFreshSession((api) => api.listPets()))
     } catch (cause) {
@@ -56,6 +58,8 @@ export default function Pets() {
       // not a reason to forget the pets we last saw.
       setPets((current) => current ?? [])
       setError(describeFailure(t, cause, t.common.offline))
+    } finally {
+      setLoading(false)
     }
   }, [t])
 
@@ -67,19 +71,28 @@ export default function Pets() {
     }, [load]),
   )
 
-  const empty = pets !== null && pets.length === 0 && !error
+  /**
+   * "Nobody yet" only once the server has said so this time.
+   *
+   * The tab keeps the last list, so coming back from adding the first pet
+   * showed the old empty one — with its illustration and «Добавьте первого» —
+   * for the second the reload took. An empty list being reloaded is shown as
+   * loading instead; a list with pets in it stays on screen while it refreshes.
+   */
+  const settling = pets !== null && pets.length === 0 && loading
+  const empty = pets !== null && pets.length === 0 && !error && !loading
 
   return (
     <Screen
       title={t.pets.title}
       action={
-        empty
+        empty || settling
           ? undefined
           : { icon: 'plus', label: t.pets.add, onPress: () => router.push('/pets/new') }
       }
       centered={empty}
       dock={
-        empty ? null : (
+        empty || settling ? null : (
           <Button title={t.pets.checkSymptoms} onPress={() => router.push('/check')} />
         )
       }
@@ -92,7 +105,7 @@ export default function Pets() {
         </>
       ) : null}
 
-      {pets === null ? (
+      {pets === null || settling ? (
         <Skeletons />
       ) : empty ? (
         <View>

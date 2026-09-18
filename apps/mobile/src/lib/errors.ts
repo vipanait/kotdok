@@ -42,7 +42,9 @@ const authMessages = (t: Dictionary): Record<string, string> => ({
   same_password: t.errors.samePassword,
   over_email_send_rate_limit: t.errors.tooManyEmails,
   over_request_rate_limit: t.errors.tooManyAttempts,
-  validation_failed: t.errors.fillBoth,
+  // One code for any malformed field, so the sentence cannot name a field: the
+  // screens catch the obvious cases themselves (`features/auth/credentials`).
+  validation_failed: t.errors.badRequest,
   user_not_found: t.errors.noSuchAccount,
   session_expired: t.errors.sessionExpired,
   signup_disabled: t.errors.signUpClosed,

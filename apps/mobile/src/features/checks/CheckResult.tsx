@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ActivityIndicator } from 'react-native'
+import { ActivityIndicator, StyleSheet, View } from 'react-native'
 import { router } from 'expo-router'
 import * as Clipboard from 'expo-clipboard'
 import type { SymptomCheckRecord } from '@lapka/contracts'
@@ -7,12 +7,13 @@ import { withFreshSession } from '@/lib/api'
 import { describeFailure } from '@/lib/errors'
 import { dictionary, useText } from '@/i18n'
 import { urgencyText } from '@/features/checks/urgency'
+import { checkAnswers, formatCheckedAt } from '@/features/checks/check-answers'
 import { Button, LinkButton } from '@/ui/Button'
 import { Banner, UrgencyCard } from '@/ui/Card'
 import { Screen } from '@/ui/Screen'
 import { Accordion, Bullets } from '@/ui/Section'
 import { Text } from '@/ui/Text'
-import { colour } from '@/ui/theme'
+import { colour, space } from '@/ui/theme'
 
 /**
  * One finished check, read back.
@@ -74,9 +75,14 @@ export function CheckResult({ id }: { id: string }) {
    */
   const t = dictionary(check.locale)
   const level = urgencyText(t, check.urgency)
+  const answers = checkAnswers(t, check.full_response)
 
   return (
     <Screen title={check.pet_name ?? t.result.fallbackTitle} onBack={() => router.back()} scroll>
+      <Text variant="caption" tone="faint" style={styles.checkedAt}>
+        {formatCheckedAt(check.created_at, check.locale)}
+      </Text>
+
       <UrgencyCard
         level={check.urgency}
         icon={level.icon}
@@ -86,7 +92,7 @@ export function CheckResult({ id }: { id: string }) {
       />
 
       {check.species_specific_warning ? (
-        <Banner text={check.species_specific_warning} tone="error" />
+        <Banner text={check.species_specific_warning} tone="note" />
       ) : null}
 
       <Bullets title={t.result.causes} items={check.possible_causes} />
@@ -103,9 +109,32 @@ export function CheckResult({ id }: { id: string }) {
 
       <Accordion title={t.result.youDescribed} soft>
         <Text tone="muted">{check.symptoms_input}</Text>
+        {answers.map((answer) => (
+          <View key={answer.label} style={styles.answer}>
+            <Text variant="label" tone="faint">
+              {answer.label}
+            </Text>
+            <Text tone="muted">{answer.value}</Text>
+          </View>
+        ))}
       </Accordion>
 
       <Banner text={t.result.disclaimer} />
+
+      {/* At the end rather than docked: the answer is the thing to read, and a
+          fixed button would take a line of it on every screen. `navigate`, not
+          `push`, so from a history in another tab it opens the check tab's own
+          form instead of stacking a second one here. */}
+      <Button
+        title={ui.result.newCheck}
+        kind="secondary"
+        onPress={() => router.navigate('/check')}
+      />
     </Screen>
   )
 }
+
+const styles = StyleSheet.create({
+  checkedAt: { marginBottom: space.row },
+  answer: { marginTop: space.row, gap: 2 },
+})
