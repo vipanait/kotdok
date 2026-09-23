@@ -3,14 +3,11 @@ import type { SymptomCheckView } from '@lapka/contracts'
 import PetAvatar from '@/components/PetAvatar'
 import Icon from '@/components/ui/Icon'
 import ResultFeedback from '@/features/symptom-check/ResultFeedback'
-import {
-  checkOptions,
-  formatCheckDateTime,
-  petSummary,
-  type CheckPet,
-} from '@/features/symptom-check/check-options'
+import { checkOptions, formatCheckDateTime } from '@/features/symptom-check/check-options'
 import type { Locale } from '@/shared/i18n/config'
 import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
+import type { CheckPet } from '@/shared/types'
+import { petSummary } from '@/shared/utils/pet-summary'
 import { CLINIC_URGENCIES, VET_URGENCIES, urgencyTitle } from '@/shared/utils/urgency'
 
 const CLINIC_SEARCH_URL = 'https://www.google.com/maps/search/?api=1&query=ветеринарная+клиника'
@@ -87,7 +84,7 @@ export default function CheckResultContent({ check, dict, locale, timeZone, pet,
 
   const petName = pet?.name ?? check.pet_name
   const petSpecies = pet?.species ?? check.pet_species
-  const petLine = (pet && petSummary(pet, t, locale))
+  const petLine = (pet && petSummary(pet, dict, locale))
     || (petSpecies === 'dog' ? t.speciesDog : petSpecies === 'cat' ? t.speciesCat : '')
   const when = formatCheckDateTime(check.created_at, locale, timeZone)
   const newCheckHref = pet ? `/check?pet=${pet.id}` : '/check'

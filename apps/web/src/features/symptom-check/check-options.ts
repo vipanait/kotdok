@@ -5,13 +5,8 @@ import {
   PAIN_SIGNS,
   STOOL_VALUES,
 } from '@lapka/contracts'
-import type { Locale } from '@/shared/i18n/config'
+import { intlLocale, type Locale } from '@/shared/i18n/config'
 import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
-import { formatCount, type PluralForms } from '@/shared/i18n/plural'
-import type { Pet } from '@/shared/types'
-
-/** What the check form and the result aside show about a pet. */
-export type CheckPet = Pick<Pet, 'id' | 'name' | 'species' | 'breed' | 'age_years'>
 
 export interface CheckOption {
   value: string
@@ -71,29 +66,6 @@ export function checkOptions(t: CheckDict) {
       Record<string, string>
     >,
   }
-}
-
-function intlLocale(locale: Locale): string {
-  return locale === 'ru' ? 'ru-RU' : 'en-US'
-}
-
-/** "3 года", "1,5 года", "1 year". */
-export function formatPetAge(forms: PluralForms, years: number, locale: Locale): string {
-  const number = new Intl.NumberFormat(intlLocale(locale), { maximumFractionDigits: 1 }).format(years)
-  return formatCount(forms, years, locale).replace(String(years), number)
-}
-
-/** "Сибирская · 3 года": whatever of breed and age the profile has. */
-export function petSummary(
-  pet: { breed?: string | null; age_years?: number | null },
-  t: CheckDict,
-  locale: Locale,
-  separator = ' · ',
-): string {
-  const parts: string[] = []
-  if (pet.breed) parts.push(pet.breed)
-  if (pet.age_years != null && pet.age_years > 0) parts.push(formatPetAge(t.petAge, pet.age_years, locale))
-  return parts.join(separator)
 }
 
 /**

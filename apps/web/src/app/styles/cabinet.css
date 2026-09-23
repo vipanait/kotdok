@@ -84,10 +84,10 @@
   .pet-form-aside { position: static; }
 
   /* Save and cancel first, delete set apart below them. */
-  .form-actions { flex-direction: column-reverse; align-items: stretch; }
-  .form-actions > .row { margin-left: 0; justify-content: flex-end; }
-  .form-actions > .row > .btn { flex: 1 1 auto; }
-  .form-actions > .btn.danger { align-self: flex-start; }
+  .pet-form .form-actions { flex-direction: column-reverse; align-items: stretch; }
+  .pet-form .form-actions > .row { margin-left: 0; justify-content: flex-end; }
+  .pet-form .form-actions > .row > .btn { flex: 1 1 auto; }
+  .pet-form .form-actions > .btn.danger { align-self: flex-start; }
 
   .credits-card .balance-big { font-size: 52px; }
 }

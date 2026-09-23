@@ -1,5 +1,3 @@
-import type { Locale } from '@/shared/i18n/config'
-import type { PluralForms } from '@/shared/i18n/plural'
 import type { Pet } from '@/shared/types'
 
 type ProfileFacts = Pick<
@@ -40,17 +38,4 @@ export function profileCompleteness(pet: ProfileFacts): number {
 
   const filled = facts.filter(value => value !== null && value !== undefined).length
   return Math.round((filled / facts.length) * 100)
-}
-
-/**
- * "3 года", "4,5 года", "1 year": the number in the locale's own format, the
- * word in the form its plural rules pick.
- */
-export function formatPetAge(age: number, forms: PluralForms, locale: Locale): string {
-  const category = new Intl.PluralRules(locale).select(age)
-  const template = category === 'one' || category === 'few' || category === 'many'
-    ? forms[category]
-    : forms.other
-  const number = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(age)
-  return template.replace('{n}', number)
 }

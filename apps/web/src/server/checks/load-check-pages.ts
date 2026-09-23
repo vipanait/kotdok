@@ -4,10 +4,7 @@ import type { SymptomCheckRecord } from '@lapka/contracts'
 import { toUtcIso } from '@lapka/shared'
 import { createServiceClient } from '@/server/supabase/server'
 import { mapSymptomCheckRow, symptomCheckSelect } from '@/server/symptom-check/map-symptom-check'
-import type { Pet } from '@/shared/types'
-
-/** What the check form and the result aside show about a pet. */
-export type CheckPet = Pick<Pet, 'id' | 'name' | 'species' | 'breed' | 'age_years'>
+import type { CheckPet } from '@/shared/types'
 
 const PET_COLUMNS = 'id, name, species, breed, age_years'
 

@@ -9,14 +9,10 @@ import PetAvatar from '@/components/PetAvatar'
 import Icon from '@/components/ui/Icon'
 import Illustration from '@/components/ui/Illustration'
 import CheckResultContent from '@/features/symptom-check/CheckResultContent'
-import {
-  checkOptions,
-  petSummary,
-  type CheckOption,
-  type CheckPet,
-} from '@/features/symptom-check/check-options'
+import { checkOptions, type CheckOption } from '@/features/symptom-check/check-options'
 import { csrfHeaders } from '@/shared/security/csrf-client'
-import type { SymptomCheckResult } from '@/shared/types'
+import type { CheckPet, SymptomCheckResult } from '@/shared/types'
+import { petSummary } from '@/shared/utils/pet-summary'
 
 interface Props {
   /** At least one: the page shows its own empty state without pets. */
@@ -254,7 +250,7 @@ export default function CheckForm({ pets, initialPetId, credits: initialCredits 
     )
   }
 
-  const petLine = pet ? petSummary(pet, t, locale) : ''
+  const petLine = pet ? petSummary(pet, dict, locale) : ''
   const symptomsHintId = `${ids}-symptoms-hint`
 
   return (
@@ -292,7 +288,7 @@ export default function CheckForm({ pets, initialPetId, credits: initialCredits 
             <span className="field-label">{t.petLabel}</span>
             <select className="input" value={pet?.id ?? ''} onChange={e => setPetId(e.target.value)}>
               {pets.map(p => {
-                const line = petSummary(p, t, locale, ', ')
+                const line = petSummary(p, dict, locale, ', ')
                 return (
                   <option key={p.id} value={p.id}>
                     {line ? `${p.name} · ${line}` : p.name}

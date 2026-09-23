@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { canRequestExtraCheck, creditsState } from '@/features/credits/credits-state'
-import { formatPetAge, profileCompleteness } from '@/features/pets/pet-profile'
+import { profileCompleteness } from '@/features/pets/pet-profile'
+import { formatCount } from '@/shared/i18n/plural'
 
 const ruAge = { one: '{n} год', few: '{n} года', many: '{n} лет', other: '{n} года' }
 const enAge = { one: '{n} year', few: '{n} years', many: '{n} years', other: '{n} years' }
@@ -61,18 +62,18 @@ describe('profileCompleteness', () => {
   })
 })
 
-describe('formatPetAge', () => {
+describe('formatCount for ages', () => {
   it('uses Russian plural forms and a decimal comma', () => {
-    expect(formatPetAge(1, ruAge, 'ru')).toBe('1 год')
-    expect(formatPetAge(3, ruAge, 'ru')).toBe('3 года')
-    expect(formatPetAge(5, ruAge, 'ru')).toBe('5 лет')
-    expect(formatPetAge(21, ruAge, 'ru')).toBe('21 год')
-    expect(formatPetAge(4.5, ruAge, 'ru')).toBe('4,5 года')
+    expect(formatCount(ruAge, 1, 'ru')).toBe('1 год')
+    expect(formatCount(ruAge, 3, 'ru')).toBe('3 года')
+    expect(formatCount(ruAge, 5, 'ru')).toBe('5 лет')
+    expect(formatCount(ruAge, 21, 'ru')).toBe('21 год')
+    expect(formatCount(ruAge, 4.5, 'ru')).toBe('4,5 года')
   })
 
   it('uses English plural forms', () => {
-    expect(formatPetAge(1, enAge, 'en')).toBe('1 year')
-    expect(formatPetAge(2.5, enAge, 'en')).toBe('2.5 years')
+    expect(formatCount(enAge, 1, 'en')).toBe('1 year')
+    expect(formatCount(enAge, 2.5, 'en')).toBe('2.5 years')
   })
 })
 

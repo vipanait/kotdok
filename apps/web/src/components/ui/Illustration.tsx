@@ -1,7 +1,6 @@
 import Image, { type StaticImageData } from 'next/image'
 import avatarCat from '@/assets/illustrations/avatar-cat.png'
 import avatarDog from '@/assets/illustrations/avatar-dog.png'
-import kittenPaw from '@/assets/illustrations/kitten-paw.png'
 import paw from '@/assets/illustrations/paw.png'
 import petsTogether from '@/assets/illustrations/pets-together.png'
 import welcomePets from '@/assets/illustrations/welcome-pets.png'
@@ -18,7 +17,6 @@ import welcomePets from '@/assets/illustrations/welcome-pets.png'
 const SOURCES = {
   'avatar-cat': avatarCat,
   'avatar-dog': avatarDog,
-  'kitten-paw': kittenPaw,
   paw,
   'pets-together': petsTogether,
   'welcome-pets': welcomePets,

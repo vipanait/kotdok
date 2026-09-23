@@ -21,7 +21,7 @@ export default function LandingContent({ signedIn, dict }: Props) {
       <main className="landing">
         <section className="hero">
           <div>
-            <p className="eyebrow">{t.eyebrow}</p>
+            <div className="eyebrow">{t.eyebrow}</div>
             <h1>
               {t.titleLine1}
               <br />
@@ -39,7 +39,7 @@ export default function LandingContent({ signedIn, dict }: Props) {
             {!signedIn && <p className="hero-offer">{t.offer}</p>}
           </div>
           <div className="hero-art">
-            <Illustration name="welcome-pets" size={420} />
+            <Illustration name="welcome-pets" size={420} eager />
             <div className="float-card row">
               <Icon name="heart" />
               <div>

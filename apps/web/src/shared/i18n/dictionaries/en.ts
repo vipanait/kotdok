@@ -446,7 +446,6 @@ const en: Dictionary = {
     answerTitle: 'What the answer includes',
     answerText: 'An urgency assessment, possible causes and questions for the vet.',
     answerNote: 'The service helps you get your bearings but does not replace an examination.',
-    petAge: { one: '{n} year', few: '{n} years', many: '{n} years', other: '{n} years' },
     speciesCat: 'Cat',
     speciesDog: 'Dog',
     loadingTitle: 'Looking at the symptoms',

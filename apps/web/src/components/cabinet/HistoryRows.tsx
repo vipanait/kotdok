@@ -3,7 +3,7 @@ import type { SymptomCheckRecord } from '@lapka/contracts'
 import PetAvatar from '@/components/PetAvatar'
 import Icon from '@/components/ui/Icon'
 import UrgencyBadge from '@/components/ui/UrgencyBadge'
-import type { Locale } from '@/shared/i18n/config'
+import { intlLocale, type Locale } from '@/shared/i18n/config'
 import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
 
 /**
@@ -21,7 +21,7 @@ export default function HistoryRows({
   locale: Locale
   timeZone: string
 }) {
-  const dateFormat = new Intl.DateTimeFormat(locale === 'ru' ? 'ru-RU' : 'en-US', {
+  const dateFormat = new Intl.DateTimeFormat(intlLocale(locale), {
     day: 'numeric',
     month: 'long',
     hour: '2-digit',

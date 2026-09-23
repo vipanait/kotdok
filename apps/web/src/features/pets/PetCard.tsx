@@ -2,10 +2,11 @@ import Link from 'next/link'
 import PetAvatar from '@/components/PetAvatar'
 import Icon from '@/components/ui/Icon'
 import UrgencyBadge from '@/components/ui/UrgencyBadge'
-import { formatPetAge, profileCompleteness } from '@/features/pets/pet-profile'
-import type { Locale } from '@/shared/i18n/config'
+import { profileCompleteness } from '@/features/pets/pet-profile'
+import { intlLocale, type Locale } from '@/shared/i18n/config'
 import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
 import type { Pet, PetLatestCheck } from '@/shared/types'
+import { petSummary } from '@/shared/utils/pet-summary'
 import { isUrgencyKey } from '@/shared/utils/urgency'
 
 /**
@@ -28,14 +29,11 @@ export default function PetCard({
 }) {
   const t = dict.pets
   const species = pet.species === 'dog' ? t.speciesDog : t.speciesCat
-  const meta = [
-    pet.breed?.trim() || null,
-    pet.age_years != null ? formatPetAge(pet.age_years, t.age, locale) : null,
-  ].filter(Boolean).join(' · ') || species
+  const meta = petSummary(pet, dict, locale) || species
 
   const completeness = profileCompleteness(pet)
   const checkDate = latestCheck
-    ? new Intl.DateTimeFormat(locale === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long', timeZone })
+    ? new Intl.DateTimeFormat(intlLocale(locale), { day: 'numeric', month: 'long', timeZone })
       .format(new Date(latestCheck.created_at))
     : null
 
