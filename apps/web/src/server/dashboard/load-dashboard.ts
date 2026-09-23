@@ -4,6 +4,7 @@ import { createServiceClient } from '@/server/supabase/server'
 import { readExtraCheckRequestStatus } from '@/server/extra-check/extra-check-service'
 import type { Pet, PetLatestCheck } from '@/shared/types'
 import type { SymptomCheckRecord } from '@lapka/contracts'
+import { toUtcIso } from '@lapka/shared'
 import { mapSymptomCheckRow, symptomCheckSelect } from '@/server/symptom-check/map-symptom-check'
 
 export type { PetLatestCheck }
@@ -65,7 +66,8 @@ export async function loadPetsOverview(userId: string): Promise<PetsOverview> {
     if (!petId || latestChecksByPet[petId]) continue
     latestChecksByPet[petId] = {
       urgency: row.urgency as string,
-      created_at: row.created_at as string,
+      // Stored without a zone; read as UTC so no clock shifts it.
+      created_at: toUtcIso(row.created_at as string),
     }
   }
 
@@ -95,7 +97,10 @@ export async function loadDashboard(userId: string): Promise<DashboardData> {
 
   return {
     ...overview,
-    checks: (checksResult.data ?? []).map(row => mapSymptomCheckRow(row as never)),
+    checks: (checksResult.data ?? []).map(row => {
+      const check = mapSymptomCheckRow(row as never)
+      return { ...check, created_at: toUtcIso(check.created_at) }
+    }),
     latestRequestStatus,
   }
 }

@@ -28,11 +28,18 @@ export default function HistoryRows({
     minute: '2-digit',
     timeZone,
   })
+  // "23 сентября, 12:40" — the same shape as on the result page, without "в".
+  const formatWhen = (iso: string) => {
+    const parts = dateFormat.formatToParts(new Date(iso))
+    const get = (type: Intl.DateTimeFormatPartTypes) => parts.find(p => p.type === type)?.value ?? ''
+    const time = `${get('hour')}:${get('minute')}${get('dayPeriod') ? ` ${get('dayPeriod')}` : ''}`
+    return locale === 'ru' ? `${get('day')} ${get('month')}, ${time}` : `${get('month')} ${get('day')}, ${time}`
+  }
 
   return (
     <div>
       {checks.map(check => {
-        const when = dateFormat.format(new Date(check.created_at))
+        const when = formatWhen(check.created_at)
         return (
           <Link key={check.id} href={`/check/${check.id}`} className="history-row">
             <PetAvatar size={42} species={check.pet_species} />
