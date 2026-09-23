@@ -8,6 +8,7 @@ import { describeFailure } from '@/lib/errors'
 import { dictionary, useText } from '@/i18n'
 import { urgencyText } from '@/features/checks/urgency'
 import { checkAnswers, formatCheckedAt } from '@/features/checks/check-answers'
+import { ResultFeedback } from '@/features/checks/ResultFeedback'
 import { Button, LinkButton } from '@/ui/Button'
 import { Banner, UrgencyCard } from '@/ui/Card'
 import { Screen } from '@/ui/Screen'
@@ -120,6 +121,8 @@ export function CheckResult({ id }: { id: string }) {
       </Accordion>
 
       <Banner text={t.result.disclaimer} />
+
+      <ResultFeedback checkId={check.id} />
 
       {/* At the end rather than docked: the answer is the thing to read, and a
           fixed button would take a line of it on every screen. `navigate`, not

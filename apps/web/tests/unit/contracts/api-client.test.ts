@@ -85,7 +85,18 @@ describe('API client transport', () => {
   it('returns nothing for a 204 without parsing a body', async () => {
     const { fetch } = stub({ status: 204, body: undefined })
 
-    await expect(client(fetch).sendFeedback({ rating: 'liked' })).resolves.toBeUndefined()
+    await expect(
+      client(fetch).sendFeedback({ check_id: '11111111-1111-4111-8111-000000000101', rating: 'liked' }),
+    ).resolves.toBeUndefined()
+  })
+
+  it('reads the opinion on one check from that check’s own resource', async () => {
+    const { fetch, calls } = stub({ status: 200, body: { rating: 'disliked' } })
+
+    await expect(
+      client(fetch).getCheckFeedback('11111111-1111-4111-8111-000000000101'),
+    ).resolves.toEqual({ rating: 'disliked' })
+    expect(calls[0].url).toContain('/checks/11111111-1111-4111-8111-000000000101/feedback')
   })
 })
 

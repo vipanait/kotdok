@@ -31,7 +31,7 @@ export default function CheckForm({ pets, onClose }: Props) {
   const [painSigns, setPainSigns] = useState<string[]>([])
   const [symptoms, setSymptoms] = useState('')
   const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState<(SymptomCheckResult & { credits_remaining: number }) | null>(null)
+  const [result, setResult] = useState<(SymptomCheckResult & { credits_remaining: number; check_id?: string }) | null>(null)
   const [error, setError] = useState('')
 
   async function handleSubmit(e: React.FormEvent) {
@@ -200,10 +200,10 @@ export default function CheckForm({ pets, onClose }: Props) {
   )
 
   // Build a renderable view from the API result so we can reuse the same
-  // renderer history uses. The check is already saved, but this screen does not
-  // need its id.
+  // renderer history uses. The check is already saved; its id is what the
+  // feedback under the result is attached to.
   const resultRecord: SymptomCheckView | null = result ? {
-    id: null,
+    id: result.check_id ?? null,
     symptoms_input: symptoms,
     urgency: result.urgency,
     urgency_reason: result.urgency_reason,

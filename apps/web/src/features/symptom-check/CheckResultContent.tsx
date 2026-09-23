@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useLocale, useTranslations } from '@/components/LocaleProvider'
 import { URGENCY_BG_CLASS, URGENCY_DOT_CLASS, URGENCY_TEXT_CLASS, type UrgencyKey } from '@/shared/utils/urgency'
 import type { SymptomCheckView } from '@lapka/contracts'
+import ResultFeedback from '@/features/symptom-check/ResultFeedback'
 
 interface Props {
   check: SymptomCheckView
@@ -236,6 +237,8 @@ export default function CheckResultContent({ check, showBackLink = false }: Prop
         )}
 
         <p className="text-center text-xs text-text-faint pt-1">{disclaimer}</p>
+
+        {check.id && <ResultFeedback checkId={check.id} />}
 
         {showBackLink && (
           <Link
