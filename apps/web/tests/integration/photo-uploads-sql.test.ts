@@ -75,6 +75,19 @@ describe('claim_photo_uploads', () => {
     expect(rows[0].attached_at).toBeNull()
   })
 
+  it('returns the uploads in the order the person picked them', async () => {
+    const first = await upload(seeded.ownerAId)
+    const second = await upload(seeded.ownerAId)
+    const third = await upload(seeded.ownerAId)
+
+    const { rows } = await db.query('select * from public.claim_photo_uploads($1, $2)', [
+      seeded.ownerAId,
+      [third, first, second],
+    ])
+
+    expect(rows.map((row) => row.id)).toEqual([third, first, second])
+  })
+
   it('does not attach the same upload to a second check', async () => {
     const a = await upload(seeded.ownerAId)
     await db.query('select * from public.claim_photo_uploads($1, $2)', [seeded.ownerAId, [a]])
