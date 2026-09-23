@@ -15,11 +15,13 @@ export default function MyPetsSection({
   latestChecksByPet,
   dict,
   locale,
+  timeZone,
 }: {
   pets: Pet[]
   latestChecksByPet: Record<string, PetLatestCheck>
   dict: Dictionary
   locale: Locale
+  timeZone: string
 }) {
   const t = dict.dashboard
   return (
@@ -42,6 +44,7 @@ export default function MyPetsSection({
             latestCheck={latestChecksByPet[pet.id]}
             dict={dict}
             locale={locale}
+            timeZone={timeZone}
           />
         ))}
       </div>

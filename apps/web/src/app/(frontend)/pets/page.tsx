@@ -10,6 +10,7 @@ import { loadCabinetUser } from '@/server/cabinet/load-cabinet'
 import { loadPetsOverview } from '@/server/dashboard/load-dashboard'
 import { getDictionary } from '@/server/i18n/get-dictionary'
 import { getLocale } from '@/server/i18n/get-locale'
+import { getTimeZone } from '@/server/i18n/get-time-zone'
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -23,10 +24,11 @@ export default async function PetsPage({
   const cabinet = await loadCabinetUser()
   if (!cabinet) redirect('/login?next=/pets')
 
-  const [{ pets, latestChecksByPet }, params, locale] = await Promise.all([
+  const [{ pets, latestChecksByPet }, params, locale, timeZone] = await Promise.all([
     loadPetsOverview(cabinet.user.id),
     searchParams,
     getLocale(),
+    getTimeZone(),
   ])
   const dict = await getDictionary(locale)
   const t = dict.pets
@@ -58,6 +60,7 @@ export default async function PetsPage({
               latestCheck={latestChecksByPet[pet.id]}
               dict={dict}
               locale={locale}
+              timeZone={timeZone}
             />
           ))}
         </div>

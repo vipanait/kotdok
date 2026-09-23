@@ -6,6 +6,7 @@ import { loadCabinetUser } from '@/server/cabinet/load-cabinet'
 import { loadCheckResult } from '@/server/checks/load-check-pages'
 import { getDictionary } from '@/server/i18n/get-dictionary'
 import { getLocale } from '@/server/i18n/get-locale'
+import { getTimeZone } from '@/server/i18n/get-time-zone'
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -21,12 +22,12 @@ export default async function CheckResultPage({ params }: { params: Promise<{ id
   const loaded = await loadCheckResult(cabinet.user.id, id)
   if (!loaded) notFound()
 
-  const locale = await getLocale()
+  const [locale, timeZone] = await Promise.all([getLocale(), getTimeZone()])
   const dict = await getDictionary(locale)
 
   return (
     <CabinetShell cabinet={cabinet} active="history" crumb={dict.check.resultCrumb}>
-      <CheckResultContent check={loaded.check} pet={loaded.pet} dict={dict} locale={locale} />
+      <CheckResultContent check={loaded.check} pet={loaded.pet} dict={dict} locale={locale} timeZone={timeZone} />
     </CabinetShell>
   )
 }

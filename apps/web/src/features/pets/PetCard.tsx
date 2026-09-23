@@ -18,11 +18,13 @@ export default function PetCard({
   latestCheck,
   dict,
   locale,
+  timeZone,
 }: {
   pet: Pet
   latestCheck?: PetLatestCheck
   dict: Dictionary
   locale: Locale
+  timeZone: string
 }) {
   const t = dict.pets
   const species = pet.species === 'dog' ? t.speciesDog : t.speciesCat
@@ -33,7 +35,7 @@ export default function PetCard({
 
   const completeness = profileCompleteness(pet)
   const checkDate = latestCheck
-    ? new Intl.DateTimeFormat(locale === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long' })
+    ? new Intl.DateTimeFormat(locale === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long', timeZone })
       .format(new Date(latestCheck.created_at))
     : null
 

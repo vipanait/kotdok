@@ -14,16 +14,19 @@ export default function HistoryRows({
   checks,
   dict,
   locale,
+  timeZone,
 }: {
   checks: SymptomCheckRecord[]
   dict: Dictionary
   locale: Locale
+  timeZone: string
 }) {
   const dateFormat = new Intl.DateTimeFormat(locale === 'ru' ? 'ru-RU' : 'en-US', {
     day: 'numeric',
     month: 'long',
     hour: '2-digit',
     minute: '2-digit',
+    timeZone,
   })
 
   return (

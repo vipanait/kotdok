@@ -5,6 +5,7 @@ import "./globals.css";
 import { getLocale } from "@/server/i18n/get-locale";
 import { getDictionary } from "@/server/i18n/get-dictionary";
 import { LocaleProvider } from "@/components/LocaleProvider";
+import TimeZoneCookie from "@/components/TimeZoneCookie";
 import { defaultSeo, siteName, siteUrl, supportEmail } from "@/shared/seo";
 
 // The same pair as the mobile app: Nunito for headings, Manrope for text.
@@ -97,6 +98,7 @@ export default async function RootLayout({
         />
         <LocaleProvider locale={locale} dict={dict}>
           {children}
+          <TimeZoneCookie />
         </LocaleProvider>
       </body>
     </html>

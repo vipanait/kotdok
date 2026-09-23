@@ -19,6 +19,8 @@ interface Props {
   check: SymptomCheckView
   dict: Dictionary
   locale: Locale
+  /** The owner's time zone; the browser's own when rendered on the client. */
+  timeZone?: string
   /** The pet's current profile, when it still exists: adds breed and age. */
   pet?: CheckPet | null
   /**
@@ -45,7 +47,7 @@ function text(value: unknown): string | null {
  * Every text is the service's answer or the dictionary's; a block exists only
  * when its data does.
  */
-export default function CheckResultContent({ check, dict, locale, pet, onNewCheck }: Props) {
+export default function CheckResultContent({ check, dict, locale, timeZone, pet, onNewCheck }: Props) {
   const t = dict.check
   const urgency = check.urgency
   const level = dict.urgency[urgency]
@@ -87,7 +89,7 @@ export default function CheckResultContent({ check, dict, locale, pet, onNewChec
   const petSpecies = pet?.species ?? check.pet_species
   const petLine = (pet && petSummary(pet, t, locale))
     || (petSpecies === 'dog' ? t.speciesDog : petSpecies === 'cat' ? t.speciesCat : '')
-  const when = formatCheckDateTime(check.created_at, locale)
+  const when = formatCheckDateTime(check.created_at, locale, timeZone)
   const newCheckHref = pet ? `/check?pet=${pet.id}` : '/check'
 
   return (

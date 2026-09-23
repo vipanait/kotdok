@@ -100,13 +100,14 @@ export function petSummary(
  * "23 сентября 2026, 12:40" / "September 23, 2026, 12:40 PM". Built from parts
  * because the plain Russian format adds "г." and "в".
  */
-export function formatCheckDateTime(iso: string, locale: Locale): string {
+export function formatCheckDateTime(iso: string, locale: Locale, timeZone?: string): string {
   const parts = new Intl.DateTimeFormat(intlLocale(locale), {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
+    timeZone,
   }).formatToParts(new Date(iso))
   const get = (type: Intl.DateTimeFormatPartTypes) => parts.find(p => p.type === type)?.value ?? ''
   const time = `${get('hour')}:${get('minute')}`
@@ -115,9 +116,19 @@ export function formatCheckDateTime(iso: string, locale: Locale): string {
   return `${get('month')} ${get('day')}, ${get('year')}, ${time}${period ? ` ${period}` : ''}`
 }
 
+/** Year and month of a moment on the owner's clock: groups the history. */
+export function monthKey(iso: string, timeZone: string): string {
+  const parts = new Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', timeZone })
+    .formatToParts(new Date(iso))
+  const get = (type: Intl.DateTimeFormatPartTypes) => parts.find(p => p.type === type)?.value ?? ''
+  return `${get('year')}-${get('month')}`
+}
+
 /** "Сентябрь 2026" / "September 2026": the heading of a month in the history. */
-export function formatMonthHeading(date: Date, locale: Locale): string {
+export function formatMonthHeading(iso: string, locale: Locale, timeZone: string): string {
+  const date = new Date(iso)
   // `month: 'long'` on its own gives the nominative ("сентябрь"), not "сентября".
-  const month = new Intl.DateTimeFormat(intlLocale(locale), { month: 'long' }).format(date)
-  return `${month.charAt(0).toUpperCase()}${month.slice(1)} ${date.getFullYear()}`
+  const month = new Intl.DateTimeFormat(intlLocale(locale), { month: 'long', timeZone }).format(date)
+  const year = new Intl.DateTimeFormat('en-US', { year: 'numeric', timeZone }).format(date)
+  return `${month.charAt(0).toUpperCase()}${month.slice(1)} ${year}`
 }

@@ -12,6 +12,7 @@ import type { CabinetUser } from '@/server/cabinet/load-cabinet'
 import type { DashboardData } from '@/server/dashboard/load-dashboard'
 import { getDictionary } from '@/server/i18n/get-dictionary'
 import { getLocale } from '@/server/i18n/get-locale'
+import { getTimeZone } from '@/server/i18n/get-time-zone'
 
 interface Props {
   cabinet: CabinetUser
@@ -25,7 +26,7 @@ interface Props {
  * symptom form the owner cannot send.
  */
 export default async function DashboardContent({ cabinet, data, petSaved }: Props) {
-  const locale = await getLocale()
+  const [locale, timeZone] = await Promise.all([getLocale(), getTimeZone()])
   const dict = await getDictionary(locale)
   const t = dict.dashboard
 
@@ -97,6 +98,7 @@ export default async function DashboardContent({ cabinet, data, petSaved }: Prop
             latestChecksByPet={latestChecksByPet}
             dict={dict}
             locale={locale}
+            timeZone={timeZone}
           />
         </>
       )}
@@ -111,7 +113,7 @@ export default async function DashboardContent({ cabinet, data, petSaved }: Prop
             </Link>
           </div>
           {checks.length ? (
-            <HistoryRows checks={checks} dict={dict} locale={locale} />
+            <HistoryRows checks={checks} dict={dict} locale={locale} timeZone={timeZone} />
           ) : (
             <p className="recent-empty">{t.recentEmpty}</p>
           )}
