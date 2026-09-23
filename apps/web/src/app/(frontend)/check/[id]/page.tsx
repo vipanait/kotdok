@@ -1,7 +1,7 @@
-import { notFound, redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
 import CabinetShell from '@/components/cabinet/CabinetShell'
 import CheckResultContent from '@/features/symptom-check/CheckResultContent'
-import { loadCabinetUser } from '@/server/cabinet/load-cabinet'
+import { requireCabinet } from '@/components/cabinet/require-cabinet'
 import { loadCheckResult } from '@/server/checks/load-check-pages'
 import { getDictionary } from '@/server/i18n/get-dictionary'
 import { getLocale } from '@/server/i18n/get-locale'
@@ -13,8 +13,7 @@ export const generateMetadata = privatePageMetadata(d => d.check.resultTitle)
 export default async function CheckResultPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
 
-  const cabinet = await loadCabinetUser()
-  if (!cabinet) redirect(`/login?next=${encodeURIComponent(`/check/${id}`)}`)
+  const cabinet = await requireCabinet(`/login?next=${encodeURIComponent(`/check/${id}`)}`)
 
   // Only the owner's own, not deleted, result; anything else is a 404.
   const loaded = await loadCheckResult(cabinet.user.id, id)

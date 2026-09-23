@@ -8,7 +8,7 @@ import { useTranslations } from '@/components/LocaleProvider'
 import PetAvatar from '@/components/PetAvatar'
 import Icon from '@/components/ui/Icon'
 import ConfirmDialog from '@/features/pets/ConfirmDialog'
-import type { PetSavedKind } from '@/features/pets/PetSavedBanner'
+import type { PetSavedKind } from '@/features/pets/pet-saved'
 import { csrfHeaders } from '@/shared/security/csrf-client'
 
 type PetFormValues = Omit<Pet, 'id' | 'user_id' | 'created_at'>
@@ -520,7 +520,7 @@ export default function PetForm({ pet }: Props) {
 
       {confirmDelete && pet && (
         <ConfirmDialog
-          title={t.confirmDeleteTitle.replace('{name}', pet.name)}
+          title={t.confirmDeleteTitle.replace('{name}', () => pet.name)}
           body={t.confirmDeleteBody}
           cancelLabel={t.cancelBtn}
           confirmLabel={t.deleteBtn}

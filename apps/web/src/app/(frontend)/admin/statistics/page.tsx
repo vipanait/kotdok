@@ -3,7 +3,7 @@ import CabinetShell from '@/components/cabinet/CabinetShell'
 import AdminStatisticsClient from '@/features/admin/AdminStatisticsClient'
 import { loadAdminUser } from '@/server/auth/admin-user'
 import { getAdminStatistics, normalizeAdminStatisticsPeriod } from '@/server/admin/statistics'
-import { loadCabinetUser } from '@/server/cabinet/load-cabinet'
+import { requireCabinet } from '@/components/cabinet/require-cabinet'
 import { getDictionary } from '@/server/i18n/get-dictionary'
 import { getLocale } from '@/server/i18n/get-locale'
 import { privatePageMetadata } from '@/server/i18n/page-metadata'
@@ -26,8 +26,7 @@ export default async function AdminStatisticsPage({
 
   // The frame's own view of the visitor. It is null only for somebody signed
   // out in between, or whose account deletion has started: neither may stay.
-  const cabinet = await loadCabinetUser()
-  if (!cabinet) redirect(signIn)
+  const cabinet = await requireCabinet(signIn)
 
   const locale = await getLocale()
   const dict = await getDictionary(locale)

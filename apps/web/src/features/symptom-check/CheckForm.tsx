@@ -252,6 +252,7 @@ export default function CheckForm({ pets, initialPetId, credits: initialCredits 
 
   const petLine = pet ? petSummary(pet, dict, locale) : ''
   const symptomsHintId = `${ids}-symptoms-hint`
+  const symptomsFieldId = `${ids}-symptoms`
 
   return (
     <>
@@ -298,12 +299,13 @@ export default function CheckForm({ pets, initialPetId, credits: initialCredits 
             </select>
           </label>
 
-          <label className="field">
-            <span className="field-label">
+          <div className="field">
+            <label className="field-label" htmlFor={symptomsFieldId}>
               {t.symptomsLabel}
               <span aria-hidden> *</span>
-            </span>
+            </label>
             <textarea
+              id={symptomsFieldId}
               ref={symptomsField}
               className="input"
               value={symptoms}
@@ -321,7 +323,7 @@ export default function CheckForm({ pets, initialPetId, credits: initialCredits 
                 {t.symptomsCount.replace('{n}', String(symptoms.length)).replace('{max}', String(SYMPTOMS_MAX))}
               </span>
             </span>
-          </label>
+          </div>
 
           <div className="banner">{t.writeFreely}</div>
 

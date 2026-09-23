@@ -1,11 +1,10 @@
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
 import type { SymptomCheckRecord } from '@lapka/contracts'
 import CabinetShell from '@/components/cabinet/CabinetShell'
 import HistoryRows from '@/components/cabinet/HistoryRows'
 import Illustration from '@/components/ui/Illustration'
 import { formatMonthHeading, monthKey } from '@/features/symptom-check/check-options'
-import { loadCabinetUser } from '@/server/cabinet/load-cabinet'
+import { requireCabinet } from '@/components/cabinet/require-cabinet'
 import { loadCheckHistory } from '@/server/checks/load-check-pages'
 import { getDictionary } from '@/server/i18n/get-dictionary'
 import { getLocale } from '@/server/i18n/get-locale'
@@ -28,8 +27,7 @@ function groupByMonth(checks: SymptomCheckRecord[], timeZone: string) {
 }
 
 export default async function ChecksPage() {
-  const cabinet = await loadCabinetUser()
-  if (!cabinet) redirect('/login?next=/checks')
+  const cabinet = await requireCabinet('/login?next=/checks')
 
   const [checks, locale, timeZone] = await Promise.all([
     loadCheckHistory(cabinet.user.id),

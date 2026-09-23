@@ -39,13 +39,15 @@ export async function loadCheckResult(
   checkId: string,
 ): Promise<{ check: SymptomCheckRecord; pet: CheckPet | null } | null> {
   const service = createServiceClient()
-  const { data: row } = await service
+  const { data: row, error } = await service
     .from('symptom_checks')
     .select(symptomCheckSelect())
     .eq('id', checkId)
     .eq('user_id', userId)
     .is('deleted_at', null)
-    .single()
+    .maybeSingle()
+  // No such row (or not this user's) is a 404; a failed read is an error.
+  if (error && error.code !== '22P02') throw new Error(`Could not load the check: ${error.message}`)
   if (!row) return null
 
   const check = toRecord(row)

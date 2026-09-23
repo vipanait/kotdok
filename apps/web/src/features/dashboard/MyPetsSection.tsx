@@ -45,6 +45,7 @@ export default function MyPetsSection({
             dict={dict}
             locale={locale}
             timeZone={timeZone}
+            headingLevel="h3"
           />
         ))}
       </div>

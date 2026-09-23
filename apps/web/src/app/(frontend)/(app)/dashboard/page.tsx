@@ -1,7 +1,6 @@
-import { redirect } from 'next/navigation'
 import DashboardContent from '@/features/dashboard/DashboardContent'
-import { parsePetSaved } from '@/features/pets/PetSavedBanner'
-import { loadCabinetUser } from '@/server/cabinet/load-cabinet'
+import { parsePetSaved } from '@/features/pets/pet-saved'
+import { requireCabinet } from '@/components/cabinet/require-cabinet'
 import { loadDashboard } from '@/server/dashboard/load-dashboard'
 import { privatePageMetadata } from '@/server/i18n/page-metadata'
 
@@ -12,8 +11,7 @@ export default async function DashboardPage({
 }: {
   searchParams: Promise<{ petSaved?: string | string[] }>
 }) {
-  const cabinet = await loadCabinetUser()
-  if (!cabinet) redirect('/login?next=/dashboard')
+  const cabinet = await requireCabinet('/login?next=/dashboard')
 
   const [data, params] = await Promise.all([loadDashboard(cabinet.user.id), searchParams])
   return <DashboardContent cabinet={cabinet} data={data} petSaved={parsePetSaved(params.petSaved)} />

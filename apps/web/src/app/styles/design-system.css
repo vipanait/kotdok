@@ -312,7 +312,7 @@
   .input:focus {
     outline: none;
     border-color: var(--green);
-    box-shadow: 0 0 0 3px rgb(11 107 94 / 0.16);
+    box-shadow: 0 0 0 2px var(--green);
   }
 
   .input::placeholder { color: #7A7266; opacity: 1; }
@@ -814,7 +814,7 @@
   .pet-card { position: relative; display: block; transition: border-color 150ms ease; }
   .pet-card:hover { border-color: var(--green); }
   .pet-card .row { margin: 8px 0 20px; }
-  .pet-card h2 { overflow-wrap: anywhere; }
+  .pet-card .pet-card-name { font-size: 24px; overflow-wrap: anywhere; }
   .pet-card p { font-size: 13px; color: var(--muted); }
   .pet-card .badge { margin-top: 8px; }
   .pet-card .arrow { position: absolute; top: 22px; right: 22px; color: var(--muted); }

@@ -101,7 +101,13 @@ export default function DeleteAccountForm() {
       })
 
       focusNext.current = 'status'
-      setStage(response.status === 202 ? { kind: 'accepted', receipt } : { kind: 'failed' })
+      if (response.status === 202) {
+        setStage({ kind: 'accepted', receipt })
+        // The cabinet is closed from now on; drop the page's links to it.
+        router.refresh()
+      } else {
+        setStage({ kind: 'failed' })
+      }
     } catch {
       // No answer at all (the network, most likely). Same as a refusal: say so
       // and offer to try again, rather than spinning forever.

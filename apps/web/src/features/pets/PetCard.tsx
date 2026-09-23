@@ -20,12 +20,15 @@ export default function PetCard({
   dict,
   locale,
   timeZone,
+  headingLevel: Heading = 'h2',
 }: {
   pet: Pet
   latestCheck?: PetLatestCheck
   dict: Dictionary
   locale: Locale
   timeZone: string
+  /** `h3` where the cards sit under a section heading, as on the overview. */
+  headingLevel?: 'h2' | 'h3'
 }) {
   const t = dict.pets
   const species = pet.species === 'dog' ? t.speciesDog : t.speciesCat
@@ -43,7 +46,7 @@ export default function PetCard({
       <div className="row">
         <PetAvatar species={pet.species} />
         <div className="pet-card-title">
-          <h2>{pet.name}</h2>
+          <Heading className="pet-card-name">{pet.name}</Heading>
           <p>{meta}</p>
         </div>
       </div>
@@ -57,14 +60,8 @@ export default function PetCard({
         <p>{t.lastCheckNever}</p>
       )}
 
-      <div
-        className="progress"
-        role="progressbar"
-        aria-label={t.profileProgress}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuenow={completeness}
-      >
+      {/* The bar is for the eye; the line under it says the same in words. */}
+      <div className="progress" aria-hidden>
         <span style={{ width: `${completeness}%` }} />
       </div>
       <p className="pet-card-profile">{completeness === 100 ? t.profileComplete : t.profileIncomplete}</p>

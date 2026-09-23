@@ -11,26 +11,35 @@ export interface CabinetUser {
   isAdmin: boolean
 }
 
+export type CabinetState =
+  | { kind: 'open'; cabinet: CabinetUser }
+  | { kind: 'signed_out' }
+  /** Deletion has started: the session still works, the cabinet is closed. */
+  | { kind: 'deleting' }
+
 /**
- * What every cabinet page needs for its frame: who is signed in, the balance
- * shown in the sidebar, and whether to offer the statistics link.
- *
- * `null` for a visitor who may not see the cabinet — signed out, or an account
- * whose deletion has started. Where to send them is the page's call.
+ * Who is looking at the cabinet, and whether it is open to them. A profile
+ * that cannot be read is an error, not a signed-out visitor: sending a live
+ * session to sign-in would only bounce it back here.
  */
-export async function loadCabinetUser(): Promise<CabinetUser | null> {
+export async function loadCabinetState(): Promise<CabinetState> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return null
+  if (!user) return { kind: 'signed_out' }
 
-  const service = createServiceClient()
-  const account = await loadAccount(service, user.id)
-  if (!account.ok) return null
+  const account = await loadAccount(createServiceClient(), user.id)
+  if (!account.ok) {
+    if (account.reason === 'account_deleting') return { kind: 'deleting' }
+    throw new Error('Could not read the signed-in account')
+  }
 
   return {
-    user,
-    email: user.email ?? '',
-    credits: account.account.credits,
-    isAdmin: account.account.role === 'admin',
+    kind: 'open',
+    cabinet: {
+      user,
+      email: user.email ?? '',
+      credits: account.account.credits,
+      isAdmin: account.account.role === 'admin',
+    },
   }
 }

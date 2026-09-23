@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useEffect, useRef, useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useLocale, useTranslations } from '@/components/LocaleProvider'
@@ -33,9 +33,19 @@ export default function CreditsBalanceCard({ credits, latestRequestStatus }: Pro
   // Kept busy until the refreshed page arrives, so the button cannot flash back.
   const [refreshing, startRefresh] = useTransition()
   const busy = loading || refreshing
+  const titleRef = useRef<HTMLHeadingElement>(null)
+  /** Set when our own request changed the state: its new heading takes focus. */
+  const announce = useRef(false)
 
   const state = creditsState(credits, latestRequestStatus)
   const canRequest = canRequestExtraCheck(credits, latestRequestStatus)
+
+  // The request button goes away once the request is in; keep focus on the card.
+  useEffect(() => {
+    if (!announce.current || refreshing) return
+    announce.current = false
+    titleRef.current?.focus()
+  }, [state, refreshing])
 
   async function handleRequest(): Promise<void> {
     if (!canRequest || busy) return
@@ -54,6 +64,7 @@ export default function CreditsBalanceCard({ credits, latestRequestStatus }: Pro
         setError(payload.error === 'rate_limited' ? t.rateLimited : t.requestError)
         return
       }
+      announce.current = true
       startRefresh(() => router.refresh())
     } catch {
       setError(t.requestError)
@@ -85,7 +96,7 @@ export default function CreditsBalanceCard({ credits, latestRequestStatus }: Pro
 
       {/* Announced when a sent request turns the card into "request sent". */}
       <div aria-live="polite">
-        <h2 id="credits-state-title">{title}</h2>
+        <h2 id="credits-state-title" ref={titleRef} tabIndex={-1}>{title}</h2>
         <p className="credits-body">{body}</p>
         {note && <p className="small muted credits-note">{note}</p>}
       </div>

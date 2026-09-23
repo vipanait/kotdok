@@ -1,11 +1,11 @@
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
 import CabinetShell from '@/components/cabinet/CabinetShell'
 import Icon from '@/components/ui/Icon'
 import PetCard from '@/features/pets/PetCard'
-import PetSavedBanner, { parsePetSaved } from '@/features/pets/PetSavedBanner'
+import PetSavedBanner from '@/features/pets/PetSavedBanner'
+import { parsePetSaved } from '@/features/pets/pet-saved'
 import PetsEmptyCard from '@/features/pets/PetsEmptyCard'
-import { loadCabinetUser } from '@/server/cabinet/load-cabinet'
+import { requireCabinet } from '@/components/cabinet/require-cabinet'
 import { loadPetsOverview } from '@/server/dashboard/load-dashboard'
 import { getDictionary } from '@/server/i18n/get-dictionary'
 import { getLocale } from '@/server/i18n/get-locale'
@@ -19,8 +19,7 @@ export default async function PetsPage({
 }: {
   searchParams: Promise<{ petSaved?: string | string[] }>
 }) {
-  const cabinet = await loadCabinetUser()
-  if (!cabinet) redirect('/login?next=/pets')
+  const cabinet = await requireCabinet('/login?next=/pets')
 
   const [{ pets, latestChecksByPet }, params, locale, timeZone] = await Promise.all([
     loadPetsOverview(cabinet.user.id),

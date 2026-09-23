@@ -245,7 +245,6 @@ const en: Dictionary = {
     lastCheckNever: 'No checks yet',
     profileComplete: 'Profile complete',
     profileIncomplete: 'The profile can be completed',
-    profileProgress: 'Profile completeness',
     asideTitle: 'Every detail helps',
     asideBody: 'Required fields are marked with an asterisk. If you don\'t know something, leave the field empty.',
     asideNote: 'You can change the profile at any time.',

@@ -1,10 +1,9 @@
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
 import CabinetShell from '@/components/cabinet/CabinetShell'
 import Icon from '@/components/ui/Icon'
 import Illustration from '@/components/ui/Illustration'
 import CreditsBalanceCard from '@/features/credits/CreditsBalanceCard'
-import { loadCabinetUser } from '@/server/cabinet/load-cabinet'
+import { requireCabinet } from '@/components/cabinet/require-cabinet'
 import { readExtraCheckRequestStatus } from '@/server/extra-check/extra-check-service'
 import { getDictionary } from '@/server/i18n/get-dictionary'
 import { getLocale } from '@/server/i18n/get-locale'
@@ -14,8 +13,7 @@ export const generateMetadata = privatePageMetadata(d => d.credits.title)
 
 /** «Доступные проверки»: the balance, and asking for an extra check when it runs out. */
 export default async function CreditsPage() {
-  const cabinet = await loadCabinetUser()
-  if (!cabinet) redirect('/login?next=/credits')
+  const cabinet = await requireCabinet('/login?next=/credits')
 
   const [latestRequestStatus, locale] = await Promise.all([
     readExtraCheckRequestStatus(cabinet.user.id),

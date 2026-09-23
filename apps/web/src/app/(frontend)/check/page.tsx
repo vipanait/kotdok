@@ -1,9 +1,8 @@
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
 import CabinetShell from '@/components/cabinet/CabinetShell'
 import Illustration from '@/components/ui/Illustration'
 import CheckForm from '@/features/symptom-check/CheckForm'
-import { loadCabinetUser } from '@/server/cabinet/load-cabinet'
+import { requireCabinet } from '@/components/cabinet/require-cabinet'
 import { loadCheckPets } from '@/server/checks/load-check-pages'
 import { getDictionary } from '@/server/i18n/get-dictionary'
 import { getLocale } from '@/server/i18n/get-locale'
@@ -16,8 +15,7 @@ export default async function CheckPage({
 }: {
   searchParams: Promise<{ pet?: string | string[] }>
 }) {
-  const cabinet = await loadCabinetUser()
-  if (!cabinet) redirect('/login?next=/check')
+  const cabinet = await requireCabinet('/login?next=/check')
 
   const [{ pet: petParam }, pets, locale] = await Promise.all([
     searchParams,

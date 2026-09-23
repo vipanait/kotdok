@@ -167,7 +167,7 @@ function RegisterForm({ next }: { next?: string }) {
   if (sentTo !== null) {
     return (
       <SentCard
-        banner={t.sentTo.replace('{email}', sentTo)}
+        banner={t.sentTo.replace('{email}', () => sentTo)}
         text={t.sentText}
         backHref={withNext('/login', next)}
       />
@@ -251,7 +251,7 @@ function ForgotForm({ next }: { next?: string }) {
   if (sentTo !== null) {
     return (
       <SentCard
-        banner={t.sentTo.replace('{email}', sentTo)}
+        banner={t.sentTo.replace('{email}', () => sentTo)}
         text={t.sentText}
         backHref={withNext('/login', next)}
       />

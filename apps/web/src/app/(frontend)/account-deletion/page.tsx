@@ -5,7 +5,7 @@ import PublicFooter from '@/components/site/PublicFooter'
 import PublicHeader from '@/components/site/PublicHeader'
 import Icon from '@/components/ui/Icon'
 import { getAuthUser } from '@/server/auth/get-auth-user'
-import { loadCabinetUser } from '@/server/cabinet/load-cabinet'
+import { loadCabinetState } from '@/server/cabinet/load-cabinet'
 import { getDictionary } from '@/server/i18n/get-dictionary'
 import { getLocale } from '@/server/i18n/get-locale'
 import { formatCount } from '@/shared/i18n/plural'
@@ -35,7 +35,7 @@ export default async function AccountDeletionPage() {
   const [locale, user] = await Promise.all([getLocale(), getAuthUser()])
   // Signed in but already being deleted: the cabinet is closed, so no links to it —
   // they would only bounce between the cabinet and sign-in.
-  const cabinetOpen = user ? (await loadCabinetUser()) !== null : false
+  const cabinetOpen = user ? (await loadCabinetState()).kind === 'open' : false
   const dict = await getDictionary(locale)
   const t = dict.deletion
   const days = formatCount(t.timingDays, DELETION_COMPLETION_DAYS, locale)
