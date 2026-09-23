@@ -159,24 +159,4 @@ describe('check jobs', () => {
 
     await expect(getCheckJob(supabase, fixtures.ownerBId, mine.jobId)).resolves.toBeNull()
   })
-
-  it('refuses uploads while photographs are switched off, before starting anything', async () => {
-    const supabase = service() as never
-    let calls = 0
-    const counting: Analyse = async (...args) => {
-      calls += 1
-      return succeeds(CHECK_IDS.aFirst)(...args)
-    }
-
-    const outcome = await createCheckJob(
-      supabase,
-      request(fixtures.ownerAId, { upload_ids: [CHECK_IDS.aFirst] }),
-      counting,
-    )
-
-    expect(outcome).toMatchObject({ ok: false, code: 'bad_request' })
-    expect(calls).toBe(0)
-    const { rows } = await db.query('select count(*)::int as n from public.check_jobs')
-    expect(rows[0].n).toBe(0)
-  })
 })

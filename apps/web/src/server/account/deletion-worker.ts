@@ -2,6 +2,7 @@ import 'server-only'
 
 import type { createServiceClient } from '@/server/supabase/server'
 import { completeDeletionJob } from '@/server/account/deletion-service'
+import { removeUserPhotos } from '@/server/uploads/photo-storage'
 
 type SupabaseService = ReturnType<typeof createServiceClient>
 
@@ -9,7 +10,8 @@ type SupabaseService = ReturnType<typeof createServiceClient>
  * Carrying out an accepted deletion request (stage 8/05).
  *
  * The request only marks the account and records a job. This takes the job and
- * walks it to the end: the account's rows (one transaction, see
+ * walks it to the end: the account's photos in Storage (outside any database
+ * transaction, so a step of their own), then its rows (one transaction, see
  * `delete_account_data`), then the Auth user, then the job is marked complete.
  * Each finished step is written into the job, so a run that dies halfway is
  * picked up by the next one — the request's own `after()` or the daily cron —
@@ -26,9 +28,10 @@ type SupabaseService = ReturnType<typeof createServiceClient>
 export const DELETION_LEASE_SECONDS = 120
 export const DELETION_MAX_ATTEMPTS = 5
 
-export type DeletionStep = 'data' | 'auth'
+export type DeletionStep = 'photos' | 'data' | 'auth'
 export type DeletionErrorCode =
   | 'claim_failed'
+  | 'photos_step_failed'
   | 'data_step_failed'
   | 'auth_step_failed'
   | 'complete_step_failed'
@@ -37,6 +40,8 @@ export type DeletionRunResult = 'completed' | 'retry' | 'action_required' | 'not
 export type DeletionWorkerDeps = {
   /** Takes the job; returns its progress, or null when someone else holds it or it is not due. */
   claim(userId: string): Promise<Record<string, unknown> | null>
+  /** Every photo under the person's folder. Storage is not in the data transaction. */
+  deletePhotos(userId: string): Promise<void>
   deleteAccountData(userId: string): Promise<void>
   /** `absent` when the Auth user is already gone — a finished step, not an error. */
   deleteAuthUser(userId: string): Promise<'deleted' | 'absent'>
@@ -60,8 +65,14 @@ export async function processDeletionJob(
   }
   if (progress === null) return 'not_claimed'
 
-  let code: DeletionErrorCode = 'data_step_failed'
+  let code: DeletionErrorCode = 'photos_step_failed'
   try {
+    if (!('photos' in progress)) {
+      await deps.deletePhotos(userId)
+      await deps.markStep(userId, 'photos')
+    }
+
+    code = 'data_step_failed'
     if (!('data' in progress)) {
       await deps.deleteAccountData(userId)
       await deps.markStep(userId, 'data')
@@ -103,6 +114,7 @@ export function createDeletionWorkerDeps(supabase: SupabaseService): DeletionWor
         p_user_id: userId,
         p_lease_seconds: DELETION_LEASE_SECONDS,
       }),
+    deletePhotos: (userId) => removeUserPhotos(supabase, userId),
     deleteAccountData: (userId) => rpc<void>('delete_account_data', { p_user_id: userId }),
     async deleteAuthUser(userId) {
       const { error } = await supabase.auth.admin.deleteUser(userId)

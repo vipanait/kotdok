@@ -87,7 +87,7 @@ describe('the deletion worker against the real database', () => {
 
     await expect(processDeletionJob(failing, seeded.ownerAId)).resolves.toBe('retry')
     expect(await job(seeded.ownerAId)).toMatchObject({ status: 'in_progress', attempts: 1 })
-    expect(Object.keys((await job(seeded.ownerAId)).progress)).toEqual(['data'])
+    expect(Object.keys((await job(seeded.ownerAId)).progress).sort()).toEqual(['data', 'photos'])
     expect(await count(`select count(*) n from auth.users where id = $1`, [seeded.ownerAId])).toBe(1)
 
     let dataRanAgain = false

@@ -31,7 +31,15 @@
       "expo-secure-store",
       "expo-font",
       "expo-web-browser",
-      "expo-apple-authentication"
+      "expo-apple-authentication",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Lapka shows the photos you pick to the symptom check. They are deleted right after the analysis.",
+          "cameraPermission": "Lapka uses the camera to photograph your pet's symptom for the check. Photos are deleted right after the analysis.",
+          "microphonePermission": false
+        }
+      ]
     ],
     "extra": {
       "router": {},

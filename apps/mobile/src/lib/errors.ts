@@ -10,6 +10,7 @@
 
 import { ApiContractError, ApiError, ApiTimeoutError } from '@lapka/shared'
 import type { Dictionary } from '@/i18n'
+import { PhotoUploadError } from '@/features/checks/photo-upload'
 
 /**
  * A message this app wrote itself.
@@ -81,6 +82,7 @@ function codeOf(cause: unknown): string | null {
  */
 export function errorMessage(t: Dictionary, cause: unknown, fallback: string): string {
   if (cause instanceof AppError) return cause.message
+  if (cause instanceof PhotoUploadError) return t.errors.photoUploadFailed
   // Said apart from "no connection": the phone reached the server, the server
   // simply never answered, and a write may still have gone through.
   if (cause instanceof ApiTimeoutError) return t.errors.noAnswer
@@ -93,6 +95,24 @@ export function errorMessage(t: Dictionary, cause: unknown, fallback: string): s
   // Older Supabase releases and network failures arrive without a code. Their
   // message is English, so it is dropped rather than shown.
   return fallback
+}
+
+/** What the server says when it will not take the photos themselves. */
+const PHOTO_REFUSALS = new Set(['bad_request', 'unsupported_media_type', 'payload_too_large'])
+
+/**
+ * Why a check was not sent.
+ *
+ * With photos attached, a refusal of the request is almost always about them —
+ * an upload that expired, a file that was not a picture — while the text was
+ * checked on the phone before sending. "Проверьте заполненные поля" would send
+ * the person back to a form that is fine.
+ */
+export function submitCheckMessage(t: Dictionary, cause: unknown, hadPhotos: boolean): string {
+  if (hadPhotos && cause instanceof ApiError && PHOTO_REFUSALS.has(cause.code)) {
+    return t.errors.photosRejected
+  }
+  return errorMessage(t, cause, t.errors.submitCheckFailed)
 }
 
 /** No connection at all, which is worth saying differently from a rejection. */

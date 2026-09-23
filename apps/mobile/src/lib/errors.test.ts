@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { ApiContractError, ApiError, ApiTimeoutError } from '@lapka/shared'
 import { ru } from '@/i18n/ru'
-import { AppError, describeFailure, errorMessage } from './errors'
+import { PhotoUploadError } from '@/features/checks/photo-upload'
+import { AppError, describeFailure, errorMessage, submitCheckMessage } from './errors'
 
 describe('error messages', () => {
   it('translates a Supabase auth code', () => {
@@ -93,5 +94,29 @@ describe('what a failure banner should look like', () => {
     expect(describeFailure(ru, new ApiError('internal_error', 500, 'x'), fallback).text).toBe(
       ru.errors.internal,
     )
+  })
+})
+
+describe('sending a check with photos', () => {
+  it('says a photo did not go through, and that nothing was charged', () => {
+    expect(errorMessage(ru, new PhotoUploadError(), 'fallback')).toBe(ru.errors.photoUploadFailed)
+  })
+
+  it.each(['bad_request', 'unsupported_media_type', 'payload_too_large'] as const)(
+    'blames the photos, not the form, when the server refuses them with %s',
+    (code) => {
+      const cause = new ApiError(code, 400, 'refused')
+      expect(submitCheckMessage(ru, cause, true)).toBe(ru.errors.photosRejected)
+    },
+  )
+
+  it('says what it always said when there were no photos', () => {
+    const cause = new ApiError('bad_request', 400, 'refused')
+    expect(submitCheckMessage(ru, cause, false)).toBe(ru.errors.badRequest)
+  })
+
+  it('does not blame the photos for running out of checks', () => {
+    const cause = new ApiError('insufficient_credits', 402, 'no credits')
+    expect(submitCheckMessage(ru, cause, true)).toBe(ru.errors.insufficientCredits)
   })
 })
