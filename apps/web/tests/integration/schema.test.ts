@@ -76,6 +76,7 @@ const REQUIRED_FUNCTIONS = [
   'request_account_deletion',
   'resolve_extra_check_request',
   'search_vet_knowledge',
+  'stale_photo_objects',
 ]
 
 describe('migrated schema', () => {

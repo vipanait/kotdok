@@ -118,31 +118,42 @@ export async function removeUserPhotos(supabase: SupabaseService, userId: string
   if (error) throw new Error('rows delete failed')
 }
 
-/** @returns how many abandoned uploads were removed. */
+/** How many batches one sweep takes on; a guard, not an expected volume. */
+const SWEEP_MAX_BATCHES = 50
+
+/**
+ * Removes everything in the bucket older than `SWEEP_AFTER_SECONDS`, then the
+ * rows of the same age.
+ *
+ * Objects are found by their own age, not through rows: a signed upload URL can
+ * write again after its object was removed (it is not single-use), and such an
+ * object has no row to lead to it.
+ *
+ * @returns how many objects were removed.
+ */
 export async function sweepExpiredUploads(
   supabase: SupabaseService,
   now: Date = new Date(),
-  limit = 200,
+  batch = 200,
 ): Promise<number> {
   const cutoff = new Date(now.getTime() - SWEEP_AFTER_SECONDS * 1000).toISOString()
-  const { data, error } = await supabase
-    .from('photo_uploads')
-    .select('id, object_path')
-    .lt('created_at', cutoff)
-    .order('created_at')
-    .limit(limit)
-  if (error) throw new Error('sweep select failed')
-  if (!data || data.length === 0) return 0
+  let removed = 0
 
-  const { error: storageError } = await supabase.storage
-    .from(PHOTO_BUCKET)
-    .remove(data.map((upload) => upload.object_path))
-  if (storageError) throw new Error('sweep remove failed')
+  for (let i = 0; i < SWEEP_MAX_BATCHES; i++) {
+    const { data, error } = await supabase.rpc('stale_photo_objects', {
+      p_cutoff: cutoff,
+      p_limit: batch,
+    })
+    if (error) throw new Error('sweep select failed')
+    const names = (data ?? []) as string[]
+    if (names.length === 0) break
 
-  const { error: deleteError } = await supabase
-    .from('photo_uploads')
-    .delete()
-    .in('id', data.map((upload) => upload.id))
+    const { error: storageError } = await supabase.storage.from(PHOTO_BUCKET).remove(names)
+    if (storageError) throw new Error('sweep remove failed')
+    removed += names.length
+  }
+
+  const { error: deleteError } = await supabase.from('photo_uploads').delete().lt('created_at', cutoff)
   if (deleteError) throw new Error('sweep delete failed')
-  return data.length
+  return removed
 }

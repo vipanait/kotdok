@@ -145,12 +145,46 @@ describe('removing photos', () => {
   it('sweeps only uploads older than three hours', async () => {
     await put(await oneUpload(seeded.ownerAId))
     await put(await oneUpload(seeded.ownerAId))
-    await db.query(
+    // Age one upload: its row and its object both.
+    const { rows } = await db.query(
       `update public.photo_uploads set created_at = now() - interval '3 hours 1 minute'
-        where id = (select id from public.photo_uploads order by created_at limit 1)`,
+        where id = (select id from public.photo_uploads order by created_at limit 1)
+        returning object_path`,
+    )
+    await db.query(
+      `update storage.objects set created_at = now() - interval '3 hours 1 minute'
+        where bucket_id = $1 and name = $2`,
+      [PHOTO_BUCKET, rows[0].object_path],
     )
 
     expect(await sweepExpiredUploads(service() as never)).toBe(1)
     expect(await objectCount()).toBe(1)
+    const { rows: left } = await db.query('select count(*)::int as n from public.photo_uploads')
+    expect(left[0].n).toBe(1)
+  })
+
+  it('sweeps an object written again after its upload was removed', async () => {
+    // A signed upload URL lives two hours and is not single-use: once its
+    // object is gone it can create it again. No row points at that object.
+    const upload = await oneUpload(seeded.ownerAId)
+    await put(upload)
+    const { rows } = await db.query('select id, object_path from public.photo_uploads')
+    await removeUploads(service() as never, rows)
+    expect((await put(upload)).ok).toBe(true)
+    expect(await objectCount()).toBe(1)
+
+    const later = new Date(Date.now() + (3 * 60 + 1) * 60 * 1000)
+    expect(await sweepExpiredUploads(service() as never, later)).toBe(1)
+    expect(await objectCount()).toBe(0)
+  })
+
+  it('keeps going past one batch until nothing old is left', async () => {
+    for (let i = 0; i < 3; i++) await put(await oneUpload(seeded.ownerAId))
+
+    const later = new Date(Date.now() + (3 * 60 + 1) * 60 * 1000)
+    expect(await sweepExpiredUploads(service() as never, later, 2)).toBe(3)
+    expect(await objectCount()).toBe(0)
+    const { rows } = await db.query('select count(*)::int as n from public.photo_uploads')
+    expect(rows[0].n).toBe(0)
   })
 })
