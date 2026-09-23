@@ -147,6 +147,7 @@ export const ru = {
   result: {
     fallbackTitle: 'Проверка',
     causes: 'Возможные причины',
+    photoObservations: 'Что видно на фото',
     homeCare: 'Что можно сделать дома',
     vetQuestions: 'О чём спросить врача',
     copy: 'Скопировать',

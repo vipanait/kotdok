@@ -336,12 +336,14 @@ export default function NewCheck() {
   async function pickPhotos(source: 'camera' | 'library') {
     const left = PHOTO_LIMITS.maxFiles - photos.length
     if (left <= 0) return
-    const permission =
-      source === 'camera'
-        ? await ImagePicker.requestCameraPermissionsAsync()
-        : await ImagePicker.requestMediaLibraryPermissionsAsync()
-    // A refusal is an answer, not an error: the check works without photos.
-    if (!permission.granted) return
+    // Only the camera asks. The library opens the system picker, which hands
+    // over just the photos chosen and needs no access to the rest — asking for
+    // the whole library would be asking for far more than the check uses.
+    if (source === 'camera') {
+      const permission = await ImagePicker.requestCameraPermissionsAsync()
+      // A refusal is an answer, not an error: the check works without photos.
+      if (!permission.granted) return
+    }
     const result =
       source === 'camera'
         ? await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 1 })

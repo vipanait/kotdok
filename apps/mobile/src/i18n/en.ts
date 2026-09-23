@@ -147,6 +147,7 @@ export const en: Dictionary = {
   result: {
     fallbackTitle: 'Check',
     causes: 'Possible causes',
+    photoObservations: "What's visible in the photos",
     homeCare: 'What you can do at home',
     vetQuestions: 'What to ask the vet',
     copy: 'Copy',

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { en } from '@/i18n/en'
 import { ru } from '@/i18n/ru'
-import { checkAnswers, formatCheckedAt } from './check-answers'
+import { checkAnswers, formatCheckedAt, photoObservations } from './check-answers'
 
 describe('reading back what was answered on the second step', () => {
   it('names every answer in the order the form asks', () => {
@@ -44,5 +44,25 @@ describe('when a check was made', () => {
     const evening = formatCheckedAt('2026-09-17T16:40:00Z', 'ru')
     expect(morning).toMatch(/сентября 2026/)
     expect(morning).not.toBe(evening)
+  })
+})
+
+describe('what the analysis saw in the photos', () => {
+  it('reads it back when photos were sent', () => {
+    expect(photoObservations({ photo_count: 2, photo_observations: 'Покраснение у глаза' })).toBe(
+      'Покраснение у глаза',
+    )
+  })
+
+  it('says nothing about photos a check never had', () => {
+    // The model may still fill the field in; with no photo it can only be a guess.
+    expect(photoObservations({ photo_count: 0, photo_observations: 'Кошка выглядит здоровой' })).toBeNull()
+    expect(photoObservations({ photo_observations: 'что-то' })).toBeNull()
+    expect(photoObservations(null)).toBeNull()
+  })
+
+  it('shows nothing rather than an empty heading', () => {
+    expect(photoObservations({ photo_count: 1, photo_observations: '  ' })).toBeNull()
+    expect(photoObservations({ photo_count: 1, photo_observations: null })).toBeNull()
   })
 })
