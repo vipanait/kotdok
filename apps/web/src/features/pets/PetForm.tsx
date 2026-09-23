@@ -1,25 +1,26 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import type { Pet, PetSizeClass, PetSpecies, PetWalkActivity } from '@/shared/types'
 import { useTranslations } from '@/components/LocaleProvider'
-import AppShell from '@/components/AppShell'
 import PetAvatar from '@/components/PetAvatar'
+import Icon from '@/components/ui/Icon'
+import ConfirmDialog from '@/features/pets/ConfirmDialog'
+import type { PetSavedKind } from '@/features/pets/PetSavedBanner'
 import { csrfHeaders } from '@/shared/security/csrf-client'
 
 type PetFormValues = Omit<Pet, 'id' | 'user_id' | 'created_at'>
 
-type SavedKind = 'created' | 'updated' | 'deleted'
-
 interface Props {
+  /** The pet being edited; none for a new one. */
   pet?: Pet
-  modal?: boolean
-  onSaved?: (kind: SavedKind) => void
-  onDirtyChange?: (dirty: boolean) => void
-  onCancel?: () => void
 }
+
+/** Where the form leads after a save or a delete, with the confirmation banner. */
+const LIST_HREF = '/pets'
+const savedHref = (kind: PetSavedKind) => `${LIST_HREF}?petSaved=${kind}`
 
 const NOTES_MAX = 300
 
@@ -48,11 +49,21 @@ function parseDecimal(value: string): number | null {
   return Number.isFinite(n) ? n : null
 }
 
-export default function PetForm({ pet, modal = false, onSaved, onDirtyChange, onCancel }: Props) {
+/**
+ * The pet profile as a page: a sectioned form on the left, context on the
+ * right. Leaving with unsaved changes — any link on the page, a reload or
+ * closing the tab — asks first. Delete is set apart and confirmed in a dialog.
+ */
+export default function PetForm({ pet }: Props) {
   const router = useRouter()
   const dict = useTranslations()
   const t = dict.pets
   const isEdit = !!pet
+  const formId = useId()
+  const notesTitleId = `${formId}-notes-title`
+  const notesCountId = `${formId}-notes-count`
+  const nameErrorId = `${formId}-name-error`
+  const fieldId = (name: string) => `${formId}-${name}`
 
   const [species, setSpecies] = useState<PetSpecies>(pet?.species ?? 'cat')
   const [name, setName] = useState(pet?.name ?? '')
@@ -74,8 +85,16 @@ export default function PetForm({ pet, modal = false, onSaved, onDirtyChange, on
   const [saving, setSaving] = useState(false)
   const [formError, setFormError] = useState('')
   const [nameError, setNameError] = useState('')
-  const [deleting, setDeleting] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState('')
+  const [leaveHref, setLeaveHref] = useState<string | null>(null)
+
+  const nameRef = useRef<HTMLInputElement>(null)
+  const deleteButtonRef = useRef<HTMLButtonElement>(null)
+  const leaveLinkRef = useRef<HTMLElement | null>(null)
+  /** Set once the form is done — saved, deleted or abandoned on purpose. */
+  const leavingRef = useRef(false)
 
   const sexFemale = species === 'dog' ? t.sexFemaleDog : t.sexFemaleCat
   const sexMale = species === 'dog' ? t.sexMaleDog : t.sexMaleCat
@@ -102,27 +121,56 @@ export default function PetForm({ pet, modal = false, onSaved, onDirtyChange, on
     medications !== fromArr(pet?.medications ?? []) ||
     notes !== (pet?.notes ?? '')
 
+  // Unsaved changes: the browser asks on reload or closing the tab; a link
+  // anywhere on the page (the back link, "Cancel", the cabinet navigation)
+  // opens our own dialog first. Captured on window, before next/link acts.
   useEffect(() => {
-    onDirtyChange?.(dirty)
-  }, [dirty, onDirtyChange])
+    if (!dirty) return
 
-  useEffect(() => {
-    if (!confirmDelete) return
-
-    function onKey(e: KeyboardEvent) {
-      if (e.key !== 'Escape') return
+    function onBeforeUnload(e: BeforeUnloadEvent) {
+      if (leavingRef.current) return
       e.preventDefault()
-      e.stopImmediatePropagation()
-      if (!deleting) setConfirmDelete(false)
+      e.returnValue = ''
     }
 
-    window.addEventListener('keydown', onKey, true)
-    return () => window.removeEventListener('keydown', onKey, true)
-  }, [confirmDelete, deleting])
+    function onClick(e: MouseEvent) {
+      if (leavingRef.current || e.defaultPrevented || e.button !== 0) return
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
+      const anchor = (e.target as Element | null)?.closest?.('a[href]') as HTMLAnchorElement | null
+      if (!anchor || anchor.hasAttribute('download')) return
+      if (anchor.target && anchor.target !== '_self') return
+
+      const url = new URL(anchor.href, window.location.href)
+      if (url.origin !== window.location.origin) return
+      if (url.pathname === window.location.pathname && url.search === window.location.search) return
+
+      e.preventDefault()
+      leaveLinkRef.current = anchor
+      setLeaveHref(url.pathname + url.search + url.hash)
+    }
+
+    window.addEventListener('beforeunload', onBeforeUnload)
+    window.addEventListener('click', onClick, true)
+    return () => {
+      window.removeEventListener('beforeunload', onBeforeUnload)
+      window.removeEventListener('click', onClick, true)
+    }
+  }, [dirty])
+
+  function leave(href: string) {
+    leavingRef.current = true
+    router.push(href)
+    router.refresh()
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!name.trim()) { setNameError(t.errorName); return }
+    if (saving) return
+    if (!name.trim()) {
+      setNameError(t.errorName)
+      nameRef.current?.focus()
+      return
+    }
     setSaving(true)
     setFormError('')
     setNameError('')
@@ -148,136 +196,225 @@ export default function PetForm({ pet, modal = false, onSaved, onDirtyChange, on
 
     const url = isEdit ? `/api/pets/${pet!.id}` : '/api/pets'
     const method = isEdit ? 'PUT' : 'POST'
-    const res = await fetch(url, {
-      method,
-      headers: csrfHeaders({ 'Content-Type': 'application/json' }),
-      body: JSON.stringify(body),
-    })
-
-    if (!res.ok) {
-      const data = await res.json()
-      setFormError(data.error || t.errorGeneric)
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: csrfHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify(body),
+      })
+      if (!res.ok) {
+        setFormError(t.saveError)
+        setSaving(false)
+        return
+      }
+    } catch {
+      setFormError(t.saveError)
       setSaving(false)
       return
     }
 
-    const kind: SavedKind = isEdit ? 'updated' : 'created'
-    if (onSaved) {
-      onSaved(kind)
-      router.refresh()
-    } else {
-      router.push(`/dashboard?petSaved=${kind}`)
-      router.refresh()
-    }
+    leave(savedHref(isEdit ? 'updated' : 'created'))
   }
 
   async function handleDelete() {
+    if (!pet || deleting) return
     setDeleting(true)
-    await fetch(`/api/pets/${pet!.id}`, { method: 'DELETE', headers: csrfHeaders() })
-    if (onSaved) {
-      onSaved('deleted')
-      router.refresh()
-    } else {
-      router.push('/dashboard?petSaved=deleted')
-      router.refresh()
+    setDeleteError('')
+    try {
+      const res = await fetch(`/api/pets/${pet.id}`, { method: 'DELETE', headers: csrfHeaders() })
+      if (!res.ok) {
+        setDeleteError(t.deleteError)
+        setDeleting(false)
+        return
+      }
+    } catch {
+      setDeleteError(t.deleteError)
+      setDeleting(false)
+      return
     }
+    leave(savedHref('deleted'))
   }
 
-  const heading = (
-    <div className="flex items-center gap-4 mb-6 sm:mb-8">
-      <PetAvatar size={modal ? 56 : 68} species={species} />
-      <h1 className={modal
-        ? 'text-2xl sm:text-3xl font-extrabold text-text leading-tight pr-8'
-        : 'text-3xl sm:text-4xl font-extrabold text-text leading-tight'}>
-        {isEdit ? pet!.name : t.newTitle}
-      </h1>
-    </div>
-  )
-
-  const cancelControl = onCancel ? (
-    <button type="button" onClick={onCancel} className="app-button-secondary flex-1 py-3.5">
-      {t.cancelBtn}
-    </button>
-  ) : (
-    <Link href="/dashboard" className="app-button-secondary flex-1 py-3.5 text-center">
-      {t.cancelBtn}
-    </Link>
-  )
-
-  const formBody = (
-    <div className={modal ? '' : 'app-card p-6 sm:p-8'}>
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <FormSection title={t.sectionBasic}>
-          <Field label={t.species}>
-            <select
-              value={species}
-              onChange={e => {
-                const value = e.target.value as PetSpecies
-                setSpecies(value)
-                if (value !== 'dog') {
-                  setSizeClass(null)
-                  setWalkActivity(null)
-                }
-              }}
-              className={inputCls}
-            >
-              <option value="cat">{t.speciesCat}</option>
-              <option value="dog">{t.speciesDog}</option>
-            </select>
-          </Field>
-
-          <Field label={t.name} error={nameError}>
-            <input
-              value={name}
-              onChange={e => { setName(e.target.value); if (nameError) setNameError('') }}
-              placeholder={namePlaceholder}
-              className={inputCls}
-              aria-invalid={!!nameError}
-            />
-          </Field>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <Field label={t.breed}>
-              <input value={breed} onChange={e => setBreed(e.target.value)} placeholder={breedPlaceholder} className={inputCls} />
+  return (
+    <div className="form-layout">
+      <form className="card pet-form" onSubmit={handleSubmit} noValidate aria-busy={saving || undefined}>
+        <section className="form-section">
+          <h3>{t.sectionBasic}</h3>
+          <div className="form-grid">
+            <Field id={fieldId('species')} label={t.species}>
+              <select
+                id={fieldId('species')}
+                value={species}
+                onChange={e => {
+                  const value = e.target.value as PetSpecies
+                  setSpecies(value)
+                  if (value !== 'dog') {
+                    setSizeClass(null)
+                    setWalkActivity(null)
+                  }
+                }}
+                className="input"
+              >
+                <option value="cat">{t.speciesCat}</option>
+                <option value="dog">{t.speciesDog}</option>
+              </select>
             </Field>
-            <Field label={t.ageYears}>
-              <input type="text" inputMode="decimal" value={ageYears} onChange={e => setAgeYears(sanitizeDecimalInput(e.target.value))} placeholder="3" className={inputCls} />
-            </Field>
-            <Field label={t.weightKg}>
-              <input type="text" inputMode="decimal" value={weightKg} onChange={e => setWeightKg(sanitizeDecimalInput(e.target.value))} placeholder="4.5" className={inputCls} />
-            </Field>
-          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <Field label={t.sex}>
-              <select value={sex ?? ''} onChange={e => setSex((e.target.value || null) as Pet['sex'])} className={selectCls(!sex)}>
+            <Field id={fieldId('name')} label={t.name} error={nameError} errorId={nameErrorId}>
+              <input
+                ref={nameRef}
+                id={fieldId('name')}
+                value={name}
+                onChange={e => { setName(e.target.value); if (nameError) setNameError('') }}
+                placeholder={namePlaceholder}
+                className="input"
+                autoComplete="off"
+                aria-required="true"
+                aria-invalid={!!nameError || undefined}
+                aria-describedby={nameError ? nameErrorId : undefined}
+              />
+            </Field>
+
+            <Field id={fieldId('breed')} label={t.breed}>
+              <input
+                id={fieldId('breed')}
+                value={breed}
+                onChange={e => setBreed(e.target.value)}
+                placeholder={breedPlaceholder}
+                className="input"
+                autoComplete="off"
+              />
+            </Field>
+
+            <Field id={fieldId('age')} label={t.ageYears}>
+              <input
+                id={fieldId('age')}
+                type="text"
+                inputMode="decimal"
+                value={ageYears}
+                onChange={e => setAgeYears(sanitizeDecimalInput(e.target.value))}
+                placeholder="3"
+                className="input"
+                autoComplete="off"
+              />
+            </Field>
+
+            <Field id={fieldId('weight')} label={t.weightKg}>
+              <input
+                id={fieldId('weight')}
+                type="text"
+                inputMode="decimal"
+                value={weightKg}
+                onChange={e => setWeightKg(sanitizeDecimalInput(e.target.value))}
+                placeholder="4.5"
+                className="input"
+                autoComplete="off"
+              />
+            </Field>
+
+            <Field id={fieldId('sex')} label={t.sex}>
+              <select
+                id={fieldId('sex')}
+                value={sex ?? ''}
+                onChange={e => setSex((e.target.value || null) as Pet['sex'])}
+                className={selectCls(!sex)}
+              >
                 <option value="">{dict.common.notSpecifiedM}</option>
                 <option value="female">{sexFemale}</option>
                 <option value="male">{sexMale}</option>
               </select>
             </Field>
-            <Field label={t.neutered}>
-              <select value={neutered == null ? '' : neutered ? 'yes' : 'no'} onChange={e => setNeutered(e.target.value === '' ? null : e.target.value === 'yes')} className={selectCls(neutered == null)}>
+          </div>
+        </section>
+
+        <section className="form-section">
+          <h3>{t.sectionHealth}</h3>
+          <div className="form-grid">
+            <Field id={fieldId('neutered')} label={t.neutered}>
+              <select
+                id={fieldId('neutered')}
+                value={neutered == null ? '' : neutered ? 'yes' : 'no'}
+                onChange={e => setNeutered(e.target.value === '' ? null : e.target.value === 'yes')}
+                className={selectCls(neutered == null)}
+              >
                 <option value="">{dict.common.notSpecified}</option>
                 <option value="yes">{dict.common.yes}</option>
                 <option value="no">{dict.common.no}</option>
               </select>
             </Field>
-          </div>
-        </FormSection>
 
-        <FormSection title={t.sectionLifestyle}>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <Field label={t.lifestyle}>
-              <select value={indoorOutdoor ?? ''} onChange={e => setIndoorOutdoor((e.target.value || null) as Pet['indoor_outdoor'])} className={selectCls(!indoorOutdoor)}>
+            <Field id={fieldId('vaccinated')} label={t.vaccination}>
+              <select
+                id={fieldId('vaccinated')}
+                value={vaccinated == null ? '' : vaccinated ? 'yes' : 'no'}
+                onChange={e => setVaccinated(e.target.value === '' ? null : e.target.value === 'yes')}
+                className={selectCls(vaccinated == null)}
+              >
+                <option value="">{dict.common.notSpecified}</option>
+                <option value="yes">{t.vaccinationYes}</option>
+                <option value="no">{t.vaccinationNo}</option>
+              </select>
+            </Field>
+
+            <Field id={fieldId('allergies')} label={t.allergies}>
+              <input
+                id={fieldId('allergies')}
+                value={allergies}
+                onChange={e => setAllergies(e.target.value)}
+                placeholder={t.allergiesPlaceholder}
+                className="input"
+                autoComplete="off"
+              />
+            </Field>
+
+            <Field id={fieldId('chronic')} label={t.chronicConditions}>
+              <input
+                id={fieldId('chronic')}
+                value={chronicConditions}
+                onChange={e => setChronicConditions(e.target.value)}
+                placeholder={chronicPlaceholder}
+                className="input"
+                autoComplete="off"
+              />
+            </Field>
+
+            <Field id={fieldId('medications')} label={t.medications}>
+              <input
+                id={fieldId('medications')}
+                value={medications}
+                onChange={e => setMedications(e.target.value)}
+                placeholder={medicationsPlaceholder}
+                className="input"
+                autoComplete="off"
+              />
+            </Field>
+          </div>
+        </section>
+
+        <section className="form-section">
+          <h3>{t.sectionLifestyle}</h3>
+          <div className="form-grid">
+            <Field id={fieldId('lifestyle')} label={t.lifestyle}>
+              <select
+                id={fieldId('lifestyle')}
+                value={indoorOutdoor ?? ''}
+                onChange={e => setIndoorOutdoor((e.target.value || null) as Pet['indoor_outdoor'])}
+                className={selectCls(!indoorOutdoor)}
+              >
                 <option value="">{dict.common.notSpecifiedM}</option>
                 <option value="indoor">{t.lifestyleIndoor}</option>
                 <option value="outdoor">{t.lifestyleOutdoor}</option>
                 <option value="both">{t.lifestyleBoth}</option>
               </select>
             </Field>
-            <Field label={t.diet}>
-              <select value={diet ?? ''} onChange={e => setDiet((e.target.value || null) as Pet['diet'])} className={selectCls(!diet)}>
+
+            <Field id={fieldId('diet')} label={t.diet}>
+              <select
+                id={fieldId('diet')}
+                value={diet ?? ''}
+                onChange={e => setDiet((e.target.value || null) as Pet['diet'])}
+                className={selectCls(!diet)}
+              >
                 <option value="">{dict.common.notSpecified}</option>
                 <option value="dry">{t.dietDry}</option>
                 <option value="wet">{t.dietWet}</option>
@@ -285,145 +422,155 @@ export default function PetForm({ pet, modal = false, onSaved, onDirtyChange, on
                 <option value="raw">{t.dietRaw}</option>
               </select>
             </Field>
-            <Field label={t.vaccination}>
-              <select value={vaccinated == null ? '' : vaccinated ? 'yes' : 'no'} onChange={e => setVaccinated(e.target.value === '' ? null : e.target.value === 'yes')} className={selectCls(vaccinated == null)}>
-                <option value="">{dict.common.notSpecified}</option>
-                <option value="yes">{t.vaccinationYes}</option>
-                <option value="no">{t.vaccinationNo}</option>
-              </select>
-            </Field>
+
+            {species === 'dog' && (
+              <>
+                <Field id={fieldId('size')} label={t.sizeClass}>
+                  <select
+                    id={fieldId('size')}
+                    value={sizeClass ?? ''}
+                    onChange={e => setSizeClass((e.target.value || null) as PetSizeClass | null)}
+                    className={selectCls(!sizeClass)}
+                  >
+                    <option value="">{dict.common.notSpecifiedM}</option>
+                    <option value="toy">{t.sizeToy}</option>
+                    <option value="small">{t.sizeSmall}</option>
+                    <option value="medium">{t.sizeMedium}</option>
+                    <option value="large">{t.sizeLarge}</option>
+                    <option value="giant">{t.sizeGiant}</option>
+                  </select>
+                </Field>
+
+                <Field id={fieldId('walks')} label={t.walkActivity}>
+                  <select
+                    id={fieldId('walks')}
+                    value={walkActivity ?? ''}
+                    onChange={e => setWalkActivity((e.target.value || null) as PetWalkActivity | null)}
+                    className={selectCls(!walkActivity)}
+                  >
+                    <option value="">{dict.common.notSpecifiedM}</option>
+                    <option value="rare">{t.walkRare}</option>
+                    <option value="daily_short">{t.walkDailyShort}</option>
+                    <option value="daily_long">{t.walkDailyLong}</option>
+                    <option value="sport">{t.walkSport}</option>
+                  </select>
+                </Field>
+              </>
+            )}
           </div>
-        </FormSection>
+        </section>
 
-        {species === 'dog' && (
-          <FormSection title={t.sectionDog}>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <Field label={t.sizeClass}>
-                <select
-                  value={sizeClass ?? ''}
-                  onChange={e => setSizeClass((e.target.value || null) as PetSizeClass | null)}
-                  className={selectCls(!sizeClass)}
-                >
-                  <option value="">{dict.common.notSpecifiedM}</option>
-                  <option value="toy">{t.sizeToy}</option>
-                  <option value="small">{t.sizeSmall}</option>
-                  <option value="medium">{t.sizeMedium}</option>
-                  <option value="large">{t.sizeLarge}</option>
-                  <option value="giant">{t.sizeGiant}</option>
-                </select>
-              </Field>
-              <Field label={t.walkActivity}>
-                <select
-                  value={walkActivity ?? ''}
-                  onChange={e => setWalkActivity((e.target.value || null) as PetWalkActivity | null)}
-                  className={selectCls(!walkActivity)}
-                >
-                  <option value="">{dict.common.notSpecifiedM}</option>
-                  <option value="rare">{t.walkRare}</option>
-                  <option value="daily_short">{t.walkDailyShort}</option>
-                  <option value="daily_long">{t.walkDailyLong}</option>
-                  <option value="sport">{t.walkSport}</option>
-                </select>
-              </Field>
-            </div>
-          </FormSection>
-        )}
+        <section className="form-section">
+          {/* The heading is the textarea's only label: "Notes" is written once. */}
+          <h3 id={notesTitleId}>{t.sectionNotes}</h3>
+          <textarea
+            value={notes}
+            onChange={e => setNotes(e.target.value.slice(0, NOTES_MAX))}
+            placeholder={t.notesPlaceholder}
+            rows={4}
+            maxLength={NOTES_MAX}
+            className="input"
+            aria-labelledby={notesTitleId}
+            aria-describedby={notesCountId}
+          />
+          <p
+            id={notesCountId}
+            className={notes.length >= NOTES_MAX ? 'notes-counter is-max' : 'notes-counter'}
+          >
+            {notes.length}/{NOTES_MAX}
+          </p>
+        </section>
 
-        <FormSection title={t.sectionHealth}>
-          <div className="grid gap-5">
-            <Field label={t.allergies}>
-              <input value={allergies} onChange={e => setAllergies(e.target.value)} placeholder={t.allergiesPlaceholder} className={inputCls} />
-            </Field>
-            <Field label={t.chronicConditions}>
-              <input value={chronicConditions} onChange={e => setChronicConditions(e.target.value)} placeholder={chronicPlaceholder} className={inputCls} />
-            </Field>
-            <Field label={t.medications}>
-              <input value={medications} onChange={e => setMedications(e.target.value)} placeholder={medicationsPlaceholder} className={inputCls} />
-            </Field>
-          </div>
-        </FormSection>
+        {formError && <p role="alert" className="banner error form-error">{formError}</p>}
 
-        <FormSection title={t.sectionNotes}>
-          <Field label={t.notes}>
-            <textarea value={notes} onChange={e => setNotes(e.target.value.slice(0, NOTES_MAX))} placeholder={t.notesPlaceholder} rows={3} className="app-input resize-none" />
-            <p className={`text-xs mt-1 text-right ${notes.length >= NOTES_MAX ? 'text-status-error-fg' : 'text-text-faint'}`}>
-              {notes.length}/{NOTES_MAX}
-            </p>
-          </Field>
-        </FormSection>
-
-        {formError && <div className="bg-status-error-bg text-status-error-fg text-sm rounded-xl px-4 py-3">{formError}</div>}
-
-        <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row">
-          {isEdit && (
-            <button type="button" onClick={() => setConfirmDelete(true)} disabled={deleting} className="rounded-full border border-status-error-bg px-5 py-3.5 text-sm font-semibold text-status-error-fg transition-colors hover:bg-status-error-bg/40 disabled:opacity-50 sm:mr-auto">
-              {deleting ? t.deletingBtn : t.deleteBtn}
+        <div className="form-actions">
+          {isEdit ? (
+            <button
+              ref={deleteButtonRef}
+              type="button"
+              className="btn danger"
+              onClick={() => { setDeleteError(''); setConfirmDelete(true) }}
+              disabled={deleting || saving}
+            >
+              {t.deletePet}
             </button>
-          )}
-          {cancelControl}
-          <button type="submit" disabled={saving} className="app-button-primary flex-1 py-3.5">
-            {saving ? t.savingBtn : isEdit ? t.saveBtn : t.addBtn}
-          </button>
+          ) : null}
+          <div className="row">
+            <Link href={LIST_HREF} className="link">{t.cancelBtn}</Link>
+            <button type="submit" className="btn primary" disabled={saving}>
+              {saving ? t.savingBtn : isEdit ? t.saveBtn : t.addBtn}
+            </button>
+          </div>
         </div>
       </form>
+
+      <aside className="summary-box pet-form-aside">
+        <PetAvatar species={species} />
+        <h3>{t.asideTitle}</h3>
+        <p>{t.asideBody}</p>
+        <div className="divider" />
+        <p>{t.asideNote}</p>
+        {isEdit && (
+          <Link href="/checks" className="link">
+            {t.asideHistory}
+            <Icon name="arrow" />
+          </Link>
+        )}
+      </aside>
+
+      {confirmDelete && pet && (
+        <ConfirmDialog
+          title={t.confirmDeleteTitle.replace('{name}', pet.name)}
+          body={t.confirmDeleteBody}
+          cancelLabel={t.cancelBtn}
+          confirmLabel={t.deleteBtn}
+          busyLabel={t.deletingBtn}
+          busy={deleting}
+          error={deleteError}
+          tone="danger"
+          onCancel={() => setConfirmDelete(false)}
+          onConfirm={handleDelete}
+          returnFocusRef={deleteButtonRef}
+        />
+      )}
+
+      {leaveHref && (
+        <ConfirmDialog
+          title={t.leaveTitle}
+          body={t.leaveBody}
+          cancelLabel={t.leaveStay}
+          confirmLabel={t.leaveConfirm}
+          onCancel={() => setLeaveHref(null)}
+          onConfirm={() => leave(leaveHref)}
+          returnFocusRef={leaveLinkRef}
+        />
+      )}
     </div>
-  )
-
-  const deleteDialog = confirmDelete && isEdit && (
-    <div role="dialog" aria-modal="true" aria-labelledby="delete-pet-title" className="app-overlay fixed inset-0 z-[60] flex items-end justify-center sm:items-center sm:p-4" onClick={e => { if (e.target === e.currentTarget && !deleting) setConfirmDelete(false) }}>
-      <div className="app-card w-full rounded-b-none p-6 sm:max-w-sm sm:rounded-b-3xl">
-        <h2 id="delete-pet-title" className="text-lg font-bold text-text mb-2">
-          {t.confirmDeleteTitle.replace('{name}', pet!.name)}
-        </h2>
-        <p className="text-sm text-text-muted mb-5">{t.confirmDeleteBody}</p>
-        <div className="flex gap-3">
-          <button type="button" onClick={() => setConfirmDelete(false)} disabled={deleting} className="app-button-secondary flex-1 py-3 text-sm">{t.cancelBtn}</button>
-          <button type="button" onClick={handleDelete} disabled={deleting} className="app-button-danger flex-1 py-3 text-sm">{deleting ? t.deletingBtn : t.deleteBtn}</button>
-        </div>
-      </div>
-    </div>
-  )
-
-  if (modal) {
-    return (
-      <div className="p-6 sm:p-8">
-        {heading}
-        {formBody}
-        {deleteDialog}
-      </div>
-    )
-  }
-
-  return (
-    <AppShell width="wide" right={<Link href="/dashboard" className="app-link">{dict.common.back}</Link>}>
-      {heading}
-      {formBody}
-      {deleteDialog}
-    </AppShell>
   )
 }
-
-const inputCls = 'app-input py-2.5'
 
 function selectCls(empty: boolean) {
-  return empty ? `${inputCls} app-input-empty` : inputCls
+  return empty ? 'input is-empty' : 'input'
 }
 
-function FormSection({ title, children }: { title: string; children: React.ReactNode }) {
+function Field({
+  id,
+  label,
+  children,
+  error,
+  errorId,
+}: {
+  id: string
+  label: string
+  children: React.ReactNode
+  error?: string
+  errorId?: string
+}) {
   return (
-    <section className="app-form-section">
-      <h2 className="app-form-section-title">{title}</h2>
-      <div className="space-y-5">{children}</div>
-    </section>
-  )
-}
-
-function Field({ label, children, error }: { label: string; children: React.ReactNode; error?: string }) {
-  return (
-    <div className="block">
-      <p className="block text-sm font-semibold text-text mb-1.5">{label}</p>
+    <div className="field">
+      <label className="field-label" htmlFor={id}>{label}</label>
       {children}
-      {error && <span className="app-field-error block">{error}</span>}
+      {error && <span id={errorId} className="field-error" role="alert">{error}</span>}
     </div>
   )
 }

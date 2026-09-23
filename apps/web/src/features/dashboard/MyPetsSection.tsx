@@ -1,194 +1,50 @@
-'use client'
-
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import Icon from '@/components/ui/Icon'
+import PetCard from '@/features/pets/PetCard'
+import type { Locale } from '@/shared/i18n/config'
+import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
 import type { Pet, PetLatestCheck } from '@/shared/types'
-import { useLocale, useTranslations } from '@/components/LocaleProvider'
-import PetAvatar from '@/components/PetAvatar'
-import PetForm from '@/features/pets/PetForm'
-import { URGENCY_TEXT_CLASS, type UrgencyKey } from '@/shared/utils/urgency'
 
-type ModalState = null | 'new' | Pet
-type SavedKind = 'created' | 'updated' | 'deleted'
-
-interface Props {
-  pets: Pet[]
-  latestChecksByPet?: Record<string, PetLatestCheck>
-}
-
-function AccentedCopy({ template, accent }: { template: string; accent: string }) {
-  const parts = template.split('{accent}')
-  if (parts.length < 2) return <>{template}</>
-  return (
-    <>
-      {parts[0]}
-      <span className="app-accent-serif">{accent}</span>
-      {parts.slice(1).join('{accent}')}
-    </>
-  )
-}
-
+/**
+ * "Ваши питомцы · N" on the overview: the count, the way to add one more and
+ * a card per pet. Under 760px the head stacks — title and count, then the
+ * link — and the count never breaks away from its dot.
+ */
 export default function MyPetsSection({
   pets,
-  latestChecksByPet = {},
-}: Props) {
-  const dict = useTranslations()
-  const t = dict.dashboard
-  const locale = useLocale()
-  const router = useRouter()
-
-  const [modal, setModal] = useState<ModalState>(null)
-  const [banner, setBanner] = useState<SavedKind | null>(null)
-
-  function handleSaved(kind: SavedKind) {
-    setModal(null)
-    setBanner(kind)
-    router.refresh()
-  }
-
-  useEffect(() => {
-    if (!banner) return
-    const id = window.setTimeout(() => setBanner(null), 4000)
-    return () => window.clearTimeout(id)
-  }, [banner])
-
-  return (
-    <>
-      {banner && (
-        <div
-          role="status"
-          className="mb-6 rounded-2xl border border-status-good-fg/10 bg-status-good-bg px-4 py-3 text-sm font-semibold text-status-good-fg"
-        >
-          {banner === 'created' ? t.petAdded : banner === 'deleted' ? t.petDeleted : t.petSaved}
-        </div>
-      )}
-
-      <section className="app-card mb-6 p-6 sm:p-7">
-        <div className="mb-5 flex items-center justify-between gap-3">
-          <h2 className="text-xl font-extrabold text-text sm:text-2xl">{t.myPets}</h2>
-          <button type="button" onClick={() => setModal('new')} className="app-link shrink-0">
-            {t.addPet}
-          </button>
-        </div>
-        {!pets.length ? (
-          <div className="app-empty-state">
-            <h3 className="text-base font-bold text-text">{t.petsEmptyTitle}</h3>
-            <p className="mt-1.5 text-sm leading-relaxed text-text-muted">
-              <AccentedCopy template={t.noPets} accent={t.noPetsAccent} />
-            </p>
-          </div>
-        ) : (
-          <ul className="grid gap-2">
-            {pets.map(pet => {
-              const latest = latestChecksByPet[pet.id]
-              const urgencyKey = latest?.urgency as UrgencyKey | undefined
-              const statusLabel = urgencyKey && dict.urgency[urgencyKey]?.label
-                ? dict.urgency[urgencyKey].label.charAt(0) + dict.urgency[urgencyKey].label.slice(1).toLowerCase()
-                : null
-              const dateLabel = latest
-                ? new Date(latest.created_at).toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', {
-                    day: 'numeric',
-                    month: 'short',
-                  })
-                : null
-              const speciesLabel = pet.species === 'dog' ? dict.pets.speciesDog : dict.pets.speciesCat
-
-              return (
-                <li key={pet.id}>
-                  <button
-                    type="button"
-                    onClick={() => setModal(pet)}
-                    className="flex w-full items-center justify-between gap-3 rounded-2xl bg-canvas-soft/70 px-3.5 py-3.5 text-left transition-colors hover:bg-canvas-soft"
-                  >
-                    <div className="flex items-center gap-3.5 min-w-0">
-                      <PetAvatar size={48} species={pet.species ?? 'cat'} />
-                      <div className="min-w-0">
-                        <div className="text-base font-bold text-text truncate">
-                          {pet.name}
-                          <span className="ml-2 text-xs font-semibold text-text-faint">{speciesLabel}</span>
-                        </div>
-                        {(pet.breed || pet.age_years) && (
-                          <div className="text-sm text-text-faint truncate">
-                            {[pet.breed, pet.age_years ? `${pet.age_years} ${t.yearsOld}` : null].filter(Boolean).join(', ')}
-                          </div>
-                        )}
-                        <div className="mt-0.5 text-xs text-text-muted truncate">
-                          {latest && statusLabel && dateLabel ? (
-                            <>
-                              {t.lastCheckPrefix}{' '}
-                              <span className={URGENCY_TEXT_CLASS[urgencyKey!] ?? undefined}>{statusLabel}</span>
-                              {' · '}
-                              {dateLabel}
-                            </>
-                          ) : (
-                            t.lastCheckNever
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    <span className="shrink-0 text-text-faint text-lg leading-none" aria-hidden>›</span>
-                  </button>
-                </li>
-              )
-            })}
-          </ul>
-        )}
-      </section>
-
-      {modal && (
-        <PetLocalModal
-          pet={modal === 'new' ? undefined : modal}
-          onClose={() => setModal(null)}
-          onSaved={handleSaved}
-        />
-      )}
-    </>
-  )
-}
-
-function PetLocalModal({
-  pet,
-  onClose,
-  onSaved,
+  latestChecksByPet,
+  dict,
+  locale,
 }: {
-  pet?: Pet
-  onClose: () => void
-  onSaved: (kind: SavedKind) => void
+  pets: Pet[]
+  latestChecksByPet: Record<string, PetLatestCheck>
+  dict: Dictionary
+  locale: Locale
 }) {
-  const dict = useTranslations()
-
-  useEffect(() => {
-    const prev = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => { document.body.style.overflow = prev }
-  }, [])
-
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') onClose()
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [onClose])
-
+  const t = dict.dashboard
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      className="app-overlay fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4"
-      onClick={e => { if (e.target === e.currentTarget) onClose() }}
-    >
-      <div className="app-card relative max-h-[95dvh] w-full overflow-y-auto rounded-b-none sm:max-w-2xl sm:rounded-b-3xl">
-        <button
-          type="button"
-          onClick={onClose}
-          className="app-icon-button absolute top-4 right-4 z-10 text-xl leading-none"
-          aria-label={dict.common.close}
-        >
-          ×
-        </button>
-        <PetForm pet={pet} modal onSaved={onSaved} onCancel={onClose} />
+    <section aria-labelledby="my-pets-title">
+      <div className="section-head section-head-action">
+        <h2 id="my-pets-title">
+          {t.petsHeading}
+          <span className="muted nowrap">{' · '}{pets.length}</span>
+        </h2>
+        <Link href="/pets/new" className="link">
+          <Icon name="plus" />
+          {t.addPetBtn}
+        </Link>
       </div>
-    </div>
+      <div className="grid2">
+        {pets.map(pet => (
+          <PetCard
+            key={pet.id}
+            pet={pet}
+            latestCheck={latestChecksByPet[pet.id]}
+            dict={dict}
+            locale={locale}
+          />
+        ))}
+      </div>
+    </section>
   )
 }

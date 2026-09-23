@@ -1,83 +1,63 @@
-import { createClient, createServiceClient } from '@/server/supabase/server'
-import { loadAccount } from '@/server/auth/account-state'
-import type { User } from '@supabase/supabase-js'
+import 'server-only'
+
+import { createServiceClient } from '@/server/supabase/server'
+import { readExtraCheckRequestStatus } from '@/server/extra-check/extra-check-service'
 import type { Pet, PetLatestCheck } from '@/shared/types'
 import type { SymptomCheckRecord } from '@lapka/contracts'
 import { mapSymptomCheckRow, symptomCheckSelect } from '@/server/symptom-check/map-symptom-check'
 
 export type { PetLatestCheck }
 
-export interface DashboardData {
-  user: User
-  credits: number
-  role: 'admin' | string | null
+export interface PetsOverview {
   pets: Pet[]
-  checks: SymptomCheckRecord[]
-  totalChecks: number
-  latestRequestStatus: 'pending' | 'approved' | 'rejected' | null
+  /** The newest check of each pet, by pet id; a pet with no checks has no entry. */
   latestChecksByPet: Record<string, PetLatestCheck>
 }
 
-const HISTORY_LIMIT = 4
+export interface DashboardData extends PetsOverview {
+  /** The newest checks, for the "recent checks" card. */
+  checks: SymptomCheckRecord[]
+  latestRequestStatus: 'pending' | 'approved' | 'rejected' | null
+}
+
+const HISTORY_LIMIT = 3
+
+/** How many recent checks are scanned for each pet's latest one. */
+const LATEST_PER_PET_SCAN = 50
 
 /**
- * Loads everything the dashboard page renders. Reused by `/dashboard` and by
- * any route that puts a modal on top of the dashboard (pet add/edit, etc.) so
- * we don't duplicate fetch logic.
+ * The user's pets with the latest check of each: what a pet card shows.
+ * Used by the overview and by `/pets`.
  *
- * Returns `null` for a visitor who may not see it — signed out, or an account
- * whose deletion has started — instead of redirecting: where to send them is
- * the page's decision, not this module's.
+ * Takes a user the caller has already let in (see `loadCabinetUser`). A
+ * failed query throws rather than passing for an empty list: "no pets yet"
+ * would send the owner to add a pet they already have.
  */
-export async function loadDashboard(): Promise<DashboardData | null> {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return null
-
+export async function loadPetsOverview(userId: string): Promise<PetsOverview> {
   const service = createServiceClient()
 
-  // The same guard the API uses: a deleting account gets nothing anywhere.
-  const account = await loadAccount(service, user.id)
-  if (!account.ok) return null
-
   const [
-    { data: profile },
-    { data: checks, count: totalChecks },
-    { data: pets },
-    { data: latestRequest },
-    { data: recentPetChecks },
-  ] =
-    await Promise.all([
-      service.from('profiles').select('credits, plan, role').eq('id', user.id).single(),
-      service
-        .from('symptom_checks')
-        .select(symptomCheckSelect(), { count: 'exact' })
-        .eq('user_id', user.id)
-        .is('deleted_at', null)
-        .order('created_at', { ascending: false })
-        .limit(HISTORY_LIMIT),
-      service
-        .from('pets')
-        .select('*')
-        .eq('user_id', user.id)
-        .is('deleted_at', null)
-        .order('created_at', { ascending: true }),
-      service
-        .from('extra_check_requests')
-        .select('status')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle(),
-      service
-        .from('symptom_checks')
-        .select('pet_id, urgency, created_at')
-        .eq('user_id', user.id)
-        .is('deleted_at', null)
-        .not('pet_id', 'is', null)
-        .order('created_at', { ascending: false })
-        .limit(50),
-    ])
+    { data: pets, error: petsError },
+    { data: recentPetChecks, error: recentError },
+  ] = await Promise.all([
+    service
+      .from('pets')
+      .select('*')
+      .eq('user_id', userId)
+      .is('deleted_at', null)
+      .order('created_at', { ascending: true }),
+    service
+      .from('symptom_checks')
+      .select('pet_id, urgency, created_at')
+      .eq('user_id', userId)
+      .is('deleted_at', null)
+      .not('pet_id', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(LATEST_PER_PET_SCAN),
+  ])
+
+  if (petsError) throw new Error(`pets: ${petsError.message}`)
+  if (recentError) throw new Error(`recent pet checks: ${recentError.message}`)
 
   const latestChecksByPet: Record<string, PetLatestCheck> = {}
   for (const row of recentPetChecks ?? []) {
@@ -89,14 +69,33 @@ export async function loadDashboard(): Promise<DashboardData | null> {
     }
   }
 
+  return { pets: (pets ?? []) as Pet[], latestChecksByPet }
+}
+
+/**
+ * Everything the overview renders besides the cabinet frame: pets, the
+ * newest checks and the state of the extra-check request.
+ */
+export async function loadDashboard(userId: string): Promise<DashboardData> {
+  const service = createServiceClient()
+
+  const [overview, checksResult, latestRequestStatus] = await Promise.all([
+    loadPetsOverview(userId),
+    service
+      .from('symptom_checks')
+      .select(symptomCheckSelect())
+      .eq('user_id', userId)
+      .is('deleted_at', null)
+      .order('created_at', { ascending: false })
+      .limit(HISTORY_LIMIT),
+    readExtraCheckRequestStatus(userId),
+  ])
+
+  if (checksResult.error) throw new Error(`recent checks: ${checksResult.error.message}`)
+
   return {
-    user,
-    credits: profile?.credits ?? 0,
-    role: (profile?.role as string | null) ?? null,
-    pets: (pets ?? []) as DashboardData['pets'],
-    checks: (checks ?? []).map(row => mapSymptomCheckRow(row as never)),
-    totalChecks: totalChecks ?? 0,
-    latestRequestStatus: (latestRequest?.status ?? null) as DashboardData['latestRequestStatus'],
-    latestChecksByPet,
+    ...overview,
+    checks: (checksResult.data ?? []).map(row => mapSymptomCheckRow(row as never)),
+    latestRequestStatus,
   }
 }

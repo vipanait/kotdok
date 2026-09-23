@@ -1,3 +1,22 @@
 /* auth screens — additions to the design system in globals.css. */
 @layer components {
+  /* ---------- Landing ---------- */
+
+  /* `.hero p` would make these 18px with a 24px top margin. */
+  .hero .hero-offer { margin-top: 18px; font-size: 13px; }
+  .hero .float-card p { margin: 0; font-size: 14px; }
+
+  /* ---------- Auth ---------- */
+
+  .auth-list li { display: flex; align-items: center; gap: 12px; font-size: 14px; }
+
+  /* The sent state takes focus to its heading; no ring on a heading. */
+  .auth-card h2:focus { outline: none; }
+
+  /* The terms and their error sit together, 24px above the main action. */
+  .auth-card .auth-terms { margin: 15px 0 24px; }
+  .auth-card .auth-terms .terms { margin: 0; }
+  .auth-card .auth-terms .field-error { margin-left: 26px; }
+
+  .auth-card .auth-sent-text { margin-bottom: 24px; }
 }

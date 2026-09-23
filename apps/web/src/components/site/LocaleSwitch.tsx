@@ -4,6 +4,10 @@ import { useRouter } from 'next/navigation'
 import { useLocale, useTranslations } from '@/components/LocaleProvider'
 import { locales, type Locale } from '@/shared/i18n/config'
 
+function rememberLocale(locale: Locale) {
+  document.cookie = `NEXT_LOCALE=${locale}; path=/; max-age=31536000; samesite=lax`
+}
+
 /**
  * RU / EN in the footer. The language lives in the `NEXT_LOCALE` cookie the
  * proxy already reads; switching rewrites it and re-renders on the server.
@@ -15,7 +19,7 @@ export default function LocaleSwitch() {
 
   function choose(next: Locale) {
     if (next === current) return
-    document.cookie = `NEXT_LOCALE=${next}; path=/; max-age=31536000; samesite=lax`
+    rememberLocale(next)
     router.refresh()
   }
 

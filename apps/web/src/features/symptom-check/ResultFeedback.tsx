@@ -8,7 +8,7 @@ import { csrfHeaders } from '@/shared/security/csrf-client'
 type Stage = 'loading' | 'ask' | 'comment' | 'done' | 'hidden'
 
 /**
- * "Was this answer useful?" under one result.
+ * "Was this useful?" beside one result.
  *
  * Inline rather than a modal: a modal over the check modal is what made the
  * earlier prompt misbehave. The rating is stored on the tap, so an answer is
@@ -72,36 +72,32 @@ export default function ResultFeedback({ checkId }: { checkId: string }) {
 
   if (stage === 'done') {
     return (
-      <p className="flex items-center justify-center gap-2 rounded-[20px] bg-canvas-soft p-4 text-sm text-text-muted">
-        <span aria-hidden>✓</span>
-        {t.thanks}
-      </p>
+      <section className="feedback">
+        <p className="feedback-thanks" role="status">
+          <span aria-hidden>✓</span>
+          {t.thanks}
+        </p>
+      </section>
     )
   }
 
   return (
-    <div className="rounded-[20px] bg-canvas-soft p-4 space-y-3">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-sm font-semibold text-text">{t.question}</p>
-        <div className="flex gap-2">
-          {(['liked', 'disliked'] as const).map(value => (
-            <button
-              key={value}
-              type="button"
-              onClick={() => void choose(value)}
-              disabled={sending}
-              aria-label={value === 'liked' ? t.liked : t.disliked}
-              aria-pressed={rating === value}
-              className={`app-focus-ring flex h-11 w-11 items-center justify-center rounded-full border-2 text-lg transition-colors ${
-                rating === value
-                  ? 'border-accent bg-accent/10'
-                  : 'border-hairline bg-card hover:border-accent/50'
-              }`}
-            >
-              <span aria-hidden>{value === 'liked' ? '👍' : '👎'}</span>
-            </button>
-          ))}
-        </div>
+    <section className="feedback" aria-labelledby="feedback-title">
+      <h3 id="feedback-title">{t.title}</h3>
+      <p className="small feedback-subtitle">{t.subtitle}</p>
+      <div className="row">
+        {(['liked', 'disliked'] as const).map(value => (
+          <button
+            key={value}
+            type="button"
+            className="btn secondary"
+            onClick={() => void choose(value)}
+            disabled={sending}
+            aria-pressed={rating === value}
+          >
+            {value === 'liked' ? t.yes : t.no}
+          </button>
+        ))}
       </div>
 
       {stage === 'comment' && (
@@ -113,22 +109,20 @@ export default function ResultFeedback({ checkId }: { checkId: string }) {
             aria-label={t.commentPlaceholder}
             maxLength={500}
             rows={3}
-            className="app-input resize-none"
+            className="input"
           />
           <button
             type="button"
             onClick={() => void submitComment()}
             disabled={sending}
-            className="app-button-primary w-full py-3 text-sm"
+            className="btn primary block"
           >
             {t.submit}
           </button>
         </>
       )}
 
-      {error && (
-        <p className="rounded-xl bg-status-error-bg px-4 py-3 text-sm text-status-error-fg">{error}</p>
-      )}
-    </div>
+      {error && <p className="banner error feedback-error" role="alert">{error}</p>}
+    </section>
   )
 }

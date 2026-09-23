@@ -1,8 +1,13 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { DELETION_COMPLETION_DAYS } from '@lapka/contracts'
-import LapkaLogo from '@/components/LapkaLogo'
+import PublicFooter from '@/components/site/PublicFooter'
+import PublicHeader from '@/components/site/PublicHeader'
+import Icon from '@/components/ui/Icon'
 import { getAuthUser } from '@/server/auth/get-auth-user'
+import { getDictionary } from '@/server/i18n/get-dictionary'
+import { getLocale } from '@/server/i18n/get-locale'
+import { formatCount } from '@/shared/i18n/plural'
 import { supportEmail } from '@/shared/seo'
 import DeleteAccountForm from './DeleteAccountForm'
 
@@ -26,82 +31,62 @@ export const metadata: Metadata = {
  * enough for the server to allow it.
  */
 export default async function AccountDeletionPage() {
-  const user = await getAuthUser()
+  const [locale, user] = await Promise.all([getLocale(), getAuthUser()])
+  const dict = await getDictionary(locale)
+  const t = dict.deletion
+  const days = formatCount(t.timingDays, DELETION_COMPLETION_DAYS, locale)
 
   return (
-    <div className="min-h-screen bg-[#F7F6F4] text-black">
-      <div className="relative mx-auto max-w-[760px] px-6 py-8 sm:px-10 sm:py-10">
-        <header className="flex items-start justify-between">
-          <Link href="/" aria-label="Лапка" className="block">
-            <LapkaLogo />
+    <>
+      <PublicHeader dict={dict} account={user ? 'cabinet' : 'sign-in'} />
+      <main className="reading deletion">
+        <div className="eyebrow">{t.eyebrow}</div>
+        <h1>{t.title}</h1>
+        <p className="banner error">{t.irreversible}</p>
+
+        <section aria-labelledby="deletion-goes">
+          <h2 id="deletion-goes">{t.whatGoesTitle}</h2>
+          <p>{t.whatGoes}</p>
+        </section>
+
+        <section aria-labelledby="deletion-stays">
+          <h2 id="deletion-stays">{t.whatStaysTitle}</h2>
+          <p>{t.whatStays}</p>
+        </section>
+
+        <section aria-labelledby="deletion-timing">
+          <h2 id="deletion-timing">{t.timingTitle}</h2>
+          <p>{t.timing.replace('{days}', days)}</p>
+        </section>
+
+        <section className="card" aria-labelledby="deletion-request">
+          <h2 id="deletion-request">{t.requestTitle}</h2>
+          {user ? (
+            <DeleteAccountForm />
+          ) : (
+            <>
+              <p>{t.signInText}</p>
+              <Link href="/login?next=/account-deletion" className="btn primary">
+                {t.signIn}
+              </Link>
+            </>
+          )}
+        </section>
+
+        <p className="small deletion-support">
+          {t.supportBefore}{' '}
+          <a href={`mailto:${supportEmail}`}>{supportEmail}</a>
+          {t.supportAfter}
+        </p>
+
+        {user && (
+          <Link href="/dashboard" className="link">
+            <Icon name="back" />
+            {t.backToAccount}
           </Link>
-          <Link
-            href="/"
-            className="text-sm font-bold text-black/[.44] transition-colors hover:text-black/70"
-          >
-            На главную
-          </Link>
-        </header>
-
-        <main className="mt-12 lg:mt-[60px]">
-          <h1 className="text-3xl font-extrabold sm:text-4xl">Удаление аккаунта</h1>
-          <p className="mt-3 text-black/[.6]">Это действие нельзя отменить.</p>
-
-          <section className="mt-10">
-            <h2 className="text-xl font-bold">Что будет удалено</h2>
-            <p className="mt-2 text-black/[.7]">
-              Профиль, питомцы, все проверки симптомов и их результаты, запросы на
-              дополнительные проверки и отзывы.
-            </p>
-          </section>
-
-          <section className="mt-8">
-            <h2 className="text-xl font-bold">Что останется</h2>
-            <p className="mt-2 text-black/[.7]">
-              Записи о начислении и списании проверок. Мы обязаны хранить их независимо от аккаунта, но после
-              удаления они больше не будут связаны с вами: в них не остаётся ни адреса
-              почты, ни имени, ни данных о питомцах.
-            </p>
-          </section>
-
-          <section className="mt-8">
-            <h2 className="text-xl font-bold">Сроки</h2>
-            <p className="mt-2 text-black/[.7]">
-              Удаление занимает до {DELETION_COMPLETION_DAYS} дней с момента запроса, обычно
-              намного меньше. Пока оно идёт, вход в аккаунт закрыт и новые проверки не
-              выполняются.
-            </p>
-          </section>
-
-          <section className="mt-10 rounded-2xl border border-black/[.08] bg-white p-6">
-            <h2 className="text-xl font-bold">Отправить запрос</h2>
-            {user ? (
-              <DeleteAccountForm />
-            ) : (
-              <>
-                <p className="mt-2 text-black/[.7]">
-                  Чтобы мы убедились, что аккаунт ваш, войдите. Устанавливать приложение не
-                  нужно — всё делается на этой странице.
-                </p>
-                <Link
-                  href="/login?next=/account-deletion"
-                  className="mt-4 inline-flex items-center justify-center rounded-full bg-[#0F5D50] px-6 py-3 font-bold text-white transition-opacity hover:opacity-90"
-                >
-                  Войти и продолжить
-                </Link>
-              </>
-            )}
-          </section>
-
-          <p className="mt-10 text-sm text-black/[.5]">
-            Что-то пошло не так или квитанция потерялась — напишите на{' '}
-            <a className="underline" href={`mailto:${supportEmail}`}>
-              {supportEmail}
-            </a>
-            .
-          </p>
-        </main>
-      </div>
-    </div>
+        )}
+      </main>
+      <PublicFooter dict={dict} />
+    </>
   )
 }

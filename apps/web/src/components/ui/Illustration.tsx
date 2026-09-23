@@ -30,14 +30,15 @@ export default function Illustration({
   name,
   className = 'art',
   size,
-  priority = false,
+  eager = false,
   fixedSize = false,
 }: {
   name: IllustrationName
   className?: string
   /** Rendered width and height in CSS pixels; picks the right file size. */
   size: number
-  priority?: boolean
+  /** Above the fold: load at once, with high priority. */
+  eager?: boolean
   /** Pin the rendered box to `size`, over whatever the class sets. */
   fixedSize?: boolean
 }) {
@@ -49,7 +50,8 @@ export default function Illustration({
       height={size}
       sizes={`${size}px`}
       className={className}
-      priority={priority}
+      loading={eager ? 'eager' : undefined}
+      fetchPriority={eager ? 'high' : undefined}
       style={fixedSize ? { width: size, height: size } : undefined}
     />
   )

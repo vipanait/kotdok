@@ -1,3 +1,93 @@
 /* cabinet screens — additions to the design system in globals.css. */
 @layer components {
+  .nowrap { white-space: nowrap; }
+
+  /* A button that stays focusable while its request runs. */
+  .btn[aria-disabled='true'] { opacity: 0.55; cursor: default; }
+
+  /* ---------- Banners above the page ---------- */
+
+  .pet-saved-banner,
+  .credits-banner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0 16px;
+    padding-block: 4px;
+  }
+
+  .credits-banner {
+    margin-bottom: 24px;
+    background: var(--soft);
+    color: var(--text);
+  }
+
+  /* ---------- Overview ---------- */
+
+  /* No checks left, or a request is waiting: the next step is the balance. */
+  .welcome-panel.is-waiting { background: var(--soft); }
+
+  .recent-empty { padding: 20px 0; }
+
+  .context-box h3 { max-width: 15em; }
+  .context-box .art { margin-top: 24px; }
+
+  /* ---------- Pet cards ---------- */
+
+  /* Room for the corner arrow, so a long name never runs under it. */
+  .pet-card .row { padding-right: 30px; }
+  .pet-card-title { min-width: 0; }
+  .pet-card .pet-card-profile { margin-top: 8px; }
+
+  /* ---------- Pet profile ---------- */
+
+  .pet-page-title { overflow-wrap: anywhere; }
+
+  .pet-form textarea.input { display: block; }
+
+  .notes-counter {
+    margin-top: 6px;
+    font-size: 12px;
+    text-align: right;
+  }
+
+  .card .notes-counter.is-max { color: var(--red); font-weight: 600; }
+
+  .pet-form .form-error { margin-top: 24px; }
+
+  .form-actions > .row { margin-left: auto; gap: 20px; }
+
+  .pet-form-aside {
+    position: sticky;
+    top: 24px;
+  }
+
+  .pet-form-aside h3 { margin-top: 18px; }
+  .pet-form-aside .link { margin-top: 4px; }
+
+  /* ---------- Dialogs ---------- */
+
+  .modal h2 { font-size: 22px; overflow-wrap: anywhere; }
+  .modal .modal-error { margin: -8px 0 20px; }
+
+  /* ---------- Available checks ---------- */
+
+  .credits-card .credits-body { margin: 14px 0 24px; }
+  .credits-card .credits-note { margin: -12px 0 24px; }
+  .credits-card .credits-error { margin-bottom: 18px; }
+  .credits-action:empty { display: none; }
+  .credits-back { margin-top: 18px; }
+}
+
+@media (max-width: 760px) {
+  .pet-form-aside { position: static; }
+
+  /* Save and cancel first, delete set apart below them. */
+  .form-actions { flex-direction: column-reverse; align-items: stretch; }
+  .form-actions > .row { margin-left: 0; justify-content: flex-end; }
+  .form-actions > .row > .btn { flex: 1 1 auto; }
+  .form-actions > .btn.danger { align-self: flex-start; }
+
+  .credits-card .balance-big { font-size: 52px; }
 }

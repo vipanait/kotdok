@@ -1,11 +1,11 @@
 import type { Metadata } from 'next'
-import { createClient, createServiceClient } from '@/server/supabase/server'
-import { redirect, notFound } from 'next/navigation'
-import Link from 'next/link'
+import { notFound, redirect } from 'next/navigation'
+import CabinetShell from '@/components/cabinet/CabinetShell'
+import CheckResultContent from '@/features/symptom-check/CheckResultContent'
+import { loadCabinetUser } from '@/server/cabinet/load-cabinet'
+import { loadCheckResult } from '@/server/checks/load-check-pages'
 import { getDictionary } from '@/server/i18n/get-dictionary'
 import { getLocale } from '@/server/i18n/get-locale'
-import AppShell from '@/components/AppShell'
-import CheckResultContent from '@/features/symptom-check/CheckResultContent'
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -14,31 +14,19 @@ export const metadata: Metadata = {
 export default async function CheckResultPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
 
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  const cabinet = await loadCabinetUser()
+  if (!cabinet) redirect(`/login?next=${encodeURIComponent(`/check/${id}`)}`)
+
+  // Only the owner's own, not deleted, result; anything else is a 404.
+  const loaded = await loadCheckResult(cabinet.user.id, id)
+  if (!loaded) notFound()
 
   const locale = await getLocale()
   const dict = await getDictionary(locale)
 
-  const service = createServiceClient()
-  const { data: check } = await service
-    .from('symptom_checks')
-    .select('*')
-    .eq('id', id)
-    .eq('user_id', user.id)
-    .is('deleted_at', null)
-    .single()
-
-  if (!check) notFound()
-
   return (
-    <AppShell right={
-      <Link href="/dashboard" className="text-text-muted hover:text-text">{dict.common.back}</Link>
-    }>
-      <div className="bg-card rounded-3xl p-6 sm:p-8">
-        <CheckResultContent check={check} showBackLink />
-      </div>
-    </AppShell>
+    <CabinetShell cabinet={cabinet} active="history" crumb={dict.check.resultCrumb}>
+      <CheckResultContent check={loaded.check} pet={loaded.pet} dict={dict} locale={locale} />
+    </CabinetShell>
   )
 }

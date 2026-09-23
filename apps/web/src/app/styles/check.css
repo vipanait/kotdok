@@ -1,3 +1,125 @@
 /* check screens — additions to the design system in globals.css. */
 @layer components {
+  /* ---------- Form ---------- */
+
+  .check-symptoms-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .check-counter {
+    flex-shrink: 0;
+    margin-left: auto;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .check-clarify {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    margin-bottom: 20px;
+  }
+
+  .check-clarify .optional { margin-left: 12px; }
+
+  /* The chip groups sit in a two-column grid next to the stool select. */
+  .check-form .form-grid .field { margin-bottom: 22px; }
+
+  .check-form .field-label { overflow-wrap: anywhere; }
+  .check-form .chip { max-width: 100%; overflow-wrap: anywhere; }
+
+  .check-form .banner.error { margin: 4px 0 0; }
+
+  .check-notice {
+    display: grid;
+    gap: 6px;
+    background: var(--soft);
+    color: var(--text);
+  }
+
+  .check-notice p { font-size: 14px; color: var(--muted); }
+  .check-notice .link { min-height: 36px; justify-self: start; }
+
+  .check-pet,
+  .result-pet { min-width: 0; }
+
+  .check-pet h3,
+  .result-pet h3 { overflow-wrap: anywhere; }
+
+  .check-pet p,
+  .result-pet p { margin-top: 4px; }
+
+  .check-retry { margin-top: 20px; }
+
+  .loading-box h2:focus { outline: none; }
+
+  /* ---------- Result ---------- */
+
+  /* The urgency is the page's second heading, drawn like the concept's h1. */
+  .result-hero .result-title {
+    margin: 15px 0 10px;
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -0.8px;
+    color: var(--signal);
+  }
+
+  .result-hero-actions { margin-top: 20px; }
+
+  .result-warning {
+    border-color: transparent;
+    background: var(--tint);
+  }
+
+  .result-warning h2 { color: var(--signal); }
+  .result-warning p { color: var(--text); }
+
+  .result-layout .card > p { overflow-wrap: anywhere; }
+
+  .result-details { margin-top: 6px; }
+
+  .result-symptoms {
+    color: var(--text);
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+  }
+
+  .result-answers { margin: 12px 0 0; }
+
+  .result-disclaimer { margin-top: 20px; }
+
+  /* ---------- Feedback ---------- */
+
+  .feedback-subtitle { margin-top: 8px; color: var(--muted); }
+
+  .feedback .btn { flex: 1 1 120px; }
+
+  .feedback .btn.secondary[aria-pressed='true'] {
+    border-color: var(--green);
+    background: var(--mint);
+    color: var(--green);
+  }
+
+  .feedback-thanks {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  .feedback-error { margin-top: 14px; }
+
+  /* ---------- History ---------- */
+
+  .history-month + .history-month { margin-top: 28px; }
+}
+
+@media (max-width: 760px) {
+  .result-hero .result-title { font-size: 29px; }
+
+  .check-form .form-actions > .btn { width: 100%; }
+
+  .history-month .section-head { flex-wrap: wrap; gap: 4px 16px; }
 }

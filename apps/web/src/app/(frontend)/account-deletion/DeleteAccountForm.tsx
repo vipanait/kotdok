@@ -1,15 +1,21 @@
 'use client'
 
-import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useRef, useState } from 'react'
+import { useTranslations } from '@/components/LocaleProvider'
 import { csrfHeaders } from '@/shared/security/csrf-client'
 
 type Stage =
   | { kind: 'idle' }
+  /** Nothing is sent yet: the page asks once more before the irreversible step. */
+  | { kind: 'confirm' }
   | { kind: 'working' }
   /** The session is real but old. Signing in again is the fix, not an error. */
   | { kind: 'reauth' }
   | { kind: 'accepted'; receipt: string }
   | { kind: 'failed' }
+
+const LOGIN_AGAIN = '/login?next=/account-deletion'
 
 /**
  * The button, and the two things that must happen in order behind it.
@@ -19,89 +25,198 @@ type Stage =
  * answer would be missing exactly then. It is kept in `localStorage` rather
  * than with the session, because the session is about to stop existing and the
  * receipt has to outlive it.
+ *
+ * The first press only asks "for good?"; the request starts from the second.
  */
 export default function DeleteAccountForm() {
+  const t = useTranslations().deletion.form
+  const router = useRouter()
   const [stage, setStage] = useState<Stage>({ kind: 'idle' })
+  const startRef = useRef<HTMLButtonElement>(null)
+  const cancelRef = useRef<HTMLButtonElement>(null)
+  const statusRef = useRef<HTMLDivElement>(null)
+  // Where focus goes after the next render: the confirmation opens on
+  // "Cancel", closing it returns to the button that opened it, and an outcome
+  // is read out from its own message.
+  const focusNext = useRef<'cancel' | 'start' | 'status' | null>(null)
+
+  useEffect(() => {
+    const target = focusNext.current
+    focusNext.current = null
+    if (target === 'cancel') cancelRef.current?.focus()
+    else if (target === 'start') startRef.current?.focus()
+    else if (target === 'status') statusRef.current?.focus()
+  }, [stage])
+
+  function openConfirm() {
+    focusNext.current = 'cancel'
+    setStage({ kind: 'confirm' })
+  }
+
+  function closeConfirm() {
+    focusNext.current = 'start'
+    setStage({ kind: 'idle' })
+  }
 
   async function run() {
+    // The pressed button is disabled while the request runs; keep focus on
+    // the (busy) confirmation instead of dropping it to the page.
+    focusNext.current = 'status'
     setStage({ kind: 'working' })
-
-    const proof = await fetch('/api/account-deletion/reauth', {
-      method: 'POST',
-      headers: csrfHeaders({ 'Content-Type': 'application/json' }),
-      body: '{}',
-    })
-
-    if (proof.status === 401) {
-      setStage({ kind: 'reauth' })
-      return
-    }
-    if (!proof.ok) {
-      setStage({ kind: 'failed' })
-      return
-    }
-
-    const { token } = (await proof.json()) as { token: string }
-
-    const bytes = new Uint8Array(32)
-    crypto.getRandomValues(bytes)
-    const receipt = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('')
-
     try {
-      localStorage.setItem('lapka.deletion-receipt', receipt)
+      const proof = await fetch('/api/account-deletion/reauth', {
+        method: 'POST',
+        headers: csrfHeaders({ 'Content-Type': 'application/json' }),
+        body: '{}',
+      })
+
+      if (proof.status === 401) {
+        focusNext.current = 'status'
+        setStage({ kind: 'reauth' })
+        return
+      }
+      if (!proof.ok) {
+        focusNext.current = 'status'
+        setStage({ kind: 'failed' })
+        return
+      }
+
+      const { token } = (await proof.json()) as { token: string }
+
+      const bytes = new Uint8Array(32)
+      crypto.getRandomValues(bytes)
+      const receipt = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('')
+
+      try {
+        localStorage.setItem('lapka.deletion-receipt', receipt)
+      } catch {
+        // A browser that refuses storage still gets to delete the account; they
+        // just lose the way to check the status later, and the page says so.
+      }
+
+      const response = await fetch('/api/account-deletion', {
+        method: 'POST',
+        headers: csrfHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ receipt_secret: receipt, reauth_token: token }),
+      })
+
+      focusNext.current = 'status'
+      setStage(response.status === 202 ? { kind: 'accepted', receipt } : { kind: 'failed' })
     } catch {
-      // A browser that refuses storage still gets to delete the account; they
-      // just lose the way to check the status later, and the page says so.
+      // No answer at all (the network, most likely). Same as a refusal: say so
+      // and offer to try again, rather than spinning forever.
+      focusNext.current = 'status'
+      setStage({ kind: 'failed' })
     }
+  }
 
-    const response = await fetch('/api/account-deletion', {
-      method: 'POST',
-      headers: csrfHeaders({ 'Content-Type': 'application/json' }),
-      body: JSON.stringify({ receipt_secret: receipt, reauth_token: token }),
-    })
-
-    setStage(response.status === 202 ? { kind: 'accepted', receipt } : { kind: 'failed' })
+  /**
+   * A signed-in visitor is sent from /login straight to the cabinet, so
+   * "sign in again" has to end the old session first. Whatever the answer,
+   * the login page is where they go next.
+   */
+  async function signInAgain() {
+    try {
+      await fetch('/api/auth/signout', {
+        method: 'POST',
+        headers: csrfHeaders(),
+        redirect: 'manual',
+      })
+    } finally {
+      router.push(LOGIN_AGAIN)
+    }
   }
 
   if (stage.kind === 'accepted') {
     return (
-      <div className="mt-4">
-        <p className="font-bold">Запрос принят</p>
-        <p className="mt-2 text-black/[.7]">
-          Мы начали удаление. Это не мгновенно — страницу можно закрыть. Номер квитанции
-          сохранён в этом браузере, по нему можно узнать статус позже.
-        </p>
-        <p className="mt-3 break-all rounded-xl bg-black/[.04] p-3 font-mono text-xs">
+      <div ref={statusRef} tabIndex={-1} className="deletion-outcome" role="status">
+        <h3>{t.acceptedTitle}</h3>
+        <p>{t.accepted}</p>
+        <p className="deletion-receipt-label" id="deletion-receipt-label">{t.receiptLabel}</p>
+        <p className="deletion-receipt" aria-labelledby="deletion-receipt-label">
           {stage.receipt}
         </p>
-        <p className="mt-2 text-sm text-black/[.5]">
-          Сохраните эту строку, если собираетесь спрашивать статус из другого браузера.
-        </p>
+        <p className="small">{t.receiptHint}</p>
+      </div>
+    )
+  }
+
+  if (stage.kind === 'reauth') {
+    return (
+      <div ref={statusRef} tabIndex={-1} className="deletion-outcome">
+        <p className="banner" role="status">{t.reauth}</p>
+        <a
+          href={LOGIN_AGAIN}
+          className="btn primary"
+          onClick={(event) => {
+            event.preventDefault()
+            void signInAgain()
+          }}
+        >
+          {t.reauthAction}
+        </a>
+      </div>
+    )
+  }
+
+  if (stage.kind === 'confirm' || stage.kind === 'working') {
+    const working = stage.kind === 'working'
+    return (
+      <div
+        ref={statusRef}
+        tabIndex={-1}
+        className="deletion-confirm"
+        role="group"
+        aria-labelledby="deletion-confirm-title"
+        aria-describedby="deletion-confirm-text"
+        aria-busy={working}
+        onKeyDown={(event) => {
+          if (event.key === 'Escape' && !working) {
+            event.preventDefault()
+            closeConfirm()
+          }
+        }}
+      >
+        <h3 id="deletion-confirm-title">{t.confirmTitle}</h3>
+        <p id="deletion-confirm-text">{t.confirmText}</p>
+        <div className="row">
+          <button
+            type="button"
+            className="btn danger solid"
+            onClick={() => void run()}
+            disabled={working}
+          >
+            {working ? t.working : t.confirm}
+          </button>
+          <button
+            ref={cancelRef}
+            type="button"
+            className="btn secondary"
+            onClick={closeConfirm}
+            disabled={working}
+          >
+            {t.cancel}
+          </button>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="mt-4">
-      {stage.kind === 'reauth' ? (
-        <p className="mb-3 text-black/[.7]">
-          С момента входа прошло много времени. Войдите заново и повторите — так удаление не
-          сможет запустить тот, кто просто сел за ваш компьютер.
-        </p>
+    <div className="deletion-outcome" ref={statusRef} tabIndex={-1}>
+      {stage.kind === 'failed' ? (
+        <p className="banner error" role="alert">{t.failed}</p>
       ) : null}
 
       {stage.kind === 'failed' ? (
-        <p className="mb-3 text-[#B3261E]">Не получилось. Попробуйте ещё раз или напишите нам.</p>
-      ) : null}
-
-      <button
-        type="button"
-        onClick={() => void run()}
-        disabled={stage.kind === 'working'}
-        className="inline-flex items-center justify-center rounded-full border-2 border-[#B3261E] px-6 py-3 font-bold text-[#B3261E] transition-colors hover:bg-[#B3261E] hover:text-white disabled:opacity-50"
-      >
-        {stage.kind === 'working' ? 'Отправляем…' : 'Удалить аккаунт'}
-      </button>
+        <button type="button" className="btn danger solid" onClick={() => void run()}>
+          {t.retry}
+        </button>
+      ) : (
+        <button ref={startRef} type="button" className="btn danger" onClick={openConfirm}>
+          {t.start}
+        </button>
+      )}
     </div>
   )
 }
