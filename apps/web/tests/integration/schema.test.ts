@@ -33,6 +33,7 @@ const SERVICE_ONLY_TABLES = new Set([
   'check_jobs',
   'deletion_jobs',
   'financial_archive',
+  'photo_uploads',
   'reauth_proofs',
   'vet_knowledge',
 ])
@@ -45,6 +46,7 @@ const REQUIRED_TABLES = [
   'extra_check_requests',
   'financial_archive',
   'pets',
+  'photo_uploads',
   'profiles',
   'reauth_proofs',
   'symptom_checks',
@@ -56,6 +58,7 @@ const REQUIRED_FUNCTIONS = [
   'apply_symptom_check_usage',
   'archive_account_financials',
   'claim_deletion_job',
+  'claim_photo_uploads',
   'complete_deletion_job',
   'consume_rate_limit',
   'consume_reauth_proof',
