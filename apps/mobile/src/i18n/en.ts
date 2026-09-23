@@ -147,6 +147,13 @@ export const en: Dictionary = {
     youDescribed: 'What you described',
     disclaimer: 'This is not a diagnosis. Only a veterinarian decides on treatment.',
     newCheck: 'New check',
+    feedbackQuestion: 'Was this answer useful?',
+    feedbackLiked: 'Useful',
+    feedbackDisliked: 'Not useful',
+    feedbackComment: 'What could be better? Optional',
+    feedbackSend: 'Send',
+    feedbackThanks: 'Thanks, noted',
+    feedbackFailed: 'Could not send the feedback',
   },
 
   history: {

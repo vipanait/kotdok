@@ -4,7 +4,7 @@ import { ApiErrorEnvelopeSchema, ERROR_STATUS, type ErrorCode } from './errors'
 import { ProfileUpdateInputSchema, PublicProfileSchema } from './profile'
 import { PetCreateInputSchema, PetSchema, PetUpdateInputSchema } from './pet'
 import { CheckHistoryPageSchema, SymptomCheckRecordSchema } from './check'
-import { ExtraCheckRequestStatusSchema, FeedbackInputSchema } from './credits'
+import { CheckFeedbackSchema, ExtraCheckRequestStatusSchema, FeedbackInputSchema } from './credits'
 import {
   CheckCreateInputSchema,
   CheckJobAcceptedSchema,
@@ -47,6 +47,7 @@ const COMPONENTS: Array<[string, z.ZodType]> = [
   ['UploadGrant', UploadGrantSchema],
   ['ExtraCheckRequestStatus', ExtraCheckRequestStatusSchema],
   ['FeedbackInput', FeedbackInputSchema],
+  ['CheckFeedback', CheckFeedbackSchema],
   ['ReauthRequest', ReauthRequestSchema],
   ['ReauthProof', ReauthProofSchema],
   ['AccountDeletionRequest', AccountDeletionRequestSchema],
@@ -309,6 +310,16 @@ export function buildOpenApiDocument(): Record<string, unknown> {
           },
         },
       },
+      '/checks/{id}/feedback': {
+        parameters: [idParam],
+        get: {
+          summary: 'The opinion already given on this result, if any',
+          responses: {
+            '200': json('CheckFeedback', 'The rating, or null'),
+            ...commonErrors('not_found'),
+          },
+        },
+      },
       '/check-jobs/{job_id}': {
         parameters: [{ ...idParam, name: 'job_id' }],
         get: {
@@ -338,11 +349,12 @@ export function buildOpenApiDocument(): Record<string, unknown> {
       },
       '/feedback': {
         post: {
-          summary: 'Send feedback',
+          summary: 'Rate one result',
+          description: 'A second opinion on the same check replaces the first.',
           requestBody: body('FeedbackInput'),
           responses: {
             '204': { description: 'Stored' },
-            ...commonErrors('bad_request'),
+            ...commonErrors('bad_request', 'not_found'),
           },
         },
       },

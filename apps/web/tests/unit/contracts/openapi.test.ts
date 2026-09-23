@@ -42,6 +42,7 @@ describe('OpenAPI document', () => {
       '/check-jobs/{job_id}',
       '/checks',
       '/checks/{id}',
+      '/checks/{id}/feedback',
       '/credits/extra-request',
       '/feedback',
       '/health',

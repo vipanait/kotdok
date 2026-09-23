@@ -204,3 +204,36 @@ describe('the analysis service refuses before it spends anything', () => {
     await fixtureDb.end()
   })
 })
+
+describe('the mobile analysis route', () => {
+  it('spends one unit of the allowance per request, the same as the site', async () => {
+    const { NextRequest } = await import('next/server')
+    const { POST } = await import('@/app/(backend)/api/v1/checks/route')
+    const { seedFixtures, OWNER_A, FIXTURE_PASSWORD, PET_IDS } = await import('./fixtures')
+
+    const seeded = await seedFixtures(db)
+    const anon = createClient(process.env.TEST_SUPABASE_URL!, process.env.TEST_SUPABASE_ANON_KEY!, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    })
+    const { data, error } = await anon.auth.signInWithPassword({ email: OWNER_A.email, password: FIXTURE_PASSWORD })
+    if (error) throw error
+
+    // Someone else's pet: the service refuses it after the allowance is spent
+    // and before a credit or the model is touched, so nothing leaves the machine.
+    const response = await POST(
+      new NextRequest('http://test.local/api/v1/checks', {
+        method: 'POST',
+        headers: { authorization: `Bearer ${data.session!.access_token}`, 'content-type': 'application/json' },
+        body: JSON.stringify({ symptoms: 'coughing for two days', pet_id: PET_IDS.bCat }),
+      }),
+      undefined as never,
+    )
+    expect(response.status).toBe(404)
+
+    const { rows } = await db.query<{ request_count: number }>(
+      `select request_count from public.api_rate_limits where bucket = $1`,
+      [`analysis_create:${seeded.ownerAId}`],
+    )
+    expect(rows[0].request_count).toBe(1)
+  })
+})

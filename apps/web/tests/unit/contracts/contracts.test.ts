@@ -4,6 +4,7 @@ import {
   CheckHistoryPageSchema,
   ERROR_CODES,
   ExtraCheckRequestStatusSchema,
+  CheckFeedbackSchema,
   FeedbackInputSchema,
   PetCreateInputSchema,
   PetSchema,
@@ -184,8 +185,16 @@ describe('remaining contracts', () => {
   })
 
   it('bounds feedback input', () => {
-    expect(FeedbackInputSchema.parse({ rating: 'liked' })).toEqual({ rating: 'liked' })
-    expect(() => FeedbackInputSchema.parse({ rating: 'meh' })).toThrow()
-    expect(() => FeedbackInputSchema.parse({ rating: 'liked', comment: 'x'.repeat(2001) })).toThrow()
+    const check_id = '11111111-1111-4111-8111-000000000101'
+    expect(FeedbackInputSchema.parse({ check_id, rating: 'liked' })).toEqual({ check_id, rating: 'liked' })
+    expect(() => FeedbackInputSchema.parse({ rating: 'liked' })).toThrow()
+    expect(() => FeedbackInputSchema.parse({ check_id, rating: 'meh' })).toThrow()
+    expect(() => FeedbackInputSchema.parse({ check_id, rating: 'liked', comment: 'x'.repeat(2001) })).toThrow()
+  })
+
+  it('reports the opinion on a check, or its absence', () => {
+    expect(CheckFeedbackSchema.parse({ rating: 'disliked' }).rating).toBe('disliked')
+    expect(CheckFeedbackSchema.parse({ rating: null }).rating).toBeNull()
+    expect(() => CheckFeedbackSchema.parse({ rating: 'meh' })).toThrow()
   })
 })

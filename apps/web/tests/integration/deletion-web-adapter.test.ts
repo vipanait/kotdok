@@ -87,6 +87,9 @@ function webRequest(body: unknown, options: { csrf?: boolean } = {}): NextReques
 beforeAll(async () => {
   db = await connect()
   seeded = await seedFixtures(db)
+  // The fixture reset leaves deletion jobs alone, and this file counts them:
+  // without this it passed or failed depending on which file ran before it.
+  await db.query('delete from public.deletion_jobs')
 })
 
 afterAll(async () => {

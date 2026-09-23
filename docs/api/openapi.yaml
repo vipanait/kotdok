@@ -783,6 +783,10 @@ components:
     FeedbackInput:
       type: object
       properties:
+        check_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
         rating:
           type: string
           enum:
@@ -791,6 +795,20 @@ components:
         comment:
           type: string
           maxLength: 2000
+      required:
+        - check_id
+        - rating
+      additionalProperties: false
+    CheckFeedback:
+      type: object
+      properties:
+        rating:
+          anyOf:
+            - type: string
+              enum:
+                - liked
+                - disliked
+            - type: "null"
       required:
         - rating
       additionalProperties: false
@@ -1813,6 +1831,73 @@ paths:
                   code: internal_error
                   message: Unexpected server error
                   request_id: 01J000000000000000000000
+  /checks/{id}/feedback:
+    parameters:
+      - *a1
+    get:
+      summary: The opinion already given on this result, if any
+      responses:
+        "200":
+          description: The rating, or null
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckFeedback"
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted
+                  request_id: 01J000000000000000000000
+        "404":
+          description: No such resource for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: not_found
+                  message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
   /check-jobs/{job_id}:
     parameters:
       - name: job_id
@@ -2004,7 +2089,8 @@ paths:
                   request_id: 01J000000000000000000000
   /feedback:
     post:
-      summary: Send feedback
+      summary: Rate one result
+      description: A second opinion on the same check replaces the first.
       requestBody:
         required: true
         content:
@@ -2046,6 +2132,17 @@ paths:
                 error:
                   code: account_deleting
                   message: Account is being deleted
+                  request_id: 01J000000000000000000000
+        "404":
+          description: No such resource for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: not_found
+                  message: No such resource for this user
                   request_id: 01J000000000000000000000
         "429":
           description: Too many requests

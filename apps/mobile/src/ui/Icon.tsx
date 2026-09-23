@@ -30,6 +30,8 @@ const paths = {
   wifi: '<path d="M3 8c5-4 13-4 18 0M6 12c4-3 8-3 12 0m-9 4c2-1 4-1 6 0m-3 4h.01M3 3l18 18"/>',
   history: '<path d="M3 12a9 9 0 1 0 3-7L3 8m0-5v5h5m4-2v6l4 2"/>',
   mail: '<rect x="3" y="5" width="18" height="14" rx="3"/><path d="m3 6 9 7 9-7"/>',
+  thumb: '<path d="M8 10l5-7c3 0 1 7 1 7h6l-2 11H8Zm-5 0h5v11H3Z"/>',
+  thumbdown: '<g transform="rotate(180 12 12)"><path d="M8 10l5-7c3 0 1 7 1 7h6l-2 11H8Zm-5 0h5v11H3Z"/></g>',
 } as const
 
 export type IconName = keyof typeof paths

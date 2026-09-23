@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/features/auth/lib/supabase-browser'
-import { useTranslations } from '@/components/LocaleProvider'
+import { useLocale, useTranslations } from '@/components/LocaleProvider'
+import { emailSignUpOptions } from '@/features/auth/lib/sign-up-options'
 import { DEFAULT_NEXT_PATH, getSafeNextPath } from '@/shared/security/safe-next'
 import { PASSWORD_MIN } from '@/shared/security/password'
 
@@ -215,6 +216,7 @@ function LoginPanel({
 
 function RegisterPanel({ onSwitch }: { onSwitch: (m: AuthMode) => void }) {
   const dict = useTranslations()
+  const locale = useLocale()
   const t = dict.auth.register
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -240,9 +242,7 @@ function RegisterPanel({ onSwitch }: { onSwitch: (m: AuthMode) => void }) {
     const supabase = createClient()
     const { error } = await supabase.auth.signUp({
       email: trimmedEmail, password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(safeNext())}`,
-      },
+      options: emailSignUpOptions(window.location.origin, safeNext(), locale),
     })
     if (error) { setError(registrationErrorMessage(error, t)); setLoading(false); return }
     setEmail(trimmedEmail)

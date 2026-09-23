@@ -18,7 +18,11 @@ export const POST = withApiAuth(async (request: NextRequest, context: ApiContext
     return apiError(context.requestId, 'bad_request', 'Body does not match the contract')
   }
 
-  const result = await submitFeedback(createServiceClient(), context.account.userId, parsed.data)
+  const result = await submitFeedback(createServiceClient(), context.account.userId, {
+    checkId: parsed.data.check_id,
+    rating: parsed.data.rating,
+    comment: parsed.data.comment,
+  })
 
   if (!result.ok) {
     switch (result.reason) {
@@ -28,6 +32,8 @@ export const POST = withApiAuth(async (request: NextRequest, context: ApiContext
         return apiError(context.requestId, 'account_deleting', 'Account is being deleted')
       case 'account_not_found':
         return apiError(context.requestId, 'unauthorized', 'Access token is not valid')
+      case 'not_found':
+        return apiError(context.requestId, 'not_found', 'No such resource')
       default:
         // A storage failure must never be reported as a stored opinion.
         return apiError(context.requestId, 'internal_error', 'Could not save the feedback')

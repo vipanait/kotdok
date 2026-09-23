@@ -7,28 +7,32 @@ import type { FeedbackRating } from '@/shared/types'
 
 type SupabaseService = ReturnType<typeof createServiceClient>
 
-/** How long a user has to wait before sending feedback again. */
-const COOLDOWN_MS = 24 * 60 * 60 * 1000
 const COMMENT_MAX = 500
 
 export type FeedbackFailure =
   | 'account_deleting'
   | 'account_not_found'
+  | 'not_found'
   | 'too_many_requests'
   | 'storage_error'
 
 export type FeedbackResult = { ok: true } | { ok: false; reason: FeedbackFailure }
 
+export type CheckFeedbackResult =
+  | { ok: true; rating: FeedbackRating | null }
+  | { ok: false; reason: Exclude<FeedbackFailure, 'too_many_requests'> }
+
+type AccessFailure = { ok: false; reason: 'account_deleting' | 'account_not_found' | 'not_found' | 'storage_error' }
+
 /**
- * Stores one piece of feedback and marks the profile, so the prompt is not
- * shown again. Returns plain outcomes; the adapter maps them to statuses.
+ * The account may act, and the check is one of its own that still shows.
+ * Someone else's check is indistinguishable from one that never existed.
  */
-export async function submitFeedback(
+async function requireOwnCheck(
   supabase: SupabaseService,
   userId: string,
-  input: { rating: FeedbackRating; comment?: string },
-  now: Date = new Date(),
-): Promise<FeedbackResult> {
+  checkId: string,
+): Promise<{ ok: true } | AccessFailure> {
   const account = await loadAccount(supabase, userId)
   if (!account.ok) {
     return {
@@ -37,41 +41,72 @@ export async function submitFeedback(
     }
   }
 
+  const { data, error } = await supabase
+    .from('symptom_checks')
+    .select('id')
+    .eq('id', checkId)
+    .eq('user_id', userId)
+    .is('deleted_at', null)
+    .maybeSingle()
+
+  if (error) return { ok: false, reason: 'storage_error' }
+  if (!data) return { ok: false, reason: 'not_found' }
+  return { ok: true }
+}
+
+/**
+ * Stores the opinion on one check, replacing any earlier one on the same check.
+ * Returns plain outcomes; the adapter maps them to statuses.
+ */
+export async function submitFeedback(
+  supabase: SupabaseService,
+  userId: string,
+  input: { checkId: string; rating: FeedbackRating; comment?: string },
+  now: Date = new Date(),
+): Promise<FeedbackResult> {
+  const access = await requireOwnCheck(supabase, userId, input.checkId)
+  if (!access.ok) return access
+
   const rate = await consumeRateLimit(supabase, 'feedback_submit', userId, now)
   if (!rate.allowed) return { ok: false, reason: 'too_many_requests' }
 
-  const since = new Date(now.getTime() - COOLDOWN_MS).toISOString()
-  const { data: recentFeedback } = await supabase
+  const { error } = await supabase
     .from('user_feedback')
-    .select('id')
-    .eq('user_id', userId)
-    .gte('created_at', since)
-    .limit(1)
-    .maybeSingle()
+    .upsert(
+      {
+        user_id: userId,
+        symptom_check_id: input.checkId,
+        rating: input.rating,
+        comment: input.comment?.slice(0, COMMENT_MAX) ?? null,
+        updated_at: now.toISOString(),
+      },
+      { onConflict: 'symptom_check_id' },
+    )
 
-  if (recentFeedback) return { ok: false, reason: 'too_many_requests' }
-
-  const { error: insertError } = await supabase
-    .from('user_feedback')
-    .insert({
-      user_id: userId,
-      rating: input.rating,
-      comment: input.comment?.slice(0, COMMENT_MAX) ?? null,
-    })
-
-  if (insertError) {
-    console.error('feedback insert error:', insertError)
+  if (error) {
+    console.error('feedback upsert error:', error)
     return { ok: false, reason: 'storage_error' }
   }
 
-  // Best effort: the feedback is already stored, so a failure here must not be
-  // reported to the user as a failure to save it.
-  const { error: profileError } = await supabase
-    .from('profiles')
-    .update({ feedback_submitted_at: now.toISOString() })
-    .eq('id', userId)
-
-  if (profileError) console.error('feedback profile update error:', profileError)
-
   return { ok: true }
+}
+
+/** The opinion already given on a check, so the result screen does not ask twice. */
+export async function getCheckFeedback(
+  supabase: SupabaseService,
+  userId: string,
+  checkId: string,
+): Promise<CheckFeedbackResult> {
+  const access = await requireOwnCheck(supabase, userId, checkId)
+  if (!access.ok) return access
+
+  const { data, error } = await supabase
+    .from('user_feedback')
+    .select('rating')
+    .eq('symptom_check_id', checkId)
+    .eq('user_id', userId)
+    .maybeSingle()
+
+  if (error) return { ok: false, reason: 'storage_error' }
+  return { ok: true, rating: (data?.rating as FeedbackRating | undefined) ?? null }
 }

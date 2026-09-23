@@ -17,8 +17,11 @@ export const RATE_LIMITS = {
   analysis_create: { limit: 10, windowSeconds: 60 * 60 },
   /** Asking for a free extra check notifies a human. */
   extra_check_request: { limit: 5, windowSeconds: 60 * 60 },
-  /** Feedback already has a 24h cooldown; this stops hammering the endpoint. */
-  feedback_submit: { limit: 10, windowSeconds: 24 * 60 * 60 },
+  /**
+   * One opinion per check, sent up to twice (the rating on tap, the comment
+   * after). Checks are scarce, so this only stops hammering the endpoint.
+   */
+  feedback_submit: { limit: 30, windowSeconds: 24 * 60 * 60 },
   /** Pollable without a session, so it is limited by receipt, not by user. */
   deletion_status: { limit: 60, windowSeconds: 60 * 60 },
 } as const
