@@ -73,6 +73,13 @@ function request(userId: string, overrides: Record<string, unknown> = {}) {
   } as Parameters<typeof createCheckJob>[1]
 }
 
+async function lastJob() {
+  const { rows } = await db.query(
+    'select status, error_code from public.check_jobs order by created_at desc limit 1',
+  )
+  return rows[0] as { status: string; error_code: string | null }
+}
+
 async function counts() {
   const { rows } = await db.query(
     `select (select count(*)::int from storage.objects where bucket_id = $1) as objects,
@@ -119,7 +126,7 @@ describe('a check with photos', () => {
     expect(await counts()).toMatchObject({ objects: 0, uploads: 0 })
   })
 
-  it('refuses a granted upload whose file never arrived, before any job or credit', async () => {
+  it('refuses a granted upload whose file never arrived, before any credit', async () => {
     const grant = await grantUploads(service() as never, fixtures.ownerAId, [
       { content_type: 'image/jpeg', size_bytes: 10 },
     ])
@@ -133,7 +140,8 @@ describe('a check with photos', () => {
 
     expect(outcome).toMatchObject({ ok: false, code: 'bad_request' })
     expect(seen.calls).toBe(0)
-    expect(await counts()).toEqual({ objects: 0, uploads: 0, jobs: 0 })
+    expect(await counts()).toEqual({ objects: 0, uploads: 0, jobs: 1 })
+    expect(await lastJob()).toEqual({ status: 'failed', error_code: 'bad_request' })
   })
 
   it('refuses a file that only claims to be a JPEG, and removes it', async () => {
@@ -144,7 +152,8 @@ describe('a check with photos', () => {
 
     expect(outcome).toMatchObject({ ok: false, code: 'unsupported_media_type' })
     expect(seen.calls).toBe(0)
-    expect(await counts()).toEqual({ objects: 0, uploads: 0, jobs: 0 })
+    expect(await counts()).toEqual({ objects: 0, uploads: 0, jobs: 1 })
+    expect(await lastJob()).toEqual({ status: 'failed', error_code: 'unsupported_media_type' })
   })
 
   it('refuses someone else’s upload and leaves it to its owner', async () => {
@@ -155,6 +164,26 @@ describe('a check with photos', () => {
 
     expect(outcome).toMatchObject({ ok: false, code: 'bad_request' })
     expect(await counts()).toMatchObject({ objects: 1, uploads: 1 })
+  })
+
+  it('gives a repeat of a refused request the same job, not a second attempt', async () => {
+    // The job is recorded before the photos are taken, so a repeat that arrives
+    // while the first attempt is still reading them finds it by its key.
+    const grant = await grantUploads(service() as never, fixtures.ownerAId, [
+      { content_type: 'image/jpeg', size_bytes: 10 },
+    ])
+    const { analyse } = recording()
+    const same = request(fixtures.ownerAId, {
+      upload_ids: [grant!.uploads[0].upload_id],
+      idempotencyKey: 'photo-refused-0001',
+    })
+
+    const first = await createCheckJob(service() as never, same, analyse)
+    const again = await createCheckJob(service() as never, same, analyse)
+
+    expect(first).toMatchObject({ ok: false, code: 'bad_request' })
+    expect(again).toMatchObject({ ok: true, reused: true })
+    expect(await counts()).toMatchObject({ jobs: 1 })
   })
 
   it('answers a repeat of the same request with the job already made', async () => {
