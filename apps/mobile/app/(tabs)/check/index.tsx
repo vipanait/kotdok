@@ -18,7 +18,6 @@ import {
   STOOL_VALUES,
   type Pet,
 } from '@lapka/contracts'
-import { ApiError } from '@lapka/shared'
 import { withFreshSession } from '@/lib/api'
 import { AppError, describeFailure, errorMessage, submitCheckMessage } from '@/lib/errors'
 import { preparePhoto, putPhoto } from '@/lib/photo-io'
@@ -40,6 +39,7 @@ import {
   takeFinishedCheck,
 } from '@/features/checks/pending-check'
 import {
+  afterFailedSend,
   emptyCheckForm,
   formToCheckInput,
   newIdempotencyKey,
@@ -394,10 +394,9 @@ export default function NewCheck() {
       if (userId) rememberPendingCheck(userId, jobId)
       await forgetDraft()
     } catch (cause) {
-      // The server answered, so these uploads were either used up or refused:
-      // the next try uploads afresh. After a timeout nothing is known, and the
-      // same ids let a repeat find the job the first attempt may have made.
-      if (cause instanceof ApiError) uploaded.current = null
+      const next = afterFailedSend(cause)
+      if (!next.keepKey) key.current = null
+      if (!next.keepUploads) uploaded.current = null
       if (!onScreen.current) return
       setFailure({
         text: submitCheckMessage(t, cause, photos.length > 0),
