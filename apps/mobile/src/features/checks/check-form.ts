@@ -19,6 +19,8 @@ import {
   SYMPTOMS_MIN,
   type CheckCreateInput,
 } from '@lapka/contracts'
+import { ApiError } from '@lapka/shared'
+import { PhotoUploadError } from './photo-upload'
 
 export type CheckForm = {
   petId: string | null
@@ -99,4 +101,23 @@ export function formToCheckInput(t: Dictionary, form: CheckForm): CheckFormResul
  */
 export function newIdempotencyKey(random: () => string = () => Math.random().toString(36).slice(2)) {
   return `check-${Date.now().toString(36)}-${random()}${random()}`
+}
+
+/**
+ * What a failed send leaves for the next try: the idempotency key, and the
+ * photos already in storage.
+ *
+ * A server that answered with its own error envelope has settled that key —
+ * the job, if one was made, already carries the outcome, and sending the same
+ * key again would only bring that failure back after another round of polling.
+ * A timeout, a dropped connection or a bare gateway page settle nothing: the
+ * check may exist, and only the same key with the same upload ids lets a repeat
+ * find it. A photo that never reached storage was never part of a request.
+ */
+export function afterFailedSend(cause: unknown): { keepKey: boolean; keepUploads: boolean } {
+  if (cause instanceof PhotoUploadError) return { keepKey: true, keepUploads: false }
+  if (cause instanceof ApiError && cause.requestId !== null) {
+    return { keepKey: false, keepUploads: false }
+  }
+  return { keepKey: true, keepUploads: true }
 }

@@ -3,10 +3,13 @@
  *
  * The contract has always described creating a check as accepting work rather
  * than returning a result. That shape is kept here even though the work happens
- * inside the request: photographs and the background worker were moved to the
- * end of the queue, so there is nowhere to hand the job to yet. A client polls
- * the job either way, which is what stops stage 6 from becoming a breaking
- * change for anything already written against this.
+ * inside the request: the background worker was moved to the end of the queue,
+ * so there is nowhere to hand the job to yet. A client polls the job either way,
+ * which is what stops stage 6 from becoming a breaking change for anything
+ * already written against this.
+ *
+ * Photos arrive as upload ids: they are claimed and checked before any credit
+ * is reserved, and removed as soon as the analysis is over.
  *
  * No `next/*` import belongs in this file — the route adapter turns these
  * outcomes into responses.
@@ -19,7 +22,10 @@ import {
   analyzeSymptomCheck,
   type AnalyzeSymptomCheckInput,
   type AnalyzeSymptomCheckOutcome,
+  type AnalysisPhoto,
 } from '@/server/symptom-check/analyze-symptom-check'
+import { loadPhotosForCheck, type ClaimedUpload } from '@/server/uploads/photo-attach'
+import { removeUploads } from '@/server/uploads/photo-storage'
 
 type SupabaseService = ReturnType<typeof createServiceClient>
 
@@ -56,26 +62,16 @@ export type CheckJobRecord = {
 /**
  * Accepts an analysis and runs it.
  *
- * @returns the job to poll, or why nothing was started. A refusal here means no
- *   job exists at all: a client that gets one has nothing to poll for, and a
- *   credit was never touched.
+ * @returns the job to poll, or why the analysis was not run. No refusal touches
+ *   a credit. A refusal of the photos is also recorded on the job, which exists
+ *   by then: the job is made before the photos are taken, so a repeat of the
+ *   same request always finds it by its key, however far the first one got.
  */
 export async function createCheckJob(
   supabase: SupabaseService,
   input: CreateCheckJobInput,
   analyse: Analyse = analyzeSymptomCheck,
 ): Promise<CreateCheckJobOutcome> {
-  // Photographs are switched off product-wide until stage 6. Saying so plainly
-  // beats accepting the ids and quietly analysing text only, which would look
-  // to the sender like the pictures were considered.
-  if (input.upload_ids.length > 0) {
-    return {
-      ok: false,
-      code: 'bad_request',
-      message: 'Загрузка фотографий пока недоступна',
-    }
-  }
-
   if (input.idempotencyKey) {
     const existing = await findByIdempotencyKey(supabase, input.userId, input.idempotencyKey)
     // A repeat of a request already accepted returns the same job rather than
@@ -105,11 +101,39 @@ export async function createCheckJob(
 
   const jobId: string = created.id
 
+  let photos: AnalysisPhoto[] = []
+  let uploads: ClaimedUpload[] = []
+  if (input.upload_ids.length > 0) {
+    const loaded = await loadPhotosForCheck(supabase, input.userId, input.upload_ids)
+    if (!loaded.ok) {
+      await finish(supabase, jobId, { status: 'failed', error_code: loaded.code })
+      return loaded
+    }
+    photos = loaded.photos
+    uploads = loaded.uploads
+  }
+
+  // Whatever happens from here, a finished or a failed analysis, the photos
+  // have served their purpose and are removed.
+  try {
+    return await runJob(supabase, input, jobId, photos, analyse)
+  } finally {
+    await removeUploads(supabase, uploads)
+  }
+}
+
+async function runJob(
+  supabase: SupabaseService,
+  input: CreateCheckJobInput,
+  jobId: string,
+  photos: AnalysisPhoto[],
+  analyse: Analyse,
+): Promise<CreateCheckJobOutcome> {
   const outcome = await analyse(supabase, {
     userId: input.userId,
     symptoms: input.symptoms,
     petId: input.pet_id ?? null,
-    photos: [],
+    photos,
     appetite: input.appetite ?? null,
     activity: input.activity ?? null,
     duration: input.duration ?? null,

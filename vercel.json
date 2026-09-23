@@ -5,6 +5,7 @@
   "buildCommand": "npm run build --workspace @lapka/web",
   "outputDirectory": "apps/web/.next",
   "crons": [
-    { "path": "/api/cron/deletion-jobs", "schedule": "0 3 * * *" }
+    { "path": "/api/cron/deletion-jobs", "schedule": "0 3 * * *" },
+    { "path": "/api/cron/photo-uploads", "schedule": "30 3 * * *" }
   ]
 }

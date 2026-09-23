@@ -6,6 +6,7 @@ const USER = '11111111-1111-4111-8111-000000000abc'
 function deps(overrides: Partial<DeletionWorkerDeps> = {}): DeletionWorkerDeps {
   return {
     claim: vi.fn(async () => ({})),
+    deletePhotos: vi.fn(async () => {}),
     deleteAccountData: vi.fn(async () => {}),
     deleteAuthUser: vi.fn(async () => 'deleted' as const),
     markStep: vi.fn(async () => {}),
@@ -17,16 +18,42 @@ function deps(overrides: Partial<DeletionWorkerDeps> = {}): DeletionWorkerDeps {
 }
 
 describe('processing a deletion job', () => {
-  it('runs data, then Auth, then completes, marking each step', async () => {
+  it('runs photos, then data, then Auth, then completes, marking each step', async () => {
     const d = deps()
     const order: string[] = []
+    d.deletePhotos = vi.fn(async () => void order.push('photos'))
     d.deleteAccountData = vi.fn(async () => void order.push('data'))
     d.deleteAuthUser = vi.fn(async () => (order.push('auth'), 'deleted' as const))
     d.markStep = vi.fn(async (_user, step) => void order.push(`mark:${step}`))
     d.complete = vi.fn(async () => void order.push('complete'))
 
     await expect(processDeletionJob(d, USER)).resolves.toBe('completed')
-    expect(order).toEqual(['data', 'mark:data', 'auth', 'mark:auth', 'complete'])
+    expect(order).toEqual([
+      'photos',
+      'mark:photos',
+      'data',
+      'mark:data',
+      'auth',
+      'mark:auth',
+      'complete',
+    ])
+  })
+
+  it('does not repeat the photos step once it is recorded', async () => {
+    const d = deps({ claim: vi.fn(async () => ({ photos: '2026-09-23T10:00:00Z' })) })
+
+    await expect(processDeletionJob(d, USER)).resolves.toBe('completed')
+    expect(d.deletePhotos).not.toHaveBeenCalled()
+    expect(d.deleteAccountData).toHaveBeenCalledWith(USER)
+  })
+
+  it('counts a Storage failure against the job and goes no further', async () => {
+    const d = deps({ deletePhotos: vi.fn(async () => { throw new Error('storage down') }) })
+
+    await expect(processDeletionJob(d, USER)).resolves.toBe('retry')
+    expect(d.recordFailure).toHaveBeenCalledWith(USER, 'photos_step_failed')
+    expect(d.deleteAccountData).not.toHaveBeenCalled()
+    expect(d.deleteAuthUser).not.toHaveBeenCalled()
   })
 
   it('does nothing when the job cannot be claimed', async () => {
@@ -98,7 +125,9 @@ describe('processing a deletion job', () => {
 
     await processDeletionJob(d, USER)
 
-    expect(d.markStep).not.toHaveBeenCalled()
+    // The photos step before it did finish, and is recorded; the failed one is not.
+    expect(d.markStep).not.toHaveBeenCalledWith(USER, 'data')
+    expect(d.markStep).not.toHaveBeenCalledWith(USER, 'auth')
   })
 
   it('never logs the user id or the error text', async () => {

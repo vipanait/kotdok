@@ -7,7 +7,7 @@ import { withFreshSession } from '@/lib/api'
 import { describeFailure } from '@/lib/errors'
 import { dictionary, useText } from '@/i18n'
 import { urgencyText } from '@/features/checks/urgency'
-import { checkAnswers, formatCheckedAt } from '@/features/checks/check-answers'
+import { checkAnswers, formatCheckedAt, photoObservations } from '@/features/checks/check-answers'
 import { ResultFeedback } from '@/features/checks/ResultFeedback'
 import { Button, LinkButton } from '@/ui/Button'
 import { Banner, UrgencyCard } from '@/ui/Card'
@@ -77,6 +77,7 @@ export function CheckResult({ id }: { id: string }) {
   const t = dictionary(check.locale)
   const level = urgencyText(t, check.urgency)
   const answers = checkAnswers(t, check.full_response)
+  const seenInPhotos = photoObservations(check.full_response)
 
   return (
     <Screen title={check.pet_name ?? t.result.fallbackTitle} onBack={() => router.back()} scroll>
@@ -95,6 +96,8 @@ export function CheckResult({ id }: { id: string }) {
       {check.species_specific_warning ? (
         <Banner text={check.species_specific_warning} tone="note" />
       ) : null}
+
+      {seenInPhotos ? <Bullets title={t.result.photoObservations} items={[seenInPhotos]} /> : null}
 
       <Bullets title={t.result.causes} items={check.possible_causes} />
       <Bullets title={t.result.homeCare} items={check.home_care_steps} />

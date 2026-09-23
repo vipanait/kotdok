@@ -27,6 +27,22 @@ function oneOf<Value extends string>(
     : null
 }
 
+/**
+ * What the analysis saw in the photos, when there were any.
+ *
+ * The model fills `photo_observations` in whether or not it was shown a
+ * picture, so the count decides: without a photo the sentence can only be a
+ * guess dressed as an observation. `has_photo` is how older checks from the
+ * site recorded the same thing.
+ */
+export function photoObservations(full: Record<string, unknown> | null): string | null {
+  if (!full) return null
+  const hadPhotos =
+    (typeof full.photo_count === 'number' && full.photo_count > 0) || full.has_photo === true
+  const text = typeof full.photo_observations === 'string' ? full.photo_observations.trim() : ''
+  return hadPhotos && text ? text : null
+}
+
 /** @returns only the questions that were answered, in the order the form asks them. */
 export function checkAnswers(
   t: Dictionary,

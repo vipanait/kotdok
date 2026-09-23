@@ -1,7 +1,15 @@
 import { describe, expect, it } from 'vitest'
 import { PAIN_SIGNS, SYMPTOMS_MAX, SYMPTOMS_MIN } from '@lapka/contracts'
+import { ApiError, ApiTimeoutError } from '@lapka/shared'
 import { ru } from '@/i18n/ru'
-import { emptyCheckForm, formToCheckInput, newIdempotencyKey, toggleSign } from './check-form'
+import { PhotoUploadError } from './photo-upload'
+import {
+  afterFailedSend,
+  emptyCheckForm,
+  formToCheckInput,
+  newIdempotencyKey,
+  toggleSign,
+} from './check-form'
 
 const A_PET = '11111111-1111-4111-8111-000000000001'
 
@@ -90,5 +98,31 @@ describe('symptom form', () => {
     expect(first.length).toBeGreaterThanOrEqual(8)
     expect(first.length).toBeLessThanOrEqual(200)
     expect(first).not.toBe(second)
+  })
+})
+
+describe('what a failed send leaves for the next try', () => {
+  it('starts afresh once the server has answered: that key already has its outcome', () => {
+    const answered = new ApiError('dependency_unavailable', 503, 'AI down', 'req-1')
+    expect(afterFailedSend(answered)).toEqual({ keepKey: false, keepUploads: false })
+  })
+
+  it('keeps the key and the photos when nobody knows what happened', () => {
+    // A bare 502 page or a timeout: the check may have been made, and the same
+    // key with the same upload ids is how a repeat finds it.
+    const bare = new ApiError('internal_error', 502, 'Unrecognised error from /checks')
+    expect(afterFailedSend(bare)).toEqual({ keepKey: true, keepUploads: true })
+    expect(afterFailedSend(new ApiTimeoutError('/checks', 30_000))).toEqual({
+      keepKey: true,
+      keepUploads: true,
+    })
+    expect(afterFailedSend(new TypeError('Network request failed'))).toEqual({
+      keepKey: true,
+      keepUploads: true,
+    })
+  })
+
+  it('keeps the key when the photos never left the phone', () => {
+    expect(afterFailedSend(new PhotoUploadError())).toEqual({ keepKey: true, keepUploads: false })
   })
 })
