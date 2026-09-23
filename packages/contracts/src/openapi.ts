@@ -248,7 +248,7 @@ export function buildOpenApiDocument(): Record<string, unknown> {
           requestBody: body('UploadRequest'),
           responses: {
             '201': json('UploadGrant', 'One grant per requested file'),
-            ...commonErrors('bad_request', 'rate_limited'),
+            ...commonErrors('bad_request', 'dependency_unavailable'),
           },
         },
       },

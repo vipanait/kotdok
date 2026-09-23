@@ -3,6 +3,7 @@ import {
   CheckCreateInputSchema,
   PHOTO_LIMITS,
   UploadRequestSchema,
+  buildOpenApiDocument,
 } from '@lapka/contracts'
 
 const ID = (n: number) => `00000000-0000-4000-8000-00000000000${n}`
@@ -36,5 +37,14 @@ describe('photo limits in the contract', () => {
 
   it('does not accept HEIC: the phone converts it, the server cannot read it', () => {
     expect(UploadRequestSchema.safeParse({ files: [file({ content_type: 'image/heic' })] }).success).toBe(false)
+  })
+})
+
+describe('POST /uploads in the published document', () => {
+  it('declares the 503 the route answers when Storage is down', () => {
+    const document = buildOpenApiDocument() as {
+      paths: Record<string, { post: { responses: Record<string, unknown> } }>
+    }
+    expect(Object.keys(document.paths['/uploads'].post.responses)).toContain('503')
   })
 })

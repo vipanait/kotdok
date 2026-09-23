@@ -1512,6 +1512,17 @@ paths:
                   code: internal_error
                   message: Unexpected server error
                   request_id: 01J000000000000000000000
+        "503":
+          description: A dependency is temporarily unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: dependency_unavailable
+                  message: A dependency is temporarily unavailable
+                  request_id: 01J000000000000000000000
   /checks:
     get:
       summary: History, newest first, cursor paginated
