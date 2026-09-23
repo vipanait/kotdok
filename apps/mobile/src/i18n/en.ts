@@ -135,6 +135,13 @@ export const en: Dictionary = {
     requestCheck: 'Request a check',
     openHistory: 'Open the history',
     tryAgain: 'Try again',
+    photos: 'Photos — optional',
+    photosHint: 'Up to three photos. They are not kept: deleted right after the analysis.',
+    photoCount: (count: number) => `Photos: ${count}`,
+    addPhoto: 'Add a photo',
+    removePhoto: 'Remove photo',
+    takePhoto: 'Take a photo',
+    fromLibrary: 'From library',
   },
 
   result: {
@@ -259,6 +266,10 @@ export const en: Dictionary = {
     loadHistoryFailed: 'Could not load the history',
     changeLocaleFailed: 'Could not change the language',
     submitCheckFailed: 'Could not send the check',
+    photoUploadFailed:
+      'The photos did not go through. Check the connection and try again — no check was used.',
+    photosRejected:
+      'The photos could not be used or have expired. Pick them again and resend — no check was used.',
     loadRequestFailed: 'Could not load the state of the request',
     sendRequestFailed: 'Could not send the request',
     analysisFailed: 'The analysis failed. Try again',

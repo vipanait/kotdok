@@ -58,11 +58,7 @@ export type CheckFormResult =
  * out loud: two characters of symptoms produce an analysis of nothing, and the
  * person is charged a credit for it.
  */
-export function formToCheckInput(
-  t: Dictionary,
-  form: CheckForm,
-  uploadIds: string[] = [],
-): CheckFormResult {
+export function formToCheckInput(t: Dictionary, form: CheckForm): CheckFormResult {
   const symptoms = form.symptoms.trim()
 
   // The contract accepts a check with no pet; the product does not. The answer
@@ -86,7 +82,7 @@ export function formToCheckInput(
     value: {
       pet_id: form.petId,
       symptoms,
-      upload_ids: uploadIds,
+      upload_ids: [],
       appetite: form.appetite,
       activity: form.activity,
       duration: form.duration,

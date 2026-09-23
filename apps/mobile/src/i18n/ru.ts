@@ -135,6 +135,13 @@ export const ru = {
     requestCheck: 'Запросить проверку',
     openHistory: 'Открыть историю',
     tryAgain: 'Попробовать ещё раз',
+    photos: 'Фото — необязательно',
+    photosHint: 'До трёх фото. Они не сохраняются: удаляются сразу после анализа.',
+    photoCount: (count: number) => `Фото: ${count}`,
+    addPhoto: 'Добавить фото',
+    removePhoto: 'Убрать фото',
+    takePhoto: 'Снять фото',
+    fromLibrary: 'Из галереи',
   },
 
   result: {
@@ -260,6 +267,10 @@ export const ru = {
     loadHistoryFailed: 'Не удалось загрузить историю',
     changeLocaleFailed: 'Не удалось сменить язык',
     submitCheckFailed: 'Не удалось отправить проверку',
+    photoUploadFailed:
+      'Фото не отправились. Проверьте связь и попробуйте ещё раз — проверка не списана.',
+    photosRejected:
+      'Фото не подошли или устарели. Выберите их заново и отправьте ещё раз — проверка не списана.',
     loadRequestFailed: 'Не удалось загрузить состояние запроса',
     sendRequestFailed: 'Не удалось отправить запрос',
     analysisFailed: 'Анализ не удался. Попробуйте ещё раз',

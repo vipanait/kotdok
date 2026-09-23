@@ -8,16 +8,20 @@ import {
   View,
 } from 'react-native'
 import { router, useFocusEffect } from 'expo-router'
+import * as ImagePicker from 'expo-image-picker'
 import {
   ACTIVITY_VALUES,
   APPETITE_VALUES,
   DURATION_VALUES,
   PAIN_SIGNS,
+  PHOTO_LIMITS,
   STOOL_VALUES,
   type Pet,
 } from '@lapka/contracts'
+import { ApiError } from '@lapka/shared'
 import { withFreshSession } from '@/lib/api'
-import { AppError, describeFailure, errorMessage } from '@/lib/errors'
+import { AppError, describeFailure, errorMessage, submitCheckMessage } from '@/lib/errors'
+import { preparePhoto, putPhoto } from '@/lib/photo-io'
 import { useText, type Dictionary } from '@/i18n'
 import { useAuth } from '@/providers/AuthProvider'
 import { draftStorage } from '@/lib/supabase'
@@ -42,9 +46,12 @@ import {
   toggleSign,
   type CheckForm,
 } from '@/features/checks/check-form'
+import { addPhotos, type PickedPhoto } from '@/features/checks/photos'
+import { uploadPhotos } from '@/features/checks/photo-upload'
 import { Button, LinkButton } from '@/ui/Button'
 import { Banner } from '@/ui/Card'
 import { Chips, Field, Segment, Select } from '@/ui/Field'
+import { PhotoStrip } from '@/ui/PhotoStrip'
 import { Screen } from '@/ui/Screen'
 import { Steps, SummaryCard } from '@/ui/Section'
 import { Text } from '@/ui/Text'
@@ -61,6 +68,9 @@ export default function NewCheck() {
   // width the concept's narrow artboard is drawn at.
   const narrow = useWindowDimensions().width <= 360
   const [form, setForm] = useState<CheckForm>(emptyCheckForm())
+  // Not part of the draft: picked photos are cache files that may not survive
+  // a restart, and the draft lives in the keychain, which is for small values.
+  const [photos, setPhotos] = useState<PickedPhoto[]>([])
   const [pets, setPets] = useState<Pet[] | null>(null)
   const [petsError, setPetsError] = useState<{ text: string; offline: boolean } | null>(null)
   const [step, setStep] = useState<1 | 2>(1)
@@ -131,11 +141,17 @@ export default function NewCheck() {
   // is not charged a second time.
   const key = useRef<string | null>(null)
 
+  // Photos already in storage for this key. A retry after a lost answer sends
+  // the same ids again, so the server can recognise the request it already took.
+  const uploaded = useRef<{ key: string; photos: PickedPhoto[]; ids: string[] } | null>(null)
+
   /** Empties the screen so the next check starts where a first one would. */
   const startFresh = useCallback(() => {
     finished.current = false
     key.current = null
+    uploaded.current = null
     setForm(emptyCheckForm())
+    setPhotos([])
     setStep(1)
     setSymptomsError(null)
     setFailure(null)
@@ -317,10 +333,37 @@ export default function NewCheck() {
     setStep(2)
   }
 
+  async function pickPhotos(source: 'camera' | 'library') {
+    const left = PHOTO_LIMITS.maxFiles - photos.length
+    if (left <= 0) return
+    const permission =
+      source === 'camera'
+        ? await ImagePicker.requestCameraPermissionsAsync()
+        : await ImagePicker.requestMediaLibraryPermissionsAsync()
+    // A refusal is an answer, not an error: the check works without photos.
+    if (!permission.granted) return
+    const result =
+      source === 'camera'
+        ? await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 1 })
+        : await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ['images'],
+            allowsMultipleSelection: true,
+            selectionLimit: left,
+            quality: 1,
+          })
+    if (result.canceled) return
+    setPhotos((current) =>
+      addPhotos(
+        current,
+        result.assets.map(({ uri, width, height }) => ({ uri, width, height })),
+      ),
+    )
+  }
+
   async function submit() {
-    const input = formToCheckInput(t, form)
-    if (!input.ok) {
-      setSymptomsError(input.message)
+    const checked = formToCheckInput(t, form)
+    if (!checked.ok) {
+      setSymptomsError(checked.message)
       setStep(1)
       return
     }
@@ -330,16 +373,32 @@ export default function NewCheck() {
     setFailure(null)
     let jobId: string
     try {
-      const accepted = await withFreshSession((api) => api.createCheck(key.current!, input.value))
+      const sameUpload =
+        uploaded.current?.key === key.current && uploaded.current.photos === photos
+      if (photos.length > 0 && !sameUpload) {
+        const ids = await withFreshSession((api) =>
+          uploadPhotos(
+            { prepare: preparePhoto, requestUploads: api.requestUploads, put: putPhoto },
+            photos,
+          ),
+        )
+        uploaded.current = { key: key.current, photos, ids }
+      }
+      const body = { ...checked.value, upload_ids: photos.length > 0 ? uploaded.current!.ids : [] }
+      const accepted = await withFreshSession((api) => api.createCheck(key.current!, body))
       jobId = accepted.job_id
       // Sent and charged: keeping it now would offer to send it a second time.
       finished.current = true
       if (userId) rememberPendingCheck(userId, jobId)
       await forgetDraft()
     } catch (cause) {
+      // The server answered, so these uploads were either used up or refused:
+      // the next try uploads afresh. After a timeout nothing is known, and the
+      // same ids let a repeat find the job the first attempt may have made.
+      if (cause instanceof ApiError) uploaded.current = null
       if (!onScreen.current) return
       setFailure({
-        text: errorMessage(t, cause, t.errors.submitCheckFailed),
+        text: submitCheckMessage(t, cause, photos.length > 0),
         kind: cause instanceof AppError ? cause.kind : null,
       })
       setWaiting(false)
@@ -448,6 +507,13 @@ export default function NewCheck() {
           multiline
         />
 
+        <PhotoStrip
+          t={t}
+          photos={photos}
+          onAdd={(source) => void pickPhotos(source)}
+          onRemove={(index) => setPhotos((current) => current.filter((_, i) => i !== index))}
+        />
+
         <Banner text={t.check.symptomsHint} />
       </Screen>
     )
@@ -472,6 +538,11 @@ export default function NewCheck() {
           <Text variant="label" tone="muted" numberOfLines={1}>
             {form.symptoms}
           </Text>
+          {photos.length > 0 ? (
+            <Text variant="caption" tone="faint">
+              {t.check.photoCount(photos.length)}
+            </Text>
+          ) : null}
         </View>
         <LinkButton title={t.check.change} onPress={() => setStep(1)} />
       </SummaryCard>
