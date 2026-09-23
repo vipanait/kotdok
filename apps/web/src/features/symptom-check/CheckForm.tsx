@@ -118,7 +118,7 @@ export default function CheckForm({ pets, initialPetId, credits: initialCredits 
     if (!res.ok) {
       if (res.status === 401) {
         // Stay on the waiting screen while the sign-in page loads.
-        router.push('/login?next=/check')
+        router.push(`/login?next=${encodeURIComponent(`/check?pet=${petId}`)}`)
         return
       }
       inFlight.current = false

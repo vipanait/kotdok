@@ -1,5 +1,7 @@
 import Link from 'next/link'
+import AccountMenu from '@/components/cabinet/AccountMenu'
 import LapkaLogo from '@/components/LapkaLogo'
+import LocaleSwitch from '@/components/site/LocaleSwitch'
 import Icon, { type IconName } from '@/components/ui/Icon'
 import SignOutForm from '@/features/auth/SignOutForm'
 import type { CabinetUser } from '@/server/cabinet/load-cabinet'
@@ -101,35 +103,31 @@ export default async function CabinetShell({ cabinet, active, crumb, children }:
             <Link href="/credits" className="mobile-balance pill">
               {formatCount(t.creditsCount, cabinet.credits, locale)}
             </Link>
-            <details className="account-menu">
-              <summary className="user-dot" aria-label={t.accountMenu}>
-                <span aria-hidden>{initial}</span>
-              </summary>
-              <div className="account-menu-panel">
-                <p className="account-menu-email">{cabinet.email}</p>
-                {cabinet.isAdmin && (
-                  <Link href="/admin/statistics" className="navlink">
-                    <Icon name="chart" />
-                    {t.statistics}
-                  </Link>
-                )}
-                <Link href="/account-deletion" className="navlink">
-                  <Icon name="user" />
-                  {t.accountDeletion}
+            <AccountMenu label={t.accountMenu} initial={initial}>
+              <p className="account-menu-email">{cabinet.email}</p>
+              {cabinet.isAdmin && (
+                <Link href="/admin/statistics" className="navlink">
+                  <Icon name="chart" />
+                  {t.statistics}
                 </Link>
-                <Link href="/legal" className="navlink">
-                  <Icon name="info" />
-                  {t.terms}
-                </Link>
-                <SignOutForm label={t.signOut} className="navlink" icon={<Icon name="logout" />} />
-              </div>
-            </details>
+              )}
+              <Link href="/account-deletion" className="navlink">
+                <Icon name="user" />
+                {t.accountDeletion}
+              </Link>
+              <Link href="/legal" className="navlink">
+                <Icon name="info" />
+                {t.terms}
+              </Link>
+              <SignOutForm label={t.signOut} className="navlink" icon={<Icon name="logout" />} />
+              <div className="account-menu-locale"><LocaleSwitch /></div>
+            </AccountMenu>
           </div>
         </header>
 
         <main id="main" className="workspace" tabIndex={-1}>
           {children}
-          <p className="footnote" style={{ marginTop: 32 }}>{t.footnote}</p>
+          <p className="footnote workspace-footnote">{t.footnote}</p>
         </main>
       </div>
 

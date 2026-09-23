@@ -1,4 +1,3 @@
-import type { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import CabinetShell from '@/components/cabinet/CabinetShell'
@@ -9,10 +8,9 @@ import { loadCabinetUser } from '@/server/cabinet/load-cabinet'
 import { readExtraCheckRequestStatus } from '@/server/extra-check/extra-check-service'
 import { getDictionary } from '@/server/i18n/get-dictionary'
 import { getLocale } from '@/server/i18n/get-locale'
+import { privatePageMetadata } from '@/server/i18n/page-metadata'
 
-export const metadata: Metadata = {
-  robots: { index: false, follow: false },
-}
+export const generateMetadata = privatePageMetadata(d => d.credits.title)
 
 /** «Доступные проверки»: the balance, and asking for an extra check when it runs out. */
 export default async function CreditsPage() {

@@ -6,9 +6,9 @@ import Illustration from '@/components/ui/Illustration'
 import { getAuthUser } from '@/server/auth/get-auth-user'
 import { getDictionary } from '@/server/i18n/get-dictionary'
 import { getLocale } from '@/server/i18n/get-locale'
+import { siteName } from '@/shared/seo'
 
 export const metadata: Metadata = {
-  title: 'Страница не найдена',
   robots: { index: false, follow: false },
 }
 
@@ -23,6 +23,7 @@ export default async function NotFound() {
 
   return (
     <>
+      <title>{`${t.notFoundTitle} — ${siteName}`}</title>
       <PublicHeader dict={dict} account={user ? 'cabinet' : 'sign-in'} />
       <main className="reading error-page">
         <div className="empty">

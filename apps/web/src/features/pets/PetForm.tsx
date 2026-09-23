@@ -260,7 +260,7 @@ export default function PetForm({ pet }: Props) {
               </select>
             </Field>
 
-            <Field id={fieldId('name')} label={t.name} error={nameError} errorId={nameErrorId}>
+            <Field id={fieldId('name')} label={t.name} required error={nameError} errorId={nameErrorId}>
               <input
                 ref={nameRef}
                 id={fieldId('name')}
@@ -559,16 +559,22 @@ function Field({
   children,
   error,
   errorId,
+  required = false,
 }: {
   id: string
   label: string
+  /** Marks the label with an asterisk for sight; the input says it with `aria-required`. */
+  required?: boolean
   children: React.ReactNode
   error?: string
   errorId?: string
 }) {
   return (
     <div className="field">
-      <label className="field-label" htmlFor={id}>{label}</label>
+      <label className="field-label" htmlFor={id}>
+        {label}
+        {required && <span aria-hidden> *</span>}
+      </label>
       {children}
       {error && <span id={errorId} className="field-error" role="alert">{error}</span>}
     </div>

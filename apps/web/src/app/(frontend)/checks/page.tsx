@@ -1,4 +1,3 @@
-import type { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import type { SymptomCheckRecord } from '@lapka/contracts'
@@ -12,10 +11,9 @@ import { getDictionary } from '@/server/i18n/get-dictionary'
 import { getLocale } from '@/server/i18n/get-locale'
 import { getTimeZone } from '@/server/i18n/get-time-zone'
 import { formatCount } from '@/shared/i18n/plural'
+import { privatePageMetadata } from '@/server/i18n/page-metadata'
 
-export const metadata: Metadata = {
-  robots: { index: false, follow: false },
-}
+export const generateMetadata = privatePageMetadata(d => d.history.title)
 
 /** Newest first in, newest month first out, rows keeping their order. */
 function groupByMonth(checks: SymptomCheckRecord[], timeZone: string) {

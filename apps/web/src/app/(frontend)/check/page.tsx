@@ -1,4 +1,3 @@
-import type { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import CabinetShell from '@/components/cabinet/CabinetShell'
@@ -8,10 +7,9 @@ import { loadCabinetUser } from '@/server/cabinet/load-cabinet'
 import { loadCheckPets } from '@/server/checks/load-check-pages'
 import { getDictionary } from '@/server/i18n/get-dictionary'
 import { getLocale } from '@/server/i18n/get-locale'
+import { privatePageMetadata } from '@/server/i18n/page-metadata'
 
-export const metadata: Metadata = {
-  robots: { index: false, follow: false },
-}
+export const generateMetadata = privatePageMetadata(d => d.check.pageTitle)
 
 export default async function CheckPage({
   searchParams,
@@ -36,7 +34,7 @@ export default async function CheckPage({
   return (
     <CabinetShell cabinet={cabinet} active="check" crumb={t.crumb}>
       {initialPet ? (
-        <CheckForm pets={pets} initialPetId={initialPet.id} credits={cabinet.credits} />
+        <CheckForm key={initialPet.id} pets={pets} initialPetId={initialPet.id} credits={cabinet.credits} />
       ) : (
         // A check is always about a profile: without one there is nothing to send.
         <>

@@ -1,4 +1,3 @@
-import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import CabinetShell from '@/components/cabinet/CabinetShell'
 import PetPageHead from '@/features/pets/PetPageHead'
@@ -6,10 +5,9 @@ import PetForm from '@/features/pets/PetForm'
 import { loadCabinetUser } from '@/server/cabinet/load-cabinet'
 import { getDictionary } from '@/server/i18n/get-dictionary'
 import { getLocale } from '@/server/i18n/get-locale'
+import { privatePageMetadata } from '@/server/i18n/page-metadata'
 
-export const metadata: Metadata = {
-  robots: { index: false, follow: false },
-}
+export const generateMetadata = privatePageMetadata(d => d.pets.newPageTitle)
 
 export default async function NewPetPage() {
   const cabinet = await loadCabinetUser()

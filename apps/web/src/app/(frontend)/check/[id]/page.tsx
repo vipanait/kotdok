@@ -1,4 +1,3 @@
-import type { Metadata } from 'next'
 import { notFound, redirect } from 'next/navigation'
 import CabinetShell from '@/components/cabinet/CabinetShell'
 import CheckResultContent from '@/features/symptom-check/CheckResultContent'
@@ -7,10 +6,9 @@ import { loadCheckResult } from '@/server/checks/load-check-pages'
 import { getDictionary } from '@/server/i18n/get-dictionary'
 import { getLocale } from '@/server/i18n/get-locale'
 import { getTimeZone } from '@/server/i18n/get-time-zone'
+import { privatePageMetadata } from '@/server/i18n/page-metadata'
 
-export const metadata: Metadata = {
-  robots: { index: false, follow: false },
-}
+export const generateMetadata = privatePageMetadata(d => d.check.resultTitle)
 
 export default async function CheckResultPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params

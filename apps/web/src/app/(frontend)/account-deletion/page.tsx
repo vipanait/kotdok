@@ -5,6 +5,7 @@ import PublicFooter from '@/components/site/PublicFooter'
 import PublicHeader from '@/components/site/PublicHeader'
 import Icon from '@/components/ui/Icon'
 import { getAuthUser } from '@/server/auth/get-auth-user'
+import { loadCabinetUser } from '@/server/cabinet/load-cabinet'
 import { getDictionary } from '@/server/i18n/get-dictionary'
 import { getLocale } from '@/server/i18n/get-locale'
 import { formatCount } from '@/shared/i18n/plural'
@@ -32,13 +33,16 @@ export const metadata: Metadata = {
  */
 export default async function AccountDeletionPage() {
   const [locale, user] = await Promise.all([getLocale(), getAuthUser()])
+  // Signed in but already being deleted: the cabinet is closed, so no links to it —
+  // they would only bounce between the cabinet and sign-in.
+  const cabinetOpen = user ? (await loadCabinetUser()) !== null : false
   const dict = await getDictionary(locale)
   const t = dict.deletion
   const days = formatCount(t.timingDays, DELETION_COMPLETION_DAYS, locale)
 
   return (
     <>
-      <PublicHeader dict={dict} account={user ? 'cabinet' : 'sign-in'} />
+      <PublicHeader dict={dict} account={cabinetOpen ? 'cabinet' : user ? 'none' : 'sign-in'} />
       <main className="reading deletion">
         <div className="eyebrow">{t.eyebrow}</div>
         <h1>{t.title}</h1>
@@ -79,7 +83,7 @@ export default async function AccountDeletionPage() {
           {t.supportAfter}
         </p>
 
-        {user && (
+        {cabinetOpen && (
           <Link href="/dashboard" className="link">
             <Icon name="back" />
             {t.backToAccount}

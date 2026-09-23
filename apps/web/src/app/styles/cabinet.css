@@ -1,4 +1,4 @@
-/* cabinet screens — additions to the design system in globals.css. */
+/* Cabinet, pets and credits screens — additions to the design system (design-system.css). */
 @layer components {
   .nowrap { white-space: nowrap; }
 

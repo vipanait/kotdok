@@ -10,7 +10,10 @@ import type { CheckPet } from '@/shared/types'
 import { petSummary } from '@/shared/utils/pet-summary'
 import { CLINIC_URGENCIES, VET_URGENCIES, urgencyTitle } from '@/shared/utils/urgency'
 
-const CLINIC_SEARCH_URL = 'https://www.google.com/maps/search/?api=1&query=ветеринарная+клиника'
+/** A map search for clinics near the owner, in the site's language. */
+function clinicSearchUrl(query: string): string {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`
+}
 
 interface Props {
   check: SymptomCheckView
@@ -111,7 +114,7 @@ export default function CheckResultContent({ check, dict, locale, timeZone, pet,
         )}
         {CLINIC_URGENCIES.has(urgency) && (
           <div className="result-hero-actions">
-            <a href={CLINIC_SEARCH_URL} target="_blank" rel="noopener noreferrer" className="btn primary">
+            <a href={clinicSearchUrl(t.clinicSearchQuery)} target="_blank" rel="noopener noreferrer" className="btn primary">
               {t.findClinic}
               <Icon name="arrow" />
             </a>

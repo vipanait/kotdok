@@ -19,12 +19,14 @@ function toRecord(row: unknown): SymptomCheckRecord {
 /** The signed-in owner's pets, oldest first — the order of the cabinet. */
 export async function loadCheckPets(userId: string): Promise<CheckPet[]> {
   const service = createServiceClient()
-  const { data } = await service
+  const { data, error } = await service
     .from('pets')
     .select(PET_COLUMNS)
     .eq('user_id', userId)
     .is('deleted_at', null)
     .order('created_at', { ascending: true })
+  // A failed read must reach the error page, not pass for "no pets yet".
+  if (error) throw new Error(`Could not load pets: ${error.message}`)
   return (data ?? []) as CheckPet[]
 }
 
@@ -62,11 +64,13 @@ export async function loadCheckResult(
 /** Every saved result of this user, newest first. */
 export async function loadCheckHistory(userId: string): Promise<SymptomCheckRecord[]> {
   const service = createServiceClient()
-  const { data } = await service
+  const { data, error } = await service
     .from('symptom_checks')
     .select(symptomCheckSelect())
     .eq('user_id', userId)
     .is('deleted_at', null)
     .order('created_at', { ascending: false })
+  // A failed read must reach the error page, not pass for an empty history.
+  if (error) throw new Error(`Could not load check history: ${error.message}`)
   return (data ?? []).map(toRecord)
 }

@@ -1,4 +1,3 @@
-import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import CabinetShell from '@/components/cabinet/CabinetShell'
 import AdminStatisticsClient from '@/features/admin/AdminStatisticsClient'
@@ -7,11 +6,9 @@ import { getAdminStatistics, normalizeAdminStatisticsPeriod } from '@/server/adm
 import { loadCabinetUser } from '@/server/cabinet/load-cabinet'
 import { getDictionary } from '@/server/i18n/get-dictionary'
 import { getLocale } from '@/server/i18n/get-locale'
+import { privatePageMetadata } from '@/server/i18n/page-metadata'
 
-export const metadata: Metadata = {
-  title: 'Статистика — Лапка',
-  robots: { index: false, follow: false },
-}
+export const generateMetadata = privatePageMetadata(d => d.shell.statistics)
 
 export default async function AdminStatisticsPage({
   searchParams,

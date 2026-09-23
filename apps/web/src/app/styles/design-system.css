@@ -723,6 +723,7 @@
 
   .skip-link:focus { top: 12px; }
   .workspace:focus { outline: none; }
+  .workspace-footnote { margin-top: 32px; }
 
   .account-menu { position: relative; }
   /* A 32px dot with a 44px target around it. */
@@ -743,6 +744,8 @@
     background: var(--paper);
     box-shadow: 0 15px 50px rgb(67 58 39 / 0.12);
   }
+
+  .account-menu-locale { padding: 4px 16px 0; margin-top: 6px; border-top: 1px solid var(--line); font-size: 13px; }
 
   .account-menu-email {
     padding: 8px 16px 10px;
@@ -903,6 +906,15 @@
   .feedback .row { flex-wrap: wrap; gap: 10px; margin-top: 14px; }
   .feedback textarea { margin: 14px 0; min-height: 96px; }
 
+  /* ---------- Loading ---------- */
+
+  .skeleton-block { border-radius: 22px; background: var(--soft); animation: lp-pulse 1.4s ease-in-out infinite; }
+  .skeleton-title { width: min(420px, 80%); height: 40px; margin-bottom: 14px; border-radius: 12px; }
+  .skeleton-line { width: min(300px, 60%); height: 18px; margin-bottom: 32px; border-radius: 8px; }
+  .skeleton-grid { margin-bottom: 24px; }
+  .skeleton-card { height: 190px; }
+  .skeleton-wide { height: 260px; }
+
   /* ---------- Dialogs ---------- */
 
   .modal-backdrop {
@@ -936,6 +948,10 @@
   .segmented button { min-height: 36px; padding: 6px 14px; border-radius: 999px; font-size: 13px; font-weight: 700; color: var(--muted); }
   .segmented [aria-current='true'],
   .segmented [aria-pressed='true'] { background: var(--paper); color: var(--green); }
+}
+
+@keyframes lp-pulse {
+  50% { opacity: 0.55; }
 }
 
 @keyframes lp-spin {

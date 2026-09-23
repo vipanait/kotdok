@@ -1,4 +1,3 @@
-import type { Metadata } from 'next'
 import { notFound, redirect } from 'next/navigation'
 import CabinetShell from '@/components/cabinet/CabinetShell'
 import PetPageHead from '@/features/pets/PetPageHead'
@@ -8,10 +7,9 @@ import { getDictionary } from '@/server/i18n/get-dictionary'
 import { getLocale } from '@/server/i18n/get-locale'
 import { createServiceClient } from '@/server/supabase/server'
 import type { Pet } from '@/shared/types'
+import { privatePageMetadata } from '@/server/i18n/page-metadata'
 
-export const metadata: Metadata = {
-  robots: { index: false, follow: false },
-}
+export const generateMetadata = privatePageMetadata(d => d.shell.pets)
 
 export default async function EditPetPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params

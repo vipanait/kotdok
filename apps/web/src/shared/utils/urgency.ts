@@ -1,7 +1,7 @@
 /**
  * The five urgency levels a check can come back with, most urgent first.
  *
- * Colour lives in CSS (`.emergency`, `.urgent`, … in globals.css set
+ * Colour lives in CSS (`.emergency`, `.urgent`, … in styles/design-system.css set
  * `--signal` and `--tint`); a level is never shown by colour alone — the
  * badge and the result hero always carry its name.
  */

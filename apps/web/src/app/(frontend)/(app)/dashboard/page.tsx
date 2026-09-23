@@ -3,6 +3,9 @@ import DashboardContent from '@/features/dashboard/DashboardContent'
 import { parsePetSaved } from '@/features/pets/PetSavedBanner'
 import { loadCabinetUser } from '@/server/cabinet/load-cabinet'
 import { loadDashboard } from '@/server/dashboard/load-dashboard'
+import { privatePageMetadata } from '@/server/i18n/page-metadata'
+
+export const generateMetadata = privatePageMetadata(d => d.shell.account)
 
 export default async function DashboardPage({
   searchParams,

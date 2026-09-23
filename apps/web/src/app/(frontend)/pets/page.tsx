@@ -1,4 +1,3 @@
-import type { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import CabinetShell from '@/components/cabinet/CabinetShell'
@@ -11,10 +10,9 @@ import { loadPetsOverview } from '@/server/dashboard/load-dashboard'
 import { getDictionary } from '@/server/i18n/get-dictionary'
 import { getLocale } from '@/server/i18n/get-locale'
 import { getTimeZone } from '@/server/i18n/get-time-zone'
+import { privatePageMetadata } from '@/server/i18n/page-metadata'
 
-export const metadata: Metadata = {
-  robots: { index: false, follow: false },
-}
+export const generateMetadata = privatePageMetadata(d => d.shell.pets)
 
 export default async function PetsPage({
   searchParams,

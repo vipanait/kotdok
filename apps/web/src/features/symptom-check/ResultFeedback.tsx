@@ -10,8 +10,8 @@ type Stage = 'loading' | 'ask' | 'comment' | 'done' | 'hidden'
 /**
  * "Was this useful?" beside one result.
  *
- * Inline rather than a modal: a modal over the check modal is what made the
- * earlier prompt misbehave. The rating is stored on the tap, so an answer is
+ * Inline rather than a dialog, so it never gets in the way of the result.
+ * The rating is stored on the tap, so an answer is
  * never lost to someone who closes the page before writing a comment; the
  * comment, if any, replaces it with the same rating.
  */
