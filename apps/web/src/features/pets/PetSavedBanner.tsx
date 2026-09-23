@@ -23,7 +23,13 @@ export default function PetSavedBanner({
   const ref = useRef<HTMLDivElement>(null)
   // It arrives with the page, where a live region is not announced; taking
   // focus is what makes a screen reader read it.
-  useEffect(() => { ref.current?.focus() }, [])
+  useEffect(() => {
+    ref.current?.focus()
+    // Shown once: a reload or a step back should not confirm the save again.
+    const url = new URL(window.location.href)
+    url.searchParams.delete('petSaved')
+    window.history.replaceState(window.history.state, '', url.pathname + url.search + url.hash)
+  }, [])
   const text = kind === 'created' ? t.petAdded : kind === 'deleted' ? t.petDeleted : t.petSaved
   return (
     <div ref={ref} tabIndex={-1} role="status" className="banner toast-banner pet-saved-banner">

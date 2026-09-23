@@ -17,7 +17,7 @@ export default async function EditPetPage({ params }: { params: Promise<{ id: st
   const cabinet = await requireCabinet(`/login?next=${encodeURIComponent(`/pets/${id}/edit`)}`)
 
   const service = createServiceClient()
-  const [{ data: pet }, locale] = await Promise.all([
+  const [{ data: pet, error }, locale] = await Promise.all([
     service
       .from('pets')
       .select('*')
@@ -28,6 +28,8 @@ export default async function EditPetPage({ params }: { params: Promise<{ id: st
     getLocale(),
   ])
 
+  // A failed read is an error; a malformed id (22P02) is just another missing pet.
+  if (error && error.code !== '22P02') throw new Error(`Could not load the pet: ${error.message}`)
   // Someone else's pet, a deleted one and a malformed id all look the same.
   if (!pet) notFound()
 

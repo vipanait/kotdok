@@ -150,7 +150,7 @@ export default function DeleteAccountForm() {
   if (stage.kind === 'reauth') {
     return (
       <div ref={statusRef} tabIndex={-1} className="deletion-outcome">
-        <p className="banner" role="status">{t.reauth}</p>
+        <div className="banner" role="status">{t.reauth}</div>
         <a
           href={LOGIN_AGAIN}
           className="btn primary"

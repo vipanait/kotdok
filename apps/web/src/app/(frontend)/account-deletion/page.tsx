@@ -35,7 +35,11 @@ export default async function AccountDeletionPage() {
   const [locale, user] = await Promise.all([getLocale(), getAuthUser()])
   // Signed in but already being deleted: the cabinet is closed, so no links to it —
   // they would only bounce between the cabinet and sign-in.
-  const cabinetOpen = user ? (await loadCabinetState()).kind === 'open' : false
+  // This page must stay readable whatever the account's state, so a profile that
+  // cannot be read (already removed, or a failed read) just means "no cabinet".
+  const cabinetOpen = user
+    ? await loadCabinetState().then(state => state.kind === 'open', () => false)
+    : false
   const dict = await getDictionary(locale)
   const t = dict.deletion
   const days = formatCount(t.timingDays, DELETION_COMPLETION_DAYS, locale)

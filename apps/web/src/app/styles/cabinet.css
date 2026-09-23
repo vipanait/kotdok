@@ -1,7 +1,5 @@
 /* Cabinet, pets and credits screens — additions to the design system (design-system.css). */
 @layer components {
-  .nowrap { white-space: nowrap; }
-
   /* A button that stays focusable while its request runs. */
   .btn[aria-disabled='true'] { opacity: 0.55; cursor: default; }
 

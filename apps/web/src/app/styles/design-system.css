@@ -486,6 +486,7 @@
   }
 
   .public-footer .row { gap: 16px; flex-wrap: wrap; }
+  .public-footer a { display: inline-flex; align-items: center; min-height: 44px; }
   .public-footer a:hover { color: var(--text); }
 
   .locale-switch { display: inline-flex; align-items: center; gap: 2px; }
@@ -1044,7 +1045,9 @@
     .topbar .row { gap: 10px; }
     .mobile-brand { display: block; }
     .mobile-brand .logo { width: 90px; }
-    .mobile-balance { display: inline-flex; min-height: 32px; }
+    /* 32px pill, 44px target. */
+    .mobile-balance { display: inline-flex; min-height: 32px; position: relative; }
+    .mobile-balance::after { content: ''; position: absolute; inset: -6px 0; }
     .user-email { display: none; }
 
     /* Room for the bottom navigation, plus the home indicator. */
