@@ -1,4 +1,8 @@
 @import "tailwindcss";
+@import "./styles/auth.css";
+@import "./styles/cabinet.css";
+@import "./styles/check.css";
+@import "./styles/pages.css";
 
 /*
  * Lapka web design system — web concept 01 (docs/design/web-concept-v1).
