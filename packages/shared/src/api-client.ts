@@ -7,6 +7,7 @@ import {
   CheckJobAcceptedSchema,
   CheckJobStatusSchema,
   DELETION_RECEIPT_HEADER,
+  CheckFeedbackSchema,
   ExtraCheckRequestStatusSchema,
   HealthSchema,
   IDEMPOTENCY_KEY_HEADER,
@@ -251,6 +252,8 @@ export function createApiClient(options: ApiClientOptions) {
       call('/credits/extra-request', ExtraCheckRequestStatusSchema, { method: 'POST' }),
 
     sendFeedback: (body: FeedbackInput) => call<void>('/feedback', null, { method: 'POST', body }),
+
+    getCheckFeedback: (checkId: string) => call(`/checks/${checkId}/feedback`, CheckFeedbackSchema),
 
     /**
      * Asks for a proof that the person authenticated a moment ago.

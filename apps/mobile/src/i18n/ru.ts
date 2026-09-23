@@ -147,6 +147,13 @@ export const ru = {
     youDescribed: 'Что вы описали',
     disclaimer: 'Это не диагноз. Решение о лечении принимает только ветеринарный врач.',
     newCheck: 'Новая проверка',
+    feedbackQuestion: 'Ответ был полезен?',
+    feedbackLiked: 'Полезно',
+    feedbackDisliked: 'Не полезно',
+    feedbackComment: 'Что можно улучшить? Необязательно',
+    feedbackSend: 'Отправить',
+    feedbackThanks: 'Спасибо, учтём',
+    feedbackFailed: 'Не удалось отправить отзыв',
   },
 
   history: {

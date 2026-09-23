@@ -9,7 +9,6 @@ import { createServiceClient } from '@/server/supabase/server'
 import { listChecks } from '@/server/checks/check-history-service'
 import { createCheckJob } from '@/server/checks/check-job-service'
 import { apiError, apiSuccess } from '@/server/api/response'
-import { consumeRateLimit } from '@/server/api/rate-limit'
 import { serviceFailureResponse } from '@/server/api/failure-response'
 import { withApiAuth, type ApiContext } from '@/server/api/with-api-auth'
 
@@ -55,16 +54,8 @@ export const GET = withApiAuth(async (request: NextRequest, context: ApiContext)
 export const POST = withApiAuth(async (request: NextRequest, context: ApiContext) => {
   const supabase = createServiceClient()
 
-  // An analysis costs an AI call and a credit, which is why this allowance was
-  // written in stage 1. This is the first route to spend it.
-  const verdict = await consumeRateLimit(supabase, 'analysis_create', context.account.userId)
-  if (!verdict.allowed) {
-    return apiError(
-      context.requestId,
-      'rate_limited',
-      'Слишком много проверок подряд. Попробуйте позже',
-    )
-  }
+  // The analysis allowance is spent inside analyzeSymptomCheck, which the site
+  // calls too. Spending it here as well charged the phone twice per check.
 
   let body: unknown
   try {

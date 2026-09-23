@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { UuidSchema } from './primitives'
 
 /** Mirrors the extra_check_request_status enum. */
 export const EXTRA_CHECK_REQUEST_STATUSES = ['pending', 'approved', 'rejected'] as const
@@ -15,9 +16,29 @@ export type ExtraCheckRequestStatus = z.infer<typeof ExtraCheckRequestStatusSche
 export const FEEDBACK_RATINGS = ['liked', 'disliked'] as const
 const FEEDBACK_COMMENT_MAX = 2000
 
+export const FeedbackRatingSchema = z.enum(FEEDBACK_RATINGS)
+
+export type FeedbackRating = z.infer<typeof FeedbackRatingSchema>
+
+/**
+ * An opinion on one result. Sending another for the same check replaces the
+ * first: people change their minds after the visit to the vet.
+ */
 export const FeedbackInputSchema = z.strictObject({
-  rating: z.enum(FEEDBACK_RATINGS),
+  check_id: UuidSchema,
+  rating: FeedbackRatingSchema,
   comment: z.string().max(FEEDBACK_COMMENT_MAX).optional(),
 })
 
 export type FeedbackInput = z.infer<typeof FeedbackInputSchema>
+
+/**
+ * The opinion already given on a check, so the result screen does not ask
+ * twice. A separate resource rather than a field on the check: the check's
+ * schema is strict, and builds already installed would reject a new field.
+ */
+export const CheckFeedbackSchema = z.strictObject({
+  rating: FeedbackRatingSchema.nullable(),
+})
+
+export type CheckFeedback = z.infer<typeof CheckFeedbackSchema>

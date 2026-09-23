@@ -5,7 +5,7 @@ import type { ErrorCode, Locale } from '@lapka/contracts'
 import type { createServiceClient } from '@/server/supabase/server'
 import { loadAccount } from '@/server/auth/account-state'
 import { consumeRateLimit } from '@/server/api/rate-limit'
-import type { PetSpecies, SymptomCheckResult, Urgency } from '@/shared/types'
+import type { Pet, PetSpecies, SymptomCheckResult, Urgency } from '@/shared/types'
 import { PAIN_SIGN_PROMPT_LABELS, type PainSign } from '@/shared/utils/check-params'
 import { sanitizeSpecies } from '@/shared/utils/pet-utils'
 
@@ -217,6 +217,28 @@ const STOOL_LABELS: Record<string, string> = {
   bloody: 'blood in stool',
 }
 
+/** The pet as the model reads it: one line of what the owner filled in. */
+export function describePetProfile(pet: Pet, species: PetSpecies): string {
+  return [
+    `species: ${species}`,
+    pet.name,
+    pet.breed ? `breed: ${pet.breed}` : null,
+    pet.age_years != null ? `${pet.age_years} years old` : null,
+    pet.weight_kg != null ? `weight: ${pet.weight_kg} kg` : null,
+    pet.sex || null,
+    pet.neutered != null ? (pet.neutered ? 'neutered/spayed' : 'intact') : null,
+    pet.indoor_outdoor ? `lifestyle: ${pet.indoor_outdoor}` : null,
+    pet.diet ? `diet: ${pet.diet} food` : null,
+    species === 'dog' && pet.size_class ? `size: ${pet.size_class}` : null,
+    species === 'dog' && pet.walk_activity ? `walk activity: ${pet.walk_activity}` : null,
+    pet.vaccinated != null ? (pet.vaccinated ? 'vaccinated' : 'not vaccinated') : null,
+    pet.allergies?.length ? `allergies: ${pet.allergies.join(', ')}` : null,
+    pet.chronic_conditions?.length ? `chronic conditions: ${pet.chronic_conditions.join(', ')}` : null,
+    pet.medications?.length ? `medications: ${pet.medications.join(', ')}` : null,
+    pet.notes ? `additional notes: ${pet.notes}` : null,
+  ].filter(Boolean).join(', ')
+}
+
 /**
  * Runs one analysis: checks the account, resolves the pet, reserves a credit,
  * asks the model, stores the result, and compensates the credit if anything
@@ -280,24 +302,7 @@ export async function analyzeSymptomCheck(
 
       verifiedPetId = pet.id
       species = sanitizeSpecies(pet.species)
-      const parts = [
-        `species: ${species}`,
-        pet.name,
-        pet.breed ? `breed: ${pet.breed}` : null,
-        pet.age_years != null ? `${pet.age_years} years old` : null,
-        pet.sex || null,
-        pet.neutered != null ? (pet.neutered ? 'neutered/spayed' : 'intact') : null,
-        pet.indoor_outdoor ? `lifestyle: ${pet.indoor_outdoor}` : null,
-        pet.diet ? `diet: ${pet.diet} food` : null,
-        species === 'dog' && pet.size_class ? `size: ${pet.size_class}` : null,
-        species === 'dog' && pet.walk_activity ? `walk activity: ${pet.walk_activity}` : null,
-        pet.vaccinated != null ? (pet.vaccinated ? 'vaccinated' : 'not vaccinated') : null,
-        pet.allergies?.length ? `allergies: ${pet.allergies.join(', ')}` : null,
-        pet.chronic_conditions?.length ? `chronic conditions: ${pet.chronic_conditions.join(', ')}` : null,
-        pet.medications?.length ? `medications: ${pet.medications.join(', ')}` : null,
-        pet.notes ? `additional notes: ${pet.notes}` : null,
-      ].filter(Boolean)
-      petContext = `\n\nPET PROFILE: ${parts.join(', ')}`
+      petContext = `\n\nPET PROFILE: ${describePetProfile(pet, species)}`
     }
 
     // Reserve the credit before expensive external work. If anything below
