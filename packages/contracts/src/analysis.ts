@@ -22,11 +22,32 @@ export type PainSign = (typeof PAIN_SIGNS)[number]
 export const SYMPTOMS_MIN = 3
 export const SYMPTOMS_MAX = 2000
 
+/**
+ * Photos on one check. Owner's decision of 23 September 2026: three.
+ *
+ * `maxBytes` is also the bucket's own `file_size_limit`, so Storage refuses a
+ * larger body even from a client that ignores this. `maxSide` guards the
+ * server against an image whose header claims an absurd size. `grantSeconds`
+ * is how long an upload may wait before it is attached to a check — shorter
+ * than the two hours Storage gives the signed URL itself, which cannot be
+ * changed.
+ */
+export const PHOTO_LIMITS = {
+  maxFiles: 3,
+  maxBytes: 5 * 1024 * 1024,
+  maxSide: 4096,
+  grantSeconds: 15 * 60,
+} as const
+
 export const CheckCreateInputSchema = z.strictObject({
   pet_id: UuidSchema.nullable().optional(),
   symptoms: z.string().min(SYMPTOMS_MIN).max(SYMPTOMS_MAX),
   /** Ids handed out by POST /uploads; a raw URL is never accepted. */
-  upload_ids: z.array(UuidSchema).max(5).default([]),
+  upload_ids: z
+    .array(UuidSchema)
+    .max(PHOTO_LIMITS.maxFiles)
+    .refine((ids) => new Set(ids).size === ids.length, 'upload_ids must not repeat')
+    .default([]),
   appetite: z.enum(APPETITE_VALUES).nullable().optional(),
   activity: z.enum(ACTIVITY_VALUES).nullable().optional(),
   duration: z.enum(DURATION_VALUES).nullable().optional(),
@@ -75,24 +96,22 @@ export type CheckJobStatus = z.infer<typeof CheckJobStatusSchema>
 
 // Uploads. The server hands out a scoped permission to write one immutable
 // object; the client never tells the server which URL to read.
-export const UPLOAD_CONTENT_TYPES = [
-  'image/jpeg',
-  'image/png',
-  'image/webp',
-  'image/heic',
-  'image/heif',
-] as const
+//
+// Only what the AI provider reads. The phone turns HEIC into JPEG before
+// asking; the server has nothing to decode HEIC with.
+export const UPLOAD_CONTENT_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const
+export type UploadContentType = (typeof UPLOAD_CONTENT_TYPES)[number]
 
 export const UploadRequestSchema = z.strictObject({
   files: z
     .array(
       z.strictObject({
         content_type: z.enum(UPLOAD_CONTENT_TYPES),
-        size_bytes: z.int().min(1),
+        size_bytes: z.int().min(1).max(PHOTO_LIMITS.maxBytes),
       }),
     )
     .min(1)
-    .max(5),
+    .max(PHOTO_LIMITS.maxFiles),
 })
 
 export type UploadRequest = z.infer<typeof UploadRequestSchema>

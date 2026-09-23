@@ -573,7 +573,7 @@ components:
           maxLength: 2000
         upload_ids:
           default: []
-          maxItems: 5
+          maxItems: 3
           type: array
           items:
             type: string
@@ -704,7 +704,7 @@ components:
       properties:
         files:
           minItems: 1
-          maxItems: 5
+          maxItems: 3
           type: array
           items:
             type: object
@@ -715,12 +715,10 @@ components:
                   - image/jpeg
                   - image/png
                   - image/webp
-                  - image/heic
-                  - image/heif
               size_bytes:
                 type: integer
                 minimum: 1
-                maximum: 9007199254740991
+                maximum: 5242880
             required:
               - content_type
               - size_bytes
@@ -1443,6 +1441,9 @@ paths:
   /uploads:
     post:
       summary: Scoped permission to upload photos to private storage
+      description: One grant per file. PUT the file to `url` with exactly `headers` before `expires_at`,
+        then pass the `upload_id`s to POST /checks. A declared size over the limit is refused here;
+        the real bytes are checked again when the check is created.
       requestBody:
         required: true
         content:
@@ -1488,28 +1489,6 @@ paths:
                 error:
                   code: account_deleting
                   message: Account is being deleted
-                  request_id: 01J000000000000000000000
-        "413":
-          description: Upload exceeds the published size limit
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-              example:
-                error:
-                  code: payload_too_large
-                  message: Upload exceeds the published size limit
-                  request_id: 01J000000000000000000000
-        "415":
-          description: File format is not accepted
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
-              example:
-                error:
-                  code: unsupported_media_type
-                  message: File format is not accepted
                   request_id: 01J000000000000000000000
         "429":
           description: Too many requests

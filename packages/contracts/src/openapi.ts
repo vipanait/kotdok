@@ -241,10 +241,14 @@ export function buildOpenApiDocument(): Record<string, unknown> {
       '/uploads': {
         post: {
           summary: 'Scoped permission to upload photos to private storage',
+          description:
+            'One grant per file. PUT the file to `url` with exactly `headers` before `expires_at`, ' +
+            'then pass the `upload_id`s to POST /checks. A declared size over the limit is refused here; ' +
+            'the real bytes are checked again when the check is created.',
           requestBody: body('UploadRequest'),
           responses: {
             '201': json('UploadGrant', 'One grant per requested file'),
-            ...commonErrors('bad_request', 'payload_too_large', 'unsupported_media_type'),
+            ...commonErrors('bad_request', 'rate_limited'),
           },
         },
       },
