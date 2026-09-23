@@ -15,6 +15,11 @@ type SupabaseService = ReturnType<typeof createServiceClient>
 export const RATE_LIMITS = {
   /** An analysis costs an AI call and a credit. */
   analysis_create: { limit: 10, windowSeconds: 60 * 60 },
+  /**
+   * Each call reserves Storage for up to three photos. Generous next to
+   * `analysis_create`: a person may pick photos again before sending.
+   */
+  upload_create: { limit: 30, windowSeconds: 60 * 60 },
   /** Asking for a free extra check notifies a human. */
   extra_check_request: { limit: 5, windowSeconds: 60 * 60 },
   /**
