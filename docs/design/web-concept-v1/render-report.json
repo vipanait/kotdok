@@ -1,0 +1,642 @@
+{
+  "date": "2026-09-23",
+  "screens": [
+    {
+      "id": "landing",
+      "name": "Главная",
+      "overflow": false,
+      "assets": true,
+      "height": 1092
+    },
+    {
+      "id": "login",
+      "name": "Вход",
+      "overflow": false,
+      "assets": true,
+      "height": 1000
+    },
+    {
+      "id": "register",
+      "name": "Регистрация",
+      "overflow": false,
+      "assets": true,
+      "height": 1000
+    },
+    {
+      "id": "forgot",
+      "name": "Восстановление пароля",
+      "overflow": false,
+      "assets": true,
+      "height": 1000
+    },
+    {
+      "id": "password",
+      "name": "Новый пароль",
+      "overflow": false,
+      "assets": true,
+      "height": 1000
+    },
+    {
+      "id": "sent",
+      "name": "Письмо отправлено",
+      "overflow": false,
+      "assets": true,
+      "height": 1000
+    },
+    {
+      "id": "auth-error",
+      "name": "Ошибка входа",
+      "overflow": false,
+      "assets": true,
+      "height": 1000
+    },
+    {
+      "id": "dashboard",
+      "name": "Кабинет",
+      "overflow": false,
+      "assets": true,
+      "height": 1193
+    },
+    {
+      "id": "dashboard-empty",
+      "name": "Первый вход",
+      "overflow": false,
+      "assets": true,
+      "height": 1150
+    },
+    {
+      "id": "pets",
+      "name": "Питомцы",
+      "overflow": false,
+      "assets": true,
+      "height": 1000
+    },
+    {
+      "id": "pet-new",
+      "name": "Добавление питомца",
+      "overflow": false,
+      "assets": true,
+      "height": 1625
+    },
+    {
+      "id": "pet-cat",
+      "name": "Карточка кошки",
+      "overflow": false,
+      "assets": true,
+      "height": 1625
+    },
+    {
+      "id": "pet-dog",
+      "name": "Карточка собаки",
+      "overflow": false,
+      "assets": true,
+      "height": 1722
+    },
+    {
+      "id": "check",
+      "name": "Проверка симптомов",
+      "overflow": false,
+      "assets": true,
+      "height": 1289
+    },
+    {
+      "id": "check-empty",
+      "name": "Проверка без питомцев",
+      "overflow": false,
+      "assets": true,
+      "height": 1000
+    },
+    {
+      "id": "loading",
+      "name": "Ожидание",
+      "overflow": false,
+      "assets": true,
+      "height": 1000
+    },
+    {
+      "id": "check-error",
+      "name": "Ошибка проверки",
+      "overflow": false,
+      "assets": true,
+      "height": 1000
+    },
+    {
+      "id": "result-emergency",
+      "name": "Результат · Экстренно",
+      "overflow": false,
+      "assets": true,
+      "height": 1334
+    },
+    {
+      "id": "result-urgent",
+      "name": "Результат · Срочно",
+      "overflow": false,
+      "assets": true,
+      "height": 1334
+    },
+    {
+      "id": "result-monitor",
+      "name": "Результат · Наблюдаем",
+      "overflow": false,
+      "assets": true,
+      "height": 1266
+    },
+    {
+      "id": "result-home_care",
+      "name": "Результат · Домашний уход",
+      "overflow": false,
+      "assets": true,
+      "height": 1068
+    },
+    {
+      "id": "result-healthy",
+      "name": "Результат · Всё в порядке",
+      "overflow": false,
+      "assets": true,
+      "height": 1002
+    },
+    {
+      "id": "history",
+      "name": "История",
+      "overflow": false,
+      "assets": true,
+      "height": 1000
+    },
+    {
+      "id": "history-empty",
+      "name": "Пустая история",
+      "overflow": false,
+      "assets": true,
+      "height": 1000
+    },
+    {
+      "id": "credits",
+      "name": "Нет проверок",
+      "overflow": false,
+      "assets": true,
+      "height": 1000
+    },
+    {
+      "id": "credits-pending",
+      "name": "Запрос на рассмотрении",
+      "overflow": false,
+      "assets": true,
+      "height": 1000
+    },
+    {
+      "id": "credits-rejected",
+      "name": "Запрос отклонён",
+      "overflow": false,
+      "assets": true,
+      "height": 1000
+    },
+    {
+      "id": "deletion",
+      "name": "Удаление аккаунта",
+      "overflow": false,
+      "assets": true,
+      "height": 1000
+    },
+    {
+      "id": "legal",
+      "name": "Условия сервиса",
+      "overflow": false,
+      "assets": true,
+      "height": 1000
+    },
+    {
+      "id": "admin",
+      "name": "Статистика администратора",
+      "overflow": false,
+      "assets": true,
+      "height": 1044
+    }
+  ],
+  "responsive": [
+    {
+      "id": "landing",
+      "width": 1024,
+      "overflow": false,
+      "assets": true,
+      "height": 1240
+    },
+    {
+      "id": "login",
+      "width": 1024,
+      "overflow": false,
+      "assets": true,
+      "height": 902
+    },
+    {
+      "id": "register",
+      "width": 1024,
+      "overflow": false,
+      "assets": true,
+      "height": 933
+    },
+    {
+      "id": "forgot",
+      "width": 1024,
+      "overflow": false,
+      "assets": true,
+      "height": 844
+    },
+    {
+      "id": "password",
+      "width": 1024,
+      "overflow": false,
+      "assets": true,
+      "height": 844
+    },
+    {
+      "id": "sent",
+      "width": 1024,
+      "overflow": false,
+      "assets": true,
+      "height": 844
+    },
+    {
+      "id": "auth-error",
+      "width": 1024,
+      "overflow": false,
+      "assets": true,
+      "height": 993
+    },
+    {
+      "id": "dashboard",
+      "width": 1024,
+      "overflow": false,
+      "assets": true,
+      "height": 1530
+    },
+    {
+      "id": "dashboard-empty",
+      "width": 1024,
+      "overflow": false,
+      "assets": true,
+      "height": 1305
+    },
+    {
+      "id": "pets",
+      "width": 1024,
+      "overflow": false,
+      "assets": true,
+      "height": 844
+    },
+    {
+      "id": "pet-new",
+      "width": 1024,
+      "overflow": false,
+      "assets": true,
+      "height": 1593
+    },
+    {
+      "id": "pet-cat",
+      "width": 1024,
+      "overflow": false,
+      "assets": true,
+      "height": 1593
+    },
+    {
+      "id": "pet-dog",
+      "width": 1024,
+      "overflow": false,
+      "assets": true,
+      "height": 1690
+    },
+    {
+      "id": "check",
+      "width": 1024,
+      "overflow": false,
+      "assets": true,
+      "height": 1480
+    },
+    {
+      "id": "check-empty",
+      "width": 1024,
+      "overflow": false,
+      "assets": true,
+      "height": 844
+    },
+    {
+      "id": "loading",
+      "width": 1024,
+      "overflow": false,
+      "assets": true,
+      "height": 844
+    },
+    {
+      "id": "check-error",
+      "width": 1024,
+      "overflow": false,
+      "assets": true,
+      "height": 851
+    },
+    {
+      "id": "result-emergency",
+      "width": 1024,
+      "overflow": false,
+      "assets": true,
+      "height": 1302
+    },
+    {
+      "id": "result-urgent",
+      "width": 1024,
+      "overflow": false,
+      "assets": true,
+      "height": 1302
+    },
+    {
+      "id": "result-monitor",
+      "width": 1024,
+      "overflow": false,
+      "assets": true,
+      "height": 1234
+    },
+    {
+      "id": "result-home_care",
+      "width": 1024,
+      "overflow": false,
+      "assets": true,
+      "height": 1036
+    },
+    {
+      "id": "result-healthy",
+      "width": 1024,
+      "overflow": false,
+      "assets": true,
+      "height": 991
+    },
+    {
+      "id": "history",
+      "width": 1024,
+      "overflow": false,
+      "assets": true,
+      "height": 844
+    },
+    {
+      "id": "history-empty",
+      "width": 1024,
+      "overflow": false,
+      "assets": true,
+      "height": 844
+    },
+    {
+      "id": "credits",
+      "width": 1024,
+      "overflow": false,
+      "assets": true,
+      "height": 844
+    },
+    {
+      "id": "credits-pending",
+      "width": 1024,
+      "overflow": false,
+      "assets": true,
+      "height": 844
+    },
+    {
+      "id": "credits-rejected",
+      "width": 1024,
+      "overflow": false,
+      "assets": true,
+      "height": 844
+    },
+    {
+      "id": "deletion",
+      "width": 1024,
+      "overflow": false,
+      "assets": true,
+      "height": 976
+    },
+    {
+      "id": "legal",
+      "width": 1024,
+      "overflow": false,
+      "assets": true,
+      "height": 844
+    },
+    {
+      "id": "admin",
+      "width": 1024,
+      "overflow": false,
+      "assets": true,
+      "height": 1036
+    },
+    {
+      "id": "landing",
+      "width": 390,
+      "overflow": false,
+      "assets": true,
+      "height": 1567
+    },
+    {
+      "id": "login",
+      "width": 390,
+      "overflow": false,
+      "assets": true,
+      "height": 945
+    },
+    {
+      "id": "register",
+      "width": 390,
+      "overflow": false,
+      "assets": true,
+      "height": 976
+    },
+    {
+      "id": "forgot",
+      "width": 390,
+      "overflow": false,
+      "assets": true,
+      "height": 844
+    },
+    {
+      "id": "password",
+      "width": 390,
+      "overflow": false,
+      "assets": true,
+      "height": 844
+    },
+    {
+      "id": "sent",
+      "width": 390,
+      "overflow": false,
+      "assets": true,
+      "height": 844
+    },
+    {
+      "id": "auth-error",
+      "width": 390,
+      "overflow": false,
+      "assets": true,
+      "height": 1035
+    },
+    {
+      "id": "dashboard",
+      "width": 390,
+      "overflow": false,
+      "assets": true,
+      "height": 2123
+    },
+    {
+      "id": "dashboard-empty",
+      "width": 390,
+      "overflow": false,
+      "assets": true,
+      "height": 1453
+    },
+    {
+      "id": "pets",
+      "width": 390,
+      "overflow": false,
+      "assets": true,
+      "height": 910
+    },
+    {
+      "id": "pet-new",
+      "width": 390,
+      "overflow": false,
+      "assets": true,
+      "height": 2641
+    },
+    {
+      "id": "pet-cat",
+      "width": 390,
+      "overflow": false,
+      "assets": true,
+      "height": 2747
+    },
+    {
+      "id": "pet-dog",
+      "width": 390,
+      "overflow": false,
+      "assets": true,
+      "height": 2942
+    },
+    {
+      "id": "check",
+      "width": 390,
+      "overflow": false,
+      "assets": true,
+      "height": 2268
+    },
+    {
+      "id": "check-empty",
+      "width": 390,
+      "overflow": false,
+      "assets": true,
+      "height": 844
+    },
+    {
+      "id": "loading",
+      "width": 390,
+      "overflow": false,
+      "assets": true,
+      "height": 844
+    },
+    {
+      "id": "check-error",
+      "width": 390,
+      "overflow": false,
+      "assets": true,
+      "height": 844
+    },
+    {
+      "id": "result-emergency",
+      "width": 390,
+      "overflow": false,
+      "assets": true,
+      "height": 1973
+    },
+    {
+      "id": "result-urgent",
+      "width": 390,
+      "overflow": false,
+      "assets": true,
+      "height": 1973
+    },
+    {
+      "id": "result-monitor",
+      "width": 390,
+      "overflow": false,
+      "assets": true,
+      "height": 1931
+    },
+    {
+      "id": "result-home_care",
+      "width": 390,
+      "overflow": false,
+      "assets": true,
+      "height": 1672
+    },
+    {
+      "id": "result-healthy",
+      "width": 390,
+      "overflow": false,
+      "assets": true,
+      "height": 1519
+    },
+    {
+      "id": "history",
+      "width": 390,
+      "overflow": false,
+      "assets": true,
+      "height": 876
+    },
+    {
+      "id": "history-empty",
+      "width": 390,
+      "overflow": false,
+      "assets": true,
+      "height": 862
+    },
+    {
+      "id": "credits",
+      "width": 390,
+      "overflow": false,
+      "assets": true,
+      "height": 1112
+    },
+    {
+      "id": "credits-pending",
+      "width": 390,
+      "overflow": false,
+      "assets": true,
+      "height": 1112
+    },
+    {
+      "id": "credits-rejected",
+      "width": 390,
+      "overflow": false,
+      "assets": true,
+      "height": 1112
+    },
+    {
+      "id": "deletion",
+      "width": 390,
+      "overflow": false,
+      "assets": true,
+      "height": 1127
+    },
+    {
+      "id": "legal",
+      "width": 390,
+      "overflow": false,
+      "assets": true,
+      "height": 914
+    },
+    {
+      "id": "admin",
+      "width": 390,
+      "overflow": false,
+      "assets": true,
+      "height": 2373
+    }
+  ],
+  "errors": [],
+  "chips": "passed",
+  "oauthConsent": "passed",
+  "mainJourney": "passed",
+  "deleteCancel": "passed"
+}
