@@ -12,8 +12,9 @@ import { defaultSeo, siteName, siteUrl, supportEmail } from "@/shared/seo";
 const nunito = Nunito({ subsets: ["latin", "cyrillic"], weight: ["700", "800"], variable: "--font-nunito" });
 const manrope = Manrope({ subsets: ["latin", "cyrillic"], variable: "--font-manrope" });
 // Google's sign-in button asks for Google Sans Medium; it is only used there.
+// Subset to Latin and Cyrillic (docs/design/mobile-concept-v1/assets/GoogleSans.ttf).
 const googleSans = localFont({
-  src: "./fonts/GoogleSans.ttf",
+  src: "./fonts/GoogleSans-subset.woff2",
   weight: "500",
   variable: "--font-google-sans",
   display: "swap",

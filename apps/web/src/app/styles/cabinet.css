@@ -14,8 +14,11 @@
     align-items: center;
     justify-content: space-between;
     gap: 0 16px;
-    padding-block: 4px;
   }
+
+  /* A banner that carries a link keeps its height through the link's 44px target. */
+  .pet-saved-banner:has(.link),
+  .credits-banner:has(.link) { padding-block: 4px; }
 
   .credits-banner {
     margin-bottom: 24px;

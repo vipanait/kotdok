@@ -115,7 +115,7 @@ export default function ResultFeedback({ checkId }: { checkId: string }) {
             type="button"
             onClick={() => void submitComment()}
             disabled={sending}
-            className="btn primary block"
+            className="btn primary btn-block"
           >
             {t.submit}
           </button>

@@ -41,7 +41,6 @@ export default async function CabinetShell({ cabinet, active, crumb, children }:
     check: t.check,
     history: t.history,
   }
-  const shortLabels: Record<CabinetSection, string> = { ...labels, check: t.checkShort }
   const initial = (cabinet.email.trim()[0] ?? '·').toUpperCase()
 
   return (
@@ -139,7 +138,7 @@ export default async function CabinetShell({ cabinet, active, crumb, children }:
             aria-current={section.key === active ? 'page' : undefined}
           >
             <Icon name={section.icon} />
-            {shortLabels[section.key]}
+            {labels[section.key]}
           </Link>
         ))}
       </nav>

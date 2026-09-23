@@ -39,7 +39,7 @@
   }
 
   .check-notice p { font-size: 14px; color: var(--muted); }
-  .check-notice .link { min-height: 36px; justify-self: start; }
+  .check-notice .link { justify-self: start; }
 
   .check-pet,
   .result-pet { min-width: 0; }

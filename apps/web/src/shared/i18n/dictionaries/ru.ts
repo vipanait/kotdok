@@ -26,7 +26,6 @@ const ru = {
     overview: 'Обзор',
     pets: 'Питомцы',
     check: 'Проверка симптомов',
-    checkShort: 'Проверка',
     history: 'История',
     account: 'Личный кабинет',
     creditsAvailable: 'Доступно проверок',

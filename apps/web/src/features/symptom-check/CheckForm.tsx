@@ -271,7 +271,7 @@ export default function CheckForm({ pets, initialPetId, credits: initialCredits 
         >
           <div className="section-head">
             <h2 id={`${ids}-title`}>{t.formTitle}</h2>
-            <span className="small muted">{t.formCost}</span>
+            <span className="small muted nowrap">{t.formCost}</span>
           </div>
 
           {noCredits && (

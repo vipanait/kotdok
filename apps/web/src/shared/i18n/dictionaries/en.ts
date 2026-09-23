@@ -28,7 +28,6 @@ const en: Dictionary = {
     overview: 'Overview',
     pets: 'Pets',
     check: 'Symptom check',
-    checkShort: 'Check',
     history: 'History',
     account: 'My account',
     creditsAvailable: 'Checks available',
