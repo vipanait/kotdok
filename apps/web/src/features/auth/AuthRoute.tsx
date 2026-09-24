@@ -1,4 +1,3 @@
-import LapkaLogo from '@/components/LapkaLogo'
 import PublicFooter from '@/components/site/PublicFooter'
 import PublicHeader from '@/components/site/PublicHeader'
 import Icon from '@/components/ui/Icon'
@@ -37,7 +36,6 @@ export default async function AuthRoute({ mode, searchParams }: Props) {
       <PublicHeader dict={dict} account="none" />
       <main className="auth-wrap">
         <section className="auth-story">
-          <LapkaLogo className="logo" />
           <h1>
             {t.titleLine1}
             <br />
