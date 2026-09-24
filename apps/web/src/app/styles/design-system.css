@@ -803,12 +803,22 @@
   .welcome-panel p { max-width: 600px; margin-top: 8px; color: var(--muted); }
   .welcome-panel .btn { flex-shrink: 0; }
 
-  .lower-grid {
+  /* Overview: pets beside the newest results, whatever the number of pets. */
+  .dashboard-columns {
     display: grid;
-    grid-template-columns: minmax(0, 1.7fr) minmax(260px, 1fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr);
     gap: 24px;
-    margin-top: 30px;
+    align-items: start;
   }
+
+  /* In these half-width cards the action goes under its title, never beside it. */
+  .dashboard-columns .section-head { flex-direction: column; align-items: flex-start; gap: 4px; margin-bottom: 4px; }
+  .dashboard-columns .history-row { flex-wrap: wrap; }
+  .dashboard-columns .history-row .copy { flex-basis: calc(100% - 75px); }
+  .dashboard-columns .history-row .badge { margin-left: 56px; }
+  .dashboard-columns .history-row > .icon { display: none; }
+  .dashboard-after-empty { margin-top: 24px; }
+  .recent-checks-note { margin-top: 20px; }
 
   .toast-banner { margin-bottom: 24px; }
 
@@ -819,16 +829,33 @@
 
   .avatar { width: 58px; height: 58px; object-fit: contain; flex-shrink: 0; }
 
-  .pet-card { position: relative; display: block; transition: border-color 150ms ease; }
-  .pet-card:hover { border-color: var(--green); }
-  .pet-card .row { margin: 8px 0 20px; }
-  .pet-card .pet-card-name { font-size: 24px; overflow-wrap: anywhere; }
-  .pet-card p { font-size: 13px; color: var(--muted); }
-  .pet-card .badge { margin-top: 8px; }
-  .pet-card .arrow { position: absolute; top: 22px; right: 22px; color: var(--muted); }
+  /* Pets as compact rows: the overview's first three, and the full list. */
+  .compact-pets { margin: 0; padding: 0; list-style: none; }
+  .compact-pets > li { border-bottom: 1px solid var(--line); }
+  .compact-pets > li:last-child { border-bottom: 0; }
 
-  .progress { height: 4px; margin-top: 18px; border-radius: 8px; background: var(--soft); }
-  .progress span { display: block; height: 100%; border-radius: 8px; background: var(--green); }
+  .compact-pet {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 108px;
+    padding: 19px 0;
+  }
+
+  .compact-pet .avatar { width: 48px; height: 48px; }
+  .compact-pet-copy { flex: 1; min-width: 0; }
+  .compact-pet h3 { font-size: 18px; overflow-wrap: anywhere; }
+  .compact-pet p { margin: 3px 0 7px; font-size: 12px; color: var(--muted); }
+  .compact-pet-status { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
+  .compact-pet-status .badge { padding: 3px 8px; font-size: 11px; }
+  .compact-pet > .icon { width: 17px; color: var(--muted); }
+  .compact-pet:hover h3 { color: var(--green); }
+
+  .list-footer { margin-top: 4px; padding-top: 12px; border-top: 1px solid var(--line); }
+  .list-footer .link { width: 100%; justify-content: space-between; }
+
+  .pet-directory { max-width: 900px; }
+  .pet-directory .compact-pet { padding: 19px 4px; }
 
   .history-row {
     display: flex;
@@ -985,7 +1012,7 @@
     .workspace { padding: 28px; }
     .topbar { padding: 0 28px; }
     .grid3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .lower-grid { grid-template-columns: minmax(0, 1fr); }
+    .dashboard-columns { grid-template-columns: minmax(0, 1fr); }
     .hero h1 { font-size: 52px; }
     .auth-wrap { gap: 40px; }
     .auth-story h1 { font-size: 40px; }
@@ -1063,7 +1090,13 @@
     .card { padding: 22px; }
     .form-layout > .card { padding: 22px; }
     .form-layout > aside { order: 2; }
-    .lower-grid { margin-top: 24px; }
+    .dashboard-columns { gap: 20px; }
+    .dashboard-columns .card { padding: 20px; }
+    .compact-pet { gap: 10px; padding: 16px 0; }
+    .compact-pet .avatar { width: 42px; height: 42px; }
+    .compact-pet-status { font-size: 10px; }
+    .compact-pet-status > span:first-child { flex-basis: 100%; }
+    .pet-directory .compact-pet { padding: 16px 0; }
 
     /* Section heads with an action stack: title and count, then the link. */
     .section-head-action { flex-direction: column; align-items: flex-start; gap: 4px; margin-bottom: 16px; }

@@ -6,7 +6,7 @@ import { createServiceClient } from '@/server/supabase/server'
 import { mapSymptomCheckRow, symptomCheckSelect } from '@/server/symptom-check/map-symptom-check'
 import type { CheckPet } from '@/shared/types'
 
-const PET_COLUMNS = 'id, name, species, breed, age_years'
+const PET_COLUMNS = 'id, name, species, breed, age_years, chronic_conditions'
 
 type MappableRow = Parameters<typeof mapSymptomCheckRow>[0]
 

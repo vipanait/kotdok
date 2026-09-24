@@ -12,7 +12,7 @@ import CheckResultContent from '@/features/symptom-check/CheckResultContent'
 import { checkOptions, type CheckOption } from '@/features/symptom-check/check-options'
 import { csrfHeaders } from '@/shared/security/csrf-client'
 import type { CheckPet, SymptomCheckResult } from '@/shared/types'
-import { petSummary } from '@/shared/utils/pet-summary'
+import { petHealthFacts, petSummary } from '@/shared/utils/pet-summary'
 
 interface Props {
   /** At least one: the page shows its own empty state without pets. */
@@ -251,6 +251,9 @@ export default function CheckForm({ pets, initialPetId, credits: initialCredits 
   }
 
   const petLine = pet ? petSummary(pet, dict, locale) : ''
+  const facts = pet ? petHealthFacts(pet, dict, locale) : { age: null, chronic: null }
+  const factsLine = [facts.age, facts.chronic].filter(Boolean).join(' · ')
+  const factsId = `${ids}-pet-facts`
   const symptomsHintId = `${ids}-symptoms-hint`
   const symptomsFieldId = `${ids}-symptoms`
 
@@ -287,7 +290,12 @@ export default function CheckForm({ pets, initialPetId, credits: initialCredits 
 
           <label className="field">
             <span className="field-label">{t.petLabel}</span>
-            <select className="input" value={pet?.id ?? ''} onChange={e => setPetId(e.target.value)}>
+            <select
+              className="input"
+              value={pet?.id ?? ''}
+              onChange={e => setPetId(e.target.value)}
+              aria-describedby={factsLine ? factsId : undefined}
+            >
               {pets.map(p => {
                 const line = petSummary(p, dict, locale, ', ')
                 return (
@@ -298,6 +306,11 @@ export default function CheckForm({ pets, initialPetId, credits: initialCredits 
               })}
             </select>
           </label>
+          {/* Phones only (the card beside the form is hidden there): the chosen
+              pet's age and chronic conditions, right under the choice. */}
+          {factsLine && (
+            <p id={factsId} className="check-pet-inline" aria-live="polite">{factsLine}</p>
+          )}
 
           <div className="field">
             <label className="field-label" htmlFor={symptomsFieldId}>
@@ -372,7 +385,7 @@ export default function CheckForm({ pets, initialPetId, credits: initialCredits 
 
         <aside className="stack">
           {pet && (
-            <div className="card">
+            <div className="card check-pet-card">
               <div className="row">
                 <PetAvatar species={pet.species} />
                 <div className="check-pet">
@@ -381,6 +394,7 @@ export default function CheckForm({ pets, initialPetId, credits: initialCredits 
                 </div>
               </div>
               <div className="divider" />
+              {facts.chronic && <p className="small check-pet-health">{facts.chronic}</p>}
               <p className="small">{t.petContext}</p>
               <Link href={`/pets/${pet.id}/edit`} className="link">{t.viewProfile}</Link>
             </div>

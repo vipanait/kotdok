@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import CabinetShell from '@/components/cabinet/CabinetShell'
 import Icon from '@/components/ui/Icon'
-import PetCard from '@/features/pets/PetCard'
+import PetRows from '@/features/pets/PetRows'
 import PetSavedBanner from '@/features/pets/PetSavedBanner'
 import { parsePetSaved } from '@/features/pets/pet-saved'
 import PetsEmptyCard from '@/features/pets/PetsEmptyCard'
@@ -9,7 +9,6 @@ import { requireCabinet } from '@/components/cabinet/require-cabinet'
 import { loadPetsOverview } from '@/server/dashboard/load-dashboard'
 import { getDictionary } from '@/server/i18n/get-dictionary'
 import { getLocale } from '@/server/i18n/get-locale'
-import { getTimeZone } from '@/server/i18n/get-time-zone'
 import { privatePageMetadata } from '@/server/i18n/page-metadata'
 
 export const generateMetadata = privatePageMetadata(d => d.shell.pets)
@@ -21,11 +20,10 @@ export default async function PetsPage({
 }) {
   const cabinet = await requireCabinet('/login?next=/pets')
 
-  const [{ pets, latestChecksByPet }, params, locale, timeZone] = await Promise.all([
+  const [{ pets, latestChecksByPet }, params, locale] = await Promise.all([
     loadPetsOverview(cabinet.user.id),
     searchParams,
     getLocale(),
-    getTimeZone(),
   ])
   const dict = await getDictionary(locale)
   const t = dict.pets
@@ -37,7 +35,10 @@ export default async function PetsPage({
 
       <div className="pagehead">
         <div>
-          <h1>{t.listTitle}</h1>
+          <h1>
+            {t.listTitle}
+            {pets.length > 0 && <span className="muted nowrap">{' · '}{pets.length}</span>}
+          </h1>
           <p>{t.listSubtitle}</p>
         </div>
         {pets.length > 0 && (
@@ -49,18 +50,9 @@ export default async function PetsPage({
       </div>
 
       {pets.length ? (
-        <div className="grid2">
-          {pets.map(pet => (
-            <PetCard
-              key={pet.id}
-              pet={pet}
-              latestCheck={latestChecksByPet[pet.id]}
-              dict={dict}
-              locale={locale}
-              timeZone={timeZone}
-            />
-          ))}
-        </div>
+        <section className="card pet-directory" aria-label={t.listTitle}>
+          <PetRows pets={pets} latestChecksByPet={latestChecksByPet} dict={dict} locale={locale} />
+        </section>
       ) : (
         <PetsEmptyCard dict={dict} />
       )}

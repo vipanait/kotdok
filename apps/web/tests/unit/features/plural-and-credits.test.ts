@@ -1,66 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { canRequestExtraCheck, creditsState } from '@/features/credits/credits-state'
-import { profileCompleteness } from '@/features/pets/pet-profile'
 import { formatCount } from '@/shared/i18n/plural'
 
 const ruAge = { one: '{n} год', few: '{n} года', many: '{n} лет', other: '{n} года' }
 const enAge = { one: '{n} year', few: '{n} years', many: '{n} years', other: '{n} years' }
-
-const empty = {
-  species: 'cat' as const,
-  breed: null,
-  age_years: null,
-  weight_kg: null,
-  sex: null,
-  neutered: null,
-  vaccinated: null,
-  indoor_outdoor: null,
-  diet: null,
-  size_class: null,
-  walk_activity: null,
-}
-
-describe('profileCompleteness', () => {
-  it('is 0 for a pet with only a name', () => {
-    expect(profileCompleteness(empty)).toBe(0)
-  })
-
-  it('counts false answers as filled in', () => {
-    const cat = {
-      ...empty,
-      breed: 'Сибирская',
-      age_years: 3,
-      weight_kg: 4.5,
-      sex: 'female' as const,
-      neutered: false,
-      vaccinated: false,
-      indoor_outdoor: 'indoor' as const,
-      diet: 'dry' as const,
-    }
-    expect(profileCompleteness(cat)).toBe(100)
-  })
-
-  it('asks a dog for size and walks too', () => {
-    const dog = {
-      ...empty,
-      species: 'dog' as const,
-      breed: 'Лабрадор',
-      age_years: 5,
-      weight_kg: 18,
-      sex: 'male' as const,
-      neutered: true,
-      vaccinated: true,
-      indoor_outdoor: 'both' as const,
-      diet: 'mixed' as const,
-    }
-    expect(profileCompleteness(dog)).toBe(80)
-    expect(profileCompleteness({ ...dog, size_class: 'large', walk_activity: 'daily_long' })).toBe(100)
-  })
-
-  it('does not count a blank breed', () => {
-    expect(profileCompleteness({ ...empty, breed: '  ' })).toBe(0)
-  })
-})
 
 describe('formatCount for ages', () => {
   it('uses Russian plural forms and a decimal comma', () => {

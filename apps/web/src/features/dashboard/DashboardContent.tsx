@@ -2,10 +2,8 @@ import Link from 'next/link'
 import CabinetShell from '@/components/cabinet/CabinetShell'
 import HistoryRows from '@/components/cabinet/HistoryRows'
 import Icon from '@/components/ui/Icon'
-import Illustration from '@/components/ui/Illustration'
 import { creditsState } from '@/features/credits/credits-state'
 import MyPetsSection from '@/features/dashboard/MyPetsSection'
-import { profileCompleteness } from '@/features/pets/pet-profile'
 import PetSavedBanner from '@/features/pets/PetSavedBanner'
 import type { PetSavedKind } from '@/features/pets/pet-saved'
 import PetsEmptyCard from '@/features/pets/PetsEmptyCard'
@@ -22,9 +20,10 @@ interface Props {
 }
 
 /**
- * The overview: the next step, the pets, the newest results and a nudge to
- * fill profiles in. With no checks left the next step is getting one, not a
- * symptom form the owner cannot send.
+ * The overview: the next step, then the first pets beside the newest results.
+ * Its height does not grow with the number of pets — the full list is one
+ * link away. With no checks left the next step is getting one, not a symptom
+ * form the owner cannot send.
  */
 export default async function DashboardContent({ cabinet, data, petSaved }: Props) {
   const [locale, timeZone] = await Promise.all([getLocale(), getTimeZone()])
@@ -34,15 +33,27 @@ export default async function DashboardContent({ cabinet, data, petSaved }: Prop
   const { pets, checks, latestChecksByPet, latestRequestStatus } = data
   const state = creditsState(cabinet.credits, latestRequestStatus)
 
-  // The context box points at the pet with the most left to fill in.
-  const leastComplete = pets
-    .map(pet => ({ pet, completeness: profileCompleteness(pet) }))
-    .sort((a, b) => a.completeness - b.completeness)[0]
-  const contextLink = !pets.length
-    ? { href: '/pets/new', label: t.addPetBtn }
-    : leastComplete && leastComplete.completeness < 100
-      ? { href: `/pets/${leastComplete.pet.id}/edit`, label: t.contextCompleteProfile }
-      : { href: '/pets', label: t.contextAllPets }
+  const recentChecks = (
+    <section className="card recent-checks" aria-labelledby="recent-checks-title">
+      <div className="section-head section-head-action">
+        <h2 id="recent-checks-title">{t.recentChecks}</h2>
+        {checks.length > 0 && (
+          <Link href="/checks" className="link">
+            {t.allHistory}
+            <Icon name="arrow" />
+          </Link>
+        )}
+      </div>
+      {checks.length ? (
+        <>
+          <HistoryRows checks={checks} dict={dict} locale={locale} timeZone={timeZone} />
+          <p className="footnote recent-checks-note">{t.recentChecksNote}</p>
+        </>
+      ) : (
+        <p className="recent-empty">{t.recentEmpty}</p>
+      )}
+    </section>
+  )
 
   return (
     <CabinetShell cabinet={cabinet} active="overview" crumb={dict.shell.account}>
@@ -67,6 +78,7 @@ export default async function DashboardContent({ cabinet, data, petSaved }: Prop
             </div>
           )}
           <PetsEmptyCard dict={dict} />
+          <div className="dashboard-after-empty">{recentChecks}</div>
         </>
       ) : (
         <>
@@ -94,39 +106,17 @@ export default async function DashboardContent({ cabinet, data, petSaved }: Prop
             </section>
           )}
 
-          <MyPetsSection
-            pets={pets}
-            latestChecksByPet={latestChecksByPet}
-            dict={dict}
-            locale={locale}
-            timeZone={timeZone}
-          />
+          <div className="dashboard-columns">
+            <MyPetsSection
+              pets={pets}
+              latestChecksByPet={latestChecksByPet}
+              dict={dict}
+              locale={locale}
+            />
+            {recentChecks}
+          </div>
         </>
       )}
-
-      <div className="lower-grid">
-        <section className="card" aria-labelledby="recent-checks-title">
-          <div className="section-head section-head-action">
-            <h2 id="recent-checks-title">{t.recentChecks}</h2>
-            <Link href="/checks" className="link">
-              {t.allHistory}
-              <Icon name="arrow" />
-            </Link>
-          </div>
-          {checks.length ? (
-            <HistoryRows checks={checks} dict={dict} locale={locale} timeZone={timeZone} />
-          ) : (
-            <p className="recent-empty">{t.recentEmpty}</p>
-          )}
-        </section>
-
-        <aside className="summary-box context-box">
-          <h3>{t.contextTitle}</h3>
-          <p>{t.contextBody}</p>
-          <Link href={contextLink.href} className="link">{contextLink.label}</Link>
-          <Illustration name="paw" size={130} />
-        </aside>
-      </div>
     </CabinetShell>
   )
 }

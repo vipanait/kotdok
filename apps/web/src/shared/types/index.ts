@@ -45,7 +45,7 @@ export interface Pet {
 }
 
 /** What the check form and the result aside show about a pet. */
-export type CheckPet = Pick<Pet, 'id' | 'name' | 'species' | 'breed' | 'age_years'>
+export type CheckPet = Pick<Pet, 'id' | 'name' | 'species' | 'breed' | 'age_years' | 'chronic_conditions'>
 
 export interface PetLatestCheck {
   urgency: string

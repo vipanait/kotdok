@@ -123,3 +123,14 @@
 
   .history-month .section-head { flex-wrap: wrap; gap: 4px 16px; }
 }
+
+/* The chosen pet's facts: under the choice on phones, in the card beside the form elsewhere. */
+@layer components {
+  .check-pet-inline { display: none; font-size: 12px; line-height: 1.6; color: var(--muted); overflow-wrap: anywhere; }
+  .check-pet-card .check-pet-health { margin-bottom: 12px; overflow-wrap: anywhere; }
+
+  @media (max-width: 760px) {
+    .check-pet-card { display: none; }
+    .check-pet-inline { display: block; margin: -12px 0 24px; }
+  }
+}

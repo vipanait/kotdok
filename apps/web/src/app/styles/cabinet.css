@@ -31,16 +31,6 @@
 
   .recent-empty { padding: 20px 0; }
 
-  .context-box h3 { max-width: 15em; }
-  .context-box .art { margin-top: 24px; }
-
-  /* ---------- Pet cards ---------- */
-
-  /* Room for the corner arrow, so a long name never runs under it. */
-  .pet-card .row { padding-right: 30px; }
-  .pet-card-title { min-width: 0; }
-  .pet-card .pet-card-profile { margin-top: 8px; }
-
   /* ---------- Pet profile ---------- */
 
   .pet-page-title { overflow-wrap: anywhere; }
