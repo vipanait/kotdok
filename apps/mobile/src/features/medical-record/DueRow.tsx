@@ -14,7 +14,7 @@ import { dueLine, itemTitle, type Due, type DueStatus } from './due'
  */
 export function DueRow({ due, status, onDone }: { due: Due; status: DueStatus; onDone: () => void }) {
   const t = useText()
-  const title = itemTitle(t, due.item)
+  const title = itemTitle(t, due.item, due.kind)
   const line = dueLine(status)
   const tone =
     status.tone === 'overdue'
@@ -25,7 +25,7 @@ export function DueRow({ due, status, onDone }: { due: Due; status: DueStatus; o
 
   return (
     <View style={styles.row}>
-      <Icon name="vaccine" color={colour.text} />
+      <Icon name={due.kind === 'parasite' ? 'parasite' : 'vaccine'} color={colour.text} />
       <View style={styles.copy} accessible accessibilityLabel={`${title}, ${line}`}>
         <Text variant="h3">{title}</Text>
         <View style={styles.status}>

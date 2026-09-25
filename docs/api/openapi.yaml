@@ -560,6 +560,7 @@ components:
           type: string
           enum:
             - vaccination
+            - parasite
         status:
           type: string
           enum:
@@ -652,6 +653,7 @@ components:
           type: string
           enum:
             - vaccination
+            - parasite
         status:
           type: string
           enum:
@@ -687,21 +689,29 @@ components:
                 maxItems: 12
                 type: array
                 items:
-                  type: string
-                  enum:
-                    - panleukopenia
-                    - calicivirus
-                    - rhinotracheitis
-                    - distemper
-                    - parvovirus
-                    - adenovirus
-                    - rabies
-                    - felv
-                    - chlamydia
-                    - leptospirosis
-                    - parainfluenza
-                    - bordetella
-                    - coronavirus
+                  anyOf:
+                    - type: string
+                      enum:
+                        - panleukopenia
+                        - calicivirus
+                        - rhinotracheitis
+                        - distemper
+                        - parvovirus
+                        - adenovirus
+                        - rabies
+                        - felv
+                        - chlamydia
+                        - leptospirosis
+                        - parainfluenza
+                        - bordetella
+                        - coronavirus
+                    - type: string
+                      enum:
+                        - fleas
+                        - ticks
+                        - ear_mites
+                        - worms
+                        - heartworm
               product_id:
                 anyOf:
                   - type: string
@@ -760,21 +770,29 @@ components:
                 maxItems: 12
                 type: array
                 items:
-                  type: string
-                  enum:
-                    - panleukopenia
-                    - calicivirus
-                    - rhinotracheitis
-                    - distemper
-                    - parvovirus
-                    - adenovirus
-                    - rabies
-                    - felv
-                    - chlamydia
-                    - leptospirosis
-                    - parainfluenza
-                    - bordetella
-                    - coronavirus
+                  anyOf:
+                    - type: string
+                      enum:
+                        - panleukopenia
+                        - calicivirus
+                        - rhinotracheitis
+                        - distemper
+                        - parvovirus
+                        - adenovirus
+                        - rabies
+                        - felv
+                        - chlamydia
+                        - leptospirosis
+                        - parainfluenza
+                        - bordetella
+                        - coronavirus
+                    - type: string
+                      enum:
+                        - fleas
+                        - ticks
+                        - ear_mites
+                        - worms
+                        - heartworm
               product_id:
                 anyOf:
                   - type: string
@@ -830,6 +848,7 @@ components:
           type: string
           enum:
             - vaccination
+            - parasite
         date:
           type: string
           format: date

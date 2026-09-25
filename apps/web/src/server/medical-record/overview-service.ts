@@ -14,7 +14,7 @@ type SupabaseService = ReturnType<typeof createServiceClient>
  * own section here together with the table behind it; until then the client
  * shows the section from the pet form alone and offers no "add".
  */
-const WRITABLE_SECTIONS: HealthSection[] = ['vaccinations', 'weight']
+const WRITABLE_SECTIONS: HealthSection[] = ['vaccinations', 'parasites', 'weight']
 
 /**
  * The medical record of one pet.

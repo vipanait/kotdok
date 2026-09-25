@@ -1,4 +1,4 @@
-import type { HealthEvent, HealthEventInput, HealthProduct, VaccineTarget } from '@lapka/contracts'
+import { PARASITE_TARGETS, type HealthEvent, type HealthEventInput, type HealthProduct, type HealthTarget } from '@lapka/contracts'
 import { addInterval, type Interval } from '@lapka/shared'
 import type { Dictionary } from '@/i18n'
 import { dayInput, localToday, parseDayInput, parseDayText, parseFutureDayInput } from '@/lib/calendar-day'
@@ -19,10 +19,11 @@ export type ItemSource = 'unset' | 'catalog' | 'manual' | 'none'
 export type ItemDraft = {
   /** Stable across renders, for React keys and error messages. */
   key: string
+  kind: HealthEvent['kind']
   /** Set for an item that already exists: the server updates it instead of adding one. */
   id?: string
   name: string
-  targets: VaccineTarget[]
+  targets: HealthTarget[]
   next: NextChoice
   nextText: string
   source: ItemSource
@@ -32,6 +33,7 @@ export type ItemDraft = {
 }
 
 export type EventDraft = {
+  kind: HealthEvent['kind']
   status: 'done' | 'planned'
   date: string
   items: ItemDraft[]
@@ -42,8 +44,24 @@ export type EventDraft = {
 /** new: a record and its plans; edit: an existing record, no next dates; complete: «Сделано» on one plan. */
 export type FormMode = 'new' | 'edit' | 'complete'
 
-export function blankItem(key: string): ItemDraft {
-  return { key, name: '', targets: [], next: 'year', nextText: '', source: 'unset', productId: null, interval: null }
+export function blankItem(key: string, kind: HealthEvent['kind'] = 'vaccination'): ItemDraft {
+  return { key, kind, name: '', targets: [], next: 'year', nextText: '', source: 'unset', productId: null, interval: null }
+}
+
+/**
+ * A parasite chip is a group — блохи, клещи, глисты. Turning it off removes
+ * every code in the group (a picked product's ear mites go with ticks);
+ * turning it on adds the group's own code.
+ */
+export function toggleGroup(item: ItemDraft, group: 'fleas' | 'ticks' | 'worms'): ItemDraft {
+  const inGroup = PARASITE_TARGETS.filter((target) => target.group === group).map((target) => target.code as string)
+  const has = item.targets.some((target) => inGroup.includes(target))
+  return {
+    ...item,
+    targets: has
+      ? item.targets.filter((target) => !inGroup.includes(target))
+      : [...item.targets, group as HealthTarget],
+  }
 }
 
 /**
@@ -54,7 +72,7 @@ export function pickProduct(item: ItemDraft, product: HealthProduct): ItemDraft 
   return {
     ...item,
     name: product.name,
-    targets: product.targets as VaccineTarget[],
+    targets: product.targets as HealthTarget[],
     productId: product.id,
     interval: product.interval,
     source: 'catalog',
@@ -73,22 +91,32 @@ export function renameItem(item: ItemDraft, name: string): ItemDraft {
 
 /** The interval «suggested» next dates use: the product's, else a year. */
 export function itemInterval(item: ItemDraft): Interval {
-  return item.interval ?? { value: 1, unit: 'year' }
+  if (item.interval) return item.interval
+  if (item.kind === 'vaccination') return { value: 1, unit: 'year' }
+  // Against worms alone every three months; fleas and ticks, monthly.
+  const wormsOnly = item.targets.length > 0 && item.targets.every((target) => target === 'worms' || target === 'heartworm')
+  return wormsOnly ? { value: 3, unit: 'month' } : { value: 1, unit: 'month' }
 }
 
-export function blankDraft(status: 'done' | 'planned', now: Date = new Date()): EventDraft {
-  return { status, date: status === 'done' ? dayInput(localToday(now)) : '', items: [], clinic: '', notes: '' }
+export function blankDraft(
+  status: 'done' | 'planned',
+  now: Date = new Date(),
+  kind: HealthEvent['kind'] = 'vaccination',
+): EventDraft {
+  return { kind, status, date: status === 'done' ? dayInput(localToday(now)) : '', items: [], clinic: '', notes: '' }
 }
 
 export function draftFromEvent(event: HealthEvent): EventDraft {
   return {
+    kind: event.kind,
     status: event.status,
     date: dayInput(event.date),
     items: event.items.map((item) => ({
       key: item.id,
+      kind: event.kind,
       id: item.id,
       name: item.name ?? '',
-      targets: item.targets as VaccineTarget[],
+      targets: item.targets as HealthTarget[],
       next: 'year',
       nextText: '',
       source: item.product_id ? 'catalog' : item.name ? 'manual' : 'none',
@@ -114,7 +142,7 @@ export type DraftErrors = {
 type ItemInput = {
   id?: string
   name: string | null
-  targets: VaccineTarget[]
+  targets: HealthTarget[]
   product_id: string | null
   next_on: string | null
 }
@@ -193,7 +221,7 @@ export function readDraft(
   return {
     ok: true,
     value: {
-      kind: 'vaccination',
+      kind: draft.kind,
       status: draft.status,
       date,
       clinic: draft.clinic.trim() === '' ? null : draft.clinic.trim(),

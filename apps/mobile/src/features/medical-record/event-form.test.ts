@@ -7,6 +7,7 @@ const NOW = new Date(2026, 8, 24, 12, 0) // 24 Sept 2026, local
 
 function draft(overrides: Partial<EventDraft> = {}): EventDraft {
   return {
+    kind: 'vaccination',
     status: 'done',
     date: '24.09.2026',
     items: [{ ...blankItem('a'), name: 'Нобивак Rabies', targets: ['rabies'] }],

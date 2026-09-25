@@ -9,10 +9,10 @@ import {
   DELETION_RECEIPT_HEADER,
   CheckFeedbackSchema,
   ExtraCheckRequestStatusSchema,
-  DueItemSchema,
+  DueListReadSchema,
   HealthEventSchema,
   HealthProductSchema,
-  HealthOverviewSchema,
+  HealthOverviewReadSchema,
   HealthSchema,
   IDEMPOTENCY_KEY_HEADER,
   PetSchema,
@@ -238,7 +238,7 @@ export function createApiClient(options: ApiClientOptions) {
       call(`/pets/${id}`, PetSchema, { method: 'PATCH', body }),
     deletePet: (id: string) => call<void>(`/pets/${id}`, null, { method: 'DELETE' }),
 
-    getHealthOverview: (petId: string) => call(`/pets/${petId}/health`, HealthOverviewSchema),
+    getHealthOverview: (petId: string) => call(`/pets/${petId}/health`, HealthOverviewReadSchema),
     addWeight: (petId: string, body: WeightInput) =>
       call(`/pets/${petId}/health/weights`, WeightMeasurementSchema, { method: 'POST', body }),
     changeWeight: (petId: string, weightId: string, body: WeightPatch) =>
@@ -262,7 +262,7 @@ export function createApiClient(options: ApiClientOptions) {
         body,
         headers: { [IDEMPOTENCY_KEY_HEADER]: idempotencyKey },
       }),
-    listDue: () => call('/pets/due', z.array(DueItemSchema)),
+    listDue: () => call('/pets/due', DueListReadSchema),
     getCatalog: (species: PetSpecies, kind: ProductKind, query = '') =>
       call(
         `/health/catalog?species=${species}&kind=${kind}&q=${encodeURIComponent(query)}`,

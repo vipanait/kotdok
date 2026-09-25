@@ -6,7 +6,7 @@ import {
   type WeightMeasurement,
 } from '@lapka/contracts'
 import type { Dictionary } from '@/i18n'
-import { lastVaccination } from './due'
+import { lastTreatment, lastVaccination } from './due'
 import { weightTrend } from './weight'
 
 /**
@@ -89,7 +89,7 @@ export function importantFacts(t: Dictionary, pet: Pet): Fact[] {
  * can store; an app older than the server must not draw a chevron for a
  * section it cannot open. Each stage adds its section here with its screen.
  */
-const OPENABLE_SECTIONS: readonly HealthSection[] = ['vaccinations', 'weight']
+const OPENABLE_SECTIONS: readonly HealthSection[] = ['vaccinations', 'parasites', 'weight']
 
 export type SectionRow = {
   section: HealthSection
@@ -117,7 +117,10 @@ function summary(t: Dictionary, section: HealthSection, overview: HealthOverview
       if (latest) return `${words.weight(latest.weight_kg)} · ${day(t, latest.measured_on, today)}`
       return pet.weight_kg === null ? words.noRecords : words.weightFromForm(words.weight(pet.weight_kg))
     }
-    case 'parasites':
+    case 'parasites': {
+      const last = lastTreatment(overview.events)
+      return last ? words.lastTreatment(day(t, last, today)) : words.noRecords
+    }
     case 'visits':
       return words.noRecords
   }

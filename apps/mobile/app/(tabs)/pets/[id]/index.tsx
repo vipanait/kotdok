@@ -51,6 +51,7 @@ function Skeleton() {
 /** Where an openable section leads. Each stage adds its own. */
 const SECTION_ROUTES: Partial<Record<SectionRow['section'], string>> = {
   vaccinations: 'vaccinations',
+  parasites: 'parasites',
   weight: 'weight',
 }
 
@@ -195,6 +196,16 @@ export default function MedicalRecord() {
   const choices: AddChoice[] = [
     ...(canVaccinate
       ? [{ key: 'vaccination', icon: 'vaccine' as const, label: t.medicalRecord.addVaccinationRow, onPress: addVaccination }]
+      : []),
+    ...(shown.writable.includes('parasites')
+      ? [
+          {
+            key: 'parasite',
+            icon: 'parasite' as const,
+            label: t.medicalRecord.addTreatmentRow,
+            onPress: () => router.push(`/pets/${id}/event-form?mode=new&status=done&kind=parasite`),
+          },
+        ]
       : []),
     ...(shown.writable.includes('weight')
       ? [{ key: 'weight', icon: 'weight' as const, label: t.medicalRecord.addWeightRow, onPress: () => router.push(`/pets/${id}/weight`) }]

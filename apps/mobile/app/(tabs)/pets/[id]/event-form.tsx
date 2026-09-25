@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
-import { VACCINE_TARGETS, type HealthEvent, type PetSpecies, type VaccineTarget } from '@lapka/contracts'
+import { VACCINE_TARGETS, type HealthEvent, type HealthTarget, type PetSpecies } from '@lapka/contracts'
 import { ApiError } from '@lapka/shared'
 import { withFreshSession } from '@/lib/api'
 import { describeFailure } from '@/lib/errors'
@@ -9,7 +9,7 @@ import { dayInput, localToday, parseDayInput } from '@/lib/calendar-day'
 import { newRequestKey } from '@/lib/request-key'
 import { useText } from '@/i18n'
 import { addInterval } from '@lapka/shared'
-import { itemName, saveSummary, targetList } from '@/features/medical-record/due'
+import { itemName, parasiteGroups, saveSummary, targetList } from '@/features/medical-record/due'
 import { ProductSheet, type ProductChoice } from '@/features/medical-record/ProductSheet'
 import {
   blankDraft,
@@ -20,6 +20,7 @@ import {
   nextDate,
   pickProduct,
   renameItem,
+  toggleGroup,
   readDraft,
   type DraftErrors,
   type EventDraft,
@@ -38,6 +39,8 @@ import { space } from '@/ui/theme'
 
 type Params = {
   id: string
+  /** vaccination (default) or parasite */
+  kind?: string
   /** new (default), edit, complete */
   mode?: string
   status?: string
@@ -45,7 +48,7 @@ type Params = {
   itemId?: string
 }
 
-function targetsFor(species: PetSpecies): VaccineTarget[] {
+function targetsFor(species: PetSpecies): HealthTarget[] {
   return VACCINE_TARGETS.filter((target) => (target.species as readonly string[]).includes(species)).map(
     (target) => target.code,
   )
@@ -61,6 +64,8 @@ export default function EventForm() {
   const params = useLocalSearchParams<Params>()
   const petId = params.id
   const mode: FormMode = params.mode === 'edit' ? 'edit' : params.mode === 'complete' ? 'complete' : 'new'
+  // A new record says its kind; an existing one brings its own when it loads.
+  const [kind, setKind] = useState<HealthEvent['kind']>(params.kind === 'parasite' ? 'parasite' : 'vaccination')
   const t = useText()
   const words = t.medicalRecord
 
@@ -85,19 +90,22 @@ export default function EventForm() {
 
       let start: EventDraft
       if (mode === 'new') {
-        start = blankDraft(params.status === 'planned' ? 'planned' : 'done')
-        start.items = [blankItem('new-0')]
+        start = blankDraft(params.status === 'planned' ? 'planned' : 'done', new Date(), kind)
+        start.items = [blankItem('new-0', kind)]
       } else if (mode === 'edit') {
         const event = overview.events.find((e) => e.id === params.eventId)
         if (!event) throw new Error('not found')
         start = draftFromEvent(event)
+        setKind(event.kind)
         setKeptDate(event.date)
       } else {
         const event = overview.events.find((e) => e.items.some((item) => item.id === params.itemId))
         const item = event?.items.find((i) => i.id === params.itemId)
         if (!event || !item) throw new Error('not found')
         setSource({ event, others: event.items.length - 1 })
+        setKind(event.kind)
         start = {
+          kind: event.kind,
           status: 'done',
           date: dayInput(localToday()),
           items: [{ ...draftFromEvent({ ...event, items: [item] }).items[0], next: 'year' }],
@@ -112,6 +120,7 @@ export default function EventForm() {
     } catch (cause) {
       setError(describeFailure(t, cause, words.loadEventFailed))
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- the kind of a new record is fixed by the route
   }, [petId, mode, params.status, params.eventId, params.itemId, t, words.loadEventFailed])
 
   useEffect(() => {
@@ -213,7 +222,8 @@ export default function EventForm() {
     }
   }
 
-  const title = words.vaccinationTitle
+  const treatment = kind === 'parasite'
+  const title = treatment ? words.treatmentTitle : words.vaccinationTitle
 
   if (!draft || !species) {
     return (
@@ -231,6 +241,10 @@ export default function EventForm() {
   const choices = targetsFor(species).map((code) => ({
     value: code,
     label: (words.targets as Record<string, string>)[code] ?? code,
+  }))
+  const groupChoices = (['fleas', 'ticks', 'worms'] as const).map((group) => ({
+    value: group,
+    label: words.parasiteGroups[group],
   }))
 
   function nextOptions(item: ItemDraft): Array<{ value: NextChoice; label: string }> {
@@ -260,7 +274,7 @@ export default function EventForm() {
     >
       {mode === 'new' ? (
         <Segment
-          label={words.vaccinationTitle}
+          label={title}
           labelHidden
           options={[
             { value: 'done', label: words.statusDone },
@@ -289,7 +303,7 @@ export default function EventForm() {
       />
 
       <Text variant="h3" style={styles.heading}>
-        {words.vaccines}
+        {treatment ? words.products : words.vaccines}
       </Text>
 
       {draft.items.map((item) => (
@@ -313,7 +327,7 @@ export default function EventForm() {
                         label={words.itemName}
                         value={item.name}
                         onChangeText={(name) => rename(item.key, name)}
-                        placeholder={words.itemNamePlaceholder}
+                        placeholder={treatment ? words.productNamePlaceholder : words.itemNamePlaceholder}
                         autoCorrect={false}
                       />
                       <LinkButton
@@ -325,12 +339,22 @@ export default function EventForm() {
                   ) : (
                     <Pressable
                       accessibilityRole="button"
-                      accessibilityLabel={item.source === 'unset' ? words.catalog.choose : `${item.name || words.noProduct}, ${words.catalog.change}`}
+                      accessibilityLabel={
+                        item.source === 'unset'
+                          ? treatment
+                            ? words.catalog.chooseProduct
+                            : words.catalog.choose
+                          : `${item.name || words.noProduct}, ${words.catalog.change}`
+                      }
                       onPress={() => setPicking(item.key)}
                       style={({ pressed }) => [styles.pick, { opacity: pressed ? 0.6 : 1 }]}
                     >
                       <Text variant="bodyStrong" tone="accent">
-                        {item.source === 'unset' ? words.catalog.choose : item.name || words.noProduct}
+                        {item.source === 'unset'
+                          ? treatment
+                            ? words.catalog.chooseProduct
+                            : words.catalog.choose
+                          : item.name || words.noProduct}
                       </Text>
                       {item.source !== 'unset' ? (
                         <Text variant="label" tone="muted">
@@ -343,23 +367,43 @@ export default function EventForm() {
                 {draft.items.length > 1 ? (
                   <IconButton
                     icon="close"
-                    label={words.removeVaccine}
+                    label={treatment ? words.removeProduct : words.removeVaccine}
                     onPress={() => change({ items: draft.items.filter((other) => other.key !== item.key) })}
                   />
                 ) : null}
               </View>
-              <Chips
-                label={words.diseases}
-                options={choices}
-                values={item.targets}
-                onToggle={(code) =>
-                  changeItem(item.key, {
-                    targets: item.targets.includes(code)
-                      ? item.targets.filter((other) => other !== code)
-                      : [...item.targets, code],
-                  })
-                }
-              />
+              {treatment ? (
+                <Chips
+                  label={words.parasiteFrom}
+                  options={groupChoices}
+                  values={groupChoices
+                    .filter(({ value }) => parasiteGroups(item.targets).has(value))
+                    .map(({ value }) => value)}
+                  onToggle={(group) =>
+                    setDraft((current) =>
+                      current
+                        ? {
+                            ...current,
+                            items: current.items.map((other) => (other.key === item.key ? toggleGroup(other, group) : other)),
+                          }
+                        : current,
+                    )
+                  }
+                />
+              ) : (
+                <Chips
+                  label={words.diseases}
+                  options={choices}
+                  values={item.targets}
+                  onToggle={(code) =>
+                    changeItem(item.key, {
+                      targets: item.targets.includes(code)
+                        ? item.targets.filter((other) => other !== code)
+                        : [...item.targets, code],
+                    })
+                  }
+                />
+              )}
             </>
           )}
 
@@ -394,7 +438,7 @@ export default function EventForm() {
               ) : null}
               {item.next === 'year' ? (
                 <Text variant="caption" tone="faint">
-                  {item.productId ? words.catalog.suggestedNote : words.nextNote}
+                  {item.productId ? words.catalog.suggestedNote : treatment ? words.nextNoteTreatment : words.nextNote}
                 </Text>
               ) : null}
             </>
@@ -406,11 +450,11 @@ export default function EventForm() {
 
       {mode !== 'complete' ? (
         <LinkButton
-          title={words.addVaccine}
+          title={treatment ? words.addProduct : words.addVaccine}
           align="left"
           onPress={() => {
             const key = `new-${nextKey.current++}`
-            change({ items: [...draft.items, blankItem(key)] })
+            change({ items: [...draft.items, blankItem(key, kind)] })
             setPicking(key)
           }}
         />
@@ -427,6 +471,7 @@ export default function EventForm() {
       <ProductSheet
         visible={picking !== null}
         species={species}
+        kind={treatment ? 'antiparasitic' : 'vaccine'}
         onPick={(choice) => picking && choose(picking, choice)}
         onClose={() => setPicking(null)}
       />

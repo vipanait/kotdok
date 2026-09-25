@@ -1,4 +1,4 @@
-import { VACCINE_TARGETS, type HealthEvent, type HealthItem, type PetSpecies } from '@lapka/contracts'
+import { PARASITE_TARGETS, VACCINE_TARGETS, type HealthEvent, type HealthItem, type PetSpecies } from '@lapka/contracts'
 import type { Dictionary } from '@/i18n'
 import { addMonths, daysBetween } from '@/lib/calendar-day'
 
@@ -53,6 +53,7 @@ export function dueLine(status: DueStatus): string {
 }
 
 export type Due = {
+  kind: HealthEvent['kind']
   eventId: string
   itemId: string
   date: string
@@ -67,6 +68,7 @@ export function dueItems(events: readonly HealthEvent[]): Due[] {
     .filter((event) => event.status === 'planned')
     .flatMap((event) =>
       event.items.map((item) => ({
+        kind: event.kind,
         eventId: event.id,
         itemId: item.id,
         date: event.date,
@@ -85,7 +87,36 @@ function targetName(t: Dictionary, code: string): string {
  * What a due row is called: the disease for a single one («Бешенство»),
  * «Комплексная прививка» for several, the owner's own name otherwise.
  */
-export function itemTitle(t: Dictionary, item: Pick<HealthItem, 'name' | 'targets'>): string {
+/** The groups a treatment covers — fleas, ticks, worms — however fine its codes. */
+export function parasiteGroups(targets: readonly string[]): Set<'fleas' | 'ticks' | 'worms'> {
+  return new Set(
+    PARASITE_TARGETS.filter((target) => targets.includes(target.code)).map((target) => target.group),
+  )
+}
+
+/** «Блохи и клещи», «Глисты», «Блохи, клещи и глисты». */
+function parasiteTitle(t: Dictionary, targets: readonly string[]): string | null {
+  const groups = parasiteGroups(targets)
+  const words = t.medicalRecord.parasiteTitle
+  const fleas = groups.has('fleas')
+  const ticks = groups.has('ticks')
+  const worms = groups.has('worms')
+  if (fleas && ticks && worms) return words.all
+  if (fleas && ticks) return words.fleasTicks
+  if (fleas && worms) return words.fleasWorms
+  if (ticks && worms) return words.ticksWorms
+  if (fleas) return words.fleas
+  if (ticks) return words.ticks
+  if (worms) return words.worms
+  return null
+}
+
+export function itemTitle(
+  t: Dictionary,
+  item: Pick<HealthItem, 'name' | 'targets'>,
+  kind: HealthEvent['kind'] = 'vaccination',
+): string {
+  if (kind === 'parasite') return parasiteTitle(t, item.targets) ?? item.name ?? t.medicalRecord.noProduct
   if (item.targets.length === 1) return targetName(t, item.targets[0])
   if (item.targets.length > 1) return t.medicalRecord.complexVaccination
   return item.name ?? t.medicalRecord.noProduct
@@ -98,7 +129,11 @@ export function itemName(t: Dictionary, item: Pick<HealthItem, 'name' | 'targets
 
 /** «Панлейкопения, калицивироз, ринотрахеит». */
 export function targetList(t: Dictionary, targets: readonly string[]): string {
-  const names = targets.map((code) => targetName(t, code))
+  const parasites = parasiteGroups(targets)
+  const names =
+    parasites.size > 0
+      ? (['fleas', 'ticks', 'worms'] as const).filter((group) => parasites.has(group)).map((group) => t.medicalRecord.parasiteGroups[group])
+      : targets.map((code) => targetName(t, code))
   return names.map((name, index) => (index === 0 ? name : name.toLowerCase())).join(', ')
 }
 
@@ -166,4 +201,54 @@ export function saveSummary(t: Dictionary, nextDays: readonly (string | null)[],
   const days = nextDays.filter((next): next is string => next !== null)
   const same = days.length > 0 && days.every((next) => next === days[0])
   return t.medicalRecord.summaryDone(days.length, same ? day(t, days[0], today) : null)
+}
+
+/** The day of the latest done parasite treatment, if any. */
+export function lastTreatment(events: readonly HealthEvent[]): string | null {
+  return events
+    .filter((event) => event.kind === 'parasite' && event.status === 'done')
+    .reduce<string | null>((latest, event) => (latest === null || event.date > latest ? event.date : latest), null)
+}
+
+export type ParasiteStatus = {
+  group: 'fleasTicks' | 'worms'
+  title: string
+  /** The day of the last treatment covering the group, if any. */
+  last: string | null
+  product: string | null
+  next: { text: string; tone: DueTone } | null
+}
+
+/**
+ * The two status cards of the parasites section: fleas and ticks, and worms.
+ * A combined product counts in both — it is still one item and one plan.
+ */
+export function parasiteStatuses(t: Dictionary, events: readonly HealthEvent[], today: string): ParasiteStatus[] {
+  const cards = [
+    { group: 'fleasTicks' as const, covers: ['fleas', 'ticks'] as const, title: t.medicalRecord.parasiteTitle.fleasTicks },
+    { group: 'worms' as const, covers: ['worms'] as const, title: t.medicalRecord.parasiteTitle.worms },
+  ]
+  return cards.map(({ group, covers, title }) => {
+    const touches = (item: HealthItem) => {
+      const groups = parasiteGroups(item.targets)
+      return covers.some((cover) => groups.has(cover))
+    }
+    const withItem = events
+      .filter((event) => event.kind === 'parasite')
+      .flatMap((event) => event.items.filter(touches).map((item) => ({ event, item })))
+    const last = withItem
+      .filter(({ event }) => event.status === 'done')
+      .sort((a, b) => b.event.date.localeCompare(a.event.date))[0]
+    const next = withItem
+      .filter(({ event }) => event.status === 'planned')
+      .sort((a, b) => a.event.date.localeCompare(b.event.date))[0]
+    const status = next ? dueStatus(t, next.event.date, today) : null
+    return {
+      group,
+      title,
+      last: last ? day(t, last.event.date, today) : null,
+      product: last?.item.name ?? null,
+      next: status ? { text: dueLine(status), tone: status.tone } : null,
+    }
+  })
 }

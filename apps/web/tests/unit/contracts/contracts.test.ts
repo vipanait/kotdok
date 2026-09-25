@@ -11,7 +11,10 @@ import {
   HealthEventInputSchema,
   HealthEventPatchSchema,
   VACCINE_TARGETS,
+  PARASITE_TARGETS,
   HealthOverviewSchema,
+  HealthOverviewReadSchema,
+  DueListReadSchema,
   WeightInputSchema,
   WeightMeasurementSchema,
   WeightPatchSchema,
@@ -321,5 +324,50 @@ describe('vaccination contracts', () => {
   it('marks a plan done on a day, with or without the next one', () => {
     expect(CompleteItemInputSchema.safeParse({ done_on: '2026-09-25', next_on: null }).success).toBe(true)
     expect(CompleteItemInputSchema.safeParse({ done_on: '2026-09-25', next_on: '2026-09-25' }).success).toBe(false)
+  })
+})
+
+describe('parasite treatment contracts', () => {
+  const treatment = {
+    kind: 'parasite',
+    status: 'done',
+    date: '2026-09-24',
+    items: [
+      { name: 'Бравекто Спот-он', targets: ['fleas', 'ticks'], next_on: '2026-12-17' },
+      { name: 'Мильбемакс', targets: ['worms'], next_on: '2026-12-24' },
+    ],
+  }
+
+  it('takes a treatment with several products and their own next dates', () => {
+    expect(HealthEventInputSchema.safeParse(treatment).success).toBe(true)
+  })
+
+  it('keeps diseases and parasites apart', () => {
+    expect(HealthEventInputSchema.safeParse({ ...treatment, items: [{ targets: ['rabies'] }] }).success).toBe(false)
+    expect(
+      HealthEventInputSchema.safeParse({ kind: 'vaccination', status: 'done', date: '2026-09-24', items: [{ targets: ['fleas'] }] }).success,
+    ).toBe(false)
+  })
+
+  it('groups every parasite into fleas, ticks or worms for the screen', () => {
+    for (const target of PARASITE_TARGETS) expect(['fleas', 'ticks', 'worms']).toContain(target.group)
+  })
+})
+
+describe('reading records of a kind this app does not know yet', () => {
+  const vaccination = {
+    id: '11111111-1111-4111-8111-0000000000e1', kind: 'vaccination', status: 'done', date: '2026-03-12',
+    clinic: null, notes: null, items: [{ id: '11111111-1111-4111-8111-0000000000f1', name: null, targets: ['rabies'], source_item_id: null }],
+  }
+  const future = { ...vaccination, id: '11111111-1111-4111-8111-0000000000e2', kind: 'grooming' }
+
+  it('drops them from the overview instead of failing the whole record', () => {
+    const read = HealthOverviewReadSchema.parse({ pet, writable: [], weights: [], events: [vaccination, future] })
+    expect(read.events.map((event) => event.id)).toEqual([vaccination.id])
+  })
+
+  it('drops them from the due list', () => {
+    const row = { pet_id: pet.id, event_id: vaccination.id, item_id: vaccination.items[0].id, kind: 'vaccination', date: '2027-03-12', name: null, targets: ['rabies'] }
+    expect(DueListReadSchema.parse([row, { ...row, kind: 'grooming' }])).toHaveLength(1)
   })
 })

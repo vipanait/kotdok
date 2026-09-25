@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native'
-import type { HealthProduct, PetSpecies } from '@lapka/contracts'
+import type { HealthProduct, PetSpecies, ProductKind } from '@lapka/contracts'
 import { matchesCatalog } from '@lapka/shared'
 import { withFreshSession } from '@/lib/api'
 import { useText } from '@/i18n'
@@ -27,11 +27,13 @@ export type ProductChoice =
 export function ProductSheet({
   visible,
   species,
+  kind,
   onPick,
   onClose,
 }: {
   visible: boolean
   species: PetSpecies
+  kind: ProductKind
   onPick: (choice: ProductChoice) => void
   onClose: () => void
 }) {
@@ -46,10 +48,10 @@ export function ProductSheet({
     setQuery('')
     if (products) return
     setFailed(false)
-    withFreshSession((api) => api.getCatalog(species, 'vaccine'))
+    withFreshSession((api) => api.getCatalog(species, kind))
       .then(setProducts)
       .catch(() => setFailed(true))
-  }, [visible, species, products])
+  }, [visible, species, kind, products])
 
   const shown = useMemo(() => {
     if (!products) return []
@@ -82,7 +84,7 @@ export function ProductSheet({
           <View style={styles.handle} />
           <View style={styles.head}>
             <Text variant="h2" style={styles.title}>
-              {words.vaccineTitle}
+              {kind === 'vaccine' ? words.vaccineTitle : words.productTitle}
             </Text>
             <IconButton icon="close" label={t.common.cancel} onPress={onClose} />
           </View>

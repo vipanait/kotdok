@@ -29,3 +29,28 @@ export type VaccineTarget = (typeof VACCINE_TARGETS)[number]['code']
 export const VaccineTargetSchema = z.enum(
   VACCINE_TARGETS.map((target) => target.code) as [VaccineTarget, ...VaccineTarget[]],
 )
+
+/**
+ * What a treatment protects against. The catalogue keeps the finer codes
+ * (ear mites, heartworm); the screens fold every one into three words the
+ * owner knows — блохи, клещи, глисты (spec §5.1).
+ */
+export const PARASITE_TARGETS = [
+  { code: 'fleas', group: 'fleas' },
+  { code: 'ticks', group: 'ticks' },
+  { code: 'ear_mites', group: 'ticks' },
+  { code: 'worms', group: 'worms' },
+  { code: 'heartworm', group: 'worms' },
+] as const
+
+export type ParasiteTarget = (typeof PARASITE_TARGETS)[number]['code']
+export type ParasiteGroup = (typeof PARASITE_TARGETS)[number]['group']
+
+export const ParasiteTargetSchema = z.enum(
+  PARASITE_TARGETS.map((target) => target.code) as [ParasiteTarget, ...ParasiteTarget[]],
+)
+
+/** Any code a record item may carry, whatever its kind; the kind is checked with the record. */
+export const HealthTargetSchema = z.union([VaccineTargetSchema, ParasiteTargetSchema])
+
+export type HealthTarget = VaccineTarget | ParasiteTarget

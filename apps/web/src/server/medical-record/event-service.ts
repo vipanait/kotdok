@@ -3,6 +3,8 @@ import 'server-only'
 import {
   DueItemSchema,
   HealthEventSchema,
+  ParasiteTargetSchema,
+  VaccineTargetSchema,
   type CompleteItemInput,
   type DueItem,
   type HealthEvent,
@@ -115,10 +117,17 @@ export async function eventStatus(
 }
 
 /** Products named in a record must fit the pet; `bad_product` becomes a 400. */
+/** The catalogue kind a record's products must be: vaccines on vaccinations, treatments on treatments. */
+const PRODUCT_KIND: Record<HealthEvent['kind'], 'vaccine' | 'antiparasitic'> = {
+  vaccination: 'vaccine',
+  parasite: 'antiparasitic',
+}
+
 async function checkProducts(
   supabase: SupabaseService,
   userId: string,
   petId: string,
+  kind: HealthEvent['kind'],
   productIds: readonly (string | null | undefined)[],
 ): Promise<Result<null> | { ok: false; reason: 'bad_product' }> {
   const ids = productIds.filter((id): id is string => typeof id === 'string')
@@ -126,7 +135,7 @@ async function checkProducts(
 
   const pet = await getPet(supabase, userId, petId)
   if (!pet.ok) return { ok: false, reason: pet.reason === 'account_deleting' ? 'account_deleting' : pet.reason === 'not_found' ? 'not_found' : 'storage_error' }
-  const fits = await productsFitPet(supabase, ids, pet.data.species, 'vaccine')
+  const fits = await productsFitPet(supabase, ids, pet.data.species, PRODUCT_KIND[kind])
   if (!fits.ok) return fits
   return fits.data ? { ok: true, data: null } : { ok: false, reason: 'bad_product' }
 }
@@ -138,7 +147,7 @@ export async function createEvent(
   input: HealthEventInput,
   idempotencyKey: string | null,
 ): Promise<Result<HealthEvent> | { ok: false; reason: 'bad_product' }> {
-  const products = await checkProducts(supabase, userId, petId, input.items.map((item) => item.product_id))
+  const products = await checkProducts(supabase, userId, petId, input.kind, input.items.map((item) => item.product_id))
   if (!products.ok) return products
 
   const { data, error } = await supabase.rpc('create_health_event', {
@@ -172,15 +181,23 @@ export async function updateEvent(
   // Only a product newly given to an item is checked: one the item already
   // had may have left the catalogue since, and correcting the note of an old
   // record must not fail for it.
-  let changed = (patch.items ?? []).map((item) => item.product_id)
   if (patch.items) {
     const current = await readEvent(supabase, userId, petId, eventId)
     if (!current.ok) return current
+
+    // The patch carries no kind: the record's own says which targets fit.
+    const fits = current.data.kind === 'vaccination' ? VaccineTargetSchema : ParasiteTargetSchema
+    if (patch.items.some((item) => item.targets.some((target) => !fits.safeParse(target).success))) {
+      return { ok: false, reason: 'bad_product' }
+    }
+
     const had = new Map(current.data.items.map((item) => [item.id, item.product_id]))
-    changed = patch.items.filter((item) => !item.id || had.get(item.id) !== (item.product_id ?? null)).map((item) => item.product_id)
+    const changed = patch.items
+      .filter((item) => !item.id || had.get(item.id) !== (item.product_id ?? null))
+      .map((item) => item.product_id)
+    const products = await checkProducts(supabase, userId, petId, current.data.kind, changed)
+    if (!products.ok) return products
   }
-  const products = await checkProducts(supabase, userId, petId, changed)
-  if (!products.ok) return products
 
   const { error } = await supabase.rpc('update_health_event', {
     p_user_id: userId,

@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { PetSchema } from './pet'
 import { CalendarDateSchema, UuidSchema } from './primitives'
-import { VaccineTargetSchema } from './health-targets'
+import { HealthTargetSchema, ParasiteTargetSchema, VaccineTargetSchema } from './health-targets'
 
 /**
  * The five sections of a pet's medical record, in the order the screen lists
@@ -53,7 +53,7 @@ export const WeightPatchSchema = WeightInputSchema.partial().refine(
 
 export type WeightPatch = z.infer<typeof WeightPatchSchema>
 
-export const HEALTH_EVENT_KINDS = ['vaccination'] as const
+export const HEALTH_EVENT_KINDS = ['vaccination', 'parasite'] as const
 export const HEALTH_EVENT_STATUSES = ['done', 'planned'] as const
 
 export const HealthEventKindSchema = z.enum(HEALTH_EVENT_KINDS)
@@ -98,7 +98,7 @@ export const HealthEventSchema = z.strictObject({
 export type HealthEvent = z.infer<typeof HealthEventSchema>
 
 const itemNameSchema = z.string().trim().max(ITEM_NAME_MAX).nullable().optional()
-const targetsSchema = z.array(VaccineTargetSchema).max(12)
+const targetsSchema = z.array(HealthTargetSchema).max(12)
 const named = (item: { name?: string | null; targets: unknown[] }) =>
   (item.name ?? '').trim() !== '' || item.targets.length > 0
 
@@ -122,7 +122,13 @@ export const HealthEventInputSchema = z
     items: z.array(HealthItemInputSchema).min(1).max(ITEMS_MAX),
   })
   .superRefine((value, ctx) => {
+    const fits = value.kind === 'vaccination' ? VaccineTargetSchema : ParasiteTargetSchema
     value.items.forEach((item, index) => {
+      item.targets.forEach((target, at) => {
+        if (!fits.safeParse(target).success) {
+          ctx.addIssue({ code: 'custom', path: ['items', index, 'targets', at], message: `not a ${value.kind} target` })
+        }
+      })
       if (!item.next_on) return
       if (value.status === 'planned') {
         ctx.addIssue({ code: 'custom', path: ['items', index, 'next_on'], message: 'a plan has no next date' })
@@ -237,3 +243,25 @@ export const HealthOverviewSchema = z.object({
 })
 
 export type HealthOverview = z.infer<typeof HealthOverviewSchema>
+
+/**
+ * Keeps the entries a schema accepts and drops the rest. For lists that grow
+ * new kinds of records: an app older than the server shows what it knows
+ * instead of failing the whole screen on one record it does not.
+ */
+function known<T extends z.ZodType>(schema: T) {
+  return (value: unknown) =>
+    Array.isArray(value) ? value.filter((entry) => schema.safeParse(entry).success) : value
+}
+
+/** The overview as a client reads it: records of an unknown kind are left out. */
+export const HealthOverviewReadSchema = z.preprocess(
+  (value) =>
+    value && typeof value === 'object' && 'events' in value
+      ? { ...(value as object), events: known(HealthEventSchema)((value as { events: unknown }).events) }
+      : value,
+  HealthOverviewSchema,
+)
+
+/** The due list as a client reads it: due dates of an unknown kind are left out. */
+export const DueListReadSchema = z.preprocess(known(DueItemSchema), z.array(DueItemSchema))
