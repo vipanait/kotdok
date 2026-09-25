@@ -4,6 +4,7 @@ import type { createServiceClient } from '@/server/supabase/server'
 import { loadAccount } from '@/server/auth/account-state'
 import { sanitizePet } from '@/shared/utils/pet-utils'
 import type { Pet } from '@/shared/types'
+import { recordWeight, utcToday } from '@/server/medical-record/weight-service'
 
 type SupabaseService = ReturnType<typeof createServiceClient>
 
@@ -67,6 +68,19 @@ export async function getPet(
   return { ok: true, data: data as Pet }
 }
 
+/**
+ * The form's weight as a measurement for its day, so the medical record's
+ * history fills in even for an owner who never opens it (spec §4).
+ *
+ * Zero is a weight the form accepts and a measurement cannot be; it records
+ * nothing. The day is the owner's own when the client sends it.
+ */
+function formWeight(body: Record<string, unknown>, sanitized: { weight_kg: number | null }) {
+  if (sanitized.weight_kg === null || sanitized.weight_kg <= 0) return null
+  const day = typeof body.weight_measured_on === 'string' ? body.weight_measured_on : utcToday()
+  return { measured_on: day, weight_kg: sanitized.weight_kg }
+}
+
 export async function createPet(
   supabase: SupabaseService,
   userId: string,
@@ -75,13 +89,23 @@ export async function createPet(
   const allowed = await requireActiveAccount(supabase, userId)
   if (!allowed.ok) return allowed
 
+  const pet = sanitizePet(body)
   const { data, error } = await supabase
     .from('pets')
-    .insert({ ...sanitizePet(body), user_id: userId })
+    .insert({ ...pet, user_id: userId })
     .select()
     .single()
 
   if (error || !data) return { ok: false, reason: 'storage_error', message: error?.message }
+
+  // After the pet exists, and not allowed to fail its creation: a retry would
+  // create the pet twice, and the weight is already on the form either way.
+  const weight = formWeight(body, pet)
+  if (weight) {
+    const recorded = await recordWeight(supabase, userId, (data as Pet).id, weight, 'form')
+    if (!recorded.ok) console.error('[pets] first weight not recorded', recorded.message)
+  }
+
   return { ok: true, data: data as Pet }
 }
 
@@ -94,9 +118,22 @@ export async function updatePet(
   const allowed = await requireActiveAccount(supabase, userId)
   if (!allowed.ok) return allowed
 
+  const pet = sanitizePet(body)
+
+  // Before the form is saved: the record keeps the form's previous weight as
+  // history, so it has to see it first. Then the form update writes the same
+  // value the record has just made current.
+  const weight = formWeight(body, pet)
+  if (weight) {
+    const recorded = await recordWeight(supabase, userId, petId, weight, 'form')
+    if (!recorded.ok) {
+      return { ok: false, reason: recorded.reason === 'not_found' ? 'not_found' : 'storage_error', message: recorded.message }
+    }
+  }
+
   const { data, error } = await supabase
     .from('pets')
-    .update(sanitizePet(body))
+    .update(pet)
     .eq('id', petId)
     .eq('user_id', userId)
     .is('deleted_at', null)

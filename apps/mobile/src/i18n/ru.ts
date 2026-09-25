@@ -1,3 +1,4 @@
+import { dayParts } from '@/lib/calendar-day'
 import { plural } from '@/lib/plural'
 import { PAIN_SIGNS, PET_DIETS, PET_LIFESTYLES, PET_SIZE_CLASSES, PET_WALK_ACTIVITIES } from '@lapka/contracts'
 
@@ -8,7 +9,23 @@ import { PAIN_SIGNS, PET_DIETS, PET_LIFESTYLES, PET_SIZE_CLASSES, PET_WALK_ACTIV
  * forgets a key does not compile. Wording here is the design concept's, which
  * is the authority for Russian.
  */
+/** «4,2»: a decimal the way Russian writes it. */
+const decimal = (value: number) => String(value).replace('.', ',')
+
+const MONTHS = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря']
+const MONTHS_SHORT = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек']
+
+/** «12 сентября», «12 сентября 2025». */
+function day(value: string, withYear: boolean): string {
+  const { year, month, date } = dayParts(value)
+  return `${date} ${MONTHS[month - 1]}${withYear ? ` ${year}` : ''}`
+}
+
 export const ru = {
+  decimal,
+  day,
+  /** «12 мар», for a chart axis. */
+  dayShort: (value: string) => `${dayParts(value).date} ${MONTHS_SHORT[dayParts(value).month - 1]}`,
   common: {
     cancel: 'Отмена',
     save: 'Сохранить',
@@ -74,7 +91,7 @@ export const ru = {
       cat: { male: 'Кот', female: 'Кошка' },
       dog: { male: 'Собака', female: 'Собака' },
     },
-    weight: (kg: number) => `${String(kg).replace('.', ',')} кг`,
+    weight: (kg: number) => `${decimal(kg)} кг`,
     neutered: { female: 'Стерилизована', male: 'Кастрирован', unknown: 'Стерилизован(а)' },
     important: 'Важно знать',
     allergies: 'Аллергии',
@@ -93,6 +110,34 @@ export const ru = {
     notVaccinatedInForm: 'В анкете: не привит(а)',
     currentCount: (count: number) => `Сейчас: ${count}`,
     weightFromForm: (weight: string) => `${weight} · из анкеты`,
+    trend: (change: string, span: string) => `${change} кг за ${span}`,
+    noChange: (span: string) => `Без изменений за ${span}`,
+    months: (count: number) => `${count} ${plural(count, 'месяц', 'месяца', 'месяцев')}`,
+    days: (count: number) => `${count} ${plural(count, 'день', 'дня', 'дней')}`,
+    weightTitle: 'Вес',
+    periods: { halfYear: 'Полгода', year: 'Год', all: 'Всё' },
+    period: 'Период',
+    measurements: 'Измерения',
+    addWeight: 'Добавить вес',
+    editWeight: 'Изменить вес',
+    weightField: 'Вес, кг',
+    dateField: 'Дата',
+    datePlaceholder: 'ДД.ММ.ГГГГ',
+    oneMorePoint: 'Добавьте ещё одно измерение, чтобы увидеть изменения',
+    noDate: 'дата не указана',
+    fromFormNote: 'из анкеты',
+    noWeightsTitle: 'Измерений пока нет',
+    noWeightsBody: 'Взвешивайте питомца время от времени — здесь будет видно, как меняется вес',
+    weightInvalid: 'Вес — число от 0,1 до 200, один знак после запятой',
+    dateInvalid: 'Дата — ДД.ММ.ГГГГ, не позже сегодняшней',
+    dayTaken: 'На этот день уже есть измерение',
+    saveWeightFailed: 'Не удалось сохранить вес',
+    deleteWeight: 'Удалить измерение',
+    deleteWeightTitle: 'Удалить измерение?',
+    deleteWeightBody: 'Оно исчезнет из медкарты. Отменить это будет нельзя.',
+    deleteWeightFailed: 'Не удалось удалить измерение',
+    chartLabel: (from: string, to: string) => `График веса, от ${from} до ${to}`,
+    weightHistoryHint: 'История веса — в медкарте',
   },
 
   unsaved: {

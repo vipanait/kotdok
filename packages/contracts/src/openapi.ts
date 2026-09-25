@@ -3,7 +3,12 @@ import { API_VERSION } from './version'
 import { ApiErrorEnvelopeSchema, ERROR_STATUS, type ErrorCode } from './errors'
 import { ProfileUpdateInputSchema, PublicProfileSchema } from './profile'
 import { PetCreateInputSchema, PetSchema, PetUpdateInputSchema } from './pet'
-import { HealthOverviewSchema } from './medical-record'
+import {
+  HealthOverviewSchema,
+  WeightInputSchema,
+  WeightMeasurementSchema,
+  WeightPatchSchema,
+} from './medical-record'
 import { CheckHistoryPageSchema, SymptomCheckRecordSchema } from './check'
 import { CheckFeedbackSchema, ExtraCheckRequestStatusSchema, FeedbackInputSchema } from './credits'
 import {
@@ -40,6 +45,9 @@ const COMPONENTS: Array<[string, z.ZodType]> = [
   ['PetCreateInput', PetCreateInputSchema],
   ['PetUpdateInput', PetUpdateInputSchema],
   ['HealthOverview', HealthOverviewSchema],
+  ['WeightMeasurement', WeightMeasurementSchema],
+  ['WeightInput', WeightInputSchema],
+  ['WeightPatch', WeightPatchSchema],
   ['SymptomCheckRecord', SymptomCheckRecordSchema],
   ['CheckHistoryPage', CheckHistoryPageSchema],
   ['CheckCreateInput', CheckCreateInputSchema],
@@ -245,6 +253,36 @@ export function buildOpenApiDocument(): Record<string, unknown> {
         get: {
           summary: 'The pet\'s medical record: the pet form and the sections that accept records',
           responses: { '200': json('HealthOverview', 'The medical record'), ...commonErrors('not_found') },
+        },
+      },
+      '/pets/{id}/health/weights': {
+        parameters: [idParam],
+        post: {
+          summary: 'Record a weighing; a second one for the same day replaces that day\'s value',
+          description: 'The pet form\'s weight becomes the latest measurement. A day in the future is refused.',
+          requestBody: body('WeightInput'),
+          responses: {
+            '201': json('WeightMeasurement', 'The day\'s measurement'),
+            ...commonErrors('bad_request', 'not_found'),
+          },
+        },
+      },
+      '/pets/{id}/health/weights/{weight_id}': {
+        parameters: [
+          idParam,
+          { name: 'weight_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } },
+        ],
+        patch: {
+          summary: 'Correct a measurement',
+          requestBody: body('WeightPatch'),
+          responses: {
+            '200': json('WeightMeasurement', 'The corrected measurement'),
+            ...commonErrors('bad_request', 'not_found', 'conflict'),
+          },
+        },
+        delete: {
+          summary: 'Delete a measurement; the form falls back to the one before it',
+          responses: { '204': { description: 'Deleted' }, ...commonErrors('not_found') },
         },
       },
       '/uploads': {

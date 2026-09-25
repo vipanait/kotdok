@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native'
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
 import type { HealthOverview } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
+import { localToday } from '@/lib/calendar-day'
 import { describeFailure } from '@/lib/errors'
 import { useText } from '@/i18n'
 import {
@@ -43,7 +44,12 @@ function Skeleton() {
   )
 }
 
-function Section({ row }: { row: SectionRow }) {
+/** Where an openable section leads. Each stage adds its own. */
+const SECTION_ROUTES: Partial<Record<SectionRow['section'], string>> = {
+  weight: 'weight',
+}
+
+function Section({ row, onPress }: { row: SectionRow; onPress: () => void }) {
   const content = (
     <>
       <Icon name={SECTION_ICONS[row.section]} color={colour.accentText} />
@@ -71,6 +77,7 @@ function Section({ row }: { row: SectionRow }) {
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={`${row.title}, ${row.summary}`}
+      onPress={onPress}
       style={({ pressed }) => [styles.section, { opacity: pressed ? 0.6 : 1 }]}
     >
       {content}
@@ -151,7 +158,8 @@ export default function MedicalRecord() {
   }
 
   const { pet } = shown
-  const facts = headerFacts(t, pet)
+  const today = localToday()
+  const facts = headerFacts(t, shown, today)
   const important = importantFacts(t, pet)
 
   return (
@@ -209,10 +217,16 @@ export default function MedicalRecord() {
       ) : null}
 
       <Card style={styles.sections}>
-        {sectionRows(t, shown).map((row, index) => (
+        {sectionRows(t, shown, today).map((row, index) => (
           <View key={row.section}>
             {index > 0 ? <View style={styles.divider} /> : null}
-            <Section row={row} />
+            <Section
+              row={row}
+              onPress={() => {
+                const route = SECTION_ROUTES[row.section]
+                if (route) router.push(`/pets/${id}/${route}`)
+              }}
+            />
           </View>
         ))}
       </Card>

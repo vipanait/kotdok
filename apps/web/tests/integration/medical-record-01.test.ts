@@ -44,7 +44,7 @@ afterAll(async () => {
 })
 
 describe('GET /api/v1/pets/{id}/health', () => {
-  it('returns the owner’s pet form unchanged, with nothing writable yet', async () => {
+  it('returns the owner’s pet form unchanged', async () => {
     const response = await getHealth(request(tokenA, PET_IDS.aDog), params(PET_IDS.aDog))
     expect(response.status).toBe(200)
 
@@ -54,7 +54,6 @@ describe('GET /api/v1/pets/{id}/health', () => {
     expect(overview.pet.name).toBe(rows[0].name)
     expect(overview.pet.weight_kg).toBe(rows[0].weight_kg === null ? null : Number(rows[0].weight_kg))
     expect(overview.pet.vaccinated).toBe(rows[0].vaccinated)
-    expect(overview.writable).toEqual([])
   })
 
   it('answers 404 for someone else’s pet', async () => {

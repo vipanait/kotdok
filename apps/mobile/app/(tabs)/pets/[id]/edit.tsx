@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { ActivityIndicator, StyleSheet, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import { withFreshSession } from '@/lib/api'
+import { localToday } from '@/lib/calendar-day'
 import { describeFailure } from '@/lib/errors'
 import { useText } from '@/i18n'
 import { PetFields } from '@/features/pets/PetFields'
@@ -25,6 +26,7 @@ export default function EditPet() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const t = useText()
   const [form, setForm] = useState<PetForm | null>(null)
+  const [hasWeights, setHasWeights] = useState(false)
   // What the server holds, to tell an edit from a form that was only looked at.
   const [saved, setSaved] = useState<PetForm | null>(null)
   const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
@@ -35,9 +37,12 @@ export default function EditPet() {
   const load = useCallback(async () => {
     setError(null)
     try {
-      const pet = await withFreshSession((api) => api.getPet(id))
+      // The record, not just the pet: the form points to the weight history
+      // when there is one.
+      const { pet, weights } = await withFreshSession((api) => api.getHealthOverview(id))
       setForm(petToForm(pet))
       setSaved(petToForm(pet))
+      setHasWeights(weights.length > 0)
     } catch (cause) {
       setError(describeFailure(t, cause, t.errors.loadPetFailed))
     }
@@ -74,7 +79,10 @@ export default function EditPet() {
     setBusy(true)
     setError(null)
     try {
-      await withFreshSession((api) => api.updatePet(id, input.value))
+      // The owner's own day: a weight saved from the form is that day's measurement.
+      await withFreshSession((api) =>
+        api.updatePet(id, { ...input.value, weight_measured_on: localToday() }),
+      )
       unsaved.leave(then)
     } catch (cause) {
       setError(describeFailure(t, cause, t.errors.saveChangesFailed))
@@ -123,7 +131,12 @@ export default function EditPet() {
       scroll
       dock={<Button title={t.common.save} onPress={() => void save()} busy={busy} />}
     >
-      <PetFields form={form} onChange={change} invalid={invalid} />
+      <PetFields
+        form={form}
+        onChange={change}
+        invalid={invalid}
+        notes={{ weight: hasWeights ? t.medicalRecord.weightHistoryHint : undefined }}
+      />
 
       {error ? (
         <Banner

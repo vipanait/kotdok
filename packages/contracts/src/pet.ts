@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import {
+  CalendarDateSchema,
   IsoDateTimeSchema,
   PetDietSchema,
   PetLifestyleSchema,
@@ -60,6 +61,12 @@ const petWritableFields = {
   chronic_conditions: stringList,
   medications: stringList,
   notes: z.string().max(NOTES_MAX).nullable(),
+  /**
+   * The owner's local day, for the weight history: a weight saved from the
+   * form is that day's measurement. Not a pet column. Without it the server
+   * uses today in UTC.
+   */
+  weight_measured_on: CalendarDateSchema.optional(),
 }
 
 // size_class and walk_activity describe dogs only; the database keeps them null
@@ -102,6 +109,7 @@ export const PetCreateInputSchema = z
     chronic_conditions: true,
     medications: true,
     notes: true,
+    weight_measured_on: true,
   })
   .superRefine(rejectDogFieldsOnCats)
 

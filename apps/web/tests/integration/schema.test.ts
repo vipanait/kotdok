@@ -45,6 +45,7 @@ const REQUIRED_TABLES = [
   'deletion_jobs',
   'extra_check_requests',
   'financial_archive',
+  'pet_weights',
   'pets',
   'photo_uploads',
   'profiles',
@@ -57,6 +58,7 @@ const REQUIRED_TABLES = [
 const REQUIRED_FUNCTIONS = [
   'apply_symptom_check_usage',
   'archive_account_financials',
+  'change_pet_weight',
   'claim_deletion_job',
   'claim_photo_uploads',
   'complete_deletion_job',
@@ -65,11 +67,14 @@ const REQUIRED_FUNCTIONS = [
   'create_extra_check_request',
   'current_account_is_active',
   'delete_account_data',
+  'delete_pet_weight',
   'due_deletion_jobs',
   'handle_new_user',
+  'lock_own_pet',
   'mark_deletion_step',
   'purge_expired_deletion_jobs',
   'record_deletion_failure',
+  'record_pet_weight',
   'refund_symptom_check_usage',
   'refuse_credit_change_for_inactive_account',
   'refuse_write_for_inactive_account',
@@ -77,6 +82,7 @@ const REQUIRED_FUNCTIONS = [
   'resolve_extra_check_request',
   'search_vet_knowledge',
   'stale_photo_objects',
+  'sync_pet_weight',
 ]
 
 describe('migrated schema', () => {

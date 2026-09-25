@@ -47,7 +47,7 @@ export function Field({
   error?: string | null
   /** A standing note under the field, such as a rule it has to meet. An error takes its place. */
   hint?: string
-  keyboardType?: 'default' | 'numeric' | 'email-address'
+  keyboardType?: 'default' | 'numeric' | 'decimal-pad' | 'numbers-and-punctuation' | 'email-address'
   multiline?: boolean
   secureTextEntry?: boolean
   autoCapitalize?: 'none' | 'sentences'
@@ -145,12 +145,15 @@ export type Option<Value extends string> = { value: Value; label: string }
  */
 export function Segment<Value extends string>({
   label,
+  labelHidden = false,
   options,
   value,
   onChange,
   clearable = true,
 }: {
   label: string
+  /** A switch whose options name themselves — «Полгода / Год / Всё» — needs no heading. */
+  labelHidden?: boolean
   options: ReadonlyArray<Option<Value>>
   value: Value | null
   onChange: (value: Value | null) => void
@@ -160,8 +163,10 @@ export function Segment<Value extends string>({
 
   return (
     <View style={styles.group}>
-      <Label hint={clearable && value === null ? t.common.notStated : undefined}>{label}</Label>
-      <View style={styles.segment}>
+      {labelHidden ? null : (
+        <Label hint={clearable && value === null ? t.common.notStated : undefined}>{label}</Label>
+      )}
+      <View style={styles.segment} accessibilityLabel={labelHidden ? label : undefined}>
         {options.map((option) => {
           const chosen = option.value === value
           return (

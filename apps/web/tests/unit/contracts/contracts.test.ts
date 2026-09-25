@@ -8,6 +8,9 @@ import {
   FeedbackInputSchema,
   HEALTH_SECTIONS,
   HealthOverviewSchema,
+  WeightInputSchema,
+  WeightMeasurementSchema,
+  WeightPatchSchema,
   PetCreateInputSchema,
   PetSchema,
   PetUpdateInputSchema,
@@ -221,7 +224,43 @@ describe('medical record overview contract', () => {
     // A published app cannot be updated everywhere at once, and every medical
     // record stage adds to this response. An older client ignores what it does
     // not know instead of failing the whole screen.
-    const later = HealthOverviewSchema.parse({ pet, writable: ['weight'], weights: [] })
-    expect(later).toEqual({ pet, writable: ['weight'] })
+    const later = HealthOverviewSchema.parse({ pet, writable: ['weight'], weights: [], visits: [] })
+    expect(later).toEqual({ pet, writable: ['weight'], weights: [] })
+  })
+})
+
+describe('weight contracts', () => {
+  const measurement = {
+    id: '11111111-1111-4111-8111-00000000000a',
+    measured_on: '2026-09-12',
+    weight_kg: 4.2,
+    source: 'record',
+  }
+
+  it('accepts a dated measurement and the form’s undated one', () => {
+    expect(WeightMeasurementSchema.parse(measurement)).toEqual(measurement)
+    expect(WeightMeasurementSchema.safeParse({ ...measurement, measured_on: null, source: 'form' }).success).toBe(true)
+  })
+
+  it('carries a calendar day, not a moment', () => {
+    expect(WeightInputSchema.safeParse({ measured_on: '2026-09-12T10:00:00Z', weight_kg: 4.2 }).success).toBe(false)
+    expect(WeightInputSchema.safeParse({ measured_on: '2026-02-30', weight_kg: 4.2 }).success).toBe(false)
+  })
+
+  it('refuses zero, a negative weight, over 200 and a non-number (MR-02.1)', () => {
+    for (const weight_kg of [0, -1, 200.1, '4,2', Number.NaN]) {
+      expect(WeightInputSchema.safeParse({ measured_on: '2026-09-12', weight_kg }).success, String(weight_kg)).toBe(false)
+    }
+    expect(WeightInputSchema.safeParse({ measured_on: '2026-09-12', weight_kg: 200 }).success).toBe(true)
+  })
+
+  it('needs something to change and never un-dates a measurement', () => {
+    expect(WeightPatchSchema.safeParse({}).success).toBe(false)
+    expect(WeightPatchSchema.safeParse({ measured_on: null }).success).toBe(false)
+    expect(WeightPatchSchema.safeParse({ weight_kg: 4.3 }).success).toBe(true)
+  })
+
+  it('reads an overview from a server that has no weights yet as an empty history', () => {
+    expect(HealthOverviewSchema.parse({ pet, writable: [] }).weights).toEqual([])
   })
 })

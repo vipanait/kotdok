@@ -20,7 +20,8 @@
 | Откуда | Куда | При удалении родителя |
 | --- | --- | --- |
 | `auth.identities`, `auth.sessions`, `auth.mfa_factors`, `auth.one_time_tokens`, `auth.oauth_authorizations`, `auth.oauth_consents`, `auth.webauthn_*` → `auth.users` | Auth | CASCADE |
-| `public.check_jobs.user_id`, `public.extra_check_requests.user_id`, `public.payment_methods.user_id`, `public.photo_uploads.user_id` → `auth.users` | Auth | CASCADE |
+| `public.check_jobs.user_id`, `public.extra_check_requests.user_id`, `public.payment_methods.user_id`, `public.photo_uploads.user_id`, `public.pet_weights.user_id` → `auth.users` | Auth | CASCADE |
+| `public.pet_weights.pet_id` → `pets` | питомец | CASCADE |
 | `public.profiles.id` → `auth.users` | Auth | **NO ACTION** |
 | `public.transactions.user_id`, `public.credit_ledger.user_id` → `auth.users` | Auth | **RESTRICT** |
 | `public.pets.user_id`, `public.symptom_checks.user_id`, `public.credit_transactions.user_id` → `profiles` | профиль | **NO ACTION** |
@@ -61,6 +62,7 @@
 | --- | --- | --- | --- | --- | --- |
 | `profiles` | Язык, роль, баланс, статус аккаунта | Удаляется | — | — | — |
 | `pets` | Кличка, порода, возраст, вес, болезни, препараты, заметки | Удаляется, включая помеченные `deleted_at` | — | — | — |
+| `pet_weights` | Даты и значения взвешиваний питомца (MR-02) | Удаляется каскадом вместе с `pets`, включая помеченные `deleted_at` | — | — | — |
 | `symptom_checks` | Описание симптомов своими словами, ответ модели, уровень срочности | Удаляется | — | — | — |
 | `check_jobs` | Идемпотентный ключ, статус задачи анализа | Удаляется (каскад от `auth.users` и от проверки) | — | — | — |
 | `user_feedback` | Оценка и свободный комментарий | Удаляется (каскад от профиля) | — | — | — |

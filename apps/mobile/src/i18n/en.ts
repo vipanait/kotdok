@@ -1,3 +1,4 @@
+import { dayParts } from '@/lib/calendar-day'
 import type { Dictionary } from './ru'
 
 /**
@@ -8,7 +9,17 @@ import type { Dictionary } from './ru'
  * the urgency levels, above all — it is reused rather than reinvented, so the
  * same result reads the same on the phone and on the web.
  */
+const decimal = (value: number) => String(value)
+
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+
 export const en: Dictionary = {
+  decimal,
+  day: (value: string, withYear: boolean) => {
+    const { year, month, date } = dayParts(value)
+    return `${MONTHS[month - 1]} ${date}${withYear ? `, ${year}` : ''}`
+  },
+  dayShort: (value: string) => `${MONTHS[dayParts(value).month - 1].slice(0, 3)} ${dayParts(value).date}`,
   common: {
     cancel: 'Cancel',
     save: 'Save',
@@ -74,7 +85,7 @@ export const en: Dictionary = {
       cat: { male: 'Cat', female: 'Cat' },
       dog: { male: 'Dog', female: 'Dog' },
     },
-    weight: (kg: number) => `${kg} kg`,
+    weight: (kg: number) => `${decimal(kg)} kg`,
     neutered: { female: 'Spayed', male: 'Neutered', unknown: 'Spayed/neutered' },
     important: 'Important to know',
     allergies: 'Allergies',
@@ -93,6 +104,34 @@ export const en: Dictionary = {
     notVaccinatedInForm: 'In the form: not vaccinated',
     currentCount: (count: number) => `Now: ${count}`,
     weightFromForm: (weight: string) => `${weight} · from the form`,
+    trend: (change: string, span: string) => `${change} kg in ${span}`,
+    noChange: (span: string) => `No change in ${span}`,
+    months: (count: number) => `${count} ${count === 1 ? 'month' : 'months'}`,
+    days: (count: number) => `${count} ${count === 1 ? 'day' : 'days'}`,
+    weightTitle: 'Weight',
+    periods: { halfYear: '6 months', year: 'Year', all: 'All' },
+    period: 'Period',
+    measurements: 'Measurements',
+    addWeight: 'Add weight',
+    editWeight: 'Edit weight',
+    weightField: 'Weight, kg',
+    dateField: 'Date',
+    datePlaceholder: 'DD.MM.YYYY',
+    oneMorePoint: 'Add one more measurement to see the change',
+    noDate: 'no date given',
+    fromFormNote: 'from the form',
+    noWeightsTitle: 'No measurements yet',
+    noWeightsBody: 'Weigh your pet now and then — this is where the change will show',
+    weightInvalid: 'Weight is a number from 0.1 to 200, one decimal place',
+    dateInvalid: 'Date is DD.MM.YYYY, no later than today',
+    dayTaken: 'That day already has a measurement',
+    saveWeightFailed: 'Could not save the weight',
+    deleteWeight: 'Delete measurement',
+    deleteWeightTitle: 'Delete this measurement?',
+    deleteWeightBody: 'It disappears from the medical record. This cannot be undone.',
+    deleteWeightFailed: 'Could not delete the measurement',
+    chartLabel: (from: string, to: string) => `Weight chart, from ${from} to ${to}`,
+    weightHistoryHint: 'Weight history is in the medical record',
   },
 
   unsaved: {

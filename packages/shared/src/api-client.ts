@@ -17,6 +17,7 @@ import {
   ReauthProofSchema,
   SymptomCheckRecordSchema,
   UploadGrantSchema,
+  WeightMeasurementSchema,
   type AccountDeletionRequest,
   type CheckCreateInput,
   type CheckHistoryQuery,
@@ -27,6 +28,8 @@ import {
   type ProfileUpdateInput,
   type ReauthRequest,
   type UploadRequest,
+  type WeightInput,
+  type WeightPatch,
 } from '@lapka/contracts'
 import { z } from 'zod'
 
@@ -228,6 +231,12 @@ export function createApiClient(options: ApiClientOptions) {
     deletePet: (id: string) => call<void>(`/pets/${id}`, null, { method: 'DELETE' }),
 
     getHealthOverview: (petId: string) => call(`/pets/${petId}/health`, HealthOverviewSchema),
+    addWeight: (petId: string, body: WeightInput) =>
+      call(`/pets/${petId}/health/weights`, WeightMeasurementSchema, { method: 'POST', body }),
+    changeWeight: (petId: string, weightId: string, body: WeightPatch) =>
+      call(`/pets/${petId}/health/weights/${weightId}`, WeightMeasurementSchema, { method: 'PATCH', body }),
+    deleteWeight: (petId: string, weightId: string) =>
+      call<void>(`/pets/${petId}/health/weights/${weightId}`, null, { method: 'DELETE' }),
 
     requestUploads: (body: UploadRequest) =>
       call('/uploads', UploadGrantSchema, { method: 'POST', body }),
