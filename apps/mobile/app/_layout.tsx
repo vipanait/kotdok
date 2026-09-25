@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar'
 import { View } from 'react-native'
 import { AuthProvider } from '@/providers/AuthProvider'
 import { UpdatePrompt } from '@/features/updates/UpdatePrompt'
+import { ReminderProvider } from '@/features/medical-record/reminders/ReminderProvider'
 import { LocaleProvider, dictionary } from '@/i18n'
 import { parseAuthLink } from '@/lib/auth-links'
 import { redeemAuthLink, type LinkAuth } from '@/features/auth/redeem-link'
@@ -97,14 +98,16 @@ export default function RootLayout() {
   return (
     <LocaleProvider>
       <AuthProvider>
-        <StatusBar style="dark" />
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            contentStyle: { backgroundColor: colour.canvas },
-          }}
-        />
-        <UpdatePrompt />
+        <ReminderProvider>
+          <StatusBar style="dark" />
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              contentStyle: { backgroundColor: colour.canvas },
+            }}
+          />
+          <UpdatePrompt />
+        </ReminderProvider>
       </AuthProvider>
     </LocaleProvider>
   )

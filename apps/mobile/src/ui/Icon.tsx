@@ -42,6 +42,7 @@ const paths = {
   weight: '<rect x="3" y="3" width="18" height="18" rx="4"/><path d="M7 7h10l-2 5H9Zm5 0 2-2"/>',
   // A due date soon, and one overdue — the exclamation says it without red.
   calendar: '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4m10-4v4M3 10h18"/>',
+  bell: '<path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4Z"/><path d="M10 21h4"/>',
   calendarAlert: '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4m10-4v4M3 10h18m-9 3v3m0 2h.01"/>',
 } as const
 

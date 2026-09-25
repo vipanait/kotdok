@@ -6,6 +6,7 @@ import { withFreshSession } from '@/lib/api'
 import { describeFailure } from '@/lib/errors'
 import { localToday } from '@/lib/calendar-day'
 import { useText } from '@/i18n'
+import { useReminders } from '@/features/medical-record/reminders/ReminderProvider'
 import { dueLine, dueStatus } from '@/features/medical-record/due'
 import { Button, LinkButton } from '@/ui/Button'
 import { Banner, Card, SettingRow } from '@/ui/Card'
@@ -22,6 +23,7 @@ import { colour, space } from '@/ui/theme'
 export default function VisitView() {
   const { id, eventId } = useLocalSearchParams<{ id: string; eventId: string }>()
   const t = useText()
+  const reminders = useReminders()
   const words = t.medicalRecord.visits
   const [visit, setVisit] = useState<HealthEvent | null>(null)
   const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
@@ -66,6 +68,7 @@ export default function VisitView() {
     setBusy(true)
     try {
       await withFreshSession((api) => api.deleteHealthEvent(id, eventId))
+      reminders.refresh()
       setAsking(false)
       router.back()
     } catch (cause) {

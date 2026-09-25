@@ -1,4 +1,5 @@
 import { dayParts } from '@/lib/calendar-day'
+import { listWords } from '@/lib/list-words'
 import type { Dictionary } from './ru'
 
 /**
@@ -469,6 +470,82 @@ export const en: Dictionary = {
     title: 'Check history',
     emptyTitle: 'No checks yet',
     emptyBody: 'Results will appear here once you check some symptoms',
+  },
+
+  reminders: {
+    notificationTitle: 'Lapka',
+    before: (pet: string, days: number, what: string) =>
+      `${pet} ${days === 1 ? 'tomorrow' : `in ${days} days`}: ${what}`,
+    today: (pet: string, what: string) => `Today for ${pet}: ${what}`,
+    overdue: (pet: string, what: string) => `${pet} is due: ${what}, a week overdue`,
+    against: {
+      panleukopenia: 'panleukopenia',
+      calicivirus: 'calicivirus',
+      rhinotracheitis: 'rhinotracheitis',
+      distemper: 'distemper',
+      parvovirus: 'parvovirus',
+      adenovirus: 'adenovirus',
+      rabies: 'rabies',
+      felv: 'feline leukaemia',
+      chlamydia: 'chlamydia',
+      leptospirosis: 'leptospirosis',
+      parainfluenza: 'parainfluenza',
+      bordetella: 'kennel cough',
+      coronavirus: 'canine coronavirus',
+    } as Record<string, string>,
+    about: {
+      panleukopenia: 'about panleukopenia',
+      calicivirus: 'about calicivirus',
+      rhinotracheitis: 'about rhinotracheitis',
+      distemper: 'about distemper',
+      parvovirus: 'about parvovirus',
+      adenovirus: 'about adenovirus',
+      rabies: 'about rabies',
+      felv: 'about feline leukaemia',
+      chlamydia: 'about chlamydia',
+      leptospirosis: 'about leptospirosis',
+      parainfluenza: 'about parainfluenza',
+      bordetella: 'about kennel cough',
+      coronavirus: 'about canine coronavirus',
+    } as Record<string, string>,
+    vaccination: (against: string) => `${against} vaccination`,
+    namedVaccination: (name: string) => `${name} vaccination`,
+    plainVaccination: 'vaccination',
+    complexVaccination: 'combined vaccination',
+    parasiteGroups: { fleas: 'flea', ticks: 'tick', worms: 'worm' },
+    treatment: (groups: readonly string[]) => `${listWords(groups, 'and')} treatment`,
+    namedTreatment: (name: string) => `${name} treatment`,
+    plainTreatment: 'parasite treatment',
+    visit: 'vet visit',
+    count: (kind: 'vaccination' | 'parasite' | 'visit' | 'mixed', count: number) =>
+      `${count} ${{ vaccination: 'vaccinations', parasite: 'treatments', visit: 'vet visits', mixed: 'due dates' }[kind]}`,
+    aboutComplex: 'about the combined vaccination',
+    aboutVaccination: 'about the vaccination',
+    aboutNamedVaccination: (name: string) => `about the ${name} vaccination`,
+    aboutTreatment: (groups: readonly string[]) => `about the ${listWords(groups, 'and')} treatment`,
+    aboutPlainTreatment: 'about the parasite treatment',
+    aboutVisit: 'about the vet visit',
+    askTitle: (about: string) => `Remind you ${about}?`,
+    askBody: (days: number) =>
+      `We will send a notification ${days === 1 ? '1 day' : days === 7 ? 'a week' : `${days} days`} before and on the day. You can turn it off in your profile.`,
+    remind: 'Remind me',
+    notNow: 'Not now',
+    openSettings: 'Open settings',
+    deniedBody: 'Notifications are off in the phone settings. Due dates are still shown in the medical record.',
+    title: 'Reminders',
+    on: 'On',
+    off: 'Off',
+    toggle: 'Remind me about vaccinations, treatments and visits',
+    when: 'When',
+    whenOptions: {
+      1: 'On the day and 1 day before',
+      3: 'On the day and 3 days before',
+      7: 'On the day and a week before',
+    } as Record<1 | 3 | 7, string>,
+    time: 'Time',
+    hour: (hour: number) => `${hour}:00`,
+    thisPhone: 'Reminders come to this phone. Turn them on separately on another device.',
+    blocked: 'Notifications are off in the phone settings',
   },
 
   profile: {

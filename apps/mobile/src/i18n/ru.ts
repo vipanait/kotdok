@@ -1,5 +1,7 @@
 import { dayParts } from '@/lib/calendar-day'
 import { plural } from '@/lib/plural'
+import { listWords } from '@/lib/list-words'
+import { nameCase } from '@/lib/russian-name'
 import { PAIN_SIGNS, PET_DIETS, PET_LIFESTYLES, PET_SIZE_CLASSES, PET_WALK_ACTIVITIES } from '@lapka/contracts'
 
 /**
@@ -475,6 +477,99 @@ export const ru = {
     title: 'История проверок',
     emptyTitle: 'Проверок пока не было',
     emptyBody: 'Здесь появятся результаты, когда вы проверите симптомы',
+  },
+
+  reminders: {
+    notificationTitle: 'Лапка',
+    before: (pet: string, days: number, what: string) => {
+      const when = days === 1 ? 'завтра' : `через ${days} ${plural(days, 'день', 'дня', 'дней')}`
+      const cases = nameCase(pet)
+      return cases ? `${cases.dative} ${when}: ${what}` : `${pet} — ${when}: ${what}`
+    },
+    today: (pet: string, what: string) => {
+      const cases = nameCase(pet)
+      return cases ? `Сегодня у ${cases.genitive}: ${what}` : `${pet} — сегодня: ${what}`
+    },
+    overdue: (pet: string, what: string, form: 'f' | 'm' | 'pl') => {
+      const late = { f: 'просрочена', m: 'просрочен', pl: 'просрочены' }[form]
+      const cases = nameCase(pet)
+      return cases ? `${cases.dative} пора: ${what} ${late} на неделю` : `${pet} — пора: ${what} ${late} на неделю`
+    },
+    against: {
+      panleukopenia: 'от панлейкопении',
+      calicivirus: 'от калицивироза',
+      rhinotracheitis: 'от ринотрахеита',
+      distemper: 'от чумы плотоядных',
+      parvovirus: 'от парвовирусного энтерита',
+      adenovirus: 'от аденовироза',
+      rabies: 'от бешенства',
+      felv: 'от лейкоза',
+      chlamydia: 'от хламидиоза',
+      leptospirosis: 'от лептоспироза',
+      parainfluenza: 'от парагриппа',
+      bordetella: 'от кашля питомников',
+      coronavirus: 'от коронавирусного энтерита',
+    } as Record<string, string>,
+    about: {
+      panleukopenia: 'о панлейкопении',
+      calicivirus: 'о калицивирозе',
+      rhinotracheitis: 'о ринотрахеите',
+      distemper: 'о чуме плотоядных',
+      parvovirus: 'о парвовирусном энтерите',
+      adenovirus: 'об аденовирозе',
+      rabies: 'о бешенстве',
+      felv: 'о лейкозе',
+      chlamydia: 'о хламидиозе',
+      leptospirosis: 'о лептоспирозе',
+      parainfluenza: 'о парагриппе',
+      bordetella: 'о кашле питомников',
+      coronavirus: 'о коронавирусном энтерите',
+    } as Record<string, string>,
+    vaccination: (against: string) => `прививка ${against}`,
+    namedVaccination: (name: string) => `прививка «${name}»`,
+    plainVaccination: 'прививка',
+    complexVaccination: 'комплексная прививка',
+    parasiteGroups: { fleas: 'блох', ticks: 'клещей', worms: 'глистов' },
+    treatment: (groups: readonly string[]) => `обработка от ${listWords(groups, 'и')}`,
+    namedTreatment: (name: string) => `обработка «${name}»`,
+    plainTreatment: 'обработка от паразитов',
+    visit: 'визит к врачу',
+    count: (kind: 'vaccination' | 'parasite' | 'visit' | 'mixed', count: number) =>
+      `${count} ${
+        {
+          vaccination: plural(count, 'прививка', 'прививки', 'прививок'),
+          parasite: plural(count, 'обработка', 'обработки', 'обработок'),
+          visit: plural(count, 'визит', 'визита', 'визитов'),
+          mixed: plural(count, 'срок', 'срока', 'сроков'),
+        }[kind]
+      }`,
+    aboutComplex: 'о комплексной прививке',
+    aboutVaccination: 'о прививке',
+    aboutNamedVaccination: (name: string) => `о прививке «${name}»`,
+    aboutTreatment: (groups: readonly string[]) => `об обработке от ${listWords(groups, 'и')}`,
+    aboutPlainTreatment: 'об обработке от паразитов',
+    aboutVisit: 'о визите к врачу',
+    askTitle: (about: string) => `Напомнить ${about}?`,
+    askBody: (days: number) =>
+      `Пришлём уведомление за ${days} ${plural(days, 'день', 'дня', 'дней')} и в день срока. Выключить можно в профиле.`,
+    remind: 'Напоминать',
+    notNow: 'Не сейчас',
+    openSettings: 'Открыть настройки',
+    deniedBody: 'Уведомления выключены в настройках телефона. Сроки всё равно видны в медкарте.',
+    title: 'Напоминания',
+    on: 'Вкл',
+    off: 'Выкл',
+    toggle: 'Напоминать о прививках, обработках и визитах',
+    when: 'Когда',
+    whenOptions: {
+      1: 'В день срока и за 1 день',
+      3: 'В день срока и за 3 дня',
+      7: 'В день срока и за неделю',
+    } as Record<1 | 3 | 7, string>,
+    time: 'Время',
+    hour: (hour: number) => `${hour}:00`,
+    thisPhone: 'Напоминания приходят на этот телефон. На другом устройстве включите их отдельно.',
+    blocked: 'Уведомления выключены в настройках телефона',
   },
 
   profile: {

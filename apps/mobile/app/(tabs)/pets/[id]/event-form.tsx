@@ -19,6 +19,7 @@ import {
   itemInterval,
   nextDate,
   pickProduct,
+  plannedItem,
   renameItem,
   toggleGroup,
   readDraft,
@@ -28,6 +29,7 @@ import {
   type ItemDraft,
   type NextChoice,
 } from '@/features/medical-record/event-form'
+import { useReminders } from '@/features/medical-record/reminders/ReminderProvider'
 import { useUnsavedChanges } from '@/features/unsaved/useUnsavedChanges'
 import { Button, IconButton, LinkButton } from '@/ui/Button'
 import { Banner, Card } from '@/ui/Card'
@@ -67,6 +69,7 @@ export default function EventForm() {
   // A new record says its kind; an existing one brings its own when it loads.
   const [kind, setKind] = useState<HealthEvent['kind']>(params.kind === 'parasite' ? 'parasite' : 'vaccination')
   const t = useText()
+  const reminders = useReminders()
   const words = t.medicalRecord
 
   const [species, setSpecies] = useState<PetSpecies | null>(null)
@@ -208,6 +211,9 @@ export default function EventForm() {
           requestKey.current,
         )
       })
+      const plan = mode === 'edit' ? null : plannedItem(value)
+      if (plan) reminders.planSaved(plan)
+      else reminders.refresh()
       unsaved.leave(then)
     } catch (cause) {
       // The first try was saved after all, with what it said then; the change

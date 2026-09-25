@@ -147,6 +147,19 @@ type ItemInput = {
   next_on: string | null
 }
 
+/**
+ * What a save put in the future, for «Напомнить о бешенстве?» (spec §7.19):
+ * the plan itself, or the first next date a done record set. Null if nothing.
+ */
+export function plannedItem(value: {
+  kind: HealthEvent['kind']
+  status: HealthEvent['status']
+  items: readonly Pick<ItemInput, 'name' | 'targets' | 'next_on'>[]
+}): { kind: HealthEvent['kind']; name: string | null; targets: string[] } | null {
+  const item = value.status === 'planned' ? value.items[0] : value.items.find((candidate) => candidate.next_on !== null)
+  return item ? { kind: value.kind, name: item.name, targets: [...item.targets] } : null
+}
+
 export type ReadDraft =
   | { ok: true; value: Omit<HealthEventInput, 'items'> & { items: ItemInput[] } }
   | { ok: false; errors: DraftErrors }

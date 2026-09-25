@@ -5,6 +5,7 @@ import { withFreshSession } from '@/lib/api'
 import { localToday } from '@/lib/calendar-day'
 import { describeFailure } from '@/lib/errors'
 import { useText } from '@/i18n'
+import { useReminders } from '@/features/medical-record/reminders/ReminderProvider'
 import { PetFields } from '@/features/pets/PetFields'
 import {
   formToInput,
@@ -25,6 +26,7 @@ import { colour, space } from '@/ui/theme'
 export default function EditPet() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const t = useText()
+  const reminders = useReminders()
   const [form, setForm] = useState<PetForm | null>(null)
   const [hasWeights, setHasWeights] = useState(false)
   const [hasCourses, setHasCourses] = useState(false)
@@ -98,6 +100,7 @@ export default function EditPet() {
     setError(null)
     try {
       await withFreshSession((api) => api.deletePet(id))
+      reminders.refresh()
       setAsking(false)
       // Past the medical record too: it belonged to the pet that is now gone.
       unsaved.leave(() => router.dismissTo('/pets'))

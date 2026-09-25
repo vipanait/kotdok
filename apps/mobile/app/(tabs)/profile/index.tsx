@@ -6,6 +6,8 @@ import * as Updates from 'expo-updates'
 import type { PublicProfile } from '@lapka/contracts'
 import { SUPPORTED_LOCALES } from '@lapka/shared'
 import { runningUpdate } from '@/features/updates/update-state'
+import { reminderStore } from '@/features/medical-record/reminders/ReminderProvider'
+import { permissionState } from '@/features/medical-record/reminders/notifications'
 import { withFreshSession } from '@/lib/api'
 import { describeFailure } from '@/lib/errors'
 import { useAuth } from '@/providers/AuthProvider'
@@ -47,8 +49,14 @@ export default function Profile() {
     }
   }, [t, setLocale])
 
+  const [remindersOn, setRemindersOn] = useState<boolean | null>(null)
+
   useFocusEffect(
     useCallback(() => {
+      // «Вкл» only when both this phone's setting and the system allow it.
+      void Promise.all([reminderStore.settings(), permissionState()])
+        .then(([settings, permission]) => setRemindersOn(settings.enabled && permission === 'granted'))
+        .catch(() => setRemindersOn(null))
       void load()
       // A confirmation belongs to the moment it confirms. Coming back to the
       // profile later, it would announce a change nobody just made.
@@ -149,6 +157,12 @@ export default function Profile() {
         title={t.profile.language}
         value={localeLabels[profile.locale]}
         onPress={() => setPickingLocale(true)}
+      />
+      <SettingRow
+        icon="bell"
+        title={t.reminders.title}
+        value={remindersOn === null ? undefined : remindersOn ? t.reminders.on : t.reminders.off}
+        onPress={() => router.push('/profile/reminders')}
       />
       <SettingRow
         icon="history"

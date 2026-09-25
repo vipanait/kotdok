@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { HealthEvent } from '@lapka/contracts'
 import { ru } from '@/i18n/ru'
-import { blankItem, draftFromEvent, draftChanged, nextDate, pickProduct, readDraft, renameItem, type EventDraft } from './event-form'
+import { blankItem, draftFromEvent, draftChanged, nextDate, pickProduct, plannedItem, readDraft, renameItem, type EventDraft } from './event-form'
 
 const NOW = new Date(2026, 8, 24, 12, 0) // 24 Sept 2026, local
 
@@ -196,5 +196,27 @@ describe('«Сделано» on a plan picked from the catalogue (review 2)', ()
     }
     const item = draftFromEvent(plan).items[0]
     expect(nextDate(item, '2026-10-01', '2026-10-01')).toBe('2026-12-24')
+  })
+})
+
+describe('what a save planned, for the reminder question', () => {
+  const item = { name: 'Нобивак Rabies', targets: ['rabies' as const] }
+
+  it('is the first item of a plan, or the first with a next date', () => {
+    expect(plannedItem({ kind: 'vaccination', status: 'planned', items: [{ ...item, next_on: null }] })).toEqual({
+      kind: 'vaccination',
+      name: 'Нобивак Rabies',
+      targets: ['rabies'],
+    })
+    const done = { kind: 'parasite' as const, status: 'done' as const }
+    expect(plannedItem({ ...done, items: [{ ...item, next_on: null }, { name: 'Мильбемакс', targets: ['worms' as const], next_on: '2026-12-24' }] })).toEqual({
+      kind: 'parasite',
+      name: 'Мильбемакс',
+      targets: ['worms'],
+    })
+  })
+
+  it('is nothing for a done record without next dates', () => {
+    expect(plannedItem({ kind: 'vaccination', status: 'done', items: [{ ...item, next_on: null }] })).toBeNull()
   })
 })

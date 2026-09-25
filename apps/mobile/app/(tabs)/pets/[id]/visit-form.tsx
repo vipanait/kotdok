@@ -10,6 +10,7 @@ import { newRequestKey } from '@/lib/request-key'
 import { useText } from '@/i18n'
 import { urgencyText } from '@/features/checks/urgency'
 import { blankVisit, readVisit, recentChecks, visitDraftFrom, type VisitDraft, type VisitErrors } from '@/features/medical-record/visits'
+import { useReminders } from '@/features/medical-record/reminders/ReminderProvider'
 import { useUnsavedChanges } from '@/features/unsaved/useUnsavedChanges'
 import { Button, IconButton, LinkButton } from '@/ui/Button'
 import { Banner, Card } from '@/ui/Card'
@@ -39,6 +40,7 @@ export default function VisitForm() {
   const petId = params.id
   const mode = params.mode === 'edit' ? 'edit' : params.mode === 'done' ? 'done' : 'new'
   const t = useText()
+  const reminders = useReminders()
   const words = t.medicalRecord.visits
   const [initial, setInitial] = useState<VisitDraft | null>(null)
   const [draft, setDraft] = useState<VisitDraft | null>(null)
@@ -110,6 +112,8 @@ export default function VisitForm() {
           requestKey.current,
         )
       })
+      if (value.status === 'planned' && mode === 'new') reminders.planSaved({ kind: 'visit', name: null, targets: [] })
+      else reminders.refresh()
       unsaved.leave(then)
     } catch (cause) {
       if (cause instanceof ApiError && cause.code === 'conflict') setError({ text: t.medicalRecord.alreadySaved, offline: false })
