@@ -119,20 +119,30 @@ describe('calendar days stay put (MR-08.4)', () => {
 
   it('fires at the hour on the wall clock across a daylight saving change', () => {
     process.env.TZ = 'America/New_York'
-    // Clocks go back on 1 November 2026; the reminder is still at 10:00 that day.
-    const at = reminderMoment('2026-11-01', 10)
-    expect([at.getFullYear(), at.getMonth() + 1, at.getDate(), at.getHours(), at.getMinutes()]).toEqual([2026, 11, 1, 10, 0])
+    // Clocks go back at 2:00 on 1 November 2026: 10:00 is 14:00 UTC the day before, 15:00 UTC that day.
+    expect(reminderMoment('2026-10-31', 10).toISOString()).toBe('2026-10-31T14:00:00.000Z')
+    expect(reminderMoment('2026-11-01', 10).toISOString()).toBe('2026-11-01T15:00:00.000Z')
     process.env.TZ = 'Europe/Berlin'
-    const spring = reminderMoment('2027-03-28', 8)
-    expect([spring.getDate(), spring.getHours()]).toEqual([28, 8])
+    expect(reminderMoment('2027-03-28', 8).toISOString()).toBe('2027-03-28T06:00:00.000Z')
   })
 
-  it('keeps a due date at midnight and east or west of UTC on its day', () => {
-    for (const tz of ['Pacific/Kiritimati', 'Pacific/Pago_Pago', 'Asia/Vladivostok', 'UTC']) {
-      process.env.TZ = tz
-      const justAfterMidnight = new Date(2026, 9, 10, 0, 5)
-      const plan = planReminders(ru, [due({ date: '2026-10-10' })], pets, DEFAULT_REMINDERS, justAfterMidnight)
-      expect(plan.map((r) => r.day), tz).toEqual(['2026-10-10', '2026-10-17'])
-    }
+  it('reads «now» on the phone’s own clock, east and west of UTC', () => {
+    // 00:30 UTC on 10 October: 10:30 that day in Vladivostok, 13:30 the day before in Pago Pago.
+    const now = new Date('2026-10-10T00:30:00Z')
+    process.env.TZ = 'Asia/Vladivostok'
+    expect(planReminders(ru, [due({ date: '2026-10-10' })], pets, DEFAULT_REMINDERS, now).map((r) => r.day)).toEqual(['2026-10-17'])
+    process.env.TZ = 'Pacific/Pago_Pago'
+    expect(planReminders(ru, [due({ date: '2026-10-10' })], pets, DEFAULT_REMINDERS, now).map((r) => r.day)).toEqual(['2026-10-10', '2026-10-17'])
+  })
+})
+
+describe('agreement in Russian', () => {
+  it('agrees «просрочена» with 21 and «просрочены» with 2, and says «за неделю»', () => {
+    const many = (count: number) => Array.from({ length: count }, () => due({ date: '2026-09-20' }))
+    const overdue = (count: number) => planReminders(ru, many(count), pets, DEFAULT_REMINDERS, NOW)[0].body
+    expect(overdue(21)).toBe('Мурке пора: 21 прививка просрочена на неделю')
+    expect(overdue(2)).toBe('Мурке пора: 2 прививки просрочены на неделю')
+    expect(overdue(5)).toBe('Мурке пора: 5 прививок просрочены на неделю')
+    expect(ru.reminders.askBody(7)).toBe('Пришлём уведомление за неделю и в день срока. Выключить можно в профиле.')
   })
 })

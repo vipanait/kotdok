@@ -44,6 +44,7 @@ export async function askPermission(): Promise<PermissionState> {
 export const notifier: Notifier = {
   granted: async () => (await permissionState()) === 'granted',
   cancelAll: () => Notifications.cancelAllScheduledNotificationsAsync(),
+  dismissAll: () => Notifications.dismissAllNotificationsAsync(),
   async schedule(reminder, data) {
     const [year, month, day] = reminder.day.split('-').map(Number)
     await Notifications.scheduleNotificationAsync({

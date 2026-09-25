@@ -87,6 +87,8 @@ export default function EditPet() {
       await withFreshSession((api) =>
         api.updatePet(id, { ...input.value, weight_measured_on: localToday() }),
       )
+      // The name in a reminder, and the «vaccinated» plan, may have changed.
+      reminders.refresh()
       unsaved.leave(then)
     } catch (cause) {
       setError(describeFailure(t, cause, t.errors.saveChangesFailed))

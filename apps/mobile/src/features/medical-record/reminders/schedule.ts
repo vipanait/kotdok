@@ -1,6 +1,7 @@
 import type { DueItem } from '@lapka/contracts'
 import type { Dictionary } from '@/i18n'
 import { dayParts } from '@/lib/calendar-day'
+import { plural } from '@/lib/plural'
 import { parasiteGroups } from '../due'
 
 /** This phone's choices (spec §7.20). Kept on the device, not in the account. */
@@ -70,7 +71,9 @@ function what(t: Dictionary, items: readonly DueItem[]): { text: string; form: '
   if (items.length === 1) return itemPhrase(t, items[0])
   const kinds = new Set(items.map((item) => item.kind))
   const kind = kinds.size === 1 ? (items[0].kind as 'vaccination' | 'parasite' | 'visit') : 'mixed'
-  return { text: t.reminders.count(kind, items.length), form: 'pl' }
+  // «21 прививка просрочена», «2 прививки просрочены»: the verb follows the noun's form.
+  const gender = kind === 'visit' || kind === 'mixed' ? 'm' : 'f'
+  return { text: t.reminders.count(kind, items.length), form: plural(items.length, gender, 'pl', 'pl') as 'f' | 'm' | 'pl' }
 }
 
 /** «Напомнить о бешенстве?»: what the permission sheet asks about. */

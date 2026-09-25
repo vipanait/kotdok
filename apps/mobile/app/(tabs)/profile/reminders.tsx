@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { Linking, StyleSheet, Switch, View } from 'react-native'
+import { AppState, Linking, StyleSheet, Switch, View } from 'react-native'
 import { router, useFocusEffect } from 'expo-router'
 import { useText } from '@/i18n'
 import { useReminders, reminderStore } from '@/features/medical-record/reminders/ReminderProvider'
@@ -25,11 +25,18 @@ export default function RemindersSettings() {
 
   useFocusEffect(
     useCallback(() => {
-      // Back from Settings, the system's answer may have changed.
-      void Promise.all([reminderStore.settings(), permissionState()]).then(([stored, state]) => {
-        setSettings(stored)
-        setPermission(state)
+      const read = () =>
+        void Promise.all([reminderStore.settings(), permissionState()]).then(([stored, state]) => {
+          setSettings(stored)
+          setPermission(state)
+        })
+      read()
+      // Back from the phone's Settings the system's answer may have changed:
+      // the app returns to the front, the screen never lost focus.
+      const subscription = AppState.addEventListener('change', (state) => {
+        if (state === 'active') read()
       })
+      return () => subscription.remove()
     }, []),
   )
 

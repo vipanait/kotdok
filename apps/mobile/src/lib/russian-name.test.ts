@@ -14,7 +14,8 @@ describe('a pet name in the case a sentence needs', () => {
 
   it('leaves alone what it cannot decline for sure', () => {
     // A soft sign, a vowel other than а/я, Latin letters, several words: no guess.
-    for (const name of ['Рысь', 'Тоби', 'Пико', 'Max', 'Мистер Кот', '']) {
+    // Names that lose a vowel when declined (Пушок → Пушку, Лев → Льву) are not guessed either.
+    for (const name of ['Рысь', 'Тоби', 'Пико', 'Max', 'Мистер Кот', '', 'Пушок', 'Снежок', 'Уголёк', 'Огонёк', 'Малец', 'Лев', 'Шарик-Пушок']) {
       expect(nameCase(name)).toBeNull()
     }
   })

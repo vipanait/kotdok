@@ -14,12 +14,14 @@ function item(petId: string): DueItem {
 
 function fakeNotifier(granted = true) {
   const scheduled = new Map<string, { body: string; data: Record<string, string> }>()
+  const delivered = new Set<string>()
   const notifier: Notifier = {
     granted: async () => granted,
     cancelAll: async () => scheduled.clear(),
+    dismissAll: async () => delivered.clear(),
     schedule: async (reminder, data) => void scheduled.set(reminder.id, { body: reminder.body, data }),
   }
-  return { notifier, scheduled }
+  return { notifier, scheduled, delivered }
 }
 
 function account(userId: string, petId: string, name: string) {
@@ -46,6 +48,36 @@ describe('keeping the phone’s notifications in step', () => {
     expect(scheduled.size).toBe(0)
     await sync.run(account('user-b', B_PET, 'Бобик'))
     expect([...scheduled.values()].every((n) => n.data.userId === 'user-b' && n.data.petId === B_PET)).toBe(true)
+  })
+
+  it('takes shown notifications off the screen at sign-out too (MR-08.3)', async () => {
+    const { notifier, delivered } = fakeNotifier()
+    delivered.add('lapka-reminder-a')
+    const sync = createReminderSync({ notifier, settings: async () => DEFAULT_REMINDERS, t: () => ru, now: () => NOW })
+    await sync.clear()
+    expect(delivered.size).toBe(0)
+  })
+
+  it('folds refreshes that pile up while one runs into a single next run', async () => {
+    const { notifier } = fakeNotifier()
+    const sync = createReminderSync({ notifier, settings: async () => DEFAULT_REMINDERS, t: () => ru, now: () => NOW })
+    let loads = 0
+    let release: () => void = () => {}
+    const first = {
+      userId: 'user-a',
+      load: () =>
+        new Promise<{ due: DueItem[]; pets: { id: string; name: string }[] }>((resolve) => {
+          loads++
+          release = () => resolve({ due: [item(A_PET)], pets: [{ id: A_PET, name: 'Мурка' }] })
+        }),
+    }
+    const counted = { userId: 'user-a', load: async () => (loads++, { due: [item(A_PET)], pets: [{ id: A_PET, name: 'Мурка' }] }) }
+    const running = sync.run(first)
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    const later = [sync.run(counted), sync.run(counted), sync.run(counted)]
+    release()
+    await Promise.all([running, ...later])
+    expect(loads).toBe(2)
   })
 
   it('does not schedule a sync that was still loading when the account signed out', async () => {

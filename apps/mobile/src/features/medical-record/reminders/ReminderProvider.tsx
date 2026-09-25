@@ -95,8 +95,9 @@ export function ReminderProvider({ children }: { children: ReactNode }) {
     handled.current = key
     const data = response.notification.request.content.data
     void withFreshSession((api) => api.listPets())
-      .then((pets) => router.push(openTarget(data, userId, pets) as never))
-      .catch(() => router.push('/pets'))
+      // navigate, not push: the list is usually on screen already after sign-in.
+      .then((pets) => router.navigate(openTarget(data, userId, pets) as never))
+      .catch(() => router.navigate('/pets'))
   }, [response, loading, userId])
 
   const [asking, setAsking] = useState<{ about: string; denied: boolean } | null>(null)
