@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { PetSchema } from './pet'
-import { CalendarDateSchema, IsoDateTimeSchema, UrgencySchema, UuidSchema } from './primitives'
-import { HealthEventSchema, MedicationSchema, WeightMeasurementSchema } from './medical-record'
+import { CalendarDateSchema, IsoDateTimeSchema, URGENCY_LEVELS, UrgencySchema, UuidSchema } from './primitives'
+import { HEALTH_EVENT_KINDS, HealthEventSchema, MedicationSchema, VISIT_KINDS, WeightMeasurementSchema } from './medical-record'
 
 /** One row of the vaccination table: a disease, its last shot and the next one planned. */
 export const VetSummaryVaccinationSchema = z.object({
@@ -15,8 +15,10 @@ export const VetSummaryVaccinationSchema = z.object({
   next: CalendarDateSchema.nullable(),
 })
 
+const PARASITE_ROW_GROUPS = ['fleas_ticks', 'worms'] as const
+
 export const VetSummaryParasiteSchema = z.object({
-  group: z.enum(['fleas_ticks', 'worms']),
+  group: z.enum(PARASITE_ROW_GROUPS),
   last_done: CalendarDateSchema.nullable(),
   product: z.string().nullable(),
   next: CalendarDateSchema.nullable(),
@@ -58,3 +60,32 @@ export const VetSummarySchema = z.object({
 export type VetSummary = z.infer<typeof VetSummarySchema>
 export type VetSummaryVaccination = z.infer<typeof VetSummaryVaccinationSchema>
 export type VetSummaryParasite = z.infer<typeof VetSummaryParasiteSchema>
+
+/** Rows whose `field` holds a value this app does not know are left out; others are read as they are. */
+function known(field: string, values: readonly unknown[], optional = false) {
+  return (rows: unknown) =>
+    Array.isArray(rows)
+      ? rows.filter((row) => {
+          if (typeof row !== 'object' || row === null) return true
+          const value = (row as Record<string, unknown>)[field]
+          return (optional && (value === null || value === undefined)) || values.includes(value)
+        })
+      : rows
+}
+
+/**
+ * The summary as a client reads it. A later server may add a parasite group,
+ * an urgency level, a kind of record or of visit, or show more rows: those
+ * rows are left out, not the whole screen. A broken row of a known kind
+ * still fails, as in the overview.
+ */
+export const VetSummaryReadSchema = VetSummarySchema.extend({
+  weights: z.array(WeightMeasurementSchema),
+  parasites: z.preprocess(known('group', PARASITE_ROW_GROUPS), z.array(VetSummaryParasiteSchema)),
+  visits: z.preprocess(
+    (rows) => known('visit_kind', VISIT_KINDS, true)(known('kind', HEALTH_EVENT_KINDS)(rows)),
+    z.array(HealthEventSchema),
+  ),
+  checks: z.preprocess(known('urgency', URGENCY_LEVELS), z.array(VetSummaryCheckSchema)).transform((rows) => rows.slice(0, 3)),
+})
+

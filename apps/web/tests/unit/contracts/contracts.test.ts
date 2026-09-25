@@ -19,6 +19,7 @@ import {
   HealthOverviewSchema,
   HealthOverviewReadSchema,
   DueListReadSchema,
+  VetSummaryReadSchema,
   WeightInputSchema,
   WeightMeasurementSchema,
   WeightPatchSchema,
@@ -438,3 +439,33 @@ describe('visit contracts', () => {
     expect(VisitPatchSchema.safeParse({ status: 'planned' }).success).toBe(false)
   })
 })
+
+describe('reading the vet summary written by a later server (MR-09)', () => {
+  const visit = {
+    id: '11111111-1111-4111-8111-0000000000a1', kind: 'visit', status: 'done', date: '2026-08-02', clinic: null, notes: null,
+    items: [], visit_kind: 'illness', reason: null, diagnosis: 'Гастрит', check_id: null,
+  }
+  const check = { id: '11111111-1111-4111-8111-0000000000c1', created_at: '2026-08-01T10:00:00.000Z', urgency: 'urgent', summary: 'Рвота' }
+  const summary = {
+    generated_on: '2026-09-24', pet, weights: [], medications: [], vaccinations: [],
+    parasites: [{ group: 'worms', last_done: null, product: null, next: null }],
+    visits: [visit], checks: [check],
+  }
+
+  it('leaves out rows with a group, urgency, kind or visit kind it does not know, and reads more rows than it shows', () => {
+    const read = VetSummaryReadSchema.parse({
+      ...summary,
+      parasites: [...summary.parasites, { group: 'mites', last_done: null, product: null, next: null }],
+      visits: [visit, { ...visit, id: '11111111-1111-4111-8111-0000000000a2', visit_kind: 'dental' }, { ...visit, kind: 'grooming' }],
+      checks: [check, { ...check, id: '11111111-1111-4111-8111-0000000000c2', urgency: 'critical' }, check, check],
+    })
+    expect(read.parasites.map((row) => row.group)).toEqual(['worms'])
+    expect(read.visits.map((row) => row.id)).toEqual([visit.id])
+    expect(read.checks).toHaveLength(3)
+  })
+
+  it('still fails on a broken row of a known kind', () => {
+    expect(() => VetSummaryReadSchema.parse({ ...summary, checks: [{ ...check, created_at: 'yesterday' }] })).toThrow()
+  })
+})
+

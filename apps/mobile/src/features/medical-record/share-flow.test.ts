@@ -8,6 +8,8 @@ function deps(overrides: Partial<ShareDeps> = {}) {
     rename: async (_uri, name) => (calls.push(`rename ${name}`), `file:///cache/${name}`),
     share: async (uri) => void calls.push(`share ${uri}`),
     remove: (uri) => void calls.push(`remove ${uri}`),
+    sweep: () => void calls.push('sweep'),
+    keepAfterShare: false,
     ...overrides,
   }
   return { all, calls }
@@ -18,6 +20,7 @@ describe('sending the PDF (MR-09.4)', () => {
     const { all, calls } = deps()
     await sharePdf('<html>', 'Мурка — медкарта — 24.09.2026.pdf', all)
     expect(calls).toEqual([
+      'sweep',
       'print',
       'rename Мурка — медкарта — 24.09.2026.pdf',
       'share file:///cache/Мурка — медкарта — 24.09.2026.pdf',
@@ -40,6 +43,16 @@ describe('sending the PDF (MR-09.4)', () => {
   it('fails before anything is written when printing fails', async () => {
     const { all, calls } = deps({ print: async () => Promise.reject(new Error('print')) })
     await expect(sharePdf('<html>', 'a.pdf', all)).rejects.toThrow('print')
-    expect(calls).toEqual([])
+    expect(calls).toEqual(['sweep'])
+  })
+
+  it('keeps the file after the sheet closes where the receiver may still read it, until the next send', async () => {
+    // Android answers as soon as the target opens its own screen; deleting then would take the file from under it.
+    const { all, calls } = deps({ keepAfterShare: true })
+    await sharePdf('<html>', 'a.pdf', all)
+    expect(calls).toEqual(['sweep', 'print', 'rename a.pdf', 'share file:///cache/a.pdf'])
+    const failing = deps({ keepAfterShare: true, share: async () => Promise.reject(new Error('no share')) })
+    await expect(sharePdf('<html>', 'a.pdf', failing.all)).rejects.toThrow()
+    expect(failing.calls.at(-1)).toBe('remove file:///cache/a.pdf')
   })
 })

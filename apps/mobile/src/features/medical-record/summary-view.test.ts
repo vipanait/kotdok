@@ -138,5 +138,10 @@ describe('the file name (MR-09.2)', () => {
     expect(summaryFileName(ru, '../../etc', TODAY)).toBe('etc — медкарта — 24.09.2026.pdf')
     expect(summaryFileName(ru, '   ', TODAY)).toBe('Питомец — медкарта — 24.09.2026.pdf')
     expect(summaryFileName(ru, 'Ж'.repeat(200), TODAY)).toBe(`${'Ж'.repeat(60)} — медкарта — 24.09.2026.pdf`)
+    // Direction and zero-width marks could make a name read as something else.
+    expect(summaryFileName(ru, 'Му\u202Eрка\u200B', TODAY)).toBe('Мурка — медкарта — 24.09.2026.pdf')
+    // An emoji is not cut in half at the length limit.
+    expect(summaryFileName(ru, `${'Ж'.repeat(59)}🐱🐱`, TODAY)).toBe(`${'Ж'.repeat(59)}🐱 — медкарта — 24.09.2026.pdf`)
+    expect(summaryFileName(ru, 'Мурка...  ', TODAY)).toBe('Мурка — медкарта — 24.09.2026.pdf')
   })
 })

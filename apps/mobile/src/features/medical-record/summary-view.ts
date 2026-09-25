@@ -98,13 +98,14 @@ export function summaryView(t: Dictionary, summary: VetSummary, today: string = 
  * «Питомец».
  */
 export function summaryFileName(t: Dictionary, name: string, today: string): string {
-  const safe = name
+  const cleaned = name
     // eslint-disable-next-line no-control-regex
     .replace(/[\u0000-\u001f\u007f/\\:*?"<>|]/g, '')
-    .replace(/^[.\s]+/, '')
+    // Direction and zero-width marks: a name must read as what it is.
+    .replace(/\p{Cf}/gu, '')
     .replace(/\s+/g, ' ')
-    .trim()
-    .slice(0, 60)
-    .trim()
+    .replace(/^[.\s]+|[.\s]+$/g, '')
+  // By code points, so an emoji is never cut in half.
+  const safe = Array.from(cleaned).slice(0, 60).join('').replace(/[.\s]+$/g, '')
   return `${t.vetSummary.fileName(safe || t.vetSummary.pet, dayInput(today))}.pdf`
 }

@@ -41,6 +41,11 @@ function chart(points: SummaryView['chart']): string {
   return `<svg class="chart" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg"><polyline points="${line}" fill="none" stroke="#000" stroke-width="1.5"/>${dots}</svg>`
 }
 
+/** Text as a CSS string: quotes, backslashes, line breaks and «<» cannot end it or the style block. */
+export function cssString(text: string): string {
+  return `"${text.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/[\n\r]/g, ' ').replace(/</g, '\\3C ')}"`
+}
+
 function heading(title: string): string {
   return `<h2>${escapeHtml(title)}</h2>`
 }
@@ -57,14 +62,20 @@ function empty(text: string): string {
  * at A4 in CSS pixels (96 per inch), so a page is a fixed 794 × 1122 px box,
  * measured at that width whatever the web view's own size. Static: no
  * owner's text is in here.
- * Without JavaScript the flowing layout prints as it is.
+ *
+ * Without it — Android's print view runs no JavaScript — or when a single row
+ * is taller than a page, the flowing layout prints instead: the page's own
+ * margins, the footer and «Стр. N / M» in them where the engine supports
+ * margin boxes, headings of a split table repeated by the engine.
  */
 const PAGINATE = `(function () {
   var flow = document.getElementById('flow');
   var pages = document.getElementById('pages');
   if (!flow || !pages) return;
+  var backup = flow.cloneNode(true);
   var list = [];
   var body;
+  var tooTall = false;
   function newPage() {
     var page = document.createElement('div');
     page.className = 'page';
@@ -78,6 +89,7 @@ const PAGINATE = `(function () {
     list.push(page);
   }
   function fits() { return body.scrollHeight <= body.clientHeight + 1; }
+  function alone() { if (!fits()) tooTall = true; }
   function carryHeading() {
     var last = body.lastElementChild;
     if (last && last.tagName === 'H2') { body.removeChild(last); return last; }
@@ -85,12 +97,14 @@ const PAGINATE = `(function () {
   }
   function place(block) {
     body.appendChild(block);
-    if (fits() || body.children.length === 1) return;
+    if (fits()) return;
+    if (body.children.length === 1) return alone();
     body.removeChild(block);
     var heading = carryHeading();
     newPage();
     if (heading) body.appendChild(heading);
     body.appendChild(block);
+    alone();
   }
   function shell(table) {
     var copy = table.cloneNode(false);
@@ -114,6 +128,7 @@ const PAGINATE = `(function () {
       current = shell(table);
       body.appendChild(current);
       current.tBodies[0].appendChild(row);
+      alone();
     });
   }
   newPage();
@@ -121,12 +136,24 @@ const PAGINATE = `(function () {
     if (block.classList.contains('flow-only')) return;
     if (block.tagName === 'TABLE') placeTable(block); else place(block);
   });
+  if (tooTall) {
+    // Something taller than a page would be cut off: print the flowing layout
+    // instead, whole, with the page's own margins.
+    pages.innerHTML = '';
+    flow.parentNode.replaceChild(backup, flow);
+    // This print view ignores @page margins: the sides come from the flow itself.
+    backup.style.padding = '0 53px';
+    return;
+  }
   var footer = flow.getAttribute('data-footer') || '';
   var word = flow.getAttribute('data-page') || '';
   list.forEach(function (page, index) {
     page.lastChild.textContent = footer + '  ·  ' + word + ' ' + (index + 1) + ' / ' + list.length;
   });
   flow.parentNode.removeChild(flow);
+  var style = document.createElement('style');
+  style.textContent = '@page { margin: 0; } html, body { margin: 0; }';
+  document.head.appendChild(style);
 })();`
 
 /**
@@ -168,11 +195,16 @@ export function summaryHtml(t: Dictionary, view: SummaryView): string {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${escapeHtml(view.title)}</title>
 <style>
-  @page { size: A4; margin: 0; }
+  @page {
+    size: A4;
+    margin: 48px 53px 76px;
+    @bottom-left { content: ${cssString(view.footer)}; font-size: 11px; color: #333; }
+    @bottom-right { content: ${cssString(words.page)} " " counter(page) " / " counter(pages); font-size: 11px; color: #333; }
+  }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
   body { font-family: -apple-system, 'Helvetica Neue', Roboto, Arial, sans-serif; font-size: 14px; line-height: 1.35; color: #000; overflow-wrap: anywhere; word-break: break-word; }
-  #flow { width: 794px; padding: 48px 53px; }
+  #flow { max-width: 688px; }
   header { display: flex; align-items: center; gap: 16px; margin-bottom: 10px; }
   header svg { width: 86px; height: auto; }
   h1 { font-size: 24px; margin: 0; }

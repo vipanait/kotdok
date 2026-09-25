@@ -39,7 +39,7 @@ function yearBefore(day: string): string {
 type Item = HealthEvent['items'][number]
 type Found = { event: HealthEvent; item: Item }
 
-/** The latest done and the earliest planned item among those that match. */
+/** The latest done and the earliest planned item among those that match; a plan before the last shot does not count. */
 function lastAndNext(events: readonly HealthEvent[], kind: HealthEvent['kind'], matches: (item: Item) => boolean) {
   let last: Found | null = null
   let next: Found | null = null
@@ -51,10 +51,12 @@ function lastAndNext(events: readonly HealthEvent[], kind: HealthEvent['kind'], 
       if (event.status === 'planned' && (!next || event.date < next.event.date)) next = { event, item }
     }
   }
+  // A plan older than the last shot was overtaken by it, not missed.
+  const planned = next && (!last || next.event.date > last.event.date) ? next.event.date : null
   return {
     last_done: last?.event.date ?? null,
     product: last?.item.name ?? null,
-    next: next?.event.date ?? null,
+    next: planned,
   }
 }
 
@@ -82,18 +84,24 @@ export function summarise(input: {
   ]
 
   const since = yearBefore(today)
+  const current = input.medications.filter(
+    (course) => (course.started_on === null || course.started_on <= today) && (course.ended_on === null || course.ended_on > today),
+  )
+  // With courses on file, «принимает сейчас» is theirs, the same list as
+  // `medications` — a course starting later is not taken yet. Without any,
+  // the form's own list stands.
+  const shownPet =
+    input.medications.length > 0 ? { ...pet, medications: [...new Set(current.map((course) => course.name.trim()))] } : pet
 
   return VetSummarySchema.parse({
     generated_on: today,
-    pet,
+    pet: shownPet,
     // Dated measurements only; the form's undated weight is the pet's own `weight_kg`.
     weights: input.weights
       .filter((weight) => weight.measured_on !== null)
       .sort((a, b) => (b.measured_on ?? '').localeCompare(a.measured_on ?? ''))
       .slice(0, WEIGHTS_SHOWN),
-    medications: input.medications.filter(
-      (course) => (course.started_on === null || course.started_on <= today) && (course.ended_on === null || course.ended_on > today),
-    ),
+    medications: current,
     vaccinations: targets.map((target) => ({
       target: target.code,
       core: target.core && (target.species as readonly string[]).includes(species),

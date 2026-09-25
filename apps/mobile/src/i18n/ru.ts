@@ -513,7 +513,6 @@ export const ru = {
     retry: 'Повторить',
     loadFailed: 'Не удалось загрузить сводку',
     fileName: (name: string, day: string) => `${name} — медкарта — ${day}`,
-    chartLabel: (from: string, to: string) => `График веса, от ${from} до ${to}`,
   },
 
   reminders: {

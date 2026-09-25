@@ -506,7 +506,6 @@ export const en: Dictionary = {
     retry: 'Try again',
     loadFailed: 'Could not load the summary',
     fileName: (name: string, day: string) => `${name} — medical record — ${day}`,
-    chartLabel: (from: string, to: string) => `Weight chart, from ${from} to ${to}`,
   },
 
   reminders: {

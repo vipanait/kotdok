@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { ActivityIndicator, StyleSheet, View } from 'react-native'
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
 import type { VetSummary } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
@@ -11,11 +11,11 @@ import { nativeShare } from '@/features/medical-record/share-summary'
 import { summaryHtml } from '@/features/medical-record/summary-html'
 import { summaryFileName, summaryView } from '@/features/medical-record/summary-view'
 import { WeightChart } from '@/features/medical-record/WeightChart'
-import { Button } from '@/ui/Button'
+import { Button, LinkButton } from '@/ui/Button'
 import { Banner, Card, UrgencyBadge } from '@/ui/Card'
 import { Screen } from '@/ui/Screen'
 import { Text } from '@/ui/Text'
-import { space } from '@/ui/theme'
+import { colour, space } from '@/ui/theme'
 
 /**
  * «Для врача» (M11, spec §7.17): made to be turned towards the vet — nothing
@@ -86,12 +86,24 @@ export default function VetSummaryScreen() {
         view ? (
           <View style={styles.dock}>
             {pdfFailed ? <Banner text={words.failed} tone="error" icon="alert" /> : null}
+            {preparing ? (
+              <Text variant="label" tone="muted" style={styles.center} accessibilityLiveRegion="polite">
+                {words.preparing}
+              </Text>
+            ) : null}
             <Button title={preparing ? words.preparing : pdfFailed ? words.retry : words.send} busy={preparing} onPress={() => void send()} />
           </View>
         ) : undefined
       }
     >
-      {error ? <Banner text={error.text} tone="error" icon={error.offline ? 'wifi' : 'alert'} style={styles.gap} /> : null}
+      {error ? (
+        <>
+          <Banner text={error.text} tone="error" icon={error.offline ? 'wifi' : 'alert'} style={styles.gap} />
+          <LinkButton title={words.retry} align="left" onPress={() => void load()} />
+        </>
+      ) : !shown ? (
+        <ActivityIndicator color={colour.accent} style={styles.loading} />
+      ) : null}
       {view && shown ? (
         <>
           <Text variant="h1">{view.petName}</Text>
@@ -178,4 +190,6 @@ const styles = StyleSheet.create({
   checkHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   footer: { marginTop: space.block, marginBottom: space.block },
   dock: { gap: space.row },
+  center: { textAlign: 'center' },
+  loading: { marginTop: space.section },
 })

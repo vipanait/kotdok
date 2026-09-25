@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { ru } from '@/i18n/ru'
-import { summaryHtml } from './summary-html'
+import { cssString, summaryHtml } from './summary-html'
 import type { SummaryView } from './summary-view'
 
 function view(overrides: Partial<SummaryView> = {}): SummaryView {
@@ -79,3 +79,20 @@ describe('the PDF page (MR-09.2, MR-09.3)', () => {
     expect(html).not.toContain('<polyline')
   })
 })
+
+describe('printing without the page script (Android) or with a row taller than a page', () => {
+  it('keeps page margins, the footer and page numbers in the margin boxes', () => {
+    const html = summaryHtml(ru, view())
+    expect(html).toMatch(/@page\s*\{[^@]*margin:\s*48px 53px 76px/)
+    expect(html).toContain('@bottom-left { content: "Составлено владельцем в приложении «Лапка» 24 сентября 2026. Не является ветеринарным документом."')
+    expect(html).toContain('@bottom-right { content: "Стр." " " counter(page) " / " counter(pages)')
+    // The laid-out pages bring their own margins; the flowing layout falls back whole.
+    expect(html).toContain("'@page { margin: 0; }")
+    expect(html).toContain('replaceChild(backup, flow)')
+  })
+
+  it('writes text into CSS so it cannot end the string or the style block', () => {
+    expect(cssString('a"b\\c\n</style>')).toBe('"a\\"b\\\\c \\3C /style>"')
+  })
+})
+

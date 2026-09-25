@@ -177,6 +177,41 @@ describe('the summary for the vet (MR-09.1)', () => {
     expect(cat_.vaccinations.at(-1)).toEqual({ target: 'felv', core: false, last_done: null, product: null, next: day(30) })
   })
 
+  it('does not call a course that starts later «taking now», not even from the form’s list', async () => {
+    await created(await addMedications(request('POST', { items: [{ name: 'Витамины', started_on: day(7) }] }), params(cat)))
+    const cat_ = await summary(cat)
+    expect(cat_.medications).toEqual([])
+    expect(cat_.pet.medications).toEqual([])
+  })
+
+  it('shows no stale plan as the next date once a later shot is done', async () => {
+    await created(
+      await createEvent(
+        request('POST', { kind: 'vaccination', status: 'done', date: day(-10), items: [{ name: 'Нобивак Rabies', targets: ['rabies'] }] }),
+        params(cat),
+      ),
+    )
+    await db.query(
+      `insert into public.pet_health_events (user_id, pet_id, kind, status, event_date) select user_id, id, 'vaccination', 'planned', $2::date from public.pets where id = $1 returning id`,
+      [cat, day(-40)],
+    ).then(({ rows }) =>
+      db.query(
+        `insert into public.pet_health_items (user_id, pet_id, event_id, name, targets, position) select user_id, pet_id, $1, null, '{rabies}', 0 from public.pet_health_events where id = $1`,
+        [rows[0].id],
+      ),
+    )
+    expect((await summary(cat)).vaccinations.find((row) => row.target === 'rabies')).toMatchObject({ last_done: day(-10), next: null })
+  })
+
+  it('leaves out a deleted check', async () => {
+    await db.query(`update public.symptom_checks set deleted_at = now() where id = $1`, [CHECK_IDS.aFirst])
+    try {
+      expect((await summary(cat)).checks).toEqual([])
+    } finally {
+      await db.query(`update public.symptom_checks set deleted_at = null where id = $1`, [CHECK_IDS.aFirst])
+    }
+  })
+
   it('is not found for another owner’s pet or a deleted one', async () => {
     expect((await getSummary(request(), params(PET_IDS.bCat))).status).toBe(404)
     expect((await getSummary(request(), params(PET_IDS.bDeleted))).status).toBe(404)

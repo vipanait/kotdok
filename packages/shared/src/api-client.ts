@@ -10,7 +10,7 @@ import {
   CheckFeedbackSchema,
   ExtraCheckRequestStatusSchema,
   DueListReadSchema,
-  VetSummarySchema,
+  VetSummaryReadSchema,
   HealthEventSchema,
   HealthProductSchema,
   MedicationSchema,
@@ -269,7 +269,7 @@ export function createApiClient(options: ApiClientOptions) {
         headers: { [IDEMPOTENCY_KEY_HEADER]: idempotencyKey },
       }),
     listDue: () => call('/pets/due', DueListReadSchema),
-    getVetSummary: (petId: string) => call(`/pets/${petId}/health/summary`, VetSummarySchema),
+    getVetSummary: (petId: string) => call(`/pets/${petId}/health/summary`, VetSummaryReadSchema),
     createVisit: (petId: string, body: VisitInput, idempotencyKey: string) =>
       call(`/pets/${petId}/health/visits`, HealthEventSchema, {
         method: 'POST',
