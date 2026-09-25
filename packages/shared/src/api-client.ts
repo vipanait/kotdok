@@ -9,6 +9,8 @@ import {
   DELETION_RECEIPT_HEADER,
   CheckFeedbackSchema,
   ExtraCheckRequestStatusSchema,
+  DueItemSchema,
+  HealthEventSchema,
   HealthOverviewSchema,
   HealthSchema,
   IDEMPOTENCY_KEY_HEADER,
@@ -28,6 +30,9 @@ import {
   type ProfileUpdateInput,
   type ReauthRequest,
   type UploadRequest,
+  type CompleteItemInput,
+  type HealthEventInput,
+  type HealthEventPatch,
   type WeightInput,
   type WeightPatch,
 } from '@lapka/contracts'
@@ -237,6 +242,24 @@ export function createApiClient(options: ApiClientOptions) {
       call(`/pets/${petId}/health/weights/${weightId}`, WeightMeasurementSchema, { method: 'PATCH', body }),
     deleteWeight: (petId: string, weightId: string) =>
       call<void>(`/pets/${petId}/health/weights/${weightId}`, null, { method: 'DELETE' }),
+
+    createHealthEvent: (petId: string, body: HealthEventInput, idempotencyKey: string) =>
+      call(`/pets/${petId}/health/events`, HealthEventSchema, {
+        method: 'POST',
+        body,
+        headers: { [IDEMPOTENCY_KEY_HEADER]: idempotencyKey },
+      }),
+    changeHealthEvent: (petId: string, eventId: string, body: HealthEventPatch) =>
+      call(`/pets/${petId}/health/events/${eventId}`, HealthEventSchema, { method: 'PATCH', body }),
+    deleteHealthEvent: (petId: string, eventId: string) =>
+      call<void>(`/pets/${petId}/health/events/${eventId}`, null, { method: 'DELETE' }),
+    completeHealthItem: (petId: string, itemId: string, body: CompleteItemInput, idempotencyKey: string) =>
+      call(`/pets/${petId}/health/items/${itemId}/complete`, HealthEventSchema, {
+        method: 'POST',
+        body,
+        headers: { [IDEMPOTENCY_KEY_HEADER]: idempotencyKey },
+      }),
+    listDue: () => call('/pets/due', z.array(DueItemSchema)),
 
     requestUploads: (body: UploadRequest) =>
       call('/uploads', UploadGrantSchema, { method: 'POST', body }),

@@ -7,6 +7,10 @@ import {
   CheckFeedbackSchema,
   FeedbackInputSchema,
   HEALTH_SECTIONS,
+  CompleteItemInputSchema,
+  HealthEventInputSchema,
+  HealthEventPatchSchema,
+  VACCINE_TARGETS,
   HealthOverviewSchema,
   WeightInputSchema,
   WeightMeasurementSchema,
@@ -225,7 +229,7 @@ describe('medical record overview contract', () => {
     // record stage adds to this response. An older client ignores what it does
     // not know instead of failing the whole screen.
     const later = HealthOverviewSchema.parse({ pet, writable: ['weight'], weights: [], visits: [] })
-    expect(later).toEqual({ pet, writable: ['weight'], weights: [] })
+    expect(later).toEqual({ pet, writable: ['weight'], weights: [], events: [] })
   })
 })
 
@@ -267,5 +271,55 @@ describe('weight contracts', () => {
 
   it('reads an overview from a server that has no weights yet as an empty history', () => {
     expect(HealthOverviewSchema.parse({ pet, writable: [] }).weights).toEqual([])
+  })
+})
+
+describe('vaccination contracts', () => {
+  const two = {
+    kind: 'vaccination',
+    status: 'done',
+    date: '2026-09-24',
+    items: [
+      { name: 'Нобивак Tricat Trio', targets: ['panleukopenia', 'calicivirus', 'rhinotracheitis'], next_on: '2027-09-24' },
+      { name: 'Нобивак Rabies', targets: ['rabies'], next_on: '2027-09-24' },
+    ],
+  }
+
+  it('takes several vaccines in one record, each with its own next day', () => {
+    expect(HealthEventInputSchema.parse(two).items).toHaveLength(2)
+  })
+
+  it('takes a vaccine with no name but the diseases, and refuses one with neither', () => {
+    expect(HealthEventInputSchema.safeParse({ ...two, items: [{ name: null, targets: ['rabies'] }] }).success).toBe(true)
+    expect(HealthEventInputSchema.safeParse({ ...two, items: [{ name: '', targets: [] }] }).success).toBe(false)
+    expect(HealthEventInputSchema.safeParse({ ...two, items: [] }).success).toBe(false)
+  })
+
+  it('refuses a next day that is not after the record, and a next day on a plan', () => {
+    expect(HealthEventInputSchema.safeParse({ ...two, items: [{ targets: ['rabies'], next_on: '2026-09-24' }] }).success).toBe(false)
+    expect(
+      HealthEventInputSchema.safeParse({ ...two, status: 'planned', items: [{ targets: ['rabies'], next_on: '2027-09-24' }] }).success,
+    ).toBe(false)
+  })
+
+  it('refuses a disease it does not know', () => {
+    expect(HealthEventInputSchema.safeParse({ ...two, items: [{ targets: ['flu'] }] }).success).toBe(false)
+  })
+
+  it('names the core vaccinations for each species', () => {
+    const core = (species: 'cat' | 'dog') =>
+      VACCINE_TARGETS.filter((t) => t.core && (t.species as readonly string[]).includes(species)).map((t) => t.code)
+    expect(core('cat')).toEqual(['panleukopenia', 'calicivirus', 'rhinotracheitis', 'rabies'])
+    expect(core('dog')).toEqual(['distemper', 'parvovirus', 'adenovirus', 'rabies'])
+  })
+
+  it('needs something to change in a correction', () => {
+    expect(HealthEventPatchSchema.safeParse({}).success).toBe(false)
+    expect(HealthEventPatchSchema.safeParse({ date: '2027-03-20' }).success).toBe(true)
+  })
+
+  it('marks a plan done on a day, with or without the next one', () => {
+    expect(CompleteItemInputSchema.safeParse({ done_on: '2026-09-25', next_on: null }).success).toBe(true)
+    expect(CompleteItemInputSchema.safeParse({ done_on: '2026-09-25', next_on: '2026-09-25' }).success).toBe(false)
   })
 })

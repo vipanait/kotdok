@@ -18,11 +18,8 @@ export function dayInput(day: string): string {
   return `${date}.${month}.${year}`
 }
 
-/**
- * «24.09.2026» (or with / or -) → `2026-09-24`; null for a day that does not
- * exist or is still ahead.
- */
-export function parseDayInput(text: string, now: Date = new Date()): string | null {
+/** «24.09.2026» (or with / or -) → `2026-09-24`; null for a day that does not exist. */
+export function parseDayText(text: string): string | null {
   const match = /^\s*(\d{1,2})[./-](\d{1,2})[./-](\d{4})\s*$/.exec(text)
   if (!match) return null
 
@@ -31,9 +28,19 @@ export function parseDayInput(text: string, now: Date = new Date()): string | nu
   if (probe.getUTCFullYear() !== year || probe.getUTCMonth() !== month - 1 || probe.getUTCDate() !== date) {
     return null
   }
+  return `${year}-${pad(month)}-${pad(date)}`
+}
 
-  const day = `${year}-${pad(month)}-${pad(date)}`
-  return day > localToday(now) ? null : day
+/** A day that has come: «24.09.2026» → `2026-09-24`, null if it is still ahead or not a day. */
+export function parseDayInput(text: string, now: Date = new Date()): string | null {
+  const day = parseDayText(text)
+  return day !== null && day <= localToday(now) ? day : null
+}
+
+/** A day still to come or today, for a plan: null if it has passed or is not a day. */
+export function parseFutureDayInput(text: string, now: Date = new Date()): string | null {
+  const day = parseDayText(text)
+  return day !== null && day >= localToday(now) ? day : null
 }
 
 /**

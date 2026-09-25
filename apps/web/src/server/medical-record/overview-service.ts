@@ -5,6 +5,7 @@ import type { createServiceClient } from '@/server/supabase/server'
 import { getPet, type PetResult } from '@/server/pets/pet-service'
 import { toPetContract } from '@/server/pets/pet-contract'
 import { listWeights } from './weight-service'
+import { listEvents } from './event-service'
 
 type SupabaseService = ReturnType<typeof createServiceClient>
 
@@ -13,7 +14,7 @@ type SupabaseService = ReturnType<typeof createServiceClient>
  * own section here together with the table behind it; until then the client
  * shows the section from the pet form alone and offers no "add".
  */
-const WRITABLE_SECTIONS: HealthSection[] = ['weight']
+const WRITABLE_SECTIONS: HealthSection[] = ['vaccinations', 'weight']
 
 /**
  * The medical record of one pet.
@@ -29,11 +30,17 @@ export async function getHealthOverview(
   const pet = await getPet(supabase, userId, petId)
   if (!pet.ok) return pet
 
-  const weights = await listWeights(supabase, petId)
+  const [weights, events] = await Promise.all([listWeights(supabase, petId), listEvents(supabase, petId)])
   if (!weights.ok) return { ok: false, reason: 'storage_error', message: weights.message }
+  if (!events.ok) return { ok: false, reason: 'storage_error', message: events.message }
 
   return {
     ok: true,
-    data: { pet: toPetContract(pet.data), writable: [...WRITABLE_SECTIONS], weights: weights.data },
+    data: {
+      pet: toPetContract(pet.data),
+      writable: [...WRITABLE_SECTIONS],
+      weights: weights.data,
+      events: events.data,
+    },
   }
 }

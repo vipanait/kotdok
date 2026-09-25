@@ -1,6 +1,7 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
+import * as SecureStore from 'expo-secure-store'
 import type { HealthOverview } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
 import { localToday } from '@/lib/calendar-day'
@@ -12,7 +13,10 @@ import {
   sectionRows,
   type SectionRow,
 } from '@/features/medical-record/overview'
-import { Button, LinkButton } from '@/ui/Button'
+import { AddRecordSheet, type AddChoice } from '@/features/medical-record/AddRecordSheet'
+import { DueRow } from '@/features/medical-record/DueRow'
+import { dueItems, dueStatus } from '@/features/medical-record/due'
+import { Button, IconButton, LinkButton } from '@/ui/Button'
 import { Avatar, Banner, Card, SettingRow } from '@/ui/Card'
 import { Icon, type IconName } from '@/ui/Icon'
 import { Screen } from '@/ui/Screen'
@@ -46,8 +50,15 @@ function Skeleton() {
 
 /** Where an openable section leads. Each stage adds its own. */
 const SECTION_ROUTES: Partial<Record<SectionRow['section'], string>> = {
+  vaccinations: 'vaccinations',
   weight: 'weight',
 }
+
+/** At most this many due dates on the record itself; the rest behind «Все сроки» (spec §7.2). */
+const DUE_ON_RECORD = 3
+
+/** Where «Скрыть подсказку» is remembered, per pet and per phone. */
+const hintKey = (petId: string) => `medical-record-hint-hidden-${petId}`
 
 function Section({ row, onPress }: { row: SectionRow; onPress: () => void }) {
   const content = (
@@ -95,6 +106,22 @@ export default function MedicalRecord() {
   const t = useText()
   const [overview, setOverview] = useState<HealthOverview | null>(null)
   const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
+
+  const [hintHidden, setHintHidden] = useState(true)
+  const [adding, setAdding] = useState(false)
+
+  // Hidden until the phone says otherwise: a hint that flashes up and vanishes
+  // is worse than one that appears a moment late.
+  useEffect(() => {
+    SecureStore.getItemAsync(hintKey(id))
+      .then((value) => setHintHidden(value === '1'))
+      .catch(() => setHintHidden(false))
+  }, [id])
+
+  const hideHint = () => {
+    setHintHidden(true)
+    SecureStore.setItemAsync(hintKey(id), '1').catch(() => {})
+  }
 
   const load = useCallback(async () => {
     setError(null)
@@ -161,6 +188,18 @@ export default function MedicalRecord() {
   const today = localToday()
   const facts = headerFacts(t, shown, today)
   const important = importantFacts(t, pet)
+  const due = dueItems(shown.events)
+  const canVaccinate = shown.writable.includes('vaccinations')
+  const empty = shown.events.length === 0 && shown.weights.length === 0
+  const addVaccination = () => router.push(`/pets/${id}/event-form?mode=new&status=done`)
+  const choices: AddChoice[] = [
+    ...(canVaccinate
+      ? [{ key: 'vaccination', icon: 'vaccine' as const, label: t.medicalRecord.addVaccinationRow, onPress: addVaccination }]
+      : []),
+    ...(shown.writable.includes('weight')
+      ? [{ key: 'weight', icon: 'weight' as const, label: t.medicalRecord.addWeightRow, onPress: () => router.push(`/pets/${id}/weight`) }]
+      : []),
+  ]
 
   return (
     <Screen
@@ -168,6 +207,11 @@ export default function MedicalRecord() {
       onBack={() => router.back()}
       action={formAction}
       scroll
+      dock={
+        choices.length > 0 ? (
+          <Button title={t.medicalRecord.addRecord} onPress={() => setAdding(true)} />
+        ) : null
+      }
     >
       {banner}
 
@@ -198,6 +242,38 @@ export default function MedicalRecord() {
           ) : null}
         </View>
       </View>
+
+      {empty && canVaccinate && !hintHidden ? (
+        <View style={styles.hint}>
+          <View style={styles.hintCopy}>
+            <Text tone="accent">{t.medicalRecord.firstFillBanner}</Text>
+            <LinkButton title={t.medicalRecord.firstFillAction} onPress={addVaccination} align="left" />
+          </View>
+          <IconButton icon="close" label={t.medicalRecord.hideBanner} onPress={hideHint} />
+        </View>
+      ) : null}
+
+      {due.length > 0 ? (
+        <Card style={styles.due}>
+          <Text variant="h2">{t.medicalRecord.dueTitle}</Text>
+          {due.slice(0, DUE_ON_RECORD).map((item, index) => (
+            <View key={item.itemId} style={index > 0 ? styles.rowDivider : null}>
+              <DueRow
+                due={item}
+                status={dueStatus(t, item.date, today)}
+                onDone={() => router.push(`/pets/${id}/event-form?mode=complete&itemId=${item.itemId}`)}
+              />
+            </View>
+          ))}
+          {due.length > DUE_ON_RECORD ? (
+            <LinkButton
+              title={t.medicalRecord.allDue(due.length)}
+              align="left"
+              onPress={() => router.push(`/pets/${id}/due`)}
+            />
+          ) : null}
+        </Card>
+      ) : null}
 
       {important.length > 0 ? (
         <View style={styles.important}>
@@ -232,6 +308,8 @@ export default function MedicalRecord() {
       </Card>
 
       {history}
+
+      <AddRecordSheet visible={adding} choices={choices} onClose={() => setAdding(false)} />
     </Screen>
   )
 }
@@ -251,10 +329,22 @@ const styles = StyleSheet.create({
   importantTitle: { marginBottom: space.row },
   fact: { marginBottom: space.row, gap: 2 },
 
+  hint: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+    backgroundColor: colour.accentSoft,
+    borderRadius: radius.card,
+    padding: 16,
+    marginBottom: space.block,
+  },
+  hintCopy: { flex: 1 },
+  due: { paddingVertical: 16, marginBottom: space.block, ...shadow.card },
   sections: { paddingVertical: 4, marginBottom: space.block, ...shadow.card },
   section: { flexDirection: 'row', alignItems: 'center', gap: 16, minHeight: 64, paddingVertical: 12 },
   sectionCopy: { flex: 1, minWidth: 0, gap: 2 },
   divider: { height: StyleSheet.hairlineWidth, backgroundColor: colour.line },
+  rowDivider: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colour.line },
 
   blank: { backgroundColor: colour.soft, borderRadius: radius.field },
   blankAvatar: { width: 64, height: 64, borderRadius: radius.pill },

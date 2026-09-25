@@ -40,6 +40,9 @@ const paths = {
   visit: '<path d="M4 3v6a5 5 0 0 0 10 0V3M2 3h4m6 0h4M9 14v2a5 5 0 0 0 10 0v-3"/><circle cx="19" cy="10" r="3"/>',
   med: '<path d="m8 4-4 4a6 6 0 0 0 8 12l8-8a6 6 0 0 0-8-8Zm-3 7 8 8"/>',
   weight: '<rect x="3" y="3" width="18" height="18" rx="4"/><path d="M7 7h10l-2 5H9Zm5 0 2-2"/>',
+  // A due date soon, and one overdue — the exclamation says it without red.
+  calendar: '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4m10-4v4M3 10h18"/>',
+  calendarAlert: '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4m10-4v4M3 10h18m-9 3v3m0 2h.01"/>',
 } as const
 
 export type IconName = keyof typeof paths

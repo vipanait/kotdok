@@ -485,10 +485,16 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/WeightMeasurement"
+        events:
+          default: []
+          type: array
+          items:
+            $ref: "#/components/schemas/HealthEvent"
       required:
         - pet
         - writable
         - weights
+        - events
       additionalProperties: false
     WeightMeasurement:
       type: object
@@ -542,6 +548,266 @@ components:
           type: number
           exclusiveMinimum: 0
           maximum: 200
+      additionalProperties: false
+    HealthEvent:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        kind:
+          type: string
+          enum:
+            - vaccination
+        status:
+          type: string
+          enum:
+            - done
+            - planned
+        date:
+          type: string
+          format: date
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+        clinic:
+          anyOf:
+            - type: string
+            - type: "null"
+        notes:
+          anyOf:
+            - type: string
+            - type: "null"
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              name:
+                anyOf:
+                  - type: string
+                  - type: "null"
+              targets:
+                type: array
+                items:
+                  type: string
+              source_item_id:
+                anyOf:
+                  - type: string
+                    format: uuid
+                    pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                  - type: "null"
+            required:
+              - id
+              - name
+              - targets
+              - source_item_id
+            additionalProperties: false
+      required:
+        - id
+        - kind
+        - status
+        - date
+        - clinic
+        - notes
+        - items
+      additionalProperties: false
+    HealthEventInput:
+      type: object
+      properties:
+        kind:
+          type: string
+          enum:
+            - vaccination
+        status:
+          type: string
+          enum:
+            - done
+            - planned
+        date:
+          type: string
+          format: date
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+        clinic:
+          anyOf:
+            - type: string
+              maxLength: 100
+            - type: "null"
+        notes:
+          anyOf:
+            - type: string
+              maxLength: 300
+            - type: "null"
+        items:
+          minItems: 1
+          maxItems: 10
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                anyOf:
+                  - type: string
+                    maxLength: 100
+                  - type: "null"
+              targets:
+                maxItems: 12
+                type: array
+                items:
+                  type: string
+                  enum:
+                    - panleukopenia
+                    - calicivirus
+                    - rhinotracheitis
+                    - distemper
+                    - parvovirus
+                    - adenovirus
+                    - rabies
+                    - felv
+                    - chlamydia
+                    - leptospirosis
+                    - parainfluenza
+                    - bordetella
+                    - coronavirus
+              next_on:
+                anyOf:
+                  - type: string
+                    format: date
+                    pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+                  - type: "null"
+            required:
+              - targets
+            additionalProperties: false
+      required:
+        - kind
+        - status
+        - date
+        - items
+      additionalProperties: false
+    HealthEventPatch:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+        clinic:
+          anyOf:
+            - type: string
+              maxLength: 100
+            - type: "null"
+        notes:
+          anyOf:
+            - type: string
+              maxLength: 300
+            - type: "null"
+        items:
+          minItems: 1
+          maxItems: 10
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              name:
+                anyOf:
+                  - type: string
+                    maxLength: 100
+                  - type: "null"
+              targets:
+                maxItems: 12
+                type: array
+                items:
+                  type: string
+                  enum:
+                    - panleukopenia
+                    - calicivirus
+                    - rhinotracheitis
+                    - distemper
+                    - parvovirus
+                    - adenovirus
+                    - rabies
+                    - felv
+                    - chlamydia
+                    - leptospirosis
+                    - parainfluenza
+                    - bordetella
+                    - coronavirus
+            required:
+              - targets
+            additionalProperties: false
+      additionalProperties: false
+    CompleteItemInput:
+      type: object
+      properties:
+        done_on:
+          type: string
+          format: date
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+        next_on:
+          anyOf:
+            - type: string
+              format: date
+              pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+            - type: "null"
+        clinic:
+          anyOf:
+            - type: string
+              maxLength: 100
+            - type: "null"
+        notes:
+          anyOf:
+            - type: string
+              maxLength: 300
+            - type: "null"
+      required:
+        - done_on
+      additionalProperties: false
+    DueItem:
+      type: object
+      properties:
+        pet_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        event_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        item_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        kind:
+          type: string
+          enum:
+            - vaccination
+        date:
+          type: string
+          format: date
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+        name:
+          anyOf:
+            - type: string
+            - type: "null"
+        targets:
+          type: array
+          items:
+            type: string
+      required:
+        - pet_id
+        - event_id
+        - item_id
+        - kind
+        - date
+        - name
+        - targets
       additionalProperties: false
     SymptomCheckRecord:
       type: object
@@ -1316,7 +1582,7 @@ paths:
         name: id
         in: path
         required: true
-        schema: &a2
+        schema: &a3
           type: string
           format: uuid
     get:
@@ -1837,6 +2103,398 @@ paths:
                   code: internal_error
                   message: Unexpected server error
                   request_id: 01J000000000000000000000
+  /pets/due:
+    get:
+      summary: Every due date of the caller's pets, soonest first
+      responses:
+        "200":
+          description: Planned items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DueItem"
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
+  /pets/{id}/health/events:
+    parameters:
+      - *a1
+    post:
+      summary: Record vaccinations done or planned; a done record also plans each item's next date
+      description: A done record cannot be in the future, a plan cannot be in the past. The same
+        Idempotency-Key returns the first record.
+      parameters:
+        - &a2
+          name: Idempotency-Key
+          in: header
+          required: false
+          schema:
+            type: string
+            maxLength: 200
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HealthEventInput"
+      responses:
+        "201":
+          description: The record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthEvent"
+        "400":
+          description: Request body or query is invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: bad_request
+                  message: Request body or query is invalid
+                  request_id: 01J000000000000000000000
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted
+                  request_id: 01J000000000000000000000
+        "404":
+          description: No such resource for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: not_found
+                  message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
+  /pets/{id}/health/events/{event_id}:
+    parameters:
+      - *a1
+      - name: event_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    patch:
+      summary: Correct a record, or move a plan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HealthEventPatch"
+      responses:
+        "200":
+          description: The record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthEvent"
+        "400":
+          description: Request body or query is invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: bad_request
+                  message: Request body or query is invalid
+                  request_id: 01J000000000000000000000
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted
+                  request_id: 01J000000000000000000000
+        "404":
+          description: No such resource for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: not_found
+                  message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
+    delete:
+      summary: Delete a record or cancel a plan; plans made from it stay
+      responses:
+        "204":
+          description: Deleted
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted
+                  request_id: 01J000000000000000000000
+        "404":
+          description: No such resource for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: not_found
+                  message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
+  /pets/{id}/health/items/{item_id}/complete:
+    parameters:
+      - *a1
+      - name: item_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      summary: Mark one planned item done; others planned for the same day stay planned
+      parameters:
+        - *a2
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompleteItemInput"
+      responses:
+        "200":
+          description: The done record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthEvent"
+        "400":
+          description: Request body or query is invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: bad_request
+                  message: Request body or query is invalid
+                  request_id: 01J000000000000000000000
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted
+                  request_id: 01J000000000000000000000
+        "404":
+          description: No such resource for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: not_found
+                  message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
   /uploads:
     post:
       summary: Scoped permission to upload photos to private storage
@@ -2292,7 +2950,7 @@ paths:
       - name: job_id
         in: path
         required: true
-        schema: *a2
+        schema: *a3
     get:
       summary: Job state, and the check id once it succeeded
       responses:

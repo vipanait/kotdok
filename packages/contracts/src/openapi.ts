@@ -4,6 +4,11 @@ import { ApiErrorEnvelopeSchema, ERROR_STATUS, type ErrorCode } from './errors'
 import { ProfileUpdateInputSchema, PublicProfileSchema } from './profile'
 import { PetCreateInputSchema, PetSchema, PetUpdateInputSchema } from './pet'
 import {
+  CompleteItemInputSchema,
+  DueItemSchema,
+  HealthEventInputSchema,
+  HealthEventPatchSchema,
+  HealthEventSchema,
   HealthOverviewSchema,
   WeightInputSchema,
   WeightMeasurementSchema,
@@ -48,6 +53,11 @@ const COMPONENTS: Array<[string, z.ZodType]> = [
   ['WeightMeasurement', WeightMeasurementSchema],
   ['WeightInput', WeightInputSchema],
   ['WeightPatch', WeightPatchSchema],
+  ['HealthEvent', HealthEventSchema],
+  ['HealthEventInput', HealthEventInputSchema],
+  ['HealthEventPatch', HealthEventPatchSchema],
+  ['CompleteItemInput', CompleteItemInputSchema],
+  ['DueItem', DueItemSchema],
   ['SymptomCheckRecord', SymptomCheckRecordSchema],
   ['CheckHistoryPage', CheckHistoryPageSchema],
   ['CheckCreateInput', CheckCreateInputSchema],
@@ -138,6 +148,14 @@ function body(name: string, required = true) {
 }
 
 const bearer = [{ bearerAuth: [] }]
+
+/** Optional here, unlike on /checks: a medical record repeats harmlessly without one, only less safely. */
+const idempotencyParam = {
+  name: IDEMPOTENCY_KEY_HEADER,
+  in: 'header',
+  required: false,
+  schema: { type: 'string', maxLength: 200 },
+}
 
 const idParam = {
   name: 'id',
@@ -283,6 +301,51 @@ export function buildOpenApiDocument(): Record<string, unknown> {
         delete: {
           summary: 'Delete a measurement; the form falls back to the one before it',
           responses: { '204': { description: 'Deleted' }, ...commonErrors('not_found') },
+        },
+      },
+      '/pets/due': {
+        get: {
+          summary: 'Every due date of the caller\'s pets, soonest first',
+          responses: {
+            '200': {
+              description: 'Planned items',
+              content: { 'application/json': { schema: { type: 'array', items: ref('DueItem') } } },
+            },
+            ...commonErrors(),
+          },
+        },
+      },
+      '/pets/{id}/health/events': {
+        parameters: [idParam],
+        post: {
+          summary: 'Record vaccinations done or planned; a done record also plans each item\'s next date',
+          description:
+            'A done record cannot be in the future, a plan cannot be in the past. ' +
+            'The same Idempotency-Key returns the first record.',
+          parameters: [idempotencyParam],
+          requestBody: body('HealthEventInput'),
+          responses: { '201': json('HealthEvent', 'The record'), ...commonErrors('bad_request', 'not_found') },
+        },
+      },
+      '/pets/{id}/health/events/{event_id}': {
+        parameters: [idParam, { name: 'event_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+        patch: {
+          summary: 'Correct a record, or move a plan',
+          requestBody: body('HealthEventPatch'),
+          responses: { '200': json('HealthEvent', 'The record'), ...commonErrors('bad_request', 'not_found') },
+        },
+        delete: {
+          summary: 'Delete a record or cancel a plan; plans made from it stay',
+          responses: { '204': { description: 'Deleted' }, ...commonErrors('not_found') },
+        },
+      },
+      '/pets/{id}/health/items/{item_id}/complete': {
+        parameters: [idParam, { name: 'item_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+        post: {
+          summary: 'Mark one planned item done; others planned for the same day stay planned',
+          parameters: [idempotencyParam],
+          requestBody: body('CompleteItemInput'),
+          responses: { '200': json('HealthEvent', 'The done record'), ...commonErrors('bad_request', 'not_found') },
         },
       },
       '/uploads': {

@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { PetSchema } from './pet'
 import { CalendarDateSchema, UuidSchema } from './primitives'
+import { VaccineTargetSchema } from './health-targets'
 
 /**
  * The five sections of a pet's medical record, in the order the screen lists
@@ -52,6 +53,130 @@ export const WeightPatchSchema = WeightInputSchema.partial().refine(
 
 export type WeightPatch = z.infer<typeof WeightPatchSchema>
 
+export const HEALTH_EVENT_KINDS = ['vaccination'] as const
+export const HEALTH_EVENT_STATUSES = ['done', 'planned'] as const
+
+export const HealthEventKindSchema = z.enum(HEALTH_EVENT_KINDS)
+export const HealthEventStatusSchema = z.enum(HEALTH_EVENT_STATUSES)
+
+const ITEM_NAME_MAX = 100
+const CLINIC_MAX = 100
+const NOTES_MAX = 300
+const ITEMS_MAX = 10
+
+/**
+ * One vaccine in a record. `name` null is «Без препарата»; `source_item_id`
+ * is the done item a plan was made from.
+ */
+export const HealthItemSchema = z.strictObject({
+  id: UuidSchema,
+  name: z.string().nullable(),
+  targets: z.array(z.string()),
+  source_item_id: UuidSchema.nullable(),
+})
+
+export type HealthItem = z.infer<typeof HealthItemSchema>
+
+/** A record: done on `date`, or planned for it. Every planned item is a due date. */
+export const HealthEventSchema = z.strictObject({
+  id: UuidSchema,
+  kind: HealthEventKindSchema,
+  status: HealthEventStatusSchema,
+  date: CalendarDateSchema,
+  clinic: z.string().nullable(),
+  notes: z.string().nullable(),
+  items: z.array(HealthItemSchema),
+})
+
+export type HealthEvent = z.infer<typeof HealthEventSchema>
+
+const itemNameSchema = z.string().trim().max(ITEM_NAME_MAX).nullable().optional()
+const targetsSchema = z.array(VaccineTargetSchema).max(12)
+const named = (item: { name?: string | null; targets: unknown[] }) =>
+  (item.name ?? '').trim() !== '' || item.targets.length > 0
+
+const HealthItemInputSchema = z
+  .strictObject({
+    name: itemNameSchema,
+    targets: targetsSchema,
+    /** The next one of this vaccine; null or absent is «Не напоминать». Done records only. */
+    next_on: CalendarDateSchema.nullable().optional(),
+  })
+  .refine(named, { message: 'a name or at least one disease is required' })
+
+export const HealthEventInputSchema = z
+  .strictObject({
+    kind: HealthEventKindSchema,
+    status: HealthEventStatusSchema,
+    date: CalendarDateSchema,
+    clinic: z.string().trim().max(CLINIC_MAX).nullable().optional(),
+    notes: z.string().trim().max(NOTES_MAX).nullable().optional(),
+    items: z.array(HealthItemInputSchema).min(1).max(ITEMS_MAX),
+  })
+  .superRefine((value, ctx) => {
+    value.items.forEach((item, index) => {
+      if (!item.next_on) return
+      if (value.status === 'planned') {
+        ctx.addIssue({ code: 'custom', path: ['items', index, 'next_on'], message: 'a plan has no next date' })
+      } else if (item.next_on <= value.date) {
+        ctx.addIssue({ code: 'custom', path: ['items', index, 'next_on'], message: 'next date must follow the record' })
+      }
+    })
+  })
+
+export type HealthEventInput = z.infer<typeof HealthEventInputSchema>
+
+/**
+ * A correction: the day («Перенести» on a plan), clinic, note, and the items.
+ * Given items replace the list: `id` keeps an item, no `id` adds one.
+ */
+export const HealthEventPatchSchema = z
+  .strictObject({
+    date: CalendarDateSchema.optional(),
+    clinic: z.string().trim().max(CLINIC_MAX).nullable().optional(),
+    notes: z.string().trim().max(NOTES_MAX).nullable().optional(),
+    items: z
+      .array(
+        z
+          .strictObject({ id: UuidSchema.optional(), name: itemNameSchema, targets: targetsSchema })
+          .refine(named, { message: 'a name or at least one disease is required' }),
+      )
+      .min(1)
+      .max(ITEMS_MAX)
+      .optional(),
+  })
+  .refine((value) => Object.keys(value).length > 0, { message: 'at least one field is required' })
+
+export type HealthEventPatch = z.infer<typeof HealthEventPatchSchema>
+
+/** «Сделано» on one planned item. */
+export const CompleteItemInputSchema = z
+  .strictObject({
+    done_on: CalendarDateSchema,
+    next_on: CalendarDateSchema.nullable().optional(),
+    clinic: z.string().trim().max(CLINIC_MAX).nullable().optional(),
+    notes: z.string().trim().max(NOTES_MAX).nullable().optional(),
+  })
+  .refine((value) => !value.next_on || value.next_on > value.done_on, {
+    message: 'next date must follow the day it was done',
+    path: ['next_on'],
+  })
+
+export type CompleteItemInput = z.infer<typeof CompleteItemInputSchema>
+
+/** One due date across all of the caller's pets, for the pet list. */
+export const DueItemSchema = z.strictObject({
+  pet_id: UuidSchema,
+  event_id: UuidSchema,
+  item_id: UuidSchema,
+  kind: HealthEventKindSchema,
+  date: CalendarDateSchema,
+  name: z.string().nullable(),
+  targets: z.array(z.string()),
+})
+
+export type DueItem = z.infer<typeof DueItemSchema>
+
 /**
  * Everything the medical record screen needs in one request.
  *
@@ -71,6 +196,7 @@ export const HealthOverviewSchema = z.object({
   writable: z.array(HealthSectionSchema),
   // Defaulted, so a newer app reading an older server sees an empty history.
   weights: z.array(WeightMeasurementSchema).default([]),
+  events: z.array(HealthEventSchema).default([]),
 })
 
 export type HealthOverview = z.infer<typeof HealthOverviewSchema>

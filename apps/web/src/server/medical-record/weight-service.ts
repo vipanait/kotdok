@@ -126,3 +126,12 @@ export function isFutureDay(day: string, now: Date = new Date()): boolean {
   const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000)
   return day > utcToday(tomorrow)
 }
+
+/**
+ * Whether a day is earlier than any time zone's today: a plan cannot be made
+ * for it. A day behind UTC is still "today" somewhere west of it.
+ */
+export function isPastDay(day: string, now: Date = new Date()): boolean {
+  const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000)
+  return day < utcToday(yesterday)
+}

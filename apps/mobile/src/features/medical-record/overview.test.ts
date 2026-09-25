@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { HealthOverview, Pet, WeightMeasurement } from '@lapka/contracts'
+import type { HealthEvent, HealthOverview, Pet, WeightMeasurement } from '@lapka/contracts'
 import { en } from '@/i18n/en'
 import { ru } from '@/i18n/ru'
 import { headerFacts, importantFacts, sectionRows } from './overview'
@@ -28,8 +28,8 @@ function pet(overrides: Partial<Pet> = {}): Pet {
   }
 }
 
-function overview(overrides: Partial<Pet> = {}, weights: WeightMeasurement[] = []): HealthOverview {
-  return { pet: pet(overrides), writable: ['weight'], weights }
+function overview(overrides: Partial<Pet> = {}, weights: WeightMeasurement[] = [], events: HealthEvent[] = []): HealthOverview {
+  return { pet: pet(overrides), writable: ['vaccinations', 'weight'], weights, events }
 }
 
 const TODAY = '2026-09-24'
@@ -89,10 +89,18 @@ describe('important to know', () => {
 })
 
 describe('sections', () => {
-  it('lists the five sections in order; only weight opens so far', () => {
+  it('lists the five sections in order; vaccinations and weight open so far', () => {
     const rows = sectionRows(ru, overview(), TODAY)
     expect(rows.map((row) => row.section)).toEqual(['vaccinations', 'parasites', 'visits', 'medications', 'weight'])
-    expect(rows.filter((row) => row.openable).map((row) => row.section)).toEqual(['weight'])
+    expect(rows.filter((row) => row.openable).map((row) => row.section)).toEqual(['vaccinations', 'weight'])
+  })
+
+  it('sums vaccinations up with the last one done, over the form’s answer', () => {
+    const done: HealthEvent = {
+      id: 'd', kind: 'vaccination', status: 'done', date: '2026-03-12', clinic: null, notes: null,
+      items: [{ id: 'i', name: null, targets: ['rabies'], source_item_id: null }],
+    }
+    expect(sectionRows(ru, overview({ vaccinated: false }, [], [done]), TODAY)[0].summary).toBe('Последняя — 12 марта 2026')
   })
 
   it('shows the form’s vaccination answer without inventing dates', () => {
@@ -119,9 +127,9 @@ describe('sections', () => {
   it('does not open a section this build has no screen for, whatever the server allows', () => {
     // A newer server lists sections an older app cannot show: a chevron there
     // would be a button that leads nowhere.
-    const rows = sectionRows(ru, { pet: pet(), writable: ['weight', 'visits'], weights: [] }, TODAY)
+    const rows = sectionRows(ru, { pet: pet(), writable: ['weight', 'visits'], weights: [], events: [] }, TODAY)
     expect(rows.find((row) => row.section === 'visits')?.openable).toBe(false)
-    expect(sectionRows(ru, { pet: pet(), writable: [], weights: [] }, TODAY)[4].openable).toBe(false)
+    expect(sectionRows(ru, { pet: pet(), writable: [], weights: [], events: [] }, TODAY)[4].openable).toBe(false)
   })
 })
 
