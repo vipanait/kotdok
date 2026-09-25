@@ -103,5 +103,5 @@ export function offersVisit(check: { urgency: string; pet_id: string | null }): 
 
 /** The first line of what the owner described: the visit's reason. */
 export function visitReason(symptoms: string): string {
-  return symptoms.split('\n')[0].trim().slice(0, 500)
+  return (symptoms.split('\n').find((line) => line.trim() !== '') ?? '').trim().slice(0, 500)
 }

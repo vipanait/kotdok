@@ -43,7 +43,15 @@ alter table public.pet_health_items add constraint pet_health_items_instructions
 -- The prescription a course came from. Cleared, not cascaded, when the visit goes.
 alter table public.pet_medications
   add column if not exists visit_item_id uuid references public.pet_health_items(id) on delete set null;
-create index if not exists pet_medications_visit_item_idx on public.pet_medications (visit_item_id) where visit_item_id is not null;
+-- One live course per prescription, however the request is repeated.
+drop index if exists public.pet_medications_visit_item_idx;
+create unique index if not exists pet_medications_visit_item_once
+  on public.pet_medications (visit_item_id) where visit_item_id is not null and deleted_at is null;
+
+-- The last correction of a visit, by its Idempotency-Key: a retried save whose
+-- answer was lost does not add its new prescriptions again.
+alter table public.pet_health_events add column if not exists update_key text;
+alter table public.pet_health_events add column if not exists update_hash text;
 
 /** Items now carry «как принимать» too. */
 create or replace function public.insert_health_items(
@@ -98,6 +106,9 @@ declare
   v_existing uuid;
   v_id uuid;
 begin
+  -- Serialises two taps of «Добавить в лекарства»; also refuses a deleted pet.
+  perform public.lock_own_pet(p_user_id, p_pet_id);
+
   select id into v_existing from public.pet_medications
    where visit_item_id = p_item_id and deleted_at is null limit 1;
   if v_existing is not null then
@@ -193,13 +204,15 @@ $$;
  * left out is removed, and a course it started keeps going without the link.
  * A course is never rewritten from here: the owner may have changed it.
  */
+drop function if exists public.update_visit(uuid, uuid, uuid, jsonb, jsonb, date);
 create or replace function public.update_visit(
   p_user_id uuid,
   p_pet_id uuid,
   p_event_id uuid,
   p_changes jsonb,
   p_items jsonb,
-  p_today date
+  p_today date,
+  p_key text default null
 )
 returns uuid
 language plpgsql
@@ -213,6 +226,7 @@ declare
   v_keep uuid[] := '{}';
   v_position int := 0;
   v_id uuid;
+  v_hash text := md5(jsonb_build_array(p_changes, p_items)::text);
 begin
   perform public.lock_own_pet(p_user_id, p_pet_id);
 
@@ -220,6 +234,13 @@ begin
    where id = p_event_id and pet_id = p_pet_id and user_id = p_user_id and deleted_at is null and kind = 'visit';
   if not found then
     raise exception 'visit not found' using errcode = 'no_data_found';
+  end if;
+
+  if p_key is not null and v_event.update_key = p_key then
+    if v_event.update_hash is distinct from v_hash then
+      raise exception 'idempotency key reused with different data' using errcode = 'unique_violation';
+    end if;
+    return p_event_id;
   end if;
 
   v_status := coalesce(p_changes->>'status', v_event.status);
@@ -237,6 +258,8 @@ begin
            else diagnosis
          end,
          check_id = case when p_changes ? 'check_id' then nullif(p_changes->>'check_id', '')::uuid else check_id end,
+         update_key = p_key,
+         update_hash = case when p_key is null then null else v_hash end,
          updated_at = now()
    where id = p_event_id;
 
@@ -309,10 +332,10 @@ $$;
 revoke all on function public.insert_health_items(uuid, uuid, uuid, jsonb, uuid[]) from public, anon, authenticated;
 revoke all on function public.course_from_prescription(uuid, uuid, uuid, date) from public, anon, authenticated;
 revoke all on function public.create_visit(uuid, uuid, text, date, text, text, jsonb, jsonb, date, text) from public, anon, authenticated;
-revoke all on function public.update_visit(uuid, uuid, uuid, jsonb, jsonb, date) from public, anon, authenticated;
+revoke all on function public.update_visit(uuid, uuid, uuid, jsonb, jsonb, date, text) from public, anon, authenticated;
 revoke all on function public.delete_health_event(uuid, uuid, uuid) from public, anon, authenticated;
 
 grant execute on function public.course_from_prescription(uuid, uuid, uuid, date) to service_role;
 grant execute on function public.create_visit(uuid, uuid, text, date, text, text, jsonb, jsonb, date, text) to service_role;
-grant execute on function public.update_visit(uuid, uuid, uuid, jsonb, jsonb, date) to service_role;
+grant execute on function public.update_visit(uuid, uuid, uuid, jsonb, jsonb, date, text) to service_role;
 grant execute on function public.delete_health_event(uuid, uuid, uuid) to service_role;

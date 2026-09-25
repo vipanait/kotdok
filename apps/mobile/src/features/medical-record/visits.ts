@@ -73,6 +73,17 @@ export type VisitErrors = { date?: string; prescriptions?: Record<string, string
 
 export type ReadVisit = { ok: true; value: VisitInput } | { ok: false; errors: VisitErrors }
 
+// The server's limits: a prescription is an item of the record.
+const PRESCRIPTION_NAME_MAX = 100
+const INSTRUCTIONS_MAX = 150
+
+/** Checks a visit may follow: those of the last 30 days, by the phone's day. */
+export function recentChecks<Check extends { created_at: string }>(checks: readonly Check[], now: Date = new Date()): Check[] {
+  const today = localToday(now)
+  const monthAgo = new Date(Date.parse(`${today}T00:00:00Z`) - 30 * 86_400_000).toISOString().slice(0, 10)
+  return checks.filter((check) => localToday(new Date(check.created_at)) >= monthAgo)
+}
+
 const clean = (text: string) => (text.trim() === '' ? null : text.trim())
 
 /**
@@ -102,6 +113,8 @@ export function readVisit(
   const prescriptions = done
     ? draft.prescriptions.map((item) => {
         if (item.name.trim() === '') prescriptionErrors[item.key] = words.visits.nameRequired
+        else if (item.name.trim().length > PRESCRIPTION_NAME_MAX) prescriptionErrors[item.key] = words.visits.nameTooLong
+        else if (item.instructions.trim().length > INSTRUCTIONS_MAX) prescriptionErrors[item.key] = words.visits.instructionsTooLong
         return item.id
           ? { id: item.id, name: item.name.trim(), instructions: clean(item.instructions) }
           : { name: item.name.trim(), instructions: clean(item.instructions), add_to_medications: item.toMedicines }

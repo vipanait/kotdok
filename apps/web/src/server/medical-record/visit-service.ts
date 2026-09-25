@@ -76,7 +76,9 @@ export async function createVisit(
 
 /**
  * A correction, or «Был» on a plan. The check is verified only when it
- * changes: a link made while the check was recent stays after 30 days.
+ * changes: a link made while the check was recent stays after 30 days. With a
+ * key, the same correction sent again changes nothing: new prescriptions and
+ * their courses are not added twice.
  */
 export async function updateVisit(
   supabase: SupabaseService,
@@ -85,6 +87,7 @@ export async function updateVisit(
   eventId: string,
   patch: VisitPatch,
   current: HealthEvent,
+  idempotencyKey: string | null = null,
   today: string = utcToday(),
 ): Promise<Result<HealthEvent>> {
   if (patch.check_id && patch.check_id !== current.check_id && !(await checkFits(supabase, userId, petId, patch.check_id))) {
@@ -99,6 +102,7 @@ export async function updateVisit(
     p_changes: changes,
     p_items: items === undefined ? null : prescriptions(items),
     p_today: today,
+    p_key: idempotencyKey,
   })
   if (error) return failure(error)
   return readEvent(supabase, userId, petId, eventId)

@@ -200,28 +200,32 @@ export function Select<Value extends string>({
   value,
   onChange,
   allowNone = true,
+  noneLabel,
 }: {
   label: string
   options: ReadonlyArray<Option<Value>>
   value: Value | null
   onChange: (value: Value | null) => void
   allowNone?: boolean
+  /** What «nothing chosen» means here, when not «Не указано». */
+  noneLabel?: string
 }) {
   const t = useText()
   const [open, setOpen] = useState(false)
   const chosen = options.find((option) => option.value === value)
+  const none = noneLabel ?? t.common.notStated
 
   return (
     <View style={styles.group}>
       <Label>{label}</Label>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={`${label}: ${chosen?.label ?? t.common.notStated}`}
+        accessibilityLabel={`${label}: ${chosen?.label ?? none}`}
         onPress={() => setOpen(true)}
         style={styles.control}
       >
         <Text tone={chosen ? 'default' : 'faint'} style={styles.grow}>
-          {chosen?.label ?? t.common.notStated}
+          {chosen?.label ?? none}
         </Text>
         <Icon name="down" size={20} color={colour.faint} />
       </Pressable>
@@ -234,6 +238,7 @@ export function Select<Value extends string>({
         onChange={onChange}
         onClose={() => setOpen(false)}
         allowNone={allowNone}
+        noneLabel={none}
       />
     </View>
   )
@@ -255,6 +260,7 @@ export function OptionSheet<Value extends string>({
   onChange,
   onClose,
   allowNone = true,
+  noneLabel,
 }: {
   visible: boolean
   title: string
@@ -263,6 +269,7 @@ export function OptionSheet<Value extends string>({
   onChange: (value: Value | null) => void
   onClose: () => void
   allowNone?: boolean
+  noneLabel?: string
 }) {
   const t = useText()
 
@@ -285,7 +292,7 @@ export function OptionSheet<Value extends string>({
                 onClose()
               }}
             >
-              <Text tone="faint">{t.common.notStated}</Text>
+              <Text tone="faint">{noneLabel ?? t.common.notStated}</Text>
               {value === null ? <Text tone="accent">✓</Text> : null}
             </Pressable>
           ) : null}

@@ -207,7 +207,8 @@ const MEDICATION_TEXT_MAX_FOR_VISITS = 150
 const PrescriptionInputSchema = z.strictObject({
   /** Set for a prescription the visit already has. */
   id: UuidSchema.optional(),
-  name: z.string().trim().min(1).max(MEDICATION_TEXT_MAX_FOR_VISITS),
+  /** An item of the record, so no longer than any item's name. */
+  name: z.string().trim().min(1).max(ITEM_NAME_MAX),
   instructions: z.string().trim().max(MEDICATION_TEXT_MAX_FOR_VISITS).nullable().optional(),
   /** «Добавить в лекарства»: start a course from it. New prescriptions only. */
   add_to_medications: z.boolean().optional(),

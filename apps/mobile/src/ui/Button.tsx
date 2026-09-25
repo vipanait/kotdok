@@ -89,17 +89,24 @@ export function LinkButton({
   title,
   onPress,
   align = 'center',
+  accessibilityLabel,
+  disabled = false,
 }: {
   title: string
   onPress: () => void
   align?: 'center' | 'left' | 'right'
+  /** When the title alone does not say which row it acts on. */
+  accessibilityLabel?: string
+  disabled?: boolean
 }) {
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={title}
+      accessibilityLabel={accessibilityLabel ?? title}
+      accessibilityState={{ disabled }}
+      disabled={disabled}
       onPress={onPress}
-      style={({ pressed }) => [styles.link, { opacity: pressed ? 0.6 : 1 }]}
+      style={({ pressed }) => [styles.link, { opacity: disabled ? 0.4 : pressed ? 0.6 : 1 }]}
     >
       <Text
         variant="bodyStrong"

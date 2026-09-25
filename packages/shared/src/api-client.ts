@@ -274,8 +274,13 @@ export function createApiClient(options: ApiClientOptions) {
         body,
         headers: { [IDEMPOTENCY_KEY_HEADER]: idempotencyKey },
       }),
-    changeVisit: (petId: string, eventId: string, body: VisitPatch) =>
-      call(`/pets/${petId}/health/visits/${eventId}`, HealthEventSchema, { method: 'PATCH', body }),
+    /** The key makes a retried save harmless: new prescriptions are added once. */
+    changeVisit: (petId: string, eventId: string, body: VisitPatch, idempotencyKey?: string) =>
+      call(`/pets/${petId}/health/visits/${eventId}`, HealthEventSchema, {
+        method: 'PATCH',
+        body,
+        ...(idempotencyKey ? { headers: { [IDEMPOTENCY_KEY_HEADER]: idempotencyKey } } : {}),
+      }),
     prescriptionToMedication: (petId: string, itemId: string) =>
       call(`/pets/${petId}/health/items/${itemId}/medication`, z.object({ medication_id: z.string() }), { method: 'POST' }),
     addMedications: (petId: string, body: MedicationsInput, idempotencyKey: string) =>

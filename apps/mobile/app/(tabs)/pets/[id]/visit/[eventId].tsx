@@ -50,6 +50,7 @@ export default function VisitView() {
   )
 
   async function toMedicines(itemId: string) {
+    if (busy) return
     setBusy(true)
     try {
       await withFreshSession((api) => api.prescriptionToMedication(id, itemId))
@@ -135,7 +136,13 @@ export default function VisitView() {
                           {words.inMedicines}
                         </Text>
                       ) : (
-                        <LinkButton title={words.toMedicines} align="left" onPress={() => void toMedicines(item.id)} />
+                        <LinkButton
+                          title={words.toMedicines}
+                          accessibilityLabel={`${words.toMedicines}: ${item.name}`}
+                          align="left"
+                          disabled={busy}
+                          onPress={() => void toMedicines(item.id)}
+                        />
                       )}
                     </View>
                   ))}

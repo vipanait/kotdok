@@ -79,4 +79,8 @@ describe('a visit from a result (MR-07.5)', () => {
   it('takes the first line of the description as the reason', () => {
     expect(visitReason('Рвота два дня\nне ест')).toBe('Рвота два дня')
   })
+
+  it('skips blank lines before the description', () => {
+    expect(visitReason('\n  \nРвота два дня\nне ест')).toBe('Рвота два дня')
+  })
 })

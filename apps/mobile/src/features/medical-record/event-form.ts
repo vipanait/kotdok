@@ -179,6 +179,7 @@ export function readDraft(
   now: Date = new Date(),
   keptDate?: string,
 ): ReadDraft {
+  if (draft.kind === 'visit') throw new Error('a visit is saved by the visit form')
   const words = t.medicalRecord
   const errors: DraftErrors = {}
 
@@ -222,7 +223,7 @@ export function readDraft(
   return {
     ok: true,
     value: {
-      kind: draft.kind === 'visit' ? 'vaccination' : draft.kind,
+      kind: draft.kind,
       status: draft.status,
       date,
       clinic: draft.clinic.trim() === '' ? null : draft.clinic.trim(),

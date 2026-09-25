@@ -161,6 +161,8 @@ describe('visits', () => {
     expect((await patchVisit(request('PATCH', { prescriptions: kept }), eventParams(visit.id))).status).toBe(200)
     let course = (await overview()).medications.find((m) => m.id === fortiflora.id)!
     expect(course.dosage).toBe('2 пакетика в день')
+    // A kept prescription's new instructions do not rewrite its course either.
+    expect((await overview()).medications.find((m) => m.name === 'Лечебный корм')!.dosage).toBe('Постоянно')
 
     expect((await deleteEvent(request('DELETE'), eventParams(visit.id))).status).toBe(204)
     const { medications } = await overview()
@@ -169,5 +171,50 @@ describe('visits', () => {
     expect(medications.map((m) => m.name).sort()).toEqual(['Лечебный корм', 'Фортифлора'])
     const { rows } = await db.query(`select count(*)::int as n from public.pet_medications where pet_id = $1 and visit_item_id is not null`, [cat])
     expect(rows[0].n).toBe(0)
+  })
+
+  it('starts one course when «Добавить в лекарства» is sent twice at once', async () => {
+    const visit = HealthEventSchema.parse(await (await createVisit(request('POST', doneVisit), params(cat))).json())
+    const smecta = visit.items.find((i) => i.name === 'Смекта')!
+    const ask = () => toMedication(request('POST'), { params: Promise.resolve({ id: cat, itemId: smecta.id }) })
+    const answers = await Promise.all([ask(), ask(), ask()])
+    expect(answers.every((answer) => answer.status === 201)).toBe(true)
+    expect((await overview()).medications.filter((m) => m.name === 'Смекта')).toHaveLength(1)
+  })
+
+  it('a retried correction with the same key adds its new prescriptions once', async () => {
+    const plan = HealthEventSchema.parse(
+      await (await createVisit(request('POST', { status: 'planned', date: day(3), visit_kind: 'checkup' }), params(cat))).json(),
+    )
+    const body = { status: 'done', date: day(0), prescriptions: [{ name: 'Витамины', add_to_medications: true }] }
+    const keyed = (data: unknown, key: string) =>
+      new NextRequest('http://test.local/x', {
+        method: 'PATCH',
+        headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json', 'Idempotency-Key': key },
+        body: JSON.stringify(data),
+      })
+    expect((await patchVisit(keyed(body, 'visit-patch-1'), eventParams(plan.id))).status).toBe(200)
+    const again = await patchVisit(keyed(body, 'visit-patch-1'), eventParams(plan.id))
+    expect(again.status).toBe(200)
+    expect(HealthEventSchema.parse(await again.json()).items.map((i) => i.name)).toEqual(['Витамины'])
+    expect((await overview()).medications.map((m) => m.name)).toEqual(['Витамины'])
+
+    const changed = await patchVisit(keyed({ ...body, diagnosis: 'Здорова' }, 'visit-patch-1'), eventParams(plan.id))
+    expect(changed.status).toBe(409)
+  })
+
+  it('refuses a prescription name the record cannot keep with a 400, not a failure', async () => {
+    const long = { ...doneVisit, prescriptions: [{ name: 'Ф'.repeat(120), add_to_medications: true }] }
+    expect((await createVisit(request('POST', long), params(cat))).status).toBe(400)
+  })
+
+  it('takes back an overdue plan’s own day when another field is corrected', async () => {
+    const plan = HealthEventSchema.parse(
+      await (await createVisit(request('POST', { status: 'planned', date: day(2), visit_kind: 'checkup' }), params(cat))).json(),
+    )
+    await db.query(`update public.pet_health_events set event_date = $2 where id = $1`, [plan.id, day(-4)])
+    const echoed = await patchVisit(request('PATCH', { date: day(-4), clinic: 'Вет-центр' }), eventParams(plan.id))
+    expect(echoed.status).toBe(200)
+    expect((await patchVisit(request('PATCH', { date: day(-3) }), eventParams(plan.id))).status).toBe(400)
   })
 })

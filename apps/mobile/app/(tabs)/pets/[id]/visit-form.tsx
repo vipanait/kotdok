@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
-import { VISIT_KINDS, type SymptomCheckRecord, type VisitKind } from '@lapka/contracts'
+import { HISTORY_PAGE_SIZE_MAX, VISIT_KINDS, type SymptomCheckRecord, type VisitKind } from '@lapka/contracts'
 import { ApiError } from '@lapka/shared'
 import { withFreshSession } from '@/lib/api'
 import { describeFailure } from '@/lib/errors'
@@ -9,7 +9,7 @@ import { localToday } from '@/lib/calendar-day'
 import { newRequestKey } from '@/lib/request-key'
 import { useText } from '@/i18n'
 import { urgencyText } from '@/features/checks/urgency'
-import { blankVisit, readVisit, visitDraftFrom, type VisitDraft, type VisitErrors } from '@/features/medical-record/visits'
+import { blankVisit, readVisit, recentChecks, visitDraftFrom, type VisitDraft, type VisitErrors } from '@/features/medical-record/visits'
 import { useUnsavedChanges } from '@/features/unsaved/useUnsavedChanges'
 import { Button, IconButton, LinkButton } from '@/ui/Button'
 import { Banner, Card } from '@/ui/Card'
@@ -52,13 +52,8 @@ export default function VisitForm() {
 
   useEffect(() => {
     // Checks of the last 30 days: a visit follows a check soon after it.
-    const monthAgo = new Date(Date.parse(`${localToday()}T00:00:00Z`) - 30 * 86_400_000).toISOString().slice(0, 10)
-    withFreshSession((api) => api.listChecks({ pet_id: petId }))
-      .then((page) =>
-        setChecks(
-          page.items.filter((check) => check.created_at.slice(0, 10) >= monthAgo),
-        ),
-      )
+    withFreshSession((api) => api.listChecks({ pet_id: petId, limit: HISTORY_PAGE_SIZE_MAX }))
+      .then((page) => setChecks(recentChecks(page.items)))
       .catch(() => setChecks([]))
 
     if (mode === 'new') {
@@ -103,12 +98,17 @@ export default function VisitForm() {
       await withFreshSession<unknown>((api) => {
         if (mode === 'new') return api.createVisit(petId, value, requestKey.current)
         const { status, date, ...rest } = value
-        return api.changeVisit(petId, params.eventId!, {
-          ...rest,
-          ...(mode === 'done' ? { status: 'done' as const } : {}),
-          ...(status === 'done' || date !== keptDate ? { date } : {}),
-          ...(status === 'planned' ? { diagnosis: undefined, prescriptions: undefined } : {}),
-        })
+        return api.changeVisit(
+          petId,
+          params.eventId!,
+          {
+            ...rest,
+            ...(mode === 'done' ? { status: 'done' as const } : {}),
+            ...(status === 'done' || date !== keptDate ? { date } : {}),
+            ...(status === 'planned' ? { diagnosis: undefined, prescriptions: undefined } : {}),
+          },
+          requestKey.current,
+        )
       })
       unsaved.leave(then)
     } catch (cause) {
@@ -130,7 +130,7 @@ export default function VisitForm() {
   const done = draft.status === 'done'
   const checkOptions = checks.map((check) => ({
     value: check.id,
-    label: words.checkLine(urgencyText(t, check.urgency).label, t.day(check.created_at.slice(0, 10), false)),
+    label: words.checkLine(urgencyText(t, check.urgency).label, t.day(localToday(new Date(check.created_at)), false)),
   }))
   // A link to an older check stays selectable, not silently dropped.
   if (draft.checkId && !checkOptions.some((option) => option.value === draft.checkId)) {
@@ -258,6 +258,7 @@ export default function VisitForm() {
           options={checkOptions}
           value={draft.checkId}
           onChange={(checkId) => change({ checkId })}
+          noneLabel={words.noCheck}
         />
       ) : null}
       <Field label={t.medicalRecord.notes} value={draft.notes} onChangeText={(notes) => change({ notes })} multiline />

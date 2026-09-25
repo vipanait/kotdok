@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { HealthEvent } from '@lapka/contracts'
 import { ru } from '@/i18n/ru'
 import { dueItems, itemTitle } from './due'
-import { blankVisit, readVisit, visitDraftFrom, visitSummary } from './visits'
+import { blankVisit, readVisit, recentChecks, visitDraftFrom, visitSummary } from './visits'
 
 const NOW = new Date(2026, 8, 24, 12, 0)
 const TODAY = '2026-09-24'
@@ -53,6 +53,26 @@ describe('the visit form', () => {
     expect(readVisit(ru, { ...blankVisit('done', NOW), date: '25.09.2026' }, 'new', NOW).ok).toBe(false)
     const read = readVisit(ru, { ...blankVisit('done', NOW), prescriptions: [{ key: 'a', name: ' ', instructions: '', toMedicines: true }] }, 'new', NOW)
     expect(!read.ok && read.errors.prescriptions).toEqual({ a: 'Введите название' })
+  })
+
+  it('refuses a prescription name or instructions longer than the record keeps', () => {
+    const long = (name: string, instructions: string) =>
+      readVisit(ru, { ...blankVisit('done', NOW), prescriptions: [{ key: 'a', name, instructions, toMedicines: true }] }, 'new', NOW)
+    const name = long('Ф'.repeat(101), '')
+    expect(name.ok ? null : name.errors.prescriptions).toEqual({ a: 'Не длиннее 100 символов' })
+    const instructions = long('Фортифлора', 'x'.repeat(151))
+    expect(instructions.ok ? null : instructions.errors.prescriptions).toEqual({ a: 'Не длиннее 150 символов' })
+    expect(long('Ф'.repeat(100), 'x'.repeat(150)).ok).toBe(true)
+  })
+
+  it('offers the checks of the last 30 days by the phone’s day', () => {
+    // By the phone's own day, whatever its zone: 00:30 on 25 August is in, 23:30 on the 24th is out.
+    const checks = [
+      { id: 'in', created_at: new Date(2026, 7, 25, 12, 0).toISOString() },
+      { id: 'edge', created_at: new Date(2026, 7, 25, 0, 30).toISOString() },
+      { id: 'out', created_at: new Date(2026, 7, 24, 23, 30).toISOString() },
+    ]
+    expect(recentChecks(checks, NOW).map((check) => check.id)).toEqual(['in', 'edge'])
   })
 
   it('keeps prescription ids when editing, and does not re-add existing ones to the medicines', () => {

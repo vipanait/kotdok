@@ -18,6 +18,10 @@ function draft(overrides: Partial<EventDraft> = {}): EventDraft {
 }
 
 describe('reading the vaccination form', () => {
+  it('refuses a visit, which has its own form, instead of saving it as a vaccination', () => {
+    expect(() => readDraft(ru, draft({ kind: 'visit' }), 'new', NOW)).toThrow()
+  })
+
   it('builds a done record with each vaccine’s next date a year on by default', () => {
     const read = readDraft(ru, draft({ items: [
       { ...blankItem('a'), name: 'Нобивак Tricat Trio', targets: ['panleukopenia'] },

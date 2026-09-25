@@ -428,9 +428,12 @@ export function buildOpenApiDocument(): Record<string, unknown> {
         parameters: [idParam, { name: 'event_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
         patch: {
           summary: 'Correct a visit, or mark a planned one as having happened',
-          description: 'Removing a prescription keeps the course it started, without the link.',
+          description:
+            'Removing a prescription keeps the course it started, without the link. ' +
+            'The same key sent again with the same body changes nothing; with another body it is a conflict.',
+          parameters: [idempotencyParam],
           requestBody: body('VisitPatch'),
-          responses: { '200': json('HealthEvent', 'The visit'), ...commonErrors('bad_request', 'not_found') },
+          responses: { '200': json('HealthEvent', 'The visit'), ...commonErrors('bad_request', 'not_found', 'conflict') },
         },
       },
       '/pets/{id}/health/items/{item_id}/medication': {
