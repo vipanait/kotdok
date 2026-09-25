@@ -1,162 +1,71 @@
-'use client'
-
-import { useState } from 'react'
 import Link from 'next/link'
-import LapkaLogo from '@/components/LapkaLogo'
+import PublicFooter from '@/components/site/PublicFooter'
+import PublicHeader from '@/components/site/PublicHeader'
+import Icon from '@/components/ui/Icon'
+import Illustration from '@/components/ui/Illustration'
 import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
 
 interface Props {
-  /** Already-authenticated user (used to swap header link). */
+  /** Signed in: the header leads to the cabinet and the main action to a check. */
   signedIn: boolean
   dict: Dictionary
 }
 
-/**
- * Visual content of the landing page. Extracted from app/(frontend)/page.tsx
- * so auth route pages can render the same hero behind the auth modal.
- */
+/** The public landing page at `/`. */
 export default function LandingContent({ signedIn, dict }: Props) {
   const t = dict.home
 
   return (
-    <div className="min-h-screen bg-[#F7F6F4] text-black">
-      <div className="relative mx-auto max-w-[1200px] px-10 py-10 lg:h-[760px]">
-        {/* Header */}
-        <header className="flex items-start justify-between">
-          <Link href="/" aria-label="Лапка" className="block">
-            <LapkaLogo />
-          </Link>
-          <Link
-            href={signedIn ? '/dashboard' : '/login'}
-            className="text-sm font-bold text-black/[.44] hover:text-black/70 transition-colors"
-          >
-            {signedIn ? dict.dashboard.title : t.signIn}
-          </Link>
-        </header>
-
-        {/* Two-column area */}
-        <div className="mt-12 grid gap-12 lg:mt-[60px] lg:grid-cols-[minmax(0,636px)_minmax(0,1fr)]">
-          <div className="flex flex-col">
-            <h1
-              className="font-black text-black"
-              style={{
-                fontSize: 'clamp(40px, 6vw, 60px)',
-                lineHeight: 1,
-                letterSpacing: '-0.02em',
-                fontWeight: 860,
-              }}
-            >
-              {t.hero}
+    <>
+      <PublicHeader dict={dict} account={signedIn ? 'cabinet' : 'sign-in'} />
+      <main className="landing">
+        <section className="hero">
+          <div>
+            <div className="eyebrow">{t.eyebrow}</div>
+            <h1>
+              {t.titleLine1}
+              <br />
+              {t.titleLine2} <span>{t.titleAccent}</span>
             </h1>
-
-            <p
-              className="mt-12 max-w-[564px] font-semibold text-black/[.44]"
-              style={{ fontSize: '22px', lineHeight: '27px', letterSpacing: '-0.03em' }}
-            >
-              {t.description}
-            </p>
-
-            <div className="mt-auto pt-16 flex flex-wrap items-center gap-6">
-              <Link
-                href="/register"
-                className="flex h-[140px] w-[140px] shrink-0 items-center justify-center rounded-full bg-[#FC7A00] text-white text-center font-semibold text-[17px] leading-[21px] hover:bg-[#e36c00] transition-colors px-6"
-              >
+            <p>{t.description}</p>
+            <div className="row">
+              <Link className="btn primary" href={signedIn ? '/check' : '/register'}>
                 {t.checkSymptoms}
+                <Icon name="arrow" />
               </Link>
-
-              <ul className="flex items-stretch gap-5 text-sm font-bold leading-[17px]">
-                {[t.tag1, t.tag2, t.tag3].map((tag, i) => (
-                  <li key={i} className={i > 0 ? 'flex items-center gap-5' : undefined}>
-                    {i > 0 && <span className="w-px bg-[#D9D9D9] self-stretch" aria-hidden />}
-                    <span className="max-w-[118px] whitespace-pre-line">{tag}</span>
-                  </li>
-                ))}
-              </ul>
+              <span className="small muted">{t.species}</span>
             </div>
-
-            <p className="mt-10 text-sm font-bold text-black/[.44]">
-              {dict.common.vetDisclaimer}
-            </p>
+            {/* New profiles start with 2 checks (profiles.credits default, 20260506000000). */}
+            {!signedIn && <p className="hero-offer">{t.offer}</p>}
           </div>
-
-          <div className="relative hidden lg:block">
-            <AppPreview t={t} />
+          <div className="hero-art">
+            <Illustration name="welcome-pets" size={420} eager />
+            <div className="float-card row">
+              <Icon name="heart" />
+              <div>
+                <strong>{t.sloganLine1}</strong>
+                <p>{t.sloganLine2}</p>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-    </div>
-  )
-}
+        </section>
 
-function AppPreview({ t }: { t: Dictionary['home'] }) {
-  const p = t.preview
-  return (
-    <div className="absolute -top-2 left-0 right-0 overflow-hidden rounded-[28px] bg-white shadow-[0_30px_80px_-20px_rgba(0,0,0,0.15)]">
-      <div className="space-y-5 p-6">
-        <div className="flex items-center gap-3 rounded-2xl bg-orange-50 p-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-orange-200 text-2xl">🐱</div>
-          <div className="min-w-0 flex-1">
-            <p className="text-[10px] uppercase tracking-wide text-gray-500">{p.selectedPet}</p>
-            <p className="text-base font-semibold">{p.catName}</p>
-            <p className="text-xs text-gray-500">{p.catDetails}</p>
-          </div>
-          <span className="rounded-full border border-orange-200 bg-white px-3 py-1 text-xs font-medium text-orange-700">
-            {p.profileFilled}
-          </span>
-        </div>
+        <section id="how" className="landing-steps" aria-labelledby="how-title">
+          <h2 id="how-title" className="sr-only">{t.stepsTitle}</h2>
+          <ol className="grid3">
+            {t.steps.map((step, i) => (
+              <li key={step.title}>
+                <div className="step-no" aria-hidden="true">{String(i + 1).padStart(2, '0')}</div>
+                <h3>{step.title}</h3>
+                <p>{step.text}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
 
-        <div>
-          <div className="flex items-center justify-between">
-            <h3 className="text-xl font-bold">{p.describeSymptoms}</h3>
-            <span className="text-lg text-gray-400">×</span>
-          </div>
-          <p className="mt-1 text-xs text-gray-500">{p.moreDetail}</p>
-        </div>
-
-        <ChipGroup label={p.appetiteLabel} options={p.appetiteOptions} initialActive={0} />
-        <ChipGroup label={p.activityLabel} options={p.activityOptions} initialActive={0} />
-        <ChipGroup label={p.durationLabel} options={p.durationOptions} initialActive={2} />
-        <ChipGroup label={p.stoolLabel} options={p.stoolOptions} initialActive={0} />
-
-        <div className="rounded-xl border border-gray-200 px-4 py-3 text-xs text-gray-400">
-          {p.symptomsPlaceholder}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function ChipGroup({
-  label,
-  options,
-  initialActive,
-}: {
-  label: string
-  options: string[]
-  initialActive: number
-}) {
-  const [active, setActive] = useState(initialActive)
-
-  return (
-    <div>
-      <p className="mb-2 text-xs font-semibold">{label}</p>
-      <div className="flex flex-wrap gap-2">
-        {options.map((opt, i) => (
-          <button
-            type="button"
-            key={opt}
-            aria-pressed={i === active}
-            onClick={() => setActive(current => current === i ? -1 : i)}
-            className={`cursor-pointer rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
-              i === active
-                ? 'border-orange-300 bg-orange-50 text-orange-700'
-                : 'border-gray-200 bg-white text-gray-700 hover:border-orange-200 hover:bg-orange-50/50'
-            }`}
-          >
-            {opt}
-          </button>
-        ))}
-      </div>
-    </div>
+        <p className="footnote">{t.disclaimer}</p>
+      </main>
+      <PublicFooter dict={dict} />
+    </>
   )
 }

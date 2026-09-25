@@ -1,5 +1,9 @@
 import AuthRoute from '@/features/auth/AuthRoute'
 
-export default function Page() {
-  return <AuthRoute mode="login" />
+export default function Page({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}) {
+  return <AuthRoute mode="login" searchParams={searchParams} />
 }

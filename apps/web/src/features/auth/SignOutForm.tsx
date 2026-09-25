@@ -3,7 +3,15 @@
 import { useRef } from 'react'
 import { CSRF_FIELD_NAME, getCsrfToken } from '@/shared/security/csrf-client'
 
-export default function SignOutForm({ label }: { label: string }) {
+export default function SignOutForm({
+  label,
+  className = 'link',
+  icon,
+}: {
+  label: string
+  className?: string
+  icon?: React.ReactNode
+}) {
   const tokenRef = useRef<HTMLInputElement>(null)
 
   return (
@@ -15,7 +23,10 @@ export default function SignOutForm({ label }: { label: string }) {
       }}
     >
       <input ref={tokenRef} type="hidden" name={CSRF_FIELD_NAME} />
-      <button className="app-link">{label}</button>
+      <button type="submit" className={className}>
+        {icon}
+        {label}
+      </button>
     </form>
   )
 }
