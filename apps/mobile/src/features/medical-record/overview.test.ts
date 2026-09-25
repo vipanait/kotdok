@@ -98,7 +98,7 @@ describe('sections', () => {
   it('sums vaccinations up with the last one done, over the form’s answer', () => {
     const done: HealthEvent = {
       id: 'd', kind: 'vaccination', status: 'done', date: '2026-03-12', clinic: null, notes: null,
-      items: [{ id: 'i', name: null, targets: ['rabies'], source_item_id: null, product_id: null }],
+      items: [{ id: 'i', name: null, targets: ['rabies'], source_item_id: null, product_id: null, interval: null }],
     }
     expect(sectionRows(ru, overview({ vaccinated: false }, [], [done]), TODAY)[0].summary).toBe('Последняя — 12 марта 2026')
   })

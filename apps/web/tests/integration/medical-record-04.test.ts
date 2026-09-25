@@ -88,9 +88,40 @@ describe('GET /api/v1/health/catalog', () => {
     }
   })
 
-  it('hides unverified products unless the stack is set up to show them', async () => {
-    const names = (await catalog('species=cat&kind=vaccine')).map((p: { name: string }) => p.name)
-    expect(names.includes('Тест Черновик')).toBe(process.env.HEALTH_CATALOG_INCLUDE_UNVERIFIED === '1')
+  it('hides unverified products as production does, and refuses them on save (review 3)', async () => {
+    const flag = process.env.HEALTH_CATALOG_INCLUDE_UNVERIFIED
+    delete process.env.HEALTH_CATALOG_INCLUDE_UNVERIFIED
+    try {
+      const names = (await catalog('species=cat&kind=vaccine')).map((p: { name: string }) => p.name)
+      expect(names).not.toContain('Тест Черновик')
+      const response = await createEvent(
+        request('http://test.local/x', 'POST', {
+          kind: 'vaccination',
+          status: 'done',
+          date: day(-1),
+          items: [{ name: 'Тест Черновик', targets: ['rabies'], product_id: ids['Тест Черновик'] }],
+        }),
+        params(cat),
+      )
+      expect(response.status).toBe(400)
+    } finally {
+      process.env.HEALTH_CATALOG_INCLUDE_UNVERIFIED = flag
+    }
+  })
+
+  it('lets a signed-in owner read verified products only, anonymously nothing, and write none (review 3)', async () => {
+    const asUser = createClient(process.env.TEST_SUPABASE_URL!, process.env.TEST_SUPABASE_ANON_KEY!, {
+      auth: { autoRefreshToken: false, persistSession: false },
+      global: { headers: { Authorization: `Bearer ${token}` } },
+    })
+    const anon = createClient(process.env.TEST_SUPABASE_URL!, process.env.TEST_SUPABASE_ANON_KEY!, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    })
+    const read = await asUser.from('health_products').select('name').like('name', 'Тест %')
+    expect((read.data ?? []).map((row) => row.name).sort()).toEqual(['Тест Нобивак DHPPi', 'Тест Нобивак Tricat', 'Тест Рабикан'])
+    expect((await anon.from('health_products').select('name').like('name', 'Тест %')).data).toEqual([])
+    const write = await asUser.from('health_products').update({ name: 'взлом' }).eq('id', ids['Тест Рабикан']).select()
+    expect(write.error !== null || (write.data ?? []).length === 0).toBe(true)
   })
 
   it('refuses a species or kind it does not know', async () => {
@@ -153,6 +184,57 @@ describe('saving a product with a record', () => {
     )
     expect(response.status).toBe(201)
     expect(HealthEventSchema.parse(await response.json()).items[0].product_id).toBeNull()
+  })
+
+  it('still lets an old record be corrected after its product left the catalogue (review 1)', async () => {
+    const done = HealthEventSchema.parse(
+      await (
+        await createEvent(
+          request('http://test.local/x', 'POST', {
+            kind: 'vaccination',
+            status: 'done',
+            date: day(-1),
+            items: [{ name: 'Тест Рабикан', targets: ['rabies'], product_id: ids['Тест Рабикан'] }],
+          }),
+          params(cat),
+        )
+      ).json(),
+    )
+    await db.query(`update public.health_products set active = false where id = $1`, [ids['Тест Рабикан']])
+    try {
+      const response = await patchEvent(
+        request('http://test.local/x', 'PATCH', {
+          notes: 'после смены справочника',
+          items: [{ id: done.items[0].id, name: 'Тест Рабикан', targets: ['rabies'], product_id: ids['Тест Рабикан'] }],
+        }),
+        { params: Promise.resolve({ id: cat, eventId: done.id }) },
+      )
+      expect(response.status).toBe(200)
+    } finally {
+      await db.query(`update public.health_products set active = true where id = $1`, [ids['Тест Рабикан']])
+    }
+  })
+
+  it('keeps the product’s interval on the item and on the plan made from it (review 2)', async () => {
+    await db.query(`update public.health_products set interval_value = 12, interval_unit = 'week' where id = $1`, [ids['Тест Рабикан']])
+    try {
+      const created = await createEvent(
+        request('http://test.local/x', 'POST', {
+          kind: 'vaccination',
+          status: 'done',
+          date: day(-1),
+          items: [{ name: 'Тест Рабикан', targets: ['rabies'], product_id: ids['Тест Рабикан'], next_on: day(83) }],
+        }),
+        params(cat),
+      )
+      const done = HealthEventSchema.parse(await created.json())
+      expect(done.items[0].interval).toEqual({ value: 12, unit: 'week' })
+      await db.query(`update public.health_products set interval_value = 1, interval_unit = 'year' where id = $1`, [ids['Тест Рабикан']])
+      const { events } = HealthOverviewSchema.parse(await (await getHealth(request('http://test.local/x'), params(cat))).json())
+      expect(events.find((e) => e.status === 'planned')?.items[0].interval).toEqual({ value: 12, unit: 'week' })
+    } finally {
+      await db.query(`update public.health_products set interval_value = 1, interval_unit = 'year' where id = $1`, [ids['Тест Рабикан']])
+    }
   })
 
   it('refuses a product of another species when a record is corrected', async () => {

@@ -607,12 +607,34 @@ components:
                     format: uuid
                     pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
                   - type: "null"
+              interval:
+                default: null
+                anyOf:
+                  - type: object
+                    properties:
+                      value:
+                        type: integer
+                        exclusiveMinimum: 0
+                        maximum: 9007199254740991
+                      unit:
+                        type: string
+                        enum:
+                          - day
+                          - week
+                          - month
+                          - year
+                    required:
+                      - value
+                      - unit
+                    additionalProperties: false
+                  - type: "null"
             required:
               - id
               - name
               - targets
               - source_item_id
               - product_id
+              - interval
             additionalProperties: false
       required:
         - id

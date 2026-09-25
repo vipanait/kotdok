@@ -75,6 +75,11 @@ export const HealthItemSchema = z.object({
   source_item_id: UuidSchema.nullable(),
   /** The catalogue product it was picked from; its name and diseases are copied, not linked. */
   product_id: UuidSchema.nullable().default(null),
+  /** The product's repeat interval as it was when picked: what «Сделано» suggests next. */
+  interval: z
+    .strictObject({ value: z.number().int().positive(), unit: z.enum(['day', 'week', 'month', 'year']) })
+    .nullable()
+    .default(null),
 })
 
 export type HealthItem = z.infer<typeof HealthItemSchema>

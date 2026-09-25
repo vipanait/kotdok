@@ -219,6 +219,7 @@ export const ru = {
       forms: { injection: 'Инъекция', intranasal: 'Интраназально', drops: 'Капли', tablet: 'Таблетка', suspension: 'Суспензия', collar: 'Ошейник' },
       choose: 'Выбрать вакцину',
       change: 'Заменить',
+      fromList: 'Выбрать из списка',
       suggestedNote: 'По инструкции препарата. Уточните у врача.',
       nextIn: (interval: string, day: string) => `Через ${interval} — ${day}`,
       interval: {
@@ -228,7 +229,7 @@ export const ru = {
         year: (n: number) => (n === 1 ? 'год' : `${n} ${plural(n, 'год', 'года', 'лет')}`),
       },
     },
-    nextYearPassed: 'Через год — уже прошла, не напоминать',
+    nextPassed: 'Срок уже прошёл — не напоминать',
     alreadySaved: 'Эта запись уже сохранена раньше, без последних изменений. Вернитесь в медкарту и измените её там.',
     nextCustom: 'Своя дата',
     nextNone: 'Не напоминать',

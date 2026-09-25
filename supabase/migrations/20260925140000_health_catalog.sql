@@ -56,9 +56,21 @@ create policy "Anyone signed in reads the catalogue" on public.health_products
 
 revoke insert, update, delete, truncate, references, trigger on public.health_products from anon, authenticated;
 
--- Where an item was picked from. A snapshot of the product stays on the item.
+-- Where an item was picked from. A snapshot of the product stays on the item:
+-- its name and diseases, and the repeat interval «Сделано» suggests next time.
 alter table public.pet_health_items
   add column if not exists product_id uuid references public.health_products(id) on delete set null;
+alter table public.pet_health_items add column if not exists interval_value integer;
+alter table public.pet_health_items add column if not exists interval_unit text;
+
+alter table public.pet_health_items drop constraint if exists pet_health_items_interval_check;
+alter table public.pet_health_items add constraint pet_health_items_interval_check
+  check (
+    (interval_value is null and interval_unit is null)
+    or (interval_value > 0 and interval_unit in ('day', 'week', 'month', 'year'))
+  );
+
+create index if not exists pet_health_items_product_idx on public.pet_health_items (product_id) where product_id is not null;
 
 /**
  * insert_health_items and update_health_event read `product_id` from each
@@ -80,14 +92,21 @@ declare
 begin
   for v_item in select * from jsonb_array_elements(p_items)
   loop
-    insert into public.pet_health_items (event_id, user_id, pet_id, position, name, targets, source_item_id, product_id)
-    values (
+    insert into public.pet_health_items (
+      event_id, user_id, pet_id, position, name, targets, source_item_id, product_id, interval_value, interval_unit
+    )
+    select
       p_event_id, p_user_id, p_pet_id, v_index,
       nullif(btrim(v_item->>'name'), ''),
       coalesce(array(select jsonb_array_elements_text(v_item->'targets')), '{}'),
       case when p_source_ids is null then null else p_source_ids[v_index + 1] end,
-      nullif(v_item->>'product_id', '')::uuid
-    )
+      nullif(v_item->>'product_id', '')::uuid,
+      -- A plan made from an item carries that item's interval; a new item
+      -- takes the product's as it is now.
+      coalesce((v_item->>'interval_value')::integer, p.interval_value),
+      coalesce(v_item->>'interval_unit', p.interval_unit)
+    from (select 1) one
+    left join public.health_products p on p.id = nullif(v_item->>'product_id', '')::uuid
     returning id into v_id;
     v_ids := v_ids || v_id;
     v_index := v_index + 1;
@@ -132,24 +151,37 @@ begin
     for v_item in select * from jsonb_array_elements(p_items)
     loop
       if v_item ? 'id' and v_item->>'id' is not null then
-        update public.pet_health_items
+        -- The interval is the snapshot of the product the item was picked
+        -- from: it changes only when the product does.
+        update public.pet_health_items i
            set name = nullif(btrim(v_item->>'name'), ''),
                targets = coalesce(array(select jsonb_array_elements_text(v_item->'targets')), '{}'),
+               interval_value = case
+                 when i.product_id is not distinct from nullif(v_item->>'product_id', '')::uuid then i.interval_value
+                 else (select p.interval_value from public.health_products p where p.id = nullif(v_item->>'product_id', '')::uuid)
+               end,
+               interval_unit = case
+                 when i.product_id is not distinct from nullif(v_item->>'product_id', '')::uuid then i.interval_unit
+                 else (select p.interval_unit from public.health_products p where p.id = nullif(v_item->>'product_id', '')::uuid)
+               end,
                product_id = nullif(v_item->>'product_id', '')::uuid,
                position = v_position
-         where id = (v_item->>'id')::uuid and event_id = p_event_id and deleted_at is null
-        returning id into v_id;
+         where i.id = (v_item->>'id')::uuid and i.event_id = p_event_id and i.deleted_at is null
+        returning i.id into v_id;
         if v_id is null then
           raise exception 'item not found' using errcode = 'no_data_found';
         end if;
       else
-        insert into public.pet_health_items (event_id, user_id, pet_id, position, name, targets, product_id)
-        values (
+        insert into public.pet_health_items (event_id, user_id, pet_id, position, name, targets, product_id, interval_value, interval_unit)
+        select
           p_event_id, p_user_id, p_pet_id, v_position,
           nullif(btrim(v_item->>'name'), ''),
           coalesce(array(select jsonb_array_elements_text(v_item->'targets')), '{}'),
-          nullif(v_item->>'product_id', '')::uuid
-        )
+          nullif(v_item->>'product_id', '')::uuid,
+          p.interval_value,
+          p.interval_unit
+        from (select 1) one
+        left join public.health_products p on p.id = nullif(v_item->>'product_id', '')::uuid
         returning id into v_id;
       end if;
       v_keep := v_keep || v_id;
@@ -295,7 +327,7 @@ begin
     perform public.plan_next_items(
       p_user_id, p_pet_id, v_event.kind, coalesce(nullif(btrim(p_clinic), ''), v_event.clinic),
       array[v_item.id],
-      jsonb_build_array(jsonb_build_object('name', v_item.name, 'targets', to_jsonb(v_item.targets), 'product_id', v_item.product_id)),
+      jsonb_build_array(jsonb_build_object('name', v_item.name, 'targets', to_jsonb(v_item.targets), 'product_id', v_item.product_id, 'interval_value', v_item.interval_value, 'interval_unit', v_item.interval_unit)),
       jsonb_build_array(to_jsonb(p_next_on::text))
     );
   end if;

@@ -93,7 +93,7 @@ export function draftFromEvent(event: HealthEvent): EventDraft {
       nextText: '',
       source: item.product_id ? 'catalog' : item.name ? 'manual' : 'none',
       productId: item.product_id,
-      interval: null,
+      interval: item.interval,
     })),
     clinic: event.clinic ?? '',
     notes: event.notes ?? '',

@@ -129,6 +129,14 @@ export default function EventForm() {
         : current,
     )
 
+  function rename(key: string, name: string) {
+    setDraft((current) =>
+      current
+        ? { ...current, items: current.items.map((item) => (item.key === key ? renameItem(item, name) : item)) }
+        : current,
+    )
+  }
+
   function choose(key: string, choice: ProductChoice) {
     setDraft((current) => {
       if (!current) return current
@@ -236,7 +244,7 @@ export default function EventForm() {
           ? words.catalog.nextIn(spoken, '—')
           : suggested >= localToday()
             ? words.catalog.nextIn(spoken, t.day(suggested, true))
-            : words.nextYearPassed,
+            : words.nextPassed,
       },
       { value: 'custom', label: words.nextCustom },
       { value: 'none', label: words.nextNone },
@@ -300,17 +308,20 @@ export default function EventForm() {
               <View style={styles.itemHead}>
                 <View style={styles.itemName}>
                   {item.source === 'manual' ? (
-                    <Field
-                      label={words.itemName}
-                      value={item.name}
-                      onChangeText={(name) => setDraft((current) =>
-                        current
-                          ? { ...current, items: current.items.map((other) => (other.key === item.key ? renameItem(other, name) : other)) }
-                          : current,
-                      )}
-                      placeholder={words.itemNamePlaceholder}
-                      autoCorrect={false}
-                    />
+                    <>
+                      <Field
+                        label={words.itemName}
+                        value={item.name}
+                        onChangeText={(name) => rename(item.key, name)}
+                        placeholder={words.itemNamePlaceholder}
+                        autoCorrect={false}
+                      />
+                      <LinkButton
+                        title={words.catalog.fromList}
+                        align="left"
+                        onPress={() => setPicking(item.key)}
+                      />
+                    </>
                   ) : (
                     <Pressable
                       accessibilityRole="button"

@@ -79,7 +79,7 @@ describe('editing a record', () => {
     date: '2026-03-12',
     clinic: 'Айболит',
     notes: null,
-    items: [{ id: 'i1', name: 'Нобивак Rabies', targets: ['rabies'], source_item_id: null, product_id: null }],
+    items: [{ id: 'i1', name: 'Нобивак Rabies', targets: ['rabies'], source_item_id: null, product_id: null, interval: null }],
   }
 
   it('opens with what the record holds and sees no change until there is one', () => {
@@ -103,7 +103,7 @@ describe('an overdue plan (MR-03.3)', () => {
     date: '2026-09-12',
     clinic: null,
     notes: null,
-    items: [{ id: 'i1', name: null, targets: ['rabies'], source_item_id: null, product_id: null }],
+    items: [{ id: 'i1', name: null, targets: ['rabies'], source_item_id: null, product_id: null, interval: null }],
   }
 
   it('can be corrected without moving it, and moved only forward', () => {
@@ -129,7 +129,7 @@ describe('backfilling old vaccinations (review 2)', () => {
 })
 
 describe('picking from the catalogue (MR-04.3)', () => {
-  const bravecto = {
+  const rabies12w = {
     id: '11111111-1111-4111-8111-0000000000b1',
     kind: 'vaccine' as const,
     name: 'Нобивак Rabies',
@@ -141,22 +141,22 @@ describe('picking from the catalogue (MR-04.3)', () => {
     interval: { value: 12, unit: 'week' as const },
     popular: true,
   }
-  const tricat = { ...bravecto, id: '11111111-1111-4111-8111-0000000000b2', name: 'Нобивак Tricat Trio', targets: ['panleukopenia', 'calicivirus'], interval: { value: 1, unit: 'year' as const } }
+  const tricat = { ...rabies12w, id: '11111111-1111-4111-8111-0000000000b2', name: 'Нобивак Tricat Trio', targets: ['panleukopenia', 'calicivirus'], interval: { value: 1, unit: 'year' as const } }
 
   it('fills name, diseases, product and interval, and the next date follows the interval', () => {
-    const item = pickProduct({ ...blankItem('a'), next: 'none', targets: ['felv'] }, bravecto)
-    expect(item).toMatchObject({ name: 'Нобивак Rabies', targets: ['rabies'], productId: bravecto.id, source: 'catalog', next: 'year' })
+    const item = pickProduct({ ...blankItem('a'), next: 'none', targets: ['felv'] }, rabies12w)
+    expect(item).toMatchObject({ name: 'Нобивак Rabies', targets: ['rabies'], productId: rabies12w.id, source: 'catalog', next: 'year' })
     expect(nextDate(item, '2026-09-24', '2026-09-24')).toBe('2026-12-17')
   })
 
   it('replaces everything when another product is picked', () => {
-    const item = pickProduct(pickProduct(blankItem('a'), bravecto), tricat)
+    const item = pickProduct(pickProduct(blankItem('a'), rabies12w), tricat)
     expect(item).toMatchObject({ name: 'Нобивак Tricat Trio', targets: ['panleukopenia', 'calicivirus'], productId: tricat.id })
     expect(nextDate(item, '2026-09-24', '2026-09-24')).toBe('2027-09-24')
   })
 
   it('stops pointing at the product once its name is changed by hand, keeping what was typed', () => {
-    const item = renameItem(pickProduct(blankItem('a'), bravecto), 'Нобивак Rabies (другая серия)')
+    const item = renameItem(pickProduct(blankItem('a'), rabies12w), 'Нобивак Rabies (другая серия)')
     expect(item).toMatchObject({ name: 'Нобивак Rabies (другая серия)', targets: ['rabies'], productId: null, source: 'manual' })
   })
 
@@ -168,5 +168,16 @@ describe('picking from the catalogue (MR-04.3)', () => {
       product_id: tricat.id,
       next_on: '2027-09-24',
     })
+  })
+})
+
+describe('«Сделано» on a plan picked from the catalogue (review 2)', () => {
+  it('suggests the next date by the interval the item was saved with', () => {
+    const plan: HealthEvent = {
+      id: 'p', kind: 'vaccination', status: 'planned', date: '2026-10-01', clinic: null, notes: null,
+      items: [{ id: 'i', name: 'Бравекто', targets: ['rabies'], source_item_id: null, product_id: 'x', interval: { value: 12, unit: 'week' } }],
+    }
+    const item = draftFromEvent(plan).items[0]
+    expect(nextDate(item, '2026-10-01', '2026-10-01')).toBe('2026-12-24')
   })
 })

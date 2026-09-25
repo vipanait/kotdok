@@ -23,6 +23,8 @@ type ItemRow = {
   targets: string[] | null
   source_item_id: string | null
   product_id: string | null
+  interval_value: number | null
+  interval_unit: 'day' | 'week' | 'month' | 'year' | null
   position: number
   deleted_at: string | null
 }
@@ -38,7 +40,7 @@ type EventRow = {
 }
 
 const EVENT_COLUMNS =
-  'id, kind, status, event_date, clinic, notes, pet_health_items(id, name, targets, source_item_id, product_id, position, deleted_at)'
+  'id, kind, status, event_date, clinic, notes, pet_health_items(id, name, targets, source_item_id, product_id, interval_value, interval_unit, position, deleted_at)'
 
 /** Field by field: owner, keys and deletion marks stay on the server. */
 function toEventContract(row: EventRow): HealthEvent {
@@ -58,6 +60,7 @@ function toEventContract(row: EventRow): HealthEvent {
       targets: item.targets ?? [],
       source_item_id: item.source_item_id,
       product_id: item.product_id,
+      interval: item.interval_value && item.interval_unit ? { value: item.interval_value, unit: item.interval_unit } : null,
     })),
   })
 }
@@ -166,7 +169,17 @@ export async function updateEvent(
   eventId: string,
   patch: HealthEventPatch,
 ): Promise<Result<HealthEvent> | { ok: false; reason: 'bad_product' }> {
-  const products = await checkProducts(supabase, userId, petId, (patch.items ?? []).map((item) => item.product_id))
+  // Only a product newly given to an item is checked: one the item already
+  // had may have left the catalogue since, and correcting the note of an old
+  // record must not fail for it.
+  let changed = (patch.items ?? []).map((item) => item.product_id)
+  if (patch.items) {
+    const current = await readEvent(supabase, userId, petId, eventId)
+    if (!current.ok) return current
+    const had = new Map(current.data.items.map((item) => [item.id, item.product_id]))
+    changed = patch.items.filter((item) => !item.id || had.get(item.id) !== (item.product_id ?? null)).map((item) => item.product_id)
+  }
+  const products = await checkProducts(supabase, userId, petId, changed)
   if (!products.ok) return products
 
   const { error } = await supabase.rpc('update_health_event', {
@@ -235,7 +248,7 @@ type DueRow = {
 export async function listDue(supabase: SupabaseService, userId: string): Promise<Result<DueItem[]>> {
   const { data, error } = await supabase
     .from('pet_health_events')
-    .select('id, pet_id, kind, event_date, pet_health_items(id, name, targets, source_item_id, product_id, position, deleted_at), pets!inner(deleted_at)')
+    .select('id, pet_id, kind, event_date, pet_health_items(id, name, targets, source_item_id, product_id, interval_value, interval_unit, position, deleted_at), pets!inner(deleted_at)')
     .eq('user_id', userId)
     .eq('status', 'planned')
     .is('deleted_at', null)

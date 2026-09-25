@@ -213,6 +213,7 @@ export const en: Dictionary = {
       forms: { injection: 'Injection', intranasal: 'Intranasal', drops: 'Drops', tablet: 'Tablet', suspension: 'Suspension', collar: 'Collar' },
       choose: 'Choose a vaccine',
       change: 'Change',
+      fromList: 'Pick from the list',
       suggestedNote: 'As the product instructions say. Check with your vet.',
       nextIn: (interval: string, day: string) => `In ${interval} — ${day}`,
       interval: {
@@ -222,7 +223,7 @@ export const en: Dictionary = {
         year: (n: number) => (n === 1 ? 'a year' : `${n} years`),
       },
     },
-    nextYearPassed: 'A year on — already passed, no reminder',
+    nextPassed: 'That date has passed — no reminder',
     alreadySaved: 'This record was already saved earlier, without the latest changes. Go back to the medical record and edit it there.',
     nextCustom: 'Pick a date',
     nextNone: 'No reminder',
