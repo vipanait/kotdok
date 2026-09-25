@@ -250,6 +250,7 @@ export const en: Dictionary = {
       fromForm: 'From the form — add the dose and dates',
       noDates: 'No dates given',
       nameRequired: 'Enter a name',
+      tooLong: 'No longer than 150 characters',
       dateInvalid: 'Date is DD.MM.YYYY',
       endBeforeStart: 'The end cannot be before the start',
       end_: 'End the course',

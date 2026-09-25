@@ -146,7 +146,7 @@ export async function createPet(
       await supabase.from('pets').update({ medications: pet.medications }).eq('id', created.id)
     }
   }
-  if (!weight) return getPet(supabase, userId, created.id)
+  if (!weight) return readCreated(supabase, userId, created)
 
   // Not allowed to fail the creation: a retry would create the pet twice. If
   // the history cannot take the weight, the form keeps it as before.
@@ -156,7 +156,17 @@ export async function createPet(
     await supabase.from('pets').update({ weight_kg: pet.weight_kg }).eq('id', created.id)
   }
 
-  return getPet(supabase, userId, created.id)
+  return readCreated(supabase, userId, created)
+}
+
+/**
+ * The new pet as the history left it. The pet exists whatever happens here:
+ * a failed read answers with the row as inserted, never with an error a
+ * client would retry into a second pet.
+ */
+async function readCreated(supabase: SupabaseService, userId: string, created: Pet): Promise<PetResult<Pet>> {
+  const read = await getPet(supabase, userId, created.id)
+  return read.ok ? read : { ok: true, data: created }
 }
 
 export async function updatePet(
@@ -213,8 +223,12 @@ export async function updatePet(
   const synced = await supabase.rpc('sync_pet_vaccinated', { p_pet_id: petId })
   if (synced.error) return { ok: false, reason: 'storage_error', message: synced.error.message }
 
-  const medicines = await syncFormMedications(supabase, userId, petId, formMedications, formDay(body))
-  if (!medicines.ok) return { ok: false, reason: 'storage_error', message: medicines.message }
+  // Only when the body speaks about medicines: sanitizePet fills an absent
+  // list with [], and a partial update must not end every course.
+  if ('medications' in body) {
+    const medicines = await syncFormMedications(supabase, userId, petId, formMedications, formDay(body))
+    if (!medicines.ok) return { ok: false, reason: 'storage_error', message: medicines.message }
+  }
 
   return getPet(supabase, userId, petId)
 }

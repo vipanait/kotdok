@@ -2,7 +2,7 @@ import 'server-only'
 
 import { MedicationSchema, type Medication, type MedicationPatch, type MedicationsInput } from '@lapka/contracts'
 import type { createServiceClient } from '@/server/supabase/server'
-import { utcToday, type WeightResult } from './weight-service'
+import { isFutureDay, utcToday, type WeightResult } from './weight-service'
 
 type SupabaseService = ReturnType<typeof createServiceClient>
 
@@ -22,8 +22,10 @@ function toMedicationContract(row: MedicationRow): Medication {
   return MedicationSchema.parse(row)
 }
 
-function failure(error: { code?: string; message: string }): { ok: false; reason: 'not_found' | 'conflict' | 'storage_error'; message: string } {
+function failure(error: { code?: string; message: string }): { ok: false; reason: 'not_found' | 'conflict' | 'storage_error' | 'bad_range'; message: string } {
   if (error.code === 'P0002') return { ok: false, reason: 'not_found', message: error.message }
+  // The range constraint, reached by a change that raced another.
+  if (error.code === '23514') return { ok: false, reason: 'bad_range', message: error.message }
   if (error.code === '23505') return { ok: false, reason: 'conflict', message: error.message }
   return { ok: false, reason: 'storage_error', message: error.message }
 }
@@ -42,7 +44,7 @@ export async function listMedications(supabase: SupabaseService, petId: string):
 }
 
 async function readByIds(supabase: SupabaseService, ids: readonly string[]): Promise<WeightResult<Medication[]>> {
-  const { data, error } = await supabase.from('pet_medications').select(COLUMNS).in('id', ids as string[])
+  const { data, error } = await supabase.from('pet_medications').select(COLUMNS).in('id', ids as string[]).is('deleted_at', null)
   if (error) return { ok: false, reason: 'storage_error', message: error.message }
   const byId = new Map((data as MedicationRow[]).map((row) => [row.id, row]))
   return { ok: true, data: ids.flatMap((id) => (byId.has(id) ? [toMedicationContract(byId.get(id)!)] : [])) }
@@ -55,7 +57,7 @@ export async function addMedications(
   input: MedicationsInput,
   idempotencyKey: string | null,
   today: string = utcToday(),
-): Promise<WeightResult<Medication[]>> {
+): Promise<WeightResult<Medication[]> | { ok: false; reason: 'bad_range'; message: string }> {
   const { data, error } = await supabase.rpc('create_pet_medications', {
     p_user_id: userId,
     p_pet_id: petId,
@@ -84,7 +86,7 @@ export async function changeMedication(
   medicationId: string,
   patch: MedicationPatch,
   today: string = utcToday(),
-): Promise<WeightResult<Medication> | { ok: false; reason: 'bad_range' }> {
+): Promise<WeightResult<Medication> | { ok: false; reason: 'bad_range'; message?: string }> {
   const { data: current, error: readError } = await supabase
     .from('pet_medications')
     .select(COLUMNS)
@@ -100,12 +102,16 @@ export async function changeMedication(
   if (merged.ongoing && merged.ended_on) return { ok: false, reason: 'bad_range' }
   if (merged.started_on && merged.ended_on && merged.ended_on < merged.started_on) return { ok: false, reason: 'bad_range' }
 
+  // «Завершить курс» sends the phone's own today, which east of UTC is ahead
+  // of the server's: counting from it takes the course off the list now.
+  const listDay = patch.ended_on && patch.ended_on > today && !isFutureDay(patch.ended_on) ? patch.ended_on : today
+
   const { error } = await supabase.rpc('change_pet_medication', {
     p_user_id: userId,
     p_pet_id: petId,
     p_medication_id: medicationId,
     p_changes: patch,
-    p_today: today,
+    p_today: listDay,
   })
   if (error) return failure(error)
   const read = await readByIds(supabase, [medicationId])
@@ -119,7 +125,7 @@ export async function deleteMedication(
   petId: string,
   medicationId: string,
   today: string = utcToday(),
-): Promise<WeightResult<null>> {
+): Promise<WeightResult<null> | { ok: false; reason: 'bad_range'; message: string }> {
   const { error } = await supabase.rpc('delete_pet_medication', {
     p_user_id: userId,
     p_pet_id: petId,
@@ -137,7 +143,7 @@ export async function syncFormMedications(
   petId: string,
   names: readonly string[],
   today: string,
-): Promise<WeightResult<null>> {
+): Promise<WeightResult<null> | { ok: false; reason: 'bad_range'; message: string }> {
   const { error } = await supabase.rpc('sync_form_medications', {
     p_user_id: userId,
     p_pet_id: petId,
@@ -146,4 +152,9 @@ export async function syncFormMedications(
   })
   if (error) return failure(error)
   return { ok: true, data: null }
+}
+
+/** Whether a course is going on on `today`: no end, or an end after it. */
+export function isCurrentCourse(course: Pick<Medication, 'ended_on'>, today: string = utcToday()): boolean {
+  return course.ended_on === null || course.ended_on > today
 }

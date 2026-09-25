@@ -78,7 +78,12 @@ export default function MedicationView() {
       title={words.courseTitle}
       onBack={() => router.back()}
       scroll
-      dock={course && isCurrent(course, today) ? <Button title={words.end_} onPress={() => void end()} busy={busy} /> : null}
+      // A course that has not started yet is corrected or deleted, not ended.
+      dock={
+        course && isCurrent(course, today) && (course.started_on === null || course.started_on <= today) ? (
+          <Button title={words.end_} onPress={() => void end()} busy={busy} />
+        ) : null
+      }
     >
       {error ? <Banner text={error.text} tone="error" icon={error.offline ? 'wifi' : 'alert'} style={styles.gap} /> : null}
       {course ? (

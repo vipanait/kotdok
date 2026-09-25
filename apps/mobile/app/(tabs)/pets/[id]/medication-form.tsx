@@ -48,8 +48,8 @@ export default function MedicationForm() {
         setInitial([courseDraft(course)])
         setDrafts([courseDraft(course)])
       })
-      .catch((cause) => setError(describeFailure(t, cause, words.saveFailed)))
-  }, [editing, petId, medicationId, t, words.saveFailed])
+      .catch((cause) => setError(describeFailure(t, cause, t.errors.loadHealthFailed)))
+  }, [editing, petId, medicationId, t])
 
   const changed = drafts !== null && initial !== null && JSON.stringify(drafts) !== JSON.stringify(initial)
   const unsaved = useUnsavedChanges(changed)
@@ -118,6 +118,7 @@ export default function MedicationForm() {
             value={draft.dosage}
             onChangeText={(dosage) => change(draft.key, { dosage })}
             placeholder={words.dosagePlaceholder}
+            error={errors[draft.key]?.dosage}
           />
           <Field
             label={words.start}

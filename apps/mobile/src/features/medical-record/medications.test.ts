@@ -43,7 +43,7 @@ describe('the course form', () => {
     const read = readCourses(ru, [
       { ...blankCourse('a', NOW), name: 'Фортифлора', dosage: '1 пакетик в день', end: '07.10.2026' },
       { ...blankCourse('b', NOW), name: 'Лечебный корм', ongoing: true },
-    ], NOW)
+    ])
     expect(read.ok && read.value).toEqual([
       { name: 'Фортифлора', dosage: '1 пакетик в день', started_on: '2026-09-24', ended_on: '2026-10-07', ongoing: false },
       { name: 'Лечебный корм', dosage: null, started_on: '2026-09-24', ended_on: null, ongoing: true },
@@ -55,7 +55,7 @@ describe('the course form', () => {
       { ...blankCourse('a', NOW) },
       { ...blankCourse('b', NOW), name: 'x', start: '31.02.2026' },
       { ...blankCourse('c', NOW), name: 'y', end: '01.09.2026' },
-    ], NOW)
+    ])
     expect(!read.ok && read.errors).toEqual({
       a: { name: 'Введите название' },
       b: { start: 'Дата — ДД.ММ.ГГГГ' },
@@ -64,7 +64,7 @@ describe('the course form', () => {
   })
 
   it('leaves the start empty when the owner clears it', () => {
-    const read = readCourses(ru, [{ ...blankCourse('a', NOW), name: 'x', start: '' }], NOW)
+    const read = readCourses(ru, [{ ...blankCourse('a', NOW), name: 'x', start: '' }])
     expect(read.ok && read.value[0].started_on).toBeNull()
   })
 })

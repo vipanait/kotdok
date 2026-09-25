@@ -26,6 +26,9 @@ export const POST = withApiAuth(async (request: NextRequest, context: ApiContext
   if (!parsed.success || !key.ok) return apiError(context.requestId, 'bad_request', 'Body does not match the contract')
 
   const result = await addMedications(createServiceClient(), context.account.userId, id, parsed.data, key.key)
-  if (!result.ok) return serviceFailureResponse(context.requestId, result.reason)
+  if (!result.ok) {
+    if (result.reason === 'bad_range') return apiError(context.requestId, 'bad_request', 'The end is before the start')
+    return serviceFailureResponse(context.requestId, result.reason)
+  }
   return apiSuccess(context.requestId, result.data, 201)
 })

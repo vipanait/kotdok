@@ -189,7 +189,7 @@ export default function MedicalRecord() {
   const { pet } = shown
   const today = localToday()
   const facts = headerFacts(t, shown, today)
-  const important = importantFacts(t, pet)
+  const important = importantFacts(t, pet, shown.medications, today)
   const due = dueItems(shown.events)
   const canVaccinate = shown.writable.includes('vaccinations')
   const empty = shown.events.length === 0 && shown.weights.length === 0 && shown.medications.length === 0

@@ -74,11 +74,12 @@ export function courseDraft(course: Medication): CourseDraft {
   }
 }
 
-export type CourseErrors = Record<string, { name?: string; start?: string; end?: string }>
+export type CourseErrors = Record<string, { name?: string; dosage?: string; start?: string; end?: string }>
 
 export type ReadCourses = { ok: true; value: MedicationsInput['items'] } | { ok: false; errors: CourseErrors }
 
-export function readCourses(t: Dictionary, drafts: readonly CourseDraft[], _now: Date = new Date()): ReadCourses {
+/** Checked like the server: a name up to 150 characters, dates that exist, an end not before the start. */
+export function readCourses(t: Dictionary, drafts: readonly CourseDraft[]): ReadCourses {
   const words = t.medicalRecord.meds
   const errors: CourseErrors = {}
 
@@ -86,6 +87,7 @@ export function readCourses(t: Dictionary, drafts: readonly CourseDraft[], _now:
     const problems: CourseErrors[string] = {}
     const name = draft.name.trim()
     if (name === '') problems.name = words.nameRequired
+    else if (name.length > 150) problems.name = words.tooLong
 
     const start = draft.start.trim() === '' ? null : parseDayText(draft.start)
     if (draft.start.trim() !== '' && start === null) problems.start = words.dateInvalid
@@ -94,8 +96,10 @@ export function readCourses(t: Dictionary, drafts: readonly CourseDraft[], _now:
     if (!draft.ongoing && draft.end.trim() !== '' && end === null) problems.end = words.dateInvalid
     else if (start && end && end < start) problems.end = words.endBeforeStart
 
+    const dosage = draft.dosage.trim()
+    if (dosage.length > 150) problems.dosage = words.tooLong
     if (Object.keys(problems).length > 0) errors[draft.key] = problems
-    return { name, dosage: draft.dosage.trim() === '' ? null : draft.dosage.trim(), started_on: start, ended_on: end, ongoing: draft.ongoing }
+    return { name, dosage: dosage === '' ? null : dosage, started_on: start, ended_on: end, ongoing: draft.ongoing }
   })
 
   return Object.keys(errors).length > 0 ? { ok: false, errors } : { ok: true, value }

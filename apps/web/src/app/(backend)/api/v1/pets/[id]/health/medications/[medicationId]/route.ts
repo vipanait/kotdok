@@ -42,6 +42,9 @@ export const DELETE = withApiAuth(async (_request, context: ApiContext, params: 
   if (!ids) return apiError(context.requestId, 'not_found', 'No such resource')
 
   const result = await deleteMedication(createServiceClient(), context.account.userId, ids.petId, ids.medicationId)
-  if (!result.ok) return serviceFailureResponse(context.requestId, result.reason)
+  if (!result.ok) {
+    if (result.reason === 'bad_range') return apiError(context.requestId, 'bad_request', 'The end is before the start')
+    return serviceFailureResponse(context.requestId, result.reason)
+  }
   return apiNoContent(context.requestId)
 })

@@ -158,3 +158,13 @@ describe('weight in the record', () => {
       .toBe('4,2 кг · 12 сентября 2025')
   })
 })
+
+describe('medicines in «Важно знать»', () => {
+  it('lists the courses going on, «постоянно» where it is so', () => {
+    const facts = importantFacts(ru, pet({ medications: ['Лечебный корм'] }), [
+      { id: 'a', name: 'Лечебный корм', dosage: null, started_on: '2026-08-02', ended_on: null, ongoing: true, source: 'record' },
+      { id: 'b', name: 'Фортифлора', dosage: null, started_on: '2026-08-02', ended_on: '2026-08-15', ongoing: false, source: 'record' },
+    ], TODAY)
+    expect(facts).toEqual([{ label: 'Принимает сейчас', value: 'Лечебный корм (постоянно)' }])
+  })
+})

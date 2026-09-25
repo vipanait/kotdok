@@ -1,6 +1,7 @@
 import {
   HEALTH_SECTIONS,
   type HealthOverview,
+  type Medication,
   type HealthSection,
   type Pet,
   type WeightMeasurement,
@@ -74,13 +75,27 @@ export function headerFacts(t: Dictionary, overview: HealthOverview, today: stri
 
 export type Fact = { label: string; value: string }
 
-/** «Важно знать»: allergies, chronic conditions, current medicines — only those on file. */
-export function importantFacts(t: Dictionary, pet: Pet): Fact[] {
+/**
+ * «Важно знать»: allergies, chronic conditions, current medicines — only
+ * those on file. Medicines from the courses when there are any, «(постоянно)»
+ * on the ongoing ones; the form's list otherwise.
+ */
+export function importantFacts(
+  t: Dictionary,
+  pet: Pet,
+  courses: readonly Medication[] = [],
+  today: string = '',
+): Fact[] {
   const words = t.medicalRecord
+  const current = courses.filter((course) => isCurrent(course, today))
+  const medicines =
+    courses.length > 0
+      ? current.map((course) => (course.ongoing ? `${course.name} (${words.meds.ongoingOnly})` : course.name)).join(', ')
+      : pet.medications.join(', ')
   const facts: Fact[] = [
     { label: words.allergies, value: pet.allergies.join(', ') },
     { label: words.chronic, value: pet.chronic_conditions.join(', ') },
-    { label: words.takingNow, value: pet.medications.join(', ') },
+    { label: words.takingNow, value: medicines },
   ]
   return facts.filter((fact) => fact.value !== '')
 }

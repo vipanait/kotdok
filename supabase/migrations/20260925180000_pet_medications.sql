@@ -83,11 +83,12 @@ as $$
      set medications = coalesce((
        select array_agg(name order by first_seen)
          from (
-           select btrim(m.name) as name, min(m.created_at) as first_seen
+           -- One entry per name whatever its case, spelled as it was first.
+           select distinct on (lower(btrim(m.name))) btrim(m.name) as name, m.created_at as first_seen
              from public.pet_medications m
             where m.pet_id = p_pet_id and m.deleted_at is null
               and (m.ended_on is null or m.ended_on > p_today)
-            group by btrim(m.name)
+            order by lower(btrim(m.name)), m.created_at
          ) current
      ), '{}')
    where p.id = p_pet_id;
@@ -115,13 +116,30 @@ declare
   v_name text;
   v_before text[];
   v_after text[];
+  v_removed text[];
 begin
   v_pet := public.lock_own_pet(p_user_id, p_pet_id);
+
+  -- A name the list holds with no course of that name at all — written
+  -- before the courses existed, or by an older server — becomes one first,
+  -- with an unknown start, so the rules below see it. A name whose course
+  -- has run out is not one of these: that course is over, not missing.
+  insert into public.pet_medications (user_id, pet_id, name, source)
+  select p_user_id, p_pet_id, btrim(n), 'form'
+    from (select distinct on (lower(btrim(x))) x as n from unnest(coalesce(v_pet.medications, '{}')) x where btrim(x) <> '') listed
+   where not exists (
+     select 1 from public.pet_medications m
+      where m.pet_id = p_pet_id and m.deleted_at is null
+        and lower(btrim(m.name)) = lower(btrim(listed.n))
+   );
 
   select coalesce(array_agg(distinct lower(btrim(n))), '{}') into v_before
     from unnest(coalesce(v_pet.medications, '{}')) n where btrim(n) <> '';
   select coalesce(array_agg(distinct lower(btrim(n))), '{}') into v_after
     from unnest(coalesce(p_names, '{}')) n where btrim(n) <> '';
+  -- Only what this form took off: a course added elsewhere since the form
+  -- was loaded is not on its list, and must not be ended by it.
+  select coalesce(array_agg(n), '{}') into v_removed from unnest(v_before) n where not (n = any (v_after));
 
   -- Added in the form: a course from today, without details.
   foreach v_name in array (select coalesce(array_agg(n), '{}') from unnest(p_names) n where btrim(n) <> '')
@@ -133,14 +151,21 @@ begin
     end if;
   end loop;
 
+  -- Removed in the form, not started yet: it never happened.
+  update public.pet_medications m
+     set deleted_at = now()
+   where m.pet_id = p_pet_id and m.deleted_at is null
+     and m.started_on > p_today
+     and lower(btrim(m.name)) = any (v_removed);
+
   -- Removed in the form: the courses of that name end today.
   update public.pet_medications m
-     set ended_on = greatest(p_today, coalesce(m.started_on, p_today)),
+     set ended_on = p_today,
          ongoing = false,
          updated_at = now()
    where m.pet_id = p_pet_id and m.deleted_at is null
-     and (m.ended_on is null or m.ended_on >= p_today)
-     and not (lower(btrim(m.name)) = any (v_after));
+     and (m.ended_on is null or m.ended_on > p_today)
+     and lower(btrim(m.name)) = any (v_removed);
 
   perform public.sync_pet_medications(p_pet_id, p_today);
 end;
@@ -168,12 +193,14 @@ begin
     select request_hash into v_existing from public.pet_medications
      where user_id = p_user_id and idempotency_key = p_key limit 1;
     if found then
-      if v_existing is distinct from v_hash then
+      -- The key is per request, and a request is for one pet.
+      if v_existing is distinct from v_hash
+         or not exists (select 1 from public.pet_medications where user_id = p_user_id and idempotency_key = p_key and pet_id = p_pet_id) then
         raise exception 'idempotency key reused with different data' using errcode = 'unique_violation';
       end if;
       select coalesce(array_agg(id order by created_at, id), '{}') into v_ids
         from public.pet_medications
-       where user_id = p_user_id and idempotency_key = p_key;
+       where user_id = p_user_id and idempotency_key = p_key and pet_id = p_pet_id and deleted_at is null;
       return v_ids;
     end if;
   end if;
@@ -269,9 +296,12 @@ as $$
 declare
   v_count integer;
 begin
+  -- Active accounts only: the late-write guard refuses the others, and an
+  -- account being deleted has no use for a history.
   insert into public.pet_medications (user_id, pet_id, name, source)
   select p.user_id, p.id, btrim(n.name), 'form'
     from public.pets p
+    join public.profiles pr on pr.id = p.user_id and pr.status = 'active'
    cross join lateral (select distinct on (lower(btrim(x))) x as name from unnest(p.medications) x where btrim(x) <> '') n
    where p.deleted_at is null
      and not exists (

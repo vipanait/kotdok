@@ -6,7 +6,7 @@ import { getPet, type PetResult } from '@/server/pets/pet-service'
 import { toPetContract } from '@/server/pets/pet-contract'
 import { listWeights } from './weight-service'
 import { listEvents } from './event-service'
-import { listMedications } from './medication-service'
+import { isCurrentCourse, listMedications } from './medication-service'
 
 type SupabaseService = ReturnType<typeof createServiceClient>
 
@@ -40,10 +40,16 @@ export async function getHealthOverview(
   if (!events.ok) return { ok: false, reason: 'storage_error', message: events.message }
   if (!medications.ok) return { ok: false, reason: 'storage_error', message: medications.message }
 
+  // The stored list is refreshed on writes; a course that ran out since is
+  // left out here, when there are courses to go by.
+  const form = toPetContract(pet.data)
+  const current = medications.data.filter((course) => isCurrentCourse(course))
+  const names = [...new Map(current.map((course) => [course.name.trim().toLowerCase(), course.name.trim()])).values()]
+
   return {
     ok: true,
     data: {
-      pet: toPetContract(pet.data),
+      pet: medications.data.length > 0 ? { ...form, medications: names } : form,
       writable: [...WRITABLE_SECTIONS],
       weights: weights.data,
       events: events.data,
