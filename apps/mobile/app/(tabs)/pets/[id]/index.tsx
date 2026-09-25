@@ -1,177 +1,236 @@
-import { useCallback, useEffect, useState } from 'react'
-import { ActivityIndicator, StyleSheet, View } from 'react-native'
-import { router, useLocalSearchParams } from 'expo-router'
+import { useCallback, useState } from 'react'
+import { Pressable, StyleSheet, View } from 'react-native'
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
+import type { HealthOverview } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
 import { describeFailure } from '@/lib/errors'
 import { useText } from '@/i18n'
-import { PetFields } from '@/features/pets/PetFields'
 import {
-  formToInput,
-  petFormChanged,
-  petToForm,
-  remainingError,
-  type FieldError,
-  type PetForm,
-} from '@/features/pets/pet-form'
+  headerFacts,
+  importantFacts,
+  sectionRows,
+  type SectionRow,
+} from '@/features/medical-record/overview'
 import { Button, LinkButton } from '@/ui/Button'
-import { Banner, SettingRow } from '@/ui/Card'
-import { useUnsavedChanges } from '@/features/unsaved/useUnsavedChanges'
-import { ConfirmDialog, SaveChangesDialog } from '@/ui/Dialog'
+import { Avatar, Banner, Card, SettingRow } from '@/ui/Card'
+import { Icon, type IconName } from '@/ui/Icon'
 import { Screen } from '@/ui/Screen'
-import { colour, space } from '@/ui/theme'
+import { Text } from '@/ui/Text'
+import { colour, radius, shadow, space } from '@/ui/theme'
 
-export default function EditPet() {
+const SECTION_ICONS: Record<SectionRow['section'], IconName> = {
+  vaccinations: 'vaccine',
+  parasites: 'parasite',
+  visits: 'visit',
+  medications: 'med',
+  weight: 'weight',
+}
+
+/** The shape of the record while it loads: header, one card, the section list. */
+function Skeleton() {
+  return (
+    <View>
+      <View style={styles.header}>
+        <View style={[styles.blank, styles.blankAvatar]} />
+        <View style={styles.headerCopy}>
+          <View style={[styles.blank, styles.blankLine]} />
+          <View style={[styles.blank, styles.blankWeight]} />
+        </View>
+      </View>
+      <View style={[styles.blank, styles.blankCard]} />
+      <View style={[styles.blank, styles.blankSections]} />
+    </View>
+  )
+}
+
+function Section({ row }: { row: SectionRow }) {
+  const content = (
+    <>
+      <Icon name={SECTION_ICONS[row.section]} color={colour.accentText} />
+      <View style={styles.sectionCopy}>
+        <Text variant="h3">{row.title}</Text>
+        <Text variant="label" tone="muted">
+          {row.summary}
+        </Text>
+      </View>
+      {row.openable ? <Icon name="chevron" size={20} color={colour.faint} /> : null}
+    </>
+  )
+
+  // A section whose records cannot be stored yet is a line of text, not a
+  // button that leads nowhere.
+  if (!row.openable) {
+    return (
+      <View accessible accessibilityLabel={`${row.title}, ${row.summary}`} style={styles.section}>
+        {content}
+      </View>
+    )
+  }
+
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`${row.title}, ${row.summary}`}
+      style={({ pressed }) => [styles.section, { opacity: pressed ? 0.6 : 1 }]}
+    >
+      {content}
+    </Pressable>
+  )
+}
+
+/**
+ * The pet's medical record: what the owner said in the form, and — as the
+ * record's stages land — the history behind it. The form itself is one tap
+ * away under «Анкета» and did not change.
+ */
+export default function MedicalRecord() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const t = useText()
-  const [form, setForm] = useState<PetForm | null>(null)
-  // What the server holds, to tell an edit from a form that was only looked at.
-  const [saved, setSaved] = useState<PetForm | null>(null)
+  const [overview, setOverview] = useState<HealthOverview | null>(null)
   const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
-  const [invalid, setInvalid] = useState<FieldError | null>(null)
-  const [busy, setBusy] = useState(false)
-  const [asking, setAsking] = useState(false)
 
   const load = useCallback(async () => {
     setError(null)
     try {
-      const pet = await withFreshSession((api) => api.getPet(id))
-      setForm(petToForm(pet))
-      setSaved(petToForm(pet))
+      setOverview(await withFreshSession((api) => api.getHealthOverview(id)))
     } catch (cause) {
-      setError(describeFailure(t, cause, t.errors.loadPetFailed))
+      // What was on screen stays there under the banner.
+      setError(describeFailure(t, cause, t.errors.loadHealthFailed))
     }
   }, [id, t])
 
-  useEffect(() => {
-    void load()
-  }, [load])
-
-  const unsaved = useUnsavedChanges(
-    form !== null && saved !== null && petFormChanged(saved, form),
+  // On focus, not on mount: coming back from «Анкета» has to show what was saved.
+  useFocusEffect(
+    useCallback(() => {
+      void load()
+    }, [load]),
   )
 
-  function change(patch: Partial<PetForm>) {
-    setForm((current) => (current ? { ...current, ...patch } : current))
-    setInvalid((current) => remainingError(current, patch))
-  }
+  // Only ever this pet's record: a screen reused for another id never shows the previous one.
+  const shown = overview?.pet.id === id ? overview : null
+  const openForm = () => router.push(`/pets/${id}/edit`)
 
-  /** @param then where to go once saved: the list, or wherever the person was headed. */
-  async function save(then: () => void = () => router.replace('/pets')) {
-    if (!form) return
+  const banner = error ? (
+    <>
+      <Banner text={error.text} tone="error" icon={error.offline ? 'wifi' : 'alert'} />
+      <Button title={t.common.retry} kind="secondary" onPress={() => void load()} />
+      <View style={styles.gap} />
+    </>
+  ) : null
 
-    const input = formToInput(t, form)
-    if (!input.ok) {
-      setInvalid({ field: input.field, message: input.message })
-      setError(null)
-      return
-    }
-
-    setInvalid(null)
-    setBusy(true)
-    setError(null)
-    try {
-      await withFreshSession((api) => api.updatePet(id, input.value))
-      unsaved.leave(then)
-    } catch (cause) {
-      setError(describeFailure(t, cause, t.errors.saveChangesFailed))
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  async function remove() {
-    setBusy(true)
-    setError(null)
-    try {
-      await withFreshSession((api) => api.deletePet(id))
-      setAsking(false)
-      unsaved.leave(() => router.replace('/pets'))
-    } catch (cause) {
-      setAsking(false)
-      setError(describeFailure(t, cause, t.errors.removePetFailed))
-      setBusy(false)
-    }
-  }
-
-  if (!form) {
+  if (!shown) {
     return (
-      <Screen title={t.pets.fallbackTitle} onBack={() => router.back()}>
+      <Screen title={t.pets.fallbackTitle} onBack={() => router.back()} scroll>
+        {banner}
         {error ? (
-          <>
-            <Banner text={error.text} tone="error" icon={error.offline ? 'wifi' : 'alert'} />
-            <Button title={t.common.retry} kind="secondary" onPress={() => void load()} />
-            <LinkButton title={t.common.toList} onPress={() => router.replace('/pets')} />
-          </>
+          <LinkButton title={t.common.toList} onPress={() => router.dismissTo('/pets')} />
         ) : (
-          // Until this arrives the screen has nothing but a title, and a blank
-          // page reads as a broken one rather than as a slow one.
-          <ActivityIndicator color={colour.accent} />
+          <Skeleton />
         )}
       </Screen>
     )
   }
 
+  const { pet } = shown
+  const facts = headerFacts(t, pet)
+  const important = importantFacts(t, pet)
+
   return (
     <Screen
-      title={form.name || t.pets.fallbackTitle}
+      title={pet.name}
       onBack={() => router.back()}
+      action={{ label: t.medicalRecord.form, onPress: openForm }}
       scroll
-      dock={<Button title={t.common.save} onPress={() => void save()} busy={busy} />}
     >
-      <SettingRow
-        title={t.pets.history}
-        onPress={() => router.push(`/pets/${id}/checks`)}
-      />
-      <View style={styles.spacer} />
+      {banner}
 
-      <PetFields form={form} onChange={change} invalid={invalid} />
+      <View
+        style={styles.header}
+        accessible
+        accessibilityLabel={[facts.meta, facts.neutered, facts.weight].filter(Boolean).join(', ')}
+      >
+        <Avatar species={pet.species} size={64} />
+        <View style={styles.headerCopy}>
+          <Text variant="label" tone="muted">
+            {facts.meta}
+          </Text>
+          {facts.neutered ? (
+            <Text variant="label" tone="muted">
+              {facts.neutered}
+            </Text>
+          ) : null}
+          {facts.weight ? (
+            <>
+              <Text variant="h2" style={styles.weight}>
+                {facts.weight}
+              </Text>
+              <Text variant="caption" tone="faint">
+                {facts.weightNote}
+              </Text>
+            </>
+          ) : null}
+        </View>
+      </View>
 
-      {error ? (
-        <Banner
-          text={error.text}
-          tone="error"
-          icon={error.offline ? 'wifi' : 'alert'}
-          style={styles.error}
-        />
+      {important.length > 0 ? (
+        <View style={styles.important}>
+          <Text variant="h2" style={styles.importantTitle}>
+            {t.medicalRecord.important}
+          </Text>
+          {important.map((fact) => (
+            <View key={fact.label} style={styles.fact}>
+              <Text variant="label" tone="muted">
+                {fact.label}
+              </Text>
+              <Text>{fact.value}</Text>
+            </View>
+          ))}
+          <LinkButton title={t.medicalRecord.editInForm} onPress={openForm} align="left" />
+        </View>
       ) : null}
 
-      <View style={styles.gap} />
-      {/* Deleting a pet takes its checks with it, so this asks rather than
-          acting on a single tap. */}
-      <Button
-        title={t.pets.remove}
-        kind="outlineDanger"
-        disabled={busy}
-        onPress={() => setAsking(true)}
-      />
+      <Card style={styles.sections}>
+        {sectionRows(t, shown).map((row, index) => (
+          <View key={row.section}>
+            {index > 0 ? <View style={styles.divider} /> : null}
+            <Section row={row} />
+          </View>
+        ))}
+      </Card>
 
-      <ConfirmDialog
-        visible={asking}
-        title={t.pets.removeTitle}
-        message={t.pets.removeBody}
-        confirmTitle={t.pets.removeConfirm}
-        busy={busy}
-        onConfirm={() => void remove()}
-        onCancel={() => setAsking(false)}
-      />
-
-      <SaveChangesDialog
-        visible={unsaved.pending !== null}
-        busy={busy}
-        onSave={() => {
-          const next = unsaved.pending
-          unsaved.stay()
-          if (next) void save(next)
-        }}
-        onDiscard={() => unsaved.pending && unsaved.leave(unsaved.pending)}
-        onStay={unsaved.stay}
+      <SettingRow
+        icon="history"
+        title={t.pets.history}
+        onPress={() => router.push(`/pets/${id}/checks`)}
       />
     </Screen>
   )
 }
 
 const styles = StyleSheet.create({
-  spacer: { height: space.block },
-  gap: { height: space.section },
-  error: { marginTop: space.block },
+  gap: { height: space.block },
+  header: { flexDirection: 'row', alignItems: 'center', gap: 16, marginBottom: space.block },
+  headerCopy: { flex: 1, minWidth: 0 },
+  weight: { marginTop: 6 },
+
+  important: {
+    backgroundColor: colour.soft,
+    borderRadius: radius.card,
+    padding: space.block,
+    marginBottom: space.block,
+  },
+  importantTitle: { marginBottom: space.row },
+  fact: { marginBottom: space.row, gap: 2 },
+
+  sections: { paddingVertical: 4, marginBottom: space.block, ...shadow.card },
+  section: { flexDirection: 'row', alignItems: 'center', gap: 16, minHeight: 64, paddingVertical: 12 },
+  sectionCopy: { flex: 1, minWidth: 0, gap: 2 },
+  divider: { height: StyleSheet.hairlineWidth, backgroundColor: colour.line },
+
+  blank: { backgroundColor: colour.soft, borderRadius: radius.field },
+  blankAvatar: { width: 64, height: 64, borderRadius: radius.pill },
+  blankLine: { height: 14, width: '60%', marginBottom: 10 },
+  blankWeight: { height: 28, width: '40%' },
+  blankCard: { height: 120, borderRadius: radius.card, marginBottom: space.block },
+  blankSections: { height: 320, borderRadius: radius.card },
 })

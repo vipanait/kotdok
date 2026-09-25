@@ -67,6 +67,30 @@ export const en: Dictionary = {
     removeConfirm: 'Delete',
   },
 
+  medicalRecord: {
+    form: 'Form',
+    fromForm: 'From the form',
+    weight: (kg: number) => `${kg} kg`,
+    neutered: { female: 'Spayed', male: 'Neutered', unknown: 'Spayed/neutered' },
+    important: 'Important to know',
+    allergies: 'Allergies',
+    chronic: 'Chronic conditions',
+    takingNow: 'Taking now',
+    editInForm: 'Edit in the form',
+    sections: {
+      vaccinations: 'Vaccinations',
+      parasites: 'Parasites',
+      visits: 'Vet visits',
+      medications: 'Medicines',
+      weight: 'Weight',
+    },
+    noRecords: 'No records yet',
+    vaccinatedInForm: 'In the form: vaccinated, no dates given',
+    notVaccinatedInForm: 'In the form: not vaccinated',
+    currentCount: (count: number) => `Now: ${count}`,
+    weightFromForm: (weight: string) => `${weight} · from the form`,
+  },
+
   unsaved: {
     title: 'Save your changes?',
     body: 'If you leave without saving, the changes will be lost.',
@@ -225,6 +249,7 @@ export const en: Dictionary = {
   },
 
   errors: {
+    loadHealthFailed: 'Could not load the medical record',
     invalidCredentials: 'Wrong email or password',
     emailNotConfirmed: 'That address is not confirmed yet. Open the link in the email',
     emailInvalid: 'Check the email address',

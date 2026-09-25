@@ -457,6 +457,25 @@ components:
               maxLength: 300
             - type: "null"
       additionalProperties: false
+    HealthOverview:
+      type: object
+      properties:
+        pet:
+          $ref: "#/components/schemas/Pet"
+        writable:
+          type: array
+          items:
+            type: string
+            enum:
+              - vaccinations
+              - parasites
+              - visits
+              - medications
+              - weight
+      required:
+        - pet
+        - writable
+      additionalProperties: false
     SymptomCheckRecord:
       type: object
       properties:
@@ -1383,6 +1402,73 @@ paths:
       responses:
         "204":
           description: Deleted
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted
+                  request_id: 01J000000000000000000000
+        "404":
+          description: No such resource for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: not_found
+                  message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
+  /pets/{id}/health:
+    parameters:
+      - *a1
+    get:
+      summary: "The pet's medical record: the pet form and the sections that accept records"
+      responses:
+        "200":
+          description: The medical record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthOverview"
         "401":
           description: Missing, malformed, expired or foreign access token
           content:

@@ -67,6 +67,30 @@ export const ru = {
     removeConfirm: 'Удалить',
   },
 
+  medicalRecord: {
+    form: 'Анкета',
+    fromForm: 'Из анкеты',
+    weight: (kg: number) => `${String(kg).replace('.', ',')} кг`,
+    neutered: { female: 'Стерилизована', male: 'Кастрирован', unknown: 'Стерилизован(а)' },
+    important: 'Важно знать',
+    allergies: 'Аллергии',
+    chronic: 'Хронические болезни',
+    takingNow: 'Принимает сейчас',
+    editInForm: 'Изменить в анкете',
+    sections: {
+      vaccinations: 'Прививки',
+      parasites: 'Паразиты',
+      visits: 'Визиты',
+      medications: 'Лекарства',
+      weight: 'Вес',
+    },
+    noRecords: 'Пока нет записей',
+    vaccinatedInForm: 'В анкете: привит(а), даты не указаны',
+    notVaccinatedInForm: 'В анкете: не привит(а)',
+    currentCount: (count: number) => `Сейчас: ${count}`,
+    weightFromForm: (weight: string) => `${weight} · из анкеты`,
+  },
+
   unsaved: {
     title: 'Сохранить изменения?',
     body: 'Если уйти без сохранения, изменения пропадут.',
@@ -226,6 +250,7 @@ export const ru = {
   },
 
   errors: {
+    loadHealthFailed: 'Не удалось загрузить медкарту',
     invalidCredentials: 'Неверная почта или пароль',
     emailNotConfirmed: 'Почта ещё не подтверждена. Откройте ссылку из письма',
     emailInvalid: 'Проверьте адрес почты',

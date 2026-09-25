@@ -9,6 +9,7 @@ import {
   DELETION_RECEIPT_HEADER,
   CheckFeedbackSchema,
   ExtraCheckRequestStatusSchema,
+  HealthOverviewSchema,
   HealthSchema,
   IDEMPOTENCY_KEY_HEADER,
   PetSchema,
@@ -225,6 +226,8 @@ export function createApiClient(options: ApiClientOptions) {
     updatePet: (id: string, body: PetUpdateInput) =>
       call(`/pets/${id}`, PetSchema, { method: 'PATCH', body }),
     deletePet: (id: string) => call<void>(`/pets/${id}`, null, { method: 'DELETE' }),
+
+    getHealthOverview: (petId: string) => call(`/pets/${petId}/health`, HealthOverviewSchema),
 
     requestUploads: (body: UploadRequest) =>
       call('/uploads', UploadGrantSchema, { method: 'POST', body }),

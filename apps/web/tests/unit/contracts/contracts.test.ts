@@ -6,6 +6,8 @@ import {
   ExtraCheckRequestStatusSchema,
   CheckFeedbackSchema,
   FeedbackInputSchema,
+  HEALTH_SECTIONS,
+  HealthOverviewSchema,
   PetCreateInputSchema,
   PetSchema,
   PetUpdateInputSchema,
@@ -196,5 +198,26 @@ describe('remaining contracts', () => {
     expect(CheckFeedbackSchema.parse({ rating: 'disliked' }).rating).toBe('disliked')
     expect(CheckFeedbackSchema.parse({ rating: null }).rating).toBeNull()
     expect(() => CheckFeedbackSchema.parse({ rating: 'meh' })).toThrow()
+  })
+})
+
+describe('medical record overview contract', () => {
+  it('carries the pet form as it is and the sections the client may write to', () => {
+    const overview = HealthOverviewSchema.parse({ pet, writable: [] })
+    expect(overview.pet.weight_kg).toBe(28)
+    // An unanswered question stays unanswered: null is not "not vaccinated".
+    expect(overview.pet.vaccinated).toBeNull()
+  })
+
+  it('names the five sections of the record in their on-screen order', () => {
+    expect(HEALTH_SECTIONS).toEqual(['vaccinations', 'parasites', 'visits', 'medications', 'weight'])
+  })
+
+  it('rejects a section the client would not know how to show', () => {
+    expect(HealthOverviewSchema.safeParse({ pet, writable: ['files'] }).success).toBe(false)
+  })
+
+  it('does not let the owner id leak through', () => {
+    expect(HealthOverviewSchema.safeParse({ pet, writable: [], user_id: 'x' }).success).toBe(false)
   })
 })

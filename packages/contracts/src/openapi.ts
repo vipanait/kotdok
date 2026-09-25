@@ -3,6 +3,7 @@ import { API_VERSION } from './version'
 import { ApiErrorEnvelopeSchema, ERROR_STATUS, type ErrorCode } from './errors'
 import { ProfileUpdateInputSchema, PublicProfileSchema } from './profile'
 import { PetCreateInputSchema, PetSchema, PetUpdateInputSchema } from './pet'
+import { HealthOverviewSchema } from './medical-record'
 import { CheckHistoryPageSchema, SymptomCheckRecordSchema } from './check'
 import { CheckFeedbackSchema, ExtraCheckRequestStatusSchema, FeedbackInputSchema } from './credits'
 import {
@@ -38,6 +39,7 @@ const COMPONENTS: Array<[string, z.ZodType]> = [
   ['Pet', PetSchema],
   ['PetCreateInput', PetCreateInputSchema],
   ['PetUpdateInput', PetUpdateInputSchema],
+  ['HealthOverview', HealthOverviewSchema],
   ['SymptomCheckRecord', SymptomCheckRecordSchema],
   ['CheckHistoryPage', CheckHistoryPageSchema],
   ['CheckCreateInput', CheckCreateInputSchema],
@@ -236,6 +238,13 @@ export function buildOpenApiDocument(): Record<string, unknown> {
         delete: {
           summary: 'Soft-delete a pet and hide its checks',
           responses: { '204': { description: 'Deleted' }, ...commonErrors('not_found') },
+        },
+      },
+      '/pets/{id}/health': {
+        parameters: [idParam],
+        get: {
+          summary: 'The pet\'s medical record: the pet form and the sections that accept records',
+          responses: { '200': json('HealthOverview', 'The medical record'), ...commonErrors('not_found') },
         },
       },
       '/uploads': {

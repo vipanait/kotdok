@@ -49,6 +49,7 @@ describe('OpenAPI document', () => {
       '/me',
       '/pets',
       '/pets/{id}',
+      '/pets/{id}/health',
       '/uploads',
     ])
   })
