@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { HealthEvent, HealthOverview, Pet, WeightMeasurement } from '@lapka/contracts'
 import { en } from '@/i18n/en'
 import { ru } from '@/i18n/ru'
-import { hasRecords, headerFacts, importantFacts, sectionRows } from './overview'
+import { headerFacts, importantFacts, sectionRows } from './overview'
 
 function pet(overrides: Partial<Pet> = {}): Pet {
   return {
@@ -167,19 +167,6 @@ describe('medicines in «Важно знать»', () => {
       { id: 'b', name: 'Фортифлора', dosage: null, started_on: '2026-08-02', ended_on: '2026-08-15', ongoing: false, source: 'record' },
     ], TODAY)
     expect(facts).toEqual([{ label: 'Принимает сейчас', value: 'Лечебный корм (постоянно)' }])
-  })
-})
-
-describe('whether the check can say «Учтём медкарту» (MR-10)', () => {
-  it('is yes only with a record: a dated weight, a record, or a course', () => {
-    expect(hasRecords(overview())).toBe(false)
-    // The form's undated weight is the form, not the record.
-    expect(hasRecords(overview({}, [{ id: 'w', measured_on: null, weight_kg: 4, source: 'form' }]))).toBe(false)
-    expect(hasRecords(overview({}, [{ id: 'w', measured_on: '2026-09-12', weight_kg: 4, source: 'record' }]))).toBe(true)
-    expect(
-      hasRecords(overview({}, [], [{ id: 'e', kind: 'vaccination', status: 'done', date: '2026-03-12', clinic: null, notes: null, items: [] } as unknown as HealthEvent])),
-    ).toBe(true)
-    expect(hasRecords({ ...overview(), medications: [{ id: 'm', name: 'Корм', dosage: null, started_on: null, ended_on: null, ongoing: false, source: 'form' }] } as HealthOverview)).toBe(true)
   })
 })
 

@@ -42,7 +42,7 @@ let seeded: SeededFixtures
 const cat: string = PET_IDS.aCat
 const dog: string = PET_IDS.aDog
 
-async function analyse(petId: string) {
+async function analyse(petId: string | null) {
   const { analyzeSymptomCheck } = await import('@/server/symptom-check/analyze-symptom-check')
   model.requests.length = 0
   const outcome = await analyzeSymptomCheck(createServiceClient(), {
@@ -77,7 +77,7 @@ beforeAll(async () => {
   db = await connect()
   seeded = await seedFixtures(db)
   await db.query(`update public.profiles set credits = 20 where id = $1`, [seeded.ownerAId])
-  await db.query(`delete from public.api_rate_limits`)
+  await db.query(`delete from public.api_rate_limits where bucket like $1`, [`%${seeded.ownerAId}%`])
 })
 
 beforeEach(async () => {
@@ -134,5 +134,10 @@ describe('the medical record in the symptom check (MR-10)', () => {
     expect(user.split('\n').some((line) => line.startsWith('SYSTEM'))).toBe(false)
     expect(user).toContain('(past, may no longer apply)')
   })
-})
 
+  it('stores no record status for a check without a pet', async () => {
+    const { user, stored } = await analyse(null)
+    expect(user).not.toContain('MEDICAL RECORD')
+    expect('medical_record' in stored).toBe(false)
+  })
+})

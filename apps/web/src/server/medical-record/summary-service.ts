@@ -47,8 +47,11 @@ function lastAndNext(events: readonly HealthEvent[], kind: HealthEvent['kind'], 
     if (event.kind !== kind) continue
     for (const item of event.items) {
       if (!matches(item)) continue
-      if (event.status === 'done' && (!last || event.date > last.event.date)) last = { event, item }
-      if (event.status === 'planned' && (!next || event.date < next.event.date)) next = { event, item }
+      // On one day, the lower id: the same record always names the same product.
+      const later = (found: Found) => event.date > found.event.date || (event.date === found.event.date && item.id < found.item.id)
+      const sooner = (found: Found) => event.date < found.event.date || (event.date === found.event.date && item.id < found.item.id)
+      if (event.status === 'done' && (!last || later(last))) last = { event, item }
+      if (event.status === 'planned' && (!next || sooner(next))) next = { event, item }
     }
   }
   // A plan older than the last shot was overtaken by it, not missed.

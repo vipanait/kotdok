@@ -18,6 +18,7 @@ import {
   STOOL_VALUES,
   type Pet,
 } from '@lapka/contracts'
+import { summaryRecords } from '@lapka/shared'
 import { withFreshSession } from '@/lib/api'
 import { AppError, describeFailure, errorMessage, submitCheckMessage } from '@/lib/errors'
 import { preparePhoto, putPhoto } from '@/lib/photo-io'
@@ -51,7 +52,6 @@ import { uploadPhotos } from '@/features/checks/photo-upload'
 import { Button, LinkButton } from '@/ui/Button'
 import { Banner } from '@/ui/Card'
 import { Chips, Field, Segment, Select } from '@/ui/Field'
-import { hasRecords } from '@/features/medical-record/overview'
 import { PhotoStrip } from '@/ui/PhotoStrip'
 import { Screen } from '@/ui/Screen'
 import { Steps, SummaryCard } from '@/ui/Section'
@@ -412,6 +412,27 @@ export default function NewCheck() {
     await watch(jobId)
   }
 
+  // «Учтём медкарту»: by the rule the server includes the record by, read
+  // again whenever the screen comes back (a record may have been added).
+  // Before any early return: hooks run in the same order on every render.
+  useFocusEffect(
+    useCallback(() => {
+      const petId = form.petId
+      if (!petId) return
+      let current = true
+      withFreshSession((api) => api.getVetSummary(petId))
+        .then((summary) => {
+          if (current) setWithRecord(summaryRecords(summary) > 0 ? petId : null)
+        })
+        .catch(() => {
+          if (current) setWithRecord(null)
+        })
+      return () => {
+        current = false
+      }
+    }, [form.petId]),
+  )
+
   if (waiting || failure) {
     return <Waiting t={t} failure={failure} onRetry={() => void submit()} />
   }
@@ -428,22 +449,6 @@ export default function NewCheck() {
       </Screen>
     )
   }
-
-  useEffect(() => {
-    const petId = form.petId
-    if (!petId) return
-    let current = true
-    withFreshSession((api) => api.getHealthOverview(petId))
-      .then((overview) => {
-        if (current) setWithRecord(hasRecords(overview) ? petId : null)
-      })
-      .catch(() => {
-        if (current) setWithRecord(null)
-      })
-    return () => {
-      current = false
-    }
-  }, [form.petId])
 
   if (pets === null) {
     return (

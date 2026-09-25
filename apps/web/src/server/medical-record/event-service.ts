@@ -95,6 +95,9 @@ export async function listEvents(supabase: SupabaseService, petId: string): Prom
     .eq('pet_id', petId)
     .is('deleted_at', null)
     .order('event_date', { ascending: false })
+    // Records of one day in a fixed order, so the same record reads the same way twice.
+    .order('created_at', { ascending: false })
+    .order('id', { ascending: true })
     .limit(500)
 
   if (error) return { ok: false, reason: 'storage_error', message: error.message }

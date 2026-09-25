@@ -38,6 +38,8 @@ export async function listMedications(supabase: SupabaseService, petId: string):
     .eq('pet_id', petId)
     .is('deleted_at', null)
     .order('started_on', { ascending: false, nullsFirst: false })
+    .order('created_at', { ascending: false })
+    .order('id', { ascending: true })
     .limit(500)
   if (error) return { ok: false, reason: 'storage_error', message: error.message }
   return { ok: true, data: (data as MedicationRow[]).map(toMedicationContract) }

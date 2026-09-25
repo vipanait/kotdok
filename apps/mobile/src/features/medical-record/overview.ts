@@ -157,14 +157,3 @@ export function sectionRows(t: Dictionary, overview: HealthOverview, today: stri
   }))
 }
 
-/**
- * Whether the record holds anything the check would read (MR-10): a record, a
- * course, a dated weight. The form's own undated weight is not a record.
- */
-export function hasRecords(overview: Pick<HealthOverview, 'events' | 'weights' | 'medications'>): boolean {
-  return (
-    overview.events.length > 0 ||
-    overview.medications.length > 0 ||
-    overview.weights.some((weight) => weight.measured_on !== null)
-  )
-}
