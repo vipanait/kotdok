@@ -116,13 +116,13 @@ export async function eventStatus(
   return event.ok ? { ok: true, data: { status: event.data.status } } : event
 }
 
-/** Products named in a record must fit the pet; `bad_product` becomes a 400. */
 /** The catalogue kind a record's products must be: vaccines on vaccinations, treatments on treatments. */
 const PRODUCT_KIND: Record<HealthEvent['kind'], 'vaccine' | 'antiparasitic'> = {
   vaccination: 'vaccine',
   parasite: 'antiparasitic',
 }
 
+/** Products named in a record must fit the pet; `bad_product` becomes a 400. */
 async function checkProducts(
   supabase: SupabaseService,
   userId: string,
@@ -177,7 +177,7 @@ export async function updateEvent(
   petId: string,
   eventId: string,
   patch: HealthEventPatch,
-): Promise<Result<HealthEvent> | { ok: false; reason: 'bad_product' }> {
+): Promise<Result<HealthEvent> | { ok: false; reason: 'bad_product' | 'bad_target' }> {
   // Only a product newly given to an item is checked: one the item already
   // had may have left the catalogue since, and correcting the note of an old
   // record must not fail for it.
@@ -188,7 +188,7 @@ export async function updateEvent(
     // The patch carries no kind: the record's own says which targets fit.
     const fits = current.data.kind === 'vaccination' ? VaccineTargetSchema : ParasiteTargetSchema
     if (patch.items.some((item) => item.targets.some((target) => !fits.safeParse(target).success))) {
-      return { ok: false, reason: 'bad_product' }
+      return { ok: false, reason: 'bad_target' }
     }
 
     const had = new Map(current.data.items.map((item) => [item.id, item.product_id]))

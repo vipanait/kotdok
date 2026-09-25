@@ -46,6 +46,9 @@ export const PATCH = withApiAuth(async (request: NextRequest, context: ApiContex
     if (result.reason === 'bad_product') {
       return apiError(context.requestId, 'bad_request', 'A product does not fit this pet')
     }
+    if (result.reason === 'bad_target') {
+      return apiError(context.requestId, 'bad_request', 'Body does not match the contract')
+    }
     return serviceFailureResponse(context.requestId, result.reason)
   }
 

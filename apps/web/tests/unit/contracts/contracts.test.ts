@@ -349,8 +349,9 @@ describe('parasite treatment contracts', () => {
     ).toBe(false)
   })
 
-  it('groups every parasite into fleas, ticks or worms for the screen', () => {
-    for (const target of PARASITE_TARGETS) expect(['fleas', 'ticks', 'worms']).toContain(target.group)
+  it('groups ear mites with ticks and heartworm with worms', () => {
+    const group = (code: string) => PARASITE_TARGETS.find((target) => target.code === code)?.group
+    expect([group('ear_mites'), group('heartworm'), group('fleas')]).toEqual(['ticks', 'worms', 'fleas'])
   })
 })
 
@@ -364,6 +365,15 @@ describe('reading records of a kind this app does not know yet', () => {
   it('drops them from the overview instead of failing the whole record', () => {
     const read = HealthOverviewReadSchema.parse({ pet, writable: [], weights: [], events: [vaccination, future] })
     expect(read.events.map((event) => event.id)).toEqual([vaccination.id])
+  })
+
+  it('keeps a known record that a later server added a field to (review 1)', () => {
+    const read = HealthOverviewReadSchema.parse({ pet, writable: [], weights: [], events: [{ ...vaccination, visit_id: null }] })
+    expect(read.events.map((event) => event.id)).toEqual([vaccination.id])
+  })
+
+  it('fails loudly on a known record that is broken, rather than hiding it (review 1)', () => {
+    expect(() => HealthOverviewReadSchema.parse({ pet, writable: [], weights: [], events: [{ ...vaccination, date: 'soon' }] })).toThrow()
   })
 
   it('drops them from the due list', () => {

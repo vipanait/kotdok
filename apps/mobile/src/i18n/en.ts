@@ -268,6 +268,8 @@ export const en: Dictionary = {
         : `Only this item is marked. ${others === 1 ? 'One more stays' : `${others} more stay`} planned.`,
     itemsRequired: 'Add at least one vaccine',
     itemEmpty: 'Give a name or mark what the vaccine is against',
+    itemEmptyTreatment: 'Give a product or mark what the treatment is against',
+    productsRequired: 'Add at least one product',
     plannedDateInvalid: 'Date is DD.MM.YYYY, today or later',
     nextInvalid: 'Next is DD.MM.YYYY, after the record',
     saveEventFailed: 'Could not save the record',

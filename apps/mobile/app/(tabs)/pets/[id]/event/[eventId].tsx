@@ -66,8 +66,9 @@ export default function EventView() {
     }
   }
 
-  const complete = (itemId: string) => router.push(`/pets/${id}/event-form?mode=complete&itemId=${itemId}`)
-  const edit = () => router.push(`/pets/${id}/event-form?mode=edit&eventId=${eventId}`)
+  const kind = event?.kind ?? 'vaccination'
+  const complete = (itemId: string) => router.push(`/pets/${id}/event-form?mode=complete&itemId=${itemId}&kind=${kind}`)
+  const edit = () => router.push(`/pets/${id}/event-form?mode=edit&eventId=${eventId}&kind=${kind}`)
 
   const planned = event?.status === 'planned'
   const status = event && planned ? dueStatus(t, event.date, localToday()) : null

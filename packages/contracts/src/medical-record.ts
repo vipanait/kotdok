@@ -84,8 +84,11 @@ export const HealthItemSchema = z.object({
 
 export type HealthItem = z.infer<typeof HealthItemSchema>
 
-/** A record: done on `date`, or planned for it. Every planned item is a due date. */
-export const HealthEventSchema = z.strictObject({
+/**
+ * A record: done on `date`, or planned for it. Every planned item is a due date.
+ * Not strict: a field a later server adds is dropped by an older app, not fatal.
+ */
+export const HealthEventSchema = z.object({
   id: UuidSchema,
   kind: HealthEventKindSchema,
   status: HealthEventStatusSchema,
@@ -208,7 +211,7 @@ export const HealthProductSchema = z.object({
 export type HealthProduct = z.infer<typeof HealthProductSchema>
 
 /** One due date across all of the caller's pets, for the pet list. */
-export const DueItemSchema = z.strictObject({
+export const DueItemSchema = z.object({
   pet_id: UuidSchema,
   event_id: UuidSchema,
   item_id: UuidSchema,
@@ -245,23 +248,29 @@ export const HealthOverviewSchema = z.object({
 export type HealthOverview = z.infer<typeof HealthOverviewSchema>
 
 /**
- * Keeps the entries a schema accepts and drops the rest. For lists that grow
- * new kinds of records: an app older than the server shows what it knows
- * instead of failing the whole screen on one record it does not.
+ * Leaves out records of a kind this app does not know yet — a kind a later
+ * server introduced. A record of a known kind that is broken still fails
+ * the read: hiding it would show a history with a hole in it as complete.
  */
-function known<T extends z.ZodType>(schema: T) {
-  return (value: unknown) =>
-    Array.isArray(value) ? value.filter((entry) => schema.safeParse(entry).success) : value
+function knownKinds(value: unknown): unknown {
+  return Array.isArray(value)
+    ? value.filter(
+        (entry) =>
+          typeof entry !== 'object' ||
+          entry === null ||
+          (HEALTH_EVENT_KINDS as readonly unknown[]).includes((entry as { kind?: unknown }).kind),
+      )
+    : value
 }
 
 /** The overview as a client reads it: records of an unknown kind are left out. */
 export const HealthOverviewReadSchema = z.preprocess(
   (value) =>
     value && typeof value === 'object' && 'events' in value
-      ? { ...(value as object), events: known(HealthEventSchema)((value as { events: unknown }).events) }
+      ? { ...(value as object), events: knownKinds((value as { events: unknown }).events) }
       : value,
   HealthOverviewSchema,
 )
 
 /** The due list as a client reads it: due dates of an unknown kind are left out. */
-export const DueListReadSchema = z.preprocess(known(DueItemSchema), z.array(DueItemSchema))
+export const DueListReadSchema = z.preprocess(knownKinds, z.array(DueItemSchema))

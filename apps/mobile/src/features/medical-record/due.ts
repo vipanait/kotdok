@@ -83,10 +83,6 @@ function targetName(t: Dictionary, code: string): string {
   return (t.medicalRecord.targets as Record<string, string>)[code] ?? code
 }
 
-/**
- * What a due row is called: the disease for a single one («Бешенство»),
- * «Комплексная прививка» for several, the owner's own name otherwise.
- */
 /** The groups a treatment covers — fleas, ticks, worms — however fine its codes. */
 export function parasiteGroups(targets: readonly string[]): Set<'fleas' | 'ticks' | 'worms'> {
   return new Set(
@@ -111,6 +107,10 @@ function parasiteTitle(t: Dictionary, targets: readonly string[]): string | null
   return null
 }
 
+/**
+ * What a due row is called: the disease for a single one («Бешенство»),
+ * «Комплексная прививка» for several, the owner's own name otherwise.
+ */
 export function itemTitle(
   t: Dictionary,
   item: Pick<HealthItem, 'name' | 'targets'>,

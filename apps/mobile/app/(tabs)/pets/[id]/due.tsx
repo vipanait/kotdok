@@ -53,7 +53,7 @@ export default function AllDue() {
               <DueRow
                 due={due}
                 status={dueStatus(t, due.date, today)}
-                onDone={() => router.push(`/pets/${id}/event-form?mode=complete&itemId=${due.itemId}`)}
+                onDone={() => router.push(`/pets/${id}/event-form?mode=complete&itemId=${due.itemId}&kind=${due.kind}`)}
               />
             </View>
           ))}

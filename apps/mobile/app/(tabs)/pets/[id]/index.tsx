@@ -272,7 +272,7 @@ export default function MedicalRecord() {
               <DueRow
                 due={item}
                 status={dueStatus(t, item.date, today)}
-                onDone={() => router.push(`/pets/${id}/event-form?mode=complete&itemId=${item.itemId}`)}
+                onDone={() => router.push(`/pets/${id}/event-form?mode=complete&itemId=${item.itemId}&kind=${item.kind}`)}
               />
             </View>
           ))}

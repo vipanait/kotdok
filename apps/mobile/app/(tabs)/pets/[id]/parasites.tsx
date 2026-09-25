@@ -107,7 +107,11 @@ export default function Parasites() {
                 key={card.group}
                 outlined
                 style={styles.statusCard}
-                accessibilityLabel={[card.title, card.last ? words.treatmentLast(card.last, card.product) : words.treatmentNone, card.next?.text]
+                accessibilityLabel={[
+                  card.title,
+                  card.last ? words.treatmentLast(card.last, card.product) : words.treatmentNone,
+                  card.next ? (card.next.tone === 'later' ? words.coreNext(card.next.text) : card.next.text) : null,
+                ]
                   .filter(Boolean)
                   .join(', ')}
               >

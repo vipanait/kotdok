@@ -4,7 +4,7 @@ import type { Dictionary } from '@/i18n'
 import { dayInput, localToday, parseDayInput, parseDayText, parseFutureDayInput } from '@/lib/calendar-day'
 
 /**
- * The vaccination form as text fields, and turning it into a request. No
+ * The record form — vaccinations and treatments — as text fields, and turning it into a request. No
  * React here, so the rules of MR-03.3 run in the unit tests.
  */
 
@@ -89,7 +89,7 @@ export function renameItem(item: ItemDraft, name: string): ItemDraft {
   return { ...item, name, productId: null, source: 'manual' }
 }
 
-/** The interval «suggested» next dates use: the product's, else a year. */
+/** The interval «suggested» next dates use: the product's, else a year for a vaccine, a month or three for a treatment. */
 export function itemInterval(item: ItemDraft): Interval {
   if (item.interval) return item.interval
   if (item.kind === 'vaccination') return { value: 1, unit: 'year' }
@@ -190,7 +190,8 @@ export function readDraft(
       : parseFutureDayInput(draft.date, now)
   if (!date) errors.date = draft.status === 'done' ? words.dateInvalid : words.plannedDateInvalid
 
-  if (draft.items.length === 0) errors.form = words.itemsRequired
+  const treatment = draft.kind === 'parasite'
+  if (draft.items.length === 0) errors.form = treatment ? words.productsRequired : words.itemsRequired
 
   const itemErrors: Record<string, string> = {}
   const nextErrors: Record<string, string> = {}
@@ -198,7 +199,7 @@ export function readDraft(
 
   const items = draft.items.map((item) => {
     const name = item.name.trim()
-    if (name === '' && item.targets.length === 0) itemErrors[item.key] = words.itemEmpty
+    if (name === '' && item.targets.length === 0) itemErrors[item.key] = treatment ? words.itemEmptyTreatment : words.itemEmpty
     let next_on: string | null = null
     if (withNext && date) {
       const next = nextDate(item, date, localToday(now))

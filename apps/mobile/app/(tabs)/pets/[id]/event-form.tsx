@@ -55,7 +55,7 @@ function targetsFor(species: PetSpecies): HealthTarget[] {
 }
 
 /**
- * The vaccination form (M6, M14): a new record with several vaccines and a
+ * The record form (M6, M14, M16): a new vaccination or treatment with several items and a
  * next date for each, a correction of one, or «Сделано» on one planned item
  * (§7.16). Saves once however many times «Сохранить» is pressed: each form
  * sends its own Idempotency-Key.

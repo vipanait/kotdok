@@ -27,7 +27,17 @@ export function Card({
 }) {
   const skin = [styles.card, outlined ? styles.outlined : shadow.card, style]
 
-  if (!onPress) return <View style={skin}>{children}</View>
+  // A label without a press still makes the card one thing to VoiceOver,
+  // read as the label says rather than line by line.
+  if (!onPress) {
+    return accessibilityLabel ? (
+      <View style={skin} accessible accessibilityLabel={accessibilityLabel}>
+        {children}
+      </View>
+    ) : (
+      <View style={skin}>{children}</View>
+    )
+  }
 
   return (
     <Pressable

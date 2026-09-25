@@ -135,6 +135,29 @@ describe('parasite treatments', () => {
     expect(response.status).toBe(400)
   })
 
+  it('refuses vaccine targets on a treatment and a treatment product on a vaccination (review 7)', async () => {
+    const treatment = HealthEventSchema.parse(
+      await (await createEvent(request('POST', { kind: 'parasite', status: 'done', date: day(-1), items: [{ targets: ['worms'] }] }), params(cat))).json(),
+    )
+    const wrongTargets = await patchEvent(
+      request('PATCH', { items: [{ id: treatment.items[0].id, targets: ['rabies'] }] }),
+      { params: Promise.resolve({ id: cat, eventId: treatment.id }) },
+    )
+    expect(wrongTargets.status).toBe(400)
+
+    const wrongProduct = await createEvent(
+      request('POST', { kind: 'vaccination', status: 'done', date: day(-1), items: [{ name: 'x', targets: ['rabies'], product_id: ids['Тест Мильбемакс'] }] }),
+      params(cat),
+    )
+    expect(wrongProduct.status).toBe(400)
+
+    const swapped = await patchEvent(
+      request('PATCH', { items: [{ id: treatment.items[0].id, targets: ['worms'], product_id: ids['Тест Рабикан П'] }] }),
+      { params: Promise.resolve({ id: cat, eventId: treatment.id }) },
+    )
+    expect(swapped.status).toBe(400)
+  })
+
   it('does not make the pet vaccinated', async () => {
     await db.query(`update public.pets set vaccinated = false, vaccinated_form = false where id = $1`, [cat])
     await createEvent(request('POST', { kind: 'parasite', status: 'done', date: day(-1), items: [{ targets: ['worms'] }] }), params(cat))
