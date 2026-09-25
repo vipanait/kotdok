@@ -46,6 +46,7 @@ describe('OpenAPI document', () => {
       '/credits/extra-request',
       '/feedback',
       '/health',
+      '/health/catalog',
       '/me',
       '/pets',
       '/pets/due',

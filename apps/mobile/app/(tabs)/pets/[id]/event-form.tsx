@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { Pressable, StyleSheet, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import { VACCINE_TARGETS, type HealthEvent, type PetSpecies, type VaccineTarget } from '@lapka/contracts'
 import { ApiError } from '@lapka/shared'
@@ -8,13 +8,18 @@ import { describeFailure } from '@/lib/errors'
 import { dayInput, localToday, parseDayInput } from '@/lib/calendar-day'
 import { newRequestKey } from '@/lib/request-key'
 import { useText } from '@/i18n'
-import { itemName, nextYear, saveSummary, targetList } from '@/features/medical-record/due'
+import { addInterval } from '@lapka/shared'
+import { itemName, saveSummary, targetList } from '@/features/medical-record/due'
+import { ProductSheet, type ProductChoice } from '@/features/medical-record/ProductSheet'
 import {
   blankDraft,
   blankItem,
   draftChanged,
   draftFromEvent,
+  itemInterval,
   nextDate,
+  pickProduct,
+  renameItem,
   readDraft,
   type DraftErrors,
   type EventDraft,
@@ -69,6 +74,8 @@ export default function EventForm() {
   const [busy, setBusy] = useState(false)
   const requestKey = useRef(newRequestKey())
   const nextKey = useRef(1)
+  /** The item the catalogue sheet is choosing for, or null when it is closed. */
+  const [picking, setPicking] = useState<string | null>(null)
 
   const load = useCallback(async () => {
     setError(null)
@@ -100,6 +107,8 @@ export default function EventForm() {
       }
       setInitial(start)
       setDraft(start)
+      // A new record starts from the catalogue (spec §7.9).
+      if (mode === 'new') setPicking(start.items[0]?.key ?? null)
     } catch (cause) {
       setError(describeFailure(t, cause, words.loadEventFailed))
     }
@@ -119,6 +128,21 @@ export default function EventForm() {
         ? { ...current, items: current.items.map((item) => (item.key === key ? { ...item, ...patch } : item)) }
         : current,
     )
+
+  function choose(key: string, choice: ProductChoice) {
+    setDraft((current) => {
+      if (!current) return current
+      return {
+        ...current,
+        items: current.items.map((item) => {
+          if (item.key !== key) return item
+          if (choice.kind === 'product') return pickProduct(item, choice.product)
+          if (choice.kind === 'manual') return { ...renameItem(item, item.source === 'catalog' ? '' : item.name), interval: null }
+          return { ...item, name: '', productId: null, interval: null, source: 'none' }
+        }),
+      }
+    })
+  }
 
   const recordDay = draft ? (draft.status === 'done' ? parseDayInput(draft.date) : null) : null
   const showNext = draft !== null && mode !== 'edit' && draft.status === 'done'
@@ -149,7 +173,7 @@ export default function EventForm() {
             ...(value.date !== keptDate ? { date: value.date } : {}),
             clinic: value.clinic,
             notes: value.notes,
-            items: value.items.map(({ id, name, targets }) => ({ ...(id ? { id } : {}), name, targets })),
+            items: value.items.map(({ id, name, targets, product_id }) => ({ ...(id ? { id } : {}), name, targets, product_id })),
           })
         }
         if (mode === 'complete' && params.itemId) {
@@ -162,7 +186,8 @@ export default function EventForm() {
         }
         return api.createHealthEvent(
           petId,
-          { ...value, items: value.items.map(({ name, targets, next_on }) => ({ name, targets, next_on })) },
+          // readDraft builds the request whole; re-picking fields here once dropped product_id.
+          value,
           requestKey.current,
         )
       })
@@ -200,14 +225,17 @@ export default function EventForm() {
     label: (words.targets as Record<string, string>)[code] ?? code,
   }))
 
-  function nextOptions(): Array<{ value: NextChoice; label: string }> {
+  function nextOptions(item: ItemDraft): Array<{ value: NextChoice; label: string }> {
+    const interval = itemInterval(item)
+    const spoken = words.catalog.interval[interval.unit](interval.value)
+    const suggested = recordDay ? addInterval(recordDay, interval) : null
     return [
       {
         value: 'year',
-        label: !recordDay
-          ? words.nextYear('—')
-          : nextYear(recordDay) >= localToday()
-            ? words.nextYear(t.day(nextYear(recordDay), true))
+        label: !suggested
+          ? words.catalog.nextIn(spoken, '—')
+          : suggested >= localToday()
+            ? words.catalog.nextIn(spoken, t.day(suggested, true))
             : words.nextYearPassed,
       },
       { value: 'custom', label: words.nextCustom },
@@ -260,7 +288,7 @@ export default function EventForm() {
         <Card key={item.key} outlined style={styles.item}>
           {mode === 'complete' ? (
             <View style={styles.fixed}>
-              <Text variant="bodyStrong">{itemName(t, { id: item.key, name: item.name || null, targets: item.targets, source_item_id: null })}</Text>
+              <Text variant="bodyStrong">{itemName(t, { name: item.name || null, targets: item.targets })}</Text>
               {item.name && item.targets.length > 0 ? (
                 <Text variant="label" tone="muted">
                   {targetList(t, item.targets)}
@@ -271,13 +299,35 @@ export default function EventForm() {
             <>
               <View style={styles.itemHead}>
                 <View style={styles.itemName}>
-                  <Field
-                    label={words.itemName}
-                    value={item.name}
-                    onChangeText={(name) => changeItem(item.key, { name })}
-                    placeholder={words.itemNamePlaceholder}
-                    autoCorrect={false}
-                  />
+                  {item.source === 'manual' ? (
+                    <Field
+                      label={words.itemName}
+                      value={item.name}
+                      onChangeText={(name) => setDraft((current) =>
+                        current
+                          ? { ...current, items: current.items.map((other) => (other.key === item.key ? renameItem(other, name) : other)) }
+                          : current,
+                      )}
+                      placeholder={words.itemNamePlaceholder}
+                      autoCorrect={false}
+                    />
+                  ) : (
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={item.source === 'unset' ? words.catalog.choose : `${item.name || words.noProduct}, ${words.catalog.change}`}
+                      onPress={() => setPicking(item.key)}
+                      style={({ pressed }) => [styles.pick, { opacity: pressed ? 0.6 : 1 }]}
+                    >
+                      <Text variant="bodyStrong" tone="accent">
+                        {item.source === 'unset' ? words.catalog.choose : item.name || words.noProduct}
+                      </Text>
+                      {item.source !== 'unset' ? (
+                        <Text variant="label" tone="muted">
+                          {words.catalog.change}
+                        </Text>
+                      ) : null}
+                    </Pressable>
+                  )}
                 </View>
                 {draft.items.length > 1 ? (
                   <IconButton
@@ -312,7 +362,7 @@ export default function EventForm() {
             <>
               <Select
                 label={words.next}
-                options={nextOptions()}
+                options={nextOptions(item)}
                 value={item.next}
                 onChange={(next) => next && changeItem(item.key, { next })}
                 allowNone={false}
@@ -333,7 +383,7 @@ export default function EventForm() {
               ) : null}
               {item.next === 'year' ? (
                 <Text variant="caption" tone="faint">
-                  {words.nextNote}
+                  {item.productId ? words.catalog.suggestedNote : words.nextNote}
                 </Text>
               ) : null}
             </>
@@ -347,7 +397,11 @@ export default function EventForm() {
         <LinkButton
           title={words.addVaccine}
           align="left"
-          onPress={() => change({ items: [...draft.items, blankItem(`new-${nextKey.current++}`)] })}
+          onPress={() => {
+            const key = `new-${nextKey.current++}`
+            change({ items: [...draft.items, blankItem(key)] })
+            setPicking(key)
+          }}
         />
       ) : null}
 
@@ -358,6 +412,13 @@ export default function EventForm() {
       {error ? (
         <Banner text={error.text} tone="error" icon={error.offline ? 'wifi' : 'alert'} style={styles.gapBottom} />
       ) : null}
+
+      <ProductSheet
+        visible={picking !== null}
+        species={species}
+        onPick={(choice) => picking && choose(picking, choice)}
+        onClose={() => setPicking(null)}
+      />
 
       <SaveChangesDialog
         visible={unsaved.pending !== null}
@@ -380,5 +441,6 @@ const styles = StyleSheet.create({
   itemHead: { flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
   itemName: { flex: 1 },
   fixed: { gap: 2 },
+  pick: { minHeight: 44, justifyContent: 'center', gap: 2 },
   gapBottom: { marginBottom: space.block },
 })

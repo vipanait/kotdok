@@ -600,11 +600,19 @@ components:
                     format: uuid
                     pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
                   - type: "null"
+              product_id:
+                default: null
+                anyOf:
+                  - type: string
+                    format: uuid
+                    pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                  - type: "null"
             required:
               - id
               - name
               - targets
               - source_item_id
+              - product_id
             additionalProperties: false
       required:
         - id
@@ -672,6 +680,12 @@ components:
                     - parainfluenza
                     - bordetella
                     - coronavirus
+              product_id:
+                anyOf:
+                  - type: string
+                    format: uuid
+                    pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                  - type: "null"
               next_on:
                 anyOf:
                   - type: string
@@ -739,6 +753,12 @@ components:
                     - parainfluenza
                     - bordetella
                     - coronavirus
+              product_id:
+                anyOf:
+                  - type: string
+                    format: uuid
+                    pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                  - type: "null"
             required:
               - targets
             additionalProperties: false
@@ -808,6 +828,77 @@ components:
         - date
         - name
         - targets
+      additionalProperties: false
+    HealthProduct:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        kind:
+          type: string
+          enum:
+            - vaccine
+            - antiparasitic
+        name:
+          type: string
+        manufacturer:
+          anyOf:
+            - type: string
+            - type: "null"
+        aliases:
+          type: array
+          items:
+            type: string
+        species:
+          type: array
+          items:
+            type: string
+            enum:
+              - cat
+              - dog
+        form:
+          anyOf:
+            - type: string
+            - type: "null"
+        targets:
+          type: array
+          items:
+            type: string
+        interval:
+          anyOf:
+            - type: object
+              properties:
+                value:
+                  type: integer
+                  exclusiveMinimum: 0
+                  maximum: 9007199254740991
+                unit:
+                  type: string
+                  enum:
+                    - day
+                    - week
+                    - month
+                    - year
+              required:
+                - value
+                - unit
+              additionalProperties: false
+            - type: "null"
+        popular:
+          type: boolean
+      required:
+        - id
+        - kind
+        - name
+        - manufacturer
+        - aliases
+        - species
+        - form
+        - targets
+        - interval
+        - popular
       additionalProperties: false
     SymptomCheckRecord:
       type: object
@@ -2080,6 +2171,97 @@ paths:
                 error:
                   code: not_found
                   message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
+  /health/catalog:
+    get:
+      summary: Vaccines or treatments for one species, popular first
+      description: Search ignores case, «ё» and the keyboard layout. Only products a vet has checked are listed.
+      parameters:
+        - name: species
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - cat
+              - dog
+        - name: kind
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - vaccine
+              - antiparasitic
+        - name: q
+          in: query
+          required: false
+          schema:
+            type: string
+            maxLength: 100
+      responses:
+        "200":
+          description: Products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/HealthProduct"
+        "400":
+          description: Request body or query is invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: bad_request
+                  message: Request body or query is invalid
+                  request_id: 01J000000000000000000000
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted
                   request_id: 01J000000000000000000000
         "429":
           description: Too many requests

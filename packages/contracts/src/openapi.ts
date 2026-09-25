@@ -6,6 +6,7 @@ import { PetCreateInputSchema, PetSchema, PetUpdateInputSchema } from './pet'
 import {
   CompleteItemInputSchema,
   DueItemSchema,
+  HealthProductSchema,
   HealthEventInputSchema,
   HealthEventPatchSchema,
   HealthEventSchema,
@@ -58,6 +59,7 @@ const COMPONENTS: Array<[string, z.ZodType]> = [
   ['HealthEventPatch', HealthEventPatchSchema],
   ['CompleteItemInput', CompleteItemInputSchema],
   ['DueItem', DueItemSchema],
+  ['HealthProduct', HealthProductSchema],
   ['SymptomCheckRecord', SymptomCheckRecordSchema],
   ['CheckHistoryPage', CheckHistoryPageSchema],
   ['CheckCreateInput', CheckCreateInputSchema],
@@ -301,6 +303,25 @@ export function buildOpenApiDocument(): Record<string, unknown> {
         delete: {
           summary: 'Delete a measurement; the form falls back to the one before it',
           responses: { '204': { description: 'Deleted' }, ...commonErrors('not_found') },
+        },
+      },
+      '/health/catalog': {
+        get: {
+          summary: 'Vaccines or treatments for one species, popular first',
+          description:
+            'Search ignores case, «ё» and the keyboard layout. Only products a vet has checked are listed.',
+          parameters: [
+            { name: 'species', in: 'query', required: true, schema: { type: 'string', enum: ['cat', 'dog'] } },
+            { name: 'kind', in: 'query', required: true, schema: { type: 'string', enum: ['vaccine', 'antiparasitic'] } },
+            { name: 'q', in: 'query', required: false, schema: { type: 'string', maxLength: 100 } },
+          ],
+          responses: {
+            '200': {
+              description: 'Products',
+              content: { 'application/json': { schema: { type: 'array', items: ref('HealthProduct') } } },
+            },
+            ...commonErrors('bad_request'),
+          },
         },
       },
       '/pets/due': {

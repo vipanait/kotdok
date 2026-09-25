@@ -42,7 +42,12 @@ export const PATCH = withApiAuth(async (request: NextRequest, context: ApiContex
   }
 
   const result = await updateEvent(supabase, userId, ids.petId, ids.eventId, parsed.data)
-  if (!result.ok) return serviceFailureResponse(context.requestId, result.reason)
+  if (!result.ok) {
+    if (result.reason === 'bad_product') {
+      return apiError(context.requestId, 'bad_request', 'A product does not fit this pet')
+    }
+    return serviceFailureResponse(context.requestId, result.reason)
+  }
 
   return apiSuccess(context.requestId, result.data)
 })

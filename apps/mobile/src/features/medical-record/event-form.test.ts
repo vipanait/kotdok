@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { HealthEvent } from '@lapka/contracts'
 import { ru } from '@/i18n/ru'
-import { blankItem, draftFromEvent, draftChanged, nextDate, readDraft, type EventDraft } from './event-form'
+import { blankItem, draftFromEvent, draftChanged, nextDate, pickProduct, readDraft, renameItem, type EventDraft } from './event-form'
 
 const NOW = new Date(2026, 8, 24, 12, 0) // 24 Sept 2026, local
 
@@ -29,8 +29,8 @@ describe('reading the vaccination form', () => {
       clinic: null,
       notes: null,
       items: [
-        { name: 'Нобивак Tricat Trio', targets: ['panleukopenia'], next_on: '2027-09-24' },
-        { name: 'Нобивак Rabies', targets: ['rabies'], next_on: '2027-09-24' },
+        { name: 'Нобивак Tricat Trio', targets: ['panleukopenia'], product_id: null, next_on: '2027-09-24' },
+        { name: 'Нобивак Rabies', targets: ['rabies'], product_id: null, next_on: '2027-09-24' },
       ],
     })
   })
@@ -55,7 +55,7 @@ describe('reading the vaccination form', () => {
 
   it('sends no next dates for a plan', () => {
     const read = readDraft(ru, draft({ status: 'planned', date: '01.10.2026' }), 'new', NOW)
-    expect(read.ok && read.value.items[0]).toEqual({ name: 'Нобивак Rabies', targets: ['rabies'], next_on: null })
+    expect(read.ok && read.value.items[0]).toEqual({ name: 'Нобивак Rabies', targets: ['rabies'], product_id: null, next_on: null })
   })
 
   it('asks for a name or a disease on every vaccine, and for at least one vaccine', () => {
@@ -79,7 +79,7 @@ describe('editing a record', () => {
     date: '2026-03-12',
     clinic: 'Айболит',
     notes: null,
-    items: [{ id: 'i1', name: 'Нобивак Rabies', targets: ['rabies'], source_item_id: null }],
+    items: [{ id: 'i1', name: 'Нобивак Rabies', targets: ['rabies'], source_item_id: null, product_id: null }],
   }
 
   it('opens with what the record holds and sees no change until there is one', () => {
@@ -91,7 +91,7 @@ describe('editing a record', () => {
 
   it('keeps item ids so the server updates rather than replaces them', () => {
     const read = readDraft(ru, draftFromEvent(event), 'edit', NOW)
-    expect(read.ok && read.value.items).toEqual([{ id: 'i1', name: 'Нобивак Rabies', targets: ['rabies'], next_on: null }])
+    expect(read.ok && read.value.items).toEqual([{ id: 'i1', name: 'Нобивак Rabies', targets: ['rabies'], product_id: null, next_on: null }])
   })
 })
 
@@ -103,7 +103,7 @@ describe('an overdue plan (MR-03.3)', () => {
     date: '2026-09-12',
     clinic: null,
     notes: null,
-    items: [{ id: 'i1', name: null, targets: ['rabies'], source_item_id: null }],
+    items: [{ id: 'i1', name: null, targets: ['rabies'], source_item_id: null, product_id: null }],
   }
 
   it('can be corrected without moving it, and moved only forward', () => {
@@ -125,5 +125,48 @@ describe('backfilling old vaccinations (review 2)', () => {
   it('refuses a custom next date that has passed', () => {
     const read = readDraft(ru, draft({ date: '12.03.2024', items: [{ ...blankItem('a'), targets: ['rabies'], next: 'custom', nextText: '12.03.2025' }] }), 'new', NOW)
     expect(!read.ok && read.errors.next).toEqual({ a: 'Следующая — ДД.ММ.ГГГГ, позже даты записи' })
+  })
+})
+
+describe('picking from the catalogue (MR-04.3)', () => {
+  const bravecto = {
+    id: '11111111-1111-4111-8111-0000000000b1',
+    kind: 'vaccine' as const,
+    name: 'Нобивак Rabies',
+    manufacturer: 'MSD',
+    aliases: [],
+    species: ['cat' as const, 'dog' as const],
+    form: 'injection',
+    targets: ['rabies'],
+    interval: { value: 12, unit: 'week' as const },
+    popular: true,
+  }
+  const tricat = { ...bravecto, id: '11111111-1111-4111-8111-0000000000b2', name: 'Нобивак Tricat Trio', targets: ['panleukopenia', 'calicivirus'], interval: { value: 1, unit: 'year' as const } }
+
+  it('fills name, diseases, product and interval, and the next date follows the interval', () => {
+    const item = pickProduct({ ...blankItem('a'), next: 'none', targets: ['felv'] }, bravecto)
+    expect(item).toMatchObject({ name: 'Нобивак Rabies', targets: ['rabies'], productId: bravecto.id, source: 'catalog', next: 'year' })
+    expect(nextDate(item, '2026-09-24', '2026-09-24')).toBe('2026-12-17')
+  })
+
+  it('replaces everything when another product is picked', () => {
+    const item = pickProduct(pickProduct(blankItem('a'), bravecto), tricat)
+    expect(item).toMatchObject({ name: 'Нобивак Tricat Trio', targets: ['panleukopenia', 'calicivirus'], productId: tricat.id })
+    expect(nextDate(item, '2026-09-24', '2026-09-24')).toBe('2027-09-24')
+  })
+
+  it('stops pointing at the product once its name is changed by hand, keeping what was typed', () => {
+    const item = renameItem(pickProduct(blankItem('a'), bravecto), 'Нобивак Rabies (другая серия)')
+    expect(item).toMatchObject({ name: 'Нобивак Rabies (другая серия)', targets: ['rabies'], productId: null, source: 'manual' })
+  })
+
+  it('sends the product with the item', () => {
+    const read = readDraft(ru, draft({ items: [pickProduct(blankItem('a'), tricat)] }), 'new', NOW)
+    expect(read.ok && read.value.items[0]).toEqual({
+      name: 'Нобивак Tricat Trio',
+      targets: ['panleukopenia', 'calicivirus'],
+      product_id: tricat.id,
+      next_on: '2027-09-24',
+    })
   })
 })

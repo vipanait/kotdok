@@ -38,7 +38,12 @@ export const POST = withApiAuth(async (request: NextRequest, context: ApiContext
   }
 
   const result = await createEvent(createServiceClient(), context.account.userId, id, parsed.data, key.key)
-  if (!result.ok) return serviceFailureResponse(context.requestId, result.reason)
+  if (!result.ok) {
+    if (result.reason === 'bad_product') {
+      return apiError(context.requestId, 'bad_request', 'A product does not fit this pet')
+    }
+    return serviceFailureResponse(context.requestId, result.reason)
+  }
 
   return apiSuccess(context.requestId, result.data, 201)
 })

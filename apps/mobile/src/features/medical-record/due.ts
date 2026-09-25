@@ -85,14 +85,14 @@ function targetName(t: Dictionary, code: string): string {
  * What a due row is called: the disease for a single one («Бешенство»),
  * «Комплексная прививка» for several, the owner's own name otherwise.
  */
-export function itemTitle(t: Dictionary, item: HealthItem): string {
+export function itemTitle(t: Dictionary, item: Pick<HealthItem, 'name' | 'targets'>): string {
   if (item.targets.length === 1) return targetName(t, item.targets[0])
   if (item.targets.length > 1) return t.medicalRecord.complexVaccination
   return item.name ?? t.medicalRecord.noProduct
 }
 
 /** A vaccine as a record lists it: its name, or what it was against. */
-export function itemName(t: Dictionary, item: HealthItem): string {
+export function itemName(t: Dictionary, item: Pick<HealthItem, 'name' | 'targets'>): string {
   return item.name ?? targetList(t, item.targets)
 }
 

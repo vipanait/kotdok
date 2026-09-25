@@ -1,7 +1,7 @@
-import type { HealthEvent, HealthEventInput, VaccineTarget } from '@lapka/contracts'
+import type { HealthEvent, HealthEventInput, HealthProduct, VaccineTarget } from '@lapka/contracts'
+import { addInterval, type Interval } from '@lapka/shared'
 import type { Dictionary } from '@/i18n'
 import { dayInput, localToday, parseDayInput, parseDayText, parseFutureDayInput } from '@/lib/calendar-day'
-import { nextYear } from './due'
 
 /**
  * The vaccination form as text fields, and turning it into a request. No
@@ -9,6 +9,12 @@ import { nextYear } from './due'
  */
 
 export type NextChoice = 'year' | 'custom' | 'none'
+
+/**
+ * How an item was named: picked from the catalogue, typed by hand, «Без
+ * препарата» (diseases only), or not yet — a new item opens the catalogue.
+ */
+export type ItemSource = 'unset' | 'catalog' | 'manual' | 'none'
 
 export type ItemDraft = {
   /** Stable across renders, for React keys and error messages. */
@@ -19,6 +25,10 @@ export type ItemDraft = {
   targets: VaccineTarget[]
   next: NextChoice
   nextText: string
+  source: ItemSource
+  productId: string | null
+  /** The product's repeat interval; a year when there is none. */
+  interval: Interval | null
 }
 
 export type EventDraft = {
@@ -33,7 +43,37 @@ export type EventDraft = {
 export type FormMode = 'new' | 'edit' | 'complete'
 
 export function blankItem(key: string): ItemDraft {
-  return { key, name: '', targets: [], next: 'year', nextText: '' }
+  return { key, name: '', targets: [], next: 'year', nextText: '', source: 'unset', productId: null, interval: null }
+}
+
+/**
+ * A product picked from the catalogue replaces everything the item said —
+ * name, diseases, interval — and the next date follows its interval again.
+ */
+export function pickProduct(item: ItemDraft, product: HealthProduct): ItemDraft {
+  return {
+    ...item,
+    name: product.name,
+    targets: product.targets as VaccineTarget[],
+    productId: product.id,
+    interval: product.interval,
+    source: 'catalog',
+    next: 'year',
+    nextText: '',
+  }
+}
+
+/**
+ * A name typed by hand is the owner's own: the item no longer claims to be the
+ * catalogue product, and nothing typed is replaced by the catalogue's values.
+ */
+export function renameItem(item: ItemDraft, name: string): ItemDraft {
+  return { ...item, name, productId: null, source: 'manual' }
+}
+
+/** The interval «suggested» next dates use: the product's, else a year. */
+export function itemInterval(item: ItemDraft): Interval {
+  return item.interval ?? { value: 1, unit: 'year' }
 }
 
 export function blankDraft(status: 'done' | 'planned', now: Date = new Date()): EventDraft {
@@ -51,6 +91,9 @@ export function draftFromEvent(event: HealthEvent): EventDraft {
       targets: item.targets as VaccineTarget[],
       next: 'year',
       nextText: '',
+      source: item.product_id ? 'catalog' : item.name ? 'manual' : 'none',
+      productId: item.product_id,
+      interval: null,
     })),
     clinic: event.clinic ?? '',
     notes: event.notes ?? '',
@@ -68,7 +111,13 @@ export type DraftErrors = {
   next?: Record<string, string>
 }
 
-type ItemInput = { id?: string; name: string | null; targets: VaccineTarget[]; next_on: string | null }
+type ItemInput = {
+  id?: string
+  name: string | null
+  targets: VaccineTarget[]
+  product_id: string | null
+  next_on: string | null
+}
 
 export type ReadDraft =
   | { ok: true; value: Omit<HealthEventInput, 'items'> & { items: ItemInput[] } }
@@ -84,7 +133,7 @@ export type ReadDraft =
 export function nextDate(item: ItemDraft, recordDay: string, today: string = localToday()): string | null | undefined {
   if (item.next === 'none') return null
   if (item.next === 'year') {
-    const next = nextYear(recordDay)
+    const next = addInterval(recordDay, itemInterval(item))
     return next >= today ? next : null
   }
   const day = parseDayText(item.nextText)
@@ -128,7 +177,13 @@ export function readDraft(
       if (next === undefined) nextErrors[item.key] = words.nextInvalid
       else next_on = next
     }
-    return { ...(item.id ? { id: item.id } : {}), name: name === '' ? null : name, targets: item.targets, next_on }
+    return {
+      ...(item.id ? { id: item.id } : {}),
+      name: name === '' ? null : name,
+      targets: item.targets,
+      product_id: item.productId,
+      next_on,
+    }
   })
 
   if (Object.keys(itemErrors).length > 0) errors.items = itemErrors

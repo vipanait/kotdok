@@ -45,6 +45,7 @@ const REQUIRED_TABLES = [
   'deletion_jobs',
   'extra_check_requests',
   'financial_archive',
+  'health_products',
   'pet_health_events',
   'pet_health_items',
   'pet_weights',

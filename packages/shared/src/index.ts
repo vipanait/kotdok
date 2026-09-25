@@ -9,3 +9,4 @@
 export * from './api-client'
 export * from './datetime'
 export * from './locale'
+export * from './medical-record/catalog-search'

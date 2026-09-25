@@ -31,7 +31,7 @@ function DueLine({ t, due }: { t: Dictionary; due: DueItem | undefined }) {
   if (!due) return null
   const status = dueStatus(t, due.date, localToday())
   if (status.tone === 'later') return null
-  const title = itemTitle(t, { id: due.item_id, name: due.name, targets: due.targets, source_item_id: null })
+  const title = itemTitle(t, { name: due.name, targets: due.targets })
   return (
     <Text
       variant="caption"

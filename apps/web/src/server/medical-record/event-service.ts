@@ -11,6 +11,8 @@ import {
 } from '@lapka/contracts'
 import type { createServiceClient } from '@/server/supabase/server'
 import type { WeightResult } from './weight-service'
+import { productsFitPet } from './catalog-service'
+import { getPet } from '@/server/pets/pet-service'
 
 type SupabaseService = ReturnType<typeof createServiceClient>
 type Result<T> = WeightResult<T>
@@ -20,6 +22,7 @@ type ItemRow = {
   name: string | null
   targets: string[] | null
   source_item_id: string | null
+  product_id: string | null
   position: number
   deleted_at: string | null
 }
@@ -35,7 +38,7 @@ type EventRow = {
 }
 
 const EVENT_COLUMNS =
-  'id, kind, status, event_date, clinic, notes, pet_health_items(id, name, targets, source_item_id, position, deleted_at)'
+  'id, kind, status, event_date, clinic, notes, pet_health_items(id, name, targets, source_item_id, product_id, position, deleted_at)'
 
 /** Field by field: owner, keys and deletion marks stay on the server. */
 function toEventContract(row: EventRow): HealthEvent {
@@ -54,6 +57,7 @@ function toEventContract(row: EventRow): HealthEvent {
       name: item.name,
       targets: item.targets ?? [],
       source_item_id: item.source_item_id,
+      product_id: item.product_id,
     })),
   })
 }
@@ -107,13 +111,33 @@ export async function eventStatus(
   return event.ok ? { ok: true, data: { status: event.data.status } } : event
 }
 
+/** Products named in a record must fit the pet; `bad_product` becomes a 400. */
+async function checkProducts(
+  supabase: SupabaseService,
+  userId: string,
+  petId: string,
+  productIds: readonly (string | null | undefined)[],
+): Promise<Result<null> | { ok: false; reason: 'bad_product' }> {
+  const ids = productIds.filter((id): id is string => typeof id === 'string')
+  if (ids.length === 0) return { ok: true, data: null }
+
+  const pet = await getPet(supabase, userId, petId)
+  if (!pet.ok) return { ok: false, reason: pet.reason === 'account_deleting' ? 'account_deleting' : pet.reason === 'not_found' ? 'not_found' : 'storage_error' }
+  const fits = await productsFitPet(supabase, ids, pet.data.species, 'vaccine')
+  if (!fits.ok) return fits
+  return fits.data ? { ok: true, data: null } : { ok: false, reason: 'bad_product' }
+}
+
 export async function createEvent(
   supabase: SupabaseService,
   userId: string,
   petId: string,
   input: HealthEventInput,
   idempotencyKey: string | null,
-): Promise<Result<HealthEvent>> {
+): Promise<Result<HealthEvent> | { ok: false; reason: 'bad_product' }> {
+  const products = await checkProducts(supabase, userId, petId, input.items.map((item) => item.product_id))
+  if (!products.ok) return products
+
   const { data, error } = await supabase.rpc('create_health_event', {
     p_user_id: userId,
     p_pet_id: petId,
@@ -125,6 +149,7 @@ export async function createEvent(
     p_items: input.items.map((item) => ({
       name: item.name ?? null,
       targets: item.targets,
+      product_id: item.product_id ?? null,
       next_on: input.status === 'done' ? (item.next_on ?? null) : null,
     })),
     p_key: idempotencyKey,
@@ -140,7 +165,10 @@ export async function updateEvent(
   petId: string,
   eventId: string,
   patch: HealthEventPatch,
-): Promise<Result<HealthEvent>> {
+): Promise<Result<HealthEvent> | { ok: false; reason: 'bad_product' }> {
+  const products = await checkProducts(supabase, userId, petId, (patch.items ?? []).map((item) => item.product_id))
+  if (!products.ok) return products
+
   const { error } = await supabase.rpc('update_health_event', {
     p_user_id: userId,
     p_pet_id: petId,
@@ -207,7 +235,7 @@ type DueRow = {
 export async function listDue(supabase: SupabaseService, userId: string): Promise<Result<DueItem[]>> {
   const { data, error } = await supabase
     .from('pet_health_events')
-    .select('id, pet_id, kind, event_date, pet_health_items(id, name, targets, source_item_id, position, deleted_at), pets!inner(deleted_at)')
+    .select('id, pet_id, kind, event_date, pet_health_items(id, name, targets, source_item_id, product_id, position, deleted_at), pets!inner(deleted_at)')
     .eq('user_id', userId)
     .eq('status', 'planned')
     .is('deleted_at', null)

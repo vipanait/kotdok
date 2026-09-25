@@ -68,11 +68,13 @@ const ITEMS_MAX = 10
  * One vaccine in a record. `name` null is «Без препарата»; `source_item_id`
  * is the done item a plan was made from.
  */
-export const HealthItemSchema = z.strictObject({
+export const HealthItemSchema = z.object({
   id: UuidSchema,
   name: z.string().nullable(),
   targets: z.array(z.string()),
   source_item_id: UuidSchema.nullable(),
+  /** The catalogue product it was picked from; its name and diseases are copied, not linked. */
+  product_id: UuidSchema.nullable().default(null),
 })
 
 export type HealthItem = z.infer<typeof HealthItemSchema>
@@ -99,6 +101,7 @@ const HealthItemInputSchema = z
   .strictObject({
     name: itemNameSchema,
     targets: targetsSchema,
+    product_id: UuidSchema.nullable().optional(),
     /** The next one of this vaccine; null or absent is «Не напоминать». Done records only. */
     next_on: CalendarDateSchema.nullable().optional(),
   })
@@ -138,7 +141,12 @@ export const HealthEventPatchSchema = z
     items: z
       .array(
         z
-          .strictObject({ id: UuidSchema.optional(), name: itemNameSchema, targets: targetsSchema })
+          .strictObject({
+            id: UuidSchema.optional(),
+            name: itemNameSchema,
+            targets: targetsSchema,
+            product_id: UuidSchema.nullable().optional(),
+          })
           .refine(named, { message: 'a name or at least one disease is required' }),
       )
       .min(1)
@@ -163,6 +171,30 @@ export const CompleteItemInputSchema = z
   })
 
 export type CompleteItemInput = z.infer<typeof CompleteItemInputSchema>
+
+export const PRODUCT_KINDS = ['vaccine', 'antiparasitic'] as const
+export const INTERVAL_UNITS = ['day', 'week', 'month', 'year'] as const
+
+export const ProductKindSchema = z.enum(PRODUCT_KINDS)
+
+export type ProductKind = z.infer<typeof ProductKindSchema>
+
+/** A catalogue product: a vaccine or a treatment, with what it covers and when to repeat it. */
+export const HealthProductSchema = z.object({
+  id: UuidSchema,
+  kind: ProductKindSchema,
+  name: z.string(),
+  manufacturer: z.string().nullable(),
+  aliases: z.array(z.string()),
+  species: z.array(z.enum(['cat', 'dog'])),
+  form: z.string().nullable(),
+  targets: z.array(z.string()),
+  /** «По инструкции препарата»: a hint for the next date, never a prescription. */
+  interval: z.strictObject({ value: z.number().int().positive(), unit: z.enum(INTERVAL_UNITS) }).nullable(),
+  popular: z.boolean(),
+})
+
+export type HealthProduct = z.infer<typeof HealthProductSchema>
 
 /** One due date across all of the caller's pets, for the pet list. */
 export const DueItemSchema = z.strictObject({

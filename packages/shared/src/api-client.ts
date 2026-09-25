@@ -11,6 +11,7 @@ import {
   ExtraCheckRequestStatusSchema,
   DueItemSchema,
   HealthEventSchema,
+  HealthProductSchema,
   HealthOverviewSchema,
   HealthSchema,
   IDEMPOTENCY_KEY_HEADER,
@@ -33,6 +34,8 @@ import {
   type CompleteItemInput,
   type HealthEventInput,
   type HealthEventPatch,
+  type PetSpecies,
+  type ProductKind,
   type WeightInput,
   type WeightPatch,
 } from '@lapka/contracts'
@@ -260,6 +263,11 @@ export function createApiClient(options: ApiClientOptions) {
         headers: { [IDEMPOTENCY_KEY_HEADER]: idempotencyKey },
       }),
     listDue: () => call('/pets/due', z.array(DueItemSchema)),
+    getCatalog: (species: PetSpecies, kind: ProductKind, query = '') =>
+      call(
+        `/health/catalog?species=${species}&kind=${kind}&q=${encodeURIComponent(query)}`,
+        z.array(HealthProductSchema),
+      ),
 
     requestUploads: (body: UploadRequest) =>
       call('/uploads', UploadGrantSchema, { method: 'POST', body }),
