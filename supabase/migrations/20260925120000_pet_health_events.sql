@@ -112,7 +112,13 @@ create trigger refuse_late_writes
 -- deleting the last vaccination gives the owner's answer back instead of
 -- deciding "not vaccinated" for them.
 alter table public.pets add column if not exists vaccinated_form boolean;
-update public.pets set vaccinated_form = vaccinated where vaccinated_form is null and vaccinated is not null;
+-- Active accounts only: the late-write guard refuses writes to an account
+-- being deleted, and would fail the whole migration; those pets go anyway.
+update public.pets p
+   set vaccinated_form = p.vaccinated
+  from public.profiles pr
+ where pr.id = p.user_id and pr.status = 'active'
+   and p.vaccinated_form is null and p.vaccinated is not null;
 
 create or replace function public.sync_pet_vaccinated(p_pet_id uuid)
 returns void
