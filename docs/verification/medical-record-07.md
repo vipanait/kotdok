@@ -2,7 +2,7 @@
 
 Статус: **реализован**, ждёт приёмки владельца.
 Зависимости: [MR-03](medical-record-03.md), [MR-06](medical-record-06.md) (реализованы, ждут приёмки).
-Сборка: ветка `feature/medical-record-spec`, коммит `e2e1a96` (этап) и следующий за ним (исправления по ревью). Дата: 25 сентября 2026.
+Сборка: ветка `feature/medical-record-spec`, коммиты `e2e1a96` (этап) и `1092b68` (исправления по ревью). Дата: 25 сентября 2026.
 Окружение: локальный Supabase с миграцией `20260925200000_vet_visits.sql`, API `next dev -p 3100` с `.env.integration`, симулятор iPhone 17e.
 
 План: [07.md](../plans/medical-record/07.md). Макеты: M17, M26, X-visit-form, X-visit.
