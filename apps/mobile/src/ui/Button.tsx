@@ -166,7 +166,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  link: { minHeight: TAP_TARGET, justifyContent: 'center', paddingVertical: 10 },
+  // Wide as well as tall: a one-word link such as «Анкета» / "Form" is
+  // narrower than a fingertip.
+  link: { minHeight: TAP_TARGET, minWidth: TAP_TARGET, justifyContent: 'center', paddingVertical: 10 },
   linkRow: { flexDirection: 'row', justifyContent: 'space-between', gap: space.row },
   iconButton: {
     minWidth: TAP_TARGET,

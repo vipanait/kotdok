@@ -80,8 +80,8 @@ function Section({ row }: { row: SectionRow }) {
 
 /**
  * The pet's medical record: what the owner said in the form, and — as the
- * record's stages land — the history behind it. The form itself is one tap
- * away under «Анкета» and did not change.
+ * record's stages land — the history behind it. The form keeps its fields and
+ * sits one tap away under «Анкета».
  */
 export default function MedicalRecord() {
   const { id } = useLocalSearchParams<{ id: string }>()
@@ -118,12 +118,31 @@ export default function MedicalRecord() {
     </>
   ) : null
 
+  const formAction = { label: t.medicalRecord.form, onPress: openForm }
+  const history = (
+    <SettingRow
+      icon="history"
+      title={t.pets.history}
+      onPress={() => router.push(`/pets/${id}/checks`)}
+    />
+  )
+
   if (!shown) {
+    // The form, its delete and the check history do not depend on the record:
+    // a record that fails to load must not take them with it.
     return (
-      <Screen title={t.pets.fallbackTitle} onBack={() => router.back()} scroll>
+      <Screen
+        title={t.pets.fallbackTitle}
+        onBack={() => router.back()}
+        action={error ? formAction : undefined}
+        scroll
+      >
         {banner}
         {error ? (
-          <LinkButton title={t.common.toList} onPress={() => router.dismissTo('/pets')} />
+          <>
+            {history}
+            <LinkButton title={t.common.toList} onPress={() => router.dismissTo('/pets')} />
+          </>
         ) : (
           <Skeleton />
         )}
@@ -139,7 +158,7 @@ export default function MedicalRecord() {
     <Screen
       title={pet.name}
       onBack={() => router.back()}
-      action={{ label: t.medicalRecord.form, onPress: openForm }}
+      action={formAction}
       scroll
     >
       {banner}
@@ -198,11 +217,7 @@ export default function MedicalRecord() {
         ))}
       </Card>
 
-      <SettingRow
-        icon="history"
-        title={t.pets.history}
-        onPress={() => router.push(`/pets/${id}/checks`)}
-      />
+      {history}
     </Screen>
   )
 }

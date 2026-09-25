@@ -18,9 +18,13 @@ export type HeaderFacts = {
   weightNote: string | null
 }
 
+/**
+ * «Кошка» for a female cat, as the design has it — but never the form's
+ * «Сука», and never English's bare "Female" in place of the species.
+ */
 function speciesWord(t: Dictionary, pet: Pet): string {
   if (pet.sex === null) return t.species[pet.species]
-  return pet.species === 'cat' ? t.sexCat[pet.sex] : t.sexDog[pet.sex]
+  return t.medicalRecord.animal[pet.species][pet.sex]
 }
 
 export function headerFacts(t: Dictionary, pet: Pet): HeaderFacts {
@@ -48,6 +52,13 @@ export function importantFacts(t: Dictionary, pet: Pet): Fact[] {
   ]
   return facts.filter((fact) => fact.value !== '')
 }
+
+/**
+ * Sections this build has a screen for. The server's `writable` says what it
+ * can store; an app older than the server must not draw a chevron for a
+ * section it cannot open. Each stage adds its section here with its screen.
+ */
+const OPENABLE_SECTIONS: readonly HealthSection[] = []
 
 export type SectionRow = {
   section: HealthSection
@@ -79,6 +90,6 @@ export function sectionRows(t: Dictionary, overview: HealthOverview): SectionRow
     section,
     title: t.medicalRecord.sections[section],
     summary: summary(t, section, overview.pet),
-    openable: overview.writable.includes(section),
+    openable: overview.writable.includes(section) && OPENABLE_SECTIONS.includes(section),
   }))
 }

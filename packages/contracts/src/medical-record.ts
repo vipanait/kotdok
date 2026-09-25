@@ -19,8 +19,13 @@ export type HealthSection = z.infer<typeof HealthSectionSchema>
  * (spec §2.2). `writable` lists the sections this server can store records in;
  * the client offers "add" only for those, so a section a later release brings
  * is not a button that fails.
+ *
+ * Not strict, unlike the pet itself: every medical record stage adds to this
+ * response, and an app already on phones must keep reading it. Unknown keys
+ * are dropped, not rejected. The server builds the object field by field, so
+ * leniency here lets nothing extra out.
  */
-export const HealthOverviewSchema = z.strictObject({
+export const HealthOverviewSchema = z.object({
   pet: PetSchema,
   writable: z.array(HealthSectionSchema),
 })

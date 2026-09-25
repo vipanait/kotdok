@@ -51,6 +51,11 @@ describe('medical record header', () => {
     expect(headerFacts(ru, pet({ weight_kg: null })).weight).toBeNull()
   })
 
+  it('names the species even when the sex is known, in either language', () => {
+    expect(headerFacts(ru, pet({ sex: 'female' })).meta).toBe('Собака · 5 лет')
+    expect(headerFacts(en, pet({ species: 'cat', sex: 'female', breed: null })).meta).toBe('Cat · 5 years')
+  })
+
   it('names the female cat and her neutering in the words the form uses', () => {
     const facts = headerFacts(ru, pet({ species: 'cat', sex: 'female', breed: 'Сибирская', age_years: 3, neutered: true }))
     expect(facts.meta).toBe('Кошка · Сибирская · 3 года')
@@ -109,9 +114,10 @@ describe('sections', () => {
     expect(rows[4].summary).toBe('Пока нет записей')
   })
 
-  it('opens a section the server can write to', () => {
-    const rows = sectionRows(ru, { pet: pet(), writable: ['weight'] })
-    expect(rows.find((row) => row.section === 'weight')?.openable).toBe(true)
-    expect(rows.find((row) => row.section === 'visits')?.openable).toBe(false)
+  it('does not open a section this build has no screen for, whatever the server allows', () => {
+    // A newer server lists sections an older app cannot show: a chevron there
+    // would be a button that leads nowhere.
+    const rows = sectionRows(ru, { pet: pet(), writable: ['weight', 'visits'] })
+    expect(rows.every((row) => !row.openable)).toBe(true)
   })
 })

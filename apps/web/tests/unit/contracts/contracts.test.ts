@@ -217,7 +217,11 @@ describe('medical record overview contract', () => {
     expect(HealthOverviewSchema.safeParse({ pet, writable: ['files'] }).success).toBe(false)
   })
 
-  it('does not let the owner id leak through', () => {
-    expect(HealthOverviewSchema.safeParse({ pet, writable: [], user_id: 'x' }).success).toBe(false)
+  it('still reads an overview that a later server has added fields to', () => {
+    // A published app cannot be updated everywhere at once, and every medical
+    // record stage adds to this response. An older client ignores what it does
+    // not know instead of failing the whole screen.
+    const later = HealthOverviewSchema.parse({ pet, writable: ['weight'], weights: [] })
+    expect(later).toEqual({ pet, writable: ['weight'] })
   })
 })

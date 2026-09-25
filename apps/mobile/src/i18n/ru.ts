@@ -70,6 +70,10 @@ export const ru = {
   medicalRecord: {
     form: 'Анкета',
     fromForm: 'Из анкеты',
+    animal: {
+      cat: { male: 'Кот', female: 'Кошка' },
+      dog: { male: 'Собака', female: 'Собака' },
+    },
     weight: (kg: number) => `${String(kg).replace('.', ',')} кг`,
     neutered: { female: 'Стерилизована', male: 'Кастрирован', unknown: 'Стерилизован(а)' },
     important: 'Важно знать',

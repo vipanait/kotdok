@@ -70,6 +70,10 @@ export const en: Dictionary = {
   medicalRecord: {
     form: 'Form',
     fromForm: 'From the form',
+    animal: {
+      cat: { male: 'Cat', female: 'Cat' },
+      dog: { male: 'Dog', female: 'Dog' },
+    },
     weight: (kg: number) => `${kg} kg`,
     neutered: { female: 'Spayed', male: 'Neutered', unknown: 'Spayed/neutered' },
     important: 'Important to know',
