@@ -385,14 +385,51 @@ function knownKinds(value: unknown): unknown {
     : value
 }
 
-/** The overview as a client reads it: records of an unknown kind are left out. */
-export const HealthOverviewReadSchema = z.preprocess(
-  (value) =>
-    value && typeof value === 'object' && 'events' in value
-      ? { ...(value as object), events: knownKinds((value as { events: unknown }).events) }
-      : value,
-  HealthOverviewSchema,
-)
+const WEIGHT_FIELDS = ['id', 'measured_on', 'weight_kg', 'source'] as const
+
+/**
+ * Records a later server may write in ways this app does not know: a visit
+ * of an unknown kind is left out, an interval in an unknown unit becomes no
+ * interval (the next date is then chosen by hand), and a weight keeps only
+ * the fields this app reads. A broken known record still fails the read.
+ */
+export function readableEvents(value: unknown): unknown {
+  const known = knownKinds(value)
+  if (!Array.isArray(known)) return known
+  return known
+    .filter((entry) => {
+      const visitKind = (entry as { visit_kind?: unknown } | null)?.visit_kind
+      return visitKind === null || visitKind === undefined || (VISIT_KINDS as readonly unknown[]).includes(visitKind)
+    })
+    .map((entry) => {
+      const items = (entry as { items?: unknown } | null)?.items
+      if (!Array.isArray(items)) return entry
+      return {
+        ...(entry as object),
+        items: items.map((item) => {
+          const unit = (item as { interval?: { unit?: unknown } | null } | null)?.interval?.unit
+          return unit !== undefined && !(INTERVAL_UNITS as readonly unknown[]).includes(unit) ? { ...(item as object), interval: null } : item
+        }),
+      }
+    })
+}
+
+export function readableWeights(value: unknown): unknown {
+  return Array.isArray(value)
+    ? value.map((weight) =>
+        weight && typeof weight === 'object'
+          ? Object.fromEntries(Object.entries(weight).filter(([key]) => (WEIGHT_FIELDS as readonly string[]).includes(key)))
+          : weight,
+      )
+    : value
+}
+
+/** The overview as a client reads it: see {@link readableEvents}, {@link readableWeights}. */
+export const HealthOverviewReadSchema = z.preprocess((value) => {
+  if (!value || typeof value !== 'object') return value
+  const overview = value as { events?: unknown; weights?: unknown }
+  return { ...overview, events: readableEvents(overview.events), weights: readableWeights(overview.weights) }
+}, HealthOverviewSchema)
 
 /** The due list as a client reads it: due dates of an unknown kind are left out. */
 export const DueListReadSchema = z.preprocess(knownKinds, z.array(DueItemSchema))

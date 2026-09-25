@@ -32,6 +32,8 @@ export default function EditPet() {
   const [hasCourses, setHasCourses] = useState(false)
   // What the server holds, to tell an edit from a form that was only looked at.
   const [saved, setSaved] = useState<PetForm | null>(null)
+  // The medicines and weight as opened: the server changes only what the owner changed.
+  const [opened, setOpened] = useState<{ medications: string[]; weight_kg: number | null } | null>(null)
   const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
   const [invalid, setInvalid] = useState<FieldError | null>(null)
   const [busy, setBusy] = useState(false)
@@ -45,6 +47,7 @@ export default function EditPet() {
       const { pet, weights, medications } = await withFreshSession((api) => api.getHealthOverview(id))
       setForm(petToForm(pet))
       setSaved(petToForm(pet))
+      setOpened({ medications: pet.medications, weight_kg: pet.weight_kg })
       setHasWeights(weights.length > 0)
       setHasCourses(medications.some((course) => course.source === 'record' || course.dosage !== null))
     } catch (cause) {
@@ -85,7 +88,11 @@ export default function EditPet() {
     try {
       // The owner's own day: a weight saved from the form is that day's measurement.
       await withFreshSession((api) =>
-        api.updatePet(id, { ...input.value, weight_measured_on: localToday() }),
+        api.updatePet(id, {
+          ...input.value,
+          weight_measured_on: localToday(),
+          ...(opened ? { medications_before: opened.medications, weight_kg_before: opened.weight_kg } : {}),
+        }),
       )
       // The name in a reminder, and the «vaccinated» plan, may have changed.
       reminders.refresh()

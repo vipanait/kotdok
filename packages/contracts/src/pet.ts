@@ -115,12 +115,25 @@ export const PetCreateInputSchema = z
 
 export type PetCreateInput = z.infer<typeof PetCreateInputSchema>
 
+/** Not pet columns: what the form showed when it was opened, set aside from what it sends. */
+const FORM_CONTEXT_KEYS = ['weight_measured_on', 'medications_before', 'weight_kg_before']
+
 export const PetUpdateInputSchema = z
-  .strictObject(petWritableFields)
+  .strictObject({
+    ...petWritableFields,
+    /**
+     * The medicines list the form was opened with. Only names the owner took
+     * off it end their courses; a course added in the record since is not on
+     * it and stays. Without it the server compares with the current list.
+     */
+    medications_before: stringList.optional(),
+    /** The weight the form was opened with: sent back unchanged, it records nothing. */
+    weight_kg_before: z.number().min(0).max(200).nullable().optional(),
+  })
   .partial()
   .superRefine((value, ctx) => {
-    // The weighing day describes the weight; alone it changes nothing about the pet.
-    if (Object.keys(value).filter((key) => key !== 'weight_measured_on').length === 0) {
+    // The weighing day and what the form was opened with describe the edit; alone they change nothing.
+    if (Object.keys(value).filter((key) => !FORM_CONTEXT_KEYS.includes(key)).length === 0) {
       ctx.addIssue({ code: 'custom', message: 'at least one field is required' })
       return
     }

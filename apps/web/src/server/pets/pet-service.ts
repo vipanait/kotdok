@@ -190,24 +190,40 @@ export async function updatePet(
   // history, so it has to see it first. Once the weight is in the history,
   // the history decides the form's weight — the newest measurement, which is
   // not always the one just saved — so the update leaves the column alone.
-  const weight = formWeight(body, sanitized)
+  // Sent back as it was opened, the form's weight is not a new measurement:
+  // a newer one may have come in since, and would be overwritten by old data.
+  const unchangedWeight = 'weight_kg_before' in body && body.weight_kg_before === sanitized.weight_kg
+  const weight = unchangedWeight ? null : formWeight(body, sanitized)
   if (weight) {
     const recorded = await recordWeight(supabase, userId, petId, weight, 'form')
     if (!recorded.ok) {
       return { ok: false, reason: recorded.reason === 'not_found' ? 'not_found' : 'storage_error', message: recorded.message }
     }
     pet = withoutWeight
-  } else if (await hasWeights(supabase, petId)) {
+  } else if (unchangedWeight || (await hasWeights(supabase, petId))) {
     // Clearing the field does not delete measurements, and the form would
     // disagree with the history it points to.
     pet = withoutWeight
   }
 
   // The answer is the owner's; what the pet is shown as also counts the
-  // vaccinations in the record, so it is worked out after the update.
+  // vaccinations in the record, so it is worked out after the update. The
+  // form shows that combined value: sent back unchanged, it is not the
+  // owner's answer, and the answer already given stays.
+  const { data: current } = await supabase
+    .from('pets')
+    .select('vaccinated, vaccinated_form')
+    .eq('id', petId)
+    .eq('user_id', userId)
+    .is('deleted_at', null)
+    .maybeSingle()
+  const vaccinatedForm =
+    current && 'vaccinated' in body && sanitized.vaccinated === current.vaccinated && current.vaccinated !== current.vaccinated_form
+      ? current.vaccinated_form
+      : sanitized.vaccinated
   const { data: updated, error: updateError } = await supabase
     .from('pets')
-    .update({ ...pet, vaccinated_form: sanitized.vaccinated })
+    .update({ ...pet, vaccinated_form: vaccinatedForm })
     .eq('id', petId)
     .eq('user_id', userId)
     .is('deleted_at', null)
@@ -226,7 +242,8 @@ export async function updatePet(
   // Only when the body speaks about medicines: sanitizePet fills an absent
   // list with [], and a partial update must not end every course.
   if ('medications' in body) {
-    const medicines = await syncFormMedications(supabase, userId, petId, formMedications, formDay(body))
+    const before = Array.isArray(body.medications_before) ? (body.medications_before as string[]) : null
+    const medicines = await syncFormMedications(supabase, userId, petId, formMedications, formDay(body), before)
     if (!medicines.ok) return { ok: false, reason: 'storage_error', message: medicines.message }
   }
 

@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { PetSchema } from './pet'
 import { CalendarDateSchema, IsoDateTimeSchema, URGENCY_LEVELS, UrgencySchema, UuidSchema } from './primitives'
-import { HEALTH_EVENT_KINDS, HealthEventSchema, MedicationSchema, VISIT_KINDS, WeightMeasurementSchema } from './medical-record'
+import { HealthEventSchema, MedicationSchema, WeightMeasurementSchema, readableEvents, readableWeights } from './medical-record'
 
 /** One row of the vaccination table: a disease, its last shot and the next one planned. */
 export const VetSummaryVaccinationSchema = z.object({
@@ -62,13 +62,12 @@ export type VetSummaryVaccination = z.infer<typeof VetSummaryVaccinationSchema>
 export type VetSummaryParasite = z.infer<typeof VetSummaryParasiteSchema>
 
 /** Rows whose `field` holds a value this app does not know are left out; others are read as they are. */
-function known(field: string, values: readonly unknown[], optional = false) {
+function known(field: string, values: readonly unknown[]) {
   return (rows: unknown) =>
     Array.isArray(rows)
       ? rows.filter((row) => {
           if (typeof row !== 'object' || row === null) return true
-          const value = (row as Record<string, unknown>)[field]
-          return (optional && (value === null || value === undefined)) || values.includes(value)
+          return values.includes((row as Record<string, unknown>)[field])
         })
       : rows
 }
@@ -80,12 +79,9 @@ function known(field: string, values: readonly unknown[], optional = false) {
  * still fails, as in the overview.
  */
 export const VetSummaryReadSchema = VetSummarySchema.extend({
-  weights: z.array(WeightMeasurementSchema),
+  weights: z.preprocess(readableWeights, z.array(WeightMeasurementSchema)),
   parasites: z.preprocess(known('group', PARASITE_ROW_GROUPS), z.array(VetSummaryParasiteSchema)),
-  visits: z.preprocess(
-    (rows) => known('visit_kind', VISIT_KINDS, true)(known('kind', HEALTH_EVENT_KINDS)(rows)),
-    z.array(HealthEventSchema),
-  ),
+  visits: z.preprocess(readableEvents, z.array(HealthEventSchema)),
   checks: z.preprocess(known('urgency', URGENCY_LEVELS), z.array(VetSummaryCheckSchema)).transform((rows) => rows.slice(0, 3)),
 })
 

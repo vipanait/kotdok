@@ -107,7 +107,7 @@ afterAll(async () => {
 describe('the medical record as one path (MR-11)', () => {
   it('goes from a new pet to a check that reads its record', async () => {
     const pet = PetSchema.parse(
-      await ok(await createPet(request('a', 'POST', { name: 'Кольцо', species: 'cat', age_years: 2, weight_kg: 3.9, medications: ['Капли'] }))),
+      await ok(await createPet(request('a', 'POST', { name: 'Кольцо', species: 'cat', age_years: 2, weight_kg: 3.9, medications: ['Капли'] }), undefined)),
     )
     petId = pet.id
 

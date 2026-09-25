@@ -469,3 +469,25 @@ describe('reading the vet summary written by a later server (MR-09)', () => {
   })
 })
 
+describe('reading the overview written by a later server (final review)', () => {
+  const visit = {
+    id: '11111111-1111-4111-8111-0000000000b1', kind: 'visit', status: 'done', date: '2026-08-02', clinic: null, notes: null,
+    items: [], visit_kind: 'illness', reason: null, diagnosis: null, check_id: null,
+  }
+  const vaccination = {
+    id: '11111111-1111-4111-8111-0000000000b2', kind: 'vaccination', status: 'done', date: '2026-03-12', clinic: null, notes: null,
+    items: [{ id: '11111111-1111-4111-8111-0000000000f2', name: null, targets: ['rabies'], source_item_id: null, interval: { value: 1, unit: 'decades' } }],
+  }
+
+  it('leaves out a visit of a kind it does not know, drops an interval unit it does not know, and reads new weight fields', () => {
+    const read = HealthOverviewReadSchema.parse({
+      pet, writable: [],
+      weights: [{ id: '11111111-1111-4111-8111-0000000000c3', measured_on: '2026-09-12', weight_kg: 4, source: 'record', device: 'scale' }],
+      events: [visit, { ...visit, id: '11111111-1111-4111-8111-0000000000b3', visit_kind: 'dental' }, vaccination],
+    })
+    expect(read.events.map((event) => event.id)).toEqual([visit.id, vaccination.id])
+    expect(read.events[1].items[0].interval).toBeNull()
+    expect(read.weights).toHaveLength(1)
+  })
+})
+

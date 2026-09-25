@@ -5,6 +5,7 @@ import * as WebBrowser from 'expo-web-browser'
 import * as AppleAuthentication from 'expo-apple-authentication'
 import * as Crypto from 'expo-crypto'
 import { draftStorage, sessionStorage, setSessionWriteFailureHandler, supabase } from '@/lib/supabase'
+import { nativeShare } from '@/features/medical-record/share-summary'
 import { setSessionLostHandler } from '@/lib/api'
 import { authRedirectUrl } from '@/lib/auth-links'
 import { deviceLocale } from '@/lib/device-locale'
@@ -121,6 +122,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // The half-written check goes with the session: the next person to sign in
       // on this phone must not find someone else's notes about their animal.
       await draftStorage.clearAll()
+      // And a summary PDF still waiting for an Android receiver: it is this account's pet's record.
+      try {
+        nativeShare.sweep()
+      } catch {
+        // Nothing there.
+      }
       // And so does the language. It came from the account, not from the phone,
       // so once the account is gone the phone's own setting is the only thing
       // left that anybody chose. Without this the sign-in screen kept answering

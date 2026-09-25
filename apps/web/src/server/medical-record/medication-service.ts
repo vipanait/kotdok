@@ -145,12 +145,15 @@ export async function syncFormMedications(
   petId: string,
   names: readonly string[],
   today: string,
+  /** The list the form was opened with, when the client says. */
+  before: readonly string[] | null = null,
 ): Promise<WeightResult<null> | { ok: false; reason: 'bad_range'; message: string }> {
   const { error } = await supabase.rpc('sync_form_medications', {
     p_user_id: userId,
     p_pet_id: petId,
     p_names: names as string[],
     p_today: today,
+    p_before: before as string[] | null,
   })
   if (error) return failure(error)
   return { ok: true, data: null }

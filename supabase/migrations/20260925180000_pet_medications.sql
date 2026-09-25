@@ -103,8 +103,9 @@ $$;
  * form for another field must not start it again. The same list twice
  * changes nothing (MR-06.1).
  */
+drop function if exists public.sync_form_medications(uuid, uuid, text[], date);
 create or replace function public.sync_form_medications(
-  p_user_id uuid, p_pet_id uuid, p_names text[], p_today date
+  p_user_id uuid, p_pet_id uuid, p_names text[], p_today date, p_before text[] default null
 )
 returns void
 language plpgsql
@@ -133,12 +134,14 @@ begin
         and lower(btrim(m.name)) = lower(btrim(listed.n))
    );
 
+  -- What the form was opened with, when it says; else the list as it is now.
   select coalesce(array_agg(distinct lower(btrim(n))), '{}') into v_before
-    from unnest(coalesce(v_pet.medications, '{}')) n where btrim(n) <> '';
+    from unnest(coalesce(p_before, v_pet.medications, '{}')) n where btrim(n) <> '';
   select coalesce(array_agg(distinct lower(btrim(n))), '{}') into v_after
     from unnest(coalesce(p_names, '{}')) n where btrim(n) <> '';
   -- Only what this form took off: a course added elsewhere since the form
-  -- was loaded is not on its list, and must not be ended by it.
+  -- was loaded is not on the list it was opened with, and is not ended by it.
+  -- (A client that does not send that list compares with the current one.)
   select coalesce(array_agg(n), '{}') into v_removed from unnest(v_before) n where not (n = any (v_after));
 
   -- Added in the form: a course from today, without details.
@@ -316,13 +319,13 @@ $$;
 select public.backfill_pet_medications();
 
 revoke all on function public.sync_pet_medications(uuid, date) from public, anon, authenticated;
-revoke all on function public.sync_form_medications(uuid, uuid, text[], date) from public, anon, authenticated;
+revoke all on function public.sync_form_medications(uuid, uuid, text[], date, text[]) from public, anon, authenticated;
 revoke all on function public.create_pet_medications(uuid, uuid, jsonb, date, text) from public, anon, authenticated;
 revoke all on function public.change_pet_medication(uuid, uuid, uuid, jsonb, date) from public, anon, authenticated;
 revoke all on function public.delete_pet_medication(uuid, uuid, uuid, date) from public, anon, authenticated;
 revoke all on function public.backfill_pet_medications() from public, anon, authenticated;
 
-grant execute on function public.sync_form_medications(uuid, uuid, text[], date) to service_role;
+grant execute on function public.sync_form_medications(uuid, uuid, text[], date, text[]) to service_role;
 grant execute on function public.create_pet_medications(uuid, uuid, jsonb, date, text) to service_role;
 grant execute on function public.change_pet_medication(uuid, uuid, uuid, jsonb, date) to service_role;
 grant execute on function public.delete_pet_medication(uuid, uuid, uuid, date) to service_role;
