@@ -420,6 +420,7 @@ export const ru = {
   },
 
   check: {
+    recordCaption: 'Учтём медкарту: прививки, лекарства, вес',
     title: 'Проверка симптомов',
     step: (current: number, of: number) => `Шаг ${current} из ${of}`,
     pet: 'Питомец',

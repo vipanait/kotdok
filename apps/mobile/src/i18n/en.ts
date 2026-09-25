@@ -413,6 +413,7 @@ export const en: Dictionary = {
   },
 
   check: {
+    recordCaption: 'We take the medical record into account: vaccinations, medicines, weight',
     title: 'Symptom check',
     step: (current: number, of: number) => `Step ${current} of ${of}`,
     pet: 'Pet',

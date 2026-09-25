@@ -51,6 +51,7 @@ import { uploadPhotos } from '@/features/checks/photo-upload'
 import { Button, LinkButton } from '@/ui/Button'
 import { Banner } from '@/ui/Card'
 import { Chips, Field, Segment, Select } from '@/ui/Field'
+import { hasRecords } from '@/features/medical-record/overview'
 import { PhotoStrip } from '@/ui/PhotoStrip'
 import { Screen } from '@/ui/Screen'
 import { Steps, SummaryCard } from '@/ui/Section'
@@ -72,6 +73,8 @@ export default function NewCheck() {
   // a restart, and the draft lives in the keychain, which is for small values.
   const [photos, setPhotos] = useState<PickedPhoto[]>([])
   const [pets, setPets] = useState<Pet[] | null>(null)
+  // «Учтём медкарту» only when this pet's record has something in it; unknown is no.
+  const [withRecord, setWithRecord] = useState<string | null>(null)
   const [petsError, setPetsError] = useState<{ text: string; offline: boolean } | null>(null)
   const [step, setStep] = useState<1 | 2>(1)
   const [symptomsError, setSymptomsError] = useState<string | null>(null)
@@ -426,6 +429,22 @@ export default function NewCheck() {
     )
   }
 
+  useEffect(() => {
+    const petId = form.petId
+    if (!petId) return
+    let current = true
+    withFreshSession((api) => api.getHealthOverview(petId))
+      .then((overview) => {
+        if (current) setWithRecord(hasRecords(overview) ? petId : null)
+      })
+      .catch(() => {
+        if (current) setWithRecord(null)
+      })
+    return () => {
+      current = false
+    }
+  }, [form.petId])
+
   if (pets === null) {
     return (
       <Screen title={t.check.title}>
@@ -498,6 +517,11 @@ export default function NewCheck() {
             <Text variant="h3">{chosen?.name ?? pets[0].name}</Text>
           </View>
         )}
+        {withRecord !== null && withRecord === form.petId ? (
+          <Text variant="caption" tone="muted" style={styles.recordCaption}>
+            {t.check.recordCaption}
+          </Text>
+        ) : null}
 
         <Field
           label={t.check.symptoms}
@@ -641,6 +665,7 @@ function Waiting({
 }
 
 const styles = StyleSheet.create({
+  recordCaption: { marginTop: -8, marginBottom: 16 },
   summaryCopy: { flex: 1, minWidth: 0 },
   onlyPet: { marginBottom: space.block, gap: 6 },
   // The pair stands rather than sits, so it needs the height; a narrow phone
