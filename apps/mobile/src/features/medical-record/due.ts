@@ -67,7 +67,17 @@ export function dueItems(events: readonly HealthEvent[]): Due[] {
   return events
     .filter((event) => event.status === 'planned')
     .flatMap((event) =>
-      event.items.map((item) => ({
+      // A planned visit has no items: it is one due date, its id standing for an item.
+      event.kind === 'visit'
+        ? [{
+            kind: event.kind,
+            eventId: event.id,
+            itemId: event.id,
+            date: event.date,
+            item: { id: event.id, name: null, targets: [], source_item_id: null, product_id: null, interval: null, instructions: null, medication_id: null },
+            others: 0,
+          }]
+        : event.items.map((item) => ({
         kind: event.kind,
         eventId: event.id,
         itemId: item.id,
@@ -116,6 +126,7 @@ export function itemTitle(
   item: Pick<HealthItem, 'name' | 'targets'>,
   kind: HealthEvent['kind'] = 'vaccination',
 ): string {
+  if (kind === 'visit') return t.medicalRecord.visits.dueTitle
   if (kind === 'parasite') return parasiteTitle(t, item.targets) ?? item.name ?? t.medicalRecord.noProduct
   if (item.targets.length === 1) return targetName(t, item.targets[0])
   if (item.targets.length > 1) return t.medicalRecord.complexVaccination
@@ -251,4 +262,11 @@ export function parasiteStatuses(t: Dictionary, events: readonly HealthEvent[], 
       next: status ? { text: dueLine(status), tone: status.tone } : null,
     }
   })
+}
+
+/** «Сделано» on a due date: the record form for an item, «Был» for a planned visit. */
+export function doneRoute(petId: string, due: { kind: string; itemId: string; eventId: string }): string {
+  return due.kind === 'visit'
+    ? `/pets/${petId}/visit-form?mode=done&eventId=${due.eventId}`
+    : `/pets/${petId}/event-form?mode=complete&itemId=${due.itemId}&kind=${due.kind}`
 }

@@ -89,16 +89,17 @@ describe('important to know', () => {
 })
 
 describe('sections', () => {
-  it('lists the five sections in order; all but visits open so far', () => {
-    const rows = sectionRows(ru, overview(), TODAY)
+  it('lists the five sections in order, every one openable', () => {
+    const rows = sectionRows(ru, { ...overview(), writable: ['vaccinations', 'parasites', 'visits', 'medications', 'weight'] }, TODAY)
     expect(rows.map((row) => row.section)).toEqual(['vaccinations', 'parasites', 'visits', 'medications', 'weight'])
-    expect(rows.filter((row) => row.openable).map((row) => row.section)).toEqual(['vaccinations', 'parasites', 'medications', 'weight'])
+    expect(rows.every((row) => row.openable)).toBe(true)
   })
 
   it('sums vaccinations up with the last one done, over the form’s answer', () => {
     const done: HealthEvent = {
       id: 'd', kind: 'vaccination', status: 'done', date: '2026-03-12', clinic: null, notes: null,
-      items: [{ id: 'i', name: null, targets: ['rabies'], source_item_id: null, product_id: null, interval: null }],
+      items: [{ id: 'i', name: null, targets: ['rabies'], source_item_id: null, product_id: null, interval: null, instructions: null, medication_id: null }],
+      visit_kind: null, reason: null, diagnosis: null, check_id: null,
     }
     expect(sectionRows(ru, overview({ vaccinated: false }, [], [done]), TODAY)[0].summary).toBe('Последняя — 12 марта 2026')
   })
@@ -127,7 +128,7 @@ describe('sections', () => {
   it('does not open a section this build has no screen for, whatever the server allows', () => {
     // A newer server lists sections an older app cannot show: a chevron there
     // would be a button that leads nowhere.
-    const rows = sectionRows(ru, { pet: pet(), writable: ['weight', 'visits'], weights: [], events: [], medications: [] }, TODAY)
+    const rows = sectionRows(ru, { pet: pet(), writable: ['weight'], weights: [], events: [], medications: [] }, TODAY)
     expect(rows.find((row) => row.section === 'visits')?.openable).toBe(false)
     expect(sectionRows(ru, { pet: pet(), writable: [], weights: [], events: [], medications: [] }, TODAY)[4].openable).toBe(false)
   })

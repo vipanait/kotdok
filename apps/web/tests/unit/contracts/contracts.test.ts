@@ -7,6 +7,8 @@ import {
   CheckFeedbackSchema,
   FeedbackInputSchema,
   HEALTH_SECTIONS,
+  VisitInputSchema,
+  VisitPatchSchema,
   MedicationInputSchema,
   MedicationPatchSchema,
   CompleteItemInputSchema,
@@ -400,5 +402,39 @@ describe('medication courses (MR-06.4)', () => {
   it('needs something to change', () => {
     expect(MedicationPatchSchema.safeParse({}).success).toBe(false)
     expect(MedicationPatchSchema.safeParse({ ended_on: '2026-09-25', ongoing: false }).success).toBe(true)
+  })
+})
+
+describe('visit contracts', () => {
+  const visit = {
+    status: 'done',
+    date: '2026-08-02',
+    visit_kind: 'illness',
+    reason: 'Рвота два дня',
+    diagnosis: 'Обострение гастрита',
+    prescriptions: [
+      { name: 'Фортифлора', instructions: '1 пакетик в день', add_to_medications: true },
+      { name: 'Лечебный корм', instructions: 'Постоянно', add_to_medications: false },
+    ],
+  }
+
+  it('takes a done visit with a diagnosis and prescriptions', () => {
+    expect(VisitInputSchema.safeParse(visit).success).toBe(true)
+  })
+
+  it('takes a plan with no treatment and refuses one with a diagnosis or prescriptions (MR-07.3)', () => {
+    expect(VisitInputSchema.safeParse({ status: 'planned', date: '2026-10-03', visit_kind: 'checkup' }).success).toBe(true)
+    expect(VisitInputSchema.safeParse({ ...visit, status: 'planned' }).success).toBe(false)
+    expect(VisitInputSchema.safeParse({ ...visit, status: 'planned', diagnosis: null, prescriptions: [] }).success).toBe(true)
+  })
+
+  it('refuses an unknown kind of visit and a visit through /events', () => {
+    expect(VisitInputSchema.safeParse({ ...visit, visit_kind: 'grooming' }).success).toBe(false)
+    expect(HealthEventInputSchema.safeParse({ kind: 'visit', status: 'done', date: '2026-08-02', items: [{ name: 'x', targets: [] }] }).success).toBe(false)
+  })
+
+  it('marks a plan done only forward', () => {
+    expect(VisitPatchSchema.safeParse({ status: 'done', diagnosis: 'x' }).success).toBe(true)
+    expect(VisitPatchSchema.safeParse({ status: 'planned' }).success).toBe(false)
   })
 })

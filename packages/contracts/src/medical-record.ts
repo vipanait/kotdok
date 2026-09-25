@@ -53,10 +53,16 @@ export const WeightPatchSchema = WeightInputSchema.partial().refine(
 
 export type WeightPatch = z.infer<typeof WeightPatchSchema>
 
-export const HEALTH_EVENT_KINDS = ['vaccination', 'parasite'] as const
+export const HEALTH_EVENT_KINDS = ['vaccination', 'parasite', 'visit'] as const
+/** The kinds made through /events: visits have their own route and fields. */
+export const ITEM_EVENT_KINDS = ['vaccination', 'parasite'] as const
+export const VISIT_KINDS = ['checkup', 'illness', 'surgery', 'tests', 'other'] as const
 export const HEALTH_EVENT_STATUSES = ['done', 'planned'] as const
 
 export const HealthEventKindSchema = z.enum(HEALTH_EVENT_KINDS)
+export const ItemEventKindSchema = z.enum(ITEM_EVENT_KINDS)
+export const VisitKindSchema = z.enum(VISIT_KINDS)
+export type VisitKind = z.infer<typeof VisitKindSchema>
 export const HealthEventStatusSchema = z.enum(HEALTH_EVENT_STATUSES)
 
 const ITEM_NAME_MAX = 100
@@ -80,6 +86,10 @@ export const HealthItemSchema = z.object({
     .strictObject({ value: z.number().int().positive(), unit: z.enum(['day', 'week', 'month', 'year']) })
     .nullable()
     .default(null),
+  /** A prescription's «как принимать». */
+  instructions: z.string().nullable().default(null),
+  /** The course a prescription started, while the link lasts. */
+  medication_id: UuidSchema.nullable().default(null),
 })
 
 export type HealthItem = z.infer<typeof HealthItemSchema>
@@ -96,6 +106,11 @@ export const HealthEventSchema = z.object({
   clinic: z.string().nullable(),
   notes: z.string().nullable(),
   items: z.array(HealthItemSchema),
+  /** Visits only; null on other kinds. */
+  visit_kind: VisitKindSchema.nullable().default(null),
+  reason: z.string().nullable().default(null),
+  diagnosis: z.string().nullable().default(null),
+  check_id: UuidSchema.nullable().default(null),
 })
 
 export type HealthEvent = z.infer<typeof HealthEventSchema>
@@ -117,7 +132,7 @@ const HealthItemInputSchema = z
 
 export const HealthEventInputSchema = z
   .strictObject({
-    kind: HealthEventKindSchema,
+    kind: ItemEventKindSchema,
     status: HealthEventStatusSchema,
     date: CalendarDateSchema,
     clinic: z.string().trim().max(CLINIC_MAX).nullable().optional(),
@@ -185,6 +200,58 @@ export const CompleteItemInputSchema = z
   })
 
 export type CompleteItemInput = z.infer<typeof CompleteItemInputSchema>
+
+const VISIT_TEXT_MAX = 500
+const MEDICATION_TEXT_MAX_FOR_VISITS = 150
+
+const PrescriptionInputSchema = z.strictObject({
+  /** Set for a prescription the visit already has. */
+  id: UuidSchema.optional(),
+  name: z.string().trim().min(1).max(MEDICATION_TEXT_MAX_FOR_VISITS),
+  instructions: z.string().trim().max(MEDICATION_TEXT_MAX_FOR_VISITS).nullable().optional(),
+  /** «Добавить в лекарства»: start a course from it. New prescriptions only. */
+  add_to_medications: z.boolean().optional(),
+})
+
+const visitFields = {
+  date: CalendarDateSchema,
+  clinic: z.string().trim().max(CLINIC_MAX).nullable().optional(),
+  notes: z.string().trim().max(NOTES_MAX).nullable().optional(),
+  visit_kind: VisitKindSchema,
+  reason: z.string().trim().max(VISIT_TEXT_MAX).nullable().optional(),
+  diagnosis: z.string().trim().max(VISIT_TEXT_MAX).nullable().optional(),
+  /** The symptom check it followed; of the same pet and owner. */
+  check_id: UuidSchema.nullable().optional(),
+  prescriptions: z.array(PrescriptionInputSchema).max(10).optional(),
+}
+
+/** A plan has not happened: no diagnosis, no prescriptions (MR-07.3). */
+function planHasNoTreatment(value: { status?: string; diagnosis?: string | null; prescriptions?: unknown[] }, ctx: z.RefinementCtx) {
+  if (value.status !== 'planned') return
+  if (value.diagnosis) ctx.addIssue({ code: 'custom', path: ['diagnosis'], message: 'a planned visit has no diagnosis' })
+  if (value.prescriptions && value.prescriptions.length > 0) {
+    ctx.addIssue({ code: 'custom', path: ['prescriptions'], message: 'a planned visit has no prescriptions' })
+  }
+}
+
+/** A visit: «Был» (done) with a diagnosis and prescriptions, or planned. */
+export const VisitInputSchema = z
+  .strictObject({ status: HealthEventStatusSchema, ...visitFields })
+  .superRefine(planHasNoTreatment)
+
+export type VisitInput = z.infer<typeof VisitInputSchema>
+
+/**
+ * A correction, or a planned visit marked as having happened (`status: 'done'`).
+ * Given prescriptions replace the list: `id` keeps one, no `id` adds one.
+ */
+export const VisitPatchSchema = z
+  .strictObject({ status: z.literal('done'), ...visitFields })
+  .partial()
+  .superRefine(planHasNoTreatment)
+  .refine((value) => Object.keys(value).length > 0, { message: 'at least one field is required' })
+
+export type VisitPatch = z.infer<typeof VisitPatchSchema>
 
 export const PRODUCT_KINDS = ['vaccine', 'antiparasitic'] as const
 export const INTERVAL_UNITS = ['day', 'week', 'month', 'year'] as const

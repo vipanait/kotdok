@@ -8,10 +8,10 @@ const TODAY = '2026-09-24'
 const NOW = new Date(2026, 8, 24, 12, 0)
 
 function event(overrides: Partial<HealthEvent>): HealthEvent {
-  return { id: 'e', kind: 'parasite', status: 'done', date: '2026-06-20', clinic: null, notes: null, items: [], ...overrides }
+  return { id: 'e', kind: 'parasite', status: 'done', date: '2026-06-20', clinic: null, notes: null, items: [], visit_kind: null, reason: null, diagnosis: null, check_id: null, ...overrides }
 }
 const item = (id: string, targets: string[], name: string | null = null) => ({
-  id, name, targets, source_item_id: null, product_id: null, interval: null,
+  id, name, targets, source_item_id: null, product_id: null, interval: null, instructions: null, medication_id: null,
 })
 
 const bravecto = {

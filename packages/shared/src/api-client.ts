@@ -37,6 +37,8 @@ import {
   type HealthEventPatch,
   type MedicationPatch,
   type MedicationsInput,
+  type VisitInput,
+  type VisitPatch,
   type PetSpecies,
   type ProductKind,
   type WeightInput,
@@ -266,6 +268,16 @@ export function createApiClient(options: ApiClientOptions) {
         headers: { [IDEMPOTENCY_KEY_HEADER]: idempotencyKey },
       }),
     listDue: () => call('/pets/due', DueListReadSchema),
+    createVisit: (petId: string, body: VisitInput, idempotencyKey: string) =>
+      call(`/pets/${petId}/health/visits`, HealthEventSchema, {
+        method: 'POST',
+        body,
+        headers: { [IDEMPOTENCY_KEY_HEADER]: idempotencyKey },
+      }),
+    changeVisit: (petId: string, eventId: string, body: VisitPatch) =>
+      call(`/pets/${petId}/health/visits/${eventId}`, HealthEventSchema, { method: 'PATCH', body }),
+    prescriptionToMedication: (petId: string, itemId: string) =>
+      call(`/pets/${petId}/health/items/${itemId}/medication`, z.object({ medication_id: z.string() }), { method: 'POST' }),
     addMedications: (petId: string, body: MedicationsInput, idempotencyKey: string) =>
       call(`/pets/${petId}/health/medications`, z.array(MedicationSchema), {
         method: 'POST',

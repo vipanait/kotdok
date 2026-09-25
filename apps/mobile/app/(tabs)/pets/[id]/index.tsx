@@ -15,7 +15,7 @@ import {
 } from '@/features/medical-record/overview'
 import { AddRecordSheet, type AddChoice } from '@/features/medical-record/AddRecordSheet'
 import { DueRow } from '@/features/medical-record/DueRow'
-import { dueItems, dueStatus } from '@/features/medical-record/due'
+import { doneRoute, dueItems, dueStatus } from '@/features/medical-record/due'
 import { Button, IconButton, LinkButton } from '@/ui/Button'
 import { Avatar, Banner, Card, SettingRow } from '@/ui/Card'
 import { Icon, type IconName } from '@/ui/Icon'
@@ -52,6 +52,7 @@ function Skeleton() {
 const SECTION_ROUTES: Partial<Record<SectionRow['section'], string>> = {
   vaccinations: 'vaccinations',
   parasites: 'parasites',
+  visits: 'visits',
   medications: 'medications',
   weight: 'weight',
 }
@@ -208,6 +209,9 @@ export default function MedicalRecord() {
           },
         ]
       : []),
+    ...(shown.writable.includes('visits')
+      ? [{ key: 'visit', icon: 'visit' as const, label: t.medicalRecord.visits.addRow, onPress: () => router.push(`/pets/${id}/visit-form`) }]
+      : []),
     ...(shown.writable.includes('medications')
       ? [{ key: 'medication', icon: 'med' as const, label: t.medicalRecord.meds.addRow, onPress: () => router.push(`/pets/${id}/medication-form`) }]
       : []),
@@ -276,7 +280,7 @@ export default function MedicalRecord() {
               <DueRow
                 due={item}
                 status={dueStatus(t, item.date, today)}
-                onDone={() => router.push(`/pets/${id}/event-form?mode=complete&itemId=${item.itemId}&kind=${item.kind}`)}
+                onDone={() => router.push(doneRoute(id, item))}
               />
             </View>
           ))}

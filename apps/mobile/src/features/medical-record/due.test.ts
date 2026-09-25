@@ -15,11 +15,15 @@ function event(overrides: Partial<HealthEvent>): HealthEvent {
     clinic: null,
     notes: null,
     items: [],
+    visit_kind: null,
+    reason: null,
+    diagnosis: null,
+    check_id: null,
     ...overrides,
   }
 }
 
-const item = (id: string, targets: string[], name: string | null = null) => ({ id, name, targets, source_item_id: null, product_id: null, interval: null })
+const item = (id: string, targets: string[], name: string | null = null) => ({ id, name, targets, source_item_id: null, product_id: null, interval: null, instructions: null, medication_id: null })
 
 describe('the words of a due date (MR-03.4)', () => {
   const at = (date: string) => dueStatus(ru, date, TODAY)

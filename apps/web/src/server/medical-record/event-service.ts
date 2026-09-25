@@ -21,6 +21,8 @@ type Result<T> = WeightResult<T>
 
 type ItemRow = {
   id: string
+  instructions: string | null
+  pet_medications: Array<{ id: string; deleted_at: string | null }> | null
   name: string | null
   targets: string[] | null
   source_item_id: string | null
@@ -33,6 +35,10 @@ type ItemRow = {
 
 type EventRow = {
   id: string
+  visit_kind: HealthEvent['visit_kind']
+  reason: string | null
+  diagnosis: string | null
+  check_id: string | null
   kind: HealthEvent['kind']
   status: HealthEvent['status']
   event_date: string
@@ -41,8 +47,10 @@ type EventRow = {
   pet_health_items: ItemRow[]
 }
 
-const EVENT_COLUMNS =
-  'id, kind, status, event_date, clinic, notes, pet_health_items(id, name, targets, source_item_id, product_id, interval_value, interval_unit, position, deleted_at)'
+const ITEM_COLUMNS =
+  'id, name, targets, source_item_id, product_id, interval_value, interval_unit, instructions, position, deleted_at, pet_medications(id, deleted_at)'
+
+const EVENT_COLUMNS = `id, kind, status, event_date, clinic, notes, visit_kind, reason, diagnosis, check_id, pet_health_items(${ITEM_COLUMNS})`
 
 /** Field by field: owner, keys and deletion marks stay on the server. */
 function toEventContract(row: EventRow): HealthEvent {
@@ -63,7 +71,13 @@ function toEventContract(row: EventRow): HealthEvent {
       source_item_id: item.source_item_id,
       product_id: item.product_id,
       interval: item.interval_value && item.interval_unit ? { value: item.interval_value, unit: item.interval_unit } : null,
+      instructions: item.instructions,
+      medication_id: (item.pet_medications ?? []).find((course) => course.deleted_at === null)?.id ?? null,
     })),
+    visit_kind: row.visit_kind,
+    reason: row.reason,
+    diagnosis: row.diagnosis,
+    check_id: row.check_id,
   })
 }
 
@@ -86,11 +100,14 @@ export async function listEvents(supabase: SupabaseService, petId: string): Prom
   if (error) return { ok: false, reason: 'storage_error', message: error.message }
   return {
     ok: true,
-    data: (data as unknown as EventRow[]).map(toEventContract).filter((event) => event.items.length > 0),
+    // A visit may have no items; other records without any are gone in all but name.
+    data: (data as unknown as EventRow[])
+      .map(toEventContract)
+      .filter((event) => event.kind === 'visit' || event.items.length > 0),
   }
 }
 
-async function readEvent(supabase: SupabaseService, userId: string, petId: string, eventId: string): Promise<Result<HealthEvent>> {
+export async function readEvent(supabase: SupabaseService, userId: string, petId: string, eventId: string): Promise<Result<HealthEvent>> {
   const { data, error } = await supabase
     .from('pet_health_events')
     .select(EVENT_COLUMNS)
@@ -117,9 +134,10 @@ export async function eventStatus(
 }
 
 /** The catalogue kind a record's products must be: vaccines on vaccinations, treatments on treatments. */
-const PRODUCT_KIND: Record<HealthEvent['kind'], 'vaccine' | 'antiparasitic'> = {
+const PRODUCT_KIND: Record<HealthEvent['kind'], 'vaccine' | 'antiparasitic' | null> = {
   vaccination: 'vaccine',
   parasite: 'antiparasitic',
+  visit: null,
 }
 
 /** Products named in a record must fit the pet; `bad_product` becomes a 400. */
@@ -135,7 +153,9 @@ async function checkProducts(
 
   const pet = await getPet(supabase, userId, petId)
   if (!pet.ok) return { ok: false, reason: pet.reason === 'account_deleting' ? 'account_deleting' : pet.reason === 'not_found' ? 'not_found' : 'storage_error' }
-  const fits = await productsFitPet(supabase, ids, pet.data.species, PRODUCT_KIND[kind])
+  const productKind = PRODUCT_KIND[kind]
+  if (!productKind) return { ok: false, reason: 'bad_product' }
+  const fits = await productsFitPet(supabase, ids, pet.data.species, productKind)
   if (!fits.ok) return fits
   return fits.data ? { ok: true, data: null } : { ok: false, reason: 'bad_product' }
 }
@@ -181,9 +201,12 @@ export async function updateEvent(
   // Only a product newly given to an item is checked: one the item already
   // had may have left the catalogue since, and correcting the note of an old
   // record must not fail for it.
+  // Visits are corrected through /visits, which knows their fields.
+  const current = await readEvent(supabase, userId, petId, eventId)
+  if (!current.ok) return current
+  if (current.data.kind === 'visit') return { ok: false, reason: 'not_found' }
+
   if (patch.items) {
-    const current = await readEvent(supabase, userId, petId, eventId)
-    if (!current.ok) return current
 
     // The patch carries no kind: the record's own says which targets fit.
     const fits = current.data.kind === 'vaccination' ? VaccineTargetSchema : ParasiteTargetSchema
@@ -277,7 +300,10 @@ export async function listDue(supabase: SupabaseService, userId: string): Promis
   return {
     ok: true,
     data: (data as unknown as DueRow[]).flatMap((event) =>
-      event.pet_health_items
+      // A planned visit is one due date of its own, with no items: its id stands for the item.
+      event.kind === 'visit'
+        ? [DueItemSchema.parse({ pet_id: event.pet_id, event_id: event.id, item_id: event.id, kind: 'visit', date: event.event_date, name: null, targets: [] })]
+        : event.pet_health_items
         .filter((item) => item.deleted_at === null)
         .sort((a, b) => a.position - b.position)
         .map((item) =>

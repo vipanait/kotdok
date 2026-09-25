@@ -71,9 +71,11 @@ const REQUIRED_FUNCTIONS = [
   'complete_health_item',
   'consume_rate_limit',
   'consume_reauth_proof',
+  'course_from_prescription',
   'create_extra_check_request',
   'create_health_event',
   'create_pet_medications',
+  'create_visit',
   'current_account_is_active',
   'delete_account_data',
   'delete_health_event',
@@ -101,6 +103,7 @@ const REQUIRED_FUNCTIONS = [
   'sync_pet_vaccinated',
   'sync_pet_weight',
   'update_health_event',
+  'update_visit',
 ]
 
 describe('migrated schema', () => {

@@ -10,6 +10,8 @@ import {
   MedicationPatchSchema,
   MedicationSchema,
   MedicationsInputSchema,
+  VisitInputSchema,
+  VisitPatchSchema,
   HealthEventInputSchema,
   HealthEventPatchSchema,
   HealthEventSchema,
@@ -66,6 +68,8 @@ const COMPONENTS: Array<[string, z.ZodType]> = [
   ['Medication', MedicationSchema],
   ['MedicationsInput', MedicationsInputSchema],
   ['MedicationPatch', MedicationPatchSchema],
+  ['VisitInput', VisitInputSchema],
+  ['VisitPatch', VisitPatchSchema],
   ['SymptomCheckRecord', SymptomCheckRecordSchema],
   ['CheckHistoryPage', CheckHistoryPageSchema],
   ['CheckCreateInput', CheckCreateInputSchema],
@@ -406,6 +410,44 @@ export function buildOpenApiDocument(): Record<string, unknown> {
         delete: {
           summary: 'Delete a course',
           responses: { '204': { description: 'Deleted' }, ...commonErrors('not_found') },
+        },
+      },
+      '/pets/{id}/health/visits': {
+        parameters: [idParam],
+        post: {
+          summary: 'Record a vet visit that happened, with prescriptions, or plan one',
+          description:
+            'A prescription with add_to_medications starts a course from the visit\'s day. ' +
+            'A planned visit takes no diagnosis or prescriptions. The check must be of this pet.',
+          parameters: [idempotencyParam],
+          requestBody: body('VisitInput'),
+          responses: { '201': json('HealthEvent', 'The visit'), ...commonErrors('bad_request', 'not_found', 'conflict') },
+        },
+      },
+      '/pets/{id}/health/visits/{event_id}': {
+        parameters: [idParam, { name: 'event_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+        patch: {
+          summary: 'Correct a visit, or mark a planned one as having happened',
+          description: 'Removing a prescription keeps the course it started, without the link.',
+          requestBody: body('VisitPatch'),
+          responses: { '200': json('HealthEvent', 'The visit'), ...commonErrors('bad_request', 'not_found') },
+        },
+      },
+      '/pets/{id}/health/items/{item_id}/medication': {
+        parameters: [idParam, { name: 'item_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+        post: {
+          summary: 'Start a course from a prescription; once',
+          responses: {
+            '201': {
+              description: 'The course',
+              content: {
+                'application/json': {
+                  schema: { type: 'object', properties: { medication_id: { type: 'string', format: 'uuid' } }, required: ['medication_id'] },
+                },
+              },
+            },
+            ...commonErrors('not_found'),
+          },
         },
       },
       '/uploads': {

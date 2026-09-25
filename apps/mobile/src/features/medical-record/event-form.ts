@@ -222,7 +222,7 @@ export function readDraft(
   return {
     ok: true,
     value: {
-      kind: draft.kind,
+      kind: draft.kind === 'visit' ? 'vaccination' : draft.kind,
       status: draft.status,
       date,
       clinic: draft.clinic.trim() === '' ? null : draft.clinic.trim(),

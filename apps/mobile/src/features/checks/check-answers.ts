@@ -91,3 +91,17 @@ export function formatCheckedAt(iso: string, locale: string): string {
     minute: '2-digit',
   })
 }
+
+/**
+ * Whether a result offers «Записать визит к врачу» (spec §7.22): every level
+ * but «ВСЁ В ПОРЯДКЕ», and only for a check about a pet — a visit belongs in
+ * a pet's record.
+ */
+export function offersVisit(check: { urgency: string; pet_id: string | null }): boolean {
+  return check.pet_id !== null && check.urgency !== 'healthy'
+}
+
+/** The first line of what the owner described: the visit's reason. */
+export function visitReason(symptoms: string): string {
+  return symptoms.split('\n')[0].trim().slice(0, 500)
+}

@@ -28,6 +28,8 @@
 | `public.pets.user_id`, `public.symptom_checks.user_id`, `public.credit_transactions.user_id` → `profiles` | профиль | **NO ACTION** |
 | `public.user_feedback.user_id` → `profiles` | профиль | CASCADE |
 | `public.symptom_checks.pet_id` → `pets` | питомец | **NO ACTION** |
+| `public.pet_health_events.check_id` → `symptom_checks` | проверка | SET NULL |
+| `public.pet_medications.visit_item_id` → `pet_health_items` | назначение | SET NULL |
 | `public.credit_ledger.symptom_check_id` → `symptom_checks` | проверка | **NO ACTION** |
 | `public.credit_ledger.transaction_id` → `transactions` | транзакция | **NO ACTION** |
 | `public.extra_check_requests.granted_ledger_id` → `credit_ledger` | запись баланса | **NO ACTION** |
@@ -64,7 +66,7 @@
 | `profiles` | Язык, роль, баланс, статус аккаунта | Удаляется | — | — | — |
 | `pets` | Кличка, порода, возраст, вес, болезни, препараты, заметки | Удаляется, включая помеченные `deleted_at` | — | — | — |
 | `health_products` | Ничего о человеке: общий справочник вакцин и препаратов (MR-04). Позиции записей ссылаются на него через `product_id` (`on delete set null`) | Не удаляется при удалении аккаунта | Справочник целиком | Не персональные данные | — |
-| `pet_health_events`, `pet_health_items` | Прививки и планы: даты, клиника, заметка, названия препаратов, болезни (MR-03) | Удаляются каскадом вместе с `pets`, включая помеченные `deleted_at` | — | — | — |
+| `pet_health_events`, `pet_health_items` | Прививки, обработки, визиты: даты, клиника, заметка, причина и диагноз визита, назначения, названия препаратов, болезни, ссылка на проверку (MR-03, MR-05, MR-07) | Удаляются каскадом вместе с `pets`, включая помеченные `deleted_at` | — | — | — |
 | `pet_medications` | Курсы лекарств: название, как давать, даты (MR-06) | Удаляется каскадом вместе с `pets`, включая помеченные `deleted_at` | — | — | — |
 | `pet_weights` | Даты и значения взвешиваний питомца (MR-02) | Удаляется каскадом вместе с `pets`, включая помеченные `deleted_at` | — | — | — |
 | `symptom_checks` | Описание симптомов своими словами, ответ модели, уровень срочности | Удаляется | — | — | — |

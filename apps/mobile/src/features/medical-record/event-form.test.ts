@@ -80,7 +80,11 @@ describe('editing a record', () => {
     date: '2026-03-12',
     clinic: 'Айболит',
     notes: null,
-    items: [{ id: 'i1', name: 'Нобивак Rabies', targets: ['rabies'], source_item_id: null, product_id: null, interval: null }],
+    items: [{ id: 'i1', name: 'Нобивак Rabies', targets: ['rabies'], source_item_id: null, product_id: null, interval: null, instructions: null, medication_id: null }],
+    visit_kind: null,
+    reason: null,
+    diagnosis: null,
+    check_id: null,
   }
 
   it('opens with what the record holds and sees no change until there is one', () => {
@@ -104,7 +108,11 @@ describe('an overdue plan (MR-03.3)', () => {
     date: '2026-09-12',
     clinic: null,
     notes: null,
-    items: [{ id: 'i1', name: null, targets: ['rabies'], source_item_id: null, product_id: null, interval: null }],
+    items: [{ id: 'i1', name: null, targets: ['rabies'], source_item_id: null, product_id: null, interval: null, instructions: null, medication_id: null }],
+    visit_kind: null,
+    reason: null,
+    diagnosis: null,
+    check_id: null,
   }
 
   it('can be corrected without moving it, and moved only forward', () => {
@@ -176,7 +184,11 @@ describe('«Сделано» on a plan picked from the catalogue (review 2)', ()
   it('suggests the next date by the interval the item was saved with', () => {
     const plan: HealthEvent = {
       id: 'p', kind: 'vaccination', status: 'planned', date: '2026-10-01', clinic: null, notes: null,
-      items: [{ id: 'i', name: 'Бравекто', targets: ['rabies'], source_item_id: null, product_id: 'x', interval: { value: 12, unit: 'week' } }],
+      items: [{ id: 'i', name: 'Бравекто', targets: ['rabies'], source_item_id: null, product_id: 'x', interval: { value: 12, unit: 'week' }, instructions: null, medication_id: null }],
+      visit_kind: null,
+      reason: null,
+      diagnosis: null,
+      check_id: null,
     }
     const item = draftFromEvent(plan).items[0]
     expect(nextDate(item, '2026-10-01', '2026-10-01')).toBe('2026-12-24')

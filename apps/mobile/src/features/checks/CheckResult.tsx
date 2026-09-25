@@ -7,7 +7,7 @@ import { withFreshSession } from '@/lib/api'
 import { describeFailure } from '@/lib/errors'
 import { dictionary, useText } from '@/i18n'
 import { urgencyText } from '@/features/checks/urgency'
-import { checkAnswers, formatCheckedAt, photoObservations } from '@/features/checks/check-answers'
+import { checkAnswers, formatCheckedAt, offersVisit, photoObservations, visitReason } from '@/features/checks/check-answers'
 import { ResultFeedback } from '@/features/checks/ResultFeedback'
 import { Button, LinkButton } from '@/ui/Button'
 import { Banner, UrgencyCard } from '@/ui/Card'
@@ -125,6 +125,20 @@ export function CheckResult({ id }: { id: string }) {
 
       <Banner text={t.result.disclaimer} />
 
+      {offersVisit(check) ? (
+        <View style={styles.visit}>
+          <Button
+            title={ui.medicalRecord.visits.fromResult}
+            kind="secondary"
+            onPress={() =>
+              router.push(
+                `/pets/${check.pet_id}/visit-form?checkId=${check.id}&reason=${encodeURIComponent(visitReason(check.symptoms_input))}`,
+              )
+            }
+          />
+        </View>
+      ) : null}
+
       <ResultFeedback checkId={check.id} />
 
       {/* At the end rather than docked: the answer is the thing to read, and a
@@ -141,6 +155,7 @@ export function CheckResult({ id }: { id: string }) {
 }
 
 const styles = StyleSheet.create({
+  visit: { marginTop: space.row },
   checkedAt: { marginBottom: space.row },
   answer: { marginTop: space.row, gap: 2 },
 })

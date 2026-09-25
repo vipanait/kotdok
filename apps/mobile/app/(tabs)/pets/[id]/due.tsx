@@ -7,7 +7,7 @@ import { describeFailure } from '@/lib/errors'
 import { localToday } from '@/lib/calendar-day'
 import { useText } from '@/i18n'
 import { DueRow } from '@/features/medical-record/DueRow'
-import { dueItems, dueStatus } from '@/features/medical-record/due'
+import { doneRoute, dueItems, dueStatus } from '@/features/medical-record/due'
 import { Button } from '@/ui/Button'
 import { Banner, Card } from '@/ui/Card'
 import { Screen } from '@/ui/Screen'
@@ -53,7 +53,7 @@ export default function AllDue() {
               <DueRow
                 due={due}
                 status={dueStatus(t, due.date, today)}
-                onDone={() => router.push(`/pets/${id}/event-form?mode=complete&itemId=${due.itemId}&kind=${due.kind}`)}
+                onDone={() => router.push(doneRoute(id, due))}
               />
             </View>
           ))}
