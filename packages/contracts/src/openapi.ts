@@ -20,6 +20,7 @@ import {
   WeightMeasurementSchema,
   WeightPatchSchema,
 } from './medical-record'
+import { VetSummarySchema } from './vet-summary'
 import { CheckHistoryPageSchema, SymptomCheckRecordSchema } from './check'
 import { CheckFeedbackSchema, ExtraCheckRequestStatusSchema, FeedbackInputSchema } from './credits'
 import {
@@ -56,6 +57,7 @@ const COMPONENTS: Array<[string, z.ZodType]> = [
   ['PetCreateInput', PetCreateInputSchema],
   ['PetUpdateInput', PetUpdateInputSchema],
   ['HealthOverview', HealthOverviewSchema],
+  ['VetSummary', VetSummarySchema],
   ['WeightMeasurement', WeightMeasurementSchema],
   ['WeightInput', WeightInputSchema],
   ['WeightPatch', WeightPatchSchema],
@@ -283,6 +285,16 @@ export function buildOpenApiDocument(): Record<string, unknown> {
         get: {
           summary: 'The pet\'s medical record: the pet form and the sections that accept records',
           responses: { '200': json('HealthOverview', 'The medical record'), ...commonErrors('not_found') },
+        },
+      },
+      '/pets/{id}/health/summary': {
+        parameters: [idParam],
+        get: {
+          summary: 'Everything to show a vet, the source of the «Для врача» screen and PDF',
+          description:
+            'Core vaccinations of the species are listed even with no record; null means not recorded, never «none». ' +
+            'Visits of the last year, the five latest dated weights, current courses, the three latest checks.',
+          responses: { '200': json('VetSummary', 'The summary'), ...commonErrors('not_found') },
         },
       },
       '/pets/{id}/health/weights': {

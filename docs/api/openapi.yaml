@@ -502,6 +502,132 @@ components:
         - events
         - medications
       additionalProperties: false
+    VetSummary:
+      type: object
+      properties:
+        generated_on:
+          type: string
+          format: date
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+        pet:
+          $ref: "#/components/schemas/Pet"
+        weights:
+          maxItems: 5
+          type: array
+          items:
+            $ref: "#/components/schemas/WeightMeasurement"
+        medications:
+          type: array
+          items:
+            $ref: "#/components/schemas/Medication"
+        vaccinations:
+          type: array
+          items:
+            type: object
+            properties:
+              target:
+                type: string
+              core:
+                type: boolean
+              last_done:
+                anyOf:
+                  - type: string
+                    format: date
+                    pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+                  - type: "null"
+              product:
+                anyOf:
+                  - type: string
+                  - type: "null"
+              next:
+                anyOf:
+                  - type: string
+                    format: date
+                    pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+                  - type: "null"
+            required:
+              - target
+              - core
+              - last_done
+              - product
+              - next
+            additionalProperties: false
+        parasites:
+          type: array
+          items:
+            type: object
+            properties:
+              group:
+                type: string
+                enum:
+                  - fleas_ticks
+                  - worms
+              last_done:
+                anyOf:
+                  - type: string
+                    format: date
+                    pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+                  - type: "null"
+              product:
+                anyOf:
+                  - type: string
+                  - type: "null"
+              next:
+                anyOf:
+                  - type: string
+                    format: date
+                    pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+                  - type: "null"
+            required:
+              - group
+              - last_done
+              - product
+              - next
+            additionalProperties: false
+        visits:
+          type: array
+          items:
+            $ref: "#/components/schemas/HealthEvent"
+        checks:
+          maxItems: 3
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              created_at:
+                type: string
+                format: date-time
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+              urgency:
+                type: string
+                enum:
+                  - emergency
+                  - urgent
+                  - monitor
+                  - home_care
+                  - healthy
+              summary:
+                type: string
+            required:
+              - id
+              - created_at
+              - urgency
+              - summary
+            additionalProperties: false
+      required:
+        - generated_on
+        - pet
+        - weights
+        - medications
+        - vaccinations
+        - parasites
+        - visits
+        - checks
+      additionalProperties: false
     WeightMeasurement:
       type: object
       properties:
@@ -2239,6 +2365,76 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthOverview"
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted
+                  request_id: 01J000000000000000000000
+        "404":
+          description: No such resource for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: not_found
+                  message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
+  /pets/{id}/health/summary:
+    parameters:
+      - *a1
+    get:
+      summary: Everything to show a vet, the source of the «Для врача» screen and PDF
+      description: Core vaccinations of the species are listed even with no record; null means not
+        recorded, never «none». Visits of the last year, the five latest dated weights, current
+        courses, the three latest checks.
+      responses:
+        "200":
+          description: The summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VetSummary"
         "401":
           description: Missing, malformed, expired or foreign access token
           content:

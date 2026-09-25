@@ -163,6 +163,8 @@ export default function MedicalRecord() {
       onPress={() => router.push(`/pets/${id}/checks`)}
     />
   )
+  // «Для врача» (M11): the record as a summary to show or send.
+  const forVet = <SettingRow icon="checkup" title={t.vetSummary.entry} onPress={() => router.push(`/pets/${id}/vet-summary`)} />
 
   if (!shown) {
     // The form, its delete and the check history do not depend on the record:
@@ -326,6 +328,7 @@ export default function MedicalRecord() {
         ))}
       </Card>
 
+      {forVet}
       {history}
 
       <AddRecordSheet visible={adding} choices={choices} onClose={() => setAdding(false)} />
