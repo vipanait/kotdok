@@ -65,7 +65,7 @@ export function PetFields({
    * Standing notes under fields that the medical record expands on — «История
    * веса — в медкарте». Only where the record has something (spec §4).
    */
-  notes?: { weight?: string }
+  notes?: { weight?: string; medications?: string }
 }) {
   const t = useText()
   const errorFor = (field: keyof PetForm) => (invalid?.field === field ? invalid.message : null)
@@ -175,6 +175,7 @@ export function PetFields({
           value={form.medications}
           onChangeText={(medications) => onChange({ medications })}
           placeholder={hint.medications}
+          hint={notes.medications}
         />
       </Accordion>
 

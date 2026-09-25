@@ -6,6 +6,7 @@ import { sanitizePet } from '@/shared/utils/pet-utils'
 import type { Pet } from '@/shared/types'
 import { WEIGHT_MAX_KG } from '@lapka/contracts'
 import { isFutureDay, recordWeight, utcToday } from '@/server/medical-record/weight-service'
+import { syncFormMedications } from '@/server/medical-record/medication-service'
 
 type SupabaseService = ReturnType<typeof createServiceClient>
 
@@ -88,6 +89,15 @@ function formWeight(body: Record<string, unknown>, sanitized: { weight_kg: numbe
   return { measured_on: day, weight_kg: kg }
 }
 
+/**
+ * The owner's day for the form's changes: the weighing day the phone sends,
+ * which is its own today, else today in UTC.
+ */
+function formDay(body: Record<string, unknown>): string {
+  const given = body.weight_measured_on
+  return typeof given === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(given) && !isFutureDay(given) ? given : utcToday()
+}
+
 /** Whether the pet has any live measurement, so the form cannot blank a weight the history still holds. */
 async function hasWeights(supabase: SupabaseService, petId: string): Promise<boolean> {
   const { data } = await supabase
@@ -115,23 +125,38 @@ export async function createPet(
   // record would see "no change" and keep the weight undated.
   const { data, error } = await supabase
     .from('pets')
-    .insert({ ...pet, vaccinated_form: pet.vaccinated, ...(weight ? { weight_kg: null } : {}), user_id: userId })
+    .insert({
+      ...pet,
+      vaccinated_form: pet.vaccinated,
+      // The list is set by the courses it starts, below.
+      medications: [],
+      ...(weight ? { weight_kg: null } : {}),
+      user_id: userId,
+    })
     .select()
     .single()
 
   if (error || !data) return { ok: false, reason: 'storage_error', message: error?.message }
-  if (!weight) return { ok: true, data: data as Pet }
+  const created = data as Pet
+
+  if (pet.medications.length > 0) {
+    const synced = await syncFormMedications(supabase, userId, created.id, pet.medications, formDay(body))
+    if (!synced.ok) {
+      console.error('[pets] first medicines not recorded', synced.message)
+      await supabase.from('pets').update({ medications: pet.medications }).eq('id', created.id)
+    }
+  }
+  if (!weight) return getPet(supabase, userId, created.id)
 
   // Not allowed to fail the creation: a retry would create the pet twice. If
   // the history cannot take the weight, the form keeps it as before.
-  const created = data as Pet
   const recorded = await recordWeight(supabase, userId, created.id, weight, 'form')
   if (!recorded.ok) {
     console.error('[pets] first weight not recorded', recorded.message)
     await supabase.from('pets').update({ weight_kg: pet.weight_kg }).eq('id', created.id)
   }
 
-  return { ok: true, data: { ...created, weight_kg: pet.weight_kg } }
+  return getPet(supabase, userId, created.id)
 }
 
 export async function updatePet(
@@ -144,9 +169,12 @@ export async function updatePet(
   if (!allowed.ok) return allowed
 
   const sanitized = sanitizePet(body)
-  const withoutWeight: Partial<typeof sanitized> = { ...sanitized }
+  // The medicines list is the courses' to set (MR-06): the form's list goes
+  // through sync_form_medications, never straight into the column.
+  const { medications: formMedications, ...rest } = sanitized
+  const withoutWeight: Partial<typeof sanitized> = { ...rest }
   delete withoutWeight.weight_kg
-  let pet: Partial<typeof sanitized> = sanitized
+  let pet: Partial<typeof sanitized> = rest
 
   // Before the form is saved: the record keeps the form's previous weight as
   // history, so it has to see it first. Once the weight is in the history,
@@ -184,6 +212,9 @@ export async function updatePet(
 
   const synced = await supabase.rpc('sync_pet_vaccinated', { p_pet_id: petId })
   if (synced.error) return { ok: false, reason: 'storage_error', message: synced.error.message }
+
+  const medicines = await syncFormMedications(supabase, userId, petId, formMedications, formDay(body))
+  if (!medicines.ok) return { ok: false, reason: 'storage_error', message: medicines.message }
 
   return getPet(supabase, userId, petId)
 }

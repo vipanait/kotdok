@@ -7,6 +7,9 @@ import {
   CompleteItemInputSchema,
   DueItemSchema,
   HealthProductSchema,
+  MedicationPatchSchema,
+  MedicationSchema,
+  MedicationsInputSchema,
   HealthEventInputSchema,
   HealthEventPatchSchema,
   HealthEventSchema,
@@ -60,6 +63,9 @@ const COMPONENTS: Array<[string, z.ZodType]> = [
   ['CompleteItemInput', CompleteItemInputSchema],
   ['DueItem', DueItemSchema],
   ['HealthProduct', HealthProductSchema],
+  ['Medication', MedicationSchema],
+  ['MedicationsInput', MedicationsInputSchema],
+  ['MedicationPatch', MedicationPatchSchema],
   ['SymptomCheckRecord', SymptomCheckRecordSchema],
   ['CheckHistoryPage', CheckHistoryPageSchema],
   ['CheckCreateInput', CheckCreateInputSchema],
@@ -373,6 +379,33 @@ export function buildOpenApiDocument(): Record<string, unknown> {
             '200': json('HealthEvent', 'The done record'),
             ...commonErrors('bad_request', 'not_found', 'conflict'),
           },
+        },
+      },
+      '/pets/{id}/health/medications': {
+        parameters: [idParam],
+        post: {
+          summary: 'Add medication courses; the pet form\'s medicines list follows',
+          parameters: [idempotencyParam],
+          requestBody: body('MedicationsInput'),
+          responses: {
+            '201': {
+              description: 'The courses',
+              content: { 'application/json': { schema: { type: 'array', items: ref('Medication') } } },
+            },
+            ...commonErrors('bad_request', 'not_found', 'conflict'),
+          },
+        },
+      },
+      '/pets/{id}/health/medications/{medication_id}': {
+        parameters: [idParam, { name: 'medication_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+        patch: {
+          summary: 'Correct a course, or end it',
+          requestBody: body('MedicationPatch'),
+          responses: { '200': json('Medication', 'The course'), ...commonErrors('bad_request', 'not_found') },
+        },
+        delete: {
+          summary: 'Delete a course',
+          responses: { '204': { description: 'Deleted' }, ...commonErrors('not_found') },
         },
       },
       '/uploads': {

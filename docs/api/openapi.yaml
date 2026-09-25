@@ -490,11 +490,17 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/HealthEvent"
+        medications:
+          default: []
+          type: array
+          items:
+            $ref: "#/components/schemas/Medication"
       required:
         - pet
         - writable
         - weights
         - events
+        - medications
       additionalProperties: false
     WeightMeasurement:
       type: object
@@ -940,6 +946,113 @@ components:
         - targets
         - interval
         - popular
+      additionalProperties: false
+    Medication:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        name:
+          type: string
+        dosage:
+          anyOf:
+            - type: string
+            - type: "null"
+        started_on:
+          anyOf:
+            - type: string
+              format: date
+              pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+            - type: "null"
+        ended_on:
+          anyOf:
+            - type: string
+              format: date
+              pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+            - type: "null"
+        ongoing:
+          type: boolean
+        source:
+          type: string
+          enum:
+            - record
+            - form
+      required:
+        - id
+        - name
+        - dosage
+        - started_on
+        - ended_on
+        - ongoing
+        - source
+      additionalProperties: false
+    MedicationsInput:
+      type: object
+      properties:
+        items:
+          minItems: 1
+          maxItems: 10
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                minLength: 1
+                maxLength: 150
+              dosage:
+                anyOf:
+                  - type: string
+                    maxLength: 150
+                  - type: "null"
+              started_on:
+                anyOf:
+                  - type: string
+                    format: date
+                    pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+                  - type: "null"
+              ended_on:
+                anyOf:
+                  - type: string
+                    format: date
+                    pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+                  - type: "null"
+              ongoing:
+                type: boolean
+            required:
+              - name
+            additionalProperties: false
+      required:
+        - items
+      additionalProperties: false
+    MedicationPatch:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        dosage:
+          anyOf:
+            - type: string
+              maxLength: 150
+            - type: "null"
+        started_on:
+          anyOf:
+            - type: string
+              format: date
+              pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+            - type: "null"
+        ended_on:
+          anyOf:
+            - type: string
+              format: date
+              pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+            - type: "null"
+        ongoing:
+          type: boolean
       additionalProperties: false
     SymptomCheckRecord:
       type: object
@@ -2718,6 +2831,255 @@ paths:
                 error:
                   code: conflict
                   message: Same idempotency key with different data
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
+  /pets/{id}/health/medications:
+    parameters:
+      - *a1
+    post:
+      summary: Add medication courses; the pet form's medicines list follows
+      parameters:
+        - *a2
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MedicationsInput"
+      responses:
+        "201":
+          description: The courses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Medication"
+        "400":
+          description: Request body or query is invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: bad_request
+                  message: Request body or query is invalid
+                  request_id: 01J000000000000000000000
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted
+                  request_id: 01J000000000000000000000
+        "404":
+          description: No such resource for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: not_found
+                  message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "409":
+          description: Same idempotency key with different data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: conflict
+                  message: Same idempotency key with different data
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
+  /pets/{id}/health/medications/{medication_id}:
+    parameters:
+      - *a1
+      - name: medication_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    patch:
+      summary: Correct a course, or end it
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MedicationPatch"
+      responses:
+        "200":
+          description: The course
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Medication"
+        "400":
+          description: Request body or query is invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: bad_request
+                  message: Request body or query is invalid
+                  request_id: 01J000000000000000000000
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted
+                  request_id: 01J000000000000000000000
+        "404":
+          description: No such resource for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: not_found
+                  message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
+    delete:
+      summary: Delete a course
+      responses:
+        "204":
+          description: Deleted
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted
+                  request_id: 01J000000000000000000000
+        "404":
+          description: No such resource for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: not_found
+                  message: No such resource for this user
                   request_id: 01J000000000000000000000
         "429":
           description: Too many requests

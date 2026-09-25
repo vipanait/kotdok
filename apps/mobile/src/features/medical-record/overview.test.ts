@@ -29,7 +29,7 @@ function pet(overrides: Partial<Pet> = {}): Pet {
 }
 
 function overview(overrides: Partial<Pet> = {}, weights: WeightMeasurement[] = [], events: HealthEvent[] = []): HealthOverview {
-  return { pet: pet(overrides), writable: ['vaccinations', 'weight'], weights, events }
+  return { pet: pet(overrides), writable: ['vaccinations', 'parasites', 'medications', 'weight'], weights, events, medications: [] }
 }
 
 const TODAY = '2026-09-24'
@@ -89,10 +89,10 @@ describe('important to know', () => {
 })
 
 describe('sections', () => {
-  it('lists the five sections in order; vaccinations and weight open so far', () => {
+  it('lists the five sections in order; all but visits open so far', () => {
     const rows = sectionRows(ru, overview(), TODAY)
     expect(rows.map((row) => row.section)).toEqual(['vaccinations', 'parasites', 'visits', 'medications', 'weight'])
-    expect(rows.filter((row) => row.openable).map((row) => row.section)).toEqual(['vaccinations', 'weight'])
+    expect(rows.filter((row) => row.openable).map((row) => row.section)).toEqual(['vaccinations', 'parasites', 'medications', 'weight'])
   })
 
   it('sums vaccinations up with the last one done, over the form’s answer', () => {
@@ -127,9 +127,9 @@ describe('sections', () => {
   it('does not open a section this build has no screen for, whatever the server allows', () => {
     // A newer server lists sections an older app cannot show: a chevron there
     // would be a button that leads nowhere.
-    const rows = sectionRows(ru, { pet: pet(), writable: ['weight', 'visits'], weights: [], events: [] }, TODAY)
+    const rows = sectionRows(ru, { pet: pet(), writable: ['weight', 'visits'], weights: [], events: [], medications: [] }, TODAY)
     expect(rows.find((row) => row.section === 'visits')?.openable).toBe(false)
-    expect(sectionRows(ru, { pet: pet(), writable: [], weights: [], events: [] }, TODAY)[4].openable).toBe(false)
+    expect(sectionRows(ru, { pet: pet(), writable: [], weights: [], events: [], medications: [] }, TODAY)[4].openable).toBe(false)
   })
 })
 

@@ -210,6 +210,59 @@ export const HealthProductSchema = z.object({
 
 export type HealthProduct = z.infer<typeof HealthProductSchema>
 
+const MEDICATION_TEXT_MAX = 150
+
+/**
+ * A medication course. `started_on` null only for one brought over from the
+ * pet form, whose start nobody knows; `ongoing` is «Постоянно», an end that
+ * is not coming — different from an end nobody gave.
+ */
+export const MedicationSchema = z.object({
+  id: UuidSchema,
+  name: z.string(),
+  dosage: z.string().nullable(),
+  started_on: CalendarDateSchema.nullable(),
+  ended_on: CalendarDateSchema.nullable(),
+  ongoing: z.boolean(),
+  source: z.enum(['record', 'form']),
+})
+
+export type Medication = z.infer<typeof MedicationSchema>
+
+const medicationFields = {
+  name: z.string().trim().min(1).max(MEDICATION_TEXT_MAX),
+  dosage: z.string().trim().max(MEDICATION_TEXT_MAX).nullable().optional(),
+  started_on: CalendarDateSchema.nullable().optional(),
+  ended_on: CalendarDateSchema.nullable().optional(),
+  ongoing: z.boolean().optional(),
+}
+
+/** An end before the start, or an end on a course marked «Постоянно», is refused (MR-06.4). */
+function courseRange(value: { started_on?: string | null; ended_on?: string | null; ongoing?: boolean }, ctx: z.RefinementCtx) {
+  if (value.ongoing && value.ended_on) {
+    ctx.addIssue({ code: 'custom', path: ['ended_on'], message: 'an ongoing course has no end' })
+  }
+  if (value.started_on && value.ended_on && value.ended_on < value.started_on) {
+    ctx.addIssue({ code: 'custom', path: ['ended_on'], message: 'the end is before the start' })
+  }
+}
+
+export const MedicationInputSchema = z.strictObject(medicationFields).superRefine(courseRange)
+
+/** Several courses at once, as the form adds them. */
+export const MedicationsInputSchema = z.strictObject({ items: z.array(MedicationInputSchema).min(1).max(10) })
+
+export type MedicationsInput = z.infer<typeof MedicationsInputSchema>
+
+/** A correction, or «Завершить курс» (`ended_on` today, `ongoing` false). */
+export const MedicationPatchSchema = z
+  .strictObject(medicationFields)
+  .partial()
+  .superRefine(courseRange)
+  .refine((value) => Object.keys(value).length > 0, { message: 'at least one field is required' })
+
+export type MedicationPatch = z.infer<typeof MedicationPatchSchema>
+
 /** One due date across all of the caller's pets, for the pet list. */
 export const DueItemSchema = z.object({
   pet_id: UuidSchema,
@@ -243,6 +296,7 @@ export const HealthOverviewSchema = z.object({
   // Defaulted, so a newer app reading an older server sees an empty history.
   weights: z.array(WeightMeasurementSchema).default([]),
   events: z.array(HealthEventSchema).default([]),
+  medications: z.array(MedicationSchema).default([]),
 })
 
 export type HealthOverview = z.infer<typeof HealthOverviewSchema>

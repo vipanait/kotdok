@@ -12,6 +12,7 @@ import {
   DueListReadSchema,
   HealthEventSchema,
   HealthProductSchema,
+  MedicationSchema,
   HealthOverviewReadSchema,
   HealthSchema,
   IDEMPOTENCY_KEY_HEADER,
@@ -34,6 +35,8 @@ import {
   type CompleteItemInput,
   type HealthEventInput,
   type HealthEventPatch,
+  type MedicationPatch,
+  type MedicationsInput,
   type PetSpecies,
   type ProductKind,
   type WeightInput,
@@ -263,6 +266,16 @@ export function createApiClient(options: ApiClientOptions) {
         headers: { [IDEMPOTENCY_KEY_HEADER]: idempotencyKey },
       }),
     listDue: () => call('/pets/due', DueListReadSchema),
+    addMedications: (petId: string, body: MedicationsInput, idempotencyKey: string) =>
+      call(`/pets/${petId}/health/medications`, z.array(MedicationSchema), {
+        method: 'POST',
+        body,
+        headers: { [IDEMPOTENCY_KEY_HEADER]: idempotencyKey },
+      }),
+    changeMedication: (petId: string, medicationId: string, body: MedicationPatch) =>
+      call(`/pets/${petId}/health/medications/${medicationId}`, MedicationSchema, { method: 'PATCH', body }),
+    deleteMedication: (petId: string, medicationId: string) =>
+      call<void>(`/pets/${petId}/health/medications/${medicationId}`, null, { method: 'DELETE' }),
     getCatalog: (species: PetSpecies, kind: ProductKind, query = '') =>
       call(
         `/health/catalog?species=${species}&kind=${kind}&q=${encodeURIComponent(query)}`,

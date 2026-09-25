@@ -7,6 +7,8 @@ import {
   CheckFeedbackSchema,
   FeedbackInputSchema,
   HEALTH_SECTIONS,
+  MedicationInputSchema,
+  MedicationPatchSchema,
   CompleteItemInputSchema,
   HealthEventInputSchema,
   HealthEventPatchSchema,
@@ -232,7 +234,7 @@ describe('medical record overview contract', () => {
     // record stage adds to this response. An older client ignores what it does
     // not know instead of failing the whole screen.
     const later = HealthOverviewSchema.parse({ pet, writable: ['weight'], weights: [], visits: [] })
-    expect(later).toEqual({ pet, writable: ['weight'], weights: [], events: [] })
+    expect(later).toEqual({ pet, writable: ['weight'], weights: [], events: [], medications: [] })
   })
 })
 
@@ -379,5 +381,24 @@ describe('reading records of a kind this app does not know yet', () => {
   it('drops them from the due list', () => {
     const row = { pet_id: pet.id, event_id: vaccination.id, item_id: vaccination.items[0].id, kind: 'vaccination', date: '2027-03-12', name: null, targets: ['rabies'] }
     expect(DueListReadSchema.parse([row, { ...row, kind: 'grooming' }])).toHaveLength(1)
+  })
+})
+
+describe('medication courses (MR-06.4)', () => {
+  it('takes a course without details, an ongoing one and one with an end', () => {
+    expect(MedicationInputSchema.safeParse({ name: 'Фортифлора' }).success).toBe(true)
+    expect(MedicationInputSchema.safeParse({ name: 'Лечебный корм', started_on: '2026-08-02', ongoing: true }).success).toBe(true)
+    expect(MedicationInputSchema.safeParse({ name: 'Фортифлора', started_on: '2026-08-02', ended_on: '2026-08-15' }).success).toBe(true)
+  })
+
+  it('refuses an end before the start, and an end on an ongoing course', () => {
+    expect(MedicationInputSchema.safeParse({ name: 'x', started_on: '2026-08-15', ended_on: '2026-08-02' }).success).toBe(false)
+    expect(MedicationInputSchema.safeParse({ name: 'x', ended_on: '2026-08-15', ongoing: true }).success).toBe(false)
+    expect(MedicationInputSchema.safeParse({ name: '  ' }).success).toBe(false)
+  })
+
+  it('needs something to change', () => {
+    expect(MedicationPatchSchema.safeParse({}).success).toBe(false)
+    expect(MedicationPatchSchema.safeParse({ ended_on: '2026-09-25', ongoing: false }).success).toBe(true)
   })
 })

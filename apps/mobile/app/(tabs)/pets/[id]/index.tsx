@@ -52,6 +52,7 @@ function Skeleton() {
 const SECTION_ROUTES: Partial<Record<SectionRow['section'], string>> = {
   vaccinations: 'vaccinations',
   parasites: 'parasites',
+  medications: 'medications',
   weight: 'weight',
 }
 
@@ -191,7 +192,7 @@ export default function MedicalRecord() {
   const important = importantFacts(t, pet)
   const due = dueItems(shown.events)
   const canVaccinate = shown.writable.includes('vaccinations')
-  const empty = shown.events.length === 0 && shown.weights.length === 0
+  const empty = shown.events.length === 0 && shown.weights.length === 0 && shown.medications.length === 0
   const addVaccination = () => router.push(`/pets/${id}/event-form?mode=new&status=done`)
   const choices: AddChoice[] = [
     ...(canVaccinate
@@ -206,6 +207,9 @@ export default function MedicalRecord() {
             onPress: () => router.push(`/pets/${id}/event-form?mode=new&status=done&kind=parasite`),
           },
         ]
+      : []),
+    ...(shown.writable.includes('medications')
+      ? [{ key: 'medication', icon: 'med' as const, label: t.medicalRecord.meds.addRow, onPress: () => router.push(`/pets/${id}/medication-form`) }]
       : []),
     ...(shown.writable.includes('weight')
       ? [{ key: 'weight', icon: 'weight' as const, label: t.medicalRecord.addWeightRow, onPress: () => router.push(`/pets/${id}/weight`) }]

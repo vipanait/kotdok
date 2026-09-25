@@ -8,6 +8,7 @@ import {
 import type { Dictionary } from '@/i18n'
 import { lastTreatment, lastVaccination } from './due'
 import { weightTrend } from './weight'
+import { isCurrent } from './medications'
 
 /**
  * What the medical record screen says, worked out from the overview.
@@ -89,7 +90,7 @@ export function importantFacts(t: Dictionary, pet: Pet): Fact[] {
  * can store; an app older than the server must not draw a chevron for a
  * section it cannot open. Each stage adds its section here with its screen.
  */
-const OPENABLE_SECTIONS: readonly HealthSection[] = ['vaccinations', 'parasites', 'weight']
+const OPENABLE_SECTIONS: readonly HealthSection[] = ['vaccinations', 'parasites', 'medications', 'weight']
 
 export type SectionRow = {
   section: HealthSection
@@ -110,8 +111,13 @@ function summary(t: Dictionary, section: HealthSection, overview: HealthOverview
       if (pet.vaccinated === false) return words.notVaccinatedInForm
       return words.noRecords
     }
-    case 'medications':
-      return pet.medications.length > 0 ? words.currentCount(pet.medications.length) : words.noRecords
+    case 'medications': {
+      const courses = overview.medications
+      if (courses.length === 0) {
+        return pet.medications.length > 0 ? words.currentCount(pet.medications.length) : words.noRecords
+      }
+      return words.meds.summary(courses.filter((course) => isCurrent(course, today)).length, courses.length)
+    }
     case 'weight': {
       const latest = latestDated(overview.weights)
       if (latest) return `${words.weight(latest.weight_kg)} · ${day(t, latest.measured_on, today)}`

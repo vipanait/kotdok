@@ -27,6 +27,7 @@ export default function EditPet() {
   const t = useText()
   const [form, setForm] = useState<PetForm | null>(null)
   const [hasWeights, setHasWeights] = useState(false)
+  const [hasCourses, setHasCourses] = useState(false)
   // What the server holds, to tell an edit from a form that was only looked at.
   const [saved, setSaved] = useState<PetForm | null>(null)
   const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
@@ -39,10 +40,11 @@ export default function EditPet() {
     try {
       // The record, not just the pet: the form points to the weight history
       // when there is one.
-      const { pet, weights } = await withFreshSession((api) => api.getHealthOverview(id))
+      const { pet, weights, medications } = await withFreshSession((api) => api.getHealthOverview(id))
       setForm(petToForm(pet))
       setSaved(petToForm(pet))
       setHasWeights(weights.length > 0)
+      setHasCourses(medications.some((course) => course.source === 'record' || course.dosage !== null))
     } catch (cause) {
       setError(describeFailure(t, cause, t.errors.loadPetFailed))
     }
@@ -135,7 +137,10 @@ export default function EditPet() {
         form={form}
         onChange={change}
         invalid={invalid}
-        notes={{ weight: hasWeights ? t.medicalRecord.weightHistoryHint : undefined }}
+        notes={{
+          weight: hasWeights ? t.medicalRecord.weightHistoryHint : undefined,
+          medications: hasCourses ? t.medicalRecord.meds.formHint : undefined,
+        }}
       />
 
       {error ? (
