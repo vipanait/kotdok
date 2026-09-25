@@ -13,5 +13,9 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  return NextResponse.redirect(new URL('/login?error=auth_failed', origin))
+  // Back to sign-in with the reason, keeping where the person was headed.
+  const login = new URL('/login', origin)
+  login.searchParams.set('error', 'auth_failed')
+  login.searchParams.set('next', safeNext)
+  return NextResponse.redirect(login)
 }

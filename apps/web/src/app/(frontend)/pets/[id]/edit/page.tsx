@@ -1,36 +1,46 @@
-import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
+import CabinetShell from '@/components/cabinet/CabinetShell'
+import PetPageHead from '@/features/pets/PetPageHead'
+import PetForm from '@/features/pets/PetForm'
+import { requireCabinet } from '@/components/cabinet/require-cabinet'
+import { getDictionary } from '@/server/i18n/get-dictionary'
+import { getLocale } from '@/server/i18n/get-locale'
 import { createServiceClient } from '@/server/supabase/server'
-import { notFound, redirect } from 'next/navigation'
-import DashboardContent from '@/features/dashboard/DashboardContent'
-import PetModalShell from '@/features/pets/PetModalShell'
-import { loadDashboard } from '@/server/dashboard/load-dashboard'
 import type { Pet } from '@/shared/types'
+import { privatePageMetadata } from '@/server/i18n/page-metadata'
 
-export const metadata: Metadata = {
-  robots: { index: false, follow: false },
-}
+export const generateMetadata = privatePageMetadata(d => d.shell.pets)
 
 export default async function EditPetPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
 
-  const data = await loadDashboard()
-  if (!data) redirect('/login')
+  const cabinet = await requireCabinet(`/login?next=${encodeURIComponent(`/pets/${id}/edit`)}`)
 
   const service = createServiceClient()
-  const { data: pet } = await service
-    .from('pets')
-    .select('*')
-    .eq('id', id)
-    .eq('user_id', data.user.id)
-    .is('deleted_at', null)
-    .single()
+  const [{ data: pet, error }, locale] = await Promise.all([
+    service
+      .from('pets')
+      .select('*')
+      .eq('id', id)
+      .eq('user_id', cabinet.user.id)
+      .is('deleted_at', null)
+      .maybeSingle(),
+    getLocale(),
+  ])
 
+  // A failed read is an error; a malformed id (22P02) is just another missing pet.
+  if (error && error.code !== '22P02') throw new Error(`Could not load the pet: ${error.message}`)
+  // Someone else's pet, a deleted one and a malformed id all look the same.
   if (!pet) notFound()
 
+  const dict = await getDictionary(locale)
+  const t = dict.pets
+  const { name } = pet as Pet
+
   return (
-    <>
-      <DashboardContent data={data} />
-      <PetModalShell pet={pet as Pet} />
-    </>
+    <CabinetShell cabinet={cabinet} active="pets" crumb={`${t.listTitle} / ${name}`}>
+      <PetPageHead title={name} subtitle={t.editSubtitle} backLabel={t.listTitle} />
+      <PetForm pet={pet as Pet} />
+    </CabinetShell>
   )
 }

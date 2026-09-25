@@ -1,0 +1,781 @@
+{
+  "date": "2026-09-24",
+  "screens": [
+    {
+      "id": "landing",
+      "name": "Главная",
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1092
+    },
+    {
+      "id": "login",
+      "name": "Вход",
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1000
+    },
+    {
+      "id": "register",
+      "name": "Регистрация",
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1000
+    },
+    {
+      "id": "forgot",
+      "name": "Восстановление пароля",
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1000
+    },
+    {
+      "id": "password",
+      "name": "Новый пароль",
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1000
+    },
+    {
+      "id": "sent",
+      "name": "Письмо отправлено",
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1000
+    },
+    {
+      "id": "auth-error",
+      "name": "Ошибка входа",
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1000
+    },
+    {
+      "id": "dashboard",
+      "name": "Кабинет",
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1041
+    },
+    {
+      "id": "dashboard-many",
+      "name": "Обзор · пять питомцев",
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1041
+    },
+    {
+      "id": "pets-many",
+      "name": "Все пять питомцев",
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1000
+    },
+    {
+      "id": "dashboard-empty",
+      "name": "Первый вход",
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1000
+    },
+    {
+      "id": "pets",
+      "name": "Питомцы",
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1000
+    },
+    {
+      "id": "pet-new",
+      "name": "Добавление питомца",
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1625
+    },
+    {
+      "id": "pet-cat",
+      "name": "Карточка кошки",
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1625
+    },
+    {
+      "id": "pet-dog",
+      "name": "Карточка собаки",
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1722
+    },
+    {
+      "id": "check",
+      "name": "Проверка симптомов",
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1289
+    },
+    {
+      "id": "check-empty",
+      "name": "Проверка без питомцев",
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1000
+    },
+    {
+      "id": "loading",
+      "name": "Ожидание",
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1000
+    },
+    {
+      "id": "check-error",
+      "name": "Ошибка проверки",
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1000
+    },
+    {
+      "id": "result-emergency",
+      "name": "Результат · Экстренно",
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1334
+    },
+    {
+      "id": "result-urgent",
+      "name": "Результат · Срочно",
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1334
+    },
+    {
+      "id": "result-monitor",
+      "name": "Результат · Наблюдаем",
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1266
+    },
+    {
+      "id": "result-home_care",
+      "name": "Результат · Домашний уход",
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1068
+    },
+    {
+      "id": "result-healthy",
+      "name": "Результат · Всё в порядке",
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1002
+    },
+    {
+      "id": "history",
+      "name": "История",
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1000
+    },
+    {
+      "id": "history-empty",
+      "name": "Пустая история",
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1000
+    },
+    {
+      "id": "credits",
+      "name": "Нет проверок",
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1000
+    },
+    {
+      "id": "credits-pending",
+      "name": "Запрос на рассмотрении",
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1000
+    },
+    {
+      "id": "credits-rejected",
+      "name": "Запрос отклонён",
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1000
+    },
+    {
+      "id": "deletion",
+      "name": "Удаление аккаунта",
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1000
+    },
+    {
+      "id": "legal",
+      "name": "Условия сервиса",
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1000
+    },
+    {
+      "id": "admin",
+      "name": "Статистика администратора",
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1044
+    }
+  ],
+  "responsive": [
+    {
+      "id": "landing",
+      "width": 1024,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1240
+    },
+    {
+      "id": "login",
+      "width": 1024,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 902
+    },
+    {
+      "id": "register",
+      "width": 1024,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 933
+    },
+    {
+      "id": "forgot",
+      "width": 1024,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 844
+    },
+    {
+      "id": "password",
+      "width": 1024,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 844
+    },
+    {
+      "id": "sent",
+      "width": 1024,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 844
+    },
+    {
+      "id": "auth-error",
+      "width": 1024,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 993
+    },
+    {
+      "id": "dashboard",
+      "width": 1024,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1457
+    },
+    {
+      "id": "dashboard-many",
+      "width": 1024,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1575
+    },
+    {
+      "id": "pets-many",
+      "width": 1024,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 938
+    },
+    {
+      "id": "dashboard-empty",
+      "width": 1024,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 897
+    },
+    {
+      "id": "pets",
+      "width": 1024,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 844
+    },
+    {
+      "id": "pet-new",
+      "width": 1024,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1593
+    },
+    {
+      "id": "pet-cat",
+      "width": 1024,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1593
+    },
+    {
+      "id": "pet-dog",
+      "width": 1024,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1690
+    },
+    {
+      "id": "check",
+      "width": 1024,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1480
+    },
+    {
+      "id": "check-empty",
+      "width": 1024,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 844
+    },
+    {
+      "id": "loading",
+      "width": 1024,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 844
+    },
+    {
+      "id": "check-error",
+      "width": 1024,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 851
+    },
+    {
+      "id": "result-emergency",
+      "width": 1024,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1302
+    },
+    {
+      "id": "result-urgent",
+      "width": 1024,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1302
+    },
+    {
+      "id": "result-monitor",
+      "width": 1024,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1234
+    },
+    {
+      "id": "result-home_care",
+      "width": 1024,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1036
+    },
+    {
+      "id": "result-healthy",
+      "width": 1024,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 991
+    },
+    {
+      "id": "history",
+      "width": 1024,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 844
+    },
+    {
+      "id": "history-empty",
+      "width": 1024,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 844
+    },
+    {
+      "id": "credits",
+      "width": 1024,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 844
+    },
+    {
+      "id": "credits-pending",
+      "width": 1024,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 844
+    },
+    {
+      "id": "credits-rejected",
+      "width": 1024,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 844
+    },
+    {
+      "id": "deletion",
+      "width": 1024,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 976
+    },
+    {
+      "id": "legal",
+      "width": 1024,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 844
+    },
+    {
+      "id": "admin",
+      "width": 1024,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1036
+    },
+    {
+      "id": "landing",
+      "width": 390,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1567
+    },
+    {
+      "id": "login",
+      "width": 390,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 945
+    },
+    {
+      "id": "register",
+      "width": 390,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 976
+    },
+    {
+      "id": "forgot",
+      "width": 390,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 844
+    },
+    {
+      "id": "password",
+      "width": 390,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 844
+    },
+    {
+      "id": "sent",
+      "width": 390,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 844
+    },
+    {
+      "id": "auth-error",
+      "width": 390,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1035
+    },
+    {
+      "id": "dashboard",
+      "width": 390,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1615
+    },
+    {
+      "id": "dashboard-many",
+      "width": 390,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1748
+    },
+    {
+      "id": "pets-many",
+      "width": 390,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1128
+    },
+    {
+      "id": "dashboard-empty",
+      "width": 390,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 978
+    },
+    {
+      "id": "pets",
+      "width": 390,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 844
+    },
+    {
+      "id": "pet-new",
+      "width": 390,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 2641
+    },
+    {
+      "id": "pet-cat",
+      "width": 390,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 2747
+    },
+    {
+      "id": "pet-dog",
+      "width": 390,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 2942
+    },
+    {
+      "id": "check",
+      "width": 390,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 2062
+    },
+    {
+      "id": "check-empty",
+      "width": 390,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 844
+    },
+    {
+      "id": "loading",
+      "width": 390,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 844
+    },
+    {
+      "id": "check-error",
+      "width": 390,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 844
+    },
+    {
+      "id": "result-emergency",
+      "width": 390,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1973
+    },
+    {
+      "id": "result-urgent",
+      "width": 390,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1973
+    },
+    {
+      "id": "result-monitor",
+      "width": 390,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1931
+    },
+    {
+      "id": "result-home_care",
+      "width": 390,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1672
+    },
+    {
+      "id": "result-healthy",
+      "width": 390,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1519
+    },
+    {
+      "id": "history",
+      "width": 390,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 876
+    },
+    {
+      "id": "history-empty",
+      "width": 390,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 862
+    },
+    {
+      "id": "credits",
+      "width": 390,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1112
+    },
+    {
+      "id": "credits-pending",
+      "width": 390,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1112
+    },
+    {
+      "id": "credits-rejected",
+      "width": 390,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1112
+    },
+    {
+      "id": "deletion",
+      "width": 390,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 1127
+    },
+    {
+      "id": "legal",
+      "width": 390,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 914
+    },
+    {
+      "id": "admin",
+      "width": 390,
+      "visibleLogos": 1,
+      "overflow": false,
+      "assets": true,
+      "height": 2373
+    }
+  ],
+  "errors": [],
+  "chips": "passed",
+  "oauthConsent": "passed",
+  "mainJourney": "passed",
+  "deleteCancel": "passed",
+  "petContext": "passed: 320/390/760/761/1024/1440, selection and preserved symptoms"
+}

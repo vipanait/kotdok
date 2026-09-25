@@ -40,6 +40,7 @@ const ADAPTERS = new Set([
   'auth/get-auth-user.ts',
   'auth/sign-out.ts',
   'i18n/get-locale.ts',
+  'i18n/get-time-zone.ts',
   'pets/pet-http.ts',
   'security/csrf.ts',
   'supabase/server.ts',

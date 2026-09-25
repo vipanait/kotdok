@@ -1,337 +1,443 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import type { SymptomCheckResult, Pet } from '@/shared/types'
+import { SYMPTOMS_MAX, SYMPTOMS_MIN, type SymptomCheckView } from '@lapka/contracts'
 import { useLocale, useTranslations } from '@/components/LocaleProvider'
-import AppShell from '@/components/AppShell'
 import PetAvatar from '@/components/PetAvatar'
+import Icon from '@/components/ui/Icon'
+import Illustration from '@/components/ui/Illustration'
 import CheckResultContent from '@/features/symptom-check/CheckResultContent'
-import type { SymptomCheckView } from '@lapka/contracts'
+import { checkOptions, type CheckOption } from '@/features/symptom-check/check-options'
 import { csrfHeaders } from '@/shared/security/csrf-client'
+import type { CheckPet, SymptomCheckResult } from '@/shared/types'
+import { petHealthFacts, petSummary } from '@/shared/utils/pet-summary'
 
 interface Props {
-  pets: Pick<Pet, 'id' | 'name' | 'breed' | 'age_years' | 'sex' | 'species'>[]
-  onClose?: () => void
+  /** At least one: the page shows its own empty state without pets. */
+  pets: CheckPet[]
+  /** Preselected pet, already checked to be one of `pets`. */
+  initialPetId: string
+  /** Balance when the page was rendered. */
+  credits: number
 }
 
-export default function CheckForm({ pets, onClose }: Props) {
+type Phase = 'form' | 'loading' | 'error'
+
+type CheckResponse = SymptomCheckResult & { credits_remaining: number; check_id?: string }
+
+/**
+ * The symptom check: pet, description, optional follow-up answers.
+ *
+ * Everything typed lives here, above the form, so the waiting and error
+ * states can replace the form without losing a word of it. A result is shown
+ * on its own page; the form only renders one itself if the answer came back
+ * without an id.
+ */
+export default function CheckForm({ pets, initialPetId, credits: initialCredits }: Props) {
   const router = useRouter()
   const dict = useTranslations()
   const locale = useLocale()
   const t = dict.check
+  const options = checkOptions(t)
+  const ids = useId()
 
-  const [selectedPetId, setSelectedPetId] = useState<string>(pets[0]?.id ?? '')
-  const [showPetPicker, setShowPetPicker] = useState(false)
-  const [appetite, setAppetite] = useState<string>('')
-  const [activity, setActivity] = useState<string>('')
-  const [duration, setDuration] = useState<string>('')
-  const [stool, setStool] = useState<string>('')
-  const [painSigns, setPainSigns] = useState<string[]>([])
+  const [petId, setPetId] = useState(initialPetId)
   const [symptoms, setSymptoms] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState<(SymptomCheckResult & { credits_remaining: number; check_id?: string }) | null>(null)
-  const [error, setError] = useState('')
+  const [appetite, setAppetite] = useState('')
+  const [activity, setActivity] = useState('')
+  const [duration, setDuration] = useState('')
+  const [stool, setStool] = useState('')
+  const [painSigns, setPainSigns] = useState<string[]>([])
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
-    setResult(null)
+  const [phase, setPhase] = useState<Phase>('form')
+  const [credits, setCredits] = useState(initialCredits)
+  // The balance ran out while the page was open: say so as it happens.
+  const [creditsRefused, setCreditsRefused] = useState(false)
+  const [formError, setFormError] = useState('')
+  const [failure, setFailure] = useState('')
+  const [inlineResult, setInlineResult] = useState<SymptomCheckView | null>(null)
 
-    const res = await fetch('/api/symptom-check', {
-      method: 'POST',
-      headers: csrfHeaders({ 'Content-Type': 'application/json' }),
-      body: JSON.stringify({
-        symptoms,
-        pet_id: selectedPetId || undefined,
-        appetite: appetite || undefined,
-        activity: activity || undefined,
-        duration: duration || undefined,
-        stool: stool || undefined,
-        pain_signs: painSigns.length ? painSigns : undefined,
-      }),
-    })
+  const inFlight = useRef(false)
+  const statusHeading = useRef<HTMLHeadingElement>(null)
+  const symptomsField = useRef<HTMLTextAreaElement>(null)
+  const returningToForm = useRef(false)
 
-    const data = await res.json()
+  const pet = pets.find(p => p.id === petId) ?? pets[0]
+  const trimmedLength = symptoms.trim().length
+  const tooShort = trimmedLength < SYMPTOMS_MIN
+  const noCredits = credits <= 0
 
-    if (!res.ok) {
-      if (res.status === 401) router.push('/login')
-      else if (res.status === 402) setError(t.errorNoCredits)
-      else setError(data.error || t.errorGeneric)
-      setLoading(false)
+  // Focus follows the state that replaced the form, and comes back to the
+  // description when the form returns.
+  useEffect(() => {
+    if (phase !== 'form') {
+      statusHeading.current?.focus()
+    } else if (returningToForm.current) {
+      returningToForm.current = false
+      symptomsField.current?.focus()
+    }
+  }, [phase])
+
+  async function submit() {
+    if (inFlight.current || noCredits || tooShort) return
+    inFlight.current = true
+    setFormError('')
+    setPhase('loading')
+
+    let res: Response
+    try {
+      res = await fetch('/api/symptom-check', {
+        method: 'POST',
+        headers: csrfHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({
+          symptoms,
+          pet_id: petId || undefined,
+          appetite: appetite || undefined,
+          activity: activity || undefined,
+          duration: duration || undefined,
+          stool: stool || undefined,
+          pain_signs: painSigns.length ? painSigns : undefined,
+        }),
+      })
+    } catch {
+      inFlight.current = false
+      setFailure(t.errorOffline)
+      setPhase('error')
       return
     }
 
-    setResult(data)
-    setLoading(false)
+    let data: unknown = null
+    try {
+      data = await res.json()
+    } catch {
+      // A gateway error page is not JSON; the status says enough.
+    }
+
+    if (!res.ok) {
+      if (res.status === 401) {
+        // Stay on the waiting screen while the sign-in page loads.
+        router.push(`/login?next=${encodeURIComponent(`/check?pet=${petId}`)}`)
+        return
+      }
+      inFlight.current = false
+      if (res.status === 402) {
+        setCredits(0)
+        setCreditsRefused(true)
+        setPhase('form')
+      } else if (res.status === 400) {
+        setFormError(
+          t.errorInvalid.replace('{min}', String(SYMPTOMS_MIN)).replace('{max}', String(SYMPTOMS_MAX)),
+        )
+        setPhase('form')
+      } else if (res.status === 404) {
+        setFormError(t.errorPetMissing)
+        setPhase('form')
+      } else {
+        setFailure(res.status === 429 ? t.errorBusy : t.errorText)
+        setPhase('error')
+      }
+      return
+    }
+
+    const result = data as CheckResponse
+    if (result.check_id) {
+      // Keep the waiting screen (and the guard) until the result page opens.
+      router.push(`/check/${result.check_id}`)
+      router.refresh()
+      return
+    }
+
+    inFlight.current = false
+    setCredits(result.credits_remaining)
+    setInlineResult(toView(result))
+    setPhase('form')
     router.refresh()
   }
 
-  const selectedPet = pets.find(c => c.id === selectedPetId)
-  const symptomsTooShort = symptoms.trim().length < 3
+  function toView(result: CheckResponse): SymptomCheckView {
+    return {
+      id: null,
+      symptoms_input: symptoms,
+      urgency: result.urgency,
+      urgency_reason: result.urgency_reason,
+      possible_causes: result.possible_causes,
+      species_specific_warning: result.species_specific_warning ?? null,
+      home_care_steps: result.home_care_steps,
+      vet_questions: result.vet_questions,
+      // The answer has just come back in the language this page is read in.
+      locale,
+      full_response: {
+        appetite: result.appetite ?? null,
+        activity: result.activity ?? null,
+        duration: result.duration ?? null,
+        stool: result.stool ?? null,
+        pain_signs: result.pain_signs ?? [],
+        photo_observations: result.photo_observations ?? null,
+        additional_pet_info_needed: result.additional_pet_info_needed,
+        has_photo: result.has_photo,
+        disclaimer: result.disclaimer,
+      },
+      created_at: new Date().toISOString(),
+      pet_id: pet?.id ?? null,
+      pet_name: pet?.name ?? null,
+      pet_species: pet?.species ?? null,
+    }
+  }
 
-  const appetiteOptions = [
-    { value: 'normal', label: t.appetiteNormal },
-    { value: 'reduced', label: t.appetiteReduced },
-    { value: 'none', label: t.appetiteNone },
-  ]
+  function startOver() {
+    setInlineResult(null)
+    setSymptoms('')
+    setAppetite('')
+    setActivity('')
+    setDuration('')
+    setStool('')
+    setPainSigns([])
+    returningToForm.current = true
+    setPhase('form')
+  }
 
-  const activityOptions = [
-    { value: 'normal', label: t.activityNormal },
-    { value: 'low', label: t.activityLow },
-    { value: 'lethargic', label: t.activityLethargic },
-  ]
+  function backToForm() {
+    returningToForm.current = true
+    setPhase('form')
+  }
 
-  const durationOptions = [
-    { value: 'today', label: t.durationToday },
-    { value: '2-3days', label: t.duration2_3days },
-    { value: '4-7days', label: t.duration4_7days },
-    { value: 'week+', label: t.durationWeekPlus },
-  ]
-
-  const stoolOptions = [
-    { value: 'normal', label: t.stoolNormal },
-    { value: 'loose', label: t.stoolLoose },
-    { value: 'absent', label: t.stoolAbsent },
-    { value: 'bloody', label: t.stoolBloody },
-  ]
-
-  const painSignOptions = [
-    { value: 'tense', label: t.painTense },
-    { value: 'hunched', label: t.painHunched },
-    { value: 'grimace', label: t.painGrimace },
-    { value: 'touch_sensitive', label: t.painTouchSensitive },
-    { value: 'hiding', label: t.painHiding },
-    { value: 'vocalizing', label: t.painVocalizing },
-  ]
-
-  const formContent = (
-    <form onSubmit={handleSubmit} className="space-y-5">
-      {/* Selected pet card */}
-      {selectedPet && (
-        <div className="flex items-center gap-3 rounded-2xl border border-hairline bg-card px-4 py-3">
-          <PetAvatar size={40} bg="#FFF8ED" species={selectedPet.species ?? 'cat'} />
-          <div className="min-w-0 flex-1 text-base font-semibold text-text truncate">
-            {selectedPet.name}
-          </div>
-          {pets.length > 1 && (
-            <button
-              type="button"
-              onClick={() => setShowPetPicker(v => !v)}
-              className="app-button-secondary px-4 py-1.5 text-xs"
-            >
-              {dict.check.changePet}
-            </button>
-          )}
-        </div>
-      )}
-
-      {showPetPicker && pets.length > 1 && (
-        <div className="rounded-2xl border border-hairline bg-card p-2 grid gap-1">
-          {pets.map(c => (
-            <button
-              key={c.id}
-              type="button"
-              onClick={() => { setSelectedPetId(c.id); setShowPetPicker(false) }}
-              className={`text-left rounded-xl px-3 py-2 text-sm transition-colors ${
-                c.id === selectedPetId ? 'bg-canvas-soft font-semibold text-text' : 'text-text-muted hover:bg-canvas-soft/60'
-              }`}
-            >
-              {c.name}
-              {c.breed && <span className="text-text-faint ml-2">{c.breed}</span>}
-            </button>
-          ))}
-        </div>
-      )}
-
-      <div className="grid sm:grid-cols-2 gap-x-5 gap-y-4">
-        <ChipGroup label={t.appetite} value={appetite} onChange={setAppetite} options={appetiteOptions} />
-        <ChipGroup label={t.activity} value={activity} onChange={setActivity} options={activityOptions} />
-        <ChipGroup label={t.duration} value={duration} onChange={setDuration} options={durationOptions} />
-        <ChipGroup label={t.stool} value={stool} onChange={setStool} options={stoolOptions} />
-      </div>
-
-      <MultiChipGroup
-        label={t.painSigns}
-        values={painSigns}
-        onChange={setPainSigns}
-        options={painSignOptions}
-      />
-
-      <div>
-        <p className="text-sm font-semibold text-text mb-2">{dict.check.describeMore}</p>
-        <textarea
-          value={symptoms}
-          onChange={e => setSymptoms(e.target.value)}
-          placeholder={t.symptomsPlaceholder}
-          rows={4}
-          className="app-input resize-none"
-          aria-describedby="symptoms-hint"
-        />
-      </div>
-
-      {error && <div className="bg-status-error-bg text-status-error-fg text-sm rounded-xl px-4 py-3">{error}</div>}
-
-      <div className="pt-1">
-        <button
-          type="submit"
-          disabled={loading || symptomsTooShort}
-          className="app-button-primary w-full py-4"
-        >
-          {loading ? (
-            <span className="flex items-center justify-center gap-2">
-              <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
-              </svg>
-              {t.analyzing}
-            </span>
-          ) : (
-            dict.check.submitButton
-          )}
-        </button>
-        <p id="symptoms-hint" className="mt-2 text-center text-xs text-text-muted">
-          {symptomsTooShort ? t.symptomsRequired : dict.check.willCharge}
-        </p>
-      </div>
-    </form>
-  )
-
-  // Build a renderable view from the API result so we can reuse the same
-  // renderer history uses. The check is already saved; its id is what the
-  // feedback under the result is attached to.
-  const resultRecord: SymptomCheckView | null = result ? {
-    id: result.check_id ?? null,
-    symptoms_input: symptoms,
-    urgency: result.urgency,
-    urgency_reason: result.urgency_reason,
-    possible_causes: result.possible_causes,
-    species_specific_warning: result.species_specific_warning ?? null,
-    home_care_steps: result.home_care_steps,
-    vet_questions: result.vet_questions,
-    // The answer has just come back in the language this page is being read
-    // in; the stored row records the same.
-    locale,
-    full_response: {
-      appetite: result.appetite ?? null,
-      activity: result.activity ?? null,
-      duration: result.duration ?? null,
-      stool: result.stool ?? null,
-      pain_signs: result.pain_signs ?? [],
-      photo_observations: result.photo_observations ?? null,
-      additional_pet_info_needed: result.additional_pet_info_needed,
-      has_photo: result.has_photo,
-      disclaimer: result.disclaimer,
-    },
-    created_at: new Date().toISOString(),
-    pet_id: null,
-    pet_name: null,
-    pet_species: null,
-  } : null
-
-  const resultContent = resultRecord ? (
-    <div>
-      <CheckResultContent check={resultRecord} />
-      <div className="px-6 sm:px-8 mt-5 space-y-3 pb-1">
-        {onClose ? (
-          <button
-            type="button"
-            onClick={onClose}
-            className="app-button-primary w-full py-3.5 text-sm sm:text-base"
-          >
-            {dict.common.close}
-          </button>
-        ) : (
-          <Link href="/dashboard" className="app-button-primary w-full py-3.5 text-center text-sm sm:text-base">
-            {t.toAccount}
-          </Link>
-        )}
-        <button
-          type="button"
-          onClick={() => { setResult(null); setSymptoms('') }}
-          className="block w-full cursor-pointer text-center text-sm font-semibold text-accent-text transition-colors hover:text-accent"
-        >
-          {t.newCheckWithCredits.replace('{n}', String(result!.credits_remaining))}
-        </button>
-      </div>
-    </div>
-  ) : null
-
-  if (onClose) {
+  if (inlineResult) {
     return (
-      <div className="relative">
-        <button
-          type="button"
-          onClick={onClose}
-          className="app-icon-button absolute top-3 right-3 z-10 bg-card text-xl leading-none shadow-sm ring-1 ring-hairline/80"
-          aria-label={dict.common.close}
-        >
-          ×
-        </button>
-        <div className="p-6 sm:p-8">
-          {!result ? (
-            <>
-              <div className="mb-5 pr-10">
-                <h2 className="font-extrabold text-2xl sm:text-3xl text-text">{t.modalHeading}</h2>
-                <p className="text-sm text-text-muted mt-1">{t.modalSubheading}</p>
-              </div>
-              {formContent}
-            </>
-          ) : (
-            resultContent
-          )}
-        </div>
-      </div>
+      <CheckResultContent
+        check={inlineResult}
+        dict={dict}
+        locale={locale}
+        pet={pet}
+        onNewCheck={startOver}
+      />
     )
   }
 
+  if (phase === 'loading') {
+    return (
+      <>
+        <div className="pagehead"><h1>{t.pageTitle}</h1></div>
+        <section className="card loading-box" role="status" aria-live="polite">
+          <Illustration name="paw" size={185} />
+          <h2 ref={statusHeading} tabIndex={-1}>{t.loadingTitle}</h2>
+          <p>{t.loadingText}</p>
+          <div className="spinner" aria-hidden />
+        </section>
+      </>
+    )
+  }
+
+  if (phase === 'error') {
+    return (
+      <>
+        <div className="pagehead"><h1>{t.pageTitle}</h1></div>
+        <section className="card loading-box" role="alert">
+          <Illustration name="paw" size={185} />
+          <h2 ref={statusHeading} tabIndex={-1}>{t.errorTitle}</h2>
+          <p>{failure || t.errorText}</p>
+          <button type="button" className="btn primary" onClick={backToForm}>
+            {t.backToForm}
+          </button>
+          <div className="check-retry">
+            <button type="button" className="link" onClick={() => void submit()}>
+              {t.retry}
+            </button>
+          </div>
+        </section>
+      </>
+    )
+  }
+
+  const petLine = pet ? petSummary(pet, dict, locale) : ''
+  const facts = pet ? petHealthFacts(pet, dict, locale) : { age: null, chronic: null }
+  const factsLine = [facts.age, facts.chronic].filter(Boolean).join(' · ')
+  const factsId = `${ids}-pet-facts`
+  const symptomsHintId = `${ids}-symptoms-hint`
+  const symptomsFieldId = `${ids}-symptoms`
+
   return (
-    <AppShell right={
-      <Link href="/dashboard" className="app-link">{dict.common.back}</Link>
-    }>
-      {!result ? (
-        <div className="app-card p-6 sm:p-8">
-          <h1 className="font-extrabold text-2xl sm:text-3xl text-text mb-1">{t.pageHeading}</h1>
-          <p className="text-sm text-text-muted mb-6">{t.pageSubheading}</p>
-          {formContent}
+    <>
+      <div className="pagehead">
+        <div>
+          <h1>{t.pageTitle}</h1>
+          <p>{t.pageSubtitle}</p>
         </div>
-      ) : (
-        <div className="app-card p-6 sm:p-8">{resultContent}</div>
-      )}
-    </AppShell>
+      </div>
+
+      <div className="form-layout">
+        <form
+          className="card check-form"
+          onSubmit={e => { e.preventDefault(); void submit() }}
+          aria-labelledby={`${ids}-title`}
+        >
+          <div className="section-head">
+            <h2 id={`${ids}-title`}>{t.formTitle}</h2>
+            <span className="small muted nowrap">{t.formCost}</span>
+          </div>
+
+          {noCredits && (
+            <div className="banner check-notice" role={creditsRefused ? 'alert' : undefined}>
+              <strong>{t.noCreditsTitle}</strong>
+              <p>{t.noCreditsText}</p>
+              <Link href="/credits" className="link">
+                {t.noCreditsAction}
+                <Icon name="arrow" />
+              </Link>
+            </div>
+          )}
+
+          <label className="field">
+            <span className="field-label">{t.petLabel}</span>
+            <select
+              className="input"
+              value={pet?.id ?? ''}
+              onChange={e => setPetId(e.target.value)}
+              aria-describedby={factsLine ? factsId : undefined}
+            >
+              {pets.map(p => {
+                const line = petSummary(p, dict, locale, ', ')
+                return (
+                  <option key={p.id} value={p.id}>
+                    {line ? `${p.name} · ${line}` : p.name}
+                  </option>
+                )
+              })}
+            </select>
+          </label>
+          {/* Phones only (the card beside the form is hidden there): the chosen
+              pet's age and chronic conditions, right under the choice. */}
+          {factsLine && (
+            <p id={factsId} className="check-pet-inline" aria-live="polite">{factsLine}</p>
+          )}
+
+          <div className="field">
+            <label className="field-label" htmlFor={symptomsFieldId}>
+              {t.symptomsLabel}
+              <span aria-hidden> *</span>
+            </label>
+            <textarea
+              id={symptomsFieldId}
+              ref={symptomsField}
+              className="input"
+              value={symptoms}
+              onChange={e => setSymptoms(e.target.value)}
+              placeholder={t.symptomsHint}
+              required
+              minLength={SYMPTOMS_MIN}
+              maxLength={SYMPTOMS_MAX}
+              rows={5}
+              aria-describedby={symptomsHintId}
+            />
+            <span className="field-hint check-symptoms-meta">
+              <span id={symptomsHintId}>{tooShort ? t.symptomsRequired : ''}</span>
+              <span className="check-counter">
+                {t.symptomsCount.replace('{n}', String(symptoms.length)).replace('{max}', String(SYMPTOMS_MAX))}
+              </span>
+            </span>
+          </div>
+
+          <div className="banner">{t.writeFreely}</div>
+
+          <h3 className="check-clarify">
+            {t.clarifyTitle}
+            <span className="optional">{t.optional}</span>
+          </h3>
+
+          <div className="form-grid">
+            <ChipGroup id={`${ids}-appetite`} label={t.appetite} options={options.appetite} value={appetite} onChange={setAppetite} />
+            <ChipGroup id={`${ids}-activity`} label={t.activity} options={options.activity} value={activity} onChange={setActivity} />
+            <ChipGroup id={`${ids}-duration`} label={t.duration} options={options.duration} value={duration} onChange={setDuration} />
+            <label className="field">
+              <span className="field-label">{t.stool}</span>
+              <select
+                className={stool ? 'input' : 'input is-empty'}
+                value={stool}
+                onChange={e => setStool(e.target.value)}
+              >
+                <option value="">{t.stoolUnset}</option>
+                {options.stool.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+            </label>
+          </div>
+
+          <MultiChipGroup
+            id={`${ids}-pain`}
+            label={t.painSigns}
+            options={options.painSigns}
+            values={painSigns}
+            onChange={setPainSigns}
+          />
+
+          {formError && <div className="banner error" role="alert">{formError}</div>}
+
+          <div className="form-actions">
+            <span className="small muted">
+              {noCredits ? t.noCreditsCharge : t.chargeNote.replace('{n}', String(credits))}
+            </span>
+            <button type="submit" className="btn primary" disabled={noCredits || tooShort}>
+              {t.checkSymptoms}
+              <Icon name="arrow" />
+            </button>
+          </div>
+        </form>
+
+        <aside className="stack">
+          {pet && (
+            <div className="card check-pet-card">
+              <div className="row">
+                <PetAvatar species={pet.species} />
+                <div className="check-pet">
+                  <h3>{pet.name}</h3>
+                  {petLine && <p className="small">{petLine}</p>}
+                </div>
+              </div>
+              <div className="divider" />
+              {facts.chronic && <p className="small check-pet-health">{facts.chronic}</p>}
+              <p className="small">{t.petContext}</p>
+              <Link href={`/pets/${pet.id}/edit`} className="link">{t.viewProfile}</Link>
+            </div>
+          )}
+          <div className="summary-box">
+            <h3>{t.answerTitle}</h3>
+            <p>{t.answerText}</p>
+            <div className="divider" />
+            <p>{t.answerNote}</p>
+          </div>
+        </aside>
+      </div>
+    </>
   )
 }
 
+/** One answer or none: tapping the chosen chip again clears it. */
 function ChipGroup({
+  id,
   label,
+  options,
   value,
   onChange,
-  options,
 }: {
+  id: string
   label: string
+  options: CheckOption[]
   value: string
-  onChange: (v: string) => void
-  options: { value: string; label: string }[]
+  onChange: (value: string) => void
 }) {
   return (
-    <div>
-      <p className="text-sm font-semibold text-text mb-2">{label}</p>
-      <div className="flex flex-wrap gap-2">
-        {options.map(opt => (
+    <div role="group" aria-labelledby={id}>
+      <span id={id} className="chip-group-label">{label}</span>
+      <div className="chips">
+        {options.map(option => (
           <button
-            key={opt.value}
+            key={option.value}
             type="button"
-            onClick={() => onChange(value === opt.value ? '' : opt.value)}
-            className={`px-3.5 py-1.5 rounded-full text-sm transition-colors ${
-              value === opt.value
-                ? 'bg-accent text-white font-semibold shadow-sm'
-                : 'bg-card border border-hairline text-text hover:border-card-soft-strong'
-            }`}
-            aria-pressed={value === opt.value}
+            className="chip"
+            aria-pressed={value === option.value}
+            onClick={() => onChange(value === option.value ? '' : option.value)}
           >
-            {opt.label}
+            {option.label}
           </button>
         ))}
       </div>
@@ -340,43 +446,33 @@ function ChipGroup({
 }
 
 function MultiChipGroup({
+  id,
   label,
+  options,
   values,
   onChange,
-  options,
 }: {
+  id: string
   label: string
+  options: CheckOption[]
   values: string[]
-  onChange: (v: string[]) => void
-  options: { value: string; label: string }[]
+  onChange: (values: string[]) => void
 }) {
-  function toggle(value: string) {
-    onChange(
-      values.includes(value)
-        ? values.filter(v => v !== value)
-        : [...values, value],
-    )
-  }
-
   return (
-    <div>
-      <p className="text-sm font-semibold text-text mb-2">{label}</p>
-      <div className="flex flex-wrap gap-2">
-        {options.map(opt => {
-          const active = values.includes(opt.value)
+    <div role="group" aria-labelledby={id}>
+      <span id={id} className="chip-group-label">{label}</span>
+      <div className="chips">
+        {options.map(option => {
+          const active = values.includes(option.value)
           return (
             <button
-              key={opt.value}
+              key={option.value}
               type="button"
+              className="chip"
               aria-pressed={active}
-              onClick={() => toggle(opt.value)}
-              className={`px-3.5 py-1.5 rounded-full text-sm transition-colors ${
-                active
-                  ? 'bg-accent text-white font-semibold shadow-sm'
-                  : 'bg-card border border-hairline text-text hover:border-card-soft-strong'
-              }`}
+              onClick={() => onChange(active ? values.filter(v => v !== option.value) : [...values, option.value])}
             >
-              {opt.label}
+              {option.label}
             </button>
           )
         })}

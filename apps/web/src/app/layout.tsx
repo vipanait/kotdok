@@ -1,17 +1,24 @@
 import type { Metadata } from "next";
-import { Geist, Fraunces } from "next/font/google";
+import { Manrope, Nunito } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { getLocale } from "@/server/i18n/get-locale";
 import { getDictionary } from "@/server/i18n/get-dictionary";
 import { LocaleProvider } from "@/components/LocaleProvider";
+import TimeZoneCookie from "@/components/TimeZoneCookie";
 import { defaultSeo, siteName, siteUrl, supportEmail } from "@/shared/seo";
 
-const geist = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
-const fraunces = Fraunces({
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
-  style: ["normal", "italic"],
-  variable: "--font-fraunces",
+// The same pair as the mobile app: Nunito for headings, Manrope for text.
+const nunito = Nunito({ subsets: ["latin", "cyrillic"], weight: ["700", "800"], variable: "--font-nunito" });
+const manrope = Manrope({ subsets: ["latin", "cyrillic"], variable: "--font-manrope" });
+// Google's sign-in button asks for Google Sans Medium; it is only used there.
+// Subset to Latin and Cyrillic (docs/design/mobile-concept-v1/assets/GoogleSans.ttf).
+const googleSans = localFont({
+  src: "./fonts/GoogleSans-subset.woff2",
+  weight: "500",
+  variable: "--font-google-sans",
+  display: "swap",
+  preload: false,
 });
 
 const jsonLd = {
@@ -84,14 +91,15 @@ export default async function RootLayout({
   const dict = await getDictionary(locale);
 
   return (
-    <html lang={locale} className={`h-full ${geist.variable} ${fraunces.variable}`}>
-      <body className="min-h-full bg-canvas font-sans">
+    <html lang={locale} className={`${nunito.variable} ${manrope.variable} ${googleSans.variable}`}>
+      <body>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <LocaleProvider locale={locale} dict={dict}>
           {children}
+          <TimeZoneCookie />
         </LocaleProvider>
       </body>
     </html>
