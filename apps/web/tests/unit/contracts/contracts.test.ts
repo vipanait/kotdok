@@ -254,6 +254,11 @@ describe('weight contracts', () => {
     expect(WeightInputSchema.safeParse({ measured_on: '2026-09-12', weight_kg: 200 }).success).toBe(true)
   })
 
+  it('does not take a weighing day alone as a change to the pet (review M5)', () => {
+    expect(PetUpdateInputSchema.safeParse({ weight_measured_on: '2026-09-25' }).success).toBe(false)
+    expect(PetUpdateInputSchema.safeParse({ weight_kg: 4, weight_measured_on: '2026-09-25' }).success).toBe(true)
+  })
+
   it('needs something to change and never un-dates a measurement', () => {
     expect(WeightPatchSchema.safeParse({}).success).toBe(false)
     expect(WeightPatchSchema.safeParse({ measured_on: null }).success).toBe(false)

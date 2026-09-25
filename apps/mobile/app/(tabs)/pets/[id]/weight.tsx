@@ -8,7 +8,8 @@ import { localToday } from '@/lib/calendar-day'
 import { useText, type Dictionary } from '@/i18n'
 import { WeightChart } from '@/features/medical-record/WeightChart'
 import { WeightSheet } from '@/features/medical-record/WeightSheet'
-import { pointsInPeriod, weightTrend, type Period } from '@/features/medical-record/weight'
+import { headerFacts } from '@/features/medical-record/overview'
+import { pointsInPeriod, type Period } from '@/features/medical-record/weight'
 import { Button } from '@/ui/Button'
 import { Banner, Card } from '@/ui/Card'
 import { Segment } from '@/ui/Field'
@@ -67,8 +68,9 @@ export default function Weight() {
   const weights = shown?.weights ?? []
   const points = pointsInPeriod(weights, period, today)
   const current = shown?.pet.weight_kg ?? null
-  const trend = weightTrend(t, weights, today)
-  const onlyForm = weights.length === 0 || weights.every((w) => w.measured_on === null)
+  // The same line as under the weight in the record's header: the trend, the
+  // day of a lone measurement, or «Из анкеты».
+  const note = shown ? headerFacts(t, shown, today).weightNote : null
 
   // The form's weight with no history behind it is still the pet's weight:
   // the list shows it rather than claiming there is nothing.
@@ -107,9 +109,11 @@ export default function Weight() {
             {current !== null ? (
               <>
                 <Text variant="h1">{words.weight(current)}</Text>
-                <Text variant="label" tone="muted">
-                  {onlyForm ? words.fromForm : (trend ?? '')}
-                </Text>
+                {note ? (
+                  <Text variant="label" tone="muted">
+                    {note}
+                  </Text>
+                ) : null}
               </>
             ) : (
               <Text variant="h2">{words.noWeightsTitle}</Text>

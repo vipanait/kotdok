@@ -36,11 +36,17 @@ export function parseDayInput(text: string, now: Date = new Date()): string | nu
   return day > localToday(now) ? null : day
 }
 
-/** A calendar day moved by whole months, staying a calendar day. */
+/**
+ * A calendar day moved by whole months, staying a calendar day. A day the
+ * target month does not have becomes its last day: a month before 31 March
+ * is 28 February, not 3 March.
+ */
 export function addMonths(day: string, months: number): string {
   const [year, month, date] = day.split('-').map(Number)
-  const moved = new Date(Date.UTC(year, month - 1 + months, date))
-  return moved.toISOString().slice(0, 10)
+  const target = new Date(Date.UTC(year, month - 1 + months, 1))
+  const lastDay = new Date(Date.UTC(target.getUTCFullYear(), target.getUTCMonth() + 1, 0)).getUTCDate()
+  target.setUTCDate(Math.min(date, lastDay))
+  return target.toISOString().slice(0, 10)
 }
 
 export function daysBetween(from: string, to: string): number {

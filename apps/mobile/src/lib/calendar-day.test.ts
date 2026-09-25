@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { dayInput, localToday, parseDayInput } from './calendar-day'
+import { addMonths, dayInput, localToday, monthsBetween, parseDayInput } from './calendar-day'
 import { en } from '@/i18n/en'
 import { ru } from '@/i18n/ru'
 
@@ -31,5 +31,20 @@ describe('showing a day', () => {
     expect(en.day('2026-09-12', false)).toBe('September 12')
     expect(en.day('2026-09-12', true)).toBe('September 12, 2026')
     expect(en.dayShort('2026-09-12')).toBe('Sep 12')
+  })
+})
+
+describe('months on the calendar (review M1)', () => {
+  it('lands on the last day of a shorter month instead of spilling into the next', () => {
+    expect(addMonths('2026-08-31', -6)).toBe('2026-02-28')
+    expect(addMonths('2028-02-29', -12)).toBe('2027-02-28')
+    expect(addMonths('2026-01-31', 1)).toBe('2026-02-28')
+    expect(addMonths('2026-03-12', 12)).toBe('2027-03-12')
+  })
+
+  it('counts whole months between two days', () => {
+    expect(monthsBetween('2026-03-12', '2026-09-12')).toBe(6)
+    expect(monthsBetween('2026-03-12', '2026-09-11')).toBe(5)
+    expect(monthsBetween('2026-01-31', '2026-02-28')).toBe(0)
   })
 })

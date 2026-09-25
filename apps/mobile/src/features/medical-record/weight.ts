@@ -1,4 +1,4 @@
-import type { WeightMeasurement } from '@lapka/contracts'
+import type { WeightMeasurement, WeightPatch } from '@lapka/contracts'
 import type { Dictionary } from '@/i18n'
 import { addMonths, daysBetween, monthsBetween } from '@/lib/calendar-day'
 
@@ -21,6 +21,18 @@ export function parseWeight(text: string): Parsed<number> {
   const value = Number(normalised)
   if (value < WEIGHT_MIN_KG || value > WEIGHT_MAX_KG) return { ok: false }
   return { ok: true, value }
+}
+
+/**
+ * A correction carries only what the owner changed. `day` null keeps an
+ * undated weight undated: opening it to fix the value must not quietly give
+ * it today's date. Null when nothing changed.
+ */
+export function weightPatch(editing: WeightMeasurement, weight: number, day: string | null): WeightPatch | null {
+  const patch: WeightPatch = {}
+  if (weight !== editing.weight_kg) patch.weight_kg = weight
+  if (day !== null && day !== editing.measured_on) patch.measured_on = day
+  return Object.keys(patch).length > 0 ? patch : null
 }
 
 export type Period = 'halfYear' | 'year' | 'all'

@@ -157,7 +157,9 @@ begin
     return null;
   end if;
 
-  if v_pet.weight_kg is not null
+  -- Only a value a measurement could hold: the forms have accepted 0, and a
+  -- row the table refuses would fail every later save for this pet.
+  if v_pet.weight_kg > 0 and v_pet.weight_kg <= 200
      and not exists (
        select 1 from public.pet_weights
         where pet_id = p_pet_id and deleted_at is null

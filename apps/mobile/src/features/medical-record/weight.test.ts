@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { WeightMeasurement } from '@lapka/contracts'
 import { en } from '@/i18n/en'
 import { ru } from '@/i18n/ru'
-import { chartLayout, parseWeight, pointsInPeriod, weightTrend, type DatedWeight } from './weight'
+import { chartLayout, parseWeight, pointsInPeriod, weightPatch, weightTrend, type DatedWeight } from './weight'
 
 function d(measured_on: string, weight_kg: number): DatedWeight {
   return { id: `${measured_on}-${weight_kg}`, measured_on, weight_kg, source: 'record' }
@@ -81,5 +81,28 @@ describe('the trend', () => {
 
   it('says "no change" rather than "+0"', () => {
     expect(weightTrend(ru, [w('2026-09-12', 4.2), w('2026-08-12', 4.2)], today)).toBe('Без изменений за 1 месяц')
+  })
+})
+
+describe('what a correction sends (review I4)', () => {
+  const dated = { id: 'a', measured_on: '2026-09-12', weight_kg: 4.2, source: 'record' as const }
+  const undated = { id: 'u', measured_on: null, weight_kg: 28, source: 'form' as const }
+
+  it('sends only what changed', () => {
+    expect(weightPatch(dated, 4.3, '2026-09-12')).toEqual({ weight_kg: 4.3 })
+    expect(weightPatch(dated, 4.2, '2026-09-10')).toEqual({ measured_on: '2026-09-10' })
+    expect(weightPatch(dated, 4.2, '2026-09-12')).toBeNull()
+  })
+
+  it('leaves an undated weight undated unless the owner gives it a day', () => {
+    expect(weightPatch(undated, 27, null)).toEqual({ weight_kg: 27 })
+    expect(weightPatch(undated, 28, '2026-01-10')).toEqual({ measured_on: '2026-01-10' })
+  })
+})
+
+describe('a chart of points on one day', () => {
+  it('spreads them evenly rather than dividing by a zero span', () => {
+    const layout = chartLayout([d('2026-09-12', 4), { ...d('2026-09-12', 5), id: 'b' }], 300, 160)!
+    expect(layout.points.map((p) => p.x)).toEqual([0, 300])
   })
 })

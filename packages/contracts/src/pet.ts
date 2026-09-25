@@ -119,7 +119,8 @@ export const PetUpdateInputSchema = z
   .strictObject(petWritableFields)
   .partial()
   .superRefine((value, ctx) => {
-    if (Object.keys(value).length === 0) {
+    // The weighing day describes the weight; alone it changes nothing about the pet.
+    if (Object.keys(value).filter((key) => key !== 'weight_measured_on').length === 0) {
       ctx.addIssue({ code: 'custom', message: 'at least one field is required' })
       return
     }

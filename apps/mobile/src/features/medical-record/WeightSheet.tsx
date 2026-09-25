@@ -11,7 +11,7 @@ import { Banner } from '@/ui/Card'
 import { Field } from '@/ui/Field'
 import { Text } from '@/ui/Text'
 import { colour, radius, space } from '@/ui/theme'
-import { parseWeight } from './weight'
+import { parseWeight, weightPatch } from './weight'
 
 /**
  * Adding a weighing, or correcting one (M20).
@@ -46,7 +46,8 @@ export function WeightSheet({
   useEffect(() => {
     if (!visible) return
     setWeight(editing ? t.decimal(editing.weight_kg) : '')
-    setDay(dayInput(editing?.measured_on ?? localToday()))
+    // An undated weight from the form opens with an empty day, not today's.
+    setDay(editing ? (editing.measured_on ? dayInput(editing.measured_on) : '') : dayInput(localToday()))
     setInvalid({})
     setError(null)
     setAsking(false)
@@ -54,20 +55,28 @@ export function WeightSheet({
 
   async function save() {
     const parsedWeight = parseWeight(weight)
-    const parsedDay = parseDayInput(day)
-    const problems = {
+    // Only the undated weight may stay without a day.
+    const dayOptional = editing !== null && editing.measured_on === null && day.trim() === ''
+    const parsedDay = dayOptional ? null : parseDayInput(day)
+    setInvalid({
       weight: parsedWeight.ok ? undefined : words.weightInvalid,
-      day: parsedDay ? undefined : words.dateInvalid,
+      day: parsedDay || dayOptional ? undefined : words.dateInvalid,
+    })
+    if (!parsedWeight.ok || (!parsedDay && !dayOptional)) return
+
+    const patch = editing ? weightPatch(editing, parsedWeight.value, parsedDay) : null
+    if (editing && !patch) {
+      onClose()
+      return
     }
-    setInvalid(problems)
-    if (!parsedWeight.ok || !parsedDay) return
 
     setBusy(true)
     setError(null)
     try {
-      const body = { measured_on: parsedDay, weight_kg: parsedWeight.value }
       await withFreshSession((api) =>
-        editing ? api.changeWeight(petId, editing.id, body) : api.addWeight(petId, body),
+        editing && patch
+          ? api.changeWeight(petId, editing.id, patch)
+          : api.addWeight(petId, { measured_on: parsedDay!, weight_kg: parsedWeight.value }),
       )
       onSaved()
     } catch (cause) {

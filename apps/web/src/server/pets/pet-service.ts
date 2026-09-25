@@ -4,7 +4,8 @@ import type { createServiceClient } from '@/server/supabase/server'
 import { loadAccount } from '@/server/auth/account-state'
 import { sanitizePet } from '@/shared/utils/pet-utils'
 import type { Pet } from '@/shared/types'
-import { recordWeight, utcToday } from '@/server/medical-record/weight-service'
+import { WEIGHT_MAX_KG } from '@lapka/contracts'
+import { isFutureDay, recordWeight, utcToday } from '@/server/medical-record/weight-service'
 
 type SupabaseService = ReturnType<typeof createServiceClient>
 
@@ -76,9 +77,26 @@ export async function getPet(
  * nothing. The day is the owner's own when the client sends it.
  */
 function formWeight(body: Record<string, unknown>, sanitized: { weight_kg: number | null }) {
-  if (sanitized.weight_kg === null || sanitized.weight_kg <= 0) return null
-  const day = typeof body.weight_measured_on === 'string' ? body.weight_measured_on : utcToday()
-  return { measured_on: day, weight_kg: sanitized.weight_kg }
+  const kg = sanitized.weight_kg
+  if (kg === null || kg <= 0 || kg > WEIGHT_MAX_KG) return null
+
+  // The v1 routes refuse a future or malformed day; the older web routes pass
+  // bodies through unchecked, so here it falls back rather than trusting it.
+  const given = body.weight_measured_on
+  const day =
+    typeof given === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(given) && !isFutureDay(given) ? given : utcToday()
+  return { measured_on: day, weight_kg: kg }
+}
+
+/** Whether the pet has any live measurement, so the form cannot blank a weight the history still holds. */
+async function hasWeights(supabase: SupabaseService, petId: string): Promise<boolean> {
+  const { data } = await supabase
+    .from('pet_weights')
+    .select('id')
+    .eq('pet_id', petId)
+    .is('deleted_at', null)
+    .limit(1)
+  return (data ?? []).length > 0
 }
 
 export async function createPet(
@@ -90,23 +108,30 @@ export async function createPet(
   if (!allowed.ok) return allowed
 
   const pet = sanitizePet(body)
+  const weight = formWeight(body, pet)
+
+  // With a weight, the pet is created without it and the weight goes in as
+  // its first measurement, which sets the form's value. Inserted with it, the
+  // record would see "no change" and keep the weight undated.
   const { data, error } = await supabase
     .from('pets')
-    .insert({ ...pet, user_id: userId })
+    .insert({ ...pet, ...(weight ? { weight_kg: null } : {}), user_id: userId })
     .select()
     .single()
 
   if (error || !data) return { ok: false, reason: 'storage_error', message: error?.message }
+  if (!weight) return { ok: true, data: data as Pet }
 
-  // After the pet exists, and not allowed to fail its creation: a retry would
-  // create the pet twice, and the weight is already on the form either way.
-  const weight = formWeight(body, pet)
-  if (weight) {
-    const recorded = await recordWeight(supabase, userId, (data as Pet).id, weight, 'form')
-    if (!recorded.ok) console.error('[pets] first weight not recorded', recorded.message)
+  // Not allowed to fail the creation: a retry would create the pet twice. If
+  // the history cannot take the weight, the form keeps it as before.
+  const created = data as Pet
+  const recorded = await recordWeight(supabase, userId, created.id, weight, 'form')
+  if (!recorded.ok) {
+    console.error('[pets] first weight not recorded', recorded.message)
+    await supabase.from('pets').update({ weight_kg: pet.weight_kg }).eq('id', created.id)
   }
 
-  return { ok: true, data: data as Pet }
+  return { ok: true, data: { ...created, weight_kg: pet.weight_kg } }
 }
 
 export async function updatePet(
@@ -118,17 +143,26 @@ export async function updatePet(
   const allowed = await requireActiveAccount(supabase, userId)
   if (!allowed.ok) return allowed
 
-  const pet = sanitizePet(body)
+  const sanitized = sanitizePet(body)
+  const withoutWeight: Partial<typeof sanitized> = { ...sanitized }
+  delete withoutWeight.weight_kg
+  let pet: Partial<typeof sanitized> = sanitized
 
   // Before the form is saved: the record keeps the form's previous weight as
-  // history, so it has to see it first. Then the form update writes the same
-  // value the record has just made current.
-  const weight = formWeight(body, pet)
+  // history, so it has to see it first. Once the weight is in the history,
+  // the history decides the form's weight — the newest measurement, which is
+  // not always the one just saved — so the update leaves the column alone.
+  const weight = formWeight(body, sanitized)
   if (weight) {
     const recorded = await recordWeight(supabase, userId, petId, weight, 'form')
     if (!recorded.ok) {
       return { ok: false, reason: recorded.reason === 'not_found' ? 'not_found' : 'storage_error', message: recorded.message }
     }
+    pet = withoutWeight
+  } else if (await hasWeights(supabase, petId)) {
+    // Clearing the field does not delete measurements, and the form would
+    // disagree with the history it points to.
+    pet = withoutWeight
   }
 
   const { data, error } = await supabase

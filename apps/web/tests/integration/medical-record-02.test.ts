@@ -10,6 +10,7 @@ import {
   PATCH as patchWeight,
 } from '@/app/(backend)/api/v1/pets/[id]/health/weights/[weightId]/route'
 import { PATCH as patchPet } from '@/app/(backend)/api/v1/pets/[id]/route'
+import { POST as createPet } from '@/app/(backend)/api/v1/pets/route'
 import { FIXTURE_PASSWORD, OWNER_A, OWNER_B, PET_IDS, connect, seedFixtures } from './fixtures'
 
 // MR-02: weight history against the real database — the SQL functions, the
@@ -226,4 +227,55 @@ describe('the pet form', () => {
     const { weights } = await overview()
     expect(weights.map((w) => [w.measured_on, w.weight_kg, w.source])).toEqual([['2026-09-25', 4.4, 'form']])
   })
+
+  it('keeps a form weight of 0 out of the history instead of failing the save (review C1)', async () => {
+    await db.query(`update public.pets set weight_kg = 0 where id = $1`, [pet])
+
+    expect((await add('2026-09-12', 4.2)).status).toBe(201)
+    const form = await patchPet(request(tokenA, 'PATCH', { name: 'Мурка', weight_kg: 4.3, weight_measured_on: '2026-09-13' }), params(pet))
+    expect(form.status).toBe(200)
+
+    const { weights } = await overview()
+    expect(weights.map((w) => w.weight_kg)).toEqual([4.3, 4.2])
+  })
+
+  it('records a new pet’s weight as a dated measurement (review I1)', async () => {
+    const created = await createPet(
+      request(tokenA, 'POST', { species: 'dog', name: 'Шарик', weight_kg: 12, weight_measured_on: '2026-09-20' }),
+      undefined,
+    )
+    expect(created.status).toBe(201)
+    const newPet = PetSchema.parse(await created.json())
+    expect(newPet.weight_kg).toBe(12)
+
+    const { rows } = await db.query(
+      `select measured_on::text as day, weight_kg, source from public.pet_weights where pet_id = $1 and deleted_at is null`,
+      [newPet.id],
+    )
+    expect(rows).toEqual([{ day: '2026-09-20', weight_kg: 12, source: 'form' }])
+  })
+
+  it('keeps the form on the newest measurement when the form’s day is older (review I2)', async () => {
+    await add('2026-09-26', 4.1)
+    await patchPet(request(tokenA, 'PATCH', { name: 'Мурка', weight_kg: 4.6, weight_measured_on: '2026-09-25' }), params(pet))
+
+    expect(await formWeight()).toBe(4.1)
+    expect((await overview()).pet.weight_kg).toBe(4.1)
+  })
+
+  it('does not let clearing the weight in the form hide a history that is still there', async () => {
+    await add('2026-09-12', 4.2)
+    await patchPet(request(tokenA, 'PATCH', { name: 'Мурка', weight_kg: null }), params(pet))
+    expect(await formWeight()).toBe(4.2)
+  })
+
+  it('refuses a form weight dated in the future (review I3)', async () => {
+    const response = await patchPet(
+      request(tokenA, 'PATCH', { name: 'Мурка', weight_kg: 5, weight_measured_on: '2999-01-01' }),
+      params(pet),
+    )
+    expect(response.status).toBe(400)
+    expect((await overview()).weights).toEqual([])
+  })
 })
+
