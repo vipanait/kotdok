@@ -2164,8 +2164,8 @@ paths:
       - *a1
     post:
       summary: Record vaccinations done or planned; a done record also plans each item's next date
-      description: A done record cannot be in the future, a plan cannot be in the past. The same
-        Idempotency-Key returns the first record.
+      description: A done record cannot be in the future; a plan and a next date cannot be in the past.
+        The same Idempotency-Key with the same data returns the first record; with other data, 409.
       parameters:
         - &a2
           name: Idempotency-Key
@@ -2173,6 +2173,7 @@ paths:
           required: false
           schema:
             type: string
+            minLength: 8
             maxLength: 200
       requestBody:
         required: true
@@ -2230,6 +2231,17 @@ paths:
                 error:
                   code: not_found
                   message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "409":
+          description: Same idempotency key with different data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: conflict
+                  message: Same idempotency key with different data
                   request_id: 01J000000000000000000000
         "429":
           description: Too many requests
@@ -2472,6 +2484,17 @@ paths:
                 error:
                   code: not_found
                   message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "409":
+          description: Same idempotency key with different data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: conflict
+                  message: Same idempotency key with different data
                   request_id: 01J000000000000000000000
         "429":
           description: Too many requests

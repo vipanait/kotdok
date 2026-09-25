@@ -55,7 +55,9 @@ export default function Vaccinations() {
       <Card
         outlined
         onPress={() => router.push(`/pets/${id}/event/${event.id}`)}
-        accessibilityLabel={[t.day(event.date, true), ...names, event.clinic].filter(Boolean).join(', ')}
+        accessibilityLabel={[t.day(event.date, true), status && status.tone !== 'later' ? dueLine(status) : null, ...names, event.clinic]
+          .filter(Boolean)
+          .join(', ')}
         style={styles.card}
       >
         <Text variant="h3">{t.day(event.date, true)}</Text>

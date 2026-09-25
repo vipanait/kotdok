@@ -90,6 +90,7 @@ const REQUIRED_FUNCTIONS = [
   'resolve_extra_check_request',
   'search_vet_knowledge',
   'stale_photo_objects',
+  'sync_pet_vaccinated',
   'sync_pet_weight',
   'update_health_event',
 ]

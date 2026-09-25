@@ -201,6 +201,8 @@ export const en: Dictionary = {
     diseases: 'Against',
     next: 'Next',
     nextYear: (day: string) => `In a year — ${day}`,
+    nextYearPassed: 'A year on — already passed, no reminder',
+    alreadySaved: 'This record was already saved earlier, without the latest changes. Go back to the medical record and edit it there.',
     nextCustom: 'Pick a date',
     nextNone: 'No reminder',
     nextDate: 'Next date',

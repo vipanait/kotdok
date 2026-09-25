@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { HealthEvent } from '@lapka/contracts'
 import { ru } from '@/i18n/ru'
-import { blankItem, draftFromEvent, draftChanged, readDraft, type EventDraft } from './event-form'
+import { blankItem, draftFromEvent, draftChanged, nextDate, readDraft, type EventDraft } from './event-form'
 
 const NOW = new Date(2026, 8, 24, 12, 0) // 24 Sept 2026, local
 
@@ -111,5 +111,19 @@ describe('an overdue plan (MR-03.3)', () => {
     expect(readDraft(ru, { ...opened, clinic: 'Айболит' }, 'edit', NOW, overdue.date).ok).toBe(true)
     expect(readDraft(ru, { ...opened, date: '20.09.2026' }, 'edit', NOW, overdue.date).ok).toBe(false)
     expect(readDraft(ru, { ...opened, date: '01.10.2026' }, 'edit', NOW, overdue.date).ok).toBe(true)
+  })
+})
+
+describe('backfilling old vaccinations (review 2)', () => {
+  it('plans nothing when a year on has already passed, and says so', () => {
+    const read = readDraft(ru, draft({ date: '12.03.2024' }), 'new', NOW)
+    expect(read.ok && read.value.items[0].next_on).toBeNull()
+    expect(nextDate(blankItem('x'), '2024-03-12', '2026-09-24')).toBeNull()
+    expect(nextDate(blankItem('x'), '2026-03-12', '2026-09-24')).toBe('2027-03-12')
+  })
+
+  it('refuses a custom next date that has passed', () => {
+    const read = readDraft(ru, draft({ date: '12.03.2024', items: [{ ...blankItem('a'), targets: ['rabies'], next: 'custom', nextText: '12.03.2025' }] }), 'new', NOW)
+    expect(!read.ok && read.errors.next).toEqual({ a: 'Следующая — ДД.ММ.ГГГГ, позже даты записи' })
   })
 })

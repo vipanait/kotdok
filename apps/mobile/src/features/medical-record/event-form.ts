@@ -74,12 +74,21 @@ export type ReadDraft =
   | { ok: true; value: Omit<HealthEventInput, 'items'> & { items: ItemInput[] } }
   | { ok: false; errors: DraftErrors }
 
-/** The next date an item's choice gives, or undefined when its custom date is not a later day. */
-export function nextDate(item: ItemDraft, recordDay: string): string | null | undefined {
+/**
+ * The next date an item's choice gives: null for none, undefined when a custom
+ * date is not a later day that is still to come.
+ *
+ * «Через год» from a vaccination two years ago lands in the past: that plans
+ * nothing, instead of filling backfilled history with overdue reminders.
+ */
+export function nextDate(item: ItemDraft, recordDay: string, today: string = localToday()): string | null | undefined {
   if (item.next === 'none') return null
-  if (item.next === 'year') return nextYear(recordDay)
+  if (item.next === 'year') {
+    const next = nextYear(recordDay)
+    return next >= today ? next : null
+  }
   const day = parseDayText(item.nextText)
-  return day !== null && day > recordDay ? day : undefined
+  return day !== null && day > recordDay && day >= today ? day : undefined
 }
 
 /**
@@ -115,7 +124,7 @@ export function readDraft(
     if (name === '' && item.targets.length === 0) itemErrors[item.key] = words.itemEmpty
     let next_on: string | null = null
     if (withNext && date) {
-      const next = nextDate(item, date)
+      const next = nextDate(item, date, localToday(now))
       if (next === undefined) nextErrors[item.key] = words.nextInvalid
       else next_on = next
     }

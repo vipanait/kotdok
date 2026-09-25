@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server'
 import { CompleteItemInputSchema, IDEMPOTENCY_KEY_HEADER, UuidSchema } from '@lapka/contracts'
 import { createServiceClient } from '@/server/supabase/server'
 import { completeItem } from '@/server/medical-record/event-service'
-import { isFutureDay } from '@/server/medical-record/weight-service'
+import { isFutureDay, isPastDay, readIdempotencyKey } from '@/server/medical-record/weight-service'
 import { apiError, apiSuccess } from '@/server/api/response'
 import { serviceFailureResponse } from '@/server/api/failure-response'
 import { withApiAuth, type ApiContext } from '@/server/api/with-api-auth'
@@ -27,12 +27,15 @@ export const POST = withApiAuth(async (request: NextRequest, context: ApiContext
   }
 
   const parsed = CompleteItemInputSchema.safeParse(body)
-  if (!parsed.success || isFutureDay(parsed.data.done_on)) {
+  const key = readIdempotencyKey(request.headers, IDEMPOTENCY_KEY_HEADER)
+  const wrongDay =
+    parsed.success &&
+    (isFutureDay(parsed.data.done_on) || (parsed.data.next_on ? isPastDay(parsed.data.next_on) : false))
+  if (!parsed.success || wrongDay || !key.ok) {
     return apiError(context.requestId, 'bad_request', 'Body does not match the contract')
   }
 
-  const key = request.headers.get(IDEMPOTENCY_KEY_HEADER)
-  const result = await completeItem(createServiceClient(), context.account.userId, id, itemId, parsed.data, key)
+  const result = await completeItem(createServiceClient(), context.account.userId, id, itemId, parsed.data, key.key)
   if (!result.ok) return serviceFailureResponse(context.requestId, result.reason)
 
   return apiSuccess(context.requestId, result.data)

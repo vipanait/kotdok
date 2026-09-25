@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server'
 import { HealthEventInputSchema, IDEMPOTENCY_KEY_HEADER, UuidSchema } from '@lapka/contracts'
 import { createServiceClient } from '@/server/supabase/server'
 import { createEvent } from '@/server/medical-record/event-service'
-import { isFutureDay, isPastDay } from '@/server/medical-record/weight-service'
+import { isFutureDay, isPastDay, readIdempotencyKey } from '@/server/medical-record/weight-service'
 import { apiError, apiSuccess } from '@/server/api/response'
 import { serviceFailureResponse } from '@/server/api/failure-response'
 import { withApiAuth, type ApiContext } from '@/server/api/with-api-auth'
@@ -26,15 +26,18 @@ export const POST = withApiAuth(async (request: NextRequest, context: ApiContext
   }
 
   const parsed = HealthEventInputSchema.safeParse(body)
+  // A next date is a new plan, and a plan cannot start in the past: backfilled
+  // history would otherwise arrive full of overdue reminders.
   const wrongDay =
     parsed.success &&
-    (parsed.data.status === 'done' ? isFutureDay(parsed.data.date) : isPastDay(parsed.data.date))
-  if (!parsed.success || wrongDay) {
+    ((parsed.data.status === 'done' ? isFutureDay(parsed.data.date) : isPastDay(parsed.data.date)) ||
+      parsed.data.items.some((item) => item.next_on && isPastDay(item.next_on)))
+  const key = readIdempotencyKey(request.headers, IDEMPOTENCY_KEY_HEADER)
+  if (!parsed.success || wrongDay || !key.ok) {
     return apiError(context.requestId, 'bad_request', 'Body does not match the contract')
   }
 
-  const key = request.headers.get(IDEMPOTENCY_KEY_HEADER)
-  const result = await createEvent(createServiceClient(), context.account.userId, id, parsed.data, key)
+  const result = await createEvent(createServiceClient(), context.account.userId, id, parsed.data, key.key)
   if (!result.ok) return serviceFailureResponse(context.requestId, result.reason)
 
   return apiSuccess(context.requestId, result.data, 201)

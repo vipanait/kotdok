@@ -28,6 +28,9 @@ create table if not exists public.pet_health_events (
   clinic text,
   notes text,
   idempotency_key text,
+  -- What the keyed request asked for: the same key with other data is a
+  -- conflict, not a silent return of the first record.
+  request_hash text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   deleted_at timestamptz
@@ -42,6 +45,8 @@ alter table public.pet_health_events add constraint pet_health_events_status_che
 alter table public.pet_health_events drop constraint if exists pet_health_events_text_check;
 alter table public.pet_health_events add constraint pet_health_events_text_check
   check (char_length(coalesce(clinic, '')) <= 100 and char_length(coalesce(notes, '')) <= 300);
+
+alter table public.pet_health_events add column if not exists request_hash text;
 
 create unique index if not exists pet_health_events_idempotency
   on public.pet_health_events (user_id, idempotency_key)
@@ -100,19 +105,61 @@ create trigger refuse_late_writes
   before insert or update on public.pet_health_items
   for each row execute function public.refuse_write_for_inactive_account();
 
-/**
- * An existing event made with this key, if any: a repeated request returns it
- * instead of making a second one.
- */
-create or replace function public.health_event_by_key(p_user_id uuid, p_key text)
-returns uuid
+-- The owner's own answer to «Вакцинация», kept apart from `vaccinated`,
+-- which now says what the record knows: vaccinated if a vaccination is done,
+-- otherwise whatever the owner said (spec §4). Every reader of `vaccinated` —
+-- the form, the symptom check — gets that without knowing about records, and
+-- deleting the last vaccination gives the owner's answer back instead of
+-- deciding "not vaccinated" for them.
+alter table public.pets add column if not exists vaccinated_form boolean;
+update public.pets set vaccinated_form = vaccinated where vaccinated_form is null and vaccinated is not null;
+
+create or replace function public.sync_pet_vaccinated(p_pet_id uuid)
+returns void
 language sql
 security definer
 set search_path = public
 as $$
-  select id from public.pet_health_events
+  update public.pets p
+     set vaccinated = case
+       when exists (
+         select 1 from public.pet_health_events e
+          where e.pet_id = p_pet_id and e.kind = 'vaccination' and e.status = 'done' and e.deleted_at is null
+            and exists (select 1 from public.pet_health_items i where i.event_id = e.id and i.deleted_at is null)
+       ) then true
+       else p.vaccinated_form
+     end
+   where p.id = p_pet_id;
+$$;
+
+/**
+ * An existing event made with this key, if any: a repeated request returns
+ * it instead of making a second one. The same key with other data is refused
+ * with unique_violation — the first request's result stands, and the caller
+ * must look at it rather than believe the second was saved.
+ */
+create or replace function public.health_event_by_key(p_user_id uuid, p_key text, p_hash text)
+returns uuid
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_id uuid;
+  v_hash text;
+begin
+  if p_key is null then
+    return null;
+  end if;
+  select id, request_hash into v_id, v_hash
+    from public.pet_health_events
    where user_id = p_user_id and idempotency_key = p_key
    limit 1;
+  if v_id is not null and v_hash is distinct from p_hash then
+    raise exception 'idempotency key reused with different data' using errcode = 'unique_violation';
+  end if;
+  return v_id;
+end;
 $$;
 
 /**
@@ -221,16 +268,17 @@ declare
   v_event uuid;
   v_ids uuid[];
   v_next jsonb;
+  v_hash text := md5(jsonb_build_array(p_kind, p_status, p_date, p_clinic, p_notes, p_items)::text);
 begin
   perform public.lock_own_pet(p_user_id, p_pet_id);
 
-  v_event := public.health_event_by_key(p_user_id, p_key);
+  v_event := public.health_event_by_key(p_user_id, p_key, v_hash);
   if v_event is not null then
     return v_event;
   end if;
 
-  insert into public.pet_health_events (user_id, pet_id, kind, status, event_date, clinic, notes, idempotency_key)
-  values (p_user_id, p_pet_id, p_kind, p_status, p_date, nullif(btrim(p_clinic), ''), nullif(btrim(p_notes), ''), p_key)
+  insert into public.pet_health_events (user_id, pet_id, kind, status, event_date, clinic, notes, idempotency_key, request_hash)
+  values (p_user_id, p_pet_id, p_kind, p_status, p_date, nullif(btrim(p_clinic), ''), nullif(btrim(p_notes), ''), p_key, v_hash)
   returning id into v_event;
 
   v_ids := public.insert_health_items(p_user_id, p_pet_id, v_event, p_items);
@@ -240,6 +288,7 @@ begin
     perform public.plan_next_items(p_user_id, p_pet_id, p_kind, nullif(btrim(p_clinic), ''), v_ids, p_items, v_next);
   end if;
 
+  perform public.sync_pet_vaccinated(p_pet_id);
   return v_event;
 end;
 $$;
@@ -273,10 +322,11 @@ declare
   v_event public.pet_health_events;
   v_others int;
   v_done uuid;
+  v_hash text := md5(jsonb_build_array('complete', p_item_id, p_done_on, p_next_on, p_clinic, p_notes)::text);
 begin
   perform public.lock_own_pet(p_user_id, p_pet_id);
 
-  v_existing := public.health_event_by_key(p_user_id, p_key);
+  v_existing := public.health_event_by_key(p_user_id, p_key, v_hash);
   if v_existing is not null then
     return v_existing;
   end if;
@@ -307,15 +357,17 @@ begin
            event_date = p_done_on,
            clinic = coalesce(nullif(btrim(p_clinic), ''), clinic),
            notes = coalesce(nullif(btrim(p_notes), ''), notes),
-           idempotency_key = p_key,
+           -- The plan keeps the key it was created with: a late retry of that
+           -- create must still find it. Doing it twice is caught above, by
+           -- the item already being done.
            updated_at = now()
      where id = v_event.id;
     v_done := v_event.id;
   else
-    insert into public.pet_health_events (user_id, pet_id, kind, status, event_date, clinic, notes, idempotency_key)
+    insert into public.pet_health_events (user_id, pet_id, kind, status, event_date, clinic, notes, idempotency_key, request_hash)
     values (
       p_user_id, p_pet_id, v_event.kind, 'done', p_done_on,
-      coalesce(nullif(btrim(p_clinic), ''), v_event.clinic), nullif(btrim(p_notes), ''), p_key
+      coalesce(nullif(btrim(p_clinic), ''), v_event.clinic), nullif(btrim(p_notes), ''), p_key, v_hash
     )
     returning id into v_done;
 
@@ -332,6 +384,7 @@ begin
     );
   end if;
 
+  perform public.sync_pet_vaccinated(p_pet_id);
   return v_done;
 end;
 $$;
@@ -406,6 +459,7 @@ begin
      where event_id = p_event_id and deleted_at is null and not (id = any (v_keep));
   end if;
 
+  perform public.sync_pet_vaccinated(p_pet_id);
   return p_event_id;
 end;
 $$;
@@ -428,10 +482,14 @@ begin
   end if;
 
   update public.pet_health_items set deleted_at = now() where event_id = p_event_id and deleted_at is null;
+  perform public.sync_pet_vaccinated(p_pet_id);
 end;
 $$;
 
-revoke all on function public.health_event_by_key(uuid, text) from public, anon, authenticated;
+drop function if exists public.health_event_by_key(uuid, text);
+revoke all on function public.health_event_by_key(uuid, text, text) from public, anon, authenticated;
+revoke all on function public.sync_pet_vaccinated(uuid) from public, anon, authenticated;
+grant execute on function public.sync_pet_vaccinated(uuid) to service_role;
 revoke all on function public.insert_health_items(uuid, uuid, uuid, jsonb, uuid[]) from public, anon, authenticated;
 revoke all on function public.plan_next_items(uuid, uuid, text, text, uuid[], jsonb, jsonb) from public, anon, authenticated;
 revoke all on function public.create_health_event(uuid, uuid, text, text, date, text, text, jsonb, text) from public, anon, authenticated;

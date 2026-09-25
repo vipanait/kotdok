@@ -154,7 +154,7 @@ const idempotencyParam = {
   name: IDEMPOTENCY_KEY_HEADER,
   in: 'header',
   required: false,
-  schema: { type: 'string', maxLength: 200 },
+  schema: { type: 'string', minLength: 8, maxLength: 200 },
 }
 
 const idParam = {
@@ -320,11 +320,14 @@ export function buildOpenApiDocument(): Record<string, unknown> {
         post: {
           summary: 'Record vaccinations done or planned; a done record also plans each item\'s next date',
           description:
-            'A done record cannot be in the future, a plan cannot be in the past. ' +
-            'The same Idempotency-Key returns the first record.',
+            'A done record cannot be in the future; a plan and a next date cannot be in the past. ' +
+            'The same Idempotency-Key with the same data returns the first record; with other data, 409.',
           parameters: [idempotencyParam],
           requestBody: body('HealthEventInput'),
-          responses: { '201': json('HealthEvent', 'The record'), ...commonErrors('bad_request', 'not_found') },
+          responses: {
+            '201': json('HealthEvent', 'The record'),
+            ...commonErrors('bad_request', 'not_found', 'conflict'),
+          },
         },
       },
       '/pets/{id}/health/events/{event_id}': {
@@ -345,7 +348,10 @@ export function buildOpenApiDocument(): Record<string, unknown> {
           summary: 'Mark one planned item done; others planned for the same day stay planned',
           parameters: [idempotencyParam],
           requestBody: body('CompleteItemInput'),
-          responses: { '200': json('HealthEvent', 'The done record'), ...commonErrors('bad_request', 'not_found') },
+          responses: {
+            '200': json('HealthEvent', 'The done record'),
+            ...commonErrors('bad_request', 'not_found', 'conflict'),
+          },
         },
       },
       '/uploads': {

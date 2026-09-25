@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import { VACCINE_TARGETS, type HealthEvent, type PetSpecies, type VaccineTarget } from '@lapka/contracts'
+import { ApiError } from '@lapka/shared'
 import { withFreshSession } from '@/lib/api'
 import { describeFailure } from '@/lib/errors'
 import { dayInput, localToday, parseDayInput } from '@/lib/calendar-day'
@@ -125,7 +126,7 @@ export default function EventForm() {
   const summary = useMemo(() => {
     if (!draft || !showNext || !recordDay) return null
     if (mode === 'complete') return words.summaryComplete(source?.others ?? 0)
-    const days = draft.items.map((item) => nextDate(item, recordDay) ?? null)
+    const days = draft.items.map((item) => nextDate(item, recordDay, localToday()) ?? null)
     return saveSummary(t, days, localToday())
   }, [draft, showNext, recordDay, mode, words, source, t])
 
@@ -167,7 +168,13 @@ export default function EventForm() {
       })
       unsaved.leave(then)
     } catch (cause) {
-      setError(describeFailure(t, cause, words.saveEventFailed))
+      // The first try was saved after all, with what it said then; the change
+      // since is not. Say so rather than let the person think it went in.
+      if (cause instanceof ApiError && cause.code === 'conflict') {
+        setError({ text: words.alreadySaved, offline: false })
+      } else {
+        setError(describeFailure(t, cause, words.saveEventFailed))
+      }
     } finally {
       setBusy(false)
     }
@@ -195,7 +202,14 @@ export default function EventForm() {
 
   function nextOptions(): Array<{ value: NextChoice; label: string }> {
     return [
-      { value: 'year', label: recordDay ? words.nextYear(t.day(nextYear(recordDay), true)) : words.nextYear('—') },
+      {
+        value: 'year',
+        label: !recordDay
+          ? words.nextYear('—')
+          : nextYear(recordDay) >= localToday()
+            ? words.nextYear(t.day(nextYear(recordDay), true))
+            : words.nextYearPassed,
+      },
       { value: 'custom', label: words.nextCustom },
       { value: 'none', label: words.nextNone },
     ]

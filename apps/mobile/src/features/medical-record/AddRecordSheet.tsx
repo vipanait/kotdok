@@ -24,7 +24,13 @@ export function AddRecordSheet({
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <Pressable style={styles.backdrop} onPress={onClose} accessible={false}>
-        <Pressable style={styles.sheet} onPress={() => {}} accessible={false}>
+        <Pressable
+          style={styles.sheet}
+          onPress={() => {}}
+          accessible={false}
+          accessibilityViewIsModal
+          onAccessibilityEscape={onClose}
+        >
           <View style={styles.handle} />
           <Text variant="h2" style={styles.title}>
             {t.medicalRecord.addWhat}

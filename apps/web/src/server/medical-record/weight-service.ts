@@ -135,3 +135,14 @@ export function isPastDay(day: string, now: Date = new Date()): boolean {
   const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000)
   return day < utcToday(yesterday)
 }
+
+/**
+ * The Idempotency-Key of a medical record write: absent is fine (null), but
+ * present means 8–200 characters — an empty key would otherwise become one
+ * shared by every keyless request.
+ */
+export function readIdempotencyKey(headers: Headers, name: string): { ok: true; key: string | null } | { ok: false } {
+  const key = headers.get(name)
+  if (key === null) return { ok: true, key: null }
+  return key.length >= 8 && key.length <= 200 ? { ok: true, key } : { ok: false }
+}

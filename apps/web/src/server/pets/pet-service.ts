@@ -115,7 +115,7 @@ export async function createPet(
   // record would see "no change" and keep the weight undated.
   const { data, error } = await supabase
     .from('pets')
-    .insert({ ...pet, ...(weight ? { weight_kg: null } : {}), user_id: userId })
+    .insert({ ...pet, vaccinated_form: pet.vaccinated, ...(weight ? { weight_kg: null } : {}), user_id: userId })
     .select()
     .single()
 
@@ -165,9 +165,11 @@ export async function updatePet(
     pet = withoutWeight
   }
 
-  const { data, error } = await supabase
+  // The answer is the owner's; what the pet is shown as also counts the
+  // vaccinations in the record, so it is worked out after the update.
+  const { data: updated, error: updateError } = await supabase
     .from('pets')
-    .update(pet)
+    .update({ ...pet, vaccinated_form: sanitized.vaccinated })
     .eq('id', petId)
     .eq('user_id', userId)
     .is('deleted_at', null)
@@ -177,9 +179,13 @@ export async function updatePet(
     // turned "not yours" into a 500.
     .maybeSingle()
 
-  if (error) return { ok: false, reason: 'storage_error', message: error.message }
-  if (!data) return { ok: false, reason: 'not_found' }
-  return { ok: true, data: data as Pet }
+  if (updateError) return { ok: false, reason: 'storage_error', message: updateError.message }
+  if (!updated) return { ok: false, reason: 'not_found' }
+
+  const synced = await supabase.rpc('sync_pet_vaccinated', { p_pet_id: petId })
+  if (synced.error) return { ok: false, reason: 'storage_error', message: synced.error.message }
+
+  return getPet(supabase, userId, petId)
 }
 
 export async function softDeletePetAndChecks(

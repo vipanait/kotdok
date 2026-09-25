@@ -12,6 +12,8 @@ export type DueTone = 'overdue' | 'soon' | 'later'
 
 export type DueStatus = {
   tone: DueTone
+  /** The words already name the day («Просрочено с 23 июля»), so the day is not added again. */
+  dated?: boolean
   /** «Просрочено на 12 дней», «Через 5 дней»; null past fourteen days, where the date says it. */
   text: string | null
   /** «12 сентября», with the year when it is not this year. */
@@ -33,13 +35,10 @@ export function dueStatus(t: Dictionary, date: string, today: string): DueStatus
   if (ahead < 0) {
     const late = -ahead
     // «Просрочено на 83 дня» stops meaning anything; the date says it better.
-    const text =
-      late === 1
-        ? words.overdueYesterday
-        : addMonths(date, 2) < today
-          ? words.overdueSince(shown)
-          : words.overdueDays(late)
-    return { tone: 'overdue', text, day: shown }
+    if (late > 1 && addMonths(date, 2) < today) {
+      return { tone: 'overdue', text: words.overdueSince(shown), day: shown, dated: true }
+    }
+    return { tone: 'overdue', text: late === 1 ? words.overdueYesterday : words.overdueDays(late), day: shown }
   }
   if (ahead === 0) return { tone: 'soon', text: words.today, day: shown }
   if (ahead === 1) return { tone: 'soon', text: words.tomorrow, day: shown }
@@ -49,6 +48,7 @@ export function dueStatus(t: Dictionary, date: string, today: string): DueStatus
 
 /** «Просрочено на 12 дней · 12 сентября», or just «12 марта 2027». */
 export function dueLine(status: DueStatus): string {
+  if (status.dated && status.text) return status.text
   return status.text ? `${status.text} · ${status.day}` : status.day
 }
 

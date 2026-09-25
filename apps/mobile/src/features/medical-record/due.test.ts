@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { HealthEvent } from '@lapka/contracts'
 import { en } from '@/i18n/en'
 import { ru } from '@/i18n/ru'
-import { coreStatuses, dueItems, dueStatus, itemTitle, lastVaccination, nextYear, saveSummary } from './due'
+import { coreStatuses, dueItems, dueLine, dueStatus, itemTitle, lastVaccination, nextYear, saveSummary } from './due'
 
 const TODAY = '2026-09-24'
 
@@ -29,6 +29,9 @@ describe('the words of a due date (MR-03.4)', () => {
     expect(at('2026-09-12').text).toBe('Просрочено на 12 дней')
     expect(at('2026-07-24').text).toBe('Просрочено на 62 дня')
     expect(at('2026-07-23').text).toBe('Просрочено с 23 июля')
+    // The date is already in the words: not «Просрочено с 23 июля · 23 июля».
+    expect(dueLine(at('2026-07-23'))).toBe('Просрочено с 23 июля')
+    expect(dueLine(at('2026-09-12'))).toBe('Просрочено на 12 дней · 12 сентября')
   })
 
   it('says today, tomorrow and "in N days" up to fourteen', () => {

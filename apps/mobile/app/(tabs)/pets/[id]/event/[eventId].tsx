@@ -34,8 +34,8 @@ export default function EventView() {
     try {
       const overview = await withFreshSession((api) => api.getHealthOverview(id))
       const found = overview.events.find((e) => e.id === eventId)
-      // A plan fully marked done moves its last item into a new record; there
-      // is nothing left to show here, so go back to the list.
+      // A record deleted elsewhere, or gone since the list was read: nothing
+      // left to show here, so back to the list.
       if (!found) {
         router.back()
         return
