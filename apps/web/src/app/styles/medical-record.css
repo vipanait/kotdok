@@ -530,3 +530,89 @@
     .courses-page .section-aside { order: 0; }
   }
 }
+
+/*
+ * Vet visits (MW-06): web v1 «visits», «visits-empty», «visit-done»,
+ * «visit-plan», «visit-prescriptions», «visit-from-result», «visit-record»,
+ * «visit-planned», «visit-plan-edit», «visit-complete». The section and the
+ * record reuse the vaccination blocks; what differs is here. The form's
+ * rhythm is the handoff's («Формы визита и назначений»): 32 px from the
+ * diagnosis to «Назначения», 16 px under the heading and between the
+ * prescriptions, 32 px before the note and before the buttons, no line.
+ */
+@layer components {
+  .visits-empty { display: grid; justify-items: center; gap: 4px; padding: 32px 28px; text-align: center; }
+  .visits-empty > .icon { width: 44px; height: 44px; color: #CFC3B0; }
+  .visits-empty .btn { margin-top: 14px; }
+  .section-aside .visits-aside { background: var(--soft); border-color: transparent; }
+  .visits-aside p { margin-top: 10px; font-size: 15px; }
+  .visit-card .event-card-items { color: var(--text); }
+  .visit-card-check { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; font-size: 14px; color: var(--muted); }
+  .visit-card-check .badge { flex-shrink: 0; }
+
+  .visit-record-body { display: grid; gap: 0; }
+  .visit-facts { display: grid; }
+  .visit-facts > div { padding: 16px 0; border-bottom: 1px solid var(--line); }
+  .visit-facts > div:first-child { padding-top: 0; }
+  .visit-facts dt { font: 800 17px/1.3 var(--font-display); color: var(--text); }
+  .visit-facts dd { margin: 6px 0 0; font-size: 15px; color: var(--muted); overflow-wrap: anywhere; white-space: pre-line; }
+  .visit-prescriptions { padding-top: 16px; }
+  .visit-prescriptions h3 { font: 800 17px/1.3 var(--font-display); }
+  .visit-prescriptions ul { display: grid; margin: 8px 0 4px; }
+  .visit-prescriptions li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .visit-prescription-copy { display: grid; gap: 2px; min-width: 0; flex: 1 1 220px; overflow-wrap: anywhere; }
+  .visit-prescription-copy strong { font-size: 15px; }
+  .visit-prescription-copy span { font-size: 13px; color: var(--muted); }
+  .visit-prescription-action { min-height: 44px; font-size: 14px; }
+  .visit-prescriptions li .field-error { flex-basis: 100%; margin-top: 0; }
+  .visit-prescriptions > .link { min-height: 44px; font-size: 15px; }
+  .visit-record-body > .visit-facts:only-child > div:last-child { border-bottom: 0; padding-bottom: 0; }
+  .visit-check-link {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px 16px;
+    padding: 20px 24px;
+    border-radius: 24px;
+    transition: border-color 160ms ease;
+  }
+  .visit-check-link:hover { border-color: #CFC3B0; }
+  .visit-check-link:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+  .visit-check-title { grid-column: 1; font: 800 17px/1.3 var(--font-display); color: var(--text); }
+  .visit-check-link .visit-card-check { grid-column: 1; }
+  .visit-check-link > .icon { grid-column: 2; grid-row: 1 / span 2; color: var(--green); }
+
+  .visit-form .field { margin-bottom: 20px; }
+  .visit-held-badge { display: inline-flex; margin-bottom: 20px; }
+  /* 32 px from the diagnosis to «Назначения» and after the section (the field's 20 px margin collapses into these). */
+  .visit-prescriptions-form { display: grid; gap: 16px; margin: 32px 0; }
+  .visit-prescriptions-form .event-items-title { margin: 0; }
+  .visit-prescription-list { display: grid; gap: 16px; }
+  .visit-prescription .event-item-name { margin-bottom: 16px; }
+  .visit-prescription .field { margin-bottom: 12px; }
+  .visit-prescription .visit-to-medicines { margin: 0; }
+  .visit-medicines-hint { margin: 0 0 16px; }
+  .visit-prescriptions-form .event-add-item { min-height: 44px; }
+  .visit-form-check { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin-bottom: 20px; overflow-wrap: anywhere; }
+  .visit-form textarea.input { min-height: 96px; }
+  .visit-form .event-form-warning { margin-top: 0; color: var(--text); }
+  /* No line above the buttons: 32 px of air instead. */
+  .visit-form .form-actions { margin-top: 32px; padding-top: 0; border-top: 0; }
+
+  .result-visit { margin-top: 18px; }
+}
+
+@layer components {
+  @media (max-width: 760px) {
+    .visit-check-link { padding: 18px 20px; }
+    .visits-empty { padding: 28px 20px; }
+  }
+}

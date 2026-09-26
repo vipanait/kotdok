@@ -216,6 +216,21 @@ export type CompleteItemInput = z.infer<typeof CompleteItemInputSchema>
 const VISIT_TEXT_MAX = 500
 const MEDICATION_TEXT_MAX_FOR_VISITS = 150
 
+/**
+ * The limits of a vet visit, as the schemas below check them: the forms of
+ * both apps show and check them before sending. A prescription is an item
+ * of the record, so its name is no longer than any item's.
+ */
+export const VISIT_LIMITS = {
+  reason: VISIT_TEXT_MAX,
+  diagnosis: VISIT_TEXT_MAX,
+  clinic: CLINIC_MAX,
+  notes: NOTES_MAX,
+  prescriptionName: ITEM_NAME_MAX,
+  instructions: MEDICATION_TEXT_MAX_FOR_VISITS,
+  prescriptions: ITEMS_MAX,
+} as const
+
 const PrescriptionInputSchema = z.strictObject({
   /** Set for a prescription the visit already has. */
   id: UuidSchema.optional(),
@@ -235,7 +250,7 @@ const visitFields = {
   diagnosis: z.string().trim().max(VISIT_TEXT_MAX).nullable().optional(),
   /** The symptom check it followed; of the same pet and owner. */
   check_id: UuidSchema.nullable().optional(),
-  prescriptions: z.array(PrescriptionInputSchema).max(10).optional(),
+  prescriptions: z.array(PrescriptionInputSchema).max(ITEMS_MAX).optional(),
 }
 
 /** A plan has not happened: no diagnosis, no prescriptions (MR-07.3). */

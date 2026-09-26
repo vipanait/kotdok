@@ -11,11 +11,14 @@ import { withApiAuth, type ApiContext } from '@/server/api/with-api-auth'
 type Params = { params: Promise<{ id: string; eventId: string }> }
 
 /**
- * A correction, or «Был» on a plan (`status: 'done'`). A plan takes no
- * diagnosis or prescriptions until it is marked done (MR-07.3); a done visit
- * stays in the past, a plan moves only forward. The visit's own day sent back
- * unchanged is not a move, even on an overdue plan. An Idempotency-Key makes a
- * retried save harmless.
+ * A change of a planned visit, or «Состоялся» on it (`status: 'done'`). A
+ * plan takes no diagnosis or prescriptions until it is marked done (MR-07.3);
+ * a done visit stays in the past, a plan moves only forward. The visit's own
+ * day sent back unchanged is not a move, even on an overdue plan. A visit
+ * that happened is history (owner rule of 26 September 2026): any change of
+ * it is `record_done`, 409 — `refuseDoneChange`, through `updateVisit`,
+ * decides, and its day is not checked here. An Idempotency-Key makes a
+ * retried save harmless, including the «Состоялся» that made it done.
  */
 export const PATCH = withApiAuth(async (request: NextRequest, context: ApiContext, params: Params) => {
   const { id, eventId } = await params.params
@@ -41,19 +44,23 @@ export const PATCH = withApiAuth(async (request: NextRequest, context: ApiContex
   if (!current.ok) return serviceFailureResponse(context.requestId, current.reason)
   if (current.data.kind !== 'visit') return apiError(context.requestId, 'not_found', 'No such resource')
 
-  const status = parsed.data.status ?? current.data.status
-  const treatment = parsed.data.diagnosis || (parsed.data.prescriptions && parsed.data.prescriptions.length > 0)
-  const date = parsed.data.date
-  const moved = date !== undefined && (date !== current.data.date || status !== current.data.status)
-  const wrongDay = moved && (status === 'done' ? isFutureDay(date) : isPastDay(date))
-  // Marking done without a new day means it happened on the planned one, which must have come.
-  const doneAhead = parsed.data.status === 'done' && date === undefined && isFutureDay(current.data.date)
-  if ((status === 'planned' && treatment) || wrongDay || doneAhead) {
-    return apiError(context.requestId, 'bad_request', 'Body does not match the contract')
+  // A visit that happened is not checked here: the service refuses the whole change.
+  if (current.data.status === 'planned') {
+    const status = parsed.data.status ?? current.data.status
+    const treatment = parsed.data.diagnosis || (parsed.data.prescriptions && parsed.data.prescriptions.length > 0)
+    const date = parsed.data.date
+    const moved = date !== undefined && (date !== current.data.date || status !== current.data.status)
+    const wrongDay = moved && (status === 'done' ? isFutureDay(date) : isPastDay(date))
+    // Marking done without a new day means it happened on the planned one, which must have come.
+    const doneAhead = parsed.data.status === 'done' && date === undefined && isFutureDay(current.data.date)
+    if ((status === 'planned' && treatment) || wrongDay || doneAhead) {
+      return apiError(context.requestId, 'bad_request', 'Body does not match the contract')
+    }
   }
 
   const result = await updateVisit(supabase, userId, id, eventId, parsed.data, current.data, key.key)
   if (!result.ok) {
+    if (result.reason === 'record_done') return apiError(context.requestId, 'record_done', 'A visit that happened cannot be changed')
     if (result.reason === 'bad_check') return apiError(context.requestId, 'bad_request', 'The check is not of this pet')
     return serviceFailureResponse(context.requestId, result.reason)
   }

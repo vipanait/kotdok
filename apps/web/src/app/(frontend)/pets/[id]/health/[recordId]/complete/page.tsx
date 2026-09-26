@@ -2,6 +2,8 @@ import { notFound, redirect } from 'next/navigation'
 import CabinetShell from '@/components/cabinet/CabinetShell'
 import CompleteScreen from '@/features/medical-record/events/CompleteScreen'
 import { completeOpen, medicalRecordHref, parseCompleteFrom } from '@/features/medical-record/stage'
+import { HeldVisitScreen } from '@/features/medical-record/visits/VisitFormScreen'
+import { MEDICAL_RECORD_STAGE } from '@/features/medical-record/stage'
 import { openPetPage } from '@/components/cabinet/open-pet-page'
 import { findHealthRecord } from '@/server/medical-record/record-lookup'
 import { privatePageMetadata } from '@/server/i18n/page-metadata'
@@ -27,9 +29,19 @@ export default async function CompleteHealthRecordPage({
 }) {
   const { id, recordId } = await params
   const query = await searchParams
-  const { cabinet, dict } = await openPetPage(id, `/pets/${id}/health/${recordId}/complete`)
+  const { cabinet, pet, dict } = await openPetPage(id, `/pets/${id}/health/${recordId}/complete`)
   const record = await findHealthRecord(createServiceClient(), cabinet.user.id, id, recordId)
-  if (!record || record.kind === 'weight' || record.kind === 'visit' || record.kind === 'medication' || !completeOpen(record.kind)) notFound()
+  // «Состоялся» on a planned visit (MW-06): its own form.
+  if (record?.kind === 'visit') {
+    if (!MEDICAL_RECORD_STAGE.visits) notFound()
+    if (record.status === 'done') redirect(medicalRecordHref.recordView(id, recordId))
+    return (
+      <CabinetShell cabinet={cabinet} active="pets" crumb={`${dict.medicalRecord.title} / ${dict.medicalRecord.recordKinds.visit}`}>
+        <HeldVisitScreen key={recordId} petId={id} petName={pet.name} visitId={recordId} from={parseCompleteFrom(query.from)} />
+      </CabinetShell>
+    )
+  }
+  if (!record || record.kind === 'weight' || record.kind === 'medication' || !completeOpen(record.kind)) notFound()
   if (record.status === 'done') redirect(medicalRecordHref.recordView(id, recordId))
 
   const itemId = typeof query.item === 'string' && UUID.test(query.item) ? query.item : null

@@ -22,6 +22,7 @@ import { formatCount } from '@/shared/i18n/plural'
 import {
   MEDICAL_RECORD_STAGE,
   completeOpen,
+  heldOpen,
   medicalRecordHref,
   sectionOpen,
   type CompleteFrom,
@@ -142,8 +143,10 @@ export type DueRow = {
   /** «Просрочено на 12 дней · 12 сентября», «Через 9 дней · 3 октября», «12 марта 2027». */
   status: string
   tone: DueTone
-  /** «Сделано» for this one item; null where the site does not offer it yet. */
+  /** «Сделано» for this one item, «Состоялся» for a planned visit; null where the site does not offer it. */
   completeHref: string | null
+  /** «Сделано» or «Состоялся». */
+  completeText: string
   /** «Сделано: Блохи и клещи, просрочено на 12 дней · 12 сентября» — the button's accessible name. */
   completeLabel: string
 }
@@ -207,10 +210,23 @@ function dueRow(
   const title = dueTitle(dict, entry)
   const petId = overview.pet.id
   // The site's stage and the server's word (`writable`): an older server gets no «Сделано» that would fail.
+  const words = dict.medicalRecord.due
+  if (entry.kind === 'visit') {
+    // «Состоялся»: the visit's own step, the whole plan (a planned visit has no items).
+    const held = heldOpen(stage) && sectionOpen('visits', overview.writable, stage)
+    return {
+      key: entry.key,
+      kind: entry.kind,
+      title,
+      status: status.text,
+      tone: status.tone,
+      completeHref: held ? medicalRecordHref.complete(petId, entry.event.id, null, from) : null,
+      completeText: words.markHeld,
+      completeLabel: words.markHeldLabel.replace('{title}', title).replace('{status}', status.text.toLowerCase()),
+    }
+  }
   const offered =
-    entry.kind !== 'visit' &&
-    completeOpen(entry.kind, stage) &&
-    sectionOpen(entry.kind === 'vaccination' ? 'vaccinations' : 'parasites', overview.writable, stage)
+    completeOpen(entry.kind, stage) && sectionOpen(entry.kind === 'vaccination' ? 'vaccinations' : 'parasites', overview.writable, stage)
   return {
     key: entry.key,
     kind: entry.kind,
@@ -218,7 +234,8 @@ function dueRow(
     status: status.text,
     tone: status.tone,
     completeHref: offered ? medicalRecordHref.complete(petId, entry.event.id, entry.key, from) : null,
-    completeLabel: dict.medicalRecord.due.markDoneLabel.replace('{title}', title).replace('{status}', status.text.toLowerCase()),
+    completeText: words.markDone,
+    completeLabel: words.markDoneLabel.replace('{title}', title).replace('{status}', status.text.toLowerCase()),
   }
 }
 

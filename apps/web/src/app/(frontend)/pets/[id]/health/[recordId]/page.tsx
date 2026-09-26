@@ -5,6 +5,8 @@ import CourseScreen from '@/features/medical-record/medications/CourseScreen'
 import { parseCourseSaved } from '@/features/medical-record/medications/course-view'
 import { parseEventSaved } from '@/features/medical-record/events/event-view'
 import { MEDICAL_RECORD_STAGE, medicalRecordHref, recordKindOpen } from '@/features/medical-record/stage'
+import VisitRecordScreen from '@/features/medical-record/visits/VisitRecordScreen'
+import { parseVisitSaved } from '@/features/medical-record/visits/visit-view'
 import { openPetPage } from '@/components/cabinet/open-pet-page'
 import { findHealthRecord } from '@/server/medical-record/record-lookup'
 import { privatePageMetadata } from '@/server/i18n/page-metadata'
@@ -21,7 +23,7 @@ export const generateMetadata = privatePageMetadata(d => d.medicalRecord.title)
  * A weighing has no page of its own to read (web v1: the history lists
  * every value), so its address opens its form. A vaccination (MW-03) or a
  * treatment (MW-04) is read here, done or planned; a medication course
- * (MW-05), current or finished.
+ * (MW-05), current or finished; a visit (MW-06), planned or held.
  */
 export default async function HealthRecordPage({
   params,
@@ -43,7 +45,15 @@ export default async function HealthRecordPage({
       </CabinetShell>
     )
   }
-  if (!record || record.kind === 'weight' || record.kind === 'visit' || !recordKindOpen(record.kind)) notFound()
+  if (record?.kind === 'visit') {
+    if (!MEDICAL_RECORD_STAGE.visits) notFound()
+    return (
+      <CabinetShell cabinet={cabinet} active="pets" crumb={`${dict.medicalRecord.title} / ${dict.medicalRecord.recordKinds.visit}`}>
+        <VisitRecordScreen key={recordId} petId={id} visitId={recordId} saved={parseVisitSaved((await searchParams).saved)} />
+      </CabinetShell>
+    )
+  }
+  if (!record || record.kind === 'weight' || !recordKindOpen(record.kind)) notFound()
 
   const saved = parseEventSaved((await searchParams).saved)
   return (

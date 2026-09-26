@@ -2,7 +2,7 @@ import 'server-only'
 
 import type { HealthEvent, VisitInput, VisitPatch } from '@lapka/contracts'
 import type { createServiceClient } from '@/server/supabase/server'
-import { readEvent } from './event-service'
+import { readEvent, refuseDoneChange, type DoneRecord } from './event-service'
 import { utcToday, type WeightResult } from './weight-service'
 
 type SupabaseService = ReturnType<typeof createServiceClient>
@@ -75,10 +75,31 @@ export async function createVisit(
 }
 
 /**
- * A correction, or «Был» on a plan. The check is verified only when it
- * changes: a link made while the check was recent stays after 30 days. With a
- * key, the same correction sent again changes nothing: new prescriptions and
- * their courses are not added twice.
+ * The Idempotency-Key of the last change the visit took, so a save sent
+ * again can be told from a new one.
+ */
+async function lastChangeKey(supabase: SupabaseService, userId: string, petId: string, eventId: string): Promise<string | null> {
+  const { data } = await supabase
+    .from('pet_health_events')
+    .select('update_key')
+    .eq('id', eventId)
+    .eq('pet_id', petId)
+    .eq('user_id', userId)
+    .maybeSingle()
+  return (data as { update_key: string | null } | null)?.update_key ?? null
+}
+
+/**
+ * A change of a planned visit — its day («Перенести»), clinic, reason,
+ * note, check — or «Состоялся» (`status: 'done'`), which may bring the
+ * diagnosis and prescriptions. A visit that happened is history (owner rule
+ * of 26 September 2026): `refuseDoneChange` answers `record_done`, unless
+ * this is the save that made it happen sent again with its key after a lost
+ * answer — that one changes nothing and gets the visit back.
+ *
+ * The check is verified only when it changes: a link made while the check
+ * was recent stays after 30 days. With a key, the same change sent again
+ * changes nothing: new prescriptions and their courses are not added twice.
  */
 export async function updateVisit(
   supabase: SupabaseService,
@@ -89,7 +110,12 @@ export async function updateVisit(
   current: HealthEvent,
   idempotencyKey: string | null = null,
   today: string = utcToday(),
-): Promise<Result<HealthEvent>> {
+): Promise<Result<HealthEvent> | DoneRecord> {
+  if (current.status === 'done') {
+    const sameSave = idempotencyKey !== null && (await lastChangeKey(supabase, userId, petId, eventId)) === idempotencyKey
+    const done = refuseDoneChange(current, sameSave)
+    if (done) return done
+  }
   if (patch.check_id && patch.check_id !== current.check_id && !(await checkFits(supabase, userId, petId, patch.check_id))) {
     return { ok: false, reason: 'bad_check' }
   }

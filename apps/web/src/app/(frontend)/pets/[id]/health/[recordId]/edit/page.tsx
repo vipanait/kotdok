@@ -4,6 +4,7 @@ import { EditEventScreen } from '@/features/medical-record/events/EventFormScree
 import { MEDICAL_RECORD_STAGE, medicalRecordHref, recordKindOpen } from '@/features/medical-record/stage'
 import { EditWeightScreen } from '@/features/medical-record/weight/WeightFormScreen'
 import { EditCourseScreen } from '@/features/medical-record/medications/CourseFormScreen'
+import { EditVisitScreen } from '@/features/medical-record/visits/VisitFormScreen'
 import { openPetPage } from '@/components/cabinet/open-pet-page'
 import { findHealthRecord } from '@/server/medical-record/record-lookup'
 import { privatePageMetadata } from '@/server/i18n/page-metadata'
@@ -16,8 +17,9 @@ export const generateMetadata = privatePageMetadata(d => d.medicalRecord.eventRe
  * this owner before anything is drawn: someone else's record, one of
  * another pet and a deleted one are a 404, like someone else's pet.
  *
- * Only what can change gets a form: a weighing, a plan, or a current
- * medication course. A done vaccination or treatment and a finished course
+ * Only what can change gets a form: a weighing, a plan (a visit's too), or a
+ * current medication course. A done vaccination or treatment, a visit that
+ * happened and a finished course
  * are history (owner rule of 26 September 2026) — their old edit address
  * shows the record itself, never a form; the server refuses the change
  * anyway (`record_done`).
@@ -49,7 +51,18 @@ export default async function EditHealthRecordPage({ params }: { params: Promise
     )
   }
 
-  if (record.kind === 'visit' || !recordKindOpen(record.kind)) notFound()
+  if (record.kind === 'visit') {
+    if (!MEDICAL_RECORD_STAGE.visits) notFound()
+    // A visit that happened is history: its old edit address shows the visit.
+    if (record.status === 'done') redirect(medicalRecordHref.recordView(id, recordId))
+    return (
+      <CabinetShell cabinet={cabinet} active="pets" crumb={`${dict.medicalRecord.title} / ${dict.medicalRecord.recordKinds.visit}`}>
+        <EditVisitScreen key={recordId} petId={id} petName={pet.name} visitId={recordId} />
+      </CabinetShell>
+    )
+  }
+
+  if (!recordKindOpen(record.kind)) notFound()
   if (record.status === 'done') redirect(medicalRecordHref.recordView(id, recordId))
 
   return (

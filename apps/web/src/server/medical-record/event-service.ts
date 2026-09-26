@@ -199,22 +199,28 @@ export type DoneRecord = { ok: false; reason: 'record_done' }
 
 /**
  * The owner's rule of 26 September 2026: a procedure that was done — a
- * vaccination, a treatment, and (MW-06) a visit that happened — is history.
- * It can be read and deleted, never changed. A plan changes freely, keeps its
- * id and items, and becomes done only through its own step: «Сделано»
- * (`complete_health_item`) for an item, «Был» for a visit (a PATCH that
- * starts from a plan, so it passes here).
+ * vaccination, a treatment, and a visit that happened — is history. It can
+ * be read and deleted, never changed. A plan changes freely, keeps its id and
+ * items, and becomes done only through its own step: «Сделано»
+ * (`complete_health_item`) for an item, «Состоялся» for a visit (a PATCH
+ * with `status: 'done'` that starts from a plan, so it passes here).
  *
- * The one check every change of a record goes through: `updateEvent` here,
- * and the visit PATCH once MW-06 routes it through this too. Deleting does
- * not ask it. Weights and the pet form are not procedures and never do.
+ * The one check every change of a record goes through: `updateEvent` here
+ * and `updateVisit` (visit-service.ts). Deleting does not ask it, nor does
+ * adding a visit's prescription to the medicines. Weights and the pet form
+ * are not procedures and never do.
+ *
+ * `sameSave`: the request is the very save that made the record done, sent
+ * again with its Idempotency-Key after its answer was lost (the visit's
+ * «Состоялся»). It changes nothing — the database answers it from the key —
+ * so it is not refused: the retry gets the saved visit, not an error.
  *
  * Read-then-write, not inside the SQL function: a «Сделано» landing between
  * the read and the write of a change to the same plan is not caught (see the
  * MW-03 report); every ordinary path is.
  */
-export function refuseDoneChange(current: Pick<HealthEvent, 'status'>): DoneRecord | null {
-  return current.status === 'done' ? { ok: false, reason: 'record_done' } : null
+export function refuseDoneChange(current: Pick<HealthEvent, 'status'>, sameSave = false): DoneRecord | null {
+  return current.status === 'done' && !sameSave ? { ok: false, reason: 'record_done' } : null
 }
 
 /**

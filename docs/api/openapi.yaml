@@ -3076,8 +3076,8 @@ paths:
                   message: No such resource for this user
                   request_id: 01J000000000000000000000
         "409":
-          description: "The record is a done procedure or a finished course: it can be read and deleted, not
-            changed"
+          description: "The record is a done procedure, a visit that happened or a finished course: it can be
+            read and deleted, not changed"
           content:
             application/json:
               schema:
@@ -3085,8 +3085,8 @@ paths:
               example:
                 error:
                   code: record_done
-                  message: "The record is a done procedure or a finished course: it can be read and deleted, not
-                    changed"
+                  message: "The record is a done procedure, a visit that happened or a finished course: it can be read
+                    and deleted, not changed"
                   request_id: 01J000000000000000000000
         "429":
           description: Too many requests
@@ -3444,8 +3444,8 @@ paths:
                   message: No such resource for this user
                   request_id: 01J000000000000000000000
         "409":
-          description: "The record is a done procedure or a finished course: it can be read and deleted, not
-            changed"
+          description: "The record is a done procedure, a visit that happened or a finished course: it can be
+            read and deleted, not changed"
           content:
             application/json:
               schema:
@@ -3453,8 +3453,8 @@ paths:
               example:
                 error:
                   code: record_done
-                  message: "The record is a done procedure or a finished course: it can be read and deleted, not
-                    changed"
+                  message: "The record is a done procedure, a visit that happened or a finished course: it can be read
+                    and deleted, not changed"
                   request_id: 01J000000000000000000000
         "429":
           description: Too many requests
@@ -3647,9 +3647,12 @@ paths:
           type: string
           format: uuid
     patch:
-      summary: Correct a visit, or mark a planned one as having happened
-      description: Removing a prescription keeps the course it started, without the link. The same key
-        sent again with the same body changes nothing; with another body it is a conflict.
+      summary: Change a planned visit, or mark it as having happened
+      description: "Only a planned visit changes: one that happened is history and answers 409 record_done
+        (it can still be deleted, and a prescription of it still added to the medicines). Marking a
+        plan done with status done may carry the diagnosis and prescriptions. The same key sent
+        again with the same body changes nothing and answers 200, even once the visit is done; with
+        another body it is a conflict."
       parameters:
         - *a2
       requestBody:
@@ -3710,15 +3713,17 @@ paths:
                   message: No such resource for this user
                   request_id: 01J000000000000000000000
         "409":
-          description: Same idempotency key with different data
+          description: "The record is a done procedure, a visit that happened or a finished course: it can be
+            read and deleted, not changed"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
               example:
                 error:
-                  code: conflict
-                  message: Same idempotency key with different data
+                  code: record_done
+                  message: "The record is a done procedure, a visit that happened or a finished course: it can be read
+                    and deleted, not changed"
                   request_id: 01J000000000000000000000
         "429":
           description: Too many requests

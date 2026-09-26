@@ -53,7 +53,7 @@ export default function DueScreen({ petId, saved }: { petId: string; saved: bool
         </section>
       ) : (
         <section className="card health-due due-list" aria-label={words.listLabel}>
-          <DueRows rows={due.rows} dict={dict} />
+          <DueRows rows={due.rows} />
         </section>
       )}
     </div>
