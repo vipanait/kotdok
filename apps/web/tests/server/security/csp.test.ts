@@ -42,6 +42,12 @@ describe('the content security policy', () => {
       .toContain("'unsafe-eval'")
   })
 
+  it('upgrades insecure requests in a build that ships, not on the local http dev server', () => {
+    // WebKit upgrades http://localhost too, which left Safari with an unstyled, script-less page (MW-07).
+    expect(buildContentSecurityPolicy(options).split('; ')).toContain('upgrade-insecure-requests')
+    expect(buildContentSecurityPolicy({ ...options, dev: true })).not.toContain('upgrade-insecure-requests')
+  })
+
   it('is a single line, as a header has to be', () => {
     const policy = buildContentSecurityPolicy(options)
 

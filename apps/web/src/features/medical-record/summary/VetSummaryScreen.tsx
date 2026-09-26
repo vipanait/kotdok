@@ -17,8 +17,8 @@ import { useVetSummary } from './use-vet-summary'
  * page is what prints — «Распечатать» and «Сохранить PDF» both open the
  * browser's print dialog, and the print style (medical-record.css, MW-07)
  * takes the site's frame, the buttons and the shadows away and lays the
- * summary out on A4. While it prints, the document's title is the file name
- * of the spec (7.18), so «Сохранить как PDF» offers «Мурка — медкарта — …».
+ * summary out on A4. The page is titled by the file name of the spec
+ * (7.18), so «Сохранить как PDF» offers «Мурка — медкарта — …».
  */
 export default function VetSummaryScreen({ petId }: { petId: string }) {
   const dict = useTranslations()
@@ -30,7 +30,7 @@ export default function VetSummaryScreen({ petId }: { petId: string }) {
   const { state, reload } = useVetSummary(petId, today)
   const page = state.status === 'ready' ? vetSummaryPage(dict, locale, state.data, today) : null
 
-  useFileTitleWhilePrinting(page?.fileTitle ?? null)
+  useFileTitle(page?.fileTitle ?? null)
 
   if (state.status !== 'ready' || !page) {
     return (
@@ -203,28 +203,21 @@ function PageFooter({ footer, dict }: { footer: string; dict: Dictionary }) {
 }
 
 /**
- * While the dialog is open the document is called by the file name of the
- * spec: the name «Сохранить как PDF» suggests. The page's own title comes
- * back after it closes.
+ * The page is titled by the file name of the spec (7.18), «Мурка — медкарта
+ * — 26.09.2026», for as long as the summary is on screen: that is the name
+ * «Сохранить как PDF» offers. Set while the page is open, not around the
+ * print call — Safari on iOS names its PDF by the title it already knew
+ * before `print()`, whatever the page sets in `beforeprint` or just before
+ * the call (checked in the iOS Simulator, MW-07 fix round 1). The site's own
+ * title comes back when the page closes.
  */
-function useFileTitleWhilePrinting(fileTitle: string | null) {
+function useFileTitle(fileTitle: string | null) {
   useEffect(() => {
     if (!fileTitle) return
-    let pageTitle: string | null = null
-    const before = () => {
-      pageTitle = document.title
-      document.title = fileTitle
-    }
-    const after = () => {
-      if (pageTitle !== null) document.title = pageTitle
-      pageTitle = null
-    }
-    window.addEventListener('beforeprint', before)
-    window.addEventListener('afterprint', after)
+    const pageTitle = document.title
+    document.title = fileTitle
     return () => {
-      after()
-      window.removeEventListener('beforeprint', before)
-      window.removeEventListener('afterprint', after)
+      document.title = pageTitle
     }
   }, [fileTitle])
 }

@@ -197,26 +197,27 @@ for (const width of [1440, 390]) {
 }
 
 // ---------- The buttons: both open the browser's print dialog, the PDF one says what to choose ----------
+// The page is titled by the spec's file name while the summary is open (Safari on iOS names
+// its PDF by the title it knew before print(), fix round 1); the site's title comes back on leaving.
 {
   const { context, page } = await signedInPage('owner-a@fixture.local', 1440)
   await openSummary(page, murka)
+  await page.waitForFunction(() => document.title.includes('медкарта'))
   await page.evaluate(() => {
     window.__prints = []
-    // Headless Chrome has no dialog to show: record the call and fire the events the browser fires around it.
-    window.print = () => {
-      window.dispatchEvent(new Event('beforeprint'))
-      window.__prints.push(document.title)
-      window.dispatchEvent(new Event('afterprint'))
-    }
+    // Headless Chrome has no dialog to show: record the call and the title the dialog would name the file by.
+    window.print = () => window.__prints.push(document.title)
   })
-  const pageTitle = await page.title()
   await page.click('.vet-summary-actions button:has-text("Распечатать")')
   await page.click('.vet-summary-actions button:has-text("Сохранить PDF")')
+  const titlesWhilePrinting = await page.evaluate(() => window.__prints)
+  // Leaving by the site's own navigation (no page load): the site's title is back.
+  await Promise.all([page.waitForURL((url) => url.pathname === '/pets'), page.click('.sidebar a[href="/pets"]')])
+  await page.waitForTimeout(500)
   result.checks.buttons = {
-    titlesWhilePrinting: await page.evaluate(() => window.__prints),
+    titlesWhilePrinting,
     expectedFileTitle: `Мурка — медкарта — ${numeric(today)}`,
-    titleAfter: await page.title(),
-    pageTitle,
+    titleAfterLeaving: await page.title(),
   }
   await context.close()
 }

@@ -744,6 +744,23 @@
   .vet-check .badge i { display: none; }
 
   /*
+   * WebKit (Safari on the Mac and on iOS) neither repeats a table's heading
+   * on the next page nor keeps a table row whole — checked on iOS 26 in the
+   * Simulator (MW-07 fix round 1). There each row prints as a record that
+   * names its own columns, as on the phone screen, and a record is a block
+   * WebKit does keep whole. `font: -apple-system-body` parses only in WebKit.
+   */
+  @supports (font: -apple-system-body) {
+    .vet-summary .vet-table,
+    .vet-summary .vet-table tbody { display: block; }
+    .vet-summary .vet-table thead,
+    .vet-summary .vet-table colgroup { display: none; }
+    .vet-summary .vet-table tr { display: block; padding: 1.5mm 0; border-top: 1px solid #ccc; break-inside: avoid; page-break-inside: avoid; }
+    .vet-summary .vet-table td { display: block; padding: 0.4mm 0; border: 0; }
+    .vet-summary .vet-table td::before { content: attr(data-label) ': '; font-weight: 700; }
+  }
+
+  /*
    * The margin boxes carry the footer on every page (VetSummaryScreen); this
    * one ends the flow for a browser without them. It never starts a page of
    * its own: an otherwise empty last page would be a blank sheet.
