@@ -288,7 +288,7 @@ python docs/verification/medical-record-web-07/pdf-check.py > docs/verification/
 
 ## Раунд исправлений 1
 
-Коммиты: `408a4ca` (день владельца в сводке) и следующий за ним (Safari на iOS, CSP для локальной разработки, отчёт). По замечаниям ревью.
+Коммиты: `408a4ca` (день владельца в сводке) и `767611f` (Safari на iOS, CSP для локальной разработки, отчёт). По замечаниям ревью.
 
 ### 1. Safari на iOS проверен в iOS Simulator
 
