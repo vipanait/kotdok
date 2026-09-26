@@ -19,6 +19,14 @@ import {
 import type { Locale } from '@/shared/i18n/config'
 import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
 import { formatCount } from '@/shared/i18n/plural'
+import {
+  MEDICAL_RECORD_STAGE,
+  completeOpen,
+  medicalRecordHref,
+  sectionOpen,
+  type CompleteFrom,
+  type MedicalRecordStage,
+} from './stage'
 
 /**
  * What the medical record page says, worked out from the overview. No React
@@ -132,6 +140,10 @@ export type DueRow = {
   /** «Просрочено на 12 дней · 12 сентября», «Через 9 дней · 3 октября», «12 марта 2027». */
   status: string
   tone: DueTone
+  /** «Сделано» for this one item; null where the site does not offer it yet. */
+  completeHref: string | null
+  /** «Сделано: Блохи и клещи, просрочено на 12 дней · 12 сентября» — the button's accessible name. */
+  completeLabel: string
 }
 
 export type DueBlock = { rows: DueRow[]; total: number }
@@ -180,15 +192,62 @@ export function dueStatusText(dict: Dictionary, locale: Locale, date: string, to
   return { text: `${soon} · ${shown}`, tone: 'soon' }
 }
 
-export function dueBlock(dict: Dictionary, locale: Locale, overview: HealthOverview, today: string): DueBlock {
+function dueRow(
+  dict: Dictionary,
+  locale: Locale,
+  overview: HealthOverview,
+  entry: DueEntry,
+  today: string,
+  from: CompleteFrom,
+  stage: MedicalRecordStage,
+): DueRow {
+  const status = dueStatusText(dict, locale, entry.date, today)
+  const title = dueTitle(dict, entry)
+  const petId = overview.pet.id
+  // The site's stage and the server's word (`writable`): an older server gets no «Сделано» that would fail.
+  const offered =
+    entry.kind !== 'visit' &&
+    completeOpen(entry.kind, stage) &&
+    sectionOpen(entry.kind === 'vaccination' ? 'vaccinations' : 'parasites', overview.writable, stage)
+  return {
+    key: entry.key,
+    kind: entry.kind,
+    title,
+    status: status.text,
+    tone: status.tone,
+    completeHref: offered ? medicalRecordHref.complete(petId, entry.event.id, entry.key, from) : null,
+    completeLabel: dict.medicalRecord.due.markDoneLabel.replace('{title}', title).replace('{status}', status.text.toLowerCase()),
+  }
+}
+
+/**
+ * The record's «Сроки»: the first three, in the shared order — overdue first,
+ * then the soonest, then the rest (`dueEntries`, the order `/pets/due` keeps).
+ */
+export function dueBlock(
+  dict: Dictionary,
+  locale: Locale,
+  overview: HealthOverview,
+  today: string,
+  stage: MedicalRecordStage = MEDICAL_RECORD_STAGE,
+): DueBlock {
   const entries = dueEntries(overview.events)
   return {
     total: entries.length,
-    rows: entries.slice(0, RECORD_DUE_LIMIT).map((entry) => {
-      const status = dueStatusText(dict, locale, entry.date, today)
-      return { key: entry.key, kind: entry.kind, title: dueTitle(dict, entry), status: status.text, tone: status.tone }
-    }),
+    rows: entries.slice(0, RECORD_DUE_LIMIT).map((entry) => dueRow(dict, locale, overview, entry, today, 'medical', stage)),
   }
+}
+
+/** «Все сроки»: every due date of the pet, in the same order, each with its «Сделано». */
+export function allDue(
+  dict: Dictionary,
+  locale: Locale,
+  overview: HealthOverview,
+  today: string,
+  stage: MedicalRecordStage = MEDICAL_RECORD_STAGE,
+): DueBlock {
+  const rows = dueEntries(overview.events).map((entry) => dueRow(dict, locale, overview, entry, today, 'due', stage))
+  return { rows, total: rows.length }
 }
 
 // ---------- «Важно знать» ----------

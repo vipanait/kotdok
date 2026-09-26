@@ -1,3 +1,5 @@
+import { addMonths } from './record-overview'
+
 /**
  * Searching the catalogue of vaccines and treatments, the same way on the
  * server and on the phone: case, «ё» and the keyboard layout do not matter,
@@ -38,17 +40,16 @@ export type Interval = { value: number; unit: 'day' | 'week' | 'month' | 'year' 
 /**
  * A calendar day moved by an interval. Weeks are seven days and months are
  * months: 12 weeks from 24 September is 17 December, 3 months is 24 December.
- * A day the target month lacks becomes its last day.
+ * A day the target month lacks becomes its last day (the month arithmetic is
+ * `addMonths`, the one the due dates use). Pure calendar arithmetic on
+ * `YYYY-MM-DD`: no local time, so no zone or daylight-saving change can move
+ * the answer by a day.
  */
 export function addInterval(day: string, interval: Interval): string {
-  const [year, month, date] = day.split('-').map(Number)
   if (interval.unit === 'day' || interval.unit === 'week') {
+    const [year, month, date] = day.split('-').map(Number)
     const days = interval.unit === 'week' ? interval.value * 7 : interval.value
     return new Date(Date.UTC(year, month - 1, date + days)).toISOString().slice(0, 10)
   }
-  const months = interval.unit === 'year' ? interval.value * 12 : interval.value
-  const target = new Date(Date.UTC(year, month - 1 + months, 1))
-  const lastDay = new Date(Date.UTC(target.getUTCFullYear(), target.getUTCMonth() + 1, 0)).getUTCDate()
-  target.setUTCDate(Math.min(date, lastDay))
-  return target.toISOString().slice(0, 10)
+  return addMonths(day, interval.unit === 'year' ? interval.value * 12 : interval.value)
 }

@@ -1,4 +1,4 @@
-import type { HealthSection } from '@lapka/contracts'
+import type { HealthEvent, HealthSection } from '@lapka/contracts'
 
 /**
  * Which parts of the web medical record are built, stage by stage
@@ -12,9 +12,9 @@ export const MEDICAL_RECORD_STAGE = {
   /** MW-03: the vaccinations page, form, record view and catalogue. */
   vaccinations: true,
   /** MW-04: the parasites page and form. */
-  parasites: false,
+  parasites: true,
   /** MW-04: «Сделано» on a due date and the page with all of them. */
-  due: false,
+  due: true,
   /** MW-05: the medicines page and form. */
   medications: false,
   /** MW-06: the visits page and form. */
@@ -70,6 +70,22 @@ export function recordKindOpen(kind: 'vaccination' | 'parasite', stage: MedicalR
   return stage[RECORD_TYPE_SECTION[kind]]
 }
 
+/**
+ * Whether «Сделано» is offered for a plan of this kind: the due stage and the
+ * kind's own. A planned visit is marked «Был» on its own form (MW-06).
+ */
+export function completeOpen(kind: HealthEvent['kind'], stage: MedicalRecordStage = MEDICAL_RECORD_STAGE): boolean {
+  return kind !== 'visit' && stage.due && recordKindOpen(kind, stage)
+}
+
+/** Where «Сделано» was pressed: where its form goes back to. */
+export const COMPLETE_FROM = ['record', 'due', 'medical', 'section'] as const
+export type CompleteFrom = (typeof COMPLETE_FROM)[number]
+
+export function parseCompleteFrom(value: string | string[] | undefined): CompleteFrom {
+  return typeof value === 'string' && (COMPLETE_FROM as readonly string[]).includes(value) ? (value as CompleteFrom) : 'record'
+}
+
 /** Where each part of the record lives (implementation-handoff.md, «Маршруты»). */
 export const medicalRecordHref = {
   record: (petId: string) => `/pets/${petId}`,
@@ -83,5 +99,13 @@ export const medicalRecordHref = {
   /** One saved record; a record id is a UUID, never a section's name. */
   recordView: (petId: string, recordId: string) => `/pets/${petId}/health/${recordId}`,
   recordEdit: (petId: string, recordId: string) => `/pets/${petId}/health/${recordId}/edit`,
+  /**
+   * «Сделано» on a plan: one item of it. Without an item, a plan of several
+   * asks which one was done; the other items stay planned.
+   */
+  complete: (petId: string, recordId: string, itemId: string | null, from: CompleteFrom = 'record') => {
+    const query = [itemId ? `item=${itemId}` : null, from === 'record' ? null : `from=${from}`].filter(Boolean).join('&')
+    return `/pets/${petId}/health/${recordId}/complete${query ? `?${query}` : ''}`
+  },
   vetSummary: (petId: string) => `/pets/${petId}/vet-summary`,
 }

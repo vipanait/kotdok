@@ -316,7 +316,11 @@ type DueRow = {
   pets: { deleted_at: string | null } | null
 }
 
-/** Every planned item of the caller's live pets: the pet list shows the earliest per pet. */
+/**
+ * Every planned item of the caller's live pets, overdue first, then the
+ * soonest: the pet list shows the earliest per pet. The same order as
+ * `dueEntries` (packages/shared) gives the record and «Все сроки».
+ */
 export async function listDue(supabase: SupabaseService, userId: string): Promise<Result<DueItem[]>> {
   const { data, error } = await supabase
     .from('pet_health_events')
@@ -326,6 +330,11 @@ export async function listDue(supabase: SupabaseService, userId: string): Promis
     .is('deleted_at', null)
     .is('pets.deleted_at', null)
     .order('event_date', { ascending: true })
+    // Plans of one day in the overview's order (newest first), so the pet list,
+    // the record and «Все сроки» list the same day's dates the same way
+    // (the shared `dueEntries` keeps the overview's order on a tie).
+    .order('created_at', { ascending: false })
+    .order('id', { ascending: true })
     .limit(500)
 
   if (error) return { ok: false, reason: 'storage_error', message: error.message }

@@ -22,7 +22,9 @@ import { eventRecord, type EventSaved } from './event-view'
  * instead (owner rule of 26 September 2026). A plan is changed through
  * «Изменить», which keeps its id, day and items. Deleting a wrong record or
  * cancelling a plan asks first, naming the record; «Не удалять» leaves it
- * and returns focus to the button. «Сделано» on a plan arrives with MW-04.
+ * and returns focus to the button. «Сделано» on a plan (MW-04) marks one
+ * of its items; a plan of several asks which. An older server that does not
+ * store the kind (`writable`) gets no action at all.
  */
 export default function EventRecordScreen({
   petId,
@@ -56,7 +58,7 @@ export default function EventRecordScreen({
   const { events } = state.data.overview
   const event = events.find((entry) => entry.id === eventId)
   if (!event || event.kind === 'visit') return <EventGone petId={petId} kind={kind} />
-  const record = eventRecord(dict, locale, petId, event, events, today)
+  const record = eventRecord(dict, locale, petId, event, events, today, state.data.overview.writable)
   const planned = record.status === 'planned'
 
   function gone() {
@@ -103,8 +105,15 @@ export default function EventRecordScreen({
           <h1>{record.title}</h1>
           <p>{state.data.overview.pet.name}</p>
         </div>
-        {record.editHref && (
-          <Link href={record.editHref} className="btn secondary">{view.edit}</Link>
+        {(record.completeHref || record.editHref) && (
+          <div className="pagehead-actions">
+            {record.completeHref && (
+              <Link href={record.completeHref} className="btn primary">{view.markDone}</Link>
+            )}
+            {record.editHref && (
+              <Link href={record.editHref} className="btn secondary">{view.edit}</Link>
+            )}
+          </div>
         )}
       </div>
 
@@ -143,17 +152,19 @@ export default function EventRecordScreen({
           <div className="card health-facts event-actions">
             <h2>{view.actionsTitle}</h2>
             <p>{record.actionsBody}</p>
-            <button
-              ref={removeRef}
-              type="button"
-              className="btn secondary"
-              onClick={() => {
-                setRemoveError(undefined)
-                setAsking(true)
-              }}
-            >
-              {planned ? view.cancelPlan : view.delete}
-            </button>
+            {record.removable && (
+              <button
+                ref={removeRef}
+                type="button"
+                className="btn secondary"
+                onClick={() => {
+                  setRemoveError(undefined)
+                  setAsking(true)
+                }}
+              >
+                {planned ? view.cancelPlan : view.delete}
+              </button>
+            )}
           </div>
         </aside>
       </div>

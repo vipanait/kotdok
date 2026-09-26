@@ -121,6 +121,43 @@ export function parasiteGroups(targets: readonly string[]): ParasiteGroup[] {
   return (['fleas', 'ticks', 'worms'] as const).filter((group) => covered.has(group))
 }
 
+/** The two parasite status cards: fleas with ticks, and worms (spec §5.1, web v1 «parasites»). */
+export type ParasiteCover = 'fleasTicks' | 'worms'
+
+const COVER_GROUPS: Record<ParasiteCover, readonly ParasiteGroup[]> = { fleasTicks: ['fleas', 'ticks'], worms: ['worms'] }
+
+export type ParasiteMark = { event: HealthEvent; item: HealthItem }
+
+export type ParasiteCoverStatus = {
+  cover: ParasiteCover
+  /** The latest done treatment covering it. */
+  last: ParasiteMark | null
+  /** The earliest plan covering it: what «Сделано» acts on. */
+  next: ParasiteMark | null
+}
+
+/**
+ * Where each parasite card stands, from the records alone: the latest done
+ * treatment and the earliest plan that touch its groups. A combined product
+ * counts on both cards — it is still one item and one plan. The phone and
+ * the site put it in their own words.
+ */
+export function parasiteCovers(events: readonly HealthEvent[]): ParasiteCoverStatus[] {
+  return (['fleasTicks', 'worms'] as const).map((cover) => {
+    const touches = (item: HealthItem) => parasiteGroups(item.targets).some((group) => COVER_GROUPS[cover].includes(group))
+    const marks = events
+      .filter((event) => event.kind === 'parasite')
+      .flatMap((event) => event.items.filter(touches).map((item) => ({ event, item })))
+    const last = marks
+      .filter(({ event }) => event.status === 'done')
+      .sort((a, b) => b.event.date.localeCompare(a.event.date))[0]
+    const next = marks
+      .filter(({ event }) => event.status === 'planned')
+      .sort((a, b) => a.event.date.localeCompare(b.event.date))[0]
+    return { cover, last: last ?? null, next: next ?? null }
+  })
+}
+
 export type DatedWeight = WeightMeasurement & { measured_on: string }
 
 /** Dated measurements, oldest first: the form's undated value has no place on a time axis. */

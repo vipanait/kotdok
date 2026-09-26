@@ -19,6 +19,7 @@ import {
   sectionCards,
   weightCard,
   type DueBlock,
+  type DueRow,
   type SectionCard,
   type WeightCard,
 } from './view-model'
@@ -167,30 +168,47 @@ function DueCard({ petId, due, dict }: { petId: string; due: DueBlock; dict: Dic
   return (
     <section className="card health-due" aria-labelledby="health-due-title">
       <h2 id="health-due-title">{words.title}</h2>
-      <ul>
-        {due.rows.map((row) => (
-          <li key={row.key} className="due-row">
-            <Icon name={KIND_ICON[row.kind]} />
-            <div className="copy">
-              <strong>{row.title}</strong>
-              <p className={`due-state ${row.tone}`}>
-                {row.tone === 'overdue' && <Icon name="calendarLate" />}
-                {row.tone === 'soon' && <Icon name="calendar" />}
-                {row.status}
-              </p>
-            </div>
-          </li>
-        ))}
-      </ul>
-      {rest > 0 &&
-        (MEDICAL_RECORD_STAGE.due ? (
-          <Link href={medicalRecordHref.due(petId)} className="link">
-            {words.all.replace('{n}', String(due.total))}
-          </Link>
-        ) : (
-          <p className="health-due-more">{formatCount(words.more, rest, locale)}</p>
-        ))}
+      <DueRows rows={due.rows} dict={dict} />
+      {MEDICAL_RECORD_STAGE.due ? (
+        <Link href={medicalRecordHref.due(petId)} className="link">
+          {words.all.replace('{n}', String(due.total))}
+        </Link>
+      ) : (
+        rest > 0 && <p className="health-due-more">{formatCount(words.more, rest, locale)}</p>
+      )}
     </section>
+  )
+}
+
+/**
+ * Due rows — in the record's «Сроки» and on «Все сроки». How far each date
+ * is, is said in words with an icon beside it (colour only supports it);
+ * overdue is neutral, not a red urgency badge. «Сделано» acts on that one
+ * item; a kind the site cannot mark yet (a visit before MW-06) has none.
+ */
+export function DueRows({ rows, dict }: { rows: DueRow[]; dict: Dictionary }) {
+  const words = dict.medicalRecord.due
+  return (
+    <ul>
+      {rows.map((row) => (
+        <li key={row.key} className="due-row">
+          <Icon name={KIND_ICON[row.kind]} />
+          <div className="copy">
+            <strong>{row.title}</strong>
+            <p className={`due-state ${row.tone}`}>
+              {row.tone === 'overdue' && <Icon name="calendarLate" />}
+              {row.tone === 'soon' && <Icon name="calendar" />}
+              {row.status}
+            </p>
+          </div>
+          {row.completeHref && (
+            <Link href={row.completeHref} className="pill due-done" aria-label={row.completeLabel}>
+              {words.markDone}
+            </Link>
+          )}
+        </li>
+      ))}
+    </ul>
   )
 }
 
