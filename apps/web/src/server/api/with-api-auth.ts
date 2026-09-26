@@ -33,16 +33,29 @@ function failureResponse(requestId: string, failure: AuthFailure): NextResponse 
   }
 }
 
+export type ApiAuthOptions = {
+  /**
+   * `skip` for the few routes an account must reach before it has consented to
+   * personal data processing: its profile, the consent itself, and leaving
+   * (reauth, deletion). Everything else waits for the consent.
+   */
+  consent?: 'enforce' | 'skip'
+}
+
 /**
- * Wraps a v1 route: authenticates, refuses anything but an active account, and
- * gives the handler a request id it does not have to invent.
+ * Wraps a v1 route: authenticates, refuses anything but an active account that
+ * has consented, and gives the handler a request id it does not have to invent.
  */
-export function withApiAuth<T = unknown>(handler: ApiHandler<T>) {
+export function withApiAuth<T = unknown>(handler: ApiHandler<T>, options: ApiAuthOptions = {}) {
   return async (request: NextRequest, params: T): Promise<NextResponse> => {
     const requestId = newRequestId()
 
     const auth = await authenticateBearer(request)
     if (!auth.ok) return failureResponse(requestId, auth)
+
+    if ((options.consent ?? 'enforce') === 'enforce' && auth.account.pdConsentRequired) {
+      return apiError(requestId, 'consent_required', 'Consent to personal data processing is required')
+    }
 
     try {
       return await handler(request, { requestId, account: auth.account }, params)

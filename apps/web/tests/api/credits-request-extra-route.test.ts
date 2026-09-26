@@ -6,6 +6,7 @@ import { submitExtraCheckRequest } from '@/server/extra-check/extra-check-servic
 import { CSRF_COOKIE_NAME, CSRF_HEADER_NAME } from '@/server/security/csrf'
 
 vi.mock('@/server/auth/get-auth-user', () => ({ getAuthUser: vi.fn() }))
+vi.mock('@/server/consent/consent-service', () => ({ owesConsent: vi.fn(async () => false) }))
 vi.mock('@/server/extra-check/extra-check-service', () => ({
   submitExtraCheckRequest: vi.fn(),
 }))

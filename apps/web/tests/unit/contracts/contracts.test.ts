@@ -5,6 +5,10 @@ import {
   ERROR_CODES,
   ExtraCheckRequestStatusSchema,
   CheckFeedbackSchema,
+  ConsentInputSchema,
+  ConsentStatusSchema,
+  ERROR_STATUS,
+  PD_CONSENT_VERSION,
   FeedbackInputSchema,
   HEALTH_SECTIONS,
   VisitInputSchema,
@@ -213,6 +217,32 @@ describe('remaining contracts', () => {
     expect(CheckFeedbackSchema.parse({ rating: 'disliked' }).rating).toBe('disliked')
     expect(CheckFeedbackSchema.parse({ rating: null }).rating).toBeNull()
     expect(() => CheckFeedbackSchema.parse({ rating: 'meh' })).toThrow()
+  })
+})
+
+describe('consent contracts', () => {
+  it('ships a dated edition', () => {
+    expect(PD_CONSENT_VERSION).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+  })
+
+  it('accepts a known source only, and nothing extra', () => {
+    expect(ConsentInputSchema.safeParse({ version: PD_CONSENT_VERSION, source: 'ios' }).success).toBe(true)
+    expect(ConsentInputSchema.safeParse({ version: PD_CONSENT_VERSION, source: 'fax' }).success).toBe(false)
+    expect(
+      ConsentInputSchema.safeParse({ version: PD_CONSENT_VERSION, source: 'web', extra: 1 }).success,
+    ).toBe(false)
+  })
+
+  it('keeps the status strict', () => {
+    expect(ConsentStatusSchema.safeParse({ required: true, version: PD_CONSENT_VERSION }).success).toBe(true)
+    expect(
+      ConsentStatusSchema.safeParse({ required: true, version: PD_CONSENT_VERSION, user: 'x' }).success,
+    ).toBe(false)
+  })
+
+  it('serves consent_required as 403', () => {
+    expect(ERROR_CODES.consent_required).toBe('consent_required')
+    expect(ERROR_STATUS.consent_required).toBe(403)
   })
 })
 

@@ -106,8 +106,6 @@ const en: Dictionary = {
     register: {
       heading: 'Sign up',
       passwordHint: 'At least 8 characters',
-      tosPrefix: 'I accept the',
-      tosLink: 'terms of service',
       submit: 'Sign up',
       submitting: 'Creating your account...',
       haveAccount: 'I already have an account',
@@ -117,8 +115,7 @@ const en: Dictionary = {
       errorWeakPassword: 'Password must be at least 8 characters',
       errorInvalidEmail: 'Enter a valid email address',
       errorEmailDelivery:
-        'Could not send the confirmation email. Try again later or sign in with Yandex ID, Google or Apple.',
-      errorTosRequired: 'To sign up, please accept the terms of service',
+        'Could not send the confirmation email. Try again later or sign in with Yandex ID.',
       errorGeneric: 'Could not sign up. Check your details and try again.',
     },
     forgotPassword: {
@@ -423,9 +420,25 @@ const en: Dictionary = {
       chartAria: '{title}: {total} from {from} to {to}',
     },
   },
+  consent: {
+    title: 'Consent to personal data processing',
+    lead: 'To use Lapka, we need your consent to process your personal data.',
+    checkboxPrefix: 'I give my',
+    checkboxLink: 'consent to personal data processing',
+    termsPrefix: 'By continuing you accept the',
+    termsLink: 'terms of use',
+    termsAnd: 'and the',
+    policyLink: 'personal data policy',
+    submit: 'Continue',
+    submitting: 'Saving...',
+    errorRequired: 'Tick the consent to continue',
+    errorFailed: 'Could not save the consent. Please try again.',
+    signOut: 'Sign out',
+    deleteAccount: 'Delete account',
+  },
   legal: {
     eyebrow: 'Documents',
-    russianOnly: 'This agreement is published in Russian only; the Russian text is the one that applies.',
+    russianOnly: 'This document is published in Russian only; the Russian text is the one that applies.',
     toDeletion: 'Account deletion',
   },
   deletion: {

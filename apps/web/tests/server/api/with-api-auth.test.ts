@@ -16,6 +16,7 @@ const account: AccountContext = {
   role: 'user',
   locale: 'ru',
   credits: 3,
+  pdConsentRequired: false,
 }
 
 describe('reading the bearer token', () => {
