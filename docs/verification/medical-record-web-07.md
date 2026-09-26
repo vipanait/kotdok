@@ -6,7 +6,7 @@
 
 Safari на Mac агент не проверяет (решение контроллера): там печать помечена как непроверенная и передаётся владельцу.
 
-Сборка: ветка `feature/medical-record-web`, код — коммит `847f327`. Ветка не отправлена и не влита. Дата: 26 сентября 2026.
+Сборка: ветка `feature/medical-record-web`, код — коммит `847f327` и раунд исправлений 1: `408a4ca` (день владельца в сводке) и `767611f` (Safari на iOS, печать в WebKit, заголовок-имя файла). Ветка не отправлена и не влита. Дата: 26 сентября 2026.
 
 Окружение — как на MW-01…06:
 - локальный Supabase (`127.0.0.1:54321`); **миграции не добавлялись**;
@@ -169,7 +169,7 @@ Safari на Mac агент не проверяет (решение контро�
 **Safari на iOS — проверено в iOS Simulator** (iPhone 17e, iOS 26.5; раунд исправлений 1, подробности там же):
 - владелец A вошёл на `http://localhost:3100`;
 - сводка Барона на 390 pt: [ios-safari-baron-summary-390](medical-record-web-07/ios-safari-baron-summary-390.png), [ios-safari-baron-tables-390](medical-record-web-07/ios-safari-baron-tables-390.png), [ios-safari-baron-visits-390](medical-record-web-07/ios-safari-baron-visits-390.png);
-- «Сохранить PDF» открывает окно печати iOS: A4, 8 страниц — [ios-safari-print-sheet](medical-record-web-07/ios-safari-print-sheet.png);
+- «Сохранить PDF» открывает окно печати iOS, A4 — [ios-safari-print-sheet](medical-record-web-07/ios-safari-print-sheet.png). Этот снимок сделан **до исправления** печати в WebKit: на нём 9 страниц («Pages 1–9»), таблицы ещё печатаются таблицами. После исправления — 8 страниц (PDF ниже); отдельного снимка окна печати после исправления нет;
 - PDF сохранён через «Поделиться → Сохранить в Файлы» и разобран: [ios-safari-baron.pdf](medical-record-web-07/ios-safari-baron.pdf), [p1](medical-record-web-07/ios-safari-baron-pdf-p1.png)…[p8](medical-record-web-07/ios-safari-baron-pdf-p8.png), разбор — [ios-safari-pdf-check.json](medical-record-web-07/ios-safari-pdf-check.json).
 
 Что видно в PDF Safari на iOS:
@@ -260,7 +260,7 @@ PLAYWRIGHT=… CHROME=… node docs/verification/medical-record-web-07/verify.mj
 python docs/verification/medical-record-web-07/pdf-check.py > docs/verification/medical-record-web-07/pdf-check-output.json (PyMuPDF 1.28) → exit 0
 ```
 
-Снимок OpenAPI не менялся: контракты не трогались.
+В первом проходе (`847f327`) контракты и снимок OpenAPI не менялись. В раунде исправлений 1 (`408a4ca`) контракт изменён: `VetSummaryQuerySchema` с необязательным `today`, описание `generated_on`, параметр `today` в OpenAPI; снимок обновлён `npm run openapi:update` (см. «Раунд исправлений 1», п. 2).
 
 ## Найдено и исправлено в ходе проверки
 
@@ -342,3 +342,11 @@ python docs/verification/medical-record-web-07/pdf-check.py > …/pdf-check-outp
 iOS Simulator (iPhone 17e, iOS 26.5): Safari → сводка Барона, «Сохранить PDF» → Поделиться → Сохранить в Файлы → PDF разобран PyMuPDF → ios-safari-pdf-check.json
 ```
 
+## Поправки к отчёту (MW-08)
+
+Исправлены неточности, найденные ревью MW-07:
+- подпись к снимку окна печати Safari на iOS: снимок сделан до исправления печати в WebKit и показывает 9 страниц, а не 8;
+- коммит кода: кроме `847f327`, код менялся в `408a4ca` и `767611f`;
+- «OpenAPI не менялся» было верно только для первого прохода: в раунде 1 добавлен параметр `today`.
+
+Также на MW-08 исправлено замечание к коду этого этапа: `useFileTitle` возвращает прежний заголовок, только если заголовок всё ещё имя файла, и не затирает заголовок следующей страницы (проверено в Chrome: после перехода со сводки на «Питомцы» заголовок «Питомцы — Лапка», `docs/verification/medical-record-web-08/verify-output.json`, `checks.fileTitle`).
