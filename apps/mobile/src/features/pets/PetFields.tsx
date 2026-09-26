@@ -56,10 +56,16 @@ export function PetFields({
   form,
   onChange,
   invalid = null,
+  notes = {},
 }: {
   form: PetForm
   onChange: (patch: Partial<PetForm>) => void
   invalid?: FieldError | null
+  /**
+   * Standing notes under fields that the medical record expands on — «История
+   * веса — в медкарте». Only where the record has something (spec §4).
+   */
+  notes?: { weight?: string; medications?: string }
 }) {
   const t = useText()
   const errorFor = (field: keyof PetForm) => (invalid?.field === field ? invalid.message : null)
@@ -111,6 +117,7 @@ export function PetFields({
         value={form.weightKg}
         onChangeText={(weightKg) => onChange({ weightKg })}
         error={errorFor('weightKg')}
+        hint={notes.weight}
         keyboardType="numeric"
       />
       <Segment
@@ -168,6 +175,7 @@ export function PetFields({
           value={form.medications}
           onChangeText={(medications) => onChange({ medications })}
           placeholder={hint.medications}
+          hint={notes.medications}
         />
       </Accordion>
 

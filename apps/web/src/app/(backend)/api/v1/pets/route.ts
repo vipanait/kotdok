@@ -5,6 +5,7 @@ import { createPet, listPets } from '@/server/pets/pet-service'
 import { toPetContract } from '@/server/pets/pet-contract'
 import { apiError, apiSuccess } from '@/server/api/response'
 import { serviceFailureResponse } from '@/server/api/failure-response'
+import { isFutureDay } from '@/server/medical-record/weight-service'
 import { withApiAuth, type ApiContext } from '@/server/api/with-api-auth'
 
 export const GET = withApiAuth(async (_request, context: ApiContext) => {
@@ -25,7 +26,10 @@ export const POST = withApiAuth(async (request: NextRequest, context: ApiContext
   // The schema is strict, so a user_id or id in the body is an error rather
   // than something this handler has to remember to strip.
   const parsed = PetCreateInputSchema.safeParse(body)
-  if (!parsed.success) {
+  // A weighing day ahead of every time zone is a wrong clock, and it would stay
+  // the newest measurement for ever.
+  const day = parsed.success ? parsed.data.weight_measured_on : undefined
+  if (!parsed.success || (day !== undefined && isFutureDay(day))) {
     return apiError(context.requestId, 'bad_request', 'Body does not match the contract')
   }
 

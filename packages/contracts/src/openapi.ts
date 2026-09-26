@@ -3,6 +3,24 @@ import { API_VERSION } from './version'
 import { ApiErrorEnvelopeSchema, ERROR_STATUS, type ErrorCode } from './errors'
 import { ProfileUpdateInputSchema, PublicProfileSchema } from './profile'
 import { PetCreateInputSchema, PetSchema, PetUpdateInputSchema } from './pet'
+import {
+  CompleteItemInputSchema,
+  DueItemSchema,
+  HealthProductSchema,
+  MedicationPatchSchema,
+  MedicationSchema,
+  MedicationsInputSchema,
+  VisitInputSchema,
+  VisitPatchSchema,
+  HealthEventInputSchema,
+  HealthEventPatchSchema,
+  HealthEventSchema,
+  HealthOverviewSchema,
+  WeightInputSchema,
+  WeightMeasurementSchema,
+  WeightPatchSchema,
+} from './medical-record'
+import { VetSummarySchema } from './vet-summary'
 import { CheckHistoryPageSchema, SymptomCheckRecordSchema } from './check'
 import { CheckFeedbackSchema, ExtraCheckRequestStatusSchema, FeedbackInputSchema } from './credits'
 import {
@@ -38,6 +56,22 @@ const COMPONENTS: Array<[string, z.ZodType]> = [
   ['Pet', PetSchema],
   ['PetCreateInput', PetCreateInputSchema],
   ['PetUpdateInput', PetUpdateInputSchema],
+  ['HealthOverview', HealthOverviewSchema],
+  ['VetSummary', VetSummarySchema],
+  ['WeightMeasurement', WeightMeasurementSchema],
+  ['WeightInput', WeightInputSchema],
+  ['WeightPatch', WeightPatchSchema],
+  ['HealthEvent', HealthEventSchema],
+  ['HealthEventInput', HealthEventInputSchema],
+  ['HealthEventPatch', HealthEventPatchSchema],
+  ['CompleteItemInput', CompleteItemInputSchema],
+  ['DueItem', DueItemSchema],
+  ['HealthProduct', HealthProductSchema],
+  ['Medication', MedicationSchema],
+  ['MedicationsInput', MedicationsInputSchema],
+  ['MedicationPatch', MedicationPatchSchema],
+  ['VisitInput', VisitInputSchema],
+  ['VisitPatch', VisitPatchSchema],
   ['SymptomCheckRecord', SymptomCheckRecordSchema],
   ['CheckHistoryPage', CheckHistoryPageSchema],
   ['CheckCreateInput', CheckCreateInputSchema],
@@ -128,6 +162,14 @@ function body(name: string, required = true) {
 }
 
 const bearer = [{ bearerAuth: [] }]
+
+/** Optional here, unlike on /checks: a medical record repeats harmlessly without one, only less safely. */
+const idempotencyParam = {
+  name: IDEMPOTENCY_KEY_HEADER,
+  in: 'header',
+  required: false,
+  schema: { type: 'string', minLength: 8, maxLength: 200 },
+}
 
 const idParam = {
   name: 'id',
@@ -236,6 +278,191 @@ export function buildOpenApiDocument(): Record<string, unknown> {
         delete: {
           summary: 'Soft-delete a pet and hide its checks',
           responses: { '204': { description: 'Deleted' }, ...commonErrors('not_found') },
+        },
+      },
+      '/pets/{id}/health': {
+        parameters: [idParam],
+        get: {
+          summary: 'The pet\'s medical record: the pet form and the sections that accept records',
+          responses: { '200': json('HealthOverview', 'The medical record'), ...commonErrors('not_found') },
+        },
+      },
+      '/pets/{id}/health/summary': {
+        parameters: [idParam],
+        get: {
+          summary: 'Everything to show a vet, the source of the «Для врача» screen and PDF',
+          description:
+            'Core vaccinations of the species are listed even with no record; null means not recorded, never «none». ' +
+            'Visits of the last year, the five latest dated weights, current courses, the three latest checks.',
+          responses: { '200': json('VetSummary', 'The summary'), ...commonErrors('not_found') },
+        },
+      },
+      '/pets/{id}/health/weights': {
+        parameters: [idParam],
+        post: {
+          summary: 'Record a weighing; a second one for the same day replaces that day\'s value',
+          description: 'The pet form\'s weight becomes the latest measurement. A day in the future is refused.',
+          requestBody: body('WeightInput'),
+          responses: {
+            '201': json('WeightMeasurement', 'The day\'s measurement'),
+            ...commonErrors('bad_request', 'not_found'),
+          },
+        },
+      },
+      '/pets/{id}/health/weights/{weight_id}': {
+        parameters: [
+          idParam,
+          { name: 'weight_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } },
+        ],
+        patch: {
+          summary: 'Correct a measurement',
+          requestBody: body('WeightPatch'),
+          responses: {
+            '200': json('WeightMeasurement', 'The corrected measurement'),
+            ...commonErrors('bad_request', 'not_found', 'conflict'),
+          },
+        },
+        delete: {
+          summary: 'Delete a measurement; the form falls back to the one before it',
+          responses: { '204': { description: 'Deleted' }, ...commonErrors('not_found') },
+        },
+      },
+      '/health/catalog': {
+        get: {
+          summary: 'Vaccines or treatments for one species, popular first',
+          description:
+            'Search ignores case, «ё» and the keyboard layout. Only products a vet has checked are listed.',
+          parameters: [
+            { name: 'species', in: 'query', required: true, schema: { type: 'string', enum: ['cat', 'dog'] } },
+            { name: 'kind', in: 'query', required: true, schema: { type: 'string', enum: ['vaccine', 'antiparasitic'] } },
+            { name: 'q', in: 'query', required: false, schema: { type: 'string', maxLength: 100 } },
+          ],
+          responses: {
+            '200': {
+              description: 'Products',
+              content: { 'application/json': { schema: { type: 'array', items: ref('HealthProduct') } } },
+            },
+            ...commonErrors('bad_request'),
+          },
+        },
+      },
+      '/pets/due': {
+        get: {
+          summary: 'Every due date of the caller\'s pets, soonest first',
+          responses: {
+            '200': {
+              description: 'Planned items',
+              content: { 'application/json': { schema: { type: 'array', items: ref('DueItem') } } },
+            },
+            ...commonErrors(),
+          },
+        },
+      },
+      '/pets/{id}/health/events': {
+        parameters: [idParam],
+        post: {
+          summary: 'Record vaccinations done or planned; a done record also plans each item\'s next date',
+          description:
+            'A done record cannot be in the future; a plan and a next date cannot be in the past. ' +
+            'The same Idempotency-Key with the same data returns the first record; with other data, 409.',
+          parameters: [idempotencyParam],
+          requestBody: body('HealthEventInput'),
+          responses: {
+            '201': json('HealthEvent', 'The record'),
+            ...commonErrors('bad_request', 'not_found', 'conflict'),
+          },
+        },
+      },
+      '/pets/{id}/health/events/{event_id}': {
+        parameters: [idParam, { name: 'event_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+        patch: {
+          summary: 'Correct a record, or move a plan',
+          requestBody: body('HealthEventPatch'),
+          responses: { '200': json('HealthEvent', 'The record'), ...commonErrors('bad_request', 'not_found') },
+        },
+        delete: {
+          summary: 'Delete a record or cancel a plan; plans made from it stay',
+          responses: { '204': { description: 'Deleted' }, ...commonErrors('not_found') },
+        },
+      },
+      '/pets/{id}/health/items/{item_id}/complete': {
+        parameters: [idParam, { name: 'item_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+        post: {
+          summary: 'Mark one planned item done; others planned for the same day stay planned',
+          parameters: [idempotencyParam],
+          requestBody: body('CompleteItemInput'),
+          responses: {
+            '200': json('HealthEvent', 'The done record'),
+            ...commonErrors('bad_request', 'not_found', 'conflict'),
+          },
+        },
+      },
+      '/pets/{id}/health/medications': {
+        parameters: [idParam],
+        post: {
+          summary: 'Add medication courses; the pet form\'s medicines list follows',
+          parameters: [idempotencyParam],
+          requestBody: body('MedicationsInput'),
+          responses: {
+            '201': {
+              description: 'The courses',
+              content: { 'application/json': { schema: { type: 'array', items: ref('Medication') } } },
+            },
+            ...commonErrors('bad_request', 'not_found', 'conflict'),
+          },
+        },
+      },
+      '/pets/{id}/health/medications/{medication_id}': {
+        parameters: [idParam, { name: 'medication_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+        patch: {
+          summary: 'Correct a course, or end it',
+          requestBody: body('MedicationPatch'),
+          responses: { '200': json('Medication', 'The course'), ...commonErrors('bad_request', 'not_found') },
+        },
+        delete: {
+          summary: 'Delete a course',
+          responses: { '204': { description: 'Deleted' }, ...commonErrors('not_found') },
+        },
+      },
+      '/pets/{id}/health/visits': {
+        parameters: [idParam],
+        post: {
+          summary: 'Record a vet visit that happened, with prescriptions, or plan one',
+          description:
+            'A prescription with add_to_medications starts a course from the visit\'s day. ' +
+            'A planned visit takes no diagnosis or prescriptions. The check must be of this pet.',
+          parameters: [idempotencyParam],
+          requestBody: body('VisitInput'),
+          responses: { '201': json('HealthEvent', 'The visit'), ...commonErrors('bad_request', 'not_found', 'conflict') },
+        },
+      },
+      '/pets/{id}/health/visits/{event_id}': {
+        parameters: [idParam, { name: 'event_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+        patch: {
+          summary: 'Correct a visit, or mark a planned one as having happened',
+          description:
+            'Removing a prescription keeps the course it started, without the link. ' +
+            'The same key sent again with the same body changes nothing; with another body it is a conflict.',
+          parameters: [idempotencyParam],
+          requestBody: body('VisitPatch'),
+          responses: { '200': json('HealthEvent', 'The visit'), ...commonErrors('bad_request', 'not_found', 'conflict') },
+        },
+      },
+      '/pets/{id}/health/items/{item_id}/medication': {
+        parameters: [idParam, { name: 'item_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+        post: {
+          summary: 'Start a course from a prescription; once',
+          responses: {
+            '201': {
+              description: 'The course',
+              content: {
+                'application/json': {
+                  schema: { type: 'object', properties: { medication_id: { type: 'string', format: 'uuid' } }, required: ['medication_id'] },
+                },
+              },
+            },
+            ...commonErrors('not_found'),
+          },
         },
       },
       '/uploads': {

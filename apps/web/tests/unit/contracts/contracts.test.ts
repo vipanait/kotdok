@@ -6,6 +6,23 @@ import {
   ExtraCheckRequestStatusSchema,
   CheckFeedbackSchema,
   FeedbackInputSchema,
+  HEALTH_SECTIONS,
+  VisitInputSchema,
+  VisitPatchSchema,
+  MedicationInputSchema,
+  MedicationPatchSchema,
+  CompleteItemInputSchema,
+  HealthEventInputSchema,
+  HealthEventPatchSchema,
+  VACCINE_TARGETS,
+  PARASITE_TARGETS,
+  HealthOverviewSchema,
+  HealthOverviewReadSchema,
+  DueListReadSchema,
+  VetSummaryReadSchema,
+  WeightInputSchema,
+  WeightMeasurementSchema,
+  WeightPatchSchema,
   PetCreateInputSchema,
   PetSchema,
   PetUpdateInputSchema,
@@ -198,3 +215,279 @@ describe('remaining contracts', () => {
     expect(() => CheckFeedbackSchema.parse({ rating: 'meh' })).toThrow()
   })
 })
+
+describe('medical record overview contract', () => {
+  it('carries the pet form as it is and the sections the client may write to', () => {
+    const overview = HealthOverviewSchema.parse({ pet, writable: [] })
+    expect(overview.pet.weight_kg).toBe(28)
+    // An unanswered question stays unanswered: null is not "not vaccinated".
+    expect(overview.pet.vaccinated).toBeNull()
+  })
+
+  it('names the five sections of the record in their on-screen order', () => {
+    expect(HEALTH_SECTIONS).toEqual(['vaccinations', 'parasites', 'visits', 'medications', 'weight'])
+  })
+
+  it('rejects a section the client would not know how to show', () => {
+    expect(HealthOverviewSchema.safeParse({ pet, writable: ['files'] }).success).toBe(false)
+  })
+
+  it('still reads an overview that a later server has added fields to', () => {
+    // A published app cannot be updated everywhere at once, and every medical
+    // record stage adds to this response. An older client ignores what it does
+    // not know instead of failing the whole screen.
+    const later = HealthOverviewSchema.parse({ pet, writable: ['weight'], weights: [], visits: [] })
+    expect(later).toEqual({ pet, writable: ['weight'], weights: [], events: [], medications: [] })
+  })
+})
+
+describe('weight contracts', () => {
+  const measurement = {
+    id: '11111111-1111-4111-8111-00000000000a',
+    measured_on: '2026-09-12',
+    weight_kg: 4.2,
+    source: 'record',
+  }
+
+  it('accepts a dated measurement and the form’s undated one', () => {
+    expect(WeightMeasurementSchema.parse(measurement)).toEqual(measurement)
+    expect(WeightMeasurementSchema.safeParse({ ...measurement, measured_on: null, source: 'form' }).success).toBe(true)
+  })
+
+  it('carries a calendar day, not a moment', () => {
+    expect(WeightInputSchema.safeParse({ measured_on: '2026-09-12T10:00:00Z', weight_kg: 4.2 }).success).toBe(false)
+    expect(WeightInputSchema.safeParse({ measured_on: '2026-02-30', weight_kg: 4.2 }).success).toBe(false)
+  })
+
+  it('refuses zero, a negative weight, over 200 and a non-number (MR-02.1)', () => {
+    for (const weight_kg of [0, -1, 200.1, '4,2', Number.NaN]) {
+      expect(WeightInputSchema.safeParse({ measured_on: '2026-09-12', weight_kg }).success, String(weight_kg)).toBe(false)
+    }
+    expect(WeightInputSchema.safeParse({ measured_on: '2026-09-12', weight_kg: 200 }).success).toBe(true)
+  })
+
+  it('does not take a weighing day alone as a change to the pet (review M5)', () => {
+    expect(PetUpdateInputSchema.safeParse({ weight_measured_on: '2026-09-25' }).success).toBe(false)
+    expect(PetUpdateInputSchema.safeParse({ weight_kg: 4, weight_measured_on: '2026-09-25' }).success).toBe(true)
+  })
+
+  it('needs something to change and never un-dates a measurement', () => {
+    expect(WeightPatchSchema.safeParse({}).success).toBe(false)
+    expect(WeightPatchSchema.safeParse({ measured_on: null }).success).toBe(false)
+    expect(WeightPatchSchema.safeParse({ weight_kg: 4.3 }).success).toBe(true)
+  })
+
+  it('reads an overview from a server that has no weights yet as an empty history', () => {
+    expect(HealthOverviewSchema.parse({ pet, writable: [] }).weights).toEqual([])
+  })
+})
+
+describe('vaccination contracts', () => {
+  const two = {
+    kind: 'vaccination',
+    status: 'done',
+    date: '2026-09-24',
+    items: [
+      { name: 'Нобивак Tricat Trio', targets: ['panleukopenia', 'calicivirus', 'rhinotracheitis'], next_on: '2027-09-24' },
+      { name: 'Нобивак Rabies', targets: ['rabies'], next_on: '2027-09-24' },
+    ],
+  }
+
+  it('takes several vaccines in one record, each with its own next day', () => {
+    expect(HealthEventInputSchema.parse(two).items).toHaveLength(2)
+  })
+
+  it('takes a vaccine with no name but the diseases, and refuses one with neither', () => {
+    expect(HealthEventInputSchema.safeParse({ ...two, items: [{ name: null, targets: ['rabies'] }] }).success).toBe(true)
+    expect(HealthEventInputSchema.safeParse({ ...two, items: [{ name: '', targets: [] }] }).success).toBe(false)
+    expect(HealthEventInputSchema.safeParse({ ...two, items: [] }).success).toBe(false)
+  })
+
+  it('refuses a next day that is not after the record, and a next day on a plan', () => {
+    expect(HealthEventInputSchema.safeParse({ ...two, items: [{ targets: ['rabies'], next_on: '2026-09-24' }] }).success).toBe(false)
+    expect(
+      HealthEventInputSchema.safeParse({ ...two, status: 'planned', items: [{ targets: ['rabies'], next_on: '2027-09-24' }] }).success,
+    ).toBe(false)
+  })
+
+  it('refuses a disease it does not know', () => {
+    expect(HealthEventInputSchema.safeParse({ ...two, items: [{ targets: ['flu'] }] }).success).toBe(false)
+  })
+
+  it('names the core vaccinations for each species', () => {
+    const core = (species: 'cat' | 'dog') =>
+      VACCINE_TARGETS.filter((t) => t.core && (t.species as readonly string[]).includes(species)).map((t) => t.code)
+    expect(core('cat')).toEqual(['panleukopenia', 'calicivirus', 'rhinotracheitis', 'rabies'])
+    expect(core('dog')).toEqual(['distemper', 'parvovirus', 'adenovirus', 'rabies'])
+  })
+
+  it('needs something to change in a correction', () => {
+    expect(HealthEventPatchSchema.safeParse({}).success).toBe(false)
+    expect(HealthEventPatchSchema.safeParse({ date: '2027-03-20' }).success).toBe(true)
+  })
+
+  it('marks a plan done on a day, with or without the next one', () => {
+    expect(CompleteItemInputSchema.safeParse({ done_on: '2026-09-25', next_on: null }).success).toBe(true)
+    expect(CompleteItemInputSchema.safeParse({ done_on: '2026-09-25', next_on: '2026-09-25' }).success).toBe(false)
+  })
+})
+
+describe('parasite treatment contracts', () => {
+  const treatment = {
+    kind: 'parasite',
+    status: 'done',
+    date: '2026-09-24',
+    items: [
+      { name: 'Бравекто Спот-он', targets: ['fleas', 'ticks'], next_on: '2026-12-17' },
+      { name: 'Мильбемакс', targets: ['worms'], next_on: '2026-12-24' },
+    ],
+  }
+
+  it('takes a treatment with several products and their own next dates', () => {
+    expect(HealthEventInputSchema.safeParse(treatment).success).toBe(true)
+  })
+
+  it('keeps diseases and parasites apart', () => {
+    expect(HealthEventInputSchema.safeParse({ ...treatment, items: [{ targets: ['rabies'] }] }).success).toBe(false)
+    expect(
+      HealthEventInputSchema.safeParse({ kind: 'vaccination', status: 'done', date: '2026-09-24', items: [{ targets: ['fleas'] }] }).success,
+    ).toBe(false)
+  })
+
+  it('groups ear mites with ticks and heartworm with worms', () => {
+    const group = (code: string) => PARASITE_TARGETS.find((target) => target.code === code)?.group
+    expect([group('ear_mites'), group('heartworm'), group('fleas')]).toEqual(['ticks', 'worms', 'fleas'])
+  })
+})
+
+describe('reading records of a kind this app does not know yet', () => {
+  const vaccination = {
+    id: '11111111-1111-4111-8111-0000000000e1', kind: 'vaccination', status: 'done', date: '2026-03-12',
+    clinic: null, notes: null, items: [{ id: '11111111-1111-4111-8111-0000000000f1', name: null, targets: ['rabies'], source_item_id: null }],
+  }
+  const future = { ...vaccination, id: '11111111-1111-4111-8111-0000000000e2', kind: 'grooming' }
+
+  it('drops them from the overview instead of failing the whole record', () => {
+    const read = HealthOverviewReadSchema.parse({ pet, writable: [], weights: [], events: [vaccination, future] })
+    expect(read.events.map((event) => event.id)).toEqual([vaccination.id])
+  })
+
+  it('keeps a known record that a later server added a field to (review 1)', () => {
+    const read = HealthOverviewReadSchema.parse({ pet, writable: [], weights: [], events: [{ ...vaccination, visit_id: null }] })
+    expect(read.events.map((event) => event.id)).toEqual([vaccination.id])
+  })
+
+  it('fails loudly on a known record that is broken, rather than hiding it (review 1)', () => {
+    expect(() => HealthOverviewReadSchema.parse({ pet, writable: [], weights: [], events: [{ ...vaccination, date: 'soon' }] })).toThrow()
+  })
+
+  it('drops them from the due list', () => {
+    const row = { pet_id: pet.id, event_id: vaccination.id, item_id: vaccination.items[0].id, kind: 'vaccination', date: '2027-03-12', name: null, targets: ['rabies'] }
+    expect(DueListReadSchema.parse([row, { ...row, kind: 'grooming' }])).toHaveLength(1)
+  })
+})
+
+describe('medication courses (MR-06.4)', () => {
+  it('takes a course without details, an ongoing one and one with an end', () => {
+    expect(MedicationInputSchema.safeParse({ name: 'Фортифлора' }).success).toBe(true)
+    expect(MedicationInputSchema.safeParse({ name: 'Лечебный корм', started_on: '2026-08-02', ongoing: true }).success).toBe(true)
+    expect(MedicationInputSchema.safeParse({ name: 'Фортифлора', started_on: '2026-08-02', ended_on: '2026-08-15' }).success).toBe(true)
+  })
+
+  it('refuses an end before the start, and an end on an ongoing course', () => {
+    expect(MedicationInputSchema.safeParse({ name: 'x', started_on: '2026-08-15', ended_on: '2026-08-02' }).success).toBe(false)
+    expect(MedicationInputSchema.safeParse({ name: 'x', ended_on: '2026-08-15', ongoing: true }).success).toBe(false)
+    expect(MedicationInputSchema.safeParse({ name: '  ' }).success).toBe(false)
+  })
+
+  it('needs something to change', () => {
+    expect(MedicationPatchSchema.safeParse({}).success).toBe(false)
+    expect(MedicationPatchSchema.safeParse({ ended_on: '2026-09-25', ongoing: false }).success).toBe(true)
+  })
+})
+
+describe('visit contracts', () => {
+  const visit = {
+    status: 'done',
+    date: '2026-08-02',
+    visit_kind: 'illness',
+    reason: 'Рвота два дня',
+    diagnosis: 'Обострение гастрита',
+    prescriptions: [
+      { name: 'Фортифлора', instructions: '1 пакетик в день', add_to_medications: true },
+      { name: 'Лечебный корм', instructions: 'Постоянно', add_to_medications: false },
+    ],
+  }
+
+  it('takes a done visit with a diagnosis and prescriptions', () => {
+    expect(VisitInputSchema.safeParse(visit).success).toBe(true)
+  })
+
+  it('takes a plan with no treatment and refuses one with a diagnosis or prescriptions (MR-07.3)', () => {
+    expect(VisitInputSchema.safeParse({ status: 'planned', date: '2026-10-03', visit_kind: 'checkup' }).success).toBe(true)
+    expect(VisitInputSchema.safeParse({ ...visit, status: 'planned' }).success).toBe(false)
+    expect(VisitInputSchema.safeParse({ ...visit, status: 'planned', diagnosis: null, prescriptions: [] }).success).toBe(true)
+  })
+
+  it('refuses an unknown kind of visit and a visit through /events', () => {
+    expect(VisitInputSchema.safeParse({ ...visit, visit_kind: 'grooming' }).success).toBe(false)
+    expect(HealthEventInputSchema.safeParse({ kind: 'visit', status: 'done', date: '2026-08-02', items: [{ name: 'x', targets: [] }] }).success).toBe(false)
+  })
+
+  it('marks a plan done only forward', () => {
+    expect(VisitPatchSchema.safeParse({ status: 'done', diagnosis: 'x' }).success).toBe(true)
+    expect(VisitPatchSchema.safeParse({ status: 'planned' }).success).toBe(false)
+  })
+})
+
+describe('reading the vet summary written by a later server (MR-09)', () => {
+  const visit = {
+    id: '11111111-1111-4111-8111-0000000000a1', kind: 'visit', status: 'done', date: '2026-08-02', clinic: null, notes: null,
+    items: [], visit_kind: 'illness', reason: null, diagnosis: 'Гастрит', check_id: null,
+  }
+  const check = { id: '11111111-1111-4111-8111-0000000000c1', created_at: '2026-08-01T10:00:00.000Z', urgency: 'urgent', summary: 'Рвота' }
+  const summary = {
+    generated_on: '2026-09-24', pet, weights: [], medications: [], vaccinations: [],
+    parasites: [{ group: 'worms', last_done: null, product: null, next: null }],
+    visits: [visit], checks: [check],
+  }
+
+  it('leaves out rows with a group, urgency, kind or visit kind it does not know, and reads more rows than it shows', () => {
+    const read = VetSummaryReadSchema.parse({
+      ...summary,
+      parasites: [...summary.parasites, { group: 'mites', last_done: null, product: null, next: null }],
+      visits: [visit, { ...visit, id: '11111111-1111-4111-8111-0000000000a2', visit_kind: 'dental' }, { ...visit, kind: 'grooming' }],
+      checks: [check, { ...check, id: '11111111-1111-4111-8111-0000000000c2', urgency: 'critical' }, check, check],
+    })
+    expect(read.parasites.map((row) => row.group)).toEqual(['worms'])
+    expect(read.visits.map((row) => row.id)).toEqual([visit.id])
+    expect(read.checks).toHaveLength(3)
+  })
+
+  it('still fails on a broken row of a known kind', () => {
+    expect(() => VetSummaryReadSchema.parse({ ...summary, checks: [{ ...check, created_at: 'yesterday' }] })).toThrow()
+  })
+})
+
+describe('reading the overview written by a later server (final review)', () => {
+  const visit = {
+    id: '11111111-1111-4111-8111-0000000000b1', kind: 'visit', status: 'done', date: '2026-08-02', clinic: null, notes: null,
+    items: [], visit_kind: 'illness', reason: null, diagnosis: null, check_id: null,
+  }
+  const vaccination = {
+    id: '11111111-1111-4111-8111-0000000000b2', kind: 'vaccination', status: 'done', date: '2026-03-12', clinic: null, notes: null,
+    items: [{ id: '11111111-1111-4111-8111-0000000000f2', name: null, targets: ['rabies'], source_item_id: null, interval: { value: 1, unit: 'decades' } }],
+  }
+
+  it('leaves out a visit of a kind it does not know, drops an interval unit it does not know, and reads new weight fields', () => {
+    const read = HealthOverviewReadSchema.parse({
+      pet, writable: [],
+      weights: [{ id: '11111111-1111-4111-8111-0000000000c3', measured_on: '2026-09-12', weight_kg: 4, source: 'record', device: 'scale' }],
+      events: [visit, { ...visit, id: '11111111-1111-4111-8111-0000000000b3', visit_kind: 'dental' }, vaccination],
+    })
+    expect(read.events.map((event) => event.id)).toEqual([visit.id, vaccination.id])
+    expect(read.events[1].items[0].interval).toBeNull()
+    expect(read.weights).toHaveLength(1)
+  })
+})
+
