@@ -488,3 +488,45 @@
 @layer components {
   .pagehead-actions { display: flex; flex-wrap: wrap; gap: 12px; flex-shrink: 0; }
 }
+
+/*
+ * Medicines (MW-05): web v1 «medications», «medications-empty»,
+ * «medication-new», «course», «course-edit», «course-finished». The section
+ * and the record reuse the vaccination blocks; what differs is here.
+ */
+@layer components {
+  .courses-page .events-empty { display: grid; justify-items: start; gap: 4px; }
+  .courses-page .events-empty > .icon { width: 28px; height: 28px; color: var(--green); }
+  .courses-page .events-empty .btn { margin-top: 12px; }
+  .course-card .event-card-items { color: var(--muted); }
+  .section-aside .courses-aside { background: var(--soft); border-color: transparent; }
+  .courses-aside p { margin-top: 10px; font-size: 15px; }
+  .courses-aside .courses-aside-form { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
+
+  .course-facts { display: grid; }
+  .course-facts > div { padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .course-facts > div:first-child { padding-top: 0; }
+  .course-facts > div:last-child { border-bottom: 0; padding-bottom: 0; }
+  .course-facts dt { font-size: 14px; font-weight: 700; color: var(--text); }
+  .course-facts dd { margin: 4px 0 0; font-size: 15px; color: var(--muted); overflow-wrap: anywhere; }
+  .course-facts dd#course-period { font: 800 22px/1.3 var(--font-display); color: var(--text); }
+  .course-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-top: 18px; }
+  .course-actions .btn { margin-top: 0; }
+  .course-actions .link { min-height: 44px; }
+
+  .course-form { display: grid; gap: 16px; }
+  .course-item { display: grid; gap: 2px; padding-bottom: 16px; }
+  .course-item .event-item-head { margin-bottom: 8px; }
+  .course-ongoing { display: flex; align-items: center; gap: 12px; min-height: 44px; margin: 0 0 8px; font-size: 15px; cursor: pointer; }
+  .course-ongoing input { width: 20px; height: 20px; accent-color: var(--green); }
+  .course-ends-now { color: var(--text); }
+  .course-note { margin-top: 4px; }
+  .course-form .form-actions { margin-top: 16px; }
+}
+
+@layer components {
+  @media (max-width: 900px) {
+    /* The courses read first, the note about doses after them (web v1 «medications» 390). */
+    .courses-page .section-aside { order: 0; }
+  }
+}

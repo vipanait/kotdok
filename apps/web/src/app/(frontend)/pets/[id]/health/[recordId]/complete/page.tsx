@@ -29,7 +29,7 @@ export default async function CompleteHealthRecordPage({
   const query = await searchParams
   const { cabinet, dict } = await openPetPage(id, `/pets/${id}/health/${recordId}/complete`)
   const record = await findHealthRecord(createServiceClient(), cabinet.user.id, id, recordId)
-  if (!record || record.kind === 'weight' || record.kind === 'visit' || !completeOpen(record.kind)) notFound()
+  if (!record || record.kind === 'weight' || record.kind === 'visit' || record.kind === 'medication' || !completeOpen(record.kind)) notFound()
   if (record.status === 'done') redirect(medicalRecordHref.recordView(id, recordId))
 
   const itemId = typeof query.item === 'string' && UUID.test(query.item) ? query.item : null

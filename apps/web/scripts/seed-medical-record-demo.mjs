@@ -223,7 +223,7 @@ try {
     `/pets/${murka.id}/health/medications`,
     {
       items: [
-        { name: 'Лечебный корм', started_on: '2026-08-02', ongoing: true },
+        { name: 'Лечебный корм', dosage: 'По схеме врача', started_on: '2026-08-02', ongoing: true },
         { name: 'Фортифлора', dosage: '1 пакетик в день', started_on: '2026-08-02', ended_on: '2026-08-15' },
       ],
     },

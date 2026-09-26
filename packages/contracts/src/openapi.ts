@@ -144,7 +144,7 @@ function commonErrors(...extra: ErrorCode[]): Record<string, unknown> {
     rate_limited: 'Too many requests',
     reauth_required: 'Signed in, but the last authentication is too old for this operation',
     account_deleting: 'Account is being deleted',
-    record_done: 'The record is a done procedure: it can be read and deleted, not changed',
+    record_done: 'The record is a done procedure or a finished course: it can be read and deleted, not changed',
     dependency_unavailable: 'A dependency is temporarily unavailable',
     internal_error: 'Unexpected server error',
   }
@@ -424,8 +424,12 @@ export function buildOpenApiDocument(): Record<string, unknown> {
         parameters: [idParam, { name: 'medication_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
         patch: {
           summary: 'Correct a course, or end it',
+          description:
+            'Only a current course changes: one that ended — its end is today or earlier in every ' +
+            'time zone — is history and answers 409 record_done (it can still be deleted). A change ' +
+            'that leaves a finished course as it is, such as «Завершить курс» sent again, answers 200.',
           requestBody: body('MedicationPatch'),
-          responses: { '200': json('Medication', 'The course'), ...commonErrors('bad_request', 'not_found') },
+          responses: { '200': json('Medication', 'The course'), ...commonErrors('bad_request', 'not_found', 'record_done') },
         },
         delete: {
           summary: 'Delete a course',

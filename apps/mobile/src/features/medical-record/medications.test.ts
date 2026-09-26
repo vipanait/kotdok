@@ -36,6 +36,8 @@ describe('the dates of a course (MR-06.4)', () => {
     expect(courseDates(ru, course({ started_on: '2025-12-20', ended_on: '2026-01-10' }), TODAY)).toBe('20 декабря 2025 – 10 января 2026')
     expect(courseDates(ru, course({ started_on: '2026-08-02' }), TODAY)).toBe('с 2 августа')
     expect(courseDates(ru, course({ source: 'form' }), TODAY)).toBe('Из анкеты — добавьте дозировку и даты')
+    // Ended on the day it started (MW-05: «Завершить курс» on a course begun today).
+    expect(courseDates(ru, course({ started_on: TODAY, ended_on: TODAY }), TODAY)).toBe('24 сентября')
   })
 })
 

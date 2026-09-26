@@ -255,6 +255,7 @@ export const en: Dictionary = {
       dateInvalid: 'Date is DD.MM.YYYY',
       endBeforeStart: 'The end cannot be before the start',
       end_: 'End the course',
+      finishedReadOnly: 'This course has finished. It stays in the history and cannot be changed — only deleted if it is wrong.',
       edit: 'Edit',
       delete: 'Delete the course',
       deleteTitle: 'Delete this course?',
