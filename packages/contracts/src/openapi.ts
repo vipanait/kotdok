@@ -144,7 +144,7 @@ function commonErrors(...extra: ErrorCode[]): Record<string, unknown> {
     rate_limited: 'Too many requests',
     reauth_required: 'Signed in, but the last authentication is too old for this operation',
     account_deleting: 'Account is being deleted',
-    record_done: 'The record is a done procedure or a finished course: it can be read and deleted, not changed',
+    record_done: 'The record is a done procedure, a visit that happened or a finished course: it can be read and deleted, not changed',
     dependency_unavailable: 'A dependency is temporarily unavailable',
     internal_error: 'Unexpected server error',
   }
@@ -451,13 +451,19 @@ export function buildOpenApiDocument(): Record<string, unknown> {
       '/pets/{id}/health/visits/{event_id}': {
         parameters: [idParam, { name: 'event_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
         patch: {
-          summary: 'Correct a visit, or mark a planned one as having happened',
+          summary: 'Change a planned visit, or mark it as having happened',
           description:
-            'Removing a prescription keeps the course it started, without the link. ' +
-            'The same key sent again with the same body changes nothing; with another body it is a conflict.',
+            'Only a planned visit changes: one that happened is history and answers 409 record_done ' +
+            '(it can still be deleted, and a prescription of it still added to the medicines). ' +
+            'Marking a plan done with status done may carry the diagnosis and prescriptions. ' +
+            'The same key sent again with the same body changes nothing and answers 200, even once the visit is done; ' +
+            'with another body it is a conflict.',
           parameters: [idempotencyParam],
           requestBody: body('VisitPatch'),
-          responses: { '200': json('HealthEvent', 'The visit'), ...commonErrors('bad_request', 'not_found', 'conflict') },
+          responses: {
+            '200': json('HealthEvent', 'The visit'),
+            ...commonErrors('bad_request', 'not_found', 'conflict', 'record_done'),
+          },
         },
       },
       '/pets/{id}/health/items/{item_id}/medication': {

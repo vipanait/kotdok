@@ -17,8 +17,10 @@ import { colour, space } from '@/ui/theme'
 
 /**
  * One visit (X-visit-record, X-visit-plan). A plan is marked «Был», moved or
- * cancelled; a visit that happened is corrected or deleted. A prescription not
- * yet in the medicines can be added from here.
+ * cancelled; a visit that happened is only read — no «Изменить» (owner rule of
+ * 26 September 2026, the server refuses the change with `record_done`) — and
+ * deleted if it is wrong. A prescription not yet in the medicines can still be
+ * added from here: that starts a course, it does not change the visit.
  */
 export default function VisitView() {
   const { id, eventId } = useLocalSearchParams<{ id: string; eventId: string }>()
@@ -95,9 +97,7 @@ export default function VisitView() {
               <Button title={words.markDone} onPress={() => edit('done')} />
               <LinkButton title={t.medicalRecord.reschedule} onPress={() => edit('edit')} />
             </>
-          ) : (
-            <Button title={t.medicalRecord.edit} onPress={() => edit('edit')} />
-          )
+          ) : null
         ) : null
       }
     >
@@ -113,6 +113,12 @@ export default function VisitView() {
               </Text>
             ) : null}
           </Card>
+
+          {!planned ? (
+            <Text tone="muted" style={styles.gap}>
+              {words.heldReadOnly}
+            </Text>
+          ) : null}
 
           {visit.reason || visit.diagnosis || visit.items.length > 0 ? (
             <Card outlined style={styles.card}>

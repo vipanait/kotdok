@@ -303,6 +303,9 @@ export const en: Dictionary = {
       nameTooLong: 'No longer than 100 characters',
       instructionsTooLong: 'No longer than 150 characters',
       fromResult: 'Record a vet visit',
+      heldReadOnly: 'The visit happened. The record stays in the history and cannot be changed — only deleted if it is wrong. A prescription can still be added to the medicines.',
+      heldWarning: 'Once saved, a visit that happened cannot be changed. Check the date, diagnosis and prescriptions.',
+      heldLocked: 'The visit already happened: the record stays in the history and cannot be changed. A wrong record can be deleted.',
       deleteBody: 'It disappears from the medical record and the summary for the vet. Medicines from its prescriptions stay. This cannot be undone.',
     },
     catalog: {

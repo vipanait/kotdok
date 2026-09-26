@@ -23,8 +23,8 @@ export const ERROR_CODES = {
    */
   reauth_required: 'reauth_required',
   /**
-   * The record is a procedure that was done (a vaccination or a treatment):
-   * it is history and can be read or deleted, never changed (owner rule of
+   * The record is a procedure that was done (a vaccination or a treatment),
+   * a vet visit that happened, or a finished medication course: it is history and can be read or deleted, never changed (owner rule of
    * 26 September 2026). Its own code, not `conflict`: nothing the client
    * sends again will be accepted, and the client's next move is to show the
    * record, not to offer a retry.

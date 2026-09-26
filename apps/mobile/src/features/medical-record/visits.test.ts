@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { HealthEvent } from '@lapka/contracts'
 import { ru } from '@/i18n/ru'
 import { dueItems, itemTitle } from './due'
-import { blankVisit, readVisit, recentChecks, visitDraftFrom, visitSummary } from './visits'
+import { blankVisit, readVisit, recentChecks, visitDraftFrom, visitLocked, visitSummary, warnsHeldIsFinal } from './visits'
 
 const NOW = new Date(2026, 8, 24, 12, 0)
 const TODAY = '2026-09-24'
@@ -73,6 +73,31 @@ describe('the visit form', () => {
       { id: 'out', created_at: new Date(2026, 7, 24, 23, 30).toISOString() },
     ]
     expect(recentChecks(checks, NOW).map((check) => check.id)).toEqual(['in', 'edge'])
+  })
+
+  it('keeps the check a visit is already linked to, however old', () => {
+    const checks = [{ id: 'old', created_at: new Date(2026, 6, 1, 12, 0).toISOString() }]
+    expect(recentChecks(checks, NOW)).toEqual([])
+    expect(recentChecks(checks, NOW, 'old').map((check) => check.id)).toEqual(['old'])
+  })
+
+  it('lets an overdue plan keep its own day when changed, but not move to another past day (shared rule)', () => {
+    const plan = visitDraftFrom(visit({ status: 'planned', date: '2026-09-20', diagnosis: null }))
+    expect(readVisit(ru, plan, 'edit', NOW, '2026-09-20').ok).toBe(true)
+    expect(readVisit(ru, { ...plan, date: '21.09.2026' }, 'edit', NOW, '2026-09-20').ok).toBe(false)
+    expect(readVisit(ru, { ...plan, date: '20.09.2026' }, 'new', NOW).ok).toBe(false)
+  })
+
+  it('opens only a plan; a visit that happened is read-only (owner rule 26.09)', () => {
+    expect(visitLocked(visit({ status: 'done' }))).toBe(true)
+    expect(visitLocked(visit({ status: 'planned' }))).toBe(false)
+  })
+
+  it('warns that a visit that happened cannot be changed: a new «Был» and «Был» on a plan', () => {
+    expect(warnsHeldIsFinal('new', 'done')).toBe(true)
+    expect(warnsHeldIsFinal('done', 'done')).toBe(true)
+    expect(warnsHeldIsFinal('new', 'planned')).toBe(false)
+    expect(warnsHeldIsFinal('edit', 'planned')).toBe(false)
   })
 
   it('keeps prescription ids when editing, and does not re-add existing ones to the medicines', () => {

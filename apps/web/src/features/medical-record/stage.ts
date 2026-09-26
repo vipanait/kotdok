@@ -17,8 +17,8 @@ export const MEDICAL_RECORD_STAGE = {
   due: true,
   /** MW-05: the medicines page and form. */
   medications: true,
-  /** MW-06: the visits page and form. */
-  visits: false,
+  /** MW-06: the visits page and form, «Состоялся» on a planned visit, the visit from a check result. */
+  visits: true,
   /** MW-07: the summary for the vet. */
   vetSummary: false,
 } as const
@@ -72,10 +72,16 @@ export function recordKindOpen(kind: 'vaccination' | 'parasite', stage: MedicalR
 
 /**
  * Whether «Сделано» is offered for a plan of this kind: the due stage and the
- * kind's own. A planned visit is marked «Был» on its own form (MW-06).
+ * kind's own. A planned visit is marked «Состоялся» on its own form instead
+ * (`heldOpen`, MW-06).
  */
 export function completeOpen(kind: HealthEvent['kind'], stage: MedicalRecordStage = MEDICAL_RECORD_STAGE): boolean {
   return kind !== 'visit' && stage.due && recordKindOpen(kind, stage)
+}
+
+/** Whether «Состоялся» is offered for a planned visit — in its view and among the due dates. */
+export function heldOpen(stage: MedicalRecordStage = MEDICAL_RECORD_STAGE): boolean {
+  return stage.visits
 }
 
 /** Where «Сделано» was pressed: where its form goes back to. */

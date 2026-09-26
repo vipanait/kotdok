@@ -124,7 +124,7 @@ export default function MedicalRecordView({
             href={sectionOpen('weight', overview.writable) ? medicalRecordHref.section(petId, 'weight') : null}
             dict={dict}
           />
-          <ChecksCard checks={checks} dict={dict} onRetry={onRetry} retrying={retrying} />
+          <ChecksCard petId={petId} checks={checks} dict={dict} onRetry={onRetry} retrying={retrying} />
         </div>
 
         {hasActions && (
@@ -168,7 +168,7 @@ function DueCard({ petId, due, dict }: { petId: string; due: DueBlock; dict: Dic
   return (
     <section className="card health-due" aria-labelledby="health-due-title">
       <h2 id="health-due-title">{words.title}</h2>
-      <DueRows rows={due.rows} dict={dict} />
+      <DueRows rows={due.rows} />
       {MEDICAL_RECORD_STAGE.due ? (
         <Link href={medicalRecordHref.due(petId)} className="link">
           {words.all.replace('{n}', String(due.total))}
@@ -184,10 +184,9 @@ function DueCard({ petId, due, dict }: { petId: string; due: DueBlock; dict: Dic
  * Due rows — in the record's «Сроки» and on «Все сроки». How far each date
  * is, is said in words with an icon beside it (colour only supports it);
  * overdue is neutral, not a red urgency badge. «Сделано» acts on that one
- * item; a kind the site cannot mark yet (a visit before MW-06) has none.
+ * item; «Состоялся» opens a planned visit's own step (MW-06).
  */
-export function DueRows({ rows, dict }: { rows: DueRow[]; dict: Dictionary }) {
-  const words = dict.medicalRecord.due
+export function DueRows({ rows }: { rows: DueRow[] }) {
   return (
     <ul>
       {rows.map((row) => (
@@ -203,7 +202,7 @@ export function DueRows({ rows, dict }: { rows: DueRow[]; dict: Dictionary }) {
           </div>
           {row.completeHref && (
             <Link href={row.completeHref} className="pill due-done" aria-label={row.completeLabel}>
-              {words.markDone}
+              {row.completeText}
             </Link>
           )}
         </li>
@@ -272,11 +271,13 @@ function checkDay(dict: Dictionary, iso: string): string {
 }
 
 function ChecksCard({
+  petId,
   checks,
   dict,
   onRetry,
   retrying,
 }: {
+  petId: string
   checks: ChecksPart
   dict: Dictionary
   onRetry: () => void
@@ -285,7 +286,13 @@ function ChecksCard({
   const words = dict.medicalRecord.checks
   return (
     <section className="card health-section wide" aria-labelledby="health-checks-title">
-      <CardHead id="health-checks-title" title={words.title} href={null} dict={dict} />
+      {/* «Все»: the history of this pet (web v1 «pet-history»), once it has any check. */}
+      <CardHead
+        id="health-checks-title"
+        title={words.title}
+        href={checks.status === 'ready' && checks.items.length > 0 ? `/checks?pet=${petId}` : null}
+        dict={dict}
+      />
       {checks.status === 'failed' ? (
         <div className="health-checks-failed" role="alert">
           <p>{words.failed}</p>

@@ -209,11 +209,14 @@ describe('«Все сроки» and the record’s «Сроки»', () => {
     ])
   })
 
-  it('gives each item its own «Сделано», named for a screen reader; a visit has none yet', () => {
+  it('gives each item its own «Сделано», named for a screen reader; a planned visit its «Состоялся» (MW-06)', () => {
     const rows = allDue(ru, 'ru', murka, DESIGN_TODAY).rows
     expect(rows[0].completeHref).toBe(`/pets/${petId}/health/${uuid(104)}/complete?item=${uuid(206)}&from=due`)
     expect(rows[0].completeLabel).toBe('Сделано: Блохи и клещи, просрочено на 12 дней · 12 сентября')
-    expect(rows[1].completeHref).toBeNull()
+    expect(rows[0].completeText).toBe('Сделано')
+    expect(rows[1].completeHref).toBe(`/pets/${petId}/health/${uuid(108)}/complete?from=due`)
+    expect(rows[1].completeText).toBe('Состоялся')
+    expect(rows[1].completeLabel).toBe('Состоялся: Осмотр, через 9 дней · 3 октября')
     // The two vaccines of one plan: two rows, two items, one plan.
     expect(rows[3].completeHref).toContain(`${uuid(102)}/complete?item=${uuid(203)}`)
     expect(rows[4].completeHref).toContain(`${uuid(102)}/complete?item=${uuid(204)}`)
