@@ -164,3 +164,21 @@ describe('medical record', () => {
     await expect(api.getHealthOverview('x')).rejects.toThrow()
   })
 })
+
+describe('summary for the vet', () => {
+  it('sends the owner’s day when given, and nothing when not (an older caller)', async () => {
+    const seen: string[] = []
+    const fetch: FetchLike = async (url) => {
+      seen.push(String(url))
+      // Any body: only the address matters here.
+      return ok({})
+    }
+    const api = createApiClient({ baseUrl: BASE, fetch })
+    const pet = '11111111-1111-4111-8111-000000000001'
+
+    await api.getVetSummary(pet, '2026-09-27').catch(() => null)
+    await api.getVetSummary(pet).catch(() => null)
+
+    expect(seen).toEqual([`${BASE}/api/v1/pets/${pet}/health/summary?today=2026-09-27`, `${BASE}/api/v1/pets/${pet}/health/summary`])
+  })
+})

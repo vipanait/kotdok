@@ -37,13 +37,13 @@ async function signIn(email: string): Promise<string> {
   return data.session!.access_token
 }
 
-function request(token: string, method = 'GET', body?: unknown) {
+function request(token: string, method = 'GET', body?: unknown, url = 'http://test.local/x') {
   const headers: Record<string, string> = {
     authorization: `Bearer ${token}`,
     'content-type': 'application/json',
     [IDEMPOTENCY_KEY_HEADER]: crypto.randomUUID(),
   }
-  return new NextRequest('http://test.local/x', { method, headers, body: body === undefined ? undefined : JSON.stringify(body) })
+  return new NextRequest(url, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) })
 }
 
 const params = (id: string) => ({ params: Promise.resolve({ id }) })
@@ -67,8 +67,9 @@ async function ok(response: Response) {
   return response
 }
 
-async function summaryOf(petId: string, token = tokenA) {
-  const response = await getSummary(request(token), params(petId))
+async function summaryOf(petId: string, token = tokenA, today?: string) {
+  const url = today === undefined ? undefined : `http://test.local/x?today=${encodeURIComponent(today)}`
+  const response = await getSummary(request(token, 'GET', undefined, url), params(petId))
   return { status: response.status, body: await response.json() }
 }
 
@@ -174,5 +175,50 @@ describe('the summary for the vet (MW-07)', () => {
     expect((await summaryOf(PET_IDS.aCat, tokenB)).status).toBe(404)
     expect((await summaryOf(PET_IDS.bCat, tokenA)).status).toBe(404)
     expect((await summaryOf(PET_IDS.bDeleted, tokenB)).status).toBe(404)
+  })
+})
+
+describe('the owner’s day (MW-07 fix round 1)', () => {
+  // 01:00 in Moscow is 22:00 UTC of the day before: the owner's today is one
+  // day ahead of the server's. Recreated whatever the clock: the owner's day
+  // is taken as UTC's tomorrow, which is today east of UTC.
+  const LOCAL = day(1)
+
+  it('counts «Принимает сейчас» and the year of visits from the owner’s day it is sent', async () => {
+    const pet = await newPet({ species: 'cat', name: 'Полночь' })
+    await ok(
+      await addMedications(
+        request(tokenA, 'POST', { items: [{ name: 'Фортифлора', started_on: day(-10), ended_on: LOCAL }] }),
+        params(pet),
+      ),
+    )
+    // Held «today» on the owner's calendar — tomorrow by UTC.
+    await ok(await createVisit(request(tokenA, 'POST', { status: 'done', date: LOCAL, visit_kind: 'checkup', diagnosis: 'Здоров по осмотру' }), params(pet)))
+
+    const local = VetSummarySchema.parse((await summaryOf(pet, tokenA, LOCAL)).body)
+    expect(local.generated_on).toBe(LOCAL)
+    // The course ended today: its last dose was today, it is not taken now.
+    expect(local.medications).toEqual([])
+    expect(vetSummaryPage(ru, 'ru', local, LOCAL).important).toEqual({ kind: 'note', text: 'Не указано владельцем' })
+    // The visit held today is in the year of visits.
+    expect(local.visits.map((visit) => visit.date)).toEqual([LOCAL])
+
+    // Without the owner's day — an app older than the field — the server's UTC day, as before.
+    const utc = VetSummarySchema.parse((await summaryOf(pet)).body)
+    expect(utc.generated_on).toBe(TODAY)
+    expect(utc.medications.map((course) => course.name)).toEqual(['Фортифлора'])
+    expect(utc.visits).toEqual([])
+  })
+
+  it('takes the owner’s day only while it is today somewhere on Earth', async () => {
+    const pet = await newPet({ species: 'dog', name: 'Часовой пояс' })
+    for (const given of [day(-1), TODAY, day(1)]) {
+      expect(VetSummarySchema.parse((await summaryOf(pet, tokenA, given)).body).generated_on).toBe(given)
+    }
+    for (const given of [day(-3), day(3), '2026-02-30', 'вчера', '']) {
+      const { status, body } = await summaryOf(pet, tokenA, given)
+      expect(status).toBe(200)
+      expect(VetSummarySchema.parse(body).generated_on).toBe(TODAY)
+    }
   })
 })

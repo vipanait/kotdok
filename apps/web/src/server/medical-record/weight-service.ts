@@ -1,6 +1,7 @@
 import 'server-only'
 
 import {
+  CalendarDateSchema,
   WeightMeasurementSchema,
   type WeightInput,
   type WeightMeasurement,
@@ -134,6 +135,18 @@ export function isFutureDay(day: string, now: Date = new Date()): boolean {
 export function isPastDay(day: string, now: Date = new Date()): boolean {
   const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000)
   return day < utcToday(yesterday)
+}
+
+/**
+ * The owner's today as a client said it (`?today=` of the summary), trusted
+ * only while it is today somewhere on Earth — neither earlier than any
+ * zone's today nor later. Anything else, and nothing at all (an app older
+ * than the field), is the server's UTC day, as it always was.
+ */
+export function clientToday(given: unknown, now: Date = new Date()): string {
+  return typeof given === 'string' && CalendarDateSchema.safeParse(given).success && !isPastDay(given, now) && !isFutureDay(given, now)
+    ? given
+    : utcToday(now)
 }
 
 /**
