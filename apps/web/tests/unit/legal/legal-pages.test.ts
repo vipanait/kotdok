@@ -55,4 +55,11 @@ describe('legal texts', () => {
   it('words the consent for every place it is given, not only registration', () => {
     expect(read('personal-data/page.tsx')).not.toContain('Регистрируясь в сервисе')
   })
+
+  it('says the medical record goes to OpenAI with the check', () => {
+    // analysis-context.ts sends vaccinations, medicines, visits and notes.
+    for (const file of ['privacy/page.tsx', 'personal-data/page.tsx']) {
+      expect(read(file), file).toMatch(/OpenAI — анализ[^;]*медицинской карты/)
+    }
+  })
 })

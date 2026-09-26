@@ -46,3 +46,12 @@ export function onceUntilReset(go: () => void): { fire(): void; reset(): void } 
     },
   }
 }
+
+/**
+ * Whether code outside the tabs may call the API for this user: only once the
+ * tabs have settled their consent. Before that a call can reach the server
+ * ahead of the consent handed over from registration and be refused.
+ */
+export function consentSettled(userId: string | null, settledFor: string | null): boolean {
+  return userId !== null && settledFor === userId
+}

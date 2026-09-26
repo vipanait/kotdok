@@ -40,7 +40,7 @@ export default function ConsentForm({ next }: { next: string }) {
 
     // The session ran out while the page was open: sign in again and come back.
     if (response?.status === 401) {
-      router.replace(`/login?next=${encodeURIComponent(`/consent?next=${next}`)}`)
+      router.replace(`/login?next=${encodeURIComponent(`/consent?next=${encodeURIComponent(next)}`)}`)
       return
     }
     if (!response?.ok) { setError(t.errorFailed); setLoading(false); return }

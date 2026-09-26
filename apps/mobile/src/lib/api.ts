@@ -30,6 +30,11 @@ export function setConsentRequiredHandler(handler: () => void): void {
   consentRedirect = onceUntilReset(handler)
 }
 
+/** Opens the consent screen through the same once-only guard as a refusal. */
+export function openConsentScreen(): void {
+  consentRedirect.fire()
+}
+
 /** The consent screen is done with: a later refusal may open it again. */
 export function consentScreenDone(): void {
   consentRedirect.reset()

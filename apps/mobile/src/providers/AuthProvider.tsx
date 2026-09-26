@@ -102,6 +102,12 @@ type AuthState = {
    */
   consentPending: boolean
   setConsentPending(pending: boolean): void
+  /**
+   * The user whose consent the tabs have settled. Code outside the tabs that
+   * calls the API — reminders — waits for it (see `consentSettled`).
+   */
+  consentSettledFor: string | null
+  setConsentSettledFor(userId: string | null): void
 }
 
 const AuthContext = createContext<AuthState | null>(null)
@@ -119,6 +125,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
   const [notice, setNotice] = useState<string | null>(null)
   const [consentPending, setConsentPending] = useState(false)
+  const [consentSettledFor, setConsentSettledFor] = useState<string | null>(null)
 
   /**
    * Ends the session and removes everything belonging to it. Used both for a
@@ -146,6 +153,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLocale(deviceLocale())
       setSession(null)
       setConsentPending(false)
+      setConsentSettledFor(null)
       setNotice(reason)
     },
     [setLocale],
@@ -233,8 +241,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       consentPending,
       setConsentPending,
+      consentSettledFor,
+      setConsentSettledFor,
     }),
-    [session, loading, notice, consentPending, endSession, t],
+    [session, loading, notice, consentPending, consentSettledFor, endSession, t],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

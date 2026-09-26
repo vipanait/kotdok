@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { consentSource, onceUntilReset, settleConsent } from './consent-gate'
+import { consentSettled, consentSource, onceUntilReset, settleConsent } from './consent-gate'
 
 describe('consentSource', () => {
   it('names the platform the consent was given on', () => {
@@ -84,5 +84,19 @@ describe('onceUntilReset', () => {
     redirect.fire()
 
     expect(go).toHaveBeenCalledTimes(2)
+  })
+})
+
+describe('consentSettled', () => {
+  it('holds API callers back until this user’s consent is settled', () => {
+    // Reminders load plans the moment a session exists; a person who ticked the
+    // box on registration must not be refused before the hand-over lands.
+    expect(consentSettled('u1', null)).toBe(false)
+    expect(consentSettled('u1', 'u0')).toBe(false)
+    expect(consentSettled('u1', 'u1')).toBe(true)
+  })
+
+  it('never lets a signed-out app call', () => {
+    expect(consentSettled(null, null)).toBe(false)
   })
 })
