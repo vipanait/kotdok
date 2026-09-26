@@ -2,9 +2,9 @@
   "site": "http://localhost:3100",
   "today": "2026-09-26",
   "pets": {
-    "murka": "df4adcf4-ba59-414a-8b71-e0afe7db4aab",
-    "bobik": "9e5ec061-aa23-46d8-9358-aadd2976bc79",
-    "baron": "d2973166-e8a7-4291-b28b-e15709ddaa25"
+    "murka": "dbb25386-9a76-4e3a-b29b-e47df887a753",
+    "bobik": "f794e136-033e-48bd-8cab-c86d73610f75",
+    "baron": "c3197ada-c214-4c46-9352-47c222dde694"
   },
   "checks": {
     "record": {
@@ -404,8 +404,7 @@
         "Мурка — медкарта — 26.09.2026"
       ],
       "expectedFileTitle": "Мурка — медкарта — 26.09.2026",
-      "titleAfter": "Для врача — Лапка",
-      "pageTitle": "Для врача — Лапка"
+      "titleAfterLeaving": "Питомцы — Лапка"
     },
     "print": {
       "murka 1440": {

@@ -33,6 +33,10 @@ export function buildContentSecurityPolicy(options: {
     "base-uri 'self'",
     "form-action 'self'",
     "frame-ancestors 'none'",
-    'upgrade-insecure-requests',
+    // Production is HTTPS only. The local dev server is plain http on
+    // localhost: Chrome leaves localhost alone, but WebKit (Safari, the iOS
+    // Simulator) upgrades its styles, scripts and Supabase calls to https,
+    // which nothing answers — the page came up unstyled and could not sign in.
+    ...(dev ? [] : ['upgrade-insecure-requests']),
   ].join('; ')
 }
