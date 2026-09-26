@@ -1,0 +1,389 @@
+{
+  "site": "http://localhost:3100",
+  "today": "2026-09-26",
+  "murka": "2523db8b-9cba-4ef8-8b59-8e4135c019e6",
+  "bobik": "229a8aef-9eb4-47d8-a288-8a9f0b9943f2",
+  "checks": {
+    "seededSection": {
+      "title": "Лекарства",
+      "subtitle": "Мурка · Сейчас: 1 · Всего: 2",
+      "cards": {
+        "current": [
+          "Лечебный корм | По схеме врача | С 2 августа · постоянно"
+        ],
+        "past": [
+          "Фортифлора | 1 пакетик в день | 2–15 августа"
+        ]
+      }
+    },
+    "currentCourse": {
+      "url": "/pets/2523db8b-9cba-4ef8-8b59-8e4135c019e6/health/dcd8d28f-f587-4ba7-bb94-cf16d532ef71",
+      "title": "Лечебный корм",
+      "badge": "Текущий курс",
+      "facts": [
+        "ПериодС 2 августа · постоянно",
+        "Как даватьПо схеме врача"
+      ],
+      "actions": [
+        "Изменить",
+        "Завершить курс",
+        "Удалить курс"
+      ],
+      "actionsBody": "Изменение курса отразится в медкарте, анкете и сводке для врача.",
+      "notice": null
+    },
+    "finishedCourse": {
+      "url": "/pets/2523db8b-9cba-4ef8-8b59-8e4135c019e6/health/f51e9f60-d329-4bbe-82d0-f4b31c08442d",
+      "title": "Фортифлора",
+      "badge": "Завершён",
+      "facts": [
+        "Период2–15 августа",
+        "Как давали1 пакетик в день"
+      ],
+      "actions": [
+        "Удалить курс"
+      ],
+      "actionsBody": "Курс завершён. Данные сохранены в истории и недоступны для редактирования.",
+      "notice": null
+    },
+    "finishedEdit": {
+      "finalUrl": "/pets/2523db8b-9cba-4ef8-8b59-8e4135c019e6/health/f51e9f60-d329-4bbe-82d0-f4b31c08442d",
+      "form": false,
+      "patch": {
+        "status": 409,
+        "code": "record_done"
+      },
+      "unchanged": true
+    },
+    "newForm": {
+      "items": 1,
+      "start": "2026-09-26",
+      "name": "",
+      "endFields": 1
+    },
+    "ongoingHidesEnd": {
+      "endFieldsWhileOngoing": 0,
+      "endKeptAfterUntick": "2026-09-29"
+    },
+    "endBeforeStart": {
+      "error": "Окончание не может быть раньше начала",
+      "focus": "input Окончаниенеобязательно",
+      "requests": 0,
+      "endMin": "2026-09-26"
+    },
+    "addAnotherFocus": "input Название",
+    "failed503": {
+      "banner": "Не удалось сохранить. Попробуйте ещё раз.",
+      "items": 2,
+      "names": [
+        "Омепразол",
+        "Пробиотик"
+      ],
+      "stillOnForm": true,
+      "buttonUsable": true,
+      "serverCourses": 0
+    },
+    "lostAnswer": {
+      "banner": "Нет связи с сервером. Введённые данные сохранены в форме — попробуйте ещё раз.",
+      "stillOnForm": true,
+      "notice": false,
+      "serverCourses": 2
+    },
+    "retry": {
+      "keys": 1,
+      "lastBody": {
+        "items": [
+          {
+            "name": "Омепразол",
+            "dosage": "1 капсула утром",
+            "started_on": "2026-09-26",
+            "ended_on": "2026-10-06",
+            "ongoing": false
+          },
+          {
+            "name": "Пробиотик",
+            "dosage": null,
+            "started_on": "2026-09-26",
+            "ended_on": null,
+            "ongoing": true
+          }
+        ]
+      },
+      "retryRequests": 1,
+      "serverCourses": 2,
+      "omeprazole": [
+        {
+          "dosage": "1 капсула утром",
+          "started_on": "2026-09-26",
+          "ended_on": "2026-10-06",
+          "ongoing": false
+        }
+      ],
+      "probiotic": [
+        {
+          "started_on": "2026-09-26",
+          "ended_on": null,
+          "ongoing": true
+        }
+      ],
+      "notice": "Лекарства сохранены."
+    },
+    "criterion1": {
+      "section": {
+        "current": [
+          "Омепразол | 1 капсула утром | 26 сентября – 6 октября",
+          "Пробиотик | С 26 сентября · постоянно",
+          "Лечебный корм | По схеме врача | С 2 августа · постоянно"
+        ],
+        "past": [
+          "Фортифлора | 1 пакетик в день | 2–15 августа"
+        ]
+      },
+      "subtitle": "Мурка · Сейчас: 3 · Всего: 4",
+      "recordCard": [
+        "ОмепразолСейчас · 26 сентября – 6 октября",
+        "ПробиотикСейчас · постоянно"
+      ],
+      "takingNow": "Омепразол, Пробиотик · постоянно, Лечебный корм · постоянно",
+      "summary": [
+        {
+          "name": "Омепразол",
+          "ended_on": "2026-10-06",
+          "ongoing": false
+        },
+        {
+          "name": "Пробиотик",
+          "ended_on": null,
+          "ongoing": true
+        },
+        {
+          "name": "Лечебный корм",
+          "ended_on": null,
+          "ongoing": true
+        }
+      ],
+      "petForm": "Лечебный корм, Омепразол, Пробиотик"
+    },
+    "pending": {
+      "requests": 1,
+      "vitamins": 1
+    },
+    "criterion2": {
+      "dialog": {
+        "title": "Завершить курс «Пробиотик»?",
+        "body": "Последним днём курса будет сегодня, 26 сентября. Курс останется в истории и исчезнет из «Принимает сейчас».",
+        "initialFocus": "button Не завершать",
+        "afterEscape": {
+          "open": false,
+          "focus": "button Завершить курс"
+        },
+        "afterKeep": {
+          "open": false,
+          "focus": "button Завершить курс",
+          "stillCurrent": true
+        }
+      },
+      "after": {
+        "url": "/pets/2523db8b-9cba-4ef8-8b59-8e4135c019e6/health/d6c6158d-fd80-4f1f-ae72-96befee2a181",
+        "title": "Пробиотик",
+        "badge": "Завершён",
+        "facts": [
+          "Период26 сентября",
+          "Как давалиНе указано"
+        ],
+        "actions": [
+          "Удалить курс"
+        ],
+        "actionsBody": "Курс завершён. Данные сохранены в истории и недоступны для редактирования.",
+        "notice": "Курс завершён. Он сохранён в истории."
+      },
+      "focus": "div Курс завершён. Он сохранён в истории.",
+      "stored": {
+        "ended_on": "2026-09-26",
+        "ongoing": false
+      },
+      "section": {
+        "current": [
+          "Витамины | С 26 сентября",
+          "Омепразол | 1 капсула утром | 26 сентября – 6 октября",
+          "Лечебный корм | По схеме врача | С 2 августа · постоянно"
+        ],
+        "past": [
+          "Пробиотик | 26 сентября",
+          "Фортифлора | 1 пакетик в день | 2–15 августа"
+        ]
+      },
+      "takingNow": "Витамины, Омепразол, Лечебный корм · постоянно",
+      "summary": [
+        {
+          "name": "Витамины",
+          "ended_on": null,
+          "ongoing": false
+        },
+        {
+          "name": "Омепразол",
+          "ended_on": "2026-10-06",
+          "ongoing": false
+        },
+        {
+          "name": "Лечебный корм",
+          "ended_on": null,
+          "ongoing": true
+        }
+      ],
+      "petForm": "Лечебный корм, Омепразол, Витамины",
+      "editAddress": {
+        "finalUrl": "/pets/2523db8b-9cba-4ef8-8b59-8e4135c019e6/health/d6c6158d-fd80-4f1f-ae72-96befee2a181/edit",
+        "form": false,
+        "shown": "Этот курс нельзя изменить"
+      }
+    },
+    "edit": {
+      "view": {
+        "url": "/pets/2523db8b-9cba-4ef8-8b59-8e4135c019e6/health/dcd8d28f-f587-4ba7-bb94-cf16d532ef71",
+        "title": "Лечебный корм",
+        "badge": "Текущий курс",
+        "facts": [
+          "ПериодС 2 августа · постоянно",
+          "Как даватьПо схеме врача, 60 г в день"
+        ],
+        "actions": [
+          "Изменить",
+          "Завершить курс",
+          "Удалить курс"
+        ],
+        "actionsBody": "Изменение курса отразится в медкарте, анкете и сводке для врача.",
+        "notice": "Курс изменён."
+      },
+      "stored": {
+        "id": "dcd8d28f-f587-4ba7-bb94-cf16d532ef71",
+        "dosage": "По схеме врача, 60 г в день",
+        "ongoing": true,
+        "started_on": "2026-08-02"
+      }
+    },
+    "leaveGuard": {
+      "title": "Уйти без сохранения?",
+      "focus": "a Отмена",
+      "kept": "Черновик"
+    },
+    "tenItems": {
+      "items": 10,
+      "addButton": 0,
+      "note": "За одно сохранение — не больше 10 препаратов.",
+      "afterRemove": {
+        "items": 9,
+        "focus": true
+      }
+    },
+    "delete": {
+      "title": "Удалить курс «Витамины»?",
+      "initialFocus": "button Не удалять",
+      "notice": "Курс удалён.",
+      "gone": true
+    },
+    "criterion4": {
+      "sameAfterReload": true,
+      "page": {
+        "current": [
+          "Омепразол | 1 капсула утром | 26 сентября – 6 октября",
+          "Лечебный корм | По схеме врача, 60 г в день | С 2 августа · постоянно"
+        ],
+        "past": [
+          "Пробиотик | 26 сентября",
+          "Фортифлора | 1 пакетик в день | 2–15 августа"
+        ]
+      },
+      "phoneCurrent": [
+        "Лечебный корм",
+        "Омепразол"
+      ],
+      "phonePast": [
+        "Пробиотик",
+        "Фортифлора"
+      ],
+      "pageMatchesPhone": true
+    },
+    "overflow390": {
+      "section": false,
+      "empty": false,
+      "course": false,
+      "finished": false,
+      "newForm": false,
+      "edit": false
+    },
+    "order390": {
+      "coursesFirst": true
+    },
+    "empty": {
+      "title": "Лекарств нет",
+      "subtitle": "Бобик · Сейчас: 0 · Всего: 0"
+    },
+    "tap390": [
+      44,
+      48,
+      44
+    ],
+    "overflowByWidth": {
+      "section 1150": false,
+      "course 1150": false,
+      "form 1150": false,
+      "section 1024": false,
+      "course 1024": false,
+      "form 1024": false,
+      "section 900": false,
+      "course 900": false,
+      "form 900": false,
+      "section 768": false,
+      "course 768": false,
+      "form 768": false,
+      "section 760": false,
+      "course 760": false,
+      "form 760": false,
+      "section 360": false,
+      "course 360": false,
+      "form 360": false,
+      "section 320": false,
+      "course 320": false,
+      "form 320": false
+    },
+    "foreignPages": {
+      "/pets/2523db8b-9cba-4ef8-8b59-8e4135c019e6/health/medications": {
+        "status": 200,
+        "h1": "Такой страницы нет",
+        "shown": false,
+        "leaks": []
+      },
+      "/pets/2523db8b-9cba-4ef8-8b59-8e4135c019e6/health/dcd8d28f-f587-4ba7-bb94-cf16d532ef71": {
+        "status": 200,
+        "h1": "Такой страницы нет",
+        "shown": false,
+        "leaks": []
+      },
+      "/pets/2523db8b-9cba-4ef8-8b59-8e4135c019e6/health/dcd8d28f-f587-4ba7-bb94-cf16d532ef71/edit": {
+        "status": 200,
+        "h1": "Такой страницы нет",
+        "shown": false,
+        "leaks": []
+      },
+      "/pets/2523db8b-9cba-4ef8-8b59-8e4135c019e6/health/new?type=medication": {
+        "status": 200,
+        "h1": "Такой страницы нет",
+        "shown": false,
+        "leaks": []
+      }
+    },
+    "foreignApiRequests": [],
+    "foreignApi": {
+      "read": 404,
+      "add": 404,
+      "end": 404,
+      "delete": 404
+    },
+    "ownerACoursesUntouched": true
+  },
+  "consoleErrors": [
+    "owner-a@fixture.local: Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+    "owner-a@fixture.local: Failed to load resource: net::ERR_INTERNET_DISCONNECTED"
+  ]
+}
