@@ -10,8 +10,9 @@ import {
   localToday,
   parasiteGroups,
   splitCourses,
+  lastDoneDate,
   weightTrend,
-  weightsOfYear,
+  weightsInPeriod,
 } from './record-overview'
 
 const TODAY = '2026-09-24'
@@ -86,6 +87,8 @@ describe('due entries', () => {
   it('leaves done records out', () => {
     expect(dueEntries(events).some((entry) => entry.event.status === 'done')).toBe(false)
     expect(doneEvents(events, 'vaccination').map((e) => e.id)).toEqual(['e1'])
+    expect(lastDoneDate(events, 'vaccination')).toBe('2026-03-12')
+    expect(lastDoneDate(events, 'parasite')).toBeNull()
   })
 })
 
@@ -108,8 +111,11 @@ describe('weight trend', () => {
     expect(weightTrend([weight('a', null, 28, 'form'), weight('b', '2026-09-01', 27)], TODAY)).toBeNull()
   })
 
-  it('leaves out measurements older than a year', () => {
-    expect(weightsOfYear([weight('a', '2025-01-01', 4), weight('b', '2026-01-01', 4.1)], TODAY).map((w) => w.id)).toEqual(['b'])
+  it('keeps the period’s dated measurements, oldest first', () => {
+    const weights = [weight('c', '2026-09-01', 4.2), weight('a', '2025-01-01', 4), weight('b', '2026-01-01', 4.1), weight('f', null, 4, 'form')]
+    expect(weightsInPeriod(weights, 'year', TODAY).map((w) => w.id)).toEqual(['b', 'c'])
+    expect(weightsInPeriod(weights, 'halfYear', TODAY).map((w) => w.id)).toEqual(['c'])
+    expect(weightsInPeriod(weights, 'all', TODAY).map((w) => w.id)).toEqual(['a', 'b', 'c'])
   })
 })
 

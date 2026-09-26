@@ -5,12 +5,16 @@
  * before it.
  */
 
-const pad = (value: number) => String(value).padStart(2, '0')
+import { localToday } from '@lapka/shared'
 
-/** Today on the owner's calendar. A weighing at 01:00 in Moscow is not yesterday's. */
-export function localToday(now: Date = new Date()): string {
-  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
-}
+/**
+ * The calendar arithmetic is shared with the web app (packages/shared,
+ * medical-record/record-overview.ts): one rule for "today", months and days.
+ * What stays here is how the phone's date field reads and writes a day.
+ */
+export { addMonths, daysBetween, localToday, monthsBetween } from '@lapka/shared'
+
+const pad = (value: number) => String(value).padStart(2, '0')
 
 /** `2026-09-24` → «24.09.2026», the way the field shows it. */
 export function dayInput(day: string): string {
@@ -41,29 +45,6 @@ export function parseDayInput(text: string, now: Date = new Date()): string | nu
 export function parseFutureDayInput(text: string, now: Date = new Date()): string | null {
   const day = parseDayText(text)
   return day !== null && day >= localToday(now) ? day : null
-}
-
-/**
- * A calendar day moved by whole months, staying a calendar day. A day the
- * target month does not have becomes its last day: a month before 31 March
- * is 28 February, not 3 March.
- */
-export function addMonths(day: string, months: number): string {
-  const [year, month, date] = day.split('-').map(Number)
-  const target = new Date(Date.UTC(year, month - 1 + months, 1))
-  const lastDay = new Date(Date.UTC(target.getUTCFullYear(), target.getUTCMonth() + 1, 0)).getUTCDate()
-  target.setUTCDate(Math.min(date, lastDay))
-  return target.toISOString().slice(0, 10)
-}
-
-export function daysBetween(from: string, to: string): number {
-  return Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000)
-}
-
-export function monthsBetween(from: string, to: string): number {
-  const [y1, m1, d1] = from.split('-').map(Number)
-  const [y2, m2, d2] = to.split('-').map(Number)
-  return (y2 - y1) * 12 + (m2 - m1) - (d2 < d1 ? 1 : 0)
 }
 
 /**

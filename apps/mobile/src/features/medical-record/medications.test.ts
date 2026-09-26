@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import type { Medication } from '@lapka/contracts'
 import { ru } from '@/i18n/ru'
-import { blankCourse, courseDates, isCurrent, readCourses, splitCourses } from './medications'
+import { isCurrentCourse as isCurrent, splitCourses } from '@lapka/shared'
+import { blankCourse, courseDates, readCourses } from './medications'
 
 const TODAY = '2026-09-24'
 const NOW = new Date(2026, 8, 24, 12, 0)

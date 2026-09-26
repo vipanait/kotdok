@@ -110,6 +110,11 @@ export function plannedEvents(events: readonly HealthEvent[], kind: HealthEvent[
     .sort((a, b) => a.date.localeCompare(b.date))
 }
 
+/** The day of the latest done record of a kind, if any. */
+export function lastDoneDate(events: readonly HealthEvent[], kind: HealthEvent['kind']): string | null {
+  return doneEvents(events, kind)[0]?.date ?? null
+}
+
 /** The groups a treatment covers — fleas, ticks, worms — however fine its codes. */
 export function parasiteGroups(targets: readonly string[]): ParasiteGroup[] {
   const covered = new Set(PARASITE_TARGETS.filter((target) => targets.includes(target.code)).map((target) => target.group))
@@ -125,9 +130,11 @@ export function datedWeights(weights: readonly WeightMeasurement[]): DatedWeight
     .sort((a, b) => a.measured_on.localeCompare(b.measured_on))
 }
 
-/** Measurements of the last twelve months, oldest first. */
-export function weightsOfYear(weights: readonly WeightMeasurement[], today: string): DatedWeight[] {
-  const since = addMonths(today, -12)
+export type WeightPeriod = 'halfYear' | 'year' | 'all'
+
+/** The period's dated measurements, oldest first. */
+export function weightsInPeriod(weights: readonly WeightMeasurement[], period: WeightPeriod, today: string): DatedWeight[] {
+  const since = period === 'all' ? '' : addMonths(today, period === 'halfYear' ? -6 : -12)
   return datedWeights(weights).filter((weight) => weight.measured_on >= since)
 }
 
@@ -145,7 +152,7 @@ export type WeightTrend = {
  * sometimes the symptom, and the record cannot tell which.
  */
 export function weightTrend(weights: readonly WeightMeasurement[], today: string): WeightTrend | null {
-  const year = weightsOfYear(weights, today)
+  const year = weightsInPeriod(weights, 'year', today)
   if (year.length < 2) return null
   const first = year[0]
   const last = year[year.length - 1]
@@ -161,13 +168,16 @@ export function isCurrentCourse(course: Pick<Medication, 'ended_on'>, today: str
   return course.ended_on === null || course.ended_on > today
 }
 
-/** Current courses (latest start first), then finished ones (latest end first). */
+/**
+ * Current courses, latest start first; then finished ones, latest end first
+ * (courses ending the same day keep the latest start first).
+ */
 export function splitCourses<T extends Pick<Medication, 'started_on' | 'ended_on'>>(courses: readonly T[], today: string) {
-  const current = courses
-    .filter((course) => isCurrentCourse(course, today))
-    .sort((a, b) => (b.started_on ?? '').localeCompare(a.started_on ?? ''))
-  const past = courses
-    .filter((course) => !isCurrentCourse(course, today))
-    .sort((a, b) => (b.ended_on ?? '').localeCompare(a.ended_on ?? ''))
-  return { current, past }
+  const byStart = [...courses].sort((a, b) => (b.started_on ?? '').localeCompare(a.started_on ?? ''))
+  return {
+    current: byStart.filter((course) => isCurrentCourse(course, today)),
+    past: byStart
+      .filter((course) => !isCurrentCourse(course, today))
+      .sort((a, b) => (b.ended_on ?? '').localeCompare(a.ended_on ?? '')),
+  }
 }

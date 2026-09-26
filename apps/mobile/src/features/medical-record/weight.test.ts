@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest'
 import type { WeightMeasurement } from '@lapka/contracts'
 import { en } from '@/i18n/en'
 import { ru } from '@/i18n/ru'
-import { chartLayout, parseWeight, pointsInPeriod, weightPatch, weightTrend, type DatedWeight } from './weight'
+import { chartLayout, weightsInPeriod as pointsInPeriod, type DatedWeight } from '@lapka/shared'
+import { parseWeight, weightPatch, weightTrend } from './weight'
 
 function d(measured_on: string, weight_kg: number): DatedWeight {
   return { id: `${measured_on}-${weight_kg}`, measured_on, weight_kg, source: 'record' }

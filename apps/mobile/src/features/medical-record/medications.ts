@@ -3,25 +3,12 @@ import type { Dictionary } from '@/i18n'
 import { dayInput, dayParts, localToday, parseDayText } from '@/lib/calendar-day'
 
 /**
- * Medication courses for the screens: which are current, how their dates
- * read, and the course form. No schedules and no reminders — a course is
- * written down so it is not forgotten, the dose is the vet's (spec §7.12).
+ * Medication courses for the screens: how their dates read, and the course
+ * form. Which courses are current, and their order, is shared with the site
+ * (`isCurrentCourse`, `splitCourses` in @lapka/shared). No schedules and no
+ * reminders — a course is written down so it is not forgotten, the dose is
+ * the vet's (spec §7.12).
  */
-
-/** Current until the end: a course ended today is done (its last dose was today). */
-export function isCurrent(course: Medication, today: string): boolean {
-  return course.ended_on === null || course.ended_on > today
-}
-
-export function splitCourses(courses: readonly Medication[], today: string) {
-  const byStart = [...courses].sort((a, b) => (b.started_on ?? '').localeCompare(a.started_on ?? ''))
-  return {
-    current: byStart.filter((course) => isCurrent(course, today)),
-    past: byStart
-      .filter((course) => !isCurrent(course, today))
-      .sort((a, b) => (b.ended_on ?? '').localeCompare(a.ended_on ?? '')),
-  }
-}
 
 /**
  * «2–15 августа», «28 июля – 15 августа», «с 2 августа · постоянно». The

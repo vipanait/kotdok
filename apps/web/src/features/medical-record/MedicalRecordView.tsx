@@ -14,6 +14,7 @@ import {
   chartGeometry,
   dueBlock,
   formatDay,
+  formatWeight,
   headFacts,
   importantFacts,
   sectionCards,
@@ -269,7 +270,7 @@ function WeightChart({ points, label }: { points: WeightPoint[]; label: string }
       {geometry.guides.map((guide) => (
         <g key={guide.y}>
           <line x1={CHART.left} x2={CHART.width - CHART.right} y1={y(guide.y)} y2={y(guide.y)} />
-          <text className="guide-label" x={0} y={y(guide.y) + 4}>{words.weight.replace('{n}', String(guide.value).replace('.', words.decimalSeparator))}</text>
+          <text className="guide-label" x={0} y={y(guide.y) + 4}>{formatWeight(words, guide.value)}</text>
         </g>
       ))}
       <path d={path} />
