@@ -14,6 +14,7 @@ import {
   weightsInPeriod,
   type DueEntry,
   type DueTone,
+  type WeightTrend,
 } from '@lapka/shared'
 import type { Locale } from '@/shared/i18n/config'
 import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
@@ -42,6 +43,9 @@ export function formatDay(words: Words, day: string, withYear: boolean): string 
 function day(words: Words, date: string, today: string): string {
   return formatDay(words, date, date.slice(0, 4) !== today.slice(0, 4))
 }
+
+/** «12 сентября» this year, «12 марта 2025» in another. */
+export const recordDay = day
 
 /** «2–15 августа», «28 июля – 15 августа», with years when the course is not all in this year. */
 export function formatRange(words: Words, from: string, to: string, today: string): string {
@@ -100,6 +104,15 @@ function spanText(dict: Dictionary, locale: Locale, months: number, days: number
   return months >= 1 ? formatCount(words.monthsSpan, months, locale) : formatCount(words.daysSpan, days, locale)
 }
 
+/** «−0,3 кг за 6 месяцев», «Без изменений за 1 месяц»: neutral, never "better" or "worse". */
+export function trendText(dict: Dictionary, locale: Locale, trend: WeightTrend): string {
+  const words = dict.medicalRecord
+  const span = spanText(dict, locale, trend.months, trend.days)
+  if (trend.change === 0) return words.noChange.replace('{span}', span)
+  const change = `${trend.change < 0 ? '−' : '+'}${formatDecimal(words, Math.abs(trend.change))}`
+  return words.trend.replace('{change}', change).replace('{span}', span)
+}
+
 function weightNote(dict: Dictionary, locale: Locale, overview: HealthOverview, today: string): string {
   const words = dict.medicalRecord
   const dated = datedWeights(overview.weights)
@@ -107,11 +120,7 @@ function weightNote(dict: Dictionary, locale: Locale, overview: HealthOverview, 
   // The form's value with no weighing behind it: its day is unknown and is not made up.
   if (!latest) return words.weightFromForm
   const trend = weightTrend(overview.weights, today)
-  if (!trend) return day(words, latest.measured_on, today)
-  const span = spanText(dict, locale, trend.months, trend.days)
-  if (trend.change === 0) return words.noChange.replace('{span}', span)
-  const change = `${trend.change < 0 ? '−' : '+'}${formatDecimal(words, Math.abs(trend.change))}`
-  return words.trend.replace('{change}', change).replace('{span}', span)
+  return trend ? trendText(dict, locale, trend) : day(words, latest.measured_on, today)
 }
 
 // ---------- Due dates ----------

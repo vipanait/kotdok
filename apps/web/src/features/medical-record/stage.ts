@@ -8,7 +8,7 @@ import type { HealthSection } from '@lapka/contracts'
  */
 export const MEDICAL_RECORD_STAGE = {
   /** MW-02: the weight page, adding and correcting measurements. */
-  weight: false,
+  weight: true,
   /** MW-03: the vaccinations page and form. */
   vaccinations: false,
   /** MW-04: the parasites page and form. */
@@ -53,6 +53,11 @@ export function sectionOpen(
 }
 
 /** The record types «Добавить запись» may offer. None means no button at all. */
+/** `?type=` of the new-record page, read strictly: anything else is no type. */
+export function parseRecordType(value: string | string[] | undefined): RecordType | null {
+  return typeof value === 'string' && (RECORD_TYPES as readonly string[]).includes(value) ? (value as RecordType) : null
+}
+
 export function addableRecordTypes(
   writable: readonly HealthSection[] | null,
   stage: MedicalRecordStage = MEDICAL_RECORD_STAGE,
@@ -66,7 +71,12 @@ export const medicalRecordHref = {
   form: (petId: string) => `/pets/${petId}/edit`,
   section: (petId: string, section: HealthSection) => `/pets/${petId}/health/${section}`,
   due: (petId: string) => `/pets/${petId}/health/due`,
-  /** «Что добавить?»: built by the first stage that has a form to offer (MW-02). */
+  /** «Что добавить?»: the record types that are open (MW-02 onwards). */
   add: (petId: string) => `/pets/${petId}/health/new`,
+  /** The form for a new record of a type. */
+  newRecord: (petId: string, type: RecordType) => `/pets/${petId}/health/new?type=${type}`,
+  /** One saved record; a record id is a UUID, never a section's name. */
+  recordView: (petId: string, recordId: string) => `/pets/${petId}/health/${recordId}`,
+  recordEdit: (petId: string, recordId: string) => `/pets/${petId}/health/${recordId}/edit`,
   vetSummary: (petId: string) => `/pets/${petId}/vet-summary`,
 }

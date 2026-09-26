@@ -8,7 +8,13 @@ import {
   type RecordData,
   type RecordState,
 } from '@/features/medical-record/record-load'
-import { addableRecordTypes, sectionOpen, type MedicalRecordStage } from '@/features/medical-record/stage'
+import {
+  MEDICAL_RECORD_STAGE,
+  addableRecordTypes,
+  parseRecordType,
+  sectionOpen,
+  type MedicalRecordStage,
+} from '@/features/medical-record/stage'
 import { murka } from './demo-overviews'
 
 const data: RecordData = { overview: murka, checks: { status: 'ready', items: [] } }
@@ -96,7 +102,18 @@ describe('stage flags', () => {
 
   it('offers nothing to add while no form is built', () => {
     expect(addableRecordTypes(murka.writable, none)).toEqual([])
-    expect(addableRecordTypes(murka.writable)).toEqual([])
+  })
+
+  it('offers weight, and only weight, once MW-02 is on', () => {
+    expect(MEDICAL_RECORD_STAGE.weight).toBe(true)
+    expect(addableRecordTypes(murka.writable)).toEqual(['weight'])
+  })
+
+  it('reads ?type= strictly', () => {
+    expect(parseRecordType('weight')).toBe('weight')
+    expect(parseRecordType('Weight')).toBeNull()
+    expect(parseRecordType(['weight', 'weight'])).toBeNull()
+    expect(parseRecordType(undefined)).toBeNull()
   })
 
   it('opens a section only when it is built and the server can store it', () => {
