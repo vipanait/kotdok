@@ -150,6 +150,18 @@ type RequestOptions = {
   headers?: Record<string, string>
   /** Routes authenticated by something other than the session token. */
   anonymous?: boolean
+  /** The caller no longer wants the answer: the request is aborted. */
+  signal?: AbortSignalLike
+}
+
+/**
+ * The part of an AbortSignal this client uses, declared structurally for the
+ * same reason as {@link FetchLike}: no DOM or Node types in this package.
+ */
+export type AbortSignalLike = {
+  readonly aborted: boolean
+  addEventListener(type: 'abort', listener: () => void): void
+  removeEventListener(type: 'abort', listener: () => void): void
 }
 
 function buildUrl(baseUrl: string, path: string, query?: RequestOptions['query']): string {
@@ -190,6 +202,12 @@ export function createApiClient(options: ApiClientOptions) {
           }, timeoutMs)
         : null
 
+    // The caller's own abort ends the request the way the timeout does, and
+    // surfaces as whatever the platform throws for an aborted fetch.
+    const callerAbort = () => controller?.abort()
+    if (request.signal?.aborted) callerAbort()
+    request.signal?.addEventListener('abort', callerAbort)
+
     let response: HttpResponse
     let payload: unknown
     try {
@@ -212,6 +230,7 @@ export function createApiClient(options: ApiClientOptions) {
       throw cause
     } finally {
       if (timer !== null) platform.clearTimeout?.(timer)
+      request.signal?.removeEventListener('abort', callerAbort)
     }
 
     if (!response.ok) {
@@ -295,10 +314,12 @@ export function createApiClient(options: ApiClientOptions) {
       call(`/pets/${petId}/health/medications/${medicationId}`, MedicationSchema, { method: 'PATCH', body }),
     deleteMedication: (petId: string, medicationId: string) =>
       call<void>(`/pets/${petId}/health/medications/${medicationId}`, null, { method: 'DELETE' }),
-    getCatalog: (species: PetSpecies, kind: ProductKind, query = '') =>
+    /** `signal`: a search the screen no longer shows (a newer query, another pet) is aborted. */
+    getCatalog: (species: PetSpecies, kind: ProductKind, query = '', options: { signal?: AbortSignalLike } = {}) =>
       call(
         `/health/catalog?species=${species}&kind=${kind}&q=${encodeURIComponent(query)}`,
         z.array(HealthProductSchema),
+        { signal: options.signal },
       ),
 
     requestUploads: (body: UploadRequest) =>

@@ -120,7 +120,7 @@ describe('what the form sends is what is stored (MW-02.1)', () => {
 describe('the record pages’ lookup (/pets/[id]/health/[recordId])', () => {
   it('finds the owner’s own measurement under its own pet', async () => {
     const mine = WeightMeasurementSchema.parse(await (await addWeight(request(tokenA, 'POST', typed('4,2', '2026-09-12')), params(pet))).json())
-    expect(await findHealthRecord(createServiceClient(), owners.ownerAId, pet, mine.id)).toBe('weight')
+    expect(await findHealthRecord(createServiceClient(), owners.ownerAId, pet, mine.id)).toEqual({ kind: 'weight', status: null })
   })
 
   it('finds nothing for another owner, another pet, a deleted measurement or a section name', async () => {

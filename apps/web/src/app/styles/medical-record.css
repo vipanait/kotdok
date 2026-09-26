@@ -275,3 +275,153 @@
     .record-form .form-actions .btn { min-width: 0; }
   }
 }
+
+/*
+ * Vaccinations (MW-03; MW-04 reuses it for treatments): web v1 «vaccines»,
+ * «vaccines-empty», «vaccine-done», «vaccine-plan», «catalog», «catalog-error»,
+ * «dog-vaccine», «manual», «targets», «record», «planned», «save-error».
+ */
+@layer components {
+  /* ---------- Section page ---------- */
+
+  .event-list { display: grid; gap: 14px; }
+  .event-list ul { display: grid; gap: 16px; }
+  .event-list-title { font: 700 14px/1.4 var(--font-body); color: var(--text); }
+  .event-card {
+    display: grid;
+    gap: 6px;
+    padding: 26px 28px;
+    border-radius: 24px;
+    color: var(--muted);
+    font-size: 15px;
+    overflow-wrap: anywhere;
+    transition: border-color 160ms ease;
+  }
+  .event-card:hover { border-color: #CFC3B0; }
+  .event-card:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+  .event-card-day { margin-bottom: 4px; font: 800 20px/1.3 var(--font-display); color: var(--text); }
+  .event-due { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; }
+  .event-due .icon { width: 16px; height: 16px; flex-shrink: 0; }
+  .event-due.soon { color: var(--green); }
+  /* Overdue is said in words and an icon, neutral: a due date is not a medical alarm. */
+  .event-due.overdue { color: var(--text); }
+  .events-empty h2 { font-size: 24px; }
+  .events-empty p { margin: 8px 0 4px; font-size: 15px; }
+
+  .section-aside .core-vaccines { background: var(--paper); border-color: var(--line); }
+  .core-vaccines ul { display: grid; margin-top: 16px; }
+  .core-vaccines li { display: grid; gap: 4px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .core-vaccines li:first-child { padding-top: 0; }
+  .core-vaccines strong { font-size: 15px; }
+  .core-vaccines li span { font-size: 13px; color: var(--muted); }
+  .section-aside .core-vaccines .core-note { margin-top: 12px; font-size: 13px; }
+
+  /* ---------- One record ---------- */
+
+  .event-record-page .pagehead .btn { min-width: 124px; }
+  .event-badge { margin-bottom: 14px; }
+  .event-record-head h2 { font-size: 26px; }
+  .event-record-head p { margin-top: 8px; font-size: 15px; }
+  .event-record-items ul { display: grid; }
+  .event-record-items li { display: grid; gap: 4px; padding: 16px 0; border-bottom: 1px solid var(--line); font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }
+  .event-record-items li:first-child { padding-top: 0; }
+  .event-record-items li:last-child { border-bottom: 0; padding-bottom: 0; }
+  .event-record-items strong { font-size: 15px; color: var(--text); }
+  .event-record-notes { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .event-record-notes h3 { font-size: 14px; }
+  .event-record-notes p { margin-top: 6px; font-size: 14px; overflow-wrap: anywhere; }
+  .section-aside .event-actions { background: var(--soft); border-color: transparent; }
+  .event-actions .btn { margin-top: 18px; }
+
+  /* ---------- The form ---------- */
+
+  .record-form.event-form { max-width: 680px; }
+  .event-form-banner { display: grid; gap: 4px; margin: 20px 0 0; }
+  .event-form-banner p { color: inherit; }
+  .event-form-banner .link { min-height: 32px; color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+  .event-status { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; margin-bottom: 26px; border-radius: 14px; }
+  .event-status button { min-height: 44px; border-radius: 10px; font-size: 14px; }
+  .event-status button:hover:not([aria-pressed='true']) { color: var(--text); }
+
+  .event-items { display: grid; gap: 16px; min-width: 0; margin: 4px 0 24px; padding: 0; border: 0; }
+  .event-items-title { margin-bottom: 12px; padding: 0; font: 800 18px/1.3 var(--font-display); color: var(--text); }
+  .event-items > .field-error { margin-top: -8px; }
+
+  .catalog-combobox { display: grid; gap: 7px; font-size: 14px; }
+  .catalog-combobox .field-label { font-size: 14px; font-weight: 500; }
+  /* In the flow of the form, not floating over it: on a phone it never leaves the screen. */
+  .catalog-popup {
+    display: grid;
+    gap: 6px;
+    min-width: 0;
+    padding: 14px 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: var(--paper);
+    box-shadow: 0 10px 28px rgb(31 27 21 / 0.07);
+  }
+  .catalog-popup.hidden { display: none; }
+  .catalog-note { padding: 0 8px; font-size: 12px; color: var(--muted); }
+  .catalog-error { margin: 0 0 4px; overflow-wrap: anywhere; }
+  .catalog-list { display: grid; }
+  .catalog-option {
+    display: grid;
+    gap: 3px;
+    min-height: 44px;
+    padding: 10px 8px;
+    border-bottom: 1px solid var(--line);
+    border-radius: 10px;
+    cursor: pointer;
+    overflow-wrap: anywhere;
+  }
+  .catalog-option strong { font-size: 14px; }
+  .catalog-option span { font-size: 12px; color: var(--muted); }
+  .catalog-option.active { background: var(--mint); border-color: transparent; }
+  .catalog-action { align-content: center; border-bottom: 0; font-size: 13px; font-weight: 700; color: var(--green); }
+
+  .event-item { min-width: 0; padding: 22px 20px 6px; border: 1px solid var(--line); border-radius: 18px; background: var(--bg); }
+  .event-item-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .event-item-title { padding-top: 10px; font: 800 17px/1.3 var(--font-display); overflow-wrap: anywhere; }
+  .event-item-name { flex: 1; min-width: 0; margin-bottom: 14px; }
+  .event-item-remove {
+    display: inline-grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    color: var(--muted);
+  }
+  .event-item-remove:hover:not(:disabled) { background: var(--soft); color: var(--text); }
+  .event-item-remove .icon { width: 20px; height: 20px; }
+  .event-item-hint { margin: 0 0 12px; }
+  .event-item .chip-group-label { margin-top: 10px; }
+  .event-item .chips { margin-bottom: 14px; }
+  .event-item .chips:focus { outline: none; }
+  .event-targets-error { margin: -6px 0 14px; }
+  .event-item-next { margin-bottom: 16px; }
+  .event-next-row { display: flex; align-items: center; gap: 12px; }
+  .event-next-row .input { flex: 1; min-width: 0; }
+  .event-next-clear { flex-shrink: 0; font-size: 13px; }
+  .event-add-item { justify-self: start; font-size: 15px; }
+
+  .event-counter { text-align: right; }
+  .event-form .event-form-info { margin-top: 4px; color: var(--green); overflow-wrap: anywhere; }
+  .event-form-warning { margin-top: 10px; }
+  .event-skeleton-form { height: 620px; }
+}
+
+@layer components {
+  @media (max-width: 900px) {
+    /* A record reads first; what can be done with it comes after. */
+    .event-record-page .section-aside { order: 0; }
+  }
+
+  @media (max-width: 760px) {
+    .event-card { padding: 20px; }
+    .event-card-day { font-size: 18px; }
+    .event-item { padding: 18px 14px 4px; }
+    .event-next-row { flex-wrap: wrap; gap: 4px; }
+    .event-record-page .pagehead { flex-wrap: wrap; }
+  }
+}

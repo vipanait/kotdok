@@ -9,8 +9,8 @@ import type { HealthSection } from '@lapka/contracts'
 export const MEDICAL_RECORD_STAGE = {
   /** MW-02: the weight page, adding and correcting measurements. */
   weight: true,
-  /** MW-03: the vaccinations page and form. */
-  vaccinations: false,
+  /** MW-03: the vaccinations page, form, record view and catalogue. */
+  vaccinations: true,
   /** MW-04: the parasites page and form. */
   parasites: false,
   /** MW-04: «Сделано» on a due date and the page with all of them. */
@@ -52,17 +52,22 @@ export function sectionOpen(
   return stage[section] && (writable === null || writable.includes(section))
 }
 
-/** The record types «Добавить запись» may offer. None means no button at all. */
 /** `?type=` of the new-record page, read strictly: anything else is no type. */
 export function parseRecordType(value: string | string[] | undefined): RecordType | null {
   return typeof value === 'string' && (RECORD_TYPES as readonly string[]).includes(value) ? (value as RecordType) : null
 }
 
+/** The record types «Добавить запись» may offer. None means no button at all. */
 export function addableRecordTypes(
   writable: readonly HealthSection[] | null,
   stage: MedicalRecordStage = MEDICAL_RECORD_STAGE,
 ): RecordType[] {
   return RECORD_TYPES.filter((type) => sectionOpen(RECORD_TYPE_SECTION[type], writable, stage))
+}
+
+/** Whether a saved vaccination or treatment can be opened: its section's stage is done. */
+export function recordKindOpen(kind: 'vaccination' | 'parasite', stage: MedicalRecordStage = MEDICAL_RECORD_STAGE): boolean {
+  return stage[RECORD_TYPE_SECTION[kind]]
 }
 
 /** Where each part of the record lives (implementation-handoff.md, «Маршруты»). */

@@ -1,5 +1,5 @@
-import { VACCINE_TARGETS, type HealthEvent, type HealthItem, type PetSpecies } from '@lapka/contracts'
-import { addMonths, dueEntries, dueTiming, parasiteGroups, type DueTone } from '@lapka/shared'
+import type { HealthEvent, HealthItem, PetSpecies } from '@lapka/contracts'
+import { addMonths, coreVaccinations, dueEntries, dueTiming, parasiteGroups, type DueTone } from '@lapka/shared'
 import type { Dictionary } from '@/i18n'
 
 /**
@@ -155,31 +155,20 @@ export function coreStatuses(
   today: string,
 ): CoreStatus[] {
   const words = t.medicalRecord
-  return VACCINE_TARGETS.filter(
-    (target) => target.core && (target.species as readonly string[]).includes(species),
-  ).map(({ code }) => {
-    const covering = events.filter(
-      (event) => event.kind === 'vaccination' && event.items.some((item) => item.targets.includes(code)),
-    )
-    const next = covering
-      .filter((event) => event.status === 'planned')
-      .sort((a, b) => a.date.localeCompare(b.date))[0]
-    const last = covering
-      .filter((event) => event.status === 'done')
-      .sort((a, b) => b.date.localeCompare(a.date))[0]
-
+  // Where each stands is decided once for the app and the site (packages/shared, event-entry.ts).
+  return coreVaccinations(species, events).map(({ target, next, last }) => {
     if (next) {
-      const status = dueStatus(t, next.date, today)
+      const status = dueStatus(t, next, today)
       return {
-        target: code,
-        title: targetName(t, code),
+        target,
+        title: targetName(t, target),
         text: status.tone === 'later' ? words.coreNext(status.day) : dueLine(status),
         tone: status.tone,
       }
     }
     // A past vaccination always with its year: «12 марта» alone could be any March.
-    if (last) return { target: code, title: targetName(t, code), text: words.coreLast(t.day(last.date, true)), tone: 'none' }
-    return { target: code, title: targetName(t, code), text: words.coreNone, tone: 'none' }
+    if (last) return { target, title: targetName(t, target), text: words.coreLast(t.day(last, true)), tone: 'none' }
+    return { target, title: targetName(t, target), text: words.coreNone, tone: 'none' }
   })
 }
 

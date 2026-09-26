@@ -65,6 +65,7 @@ const apiMessages = (t: Dictionary): Record<string, string> => ({
   rate_limited: t.errors.rateLimited,
   account_deleting: t.errors.accountDeleting,
   reauth_required: t.errors.reauthRequired,
+  record_done: t.errors.recordDone,
   dependency_unavailable: t.errors.dependencyUnavailable,
   internal_error: t.errors.internal,
 })

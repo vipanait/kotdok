@@ -2,6 +2,7 @@
  * Seeds the demo pets of the web medical record (spec §13) for the local
  * fixture owner A, so each MW stage can be shown on real data:
  *
+ * - the draft catalogue of vaccines and treatments (supabase/catalog, unverified);
  * - «Мурка» — a cat whose record is filled through the v1 API itself
  *   (weights, vaccinations and treatments with their next dates, visits,
  *   courses), plus one symptom check the visit follows and one treatment
@@ -105,6 +106,16 @@ const db = new pg.Client({ connectionString: env.TEST_DATABASE_URL })
 await db.connect()
 
 try {
+  // The draft catalogue of the spec (§5.4), unverified: local stacks only.
+  // Shown here because .env.integration sets HEALTH_CATALOG_INCLUDE_UNVERIFIED;
+  // production shows verified products only. Upserts, so running again is safe.
+  const repoRoot = resolve(webRoot, '..', '..')
+  for (const file of ['draft-vaccines.sql', 'draft-antiparasitics.sql']) {
+    await db.query(readFileSync(resolve(repoRoot, 'supabase', 'catalog', file), 'utf8'))
+  }
+  const { rows: products } = await db.query(`select id, name from public.health_products where kind = 'vaccine'`)
+  const productId = (name) => products.find((row) => row.name === name)?.id ?? null
+
   // ---------- Мурка: a record filled through the API ----------
   const murka = await api('POST', '/pets', {
     species: 'cat',
@@ -132,8 +143,8 @@ try {
       date: '2026-03-12',
       clinic: 'Айболит',
       items: [
-        { name: 'Нобивак Tricat Trio', targets: ['panleukopenia', 'calicivirus', 'rhinotracheitis'], next_on: '2027-03-12' },
-        { name: 'Нобивак Rabies', targets: ['rabies'], next_on: '2027-03-12' },
+        { name: 'Нобивак Tricat Trio', targets: ['panleukopenia', 'calicivirus', 'rhinotracheitis'], product_id: productId('Нобивак Tricat Trio'), next_on: '2027-03-12' },
+        { name: 'Нобивак Rabies', targets: ['rabies'], product_id: productId('Нобивак Rabies'), next_on: '2027-03-12' },
       ],
     },
     withKey(),

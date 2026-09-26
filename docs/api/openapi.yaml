@@ -38,6 +38,7 @@ components:
                 - rate_limited
                 - account_deleting
                 - reauth_required
+                - record_done
                 - dependency_unavailable
                 - internal_error
             message:
@@ -1608,6 +1609,7 @@ components:
                 - rate_limited
                 - account_deleting
                 - reauth_required
+                - record_done
                 - dependency_unavailable
                 - internal_error
             - type: "null"
@@ -3012,7 +3014,10 @@ paths:
           type: string
           format: uuid
     patch:
-      summary: Correct a record, or move a plan
+      summary: Correct or move a plan
+      description: "Only a planned record changes: a done one is history and answers 409 record_done (it
+        can still be deleted). A plan keeps its id and its items; «Сделано» is POST
+        /pets/{id}/health/items/{item_id}/complete."
       requestBody:
         required: true
         content:
@@ -3021,7 +3026,7 @@ paths:
               $ref: "#/components/schemas/HealthEventPatch"
       responses:
         "200":
-          description: The record
+          description: The plan
           content:
             application/json:
               schema:
@@ -3069,6 +3074,17 @@ paths:
                 error:
                   code: not_found
                   message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "409":
+          description: "The record is a done procedure: it can be read and deleted, not changed"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: record_done
+                  message: "The record is a done procedure: it can be read and deleted, not changed"
                   request_id: 01J000000000000000000000
         "429":
           description: Too many requests

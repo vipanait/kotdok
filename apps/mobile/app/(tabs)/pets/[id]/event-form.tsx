@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
-import { VACCINE_TARGETS, type HealthEvent, type HealthTarget, type PetSpecies } from '@lapka/contracts'
+import type { HealthEvent, PetSpecies } from '@lapka/contracts'
 import { ApiError } from '@lapka/shared'
 import { withFreshSession } from '@/lib/api'
 import { describeFailure } from '@/lib/errors'
 import { dayInput, localToday, parseDayInput } from '@/lib/calendar-day'
 import { newRequestKey } from '@/lib/request-key'
 import { useText } from '@/i18n'
-import { addInterval, parasiteGroups } from '@lapka/shared'
+import { addInterval, parasiteGroups, vaccineTargetsFor } from '@lapka/shared'
 import { itemName, saveSummary, targetList } from '@/features/medical-record/due'
 import { ProductSheet, type ProductChoice } from '@/features/medical-record/ProductSheet'
 import {
@@ -50,12 +50,6 @@ type Params = {
   itemId?: string
 }
 
-function targetsFor(species: PetSpecies): HealthTarget[] {
-  return VACCINE_TARGETS.filter((target) => (target.species as readonly string[]).includes(species)).map(
-    (target) => target.code,
-  )
-}
-
 /**
  * The record form (M6, M14, M16): a new vaccination or treatment with several items and a
  * next date for each, a correction of one, or «Сделано» on one planned item
@@ -79,6 +73,8 @@ export default function EventForm() {
   const [keptDate, setKeptDate] = useState<string | undefined>(undefined)
   const [errors, setErrors] = useState<DraftErrors>({})
   const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
+  /** Edit of a record that was done: there is nothing to correct, only a way back. */
+  const [locked, setLocked] = useState(false)
   const [busy, setBusy] = useState(false)
   const requestKey = useRef(newRequestKey())
   const nextKey = useRef(1)
@@ -98,6 +94,12 @@ export default function EventForm() {
       } else if (mode === 'edit') {
         const event = overview.events.find((e) => e.id === params.eventId)
         if (!event) throw new Error('not found')
+        // Something done is history: read and deleted, never corrected (owner
+        // rule of 26 September 2026; the server refuses it as record_done).
+        if (event.status === 'done') {
+          setLocked(true)
+          return
+        }
         start = draftFromEvent(event)
         setKind(event.kind)
         setKeptDate(event.date)
@@ -240,11 +242,17 @@ export default function EventForm() {
             <Button title={t.common.retry} kind="secondary" onPress={() => void load()} />
           </>
         ) : null}
+        {locked ? (
+          <>
+            <Banner text={t.errors.recordDone} tone="info" />
+            <Button title={t.common.back} kind="secondary" onPress={() => router.back()} />
+          </>
+        ) : null}
       </Screen>
     )
   }
 
-  const choices = targetsFor(species).map((code) => ({
+  const choices = vaccineTargetsFor(species).map((code) => ({
     value: code,
     label: (words.targets as Record<string, string>)[code] ?? code,
   }))
