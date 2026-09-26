@@ -288,7 +288,9 @@ export function createApiClient(options: ApiClientOptions) {
         headers: { [IDEMPOTENCY_KEY_HEADER]: idempotencyKey },
       }),
     listDue: () => call('/pets/due', DueListReadSchema),
-    getVetSummary: (petId: string) => call(`/pets/${petId}/health/summary`, VetSummaryReadSchema),
+    /** `today`: the owner's calendar day (`localToday()`), so «принимает сейчас» and the year of visits are counted from it. */
+    getVetSummary: (petId: string, today?: string) =>
+      call(`/pets/${petId}/health/summary`, VetSummaryReadSchema, { query: { today } }),
     createVisit: (petId: string, body: VisitInput, idempotencyKey: string) =>
       call(`/pets/${petId}/health/visits`, HealthEventSchema, {
         method: 'POST',

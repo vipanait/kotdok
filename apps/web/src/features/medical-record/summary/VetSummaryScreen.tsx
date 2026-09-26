@@ -24,9 +24,10 @@ export default function VetSummaryScreen({ petId }: { petId: string }) {
   const dict = useTranslations()
   const locale = useLocale()
   const words = dict.medicalRecord.vetSummary
-  const { state, reload } = useVetSummary(petId)
-  // The owner's day, from the browser's clock: overdue and the footer's date count from it.
+  // The owner's day, from the browser's clock: the server counts the courses
+  // taken now and the year of visits from it, the page overdue and the footer's date.
   const [today] = useState(() => localToday())
+  const { state, reload } = useVetSummary(petId, today)
   const page = state.status === 'ready' ? vetSummaryPage(dict, locale, state.data, today) : null
 
   useFileTitleWhilePrinting(page?.fileTitle ?? null)

@@ -294,7 +294,12 @@ export function buildOpenApiDocument(): Record<string, unknown> {
           summary: 'Everything to show a vet, the source of the «Для врача» screen and PDF',
           description:
             'Core vaccinations of the species are listed even with no record; null means not recorded, never «none». ' +
-            'Visits of the last year, the five latest dated weights, current courses, the three latest checks.',
+            'Visits of the last year, the five latest dated weights, current courses, the three latest checks. ' +
+            '`today` is the owner\'s calendar day: it decides which courses are taken now and which visits fall in the last year. ' +
+            'It is used only while it is today in some time zone; otherwise, or without it, the server\'s UTC day is used.',
+          parameters: [
+            { name: 'today', in: 'query', required: false, schema: { type: 'string', format: 'date' } },
+          ],
           responses: { '200': json('VetSummary', 'The summary'), ...commonErrors('not_found') },
         },
       },
