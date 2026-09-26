@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { HealthEvent } from '@lapka/contracts'
 import {
+  completionMismatch,
   coreVaccinations,
   eventDayProblem,
   fallbackInterval,
@@ -121,5 +122,25 @@ describe('core vaccinations', () => {
   it('finds the plan a done item was followed by', () => {
     expect(nextDayOf(uuid(12), [done, plan])).toBe('2027-03-12')
     expect(nextDayOf(uuid(11), [done, plan])).toBeNull()
+  })
+})
+
+describe('«Сделано» answered with an earlier record (web and phone, MW-08)', () => {
+  const planItem = item(uuid(1), ['fleas'])
+  const input = { done_on: '2026-09-24', next_on: '2026-12-17' }
+  const saved = event({ id: uuid(2), status: 'done', date: '2026-09-24', items: [planItem] })
+  const next = (date: string) => event({ id: uuid(3), status: 'planned', date, items: [item(uuid(4), ['fleas'], planItem.id)] })
+
+  it('takes a 200 as success only when the record is the one sent', () => {
+    expect(completionMismatch(input, saved, planItem.id, [saved, next('2026-12-17')])).toBeNull()
+    expect(completionMismatch(input, { date: '2026-09-26' }, planItem.id, null)).toBe('doneOn')
+    expect(completionMismatch(input, saved, planItem.id, [saved, next('2026-12-19')])).toBe('next')
+    expect(completionMismatch(input, saved, planItem.id, [saved])).toBe('next')
+    expect(completionMismatch({ ...input, next_on: null }, saved, planItem.id, [saved, next('2026-12-17')])).toBe('next')
+    expect(completionMismatch({ done_on: '2026-09-24' }, saved, planItem.id, [saved])).toBeNull()
+  })
+
+  it('lets the day decide when the record could not be read again', () => {
+    expect(completionMismatch(input, saved, planItem.id, null)).toBeNull()
   })
 })

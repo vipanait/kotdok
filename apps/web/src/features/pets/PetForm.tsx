@@ -10,12 +10,25 @@ import ConfirmDialog from '@/features/pets/ConfirmDialog'
 import { useLeaveGuard } from '@/features/forms/use-leave-guard'
 import type { PetSavedKind } from '@/features/pets/pet-saved'
 import { csrfHeaders } from '@/shared/security/csrf-client'
+import { localToday } from '@lapka/shared'
 
 type PetFormValues = Omit<Pet, 'id' | 'user_id' | 'created_at'>
+
+/**
+ * Standing notes under the fields the medical record says more about
+ * (spec §4) — «История веса — в медкарте» — already in words; none while the
+ * record is empty on that field (`petFormHints`, packages/shared).
+ */
+export interface PetFormHintTexts {
+  weight?: string
+  vaccinated?: string
+  medications?: string
+}
 
 interface Props {
   /** The pet being edited; none for a new one. */
   pet?: Pet
+  hints?: PetFormHintTexts
 }
 
 /** Where the form leads after a save or a delete, with the confirmation banner. */
@@ -54,7 +67,7 @@ function parseDecimal(value: string): number | null {
  * right. Leaving with unsaved changes — any link on the page, a reload or
  * closing the tab — asks first. Delete is set apart and confirmed in a dialog.
  */
-export default function PetForm({ pet }: Props) {
+export default function PetForm({ pet, hints = {} }: Props) {
   const dict = useTranslations()
   const t = dict.pets
   const isEdit = !!pet
@@ -151,13 +164,23 @@ export default function PetForm({ pet }: Props) {
       notes: notes.trim() || null,
     }
 
+    // What the record needs to read the form the way the phone's form is read
+    // (pet-service): the owner's own day for a weight or a medicine the form
+    // adds or removes — not the server's UTC one — and, on an edit, the weight
+    // and the list as the form was opened, so saving an untouched weight is
+    // not a new measurement and a course added meanwhile elsewhere is not ended.
+    const recordContext = {
+      weight_measured_on: localToday(),
+      ...(isEdit ? { weight_kg_before: pet!.weight_kg, medications_before: pet!.medications } : {}),
+    }
+
     const url = isEdit ? `/api/pets/${pet!.id}` : '/api/pets'
     const method = isEdit ? 'PUT' : 'POST'
     try {
       const res = await fetch(url, {
         method,
         headers: csrfHeaders({ 'Content-Type': 'application/json' }),
-        body: JSON.stringify(body),
+        body: JSON.stringify({ ...body, ...recordContext }),
       })
       if (!res.ok) {
         setFormError(t.saveError)
@@ -256,9 +279,10 @@ export default function PetForm({ pet }: Props) {
               />
             </Field>
 
-            <Field id={fieldId('weight')} label={t.weightKg}>
+            <Field id={fieldId('weight')} label={t.weightKg} hint={hints.weight}>
               <input
                 id={fieldId('weight')}
+                aria-describedby={hints.weight ? `${fieldId('weight')}-hint` : undefined}
                 type="text"
                 inputMode="decimal"
                 value={weightKg}
@@ -300,9 +324,10 @@ export default function PetForm({ pet }: Props) {
               </select>
             </Field>
 
-            <Field id={fieldId('vaccinated')} label={t.vaccination}>
+            <Field id={fieldId('vaccinated')} label={t.vaccination} hint={hints.vaccinated}>
               <select
                 id={fieldId('vaccinated')}
+                aria-describedby={hints.vaccinated ? `${fieldId('vaccinated')}-hint` : undefined}
                 value={vaccinated == null ? '' : vaccinated ? 'yes' : 'no'}
                 onChange={e => setVaccinated(e.target.value === '' ? null : e.target.value === 'yes')}
                 className={selectCls(vaccinated == null)}
@@ -335,9 +360,10 @@ export default function PetForm({ pet }: Props) {
               />
             </Field>
 
-            <Field id={fieldId('medications')} label={t.medications}>
+            <Field id={fieldId('medications')} label={t.medications} hint={hints.medications}>
               <input
                 id={fieldId('medications')}
+                aria-describedby={hints.medications ? `${fieldId('medications')}-hint` : undefined}
                 value={medications}
                 onChange={e => setMedications(e.target.value)}
                 placeholder={medicationsPlaceholder}
@@ -516,10 +542,13 @@ function Field({
   children,
   error,
   errorId,
+  hint,
   required = false,
 }: {
   id: string
   label: string
+  /** A standing note under the control, read with it (`${id}-hint`). */
+  hint?: string
   /** Marks the label with an asterisk for sight; the input says it with `aria-required`. */
   required?: boolean
   children: React.ReactNode
@@ -533,6 +562,7 @@ function Field({
         {required && <span aria-hidden> *</span>}
       </label>
       {children}
+      {hint && <span id={`${id}-hint`} className="field-hint">{hint}</span>}
       {error && <span id={errorId} className="field-error" role="alert">{error}</span>}
     </div>
   )

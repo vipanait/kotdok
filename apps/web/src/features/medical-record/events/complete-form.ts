@@ -5,7 +5,7 @@ import {
   type HealthEvent,
   type HealthItem,
 } from '@lapka/contracts'
-import { eventDayProblem, nextDayOf, nextDayProblem, suggestNextDay, type EventDayProblem, type NextDayProblem } from '@lapka/shared'
+import { eventDayProblem, nextDayProblem, suggestNextDay, type EventDayProblem, type NextDayProblem } from '@lapka/shared'
 import type { ContractRefusal } from './event-form'
 
 /**
@@ -26,7 +26,8 @@ import type { ContractRefusal } from './event-form'
  *   comes empty, so an empty field cannot clear them: the form says so
  *   beside the field (`keptFromPlan`) instead of pretending it will.
  * - a 200 is not taken on trust: an item already done is answered with the
- *   record as it was (`completionMismatch`), which the owner is told.
+ *   record as it was (`completionMismatch`, packages/shared — the phone
+ *   checks the same), which the owner is told.
  *
  * The contract's schema has the last word before anything is sent.
  */
@@ -139,23 +140,3 @@ export function keptFromPlan(
   }
 }
 
-/**
- * Whether the record the server answered is the one this form sent. An item
- * already done — a retry after a lost answer, another device, the same key
- * with an edited day on a plan of one item — is answered with 200 and the
- * record as it was first saved. Its day, and the plan of the next date when
- * the record's events are known, must be what was sent; otherwise the form
- * must not claim success: the done record can no longer be changed.
- */
-export type CompletionMismatch = 'doneOn' | 'next'
-
-export function completionMismatch(
-  input: CompleteItemInput,
-  saved: Pick<HealthEvent, 'date'>,
-  itemId: string,
-  events: readonly HealthEvent[] | null,
-): CompletionMismatch | null {
-  if (saved.date !== input.done_on) return 'doneOn'
-  if (events && nextDayOf(itemId, events) !== (input.next_on ?? null)) return 'next'
-  return null
-}

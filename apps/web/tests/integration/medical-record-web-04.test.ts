@@ -10,13 +10,13 @@ import {
   type HealthEvent,
   type HealthProduct,
 } from '@lapka/contracts'
-import { dueEntries, nextDayOf } from '@lapka/shared'
+import { completionMismatch, dueEntries, nextDayOf } from '@lapka/shared'
 import { GET as getHealth } from '@/app/(backend)/api/v1/pets/[id]/health/route'
 import { POST as createEvent } from '@/app/(backend)/api/v1/pets/[id]/health/events/route'
 import { DELETE as deleteEvent } from '@/app/(backend)/api/v1/pets/[id]/health/events/[eventId]/route'
 import { POST as completeItem } from '@/app/(backend)/api/v1/pets/[id]/health/items/[itemId]/complete/route'
 import { GET as listDue } from '@/app/(backend)/api/v1/pets/due/route'
-import { changeDoneDay, completeDraft, completionMismatch, readCompletion } from '@/features/medical-record/events/complete-form'
+import { changeDoneDay, completeDraft, readCompletion } from '@/features/medical-record/events/complete-form'
 import { blankEventDraft, productItem, readNewEvent, type EventDraft } from '@/features/medical-record/events/event-form'
 import { FIXTURE_PASSWORD, OWNER_A, OWNER_B, PET_IDS, connect, seedFixtures } from './fixtures'
 

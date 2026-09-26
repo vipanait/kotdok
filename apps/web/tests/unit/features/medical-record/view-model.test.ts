@@ -9,6 +9,7 @@ import {
   formatWeight,
   headFacts,
   importantFacts,
+  petDueLine,
   sectionCards,
   weightCard,
 } from '@/features/medical-record/view-model'
@@ -166,5 +167,33 @@ describe('chart geometry', () => {
     )
     expect(flat.points.every((point) => Number.isFinite(point.x) && Number.isFinite(point.y))).toBe(true)
     expect(flat.guides.every((guide) => Number.isFinite(guide.y))).toBe(true)
+  })
+})
+
+describe('the pet rows’ due line (spec §7.1, MW-08)', () => {
+  const today = '2026-09-24'
+  const due = (kind: 'vaccination' | 'parasite' | 'visit', date: string, targets: string[], name: string | null = null) => ({
+    kind,
+    date,
+    name,
+    targets,
+  })
+
+  it('names the date as the record’s «Сроки» do and says how far it is', () => {
+    expect(petDueLine(ru, 'ru', due('parasite', '2026-09-12', ['fleas', 'ticks']), today)).toEqual({
+      tone: 'overdue',
+      text: 'Блохи и клещи — просрочено',
+    })
+    expect(petDueLine(ru, 'ru', due('vaccination', '2026-09-29', ['rabies']), today)).toEqual({
+      tone: 'soon',
+      text: 'Бешенство — через 5 дней',
+    })
+    expect(petDueLine(ru, 'ru', due('visit', '2026-09-25', []), today)?.text).toBe('Визит к врачу — завтра')
+    expect(petDueLine(ru, 'ru', due('vaccination', '2026-09-24', [], 'Нобивак'), today)?.text).toBe('Нобивак — сегодня')
+    expect(petDueLine(en, 'en', due('vaccination', '2026-09-29', ['rabies']), today)?.text).toBe('Rabies — in 5 days')
+  })
+
+  it('draws nothing past the fourteen days', () => {
+    expect(petDueLine(ru, 'ru', due('vaccination', '2026-10-09', ['rabies']), today)).toBeNull()
   })
 })

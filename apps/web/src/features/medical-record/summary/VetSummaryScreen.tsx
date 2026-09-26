@@ -209,15 +209,17 @@ function PageFooter({ footer, dict }: { footer: string; dict: Dictionary }) {
  * print call — Safari on iOS names its PDF by the title it already knew
  * before `print()`, whatever the page sets in `beforeprint` or just before
  * the call (checked in the iOS Simulator, MW-07 fix round 1). The site's own
- * title comes back when the page closes.
+ * title comes back when the page closes — only while the file name is still
+ * the title: by the time this cleanup runs, the next page may already have
+ * set its own, and that one stays.
  */
-function useFileTitle(fileTitle: string | null) {
+export function useFileTitle(fileTitle: string | null) {
   useEffect(() => {
     if (!fileTitle) return
     const pageTitle = document.title
     document.title = fileTitle
     return () => {
-      document.title = pageTitle
+      if (document.title === fileTitle) document.title = pageTitle
     }
   }, [fileTitle])
 }

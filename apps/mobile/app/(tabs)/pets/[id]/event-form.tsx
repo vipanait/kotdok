@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import type { HealthEvent, PetSpecies } from '@lapka/contracts'
-import { ApiError } from '@lapka/shared'
+import { ApiError, completionMismatch } from '@lapka/shared'
 import { withFreshSession } from '@/lib/api'
 import { describeFailure } from '@/lib/errors'
 import { dayInput, localToday, parseDayInput } from '@/lib/calendar-day'
@@ -189,7 +189,11 @@ export default function EventForm() {
     setError(null)
     try {
       const value = read.value
-      await withFreshSession((api) => {
+      const completion =
+        mode === 'complete' && params.itemId
+          ? { itemId: params.itemId, input: { done_on: value.date, next_on: value.items[0]?.next_on ?? null, clinic: value.clinic, notes: value.notes } }
+          : null
+      const saved = await withFreshSession((api) => {
         if (mode === 'edit' && params.eventId) {
           return api.changeHealthEvent(petId, params.eventId, {
             // Only a new day: an overdue plan's own day would be refused as past.
@@ -199,13 +203,8 @@ export default function EventForm() {
             items: value.items.map(({ id, name, targets, product_id }) => ({ ...(id ? { id } : {}), name, targets, product_id })),
           })
         }
-        if (mode === 'complete' && params.itemId) {
-          return api.completeHealthItem(
-            petId,
-            params.itemId,
-            { done_on: value.date, next_on: value.items[0]?.next_on ?? null, clinic: value.clinic, notes: value.notes },
-            requestKey.current,
-          )
+        if (completion) {
+          return api.completeHealthItem(petId, completion.itemId, completion.input, requestKey.current)
         }
         return api.createHealthEvent(
           petId,
@@ -214,6 +213,24 @@ export default function EventForm() {
           requestKey.current,
         )
       })
+      if (completion) {
+        // A 200 is not success by itself: an item already done — a retry after
+        // a lost answer, another device — is answered with the record as it
+        // was first saved. The same check as the site's (completionMismatch,
+        // packages/shared); the next plan is compared when the record can be
+        // read again, otherwise the day alone decides.
+        const events = await withFreshSession((api) => api.getHealthOverview(petId)).then(
+          (overview) => overview.events,
+          () => null,
+        )
+        const mismatch = completionMismatch(completion.input, saved, completion.itemId, events)
+        if (mismatch) {
+          reminders.refresh()
+          const day = t.day(saved.date, true)
+          setError({ text: mismatch === 'doneOn' ? words.earlierDone(day) : words.earlierNext(day), offline: false })
+          return
+        }
+      }
       const plan = mode === 'edit' ? null : plannedItem(value)
       if (plan) reminders.planSaved(plan)
       else reminders.refresh()

@@ -12,16 +12,12 @@ import { UuidSchema } from '@lapka/contracts'
 import { reasonFromCheck } from '@lapka/shared'
 import { loadCheckResult } from '@/server/checks/load-check-pages'
 import { getTimeZone } from '@/server/i18n/get-time-zone'
+import { dayInZone } from '@/shared/i18n/time-zone'
 import { urgencyTitle } from '@/shared/utils/urgency'
 import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
 import { privatePageMetadata } from '@/server/i18n/page-metadata'
 
 export const generateMetadata = privatePageMetadata(d => d.medicalRecord.addPage.title)
-
-/** A calendar day in the owner's zone. */
-function zoneDay(iso: string | Date, timeZone: string): string {
-  return new Intl.DateTimeFormat('en-CA', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(iso))
-}
 
 /**
  * `&check=` of a visit written from a check result (spec §7.22): the check
@@ -41,7 +37,7 @@ async function visitSource(userId: string, petId: string, checkId: string, dict:
     reason: reasonFromCheck(check.symptoms_input),
     link: {
       href: `/check/${check.id}`,
-      text: words.visitsPage.byCheck.replace('{day}', recordDay(words, zoneDay(check.created_at, timeZone), zoneDay(new Date(), timeZone))),
+      text: words.visitsPage.byCheck.replace('{day}', recordDay(words, dayInZone(check.created_at, timeZone), dayInZone(new Date(), timeZone))),
       urgency: check.urgency,
       urgencyText: urgencyTitle(dict.urgency[check.urgency]?.label),
     },

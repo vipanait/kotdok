@@ -2,6 +2,7 @@ import {
   CalendarDateSchema,
   PARASITE_TARGETS,
   VACCINE_TARGETS,
+  type CompleteItemInput,
   type HealthEvent,
   type HealthTarget,
   type ParasiteGroup,
@@ -148,4 +149,27 @@ export function nextDayOf(itemId: string, events: readonly HealthEvent[]): strin
     .map((event) => event.date)
     .sort()
   return days[0] ?? null
+}
+
+/** How the record the server answered differs from what «Сделано» sent. */
+export type CompletionMismatch = 'doneOn' | 'next'
+
+/**
+ * Whether the record the server answered «Сделано» with is the one the form
+ * sent. An item already done — a retry after a lost answer, another device,
+ * the same key with an edited day on a plan of one item — is answered with
+ * 200 and the record as it was first saved. Its day, and the plan of the next
+ * date when the record's events are known, must be what was sent; otherwise
+ * the app must not claim success: the done record can no longer be changed.
+ * One rule for the web and the phone.
+ */
+export function completionMismatch(
+  input: Pick<CompleteItemInput, 'done_on' | 'next_on'>,
+  saved: Pick<HealthEvent, 'date'>,
+  itemId: string,
+  events: readonly HealthEvent[] | null,
+): CompletionMismatch | null {
+  if (saved.date !== input.done_on) return 'doneOn'
+  if (events && nextDayOf(itemId, events) !== (input.next_on ?? null)) return 'next'
+  return null
 }

@@ -8,7 +8,9 @@ import {
   doneEvents,
   isCurrentCourse,
   localToday,
+  nearestDueByPet,
   parasiteGroups,
+  petFormHints,
   splitCourses,
   lastDoneDate,
   weightTrend,
@@ -158,5 +160,60 @@ describe('local today', () => {
   it('reads the calendar day of the given moment on the local clock', () => {
     expect(localToday(new Date(2026, 8, 24, 0, 30))).toBe('2026-09-24')
     expect(localToday(new Date(2026, 0, 1, 23, 59))).toBe('2026-01-01')
+  })
+})
+
+describe('the pet list’s due line (spec §7.1, MW-08)', () => {
+  const due = (pet_id: string, date: string, name: string) => ({ pet_id, date, name })
+
+  it('keeps each pet’s earliest date, only when overdue or within fourteen days', () => {
+    const lines = nearestDueByPet(
+      [
+        due('murka', '2026-10-01', 'rabies'),
+        due('murka', '2026-09-12', 'fleas'),
+        due('bobik', '2026-10-20', 'distemper'),
+        due('baron', '2026-10-08', 'visit'),
+        due('baron', '2026-10-08', 'worms'),
+      ],
+      TODAY,
+    )
+    // The earliest, overdue, not the first in the list.
+    expect(lines.murka.name).toBe('fleas')
+    // 26 days away: past the fourteen, no line at all.
+    expect(lines.bobik).toBeUndefined()
+    // Day 14 is still "soon"; a tie keeps the list's order.
+    expect(lines.baron.name).toBe('visit')
+    expect(Object.keys(lines).sort()).toEqual(['baron', 'murka'])
+  })
+
+  it('gives nothing for no dates', () => {
+    expect(nearestDueByPet([], TODAY)).toEqual({})
+  })
+})
+
+describe('the pet form’s notes (spec §4)', () => {
+  const course = (source: 'record' | 'form', dosage: string | null) => ({ source, dosage })
+
+  it('says nothing while the record holds no more than the form', () => {
+    // The form's own weight, undated, and a medicine that is only a name from the form.
+    expect(petFormHints({ weights: [weight('w1', null, 28, 'form')], events: [], medications: [course('form', null)] })).toEqual({
+      weight: false,
+      vaccinations: 0,
+      medications: false,
+    })
+  })
+
+  it('points to the record once it has a history, done vaccinations or a course with details', () => {
+    const done = event({ id: 'v1', kind: 'vaccination', status: 'done', date: '2026-03-12', items: [item('i1', ['rabies'])] })
+    const planned = event({ id: 'v2', kind: 'vaccination', status: 'planned', date: '2027-03-12', items: [item('i2', ['rabies'])] })
+    const treatment = event({ id: 'p1', kind: 'parasite', status: 'done', date: '2026-08-01', items: [item('i3', ['fleas'])] })
+    expect(
+      petFormHints({
+        weights: [weight('w1', '2026-09-01', 4.2)],
+        events: [done, planned, treatment],
+        medications: [course('form', '1 таблетка')],
+      }),
+    ).toEqual({ weight: true, vaccinations: 1, medications: true })
+    expect(petFormHints({ weights: [], events: [], medications: [course('record', null)] }).medications).toBe(true)
   })
 })
