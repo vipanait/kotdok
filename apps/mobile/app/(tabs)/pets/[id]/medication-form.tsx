@@ -86,8 +86,9 @@ export default function MedicationForm() {
       if (cause instanceof ApiError && cause.code === 'conflict') {
         setError({ text: t.medicalRecord.alreadySaved, offline: false })
       } else if (cause instanceof ApiError && cause.code === 'record_done') {
-        // Finished meanwhile (or on another device): nothing to save here any more.
-        setLocked(true)
+        // Finished meanwhile (or on another device): nothing to save here any
+        // more, so nothing to ask about on the way out either.
+        unsaved.leave(() => setLocked(true))
       } else {
         setError(describeFailure(t, cause, words.saveFailed))
       }

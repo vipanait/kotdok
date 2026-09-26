@@ -41,12 +41,6 @@ export function parseDayInput(text: string, now: Date = new Date()): string | nu
   return day !== null && day <= localToday(now) ? day : null
 }
 
-/** A day still to come or today, for a plan: null if it has passed or is not a day. */
-export function parseFutureDayInput(text: string, now: Date = new Date()): string | null {
-  const day = parseDayText(text)
-  return day !== null && day >= localToday(now) ? day : null
-}
-
 /**
  * The parts of a calendar day, for a dictionary to put in its own order with
  * its own month names. Not `toLocaleDateString`: Hermes and Node disagree on

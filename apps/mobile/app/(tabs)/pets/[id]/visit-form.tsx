@@ -58,7 +58,8 @@ export default function VisitForm() {
   const [initial, setInitial] = useState<VisitDraft | null>(null)
   const [draft, setDraft] = useState<VisitDraft | null>(null)
   const [keptDate, setKeptDate] = useState<string | undefined>(undefined)
-  const [checks, setChecks] = useState<SymptomCheckRecord[]>([])
+  /** This pet's latest checks as loaded; which of them the form offers is worked out when drawn. */
+  const [loadedChecks, setLoadedChecks] = useState<SymptomCheckRecord[]>([])
   const [errors, setErrors] = useState<VisitErrors>({})
   const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
   const [busy, setBusy] = useState(false)
@@ -68,10 +69,9 @@ export default function VisitForm() {
   const nextKey = useRef(1)
 
   useEffect(() => {
-    // Checks of the last 30 days: a visit follows a check soon after it.
     withFreshSession((api) => api.listChecks({ pet_id: petId, limit: HISTORY_PAGE_SIZE_MAX }))
-      .then((page) => setChecks(recentChecks(page.items)))
-      .catch(() => setChecks([]))
+      .then((page) => setLoadedChecks(page.items))
+      .catch(() => setLoadedChecks([]))
 
     if (mode === 'new') {
       const start = blankVisit('done')
@@ -160,6 +160,10 @@ export default function VisitForm() {
   }
 
   const done = draft.status === 'done'
+  // Checks of the last 30 days (a visit follows a check soon after it), and
+  // the one the visit was opened with however old: a plan linked to it, or a
+  // new visit written from that check's result.
+  const checks = recentChecks(loadedChecks, new Date(), initial?.checkId ?? null)
   const checkOptions = checks.map((check) => ({
     value: check.id,
     label: words.checkLine(urgencyText(t, check.urgency).label, t.day(localToday(new Date(check.created_at)), false)),

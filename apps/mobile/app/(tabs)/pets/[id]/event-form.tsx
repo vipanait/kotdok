@@ -74,8 +74,12 @@ export default function EventForm() {
   const [keptDate, setKeptDate] = useState<string | undefined>(undefined)
   const [errors, setErrors] = useState<DraftErrors>({})
   const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
-  /** Edit of a record that was done: there is nothing to correct, only a way back. */
-  const [locked, setLocked] = useState(false)
+  /**
+   * Nothing to correct any more, only a way back, and why: an edit of a record
+   * that was done (on opening, or refused as record_done on saving), or a
+   * «Сделано» answered with the record an earlier try saved.
+   */
+  const [locked, setLocked] = useState<{ text: string; tone: 'info' | 'error' } | null>(null)
   const [busy, setBusy] = useState(false)
   const requestKey = useRef(newRequestKey())
   const nextKey = useRef(1)
@@ -98,7 +102,7 @@ export default function EventForm() {
         // Something done is history: read and deleted, never corrected (owner
         // rule of 26 September 2026; the server refuses it as record_done).
         if (event.status === 'done') {
-          setLocked(true)
+          setLocked({ text: t.errors.recordDone, tone: 'info' })
           return
         }
         start = draftFromEvent(event)
@@ -227,7 +231,10 @@ export default function EventForm() {
         if (mismatch) {
           reminders.refresh()
           const day = t.day(saved.date, true)
-          setError({ text: mismatch === 'doneOn' ? words.earlierDone(day) : words.earlierNext(day), offline: false })
+          // The item is done as first saved: this form cannot change it, so it
+          // is closed, and the way out asks nothing.
+          const text = mismatch === 'doneOn' ? words.earlierDone(day) : words.earlierNext(day)
+          unsaved.leave(() => setLocked({ text, tone: 'error' }))
           return
         }
       }
@@ -240,6 +247,9 @@ export default function EventForm() {
       // since is not. Say so rather than let the person think it went in.
       if (cause instanceof ApiError && cause.code === 'conflict') {
         setError({ text: words.alreadySaved, offline: false })
+      } else if (cause instanceof ApiError && cause.code === 'record_done') {
+        // Done meanwhile (another device): history now, nothing to save or to ask about.
+        unsaved.leave(() => setLocked({ text: t.errors.recordDone, tone: 'info' }))
       } else {
         setError(describeFailure(t, cause, words.saveEventFailed))
       }
@@ -251,10 +261,10 @@ export default function EventForm() {
   const treatment = kind === 'parasite'
   const title = treatment ? words.treatmentTitle : words.vaccinationTitle
 
-  if (!draft || !species) {
+  if (!draft || !species || locked) {
     return (
       <Screen title={title} onBack={() => router.back()}>
-        {error ? (
+        {error && !locked ? (
           <>
             <Banner text={error.text} tone="error" icon={error.offline ? 'wifi' : 'alert'} />
             <Button title={t.common.retry} kind="secondary" onPress={() => void load()} />
@@ -262,7 +272,7 @@ export default function EventForm() {
         ) : null}
         {locked ? (
           <>
-            <Banner text={t.errors.recordDone} tone="info" />
+            <Banner text={locked.text} tone={locked.tone} />
             <Button title={t.common.back} kind="secondary" onPress={() => router.back()} />
           </>
         ) : null}

@@ -376,7 +376,6 @@ export const en: Dictionary = {
     saveEventFailed: 'Could not save the record',
     plannedBadge: 'Planned',
     doneBadge: 'Done',
-    edit: 'Edit',
     deleteEvent: 'Delete record',
     doneReadOnly: 'This was done. The record stays in the history and cannot be changed — only deleted if it is wrong.',
     doneWarning: 'Once saved, a done record cannot be changed. Check the date and the products.',
