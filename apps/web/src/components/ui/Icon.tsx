@@ -23,6 +23,7 @@ const PATHS = {
   arrow: <path d="M4 12h16m-6-6 6 6-6 6" />,
   back: <path d="M20 12H4m6-6-6 6 6 6" />,
   plus: <path d="M12 4v16M4 12h16" />,
+  close: <path d="M6 6l12 12M18 6 6 18" />,
   heart: <path d="M12 21S2 15 2 8c0-6 8-6 10-1 2-5 10-5 10 1 0 7-10 13-10 13Z" />,
   info: (
     <>

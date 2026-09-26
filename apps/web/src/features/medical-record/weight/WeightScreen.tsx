@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { localToday, type WeightPeriod } from '@lapka/shared'
 import { useLocale, useTranslations } from '@/components/LocaleProvider'
@@ -8,6 +8,7 @@ import Icon from '@/components/ui/Icon'
 import { RecordProblem, StaleNotice } from '../MedicalRecordScreen'
 import { medicalRecordHref, sectionOpen } from '../stage'
 import { useMedicalRecord } from '../use-medical-record'
+import SavedNotice from '../SavedNotice'
 import WeightChart from '../WeightChart'
 import { WEIGHT_PERIODS, weightPage, type WeightSaved } from './weight-view'
 
@@ -142,26 +143,6 @@ export default function WeightScreen({ petId, saved }: { petId: string; saved: W
           </div>
         </aside>
       </div>
-    </div>
-  )
-}
-
-/**
- * The confirmation after a save or a delete, once: it takes focus so a
- * screen reader reads it, and leaves the address so a reload does not
- * confirm again.
- */
-function SavedNotice({ text }: { text: string }) {
-  const ref = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    ref.current?.focus()
-    const url = new URL(window.location.href)
-    url.searchParams.delete('saved')
-    window.history.replaceState(window.history.state, '', url.pathname + url.search + url.hash)
-  }, [])
-  return (
-    <div ref={ref} tabIndex={-1} role="status" className="banner toast-banner health-saved">
-      {text}
     </div>
   )
 }

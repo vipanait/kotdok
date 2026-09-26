@@ -71,6 +71,18 @@ const NOTES_MAX = 300
 const ITEMS_MAX = 10
 
 /**
+ * The length and count limits of a vaccination or treatment record, as the
+ * schemas below check them: forms show them and check them before sending,
+ * so a field is refused where it is typed, not by a 400.
+ */
+export const HEALTH_EVENT_LIMITS = {
+  itemName: ITEM_NAME_MAX,
+  clinic: CLINIC_MAX,
+  notes: NOTES_MAX,
+  items: ITEMS_MAX,
+} as const
+
+/**
  * One vaccine in a record. `name` null is «Без препарата»; `source_item_id`
  * is the done item a plan was made from.
  */

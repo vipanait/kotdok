@@ -26,6 +26,12 @@ describe('error messages', () => {
     expect(errorMessage(ru, cause, 'Не удалось')).toBe(ru.errors.insufficientCredits)
   })
 
+  it('says a done record cannot be changed, not that something broke (MW-03)', () => {
+    const cause = new ApiError('record_done', 409, 'A done record cannot be changed')
+    expect(errorMessage(ru, cause, ru.medicalRecord.saveEventFailed)).toBe(ru.errors.recordDone)
+    expect(describeFailure(ru, cause, 'x').offline).toBe(false)
+  })
+
   it('passes through a message the app wrote itself', () => {
     const cause = new AppError(ru.errors.insufficientCredits, 'insufficient_credits')
     expect(errorMessage(ru, cause, 'Не удалось отправить проверку')).toBe(

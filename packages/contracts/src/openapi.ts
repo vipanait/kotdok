@@ -144,6 +144,7 @@ function commonErrors(...extra: ErrorCode[]): Record<string, unknown> {
     rate_limited: 'Too many requests',
     reauth_required: 'Signed in, but the last authentication is too old for this operation',
     account_deleting: 'Account is being deleted',
+    record_done: 'The record is a done procedure: it can be read and deleted, not changed',
     dependency_unavailable: 'A dependency is temporarily unavailable',
     internal_error: 'Unexpected server error',
   }
@@ -376,9 +377,16 @@ export function buildOpenApiDocument(): Record<string, unknown> {
       '/pets/{id}/health/events/{event_id}': {
         parameters: [idParam, { name: 'event_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
         patch: {
-          summary: 'Correct a record, or move a plan',
+          summary: 'Correct or move a plan',
+          description:
+            'Only a planned record changes: a done one is history and answers 409 record_done ' +
+            '(it can still be deleted). A plan keeps its id and its items; «Сделано» is ' +
+            'POST /pets/{id}/health/items/{item_id}/complete.',
           requestBody: body('HealthEventPatch'),
-          responses: { '200': json('HealthEvent', 'The record'), ...commonErrors('bad_request', 'not_found') },
+          responses: {
+            '200': json('HealthEvent', 'The plan'),
+            ...commonErrors('bad_request', 'not_found', 'record_done'),
+          },
         },
         delete: {
           summary: 'Delete a record or cancel a plan; plans made from it stay',

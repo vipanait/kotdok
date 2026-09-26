@@ -194,20 +194,49 @@ export async function createEvent(
   return readEvent(supabase, userId, petId, data as string)
 }
 
+/** Why a record may not be changed; the route answers it with `record_done` (409). */
+export type DoneRecord = { ok: false; reason: 'record_done' }
+
+/**
+ * The owner's rule of 26 September 2026: a procedure that was done — a
+ * vaccination, a treatment, and (MW-06) a visit that happened — is history.
+ * It can be read and deleted, never changed. A plan changes freely, keeps its
+ * id and items, and becomes done only through its own step: «Сделано»
+ * (`complete_health_item`) for an item, «Был» for a visit (a PATCH that
+ * starts from a plan, so it passes here).
+ *
+ * The one check every change of a record goes through: `updateEvent` here,
+ * and the visit PATCH once MW-06 routes it through this too. Deleting does
+ * not ask it. Weights and the pet form are not procedures and never do.
+ *
+ * Read-then-write, not inside the SQL function: a «Сделано» landing between
+ * the read and the write of a change to the same plan is not caught (see the
+ * MW-03 report); every ordinary path is.
+ */
+export function refuseDoneChange(current: Pick<HealthEvent, 'status'>): DoneRecord | null {
+  return current.status === 'done' ? { ok: false, reason: 'record_done' } : null
+}
+
+/**
+ * A correction of a plan: its day («Перенести»), clinic, note and items. A
+ * done record is refused before anything else is looked at.
+ */
 export async function updateEvent(
   supabase: SupabaseService,
   userId: string,
   petId: string,
   eventId: string,
   patch: HealthEventPatch,
-): Promise<Result<HealthEvent> | { ok: false; reason: 'bad_product' | 'bad_target' }> {
+): Promise<Result<HealthEvent> | DoneRecord | { ok: false; reason: 'bad_product' | 'bad_target' }> {
   // Only a product newly given to an item is checked: one the item already
-  // had may have left the catalogue since, and correcting the note of an old
-  // record must not fail for it.
+  // had may have left the catalogue since, and correcting the note of a plan
+  // must not fail for it.
   // Visits are corrected through /visits, which knows their fields.
   const current = await readEvent(supabase, userId, petId, eventId)
   if (!current.ok) return current
   if (current.data.kind === 'visit') return { ok: false, reason: 'not_found' }
+  const done = refuseDoneChange(current.data)
+  if (done) return done
 
   if (patch.items) {
 

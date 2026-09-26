@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import CabinetShell from '@/components/cabinet/CabinetShell'
 import AddRecordChooser from '@/features/medical-record/AddRecordChooser'
 import { addableRecordTypes, parseRecordType } from '@/features/medical-record/stage'
+import { NewEventScreen } from '@/features/medical-record/events/EventFormScreen'
 import { NewWeightScreen } from '@/features/medical-record/weight/WeightFormScreen'
 import { openPetPage } from '@/components/cabinet/open-pet-page'
 import { privatePageMetadata } from '@/server/i18n/page-metadata'
@@ -9,7 +10,7 @@ import { privatePageMetadata } from '@/server/i18n/page-metadata'
 export const generateMetadata = privatePageMetadata(d => d.medicalRecord.addPage.title)
 
 /**
- * A new record: `?type=weight` is that type's form; no type is «Что
+ * A new record: `?type=weight` or `?type=vaccination` is that type's form; no type is «Что
  * добавить?». A type whose stage is not open, or an unknown one, is a 404 —
  * the site has no form for it yet.
  */
@@ -32,11 +33,16 @@ export default async function NewRecordPage({
   if (rawType !== undefined && (!type || !open.includes(type))) notFound()
   if (!type && open.length === 0) notFound()
 
-  const crumb = `${dict.medicalRecord.title} / ${type === 'weight' ? dict.medicalRecord.weightPage.title : dict.medicalRecord.addPage.title}`
+  const crumb = `${dict.medicalRecord.title} / ${type ? dict.medicalRecord.addPage.types[type] : dict.medicalRecord.addPage.title}`
   return (
     <CabinetShell cabinet={cabinet} active="pets" crumb={crumb}>
       {type === 'weight' ? (
         <NewWeightScreen key={id} petId={id} petName={pet.name} />
+      ) : type === 'vaccination' || type === 'parasite' ? (
+        // Keyed by pet: another pet's form starts clean, and its catalogue search with it.
+        <NewEventScreen key={`${id}-${type}`} petId={id} petName={pet.name} species={pet.species} kind={type} />
+      ) : type ? (
+        notFound()
       ) : (
         <AddRecordChooser petId={id} petName={pet.name} types={open} dict={dict} />
       )}

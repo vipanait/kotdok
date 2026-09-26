@@ -233,7 +233,17 @@ function joinDetail(...parts: (string | null | undefined)[]): string {
   return parts.filter((part): part is string => !!part && part.trim() !== '').join(' · ')
 }
 
-function vaccineName(dict: Dictionary, item: HealthItem): string {
+/**
+ * What an item of a vaccination or a treatment is called in a list: its name;
+ * without one, what it was against («Бешенство», «Блохи и клещи»); else
+ * «Без препарата».
+ */
+export function eventItemName(dict: Dictionary, kind: HealthEvent['kind'], item: Pick<HealthItem, 'name' | 'targets'>): string {
+  if (kind === 'parasite') return item.name ?? groupsTitle(dict, item.targets) ?? dict.medicalRecord.due.noProduct
+  return vaccineName(dict, item)
+}
+
+function vaccineName(dict: Dictionary, item: Pick<HealthItem, 'name' | 'targets'>): string {
   if (item.name) return item.name
   if (item.targets.length === 0) return dict.medicalRecord.due.noProduct
   const names = item.targets.map((code) => targetName(dict, code))
