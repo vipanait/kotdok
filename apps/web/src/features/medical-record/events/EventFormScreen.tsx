@@ -13,9 +13,12 @@ import { EVENT_FORM_KINDS, type EventFormKind } from './event-form'
 
 type PetFacts = { petId: string; petName: string; species: PetSpecies }
 
-/** `/pets/[id]/health/new?type=vaccination`: a new record, «Сделано» today by default. */
-export function NewEventScreen({ petId, petName, species, kind }: PetFacts & { kind: EventFormKind }) {
-  const [today] = useState(() => localToday())
+/**
+ * `/pets/[id]/health/new?type=vaccination`: a new record, «Сделано» today by
+ * default. `today` is the owner's day from the page: the form is drawn on the
+ * server, and a day read there from the browser's clock would be the server's.
+ */
+export function NewEventScreen({ petId, petName, species, kind, today }: PetFacts & { kind: EventFormKind; today: string }) {
   return <EventForm petId={petId} petName={petName} species={species} kind={kind} plan={null} today={today} />
 }
 
