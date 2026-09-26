@@ -53,8 +53,10 @@ async function apiStatus(path, bearer) {
 const tokenA = await token('owner-a@fixture.local')
 const tokenB = await token('owner-b@fixture.local')
 const pets = (await apiStatus('/pets', tokenA)).body
-const murka = pets.find((pet) => pet.name === 'Мурка' && !pet.id.startsWith('11111111'))
-const bobik = pets.find((pet) => pet.name === 'Бобик')
+// The demo pets carry the seed script's note; the fixture «Мурка» (11111111-…) is not one of them.
+const DEMO_NOTE = 'Демо медкарты (seed-medical-record-demo)'
+const murka = pets.find((pet) => pet.name === 'Мурка' && pet.notes === DEMO_NOTE)
+const bobik = pets.find((pet) => pet.name === 'Бобик' && pet.notes === DEMO_NOTE)
 if (!murka || !bobik) throw new Error('Seed the demo pets first (apps/web/scripts/seed-medical-record-demo.mjs)')
 
 const browser = await chromium.launch({ executablePath: process.env.CHROME, headless: true })
