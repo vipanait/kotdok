@@ -53,8 +53,11 @@ const eventParams = (id: string, eventId: string) => ({ params: Promise.resolve(
 const itemParams = (id: string, itemId: string) => ({ params: Promise.resolve({ id, itemId }) })
 
 /** A day relative to today in UTC, as the server sees it; the forms are given the same today. */
-function day(offset: number, from = new Date()): string {
-  return new Date(from.getTime() + offset * 86_400_000).toISOString().slice(0, 10)
+// One reading of the clock for the whole file: TODAY and every day(n) are
+// counted from it, so a run across midnight UTC cannot mix two todays.
+const NOW = Date.now()
+function day(offset: number): string {
+  return new Date(NOW + offset * 86_400_000).toISOString().slice(0, 10)
 }
 const TODAY = day(0)
 

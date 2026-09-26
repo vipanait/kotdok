@@ -41,7 +41,7 @@
 
 `screens/<id>.png` — весь экран при ширине 1440 px; `<id>-390.png` — видимая область 390 × 844; `<id>-390-full.png` — вся длинная страница. На полном снимке закреплённые элементы перенесены вниз страницы только для экспорта, чтобы не перекрывать середину длинной формы. Для проверки реального положения при прокрутке используйте живой прототип и снимки видимой области.
 
-`render.cjs` воспроизводит снимки локальным Chrome, проверяет 320/390/1024/1440 px, изображения, JavaScript и базовые действия. Пути runtime заданы для текущей рабочей машины; при переносе замените на установленный Playwright/Chrome. Результат — render-report.json. Это проверка дизайна, не end-to-end тест готовой функции.
+`render.cjs` воспроизводит снимки локальным Chrome, проверяет 320/390/1024/1440 px, изображения, JavaScript и базовые действия. Playwright и Chrome берутся из переменных окружения, как в скриптах проверки: `PLAYWRIGHT=/path/to/node_modules/playwright CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" node docs/design/medical-record-web-v1/render.cjs` (без `PLAYWRIGHT` — пакет, который найдёт Node; без `CHROME` — Google Chrome в /Applications). Результат — render-report.json. Это проверка дизайна, не end-to-end тест готовой функции.
 
 ## Сохранённые записи
 

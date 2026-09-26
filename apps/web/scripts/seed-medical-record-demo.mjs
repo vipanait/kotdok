@@ -69,6 +69,23 @@ const OWNER_A = 'owner-a@fixture.local'
 /** How the demo pets are told apart from anything else of owner A: the form's note. */
 const DEMO_NOTE = 'Демо медкарты (seed-medical-record-demo)'
 
+/**
+ * The demo's days, counted from the owner's today (Moscow), read once per run:
+ * the record looks the same whenever it is seeded — a treatment two weeks
+ * overdue, a plan a week ahead, a treatment due in nine days — and no fixed
+ * date runs out (the API refuses a plan in the past). Laid out as on
+ * 26 September 2026, when the demo was first written.
+ */
+const TODAY = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Moscow' }).format(new Date())
+const dayFrom = (offset) => new Date(Date.parse(`${TODAY}T00:00:00Z`) + offset * 86_400_000).toISOString().slice(0, 10)
+const dayBefore = (days) => dayFrom(-days)
+/** The same day a year later (29 February becomes 1 March). */
+const yearAfter = (day) => {
+  const date = new Date(`${day}T00:00:00Z`)
+  date.setUTCFullYear(date.getUTCFullYear() + 1)
+  return date.toISOString().slice(0, 10)
+}
+
 async function signIn(email) {
   const response = await fetch(`${env.TEST_SUPABASE_URL}/auth/v1/token?grant_type=password`, {
     method: 'POST',
@@ -138,7 +155,12 @@ try {
     notes: DEMO_NOTE,
   })
 
-  for (const [measured_on, weight_kg] of [['2026-03-12', 4.5], ['2026-06-20', 4.4], ['2026-09-12', 4.2]]) {
+  // Vaccinated half a year ago, a treatment 14 weeks ago whose 12-week plan is
+  // two weeks overdue, weighed on each of those days.
+  const vaccinatedOn = dayBefore(198)
+  const treatedOn = dayBefore(98)
+  const overdueOn = dayBefore(14)
+  for (const [measured_on, weight_kg] of [[vaccinatedOn, 4.5], [treatedOn, 4.4], [overdueOn, 4.2]]) {
     await api('POST', `/pets/${murka.id}/health/weights`, { measured_on, weight_kg })
   }
 
@@ -148,11 +170,11 @@ try {
     {
       kind: 'vaccination',
       status: 'done',
-      date: '2026-03-12',
+      date: vaccinatedOn,
       clinic: 'Айболит',
       items: [
-        { name: 'Нобивак Tricat Trio', targets: ['panleukopenia', 'calicivirus', 'rhinotracheitis'], product_id: productId('Нобивак Tricat Trio'), next_on: '2027-03-12' },
-        { name: 'Нобивак Rabies', targets: ['rabies'], product_id: productId('Нобивак Rabies'), next_on: '2027-03-12' },
+        { name: 'Нобивак Tricat Trio', targets: ['panleukopenia', 'calicivirus', 'rhinotracheitis'], product_id: productId('Нобивак Tricat Trio'), next_on: yearAfter(vaccinatedOn) },
+        { name: 'Нобивак Rabies', targets: ['rabies'], product_id: productId('Нобивак Rabies'), next_on: yearAfter(vaccinatedOn) },
       ],
     },
     withKey(),
@@ -160,16 +182,16 @@ try {
   const bravecto = await api(
     'POST',
     `/pets/${murka.id}/health/events`,
-    { kind: 'parasite', status: 'done', date: '2026-06-20', items: [{ name: 'Бравекто Спот-он', targets: ['fleas', 'ticks'], product_id: spotOn?.id ?? null }] },
+    { kind: 'parasite', status: 'done', date: treatedOn, items: [{ name: 'Бравекто Спот-он', targets: ['fleas', 'ticks'], product_id: spotOn?.id ?? null }] },
     withKey(),
   )
-  // Its next date, 12 September, is overdue by now. The API rightly refuses a
-  // plan in the past; in real life this plan was made in June, when it was
-  // ahead. So it is written as the June save would have left it.
+  // Its next date, two weeks ago, is overdue by now. The API rightly refuses a
+  // plan in the past; in real life this plan was made with the treatment, when
+  // it was ahead. So it is written as that save would have left it.
   const { rows: [overduePlan] } = await db.query(
     `insert into public.pet_health_events (user_id, pet_id, kind, status, event_date)
-     values ($1, $2, 'parasite', 'planned', date '2026-09-12') returning id`,
-    [userId, murka.id],
+     values ($1, $2, 'parasite', 'planned', $3::date) returning id`,
+    [userId, murka.id, overdueOn],
   )
   await db.query(
     `insert into public.pet_health_items (event_id, user_id, pet_id, name, targets, source_item_id, product_id, interval_value, interval_unit)
@@ -179,7 +201,7 @@ try {
   await api(
     'POST',
     `/pets/${murka.id}/health/events`,
-    { kind: 'parasite', status: 'done', date: '2026-07-05', items: [{ name: 'Мильбемакс', targets: ['worms'], product_id: milbemax?.id ?? null, next_on: '2026-10-05' }] },
+    { kind: 'parasite', status: 'done', date: dayBefore(83), items: [{ name: 'Мильбемакс', targets: ['worms'], product_id: milbemax?.id ?? null, next_on: dayFrom(9) }] },
     withKey(),
   )
 
@@ -191,9 +213,9 @@ try {
      values ($1, $2, 'Рвота два дня, отказ от еды', 'monitor', 'Состояние стабильное, но рвота повторяется',
              array['Обострение гастрита', 'Пищевая непереносимость'], null,
              array['Небольшие порции лёгкой еды'], array['Нужно ли сдать анализы?'], '{}'::jsonb,
-             timestamp '2026-08-01 09:30:00', 'ru')
+             $3::timestamp, 'ru')
      returning id`,
-    [userId, murka.id],
+    [userId, murka.id, `${dayBefore(56)} 09:30:00`],
   )
 
   await api(
@@ -201,7 +223,7 @@ try {
     `/pets/${murka.id}/health/visits`,
     {
       status: 'done',
-      date: '2026-08-02',
+      date: dayBefore(55),
       visit_kind: 'illness',
       clinic: 'Айболит',
       reason: 'Рвота два дня, отказ от еды',
@@ -217,7 +239,7 @@ try {
   await api(
     'POST',
     `/pets/${murka.id}/health/visits`,
-    { status: 'planned', date: '2026-10-03', visit_kind: 'checkup', reason: 'Контрольный осмотр' },
+    { status: 'planned', date: dayFrom(7), visit_kind: 'checkup', reason: 'Контрольный осмотр' },
     withKey(),
   )
 
@@ -226,8 +248,8 @@ try {
     `/pets/${murka.id}/health/medications`,
     {
       items: [
-        { name: 'Лечебный корм', dosage: 'По схеме врача', started_on: '2026-08-02', ongoing: true },
-        { name: 'Фортифлора', dosage: '1 пакетик в день', started_on: '2026-08-02', ended_on: '2026-08-15' },
+        { name: 'Лечебный корм', dosage: 'По схеме врача', started_on: dayBefore(55), ongoing: true },
+        { name: 'Фортифлора', dosage: '1 пакетик в день', started_on: dayBefore(55), ended_on: dayBefore(42) },
       ],
     },
     withKey(),
@@ -245,10 +267,6 @@ try {
   // Over thirty records, the longest names and texts the contracts allow and
   // one unbroken word: the vet summary must run to several A4 pages without
   // cutting a table, splitting a row or letting a line out of the margins.
-  const dayBefore = (days) => {
-    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Moscow' }).format(new Date())
-    return new Date(Date.parse(`${today}T00:00:00Z`) - days * 86_400_000).toISOString().slice(0, 10)
-  }
   const cut = (text, max) => Array.from(text).slice(0, max).join('')
   const baron = await api('POST', '/pets', {
     species: 'cat',
