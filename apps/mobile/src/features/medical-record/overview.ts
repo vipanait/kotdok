@@ -6,7 +6,7 @@ import {
   type Pet,
   type WeightMeasurement,
 } from '@lapka/contracts'
-import { isCurrentCourse, lastDoneDate } from '@lapka/shared'
+import { isCurrentCourse, isTakenNow, lastDoneDate } from '@lapka/shared'
 import type { Dictionary } from '@/i18n'
 import { weightTrend } from './weight'
 import { visitSummary } from './visits'
@@ -77,8 +77,10 @@ export type Fact = { label: string; value: string }
 
 /**
  * «Важно знать»: allergies, chronic conditions, current medicines — only
- * those on file. Medicines from the courses when there are any, «(постоянно)»
- * on the ongoing ones; the form's list otherwise.
+ * those on file. Medicines from the courses when there are any — those being
+ * given now (`isTakenNow`: a course that starts later is not taken yet, the
+ * same rule as the summary for the vet), «(постоянно)» on the ongoing ones;
+ * the form's list otherwise.
  */
 export function importantFacts(
   t: Dictionary,
@@ -87,7 +89,7 @@ export function importantFacts(
   today: string = '',
 ): Fact[] {
   const words = t.medicalRecord
-  const current = courses.filter((course) => isCurrentCourse(course, today))
+  const current = courses.filter((course) => isTakenNow(course, today))
   const medicines =
     courses.length > 0
       ? current.map((course) => (course.ongoing ? `${course.name} (${words.meds.ongoingOnly})` : course.name)).join(', ')

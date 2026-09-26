@@ -57,12 +57,15 @@ export function RecordProblem({
   petId,
   reload,
   loading,
+  returnTo,
 }: {
-  state: Exclude<RecordState, { status: 'ready' }>
+  state: Exclude<RecordState<unknown>, { status: 'ready' }>
   petId: string
   reload: () => void
   /** The page's own skeleton. */
   loading: React.ReactNode
+  /** Where signing in again brings the owner back to; the record by default. */
+  returnTo?: string
 }) {
   const dict = useTranslations()
   const words = dict.medicalRecord.states
@@ -108,7 +111,7 @@ export function RecordProblem({
         <section className="card health-problem" aria-labelledby="health-problem-title">
           <h1 id="health-problem-title" ref={problemRef} tabIndex={-1}>{words.signedOutTitle}</h1>
           <p>{words.signedOutBody}</p>
-          <Link href={`/login?next=${encodeURIComponent(`/pets/${petId}`)}`} className="btn primary">
+          <Link href={`/login?next=${encodeURIComponent(returnTo ?? `/pets/${petId}`)}`} className="btn primary">
             {words.signIn}
           </Link>
         </section>
@@ -117,7 +120,7 @@ export function RecordProblem({
 }
 
 /** A refresh failed over data already shown: say so, and offer to try again. */
-export function StaleNotice({ state, reload }: { state: Extract<RecordState, { status: 'ready' }>; reload: () => void }) {
+export function StaleNotice({ state, reload }: { state: Extract<RecordState<unknown>, { status: 'ready' }>; reload: () => void }) {
   const dict = useTranslations()
   if (!state.stale) return null
   return (

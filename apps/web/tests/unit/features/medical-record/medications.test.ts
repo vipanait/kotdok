@@ -162,6 +162,13 @@ describe('the medicines section', () => {
     expect(card?.lines.map((line) => line.detail)).toEqual(['Завершён · 2 августа – 26 сентября', 'Завершён · 2–15 августа'])
     expect(coursesPage(ru, ended, TODAY)).toMatchObject({ subtitle: 'Мурка · Сейчас: 0 · Всего: 2', current: [] })
   })
+
+  it('keeps a course that starts later under «Сейчас» but not in «Принимает сейчас», as the summary for the vet (MW-07)', () => {
+    const later = course({ id: '33333333-3333-4333-8333-000000000009', name: 'Витамины', started_on: '2026-10-03' })
+    const planned = { ...murka, medications: [...murka.medications, later] }
+    expect(importantFacts(ru, planned, TODAY).find((fact) => fact.label === 'Принимает сейчас')?.value).toBe('Лечебный корм · постоянно')
+    expect(coursesPage(ru, planned, TODAY).current.map((c) => c.title)).toContain('Витамины')
+  })
 })
 
 describe('one course', () => {

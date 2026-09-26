@@ -1,5 +1,5 @@
 import { CalendarDateSchema, type Medication, type MedicationPatch } from '@lapka/contracts'
-import { isCurrentCourse } from './record-overview'
+import { isCurrentCourse, isTakenNow } from './record-overview'
 
 /**
  * The rules of a medication course that the web and the phone share: which
@@ -24,7 +24,7 @@ export function courseEditable(course: Pick<Medication, 'ended_on'>, today: stri
  * before its start.
  */
 export function canEndCourse(course: Pick<Medication, 'started_on' | 'ended_on'>, today: string): boolean {
-  return isCurrentCourse(course, today) && (course.started_on === null || course.started_on <= today)
+  return isTakenNow(course, today)
 }
 
 /**

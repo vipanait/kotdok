@@ -10,7 +10,7 @@ import {
   type VetSummary,
   type WeightMeasurement,
 } from '@lapka/contracts'
-import { toUtcIso } from '@lapka/shared'
+import { isTakenNow, splitCourses, toUtcIso } from '@lapka/shared'
 import type { createServiceClient } from '@/server/supabase/server'
 import { getHealthOverview } from './overview-service'
 import { utcToday } from './weight-service'
@@ -87,12 +87,13 @@ export function summarise(input: {
   ]
 
   const since = yearBefore(today)
-  const current = input.medications.filter(
-    (course) => (course.started_on === null || course.started_on <= today) && (course.ended_on === null || course.ended_on > today),
-  )
+  // «Принимает сейчас» is one shared rule (`isTakenNow`), the same as the
+  // record's «Важно знать» on the site and the phone: a course that starts
+  // later is prescribed, not taken, and is not told to the vet as taken.
+  // Latest start first, as the record lists them.
+  const current = splitCourses(input.medications, today).current.filter((course) => isTakenNow(course, today))
   // With courses on file, «принимает сейчас» is theirs, the same list as
-  // `medications` — a course starting later is not taken yet. Without any,
-  // the form's own list stands.
+  // `medications`. Without any, the form's own list stands.
   const shownPet =
     input.medications.length > 0 ? { ...pet, medications: [...new Set(current.map((course) => course.name.trim()))] } : pet
 

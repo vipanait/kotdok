@@ -14,14 +14,15 @@ export type ChecksPart = { status: 'ready'; items: SymptomCheckRecord[] } | { st
 
 export type RecordData = { overview: HealthOverview; checks: ChecksPart }
 
-export type RecordState =
+/** `T`: what the page loads — the record by default, the summary for the vet on its page. */
+export type RecordState<T = RecordData> =
   /** First load, nothing to show yet: a skeleton. */
   | { status: 'loading' }
   /** No data and the request failed: an error with a retry, never an empty record. */
   | { status: 'failed'; retrying: boolean }
   | {
       status: 'ready'
-      data: RecordData
+      data: T
       /** A refresh is running over data already shown. */
       refreshing: boolean
       /** The last refresh failed: the data on screen is from before. */
@@ -36,16 +37,16 @@ export type RecordState =
 
 export type LoadFailure = 'not_found' | 'signed_out' | 'deleting' | 'failed'
 
-export type RecordAction =
+export type RecordAction<T = RecordData> =
   | { type: 'start' }
-  | { type: 'loaded'; data: RecordData }
+  | { type: 'loaded'; data: T }
   | { type: 'failed'; failure: LoadFailure }
 
-export function initialRecordState(cached: RecordData | null): RecordState {
+export function initialRecordState<T = RecordData>(cached: T | null): RecordState<T> {
   return cached ? { status: 'ready', data: cached, refreshing: true, stale: false } : { status: 'loading' }
 }
 
-export function recordReducer(state: RecordState, action: RecordAction): RecordState {
+export function recordReducer<T = RecordData>(state: RecordState<T>, action: RecordAction<T>): RecordState<T> {
   switch (action.type) {
     case 'start':
       if (state.status === 'ready') return { ...state, refreshing: true }

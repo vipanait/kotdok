@@ -211,6 +211,18 @@ export function isCurrentCourse(course: Pick<Medication, 'ended_on'>, today: str
 }
 
 /**
+ * Being given now: current and already begun (a course from the pet form has
+ * no start and counts). «Принимает сейчас» — in the record's «Важно знать»,
+ * in the summary for the vet — lists these and nothing else: a course that
+ * starts later is prescribed, not taken, and a vet reading it as taken would
+ * be misled. The medicines list still shows it under «Сейчас» with its start
+ * date, since it is neither finished nor history.
+ */
+export function isTakenNow(course: Pick<Medication, 'started_on' | 'ended_on'>, today: string): boolean {
+  return isCurrentCourse(course, today) && (course.started_on === null || course.started_on <= today)
+}
+
+/**
  * Current courses, latest start first; then finished ones, latest end first
  * (courses ending the same day keep the latest start first).
  */
