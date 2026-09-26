@@ -1,0 +1,2280 @@
+{
+  "screens": [
+    {
+      "id": "medical",
+      "name": "Медкарта · Мурка",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "medical",
+      "name": "Медкарта · Мурка",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "medical",
+      "name": "Медкарта · Мурка",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "medical",
+      "name": "Медкарта · Мурка",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "medical-empty",
+      "name": "Медкарта · Бобик",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "medical-empty",
+      "name": "Медкарта · Бобик",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "medical-empty",
+      "name": "Медкарта · Бобик",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "medical-empty",
+      "name": "Медкарта · Бобик",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "dashboard",
+      "name": "Обзор · сроки питомцев",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "dashboard",
+      "name": "Обзор · сроки питомцев",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "dashboard",
+      "name": "Обзор · сроки питомцев",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "dashboard",
+      "name": "Обзор · сроки питомцев",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "pets",
+      "name": "Все питомцы",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "pets",
+      "name": "Все питомцы",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "pets",
+      "name": "Все питомцы",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "pets",
+      "name": "Все питомцы",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "add",
+      "name": "Добавить запись",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "add",
+      "name": "Добавить запись",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "add",
+      "name": "Добавить запись",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "add",
+      "name": "Добавить запись",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "due",
+      "name": "Все сроки",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "due",
+      "name": "Все сроки",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "due",
+      "name": "Все сроки",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "due",
+      "name": "Все сроки",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "vaccines",
+      "name": "Прививки",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "vaccines",
+      "name": "Прививки",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "vaccines",
+      "name": "Прививки",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "vaccines",
+      "name": "Прививки",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "vaccines-empty",
+      "name": "Прививки · из анкеты",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "vaccines-empty",
+      "name": "Прививки · из анкеты",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "vaccines-empty",
+      "name": "Прививки · из анкеты",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "vaccines-empty",
+      "name": "Прививки · из анкеты",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "vaccine-done",
+      "name": "Прививка · сделано",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "vaccine-done",
+      "name": "Прививка · сделано",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "vaccine-done",
+      "name": "Прививка · сделано",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "vaccine-done",
+      "name": "Прививка · сделано",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "vaccine-plan",
+      "name": "Прививка · план",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "vaccine-plan",
+      "name": "Прививка · план",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "vaccine-plan",
+      "name": "Прививка · план",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "vaccine-plan",
+      "name": "Прививка · план",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "catalog",
+      "name": "Прививка · открытый справочник",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "catalog",
+      "name": "Прививка · открытый справочник",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "catalog",
+      "name": "Прививка · открытый справочник",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "catalog",
+      "name": "Прививка · открытый справочник",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "catalog-error",
+      "name": "Справочник · ошибка",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "catalog-error",
+      "name": "Справочник · ошибка",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "catalog-error",
+      "name": "Справочник · ошибка",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "catalog-error",
+      "name": "Справочник · ошибка",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "dog-vaccine",
+      "name": "Прививка · собака",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "dog-vaccine",
+      "name": "Прививка · собака",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "dog-vaccine",
+      "name": "Прививка · собака",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "dog-vaccine",
+      "name": "Прививка · собака",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "manual",
+      "name": "Своё название",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "manual",
+      "name": "Своё название",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "manual",
+      "name": "Своё название",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "manual",
+      "name": "Своё название",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "targets",
+      "name": "Без препарата",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "targets",
+      "name": "Без препарата",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "targets",
+      "name": "Без препарата",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "targets",
+      "name": "Без препарата",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasites",
+      "name": "Паразиты",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasites",
+      "name": "Паразиты",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasites",
+      "name": "Паразиты",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasites",
+      "name": "Паразиты",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasites-empty",
+      "name": "Обработки · пусто",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasites-empty",
+      "name": "Обработки · пусто",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasites-empty",
+      "name": "Обработки · пусто",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasites-empty",
+      "name": "Обработки · пусто",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-done",
+      "name": "Обработка · две позиции",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-done",
+      "name": "Обработка · две позиции",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-done",
+      "name": "Обработка · две позиции",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-done",
+      "name": "Обработка · две позиции",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-plan",
+      "name": "Обработка · план",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-plan",
+      "name": "Обработка · план",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-plan",
+      "name": "Обработка · план",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-plan",
+      "name": "Обработка · план",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-complete",
+      "name": "Сделано · одна позиция",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-complete",
+      "name": "Сделано · одна позиция",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-complete",
+      "name": "Сделано · одна позиция",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-complete",
+      "name": "Сделано · одна позиция",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "weight",
+      "name": "Вес · график",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "weight",
+      "name": "Вес · график",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "weight",
+      "name": "Вес · график",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "weight",
+      "name": "Вес · график",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "weight-one",
+      "name": "Вес · одна точка",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "weight-one",
+      "name": "Вес · одна точка",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "weight-one",
+      "name": "Вес · одна точка",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "weight-one",
+      "name": "Вес · одна точка",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "weight-new",
+      "name": "Вес · добавление",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "weight-new",
+      "name": "Вес · добавление",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "weight-new",
+      "name": "Вес · добавление",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "weight-new",
+      "name": "Вес · добавление",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "weight-edit",
+      "name": "Вес · изменение",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "weight-edit",
+      "name": "Вес · изменение",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "weight-edit",
+      "name": "Вес · изменение",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "weight-edit",
+      "name": "Вес · изменение",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "medications",
+      "name": "Лекарства",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "medications",
+      "name": "Лекарства",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "medications",
+      "name": "Лекарства",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "medications",
+      "name": "Лекарства",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "medications-empty",
+      "name": "Лекарства · пусто",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "medications-empty",
+      "name": "Лекарства · пусто",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "medications-empty",
+      "name": "Лекарства · пусто",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "medications-empty",
+      "name": "Лекарства · пусто",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "medication-new",
+      "name": "Лекарство · форма",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "medication-new",
+      "name": "Лекарство · форма",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "medication-new",
+      "name": "Лекарство · форма",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "medication-new",
+      "name": "Лекарство · форма",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "course",
+      "name": "Текущий курс",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "course",
+      "name": "Текущий курс",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "course",
+      "name": "Текущий курс",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "course",
+      "name": "Текущий курс",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visits",
+      "name": "Визиты",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visits",
+      "name": "Визиты",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visits",
+      "name": "Визиты",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visits",
+      "name": "Визиты",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visits-empty",
+      "name": "Визиты · пусто",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visits-empty",
+      "name": "Визиты · пусто",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visits-empty",
+      "name": "Визиты · пусто",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visits-empty",
+      "name": "Визиты · пусто",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visit-done",
+      "name": "Визит · был",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visit-done",
+      "name": "Визит · был",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visit-done",
+      "name": "Визит · был",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visit-done",
+      "name": "Визит · был",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visit-plan",
+      "name": "Визит · план",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visit-plan",
+      "name": "Визит · план",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visit-plan",
+      "name": "Визит · план",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visit-plan",
+      "name": "Визит · план",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visit-record",
+      "name": "Визит · просмотр",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visit-record",
+      "name": "Визит · просмотр",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visit-record",
+      "name": "Визит · просмотр",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visit-record",
+      "name": "Визит · просмотр",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "planned",
+      "name": "План · просмотр",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "planned",
+      "name": "План · просмотр",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "planned",
+      "name": "План · просмотр",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "planned",
+      "name": "План · просмотр",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "record",
+      "name": "Запись · просмотр",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "record",
+      "name": "Запись · просмотр",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "record",
+      "name": "Запись · просмотр",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "record",
+      "name": "Запись · просмотр",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "summary",
+      "name": "Для врача",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "summary",
+      "name": "Для врача",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "summary",
+      "name": "Для врача",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "summary",
+      "name": "Для врача",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "dog-summary",
+      "name": "Для врача · без записей",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "dog-summary",
+      "name": "Для врача · без записей",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "dog-summary",
+      "name": "Для врача · без записей",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "dog-summary",
+      "name": "Для врача · без записей",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "print",
+      "name": "Сводка · A4",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "print",
+      "name": "Сводка · A4",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "print",
+      "name": "Сводка · A4",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "print",
+      "name": "Сводка · A4",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "pet-edit",
+      "name": "Анкета · подсказки",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "pet-edit",
+      "name": "Анкета · подсказки",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "pet-edit",
+      "name": "Анкета · подсказки",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "pet-edit",
+      "name": "Анкета · подсказки",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "dog-edit",
+      "name": "Анкета Бобика",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "dog-edit",
+      "name": "Анкета Бобика",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "dog-edit",
+      "name": "Анкета Бобика",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "dog-edit",
+      "name": "Анкета Бобика",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "load-error",
+      "name": "Медкарта · ошибка",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "load-error",
+      "name": "Медкарта · ошибка",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "load-error",
+      "name": "Медкарта · ошибка",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "load-error",
+      "name": "Медкарта · ошибка",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "save-error",
+      "name": "Форма · ошибка сохранения",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "save-error",
+      "name": "Форма · ошибка сохранения",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "save-error",
+      "name": "Форма · ошибка сохранения",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "save-error",
+      "name": "Форма · ошибка сохранения",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "loading",
+      "name": "Медкарта · загрузка",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "loading",
+      "name": "Медкарта · загрузка",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "loading",
+      "name": "Медкарта · загрузка",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "loading",
+      "name": "Медкарта · загрузка",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "pet-history",
+      "name": "История Мурки",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "pet-history",
+      "name": "История Мурки",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "pet-history",
+      "name": "История Мурки",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "pet-history",
+      "name": "История Мурки",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "result",
+      "name": "Результат · записать визит",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "result",
+      "name": "Результат · записать визит",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "result",
+      "name": "Результат · записать визит",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "result",
+      "name": "Результат · записать визит",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "vaccine-2025",
+      "name": "Прививка · 12 марта 2025",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "vaccine-2025",
+      "name": "Прививка · 12 марта 2025",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "vaccine-2025",
+      "name": "Прививка · 12 марта 2025",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "vaccine-2025",
+      "name": "Прививка · 12 марта 2025",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "planned-edit",
+      "name": "Изменить · Прививка · 12 марта 2027",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "planned-edit",
+      "name": "Изменить · Прививка · 12 марта 2027",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "planned-edit",
+      "name": "Изменить · Прививка · 12 марта 2027",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "planned-edit",
+      "name": "Изменить · Прививка · 12 марта 2027",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "planned-complete",
+      "name": "Сделано · Нобивак Tricat Trio",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "planned-complete",
+      "name": "Сделано · Нобивак Tricat Trio",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "planned-complete",
+      "name": "Сделано · Нобивак Tricat Trio",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "planned-complete",
+      "name": "Сделано · Нобивак Tricat Trio",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-july",
+      "name": "Обработка от паразитов · 5 июля 2026",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-july",
+      "name": "Обработка от паразитов · 5 июля 2026",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-july",
+      "name": "Обработка от паразитов · 5 июля 2026",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-july",
+      "name": "Обработка от паразитов · 5 июля 2026",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-june",
+      "name": "Обработка от паразитов · 20 июня 2026",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-june",
+      "name": "Обработка от паразитов · 20 июня 2026",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-june",
+      "name": "Обработка от паразитов · 20 июня 2026",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-june",
+      "name": "Обработка от паразитов · 20 июня 2026",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-plan-flea",
+      "name": "Обработка от паразитов · 12 сентября 2026",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-plan-flea",
+      "name": "Обработка от паразитов · 12 сентября 2026",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-plan-flea",
+      "name": "Обработка от паразитов · 12 сентября 2026",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-plan-flea",
+      "name": "Обработка от паразитов · 12 сентября 2026",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-plan-flea-edit",
+      "name": "Изменить · Обработка от паразитов · 12 сентября 2026",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-plan-flea-edit",
+      "name": "Изменить · Обработка от паразитов · 12 сентября 2026",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-plan-flea-edit",
+      "name": "Изменить · Обработка от паразитов · 12 сентября 2026",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-plan-flea-edit",
+      "name": "Изменить · Обработка от паразитов · 12 сентября 2026",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-plan-flea-complete",
+      "name": "Сделано · Бравекто Спот-он",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-plan-flea-complete",
+      "name": "Сделано · Бравекто Спот-он",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-plan-flea-complete",
+      "name": "Сделано · Бравекто Спот-он",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-plan-flea-complete",
+      "name": "Сделано · Бравекто Спот-он",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-plan-worm",
+      "name": "Обработка от паразитов · 5 октября 2026",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-plan-worm",
+      "name": "Обработка от паразитов · 5 октября 2026",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-plan-worm",
+      "name": "Обработка от паразитов · 5 октября 2026",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-plan-worm",
+      "name": "Обработка от паразитов · 5 октября 2026",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-plan-worm-edit",
+      "name": "Изменить · Обработка от паразитов · 5 октября 2026",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-plan-worm-edit",
+      "name": "Изменить · Обработка от паразитов · 5 октября 2026",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-plan-worm-edit",
+      "name": "Изменить · Обработка от паразитов · 5 октября 2026",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-plan-worm-edit",
+      "name": "Изменить · Обработка от паразитов · 5 октября 2026",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-plan-worm-complete",
+      "name": "Сделано · Мильбемакс",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-plan-worm-complete",
+      "name": "Сделано · Мильбемакс",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-plan-worm-complete",
+      "name": "Сделано · Мильбемакс",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "parasite-plan-worm-complete",
+      "name": "Сделано · Мильбемакс",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "planned-core",
+      "name": "Прививка · 12 марта 2027",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "planned-core",
+      "name": "Прививка · 12 марта 2027",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "planned-core",
+      "name": "Прививка · 12 марта 2027",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "planned-core",
+      "name": "Прививка · 12 марта 2027",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "planned-core-edit",
+      "name": "Изменить · Прививка · 12 марта 2027",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "planned-core-edit",
+      "name": "Изменить · Прививка · 12 марта 2027",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "planned-core-edit",
+      "name": "Изменить · Прививка · 12 марта 2027",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "planned-core-edit",
+      "name": "Изменить · Прививка · 12 марта 2027",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "planned-core-complete",
+      "name": "Сделано · Нобивак Tricat Trio",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "planned-core-complete",
+      "name": "Сделано · Нобивак Tricat Trio",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "planned-core-complete",
+      "name": "Сделано · Нобивак Tricat Trio",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "planned-core-complete",
+      "name": "Сделано · Нобивак Tricat Trio",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "planned-rabies",
+      "name": "Прививка · 12 марта 2027",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "planned-rabies",
+      "name": "Прививка · 12 марта 2027",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "planned-rabies",
+      "name": "Прививка · 12 марта 2027",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "planned-rabies",
+      "name": "Прививка · 12 марта 2027",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "planned-rabies-edit",
+      "name": "Изменить · Прививка · 12 марта 2027",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "planned-rabies-edit",
+      "name": "Изменить · Прививка · 12 марта 2027",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "planned-rabies-edit",
+      "name": "Изменить · Прививка · 12 марта 2027",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "planned-rabies-edit",
+      "name": "Изменить · Прививка · 12 марта 2027",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "planned-rabies-complete",
+      "name": "Сделано · Нобивак Rabies",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "planned-rabies-complete",
+      "name": "Сделано · Нобивак Rabies",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "planned-rabies-complete",
+      "name": "Сделано · Нобивак Rabies",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "planned-rabies-complete",
+      "name": "Сделано · Нобивак Rabies",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "course-edit",
+      "name": "Текущий курс · изменить",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "course-edit",
+      "name": "Текущий курс · изменить",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "course-edit",
+      "name": "Текущий курс · изменить",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "course-edit",
+      "name": "Текущий курс · изменить",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "course-finished",
+      "name": "Завершённый курс",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "course-finished",
+      "name": "Завершённый курс",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "course-finished",
+      "name": "Завершённый курс",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "course-finished",
+      "name": "Завершённый курс",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visit-planned",
+      "name": "Запланированный визит",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visit-planned",
+      "name": "Запланированный визит",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visit-planned",
+      "name": "Запланированный визит",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visit-planned",
+      "name": "Запланированный визит",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visit-plan-edit",
+      "name": "Визит · изменить план",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visit-plan-edit",
+      "name": "Визит · изменить план",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visit-plan-edit",
+      "name": "Визит · изменить план",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visit-plan-edit",
+      "name": "Визит · изменить план",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visit-complete",
+      "name": "Визит · отметить состоявшимся",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visit-complete",
+      "name": "Визит · отметить состоявшимся",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visit-complete",
+      "name": "Визит · отметить состоявшимся",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visit-complete",
+      "name": "Визит · отметить состоявшимся",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visit-from-result",
+      "name": "Визит · из проверки",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visit-from-result",
+      "name": "Визит · из проверки",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visit-from-result",
+      "name": "Визит · из проверки",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visit-from-result",
+      "name": "Визит · из проверки",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "weight-june-edit",
+      "name": "Вес · изменить 20 июня",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "weight-june-edit",
+      "name": "Вес · изменить 20 июня",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "weight-june-edit",
+      "name": "Вес · изменить 20 июня",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "weight-june-edit",
+      "name": "Вес · изменить 20 июня",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "weight-march-edit",
+      "name": "Вес · изменить 12 марта",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "weight-march-edit",
+      "name": "Вес · изменить 12 марта",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "weight-march-edit",
+      "name": "Вес · изменить 12 марта",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "weight-march-edit",
+      "name": "Вес · изменить 12 марта",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visit-prescriptions",
+      "name": "Визит · заполненные назначения",
+      "width": 1440,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visit-prescriptions",
+      "name": "Визит · заполненные назначения",
+      "width": 1024,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visit-prescriptions",
+      "name": "Визит · заполненные назначения",
+      "width": 390,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    },
+    {
+      "id": "visit-prescriptions",
+      "name": "Визит · заполненные назначения",
+      "width": 320,
+      "overflow": false,
+      "images": true,
+      "fragmentedCards": 0
+    }
+  ],
+  "errors": [],
+  "interactions": "passed",
+  "savedRecordJourneys": "completed records immutable; plan edit/cancel passed",
+  "formAudit": "medicine toggles and rows; individual weights; fresh creation; product interval; planning preserves positions: passed"
+}
