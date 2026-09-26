@@ -86,8 +86,9 @@ export default function CourseScreen({ petId, courseId, saved }: { petId: string
       inFlight.current = false
       setBusy(false)
       const failure = eventSaveFailure(error)
-      // Gone meanwhile: the page says so once the record is read again.
-      if (failure === 'gone') {
+      // Gone meanwhile, or finished meanwhile (elsewhere, or an earlier attempt
+      // whose answer was lost): the page shows which once the record is read again.
+      if (failure === 'gone' || failure === 'done') {
         setAsking(null)
         recordCache.forget(petId)
         reload()
@@ -146,7 +147,12 @@ export default function CourseScreen({ petId, courseId, saved }: { petId: string
         )}
       </div>
 
-      {ended ? <SavedNotice text={words.coursesPage.saved.ended} /> : saved && <SavedNotice text={words.coursesPage.saved[saved]} />}
+      {/* Keyed: the end's confirmation is a new notice that takes focus, even over a `?saved=` one. */}
+      {ended ? (
+        <SavedNotice key="ended" text={words.coursesPage.saved.ended} />
+      ) : (
+        saved && <SavedNotice key={`saved-${saved}`} text={words.coursesPage.saved[saved]} />
+      )}
       <StaleNotice state={state} reload={reload} />
 
       <div className="section-layout">

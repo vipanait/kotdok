@@ -20,11 +20,11 @@ export type VisitFromCheck = { checkId: string; reason: string; link: CheckLink 
  * `/pets/[id]/health/new?type=visit`: a new visit, «Был» today and empty.
  * With `&check=` (from a result, the page checked it is this pet's) it is
  * «Болезнь», the check's first line as the reason and that check linked;
- * «Назад» leads back to the result.
+ * «Назад» leads back to the result. `today`: the owner's day from the page,
+ * the same on the server and in the browser.
  */
-export function NewVisitScreen({ petId, petName, fromCheck }: PetFacts & { fromCheck: VisitFromCheck | null }) {
+export function NewVisitScreen({ petId, petName, fromCheck, today }: PetFacts & { fromCheck: VisitFromCheck | null; today: string }) {
   const checks = usePetChecks(petId)
-  const [today] = useState(() => localToday())
   const backHref = fromCheck ? fromCheck.link.href : medicalRecordHref.section(petId, 'visits')
   return (
     <VisitForm

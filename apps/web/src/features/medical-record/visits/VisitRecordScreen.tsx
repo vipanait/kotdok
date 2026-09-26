@@ -42,13 +42,14 @@ export default function VisitRecordScreen({ petId, visitId, saved }: { petId: st
   const [removeError, setRemoveError] = useState<string | undefined>()
   const [adding, setAdding] = useState<string | null>(null)
   const [addError, setAddError] = useState<{ id: string; text: string } | null>(null)
-  const [added, setAdded] = useState(false)
+  /** Courses started from this page so far: each one is its own confirmation. */
+  const [added, setAdded] = useState(0)
   const removeRef = useRef<HTMLButtonElement>(null)
   const inFlight = useRef(false)
 
   // A course was started: read the record again, so the prescription shows it.
   useEffect(() => {
-    if (!added) return
+    if (added === 0) return
     recordCache.forget(petId)
     reload()
     // Once per addition.
@@ -107,12 +108,11 @@ export default function VisitRecordScreen({ petId, visitId, saved }: { petId: st
     inFlight.current = true
     setAdding(itemId)
     setAddError(null)
-    setAdded(false)
     try {
       await browserApi().prescriptionToMedication(petId, itemId)
       inFlight.current = false
       setAdding(null)
-      setAdded(true)
+      setAdded((count) => count + 1)
       // «Принимает сейчас», the pet form and the summary read the server anew.
       router.refresh()
     } catch (error) {
@@ -149,7 +149,12 @@ export default function VisitRecordScreen({ petId, visitId, saved }: { petId: st
         )}
       </div>
 
-      {added ? <SavedNotice text={view.added} /> : saved && <SavedNotice text={words.visitsPage.saved[saved]} />}
+      {/* Keyed: every addition is a new notice that takes focus, even over a `?saved=` one or the previous addition's. */}
+      {added > 0 ? (
+        <SavedNotice key={`added-${added}`} text={view.added} />
+      ) : (
+        saved && <SavedNotice key={`saved-${saved}`} text={words.visitsPage.saved[saved]} />
+      )}
       <StaleNotice state={state} reload={reload} />
 
       <div className="section-layout">

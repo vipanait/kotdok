@@ -11,7 +11,7 @@ import { openPetPage } from '@/components/cabinet/open-pet-page'
 import { UuidSchema } from '@lapka/contracts'
 import { reasonFromCheck } from '@lapka/shared'
 import { loadCheckResult } from '@/server/checks/load-check-pages'
-import { getTimeZone } from '@/server/i18n/get-time-zone'
+import { getOwnerToday, getTimeZone } from '@/server/i18n/get-time-zone'
 import { dayInZone } from '@/shared/i18n/time-zone'
 import { urgencyTitle } from '@/shared/utils/urgency'
 import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
@@ -75,18 +75,21 @@ export default async function NewRecordPage({
   const fromCheck = type === 'visit' && rawCheck !== null ? await visitSource(cabinet.user.id, id, rawCheck, dict) : null
   if (type === 'visit' && rawCheck !== null && !fromCheck) notFound()
 
+  // The owner's day, worked out here as the overview does: the form is drawn on
+  // the server, and its date limits must not be the server's UTC day.
+  const today = await getOwnerToday()
   const crumb = `${dict.medicalRecord.title} / ${type ? dict.medicalRecord.addPage.types[type] : dict.medicalRecord.addPage.title}`
   return (
     <CabinetShell cabinet={cabinet} active="pets" crumb={crumb}>
       {type === 'weight' ? (
-        <NewWeightScreen key={id} petId={id} petName={pet.name} />
+        <NewWeightScreen key={id} petId={id} petName={pet.name} today={today} />
       ) : type === 'vaccination' || type === 'parasite' ? (
         // Keyed by pet: another pet's form starts clean, and its catalogue search with it.
-        <NewEventScreen key={`${id}-${type}`} petId={id} petName={pet.name} species={pet.species} kind={type} />
+        <NewEventScreen key={`${id}-${type}`} petId={id} petName={pet.name} species={pet.species} kind={type} today={today} />
       ) : type === 'visit' ? (
-        <NewVisitScreen key={`${id}-${fromCheck?.checkId ?? ''}`} petId={id} petName={pet.name} fromCheck={fromCheck} />
+        <NewVisitScreen key={`${id}-${fromCheck?.checkId ?? ''}`} petId={id} petName={pet.name} fromCheck={fromCheck} today={today} />
       ) : type === 'medication' ? (
-        <NewCourseScreen key={id} petId={id} petName={pet.name} />
+        <NewCourseScreen key={id} petId={id} petName={pet.name} today={today} />
       ) : type ? (
         notFound()
       ) : (

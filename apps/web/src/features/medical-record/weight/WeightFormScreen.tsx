@@ -9,9 +9,11 @@ import { medicalRecordHref } from '../stage'
 import { useMedicalRecord } from '../use-medical-record'
 import WeightForm from './WeightForm'
 
-/** `/pets/[id]/health/new?type=weight`: a new weighing, today's by default. */
-export function NewWeightScreen({ petId, petName }: { petId: string; petName: string }) {
-  const [today] = useState(() => localToday())
+/**
+ * `/pets/[id]/health/new?type=weight`: a new weighing, today's by default.
+ * `today`: the owner's day from the page, the same on the server and in the browser.
+ */
+export function NewWeightScreen({ petId, petName, today }: { petId: string; petName: string; today: string }) {
   return <WeightForm petId={petId} petName={petName} editing={null} today={today} />
 }
 

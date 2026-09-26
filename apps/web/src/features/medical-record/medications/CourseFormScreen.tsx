@@ -9,9 +9,11 @@ import { medicalRecordHref } from '../stage'
 import { useMedicalRecord } from '../use-medical-record'
 import CourseForm from './CourseForm'
 
-/** `/pets/[id]/health/new?type=medication`: new courses, one empty to start with. */
-export function NewCourseScreen({ petId, petName }: { petId: string; petName: string }) {
-  const [today] = useState(() => localToday())
+/**
+ * `/pets/[id]/health/new?type=medication`: new courses, one empty to start with.
+ * `today`: the owner's day from the page, the same on the server and in the browser.
+ */
+export function NewCourseScreen({ petId, petName, today }: { petId: string; petName: string; today: string }) {
   return <CourseForm petId={petId} petName={petName} course={null} today={today} />
 }
 
