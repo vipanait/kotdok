@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import Icon from '@/components/ui/Icon'
 import Illustration from '@/components/ui/Illustration'
+import { medicalRecordHref } from '@/features/medical-record/stage'
 import UrgencyBadge from '@/components/ui/UrgencyBadge'
 import type { Locale } from '@/shared/i18n/config'
 import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
@@ -11,7 +12,7 @@ import { isUrgencyKey } from '@/shared/utils/urgency'
 /**
  * Pets as compact rows — the overview's first three and the full list on
  * `/pets`, so the page keeps its shape however many pets there are. Each row
- * opens that pet's profile.
+ * opens that pet's medical record; the profile form is one step further.
  *
  * The badge is the outcome of the pet's last saved check, labelled as such:
  * a past result, not how the pet is now. Rows keep the order they come in
@@ -36,7 +37,7 @@ export default function PetRows({
         const meta = petSummary(pet, dict, locale) || (pet.species === 'dog' ? t.speciesDog : t.speciesCat)
         return (
           <li key={pet.id}>
-            <Link href={`/pets/${pet.id}/edit`} className="compact-pet">
+            <Link href={medicalRecordHref.record(pet.id)} className="compact-pet">
               {/* 48px, 42px on phones: sized by CSS, so no fixed box here. */}
               <Illustration name={pet.species === 'dog' ? 'avatar-dog' : 'avatar-cat'} size={48} className="avatar" />
               <div className="compact-pet-copy">
