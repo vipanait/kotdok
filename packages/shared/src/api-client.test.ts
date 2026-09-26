@@ -72,3 +72,25 @@ describe('api client deadline', () => {
     await expect(api.listPets()).rejects.toBeInstanceOf(ApiError)
   })
 })
+
+describe('consent calls', () => {
+  it('reads the status and sends consent', async () => {
+    const seen: Array<[string, string]> = []
+    const answers = [
+      ok({ required: true, version: '2026-09-26' }),
+      { ok: true, status: 204, json: async () => null },
+    ]
+    const record: FetchLike = async (url, init) => {
+      seen.push([init?.method ?? 'GET', String(url)])
+      return answers.shift()!
+    }
+    const api = createApiClient({ baseUrl: BASE, fetch: record })
+
+    await expect(api.getConsentStatus()).resolves.toEqual({ required: true, version: '2026-09-26' })
+    await expect(api.giveConsent({ version: '2026-09-26', source: 'ios' })).resolves.toBeUndefined()
+    expect(seen).toEqual([
+      ['GET', `${BASE}/api/v1/consent`],
+      ['POST', `${BASE}/api/v1/consent`],
+    ])
+  })
+})

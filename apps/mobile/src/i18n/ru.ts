@@ -252,6 +252,7 @@ export const ru = {
     unsupportedMedia: 'Неподдерживаемый формат',
     rateLimited: 'Слишком часто. Подождите немного',
     accountDeleting: 'Учётная запись удаляется',
+    consentRequired: 'Нужно согласие на обработку персональных данных',
     reauthRequired: 'Подтвердите, что это вы: войдите заново',
     dependencyUnavailable: 'Сервис временно недоступен',
     internal: 'Что-то пошло не так на нашей стороне',
