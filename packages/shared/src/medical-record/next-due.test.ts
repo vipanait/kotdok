@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { HealthEvent, HealthItem } from '@lapka/contracts'
 import { addInterval } from './catalog-search'
-import { suggestNextDay } from './event-entry'
+import { nextDayMin, nextDayProblem, suggestNextDay } from './event-entry'
 import { addMonths, localToday, parasiteCovers } from './record-overview'
 
 // MW-04 criterion 2: the next due date after «Сделано» follows the unit of the
@@ -34,6 +34,19 @@ describe('the next date after «Сделано»', () => {
   it('suggests nothing without an interval, or when the date would already be past', () => {
     expect(suggestNextDay('2026-09-24', null, '2026-09-26')).toBeNull()
     expect(suggestNextDay('2026-01-10', { value: 4, unit: 'week' }, '2026-09-26')).toBeNull()
+  })
+})
+
+describe('the earliest next date a picker offers', () => {
+  it('is the day after the record’s day, never before today, and always one the rules accept', () => {
+    expect(nextDayMin('2026-09-26', '2026-09-26')).toBe('2026-09-27')
+    expect(nextDayMin('2026-09-24', '2026-09-26')).toBe('2026-09-26')
+    expect(nextDayMin('2026-12-31', '2026-09-26')).toBe('2027-01-01')
+    expect(nextDayMin('', '2026-09-26')).toBe('2026-09-26')
+    expect(nextDayMin(null, '2026-09-26')).toBe('2026-09-26')
+    for (const [record, today] of [['2026-09-26', '2026-09-26'], ['2026-09-24', '2026-09-26'], ['2026-02-28', '2026-02-28']]) {
+      expect(nextDayProblem(nextDayMin(record, today), record, today)).toBeNull()
+    }
   })
 })
 

@@ -16,7 +16,7 @@ import { POST as createEvent } from '@/app/(backend)/api/v1/pets/[id]/health/eve
 import { DELETE as deleteEvent } from '@/app/(backend)/api/v1/pets/[id]/health/events/[eventId]/route'
 import { POST as completeItem } from '@/app/(backend)/api/v1/pets/[id]/health/items/[itemId]/complete/route'
 import { GET as listDue } from '@/app/(backend)/api/v1/pets/due/route'
-import { changeDoneDay, completeDraft, readCompletion } from '@/features/medical-record/events/complete-form'
+import { changeDoneDay, completeDraft, completionMismatch, readCompletion } from '@/features/medical-record/events/complete-form'
 import { blankEventDraft, productItem, readNewEvent, type EventDraft } from '@/features/medical-record/events/event-form'
 import { FIXTURE_PASSWORD, OWNER_A, OWNER_B, PET_IDS, connect, seedFixtures } from './fixtures'
 
@@ -270,6 +270,52 @@ describe('«Сделано» again, and failures (MW-04.4)', () => {
     expect(again.response.status).toBe(200)
     expect(HealthEventSchema.parse(await again.response.json()).id).toBe(marked.id)
     expect(await liveCounts()).toEqual(counts)
+  })
+
+  it('a plan of one item: the same key with an edited day answers 200 with the first record — the form sees it is not what it sent', async () => {
+    await created(twoTreatments(day(-2)))
+    const plan = (await overview()).events.find((event) => event.status === 'planned' && event.items.length === 1)!
+    const key = crypto.randomUUID()
+    const first = await complete(plan, 0, day(-1), key)
+    expect(first.response.status).toBe(200)
+    const firstRecord = HealthEventSchema.parse(await first.response.json())
+    expect(completionMismatch(first.input, firstRecord, plan.items[0].id, (await overview()).events)).toBeNull()
+    const counts = await liveCounts()
+
+    // The answer was lost; the owner moved the day to today and saved again with the same key.
+    const edited = await complete(plan, 0, TODAY, key)
+    expect(edited.input.done_on).toBe(TODAY)
+    // The server does not refuse: the item is done, it answers with that record as it was.
+    expect(edited.response.status).toBe(200)
+    const answered = HealthEventSchema.parse(await edited.response.json())
+    expect([answered.id, answered.date]).toEqual([firstRecord.id, day(-1)])
+    expect(completionMismatch(edited.input, answered, plan.items[0].id, (await overview()).events)).toBe('doneOn')
+    expect(await liveCounts()).toEqual(counts)
+
+    // The same day, the next date cleared: the stored next plan is not the one sent.
+    const cleared = await completeItem(
+      request(tokenA, 'POST', { ...first.input, next_on: null }, crypto.randomUUID()),
+      itemParams(pet, plan.items[0].id),
+    )
+    expect(cleared.status).toBe(200)
+    const again = HealthEventSchema.parse(await cleared.json())
+    expect(completionMismatch({ ...first.input, next_on: null }, again, plan.items[0].id, (await overview()).events)).toBe('next')
+    // An exact retry is still success.
+    expect(completionMismatch(first.input, again, plan.items[0].id, (await overview()).events)).toBeNull()
+  })
+
+  it('keeps the plan’s clinic and note when the fields come empty — why the form says so', async () => {
+    const plan = HealthEventSchema.parse(
+      await (
+        await createEvent(
+          request(tokenA, 'POST', { kind: 'parasite', status: 'planned', date: day(5), clinic: 'Айболит', notes: 'Капать на холку', items: [{ name: 'А', targets: ['fleas'] }] }, crypto.randomUUID()),
+          params(pet),
+        )
+      ).json(),
+    )
+    const response = await completeItem(request(tokenA, 'POST', { done_on: TODAY, clinic: null, notes: null }, crypto.randomUUID()), itemParams(pet, plan.items[0].id))
+    const done = HealthEventSchema.parse(await response.json())
+    expect([done.clinic, done.notes]).toEqual(['Айболит', 'Капать на холку'])
   })
 
   it('answers conflict when the same key comes with other data after a lost answer, and adds nothing', async () => {

@@ -155,6 +155,7 @@ const completeForm = (page) =>
     doneMax: document.querySelector('.complete-form input[id$="-done"]')?.getAttribute('max') ?? null,
     item: [...document.querySelectorAll('.complete-item-facts dd')].map((node) => node.textContent),
     next: document.querySelector('.complete-form input[id$="-next"]')?.value ?? null,
+    nextMin: document.querySelector('.complete-form input[id$="-next"]')?.getAttribute('min') ?? null,
     hint: document.querySelector('.complete-form [id$="-next-hint"]')?.textContent ?? null,
     note: document.querySelector('.complete-note')?.textContent ?? null,
     warning: document.querySelector('.event-form-warning')?.textContent ?? null,
@@ -445,6 +446,36 @@ const readRecord = (page) =>
     doneHistoryUnchanged: (await doneSnapshot()) === doneBeforeCancel,
   }
   await shot(page, 'parasites-after-cancel-1440')
+
+  // ----- Fix round 1: a repeat with an edited day on a plan of one item is not a success -----
+  // The vaccine plan has one item left (Tricat). The first «Сделано» reaches the server,
+  // its answer is lost; the owner moves the day to yesterday and saves again with the
+  // same key. The server answers 200 with the record as first saved (today).
+  const single = (await events()).find((event) => event.id === vaccinePlan.id)
+  await open(page, `/pets/${murka.id}/health/${single.id}/complete?item=${single.items[0].id}`, '.complete-form')
+  const singleDefaults = await completeForm(page)
+  await page.route('**/api/v1/pets/*/health/items/*/complete', async (route) => {
+    await route.fetch()
+    await route.abort('internetdisconnected')
+  })
+  await page.click('.complete-form button[type=submit]')
+  await page.waitForSelector('.event-form-banner')
+  await page.unroute('**/api/v1/pets/*/health/items/*/complete')
+  await page.fill('.complete-form input[id$="-done"]', plusDays(today, -1))
+  await page.click('.complete-form button[type=submit]')
+  await page.waitForFunction(() => document.querySelector('.event-form-banner')?.textContent.includes('раньше'))
+  await page.waitForTimeout(800)
+  const storedSingle = (await events()).find((event) => event.id === single.id)
+  summary.checks.editedRepeat = {
+    defaultsNextMin: { doneOn: singleDefaults.doneOn, nextMin: singleDefaults.nextMin },
+    keys: completes.filter((request) => request.path.endsWith(`/items/${single.items[0].id}/complete`)).map((request) => [request.key, request.body.done_on]),
+    form: await completeForm(page),
+    stillOnForm: page.url().includes('/complete'),
+    notice: !!(await page.$('.health-saved')),
+    recordLink: await page.$eval('.event-form-banner a', (link) => link.getAttribute('href')),
+    stored: { status: storedSingle?.status, date: storedSingle?.date },
+  }
+  await shot(page, 'complete-earlier-1440')
 
   // Unknown and closed addresses.
   summary.checks.notFoundRoutes = {}

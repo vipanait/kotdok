@@ -7,11 +7,13 @@ import {
   changeDoneDay,
   completeDraft,
   completionChanged,
+  completionMismatch,
   completionTarget,
+  keptFromPlan,
   othersInPlan,
   readCompletion,
 } from '@/features/medical-record/events/complete-form'
-import { completeErrorTexts, completeFailureText, completionNote, nextHint } from '@/features/medical-record/events/complete-form-text'
+import { completeErrorTexts, completeFailureText, completionNote, earlierText, nextHint } from '@/features/medical-record/events/complete-form-text'
 import { eventSaveFailure } from '@/features/medical-record/events/event-form'
 import { eventRecord, eventsPage, parseEventSaved } from '@/features/medical-record/events/event-view'
 import {
@@ -123,6 +125,42 @@ describe('the «Сделано» form (MW-04 criterion 2)', () => {
     expect(completeFailureText(ru, eventSaveFailure(new ApiError('not_found', 404, 'x')) as 'gone')).toContain('позиции плана больше нет')
     expect(completeFailureText(ru, eventSaveFailure(new TypeError('Failed to fetch')) as 'offline')).toContain('Нет связи')
     expect(parseEventSaved('completed')).toBe('completed')
+  })
+})
+
+describe('fix round 1: no false success, no silent clearing', () => {
+  const input = { done_on: '2026-09-24', next_on: '2026-12-17', clinic: null, notes: null }
+  const next = (date: string): HealthEvent => ({
+    ...fleaPlan,
+    id: uuid(990),
+    date,
+    items: [{ ...fleaPlan.items[0], id: uuid(991), source_item_id: fleaPlan.items[0].id }],
+  })
+
+  it('takes a 200 as success only when the record is the one sent', () => {
+    const saved = { ...fleaPlan, status: 'done' as const, date: '2026-09-24' }
+    expect(completionMismatch(input, saved, fleaPlan.items[0].id, [saved, next('2026-12-17')])).toBeNull()
+    // The day was already saved differently: the answer is the earlier record.
+    expect(completionMismatch(input, { ...saved, date: '2026-09-26' }, fleaPlan.items[0].id, null)).toBe('doneOn')
+    // The same day, but the next plan is another (or none).
+    expect(completionMismatch(input, saved, fleaPlan.items[0].id, [saved, next('2026-12-19')])).toBe('next')
+    expect(completionMismatch(input, saved, fleaPlan.items[0].id, [saved])).toBe('next')
+    expect(completionMismatch({ ...input, next_on: null }, saved, fleaPlan.items[0].id, [saved, next('2026-12-17')])).toBe('next')
+    // The record could not be read again: the day alone decides.
+    expect(completionMismatch(input, saved, fleaPlan.items[0].id, null)).toBeNull()
+    expect(earlierText(ru, 'doneOn', '2026-09-26')).toContain('уже была отмечена сделанной раньше — 26 сентября 2026')
+    expect(earlierText(ru, 'next', '2026-09-24')).toContain('с другой следующей датой')
+  })
+
+  it('says which of the plan’s texts stay when a field is left empty', () => {
+    const plan = { ...fleaPlan, clinic: 'Айболит', notes: 'Капать на холку' }
+    const item = plan.items[0]
+    expect(keptFromPlan(plan, item, { clinic: '', notes: '' })).toEqual({ clinic: 'Айболит', notes: 'Капать на холку' })
+    expect(keptFromPlan(plan, item, { clinic: 'Другая', notes: 'Своя' })).toEqual({ clinic: null, notes: null })
+    // A plan of several: the item gets its own record, whose note is only what is sent.
+    const several = { ...vaccinePlan, clinic: 'Айболит', notes: 'Общая' }
+    expect(keptFromPlan(several, several.items[0], { clinic: ' ', notes: '' })).toEqual({ clinic: 'Айболит', notes: null })
+    expect(keptFromPlan({ ...plan, clinic: null, notes: null }, item, { clinic: '', notes: '' })).toEqual({ clinic: null, notes: null })
   })
 })
 

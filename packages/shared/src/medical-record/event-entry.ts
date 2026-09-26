@@ -100,6 +100,17 @@ export function nextDayProblem(next: string, recordDay: string | null, today: st
   return null
 }
 
+/**
+ * The earliest next date `nextDayProblem` accepts, for a date picker's `min`:
+ * the day after the record's day, and not before today. `recordDay` '' or
+ * null when the record has no readable day yet: today.
+ */
+export function nextDayMin(recordDay: string | null, today: string): string {
+  if (!recordDay || !CalendarDateSchema.safeParse(recordDay).success) return today
+  const after = addInterval(recordDay, { value: 1, unit: 'day' })
+  return after > today ? after : today
+}
+
 export type CoreVaccination = {
   target: VaccineTarget
   /** The earliest plan that covers it. */

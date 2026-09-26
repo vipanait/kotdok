@@ -4,7 +4,7 @@ import { useEffect, useId, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { HEALTH_EVENT_LIMITS, type HealthEvent, type HealthItem } from '@lapka/contracts'
-import { localToday } from '@lapka/shared'
+import { localToday, nextDayMin } from '@lapka/shared'
 import { useLocale, useTranslations } from '@/components/LocaleProvider'
 import Icon from '@/components/ui/Icon'
 import { browserApi } from '@/features/api/browser-api'
@@ -21,16 +21,28 @@ import {
   changeDoneDay,
   completeDraft,
   completionChanged,
+  completionMismatch,
   completionTarget,
+  keptFromPlan,
   othersInPlan,
   readCompletion,
   type CompleteDraft,
   type CompleteProblems,
+  type CompletionMismatch,
 } from './complete-form'
-import { completeErrorTexts, completeFailureText, completionNote, nextHint, planDayText } from './complete-form-text'
+import { completeErrorTexts, completeFailureText, completionNote, earlierText, nextHint, planDayText } from './complete-form-text'
 import { eventSaveFailure, EVENT_FORM_KINDS, type EventFormKind, type EventSaveFailure } from './event-form'
 import { EventGone } from './EventFormScreen'
 import { targetsText } from './event-view'
+
+/**
+ * Above the buttons after a save that did not go as sent: a failure, or an
+ * item that was already done with other data (the server answered 200 with
+ * that earlier record).
+ */
+type Banner =
+  | { kind: 'failure'; failure: Exclude<EventSaveFailure, 'deleting'> }
+  | { kind: 'earlier'; mismatch: CompletionMismatch; recordId: string; day: string }
 
 /** Where the form's «Отмена» and back link lead. */
 function backHref(petId: string, eventId: string, kind: EventFormKind, from: CompleteFrom): string {
@@ -193,7 +205,7 @@ function CompleteItemForm({
   const [initial] = useState<CompleteDraft>(() => completeDraft(plan, item, today))
   const [draft, setDraft] = useState<CompleteDraft>(initial)
   const [problems, setProblems] = useState<CompleteProblems>({})
-  const [banner, setBanner] = useState<Exclude<EventSaveFailure, 'deleting'> | null>(null)
+  const [banner, setBanner] = useState<Banner | null>(null)
   const [saving, setSaving] = useState(false)
   const inFlight = useRef(false)
 
@@ -202,6 +214,7 @@ function CompleteItemForm({
   const { leaveHref, leaveLinkRef, stay, leave } = useLeaveGuard(dirty && !saving)
   const errors = completeErrorTexts(dict, problems)
   const others = othersInPlan(plan, item)
+  const kept = keptFromPlan(plan, item, draft)
   const name = eventItemName(dict, kind, item)
 
   function clear(field: keyof CompleteProblems) {
@@ -215,7 +228,7 @@ function CompleteItemForm({
     const read = readCompletion(draft, today)
     if (!read.ok && read.rejected) {
       setProblems({})
-      setBanner('rejected')
+      setBanner({ kind: 'failure', failure: 'rejected' })
       console.warn('[medical-record] the form built a completion the contract refuses')
       return
     }
@@ -234,9 +247,21 @@ function CompleteItemForm({
     try {
       // One key for this «Сделано» however many times it is sent: a retry after
       // a lost answer finds the record the first try made.
-      const saved = await browserApi().completeHealthItem(petId, item.id, read.input, saveKey.current())
-      saveKey.renew()
+      const api = browserApi()
+      const saved = await api.completeHealthItem(petId, item.id, read.input, saveKey.current())
       recordCache.forget(petId)
+      // A 200 is not success by itself: an item already done is answered with
+      // the record as first saved. Its next plan is checked when the record
+      // can be read; if not, the day alone decides.
+      const events = await api.getHealthOverview(petId).then((overview) => overview.events, () => null)
+      const mismatch = completionMismatch(read.input, saved, item.id, events)
+      if (mismatch) {
+        inFlight.current = false
+        setSaving(false)
+        setBanner({ kind: 'earlier', mismatch, recordId: saved.id, day: saved.date })
+        return
+      }
+      saveKey.renew()
       leave(savedHref(petId, saved.id, kind, from))
     } catch (error) {
       inFlight.current = false
@@ -248,7 +273,7 @@ function CompleteItemForm({
         return
       }
       // Nothing is claimed: the form stays as it was, the banner says why, the button works again.
-      setBanner(failure)
+      setBanner({ kind: 'failure', failure })
     }
   }
 
@@ -316,7 +341,7 @@ function CompleteItemForm({
                 className="input"
                 type="date"
                 value={draft.next}
-                min={draft.doneOn && draft.doneOn >= today ? draft.doneOn : today}
+                min={nextDayMin(draft.doneOn, today)}
                 readOnly={saving}
                 aria-invalid={errors.next ? true : undefined}
                 aria-describedby={[errors.next ? `${id}-next-error` : null, `${id}-next-hint`].filter(Boolean).join(' ')}
@@ -359,13 +384,17 @@ function CompleteItemForm({
             value={draft.clinic}
             readOnly={saving}
             aria-invalid={errors.clinic ? true : undefined}
-            aria-describedby={errors.clinic ? `${id}-clinic-error` : undefined}
+            aria-describedby={[errors.clinic ? `${id}-clinic-error` : null, kept.clinic ? `${id}-clinic-kept` : null].filter(Boolean).join(' ') || undefined}
             onChange={(e) => {
               setDraft({ ...draft, clinic: e.target.value })
               clear('clinic')
             }}
           />
           {errors.clinic && <span id={`${id}-clinic-error`} className="field-error" role="alert">{errors.clinic}</span>}
+          {/* The server keeps the plan's clinic when none is sent: said, not hidden. */}
+          {kept.clinic && (
+            <span id={`${id}-clinic-kept`} className="field-hint complete-kept">{words.keptClinic.replace('{text}', kept.clinic)}</span>
+          )}
         </div>
 
         <div className="field">
@@ -380,13 +409,14 @@ function CompleteItemForm({
             value={draft.notes}
             readOnly={saving}
             aria-invalid={errors.notes ? true : undefined}
-            aria-describedby={[errors.notes ? `${id}-notes-error` : null, `${id}-notes-count`].filter(Boolean).join(' ')}
+            aria-describedby={[errors.notes ? `${id}-notes-error` : null, kept.notes ? `${id}-notes-kept` : null, `${id}-notes-count`].filter(Boolean).join(' ')}
             onChange={(e) => {
               setDraft({ ...draft, notes: e.target.value })
               clear('notes')
             }}
           />
           {errors.notes && <span id={`${id}-notes-error`} className="field-error" role="alert">{errors.notes}</span>}
+          {kept.notes && <span id={`${id}-notes-kept`} className="field-hint complete-kept">{words.keptNotes}</span>}
           <span id={`${id}-notes-count`} className="field-hint event-counter">
             {form.counter.replace('{n}', String(draft.notes.length)).replace('{max}', String(HEALTH_EVENT_LIMITS.notes))}
           </span>
@@ -395,12 +425,18 @@ function CompleteItemForm({
         <p className="banner event-form-info complete-note">{completionNote(dict, locale, others, draft, today)}</p>
         <p className="field-hint event-form-warning">{form.doneWarning}</p>
 
-        {banner && (
+        {banner?.kind === 'failure' && (
           <div className="banner error record-form-error event-form-banner" role="alert">
-            <p>{completeFailureText(dict, banner)}</p>
-            {(banner === 'alreadySaved' || banner === 'gone') && (
+            <p>{completeFailureText(dict, banner.failure)}</p>
+            {(banner.failure === 'alreadySaved' || banner.failure === 'gone') && (
               <Link href={medicalRecordHref.section(petId, EVENT_FORM_KINDS[kind].section)} className="link">{form.toSection}</Link>
             )}
+          </div>
+        )}
+        {banner?.kind === 'earlier' && (
+          <div className="banner error record-form-error event-form-banner" role="alert">
+            <p>{earlierText(dict, banner.mismatch, banner.day)}</p>
+            <Link href={medicalRecordHref.recordView(petId, banner.recordId)} className="link">{dict.medicalRecord.eventRecord.openRecord}</Link>
           </div>
         )}
 
