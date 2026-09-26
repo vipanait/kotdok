@@ -11,6 +11,7 @@
 | Платформа | Vercel, личный аккаунт `panaitvi-4639`, scope `panaitvi-4639s-projects`, команд нет | `vercel whoami`, `vercel project ls` |
 | Проект | `kotdok`, `prj_07jOV73R0hWuHG2I9agVjzLS1SDv`, создан 13 апреля 2026 | `vercel project inspect kotdok` |
 | Production URL | `https://lapka.my` | `vercel project ls` |
+| Прокси для России | машина в Yandex Cloud с nginx перед Vercel, [ru-proxy.md](ru-proxy.md) | измерения 26 сентября 2026 |
 | Root Directory проекта | `.` | `vercel project inspect` |
 | Node.js | 24.x — единственная общая версия: Vercel предлагает только 24.x, 22.x и 20.x, Node 25 это Current-релиз и там недоступен. Закреплена в `engines.node` и `.node-version`, CI использует её же | `vercel project inspect`, [документация Vercel](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions) |
 | Framework preset | Next.js; build и output — по умолчанию, переопределены корневым `vercel.json` | там же |
