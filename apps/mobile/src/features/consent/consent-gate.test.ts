@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { consentSource, settleConsent } from './consent-gate'
+import { consentSource, onceUntilReset, settleConsent } from './consent-gate'
 
 describe('consentSource', () => {
   it('names the platform the consent was given on', () => {
@@ -60,5 +60,29 @@ describe('settleConsent', () => {
     })
 
     expect(result).toBe('open')
+  })
+})
+
+describe('onceUntilReset', () => {
+  it('goes to the consent screen once however many requests are refused together', () => {
+    const go = vi.fn()
+    const redirect = onceUntilReset(go)
+
+    redirect.fire()
+    redirect.fire()
+    redirect.fire()
+
+    expect(go).toHaveBeenCalledTimes(1)
+  })
+
+  it('goes again after the consent screen is done with', () => {
+    const go = vi.fn()
+    const redirect = onceUntilReset(go)
+
+    redirect.fire()
+    redirect.reset()
+    redirect.fire()
+
+    expect(go).toHaveBeenCalledTimes(2)
   })
 })

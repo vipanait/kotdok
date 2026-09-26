@@ -36,7 +36,7 @@ alter table public.profiles alter column pd_consent_required set default true;
 create or replace function public.pd_consent_version_is_current(v text)
 returns boolean
 language sql
-immutable
+stable
 set search_path = public
 as $$
   select coalesce(v in ('2026-09-26'), false);

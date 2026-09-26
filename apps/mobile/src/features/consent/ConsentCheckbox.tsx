@@ -1,4 +1,5 @@
-import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native'
+import { useEffect } from 'react'
+import { AccessibilityInfo, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native'
 import * as WebBrowser from 'expo-web-browser'
 import { useText } from '@/i18n'
 import { Icon } from '@/ui/Icon'
@@ -29,31 +30,40 @@ export function ConsentCheckbox({
 }) {
   const t = useText()
 
+  // `accessibilityLiveRegion` below is Android's; iOS is told here.
+  useEffect(() => {
+    if (invalid) AccessibilityInfo.announceForAccessibility(t.consent.errorRequired)
+  }, [invalid, t])
+
   return (
     <View style={[styles.wrap, style]}>
-      <Pressable
-        accessibilityRole="checkbox"
-        accessibilityState={{ checked }}
-        accessibilityLabel={`${t.consent.checkboxPrefix} ${t.consent.checkboxLink}`}
-        onPress={() => onChange(!checked)}
-        style={styles.row}
-      >
-        <View style={[styles.box, checked && styles.boxOn, invalid && !checked && styles.boxInvalid]}>
-          {checked ? <Icon name="tick" size={16} color={colour.surface} /> : null}
-        </View>
-        <Text variant="caption" tone="muted" style={styles.label}>
-          {t.consent.checkboxPrefix}{' '}
-          <Text
-            variant="caption"
-            tone="accent"
-            accessibilityRole="link"
-            onPress={() => void WebBrowser.openBrowserAsync(CONSENT_URL)}
-            style={styles.link}
-          >
-            {t.consent.checkboxLink}
+      <View style={styles.row}>
+        {/* The box and the words toggle; the link beside them is its own
+            element, so VoiceOver can reach the text of the consent. */}
+        <Pressable
+          accessibilityRole="checkbox"
+          accessibilityState={{ checked }}
+          accessibilityLabel={`${t.consent.checkboxPrefix} ${t.consent.checkboxLink}`}
+          onPress={() => onChange(!checked)}
+          style={styles.toggle}
+        >
+          <View style={[styles.box, checked && styles.boxOn, invalid && !checked && styles.boxInvalid]}>
+            {checked ? <Icon name="tick" size={16} color={colour.surface} /> : null}
+          </View>
+          <Text variant="caption" tone="muted" accessible={false}>
+            {t.consent.checkboxPrefix}
           </Text>
+        </Pressable>
+        <Text
+          variant="caption"
+          tone="accent"
+          accessibilityRole="link"
+          onPress={() => void WebBrowser.openBrowserAsync(CONSENT_URL)}
+          style={styles.link}
+        >
+          {t.consent.checkboxLink}
         </Text>
-      </Pressable>
+      </View>
       {invalid ? (
         <Text variant="caption" tone="danger" accessibilityLiveRegion="polite">
           {t.consent.errorRequired}
@@ -65,7 +75,8 @@ export function ConsentCheckbox({
 
 const styles = StyleSheet.create({
   wrap: { marginBottom: 16 },
-  row: { flexDirection: 'row', alignItems: 'center', minHeight: TAP_TARGET, gap: 12 },
+  row: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', minHeight: TAP_TARGET },
+  toggle: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: TAP_TARGET, paddingRight: 4 },
   box: {
     width: 22,
     height: 22,
@@ -77,6 +88,5 @@ const styles = StyleSheet.create({
   },
   boxOn: { backgroundColor: colour.accent, borderColor: colour.accent },
   boxInvalid: { borderColor: colour.danger },
-  label: { flex: 1 },
-  link: { textDecorationLine: 'underline' },
+  link: { flexShrink: 1, textDecorationLine: 'underline' },
 })

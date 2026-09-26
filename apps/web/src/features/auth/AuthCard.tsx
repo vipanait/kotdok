@@ -6,8 +6,9 @@ import { useRouter } from 'next/navigation'
 import { useLocale, useTranslations } from '@/components/LocaleProvider'
 import Icon from '@/components/ui/Icon'
 import ProviderButtons from '@/features/auth/ProviderButtons'
+import { webProviders } from '@/features/auth/lib/web-providers'
 import ConsentCheckbox, { ConsentTerms } from '@/features/consent/ConsentCheckbox'
-import { rememberProviderConsent } from '@/features/consent/provider-consent-cookie'
+import { forgetProviderConsent, rememberProviderConsent } from '@/features/consent/provider-consent-cookie'
 import { emailSignUpOptions } from '@/features/auth/lib/sign-up-options'
 import { createClient } from '@/features/auth/lib/supabase-browser'
 import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
@@ -120,7 +121,11 @@ function LoginForm({ next, callbackFailed }: { next?: string; callbackFailed: bo
         <Link className="link" href={withNext('/register', next)}>{t.createAccount}</Link>
         <Link className="link" href={withNext('/forgot-password', next)}>{t.forgotPassword}</Link>
       </div>
-      <ProviderButtons next={safeNext} onError={setError} />
+      <ProviderButtons
+        providers={webProviders(getSafeNextPath(next ?? null))}
+        next={safeNext}
+        onError={setError}
+      />
       <ConsentTerms />
     </Card>
   )
@@ -207,9 +212,11 @@ function RegisterForm({ next }: { next?: string }) {
         <Link className="link" href={withNext('/login', next)}>{t.haveAccount}</Link>
       </div>
       <ProviderButtons
+        providers={webProviders(getSafeNextPath(next ?? null))}
         next={safeNext}
         canStart={requireConsent}
         beforeStart={rememberProviderConsent}
+        onStartFailed={forgetProviderConsent}
         onError={setError}
       />
       <ConsentTerms />

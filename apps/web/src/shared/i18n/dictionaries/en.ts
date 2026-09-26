@@ -430,7 +430,7 @@ const en: Dictionary = {
   },
   legal: {
     eyebrow: 'Documents',
-    russianOnly: 'This agreement is published in Russian only; the Russian text is the one that applies.',
+    russianOnly: 'This document is published in Russian only; the Russian text is the one that applies.',
     toDeletion: 'Account deletion',
   },
   deletion: {

@@ -26,7 +26,7 @@ describe('legal texts', () => {
   it('names who processes the data, but no country', () => {
     for (const file of ['privacy/page.tsx', 'personal-data/page.tsx']) {
       const text = read(file)
-      for (const recipient of ['Supabase', 'Vercel', 'OpenAI']) expect(text, file).toContain(recipient)
+      for (const recipient of ['Supabase', 'Vercel', 'OpenAI', 'Telegram', 'Expo']) expect(text, file).toContain(recipient)
       expect(text, file).not.toMatch(/США|Япони|Токио|Ирланди|\bUSA\b|Japan/)
     }
   })
@@ -36,5 +36,23 @@ describe('legal texts', () => {
     for (const cookie of ['NEXT_LOCALE', 'TIME_ZONE_COOKIE', 'CSRF_COOKIE_NAME', 'PROVIDER_CONSENT_COOKIE']) {
       expect(policy).toContain(cookie)
     }
+  })
+
+  it('promises only the photo retention the daily sweep delivers', () => {
+    // Unattached uploads are removed by a once-a-day cron, so "three hours after
+    // upload" is not a promise the code keeps.
+    const policy = read('privacy/page.tsx')
+    expect(policy).not.toMatch(/три часа после загрузки/)
+    expect(policy).toMatch(/сутки|суток/)
+  })
+
+  it('lists sex among the Yandex profile fields, as login:info returns it', () => {
+    for (const file of ['privacy/page.tsx', 'personal-data/page.tsx']) {
+      expect(read(file), file).toMatch(/[^а-яё]пол[^а-яё]/)
+    }
+  })
+
+  it('words the consent for every place it is given, not only registration', () => {
+    expect(read('personal-data/page.tsx')).not.toContain('Регистрируясь в сервисе')
   })
 })

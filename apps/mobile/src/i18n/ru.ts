@@ -82,6 +82,7 @@ export const ru = {
     errorFailed: 'Не удалось сохранить согласие. Попробуйте ещё раз.',
     continue: 'Продолжить',
     signOut: 'Выйти',
+    deleteAccount: 'Удалить аккаунт',
   },
 
   pets: {

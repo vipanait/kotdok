@@ -38,6 +38,11 @@ export default function ConsentForm({ next }: { next: string }) {
       body: JSON.stringify({ version: PD_CONSENT_VERSION }),
     }).catch(() => null)
 
+    // The session ran out while the page was open: sign in again and come back.
+    if (response?.status === 401) {
+      router.replace(`/login?next=${encodeURIComponent(`/consent?next=${next}`)}`)
+      return
+    }
     if (!response?.ok) { setError(t.errorFailed); setLoading(false); return }
     router.replace(next); router.refresh()
   }

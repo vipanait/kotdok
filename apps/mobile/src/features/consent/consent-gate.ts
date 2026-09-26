@@ -27,3 +27,22 @@ export async function settleConsent(deps: {
     return 'open'
   }
 }
+
+/**
+ * Runs `go` once, then ignores further calls until `reset`. Several requests
+ * refused with `consent_required` together would otherwise each open the
+ * consent screen again, remounting it and clearing a box already ticked.
+ */
+export function onceUntilReset(go: () => void): { fire(): void; reset(): void } {
+  let fired = false
+  return {
+    fire() {
+      if (fired) return
+      fired = true
+      go()
+    },
+    reset() {
+      fired = false
+    },
+  }
+}

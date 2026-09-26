@@ -4,6 +4,11 @@ import { z } from 'zod'
  * The edition of the consent text a client shows and sends. A new edition
  * changes this, the page at /legal/personal-data and
  * `public.pd_consent_version_is_current` together.
+ *
+ * Installed apps send the edition compiled into them. Until they take the EAS
+ * Update with the new one, their consent screen is refused as stale — so a new
+ * edition ships the update first and the migration after it, or keeps the old
+ * edition in the accepted list for the transition.
  */
 export const PD_CONSENT_VERSION = '2026-09-26'
 

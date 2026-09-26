@@ -12,3 +12,8 @@ export function rememberProviderConsent(): void {
     `Path=${PROVIDER_CONSENT_COOKIE_PATH}; SameSite=Lax` +
     (window.location.protocol === 'https:' ? '; Secure' : '')
 }
+
+/** The provider could not be opened: the tick must not wait for somebody else's sign-in. */
+export function forgetProviderConsent(): void {
+  document.cookie = `${PROVIDER_CONSENT_COOKIE}=; Max-Age=0; Path=${PROVIDER_CONSENT_COOKIE_PATH}; SameSite=Lax`
+}

@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react'
 import { useTranslations } from '@/components/LocaleProvider'
 import { AppleMark, GoogleMark, YandexMark } from '@/components/ui/ProviderMarks'
 import { createClient } from '@/features/auth/lib/supabase-browser'
+import type { WebProvider } from '@/features/auth/lib/web-providers'
 
-type Provider = 'yandex' | 'google' | 'apple'
+type Provider = WebProvider
 
 const SUPABASE_PROVIDER = {
   yandex: 'custom:yandex',
@@ -19,10 +20,10 @@ const MARK = {
   apple: <AppleMark />,
 }
 
-// Google and Apple are hidden on the web for now; the app keeps them.
-const ORDER: Provider[] = ['yandex']
 
 interface Props {
+  /** Which buttons to show; see `webProviders`. Decided on the server so both renders agree. */
+  providers: Provider[]
   /** Where the callback sends the person once signed in; already checked. */
   next: () => string
   /**
@@ -35,6 +36,8 @@ interface Props {
    * Registration uses it to carry the ticked consent to the callback.
    */
   beforeStart?: () => void
+  /** Undoes `beforeStart` when the provider could not be opened. */
+  onStartFailed?: () => void
   /** Called with '' when a provider starts, and with a message when it fails. */
   onError: (message: string) => void
 }
@@ -44,7 +47,7 @@ interface Props {
  * forms. Each button shows that it is waiting for its provider; the others are
  * held meanwhile so a second redirect cannot start.
  */
-export default function ProviderButtons({ next, canStart, beforeStart, onError }: Props) {
+export default function ProviderButtons({ providers, next, canStart, beforeStart, onStartFailed, onError }: Props) {
   const dict = useTranslations()
   const t = dict.auth.providers
   const [pending, setPending] = useState<Provider | null>(null)
@@ -76,6 +79,7 @@ export default function ProviderButtons({ next, canStart, beforeStart, onError }
       options: { redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next())}` },
     })
     if (error) {
+      onStartFailed?.()
       onError(errors[provider])
       setPending(null)
     }
@@ -85,7 +89,7 @@ export default function ProviderButtons({ next, canStart, beforeStart, onError }
     <>
       <div className="or">{dict.common.or}</div>
       <div className="providers">
-        {ORDER.map(provider => (
+        {providers.map(provider => (
           <button
             key={provider}
             type="button"

@@ -75,6 +75,7 @@ export const en: Dictionary = {
     errorFailed: 'Could not save the consent. Please try again.',
     continue: 'Continue',
     signOut: 'Sign out',
+    deleteAccount: 'Delete account',
   },
 
   pets: {

@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { Platform, StyleSheet } from 'react-native'
-import { router } from 'expo-router'
+import { Redirect, router } from 'expo-router'
+import * as WebBrowser from 'expo-web-browser'
 import { PD_CONSENT_VERSION } from '@lapka/contracts'
-import { withFreshSession } from '@/lib/api'
+import { consentScreenDone, withFreshSession } from '@/lib/api'
 import { useAuth } from '@/providers/AuthProvider'
 import { useText } from '@/i18n'
 import { LegalNote } from '@/features/auth/LegalNote'
@@ -14,12 +15,18 @@ import { Screen } from '@/ui/Screen'
 import { Text } from '@/ui/Text'
 
 /**
+ * Deleting the account without ever consenting: the public page, which every
+ * provider can sign in to. Production site, like the terms.
+ */
+const ACCOUNT_DELETION_URL = 'https://lapka.my/account-deletion'
+
+/**
  * The consent a new account still owes: signed up through a provider from the
  * sign-in screen, a hand-over that failed, or a new edition of the text.
  *
  * Outside the tabs, like deletion-status, so the tabs' own check cannot loop
- * back into itself. Leaving is always possible: signing out, and the account can
- * be deleted from the site without ever consenting.
+ * back into itself. Leaving is always possible: signing out, or deleting the
+ * account on the site without ever consenting.
  */
 export default function Consent() {
   const t = useText()
@@ -41,6 +48,7 @@ export default function Consent() {
       await withFreshSession((api) =>
         api.giveConsent({ version: PD_CONSENT_VERSION, source: consentSource(Platform.OS) }),
       )
+      consentScreenDone()
       router.replace('/pets')
     } catch {
       setError(t.consent.errorFailed)
@@ -54,8 +62,9 @@ export default function Consent() {
     router.replace('/sign-in')
   }
 
-  // Signed out from elsewhere (an expired session): nothing to consent for.
-  if (!session) return null
+  // The session ended while this screen was open (an expired or revoked
+  // token): nothing to consent for, and no tabs around to send anybody back.
+  if (!session) return <Redirect href="/sign-in" />
 
   return (
     <Screen
@@ -75,6 +84,10 @@ export default function Consent() {
       {error ? <Banner text={error} tone="error" /> : null}
       <LegalNote />
       <LinkButton title={t.consent.signOut} onPress={() => void leave()} />
+      <LinkButton
+        title={t.consent.deleteAccount}
+        onPress={() => void WebBrowser.openBrowserAsync(ACCOUNT_DELETION_URL)}
+      />
     </Screen>
   )
 }
