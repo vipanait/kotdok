@@ -50,6 +50,19 @@ export const en: Dictionary = {
     passwordHint: (min: number) => `At least ${min} characters`,
     legalPrefix: 'By continuing you accept the',
     legalLink: 'Terms of Use',
+    legalAnd: 'and the',
+    policyLink: 'Personal Data Policy',
+  },
+
+  consent: {
+    title: 'Consent to data processing',
+    lead: 'To use Lapka, we need your consent to process your personal data.',
+    checkboxPrefix: 'I give my',
+    checkboxLink: 'consent to personal data processing',
+    errorRequired: 'Tick the consent to continue',
+    errorFailed: 'Could not save the consent. Please try again.',
+    continue: 'Continue',
+    signOut: 'Sign out',
   },
 
   pets: {

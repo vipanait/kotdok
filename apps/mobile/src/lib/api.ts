@@ -18,6 +18,16 @@ export function setSessionLostHandler(handler: () => void | Promise<void>): void
   onSessionLost = handler
 }
 
+let onConsentRequired: () => void = () => {}
+
+/**
+ * Set by the signed-in layout, which owns navigation to the consent screen. Any
+ * call refused with `consent_required` lands there, however it was reached.
+ */
+export function setConsentRequiredHandler(handler: () => void): void {
+  onConsentRequired = handler
+}
+
 const refresher = createRefreshCoordinator({
   refresh: async () => {
     const { data, error } = await supabase.auth.refreshSession()
@@ -45,6 +55,7 @@ export async function withFreshSession<T>(call: (api: ApiClient) => Promise<T>):
   try {
     return await call(client)
   } catch (error) {
+    if (error instanceof ApiError && error.code === 'consent_required') onConsentRequired()
     if (!(error instanceof ApiError) || error.code !== 'unauthorized') throw error
 
     const token = await refresher.refreshOnce()

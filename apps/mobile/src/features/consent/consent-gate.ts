@@ -1,0 +1,29 @@
+import type { ConsentSource } from '@lapka/contracts'
+
+/** The platform a consent from this app was given on; the app runs on no other. */
+export function consentSource(os: string): ConsentSource {
+  return os === 'android' ? 'android' : 'ios'
+}
+
+/**
+ * On the way into the app: first hand over the consent ticked on the
+ * registration screen (a provider sign-in cannot carry it), then ask whether
+ * any is still owed.
+ *
+ * A failed hand-over is not an error the person sees — the status then says
+ * `required` and the consent screen asks again. An unreadable status lets them
+ * in: the server still refuses with `consent_required`, and that brings the
+ * consent screen up instead.
+ */
+export async function settleConsent(deps: {
+  pending: boolean
+  give(): Promise<void>
+  status(): Promise<{ required: boolean }>
+}): Promise<'open' | 'consent'> {
+  if (deps.pending) await deps.give().catch(() => {})
+  try {
+    return (await deps.status()).required ? 'consent' : 'open'
+  } catch {
+    return 'open'
+  }
+}
