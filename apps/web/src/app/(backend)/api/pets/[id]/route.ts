@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/server/supabase/server'
 import { getAuthUser } from '@/server/auth/get-auth-user'
+import { owesConsent } from '@/server/consent/consent-service'
 import { softDeletePetAndChecks, updatePet } from '@/server/pets/pet-service'
 import { petFailureResponse } from '@/server/pets/pet-http'
 import { csrfForbiddenResponse, verifyCsrf } from '@/server/security/csrf'
@@ -13,6 +14,7 @@ export async function PUT(
 
   const user = await getAuthUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (await owesConsent(user.id)) return NextResponse.json({ error: 'Consent required' }, { status: 403 })
 
   const { id } = await params
   const body = await request.json()
@@ -30,6 +32,7 @@ export async function DELETE(
 
   const user = await getAuthUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (await owesConsent(user.id)) return NextResponse.json({ error: 'Consent required' }, { status: 403 })
 
   const { id } = await params
   const result = await softDeletePetAndChecks(createServiceClient(), user.id, id)

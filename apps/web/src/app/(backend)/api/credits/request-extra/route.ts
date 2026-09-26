@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAuthUser } from '@/server/auth/get-auth-user'
+import { owesConsent } from '@/server/consent/consent-service'
 import { submitExtraCheckRequest } from '@/server/extra-check/extra-check-service'
 import { csrfForbiddenResponse, verifyCsrf } from '@/server/security/csrf'
 
@@ -31,6 +32,7 @@ export async function POST(request: NextRequest) {
 
   const user = await getAuthUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (await owesConsent(user.id)) return NextResponse.json({ error: 'Consent required' }, { status: 403 })
 
   try {
     const { requestId } = await submitExtraCheckRequest(user.id)

@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { ERROR_STATUS } from '@lapka/contracts'
 import { createServiceClient } from '@/server/supabase/server'
 import { getAuthUser } from '@/server/auth/get-auth-user'
+import { owesConsent } from '@/server/consent/consent-service'
 import { sanitizePainSigns } from '@/shared/utils/check-params'
 import {
   analyzeSymptomCheck,
@@ -84,6 +85,7 @@ async function parseRequest(request: NextRequest): Promise<ParsedRequest> {
 export async function handleSymptomCheckRequest(request: NextRequest) {
   const user = await getAuthUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (await owesConsent(user.id)) return NextResponse.json({ error: 'Consent required' }, { status: 403 })
 
   const supabase = createServiceClient()
 
