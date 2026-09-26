@@ -108,13 +108,14 @@ export async function seedFixtures(
   const ownerAId = await createOwner(env, OWNER_A.email)
   const ownerBId = await createOwner(env, OWNER_B.email)
 
-  // The handle_new_user trigger already inserted both profiles.
+  // The handle_new_user trigger already inserted both profiles. The owners
+  // stand for accounts that existed before consent was asked, so they owe none.
   await client.query(
-    `update public.profiles set credits = $2, locale = $3, role = $4 where id = $1`,
+    `update public.profiles set credits = $2, locale = $3, role = $4, pd_consent_required = false where id = $1`,
     [ownerAId, OWNER_A.expectedCredits, OWNER_A.locale, OWNER_A.role],
   )
   await client.query(
-    `update public.profiles set credits = $2, locale = $3, role = $4 where id = $1`,
+    `update public.profiles set credits = $2, locale = $3, role = $4, pd_consent_required = false where id = $1`,
     [ownerBId, OWNER_B.expectedCredits, OWNER_B.locale, OWNER_B.role],
   )
 
