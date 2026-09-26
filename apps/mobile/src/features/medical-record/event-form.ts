@@ -1,7 +1,7 @@
 import type { HealthEvent, HealthEventInput, HealthProduct, HealthTarget } from '@lapka/contracts'
-import { fallbackInterval, suggestNextDay, toggleParasiteGroup, type Interval } from '@lapka/shared'
+import { eventDayProblem, fallbackInterval, nextDayProblem, suggestNextDay, toggleParasiteGroup, type Interval } from '@lapka/shared'
 import type { Dictionary } from '@/i18n'
-import { dayInput, localToday, parseDayInput, parseDayText, parseFutureDayInput } from '@/lib/calendar-day'
+import { dayInput, localToday, parseDayText } from '@/lib/calendar-day'
 
 /**
  * The record form — vaccinations and treatments — as text fields, and turning it into a request. No
@@ -117,6 +117,16 @@ export function draftFromEvent(event: HealthEvent): EventDraft {
   }
 }
 
+/**
+ * Whether the form says that a done record cannot be changed afterwards: a
+ * new done record, and «Сделано» on a plan — the first save of something
+ * done (implementation-handoff, «Окончательное правило»). A plan being moved
+ * stays a plan, so it does not.
+ */
+export function warnsDoneIsFinal(mode: FormMode, status: EventDraft['status']): boolean {
+  return mode === 'complete' || (mode === 'new' && status === 'done')
+}
+
 export function draftChanged(before: EventDraft, after: EventDraft): boolean {
   return JSON.stringify(before) !== JSON.stringify(after)
 }
@@ -164,7 +174,8 @@ export function nextDate(item: ItemDraft, recordDay: string, today: string = loc
   if (item.next === 'none') return null
   if (item.next === 'year') return suggestNextDay(recordDay, itemInterval(item), today)
   const day = parseDayText(item.nextText)
-  return day !== null && day > recordDay && day >= today ? day : undefined
+  // The rule is shared with the site: after the record's day, not in the past.
+  return day !== null && nextDayProblem(day, recordDay, today) === null ? day : undefined
 }
 
 /**
@@ -182,12 +193,11 @@ export function readDraft(
   const words = t.medicalRecord
   const errors: DraftErrors = {}
 
-  const unchanged = keptDate !== undefined && parseDayText(draft.date) === keptDate
-  const date = unchanged
-    ? keptDate
-    : draft.status === 'done'
-      ? parseDayInput(draft.date, now)
-      : parseFutureDayInput(draft.date, now)
+  // The day rules are shared with the site (@lapka/shared `eventDayProblem`): done not after
+  // today, a plan not before it, an overdue plan may keep its own day.
+  const typed = parseDayText(draft.date)
+  const date =
+    typed !== null && eventDayProblem(typed, draft.status, localToday(now), keptDate ?? null) === null ? typed : null
   if (!date) errors.date = draft.status === 'done' ? words.dateInvalid : words.plannedDateInvalid
 
   const treatment = draft.kind === 'parasite'

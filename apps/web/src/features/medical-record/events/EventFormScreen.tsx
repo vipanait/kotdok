@@ -25,7 +25,7 @@ export function NewEventScreen({ petId, petName, species, kind }: PetFacts & { k
  * checked it a moment ago) is not opened as a form: something done is only
  * read (owner rule of 26 September 2026).
  */
-export function EditEventScreen({ petId, petName, species, eventId }: PetFacts & { eventId: string }) {
+export function EditEventScreen({ petId, petName, species, eventId, kind }: PetFacts & { eventId: string; kind: EventFormKind }) {
   const dict = useTranslations()
   const { state, reload } = useMedicalRecord(petId)
   const [today] = useState(() => localToday())
@@ -35,7 +35,8 @@ export function EditEventScreen({ petId, petName, species, eventId }: PetFacts &
   }
 
   const event = state.data.overview.events.find((entry) => entry.id === eventId)
-  if (!event || event.kind === 'visit') return <EventGone petId={petId} />
+  // Gone meanwhile: back to the section of the kind the page found it as.
+  if (!event || event.kind === 'visit') return <EventGone petId={petId} kind={kind} />
   if (event.status === 'done') return <EventDone petId={petId} eventId={event.id} />
   // Keyed by the plan: the fields start from its values once; a refresh underneath does not reset them.
   return <EventForm key={event.id} petId={petId} petName={petName} species={species} kind={event.kind} plan={event} today={today} />
@@ -47,7 +48,7 @@ function useFocusOnMount<T extends HTMLElement>() {
   return ref
 }
 
-export function EventGone({ petId, kind = 'vaccination' }: { petId: string; kind?: EventFormKind }) {
+export function EventGone({ petId, kind }: { petId: string; kind: EventFormKind }) {
   const dict = useTranslations()
   const words = dict.medicalRecord.eventRecord
   const ref = useFocusOnMount<HTMLHeadingElement>()

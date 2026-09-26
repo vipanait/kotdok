@@ -12,7 +12,7 @@ import { RecordProblem, StaleNotice } from '../MedicalRecordScreen'
 import { recordCache } from '../record-load'
 import SavedNotice from '../SavedNotice'
 import { useMedicalRecord } from '../use-medical-record'
-import { eventSaveFailure } from './event-form'
+import { eventSaveFailure, type EventFormKind } from './event-form'
 import { EventGone } from './EventFormScreen'
 import { eventRecord, type EventSaved } from './event-view'
 
@@ -24,7 +24,18 @@ import { eventRecord, type EventSaved } from './event-view'
  * cancelling a plan asks first, naming the record; «Не удалять» leaves it
  * and returns focus to the button. «Сделано» on a plan arrives with MW-04.
  */
-export default function EventRecordScreen({ petId, eventId, saved }: { petId: string; eventId: string; saved: EventSaved | null }) {
+export default function EventRecordScreen({
+  petId,
+  eventId,
+  kind,
+  saved,
+}: {
+  petId: string
+  eventId: string
+  /** What the page found the record to be: where «В раздел» leads if it is gone by the time it loads. */
+  kind: EventFormKind
+  saved: EventSaved | null
+}) {
   const dict = useTranslations()
   const locale = useLocale()
   const router = useRouter()
@@ -44,7 +55,7 @@ export default function EventRecordScreen({ petId, eventId, saved }: { petId: st
 
   const { events } = state.data.overview
   const event = events.find((entry) => entry.id === eventId)
-  if (!event || event.kind === 'visit') return <EventGone petId={petId} />
+  if (!event || event.kind === 'visit') return <EventGone petId={petId} kind={kind} />
   const record = eventRecord(dict, locale, petId, event, events, today)
   const planned = record.status === 'planned'
 

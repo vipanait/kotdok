@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest'
 import type { HealthEvent } from '@lapka/contracts'
 import {
   coreVaccinations,
+  eventDayProblem,
   fallbackInterval,
+  nextDayProblem,
   nextDayOf,
   suggestNextDay,
   toggleParasiteGroup,
@@ -59,6 +61,36 @@ describe('suggested next date', () => {
     expect(fallbackInterval('vaccination', [])).toEqual({ value: 1, unit: 'year' })
     expect(fallbackInterval('parasite', ['worms'])).toEqual({ value: 3, unit: 'month' })
     expect(fallbackInterval('parasite', ['worms', 'fleas'])).toEqual({ value: 1, unit: 'month' })
+  })
+})
+
+describe('record and next days (MR-03.3)', () => {
+  const today = '2026-09-24'
+
+  it('keeps a done record out of the future and a plan out of the past', () => {
+    expect(eventDayProblem('2026-09-24', 'done', today)).toBeNull()
+    expect(eventDayProblem('2026-09-25', 'done', today)).toBe('future')
+    expect(eventDayProblem('2026-09-24', 'planned', today)).toBeNull()
+    expect(eventDayProblem('2026-09-23', 'planned', today)).toBe('past')
+  })
+
+  it('lets an overdue plan keep its own day, not move to another past one', () => {
+    expect(eventDayProblem('2026-09-12', 'planned', today, '2026-09-12')).toBeNull()
+    expect(eventDayProblem('2026-09-13', 'planned', today, '2026-09-12')).toBe('past')
+  })
+
+  it('reads the day as the contract does: empty, or not a real day', () => {
+    expect(eventDayProblem('', 'done', today)).toBe('empty')
+    expect(eventDayProblem('2026-02-30', 'done', today)).toBe('invalid')
+    expect(eventDayProblem('24.09.2026', 'done', today)).toBe('invalid')
+  })
+
+  it('wants a next date after the record and not in the past', () => {
+    expect(nextDayProblem('2027-09-24', '2026-09-24', today)).toBeNull()
+    expect(nextDayProblem('2026-09-24', '2026-09-24', today)).toBe('notAfter')
+    expect(nextDayProblem('2026-09-20', '2026-09-10', today)).toBe('past')
+    expect(nextDayProblem('2026-13-01', '2026-09-10', today)).toBe('invalid')
+    expect(nextDayProblem('2026-09-30', null, today)).toBeNull()
   })
 })
 

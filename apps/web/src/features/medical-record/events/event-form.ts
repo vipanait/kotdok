@@ -12,7 +12,16 @@ import {
   type HealthTarget,
   type ProductKind,
 } from '@lapka/contracts'
-import { ApiError, ApiTimeoutError, suggestNextDay, type Interval } from '@lapka/shared'
+import {
+  ApiError,
+  ApiTimeoutError,
+  eventDayProblem,
+  nextDayProblem,
+  suggestNextDay,
+  type EventDayProblem,
+  type Interval,
+  type NextDayProblem,
+} from '@lapka/shared'
 import type { RecordType } from '../stage'
 
 /**
@@ -159,11 +168,12 @@ export function toggleTarget(item: ItemDraft, target: HealthTarget): ItemDraft {
 
 // ---------- Reading the form ----------
 
-export type DayProblem = 'empty' | 'invalid' | 'future' | 'past'
+/** The day rules are the shared ones (@lapka/shared `eventDayProblem`, `nextDayProblem`): the phone checks the same. */
+export type DayProblem = EventDayProblem
 export type ItemProblems = {
   name?: 'empty' | 'tooLong'
   targets?: 'empty'
-  next?: 'invalid' | 'notAfter' | 'past'
+  next?: NextDayProblem
 }
 export type EventProblems = {
   date?: DayProblem
@@ -171,15 +181,6 @@ export type EventProblems = {
   item?: Record<string, ItemProblems>
   clinic?: 'tooLong'
   notes?: 'tooLong'
-}
-
-const DAY = /^\d{4}-\d{2}-\d{2}$/
-
-function validDay(value: string): boolean {
-  if (!DAY.test(value)) return false
-  const [year, month, day] = value.split('-').map(Number)
-  const date = new Date(Date.UTC(year, month - 1, day))
-  return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day
 }
 
 const trimmed = (text: string) => text.trim()
@@ -194,29 +195,37 @@ function itemProblems(item: ItemDraft, status: HealthEvent['status'], date: stri
   // «Без препарата» says only what it was against: at least one disease (contract: a name or a disease).
   if (item.source === 'none' && item.targets.length === 0) problems.targets = 'empty'
   if (status === 'done' && item.next !== '') {
-    if (!validDay(item.next)) problems.next = 'invalid'
-    else if (date && item.next <= date) problems.next = 'notAfter'
-    else if (item.next < today) problems.next = 'past'
+    const next = nextDayProblem(item.next, date || null, today)
+    if (next) problems.next = next
   }
   return problems
 }
 
+/**
+ * The contract refused a form the checks above let through: a mismatch
+ * between this form and the schema, never the owner's typing. Shown like the
+ * server's 400 («rejected»), never thrown out of the submit handler.
+ */
+export type ContractRefusal = { ok: false; rejected: true; problems: EventProblems }
+
 export type ReadEvent =
   | { ok: true; input: HealthEventInput }
-  | { ok: false; problems: EventProblems }
+  | { ok: false; rejected?: false; problems: EventProblems }
+  | ContractRefusal
 
 export type ReadPlanChange =
   /** `patch` null: nothing changed. */
   | { ok: true; patch: HealthEventPatch | null }
-  | { ok: false; problems: EventProblems }
+  | { ok: false; rejected?: false; problems: EventProblems }
+  | ContractRefusal
+
+const refused: ContractRefusal = { ok: false, rejected: true, problems: {} }
 
 function commonProblems(draft: EventDraft, today: string, keptDate: string | null): EventProblems {
   const problems: EventProblems = {}
-  if (draft.date === '') problems.date = 'empty'
-  else if (!validDay(draft.date)) problems.date = 'invalid'
-  else if (draft.status === 'done' && draft.date > today) problems.date = 'future'
   // An overdue plan may keep its own day; only a new day has to be ahead.
-  else if (draft.status === 'planned' && draft.date < today && draft.date !== keptDate) problems.date = 'past'
+  const date = eventDayProblem(draft.date, draft.status, today, keptDate)
+  if (date) problems.date = date
 
   if (draft.items.length === 0) problems.items = 'none'
   else if (draft.items.length > HEALTH_EVENT_LIMITS.items) problems.items = 'tooMany'
@@ -238,7 +247,7 @@ const hasProblems = (problems: EventProblems) => Object.keys(problems).length > 
 export function readNewEvent(draft: EventDraft, today: string): ReadEvent {
   const problems = commonProblems(draft, today, null)
   if (hasProblems(problems)) return { ok: false, problems }
-  const input = HealthEventInputSchema.parse({
+  const input = HealthEventInputSchema.safeParse({
     kind: draft.kind,
     status: draft.status,
     date: draft.date,
@@ -251,7 +260,7 @@ export function readNewEvent(draft: EventDraft, today: string): ReadEvent {
       ...(draft.status === 'done' ? { next_on: item.next === '' ? null : item.next } : {}),
     })),
   })
-  return { ok: true, input }
+  return input.success ? { ok: true, input: input.data } : refused
 }
 
 type PatchItem = NonNullable<HealthEventPatch['items']>[number]
@@ -284,7 +293,8 @@ export function readPlanChange(plan: HealthEvent, draft: EventDraft, today: stri
   if (JSON.stringify(items) !== JSON.stringify(patchItems(before))) patch.items = items
 
   if (Object.keys(patch).length === 0) return { ok: true, patch: null }
-  return { ok: true, patch: HealthEventPatchSchema.parse(patch) }
+  const checked = HealthEventPatchSchema.safeParse(patch)
+  return checked.success ? { ok: true, patch: checked.data } : refused
 }
 
 /** Whether the form differs from how it opened: the leave warning asks only then. */

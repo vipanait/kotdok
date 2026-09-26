@@ -146,6 +146,12 @@ export default function EventForm({
     if (inFlight.current) return
 
     const read = plan ? readPlanChange(plan, draft, today) : readNewEvent(draft, today)
+    if (!read.ok && read.rejected) {
+      setProblems({})
+      setBanner({ failure: 'rejected' })
+      console.warn('[medical-record] the form built a record the contract refuses')
+      return
+    }
     if (!read.ok) {
       setProblems(read.problems)
       setBanner(null)

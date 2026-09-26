@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { HealthEvent, HealthOverview, HealthProduct } from '@lapka/contracts'
+import { VACCINE_TARGETS, type HealthEvent, type HealthOverview, type HealthProduct } from '@lapka/contracts'
 import { ApiError, ApiTimeoutError } from '@lapka/shared'
 import ru from '@/shared/i18n/dictionaries/ru'
 import en from '@/shared/i18n/dictionaries/en'
@@ -130,6 +130,32 @@ describe('the form: reading it (MW-03.1, MW-03.3)', () => {
     expect(texts.clinic).toBe('Клиника — не длиннее 100 символов')
     expect(texts.item.a).toEqual({ name: 'Название — не длиннее 100 символов', targets: 'Отметьте, от чего прививка', next: undefined })
     expect(eventErrorTexts(en, 'parasite', { item: { a: { targets: 'empty' } } }).item.a.targets).toBe('Mark what the treatment was against')
+  })
+})
+
+describe('the form: a body the contract refuses (fix round 1)', () => {
+  it('returns «rejected» instead of throwing, for a new record and for a plan', () => {
+    const draft = blankEventDraft('vaccination', 'done', TODAY)
+    // A treatment's target on a vaccination passes the form's own checks but not the contract.
+    const wrong = { ...draft, items: [toggleTarget(manualItem('a', 'Своя'), 'fleas')] }
+    expect(() => readNewEvent(wrong, TODAY)).not.toThrow()
+    expect(readNewEvent(wrong, TODAY)).toEqual({ ok: false, rejected: true, problems: {} })
+
+    // More diseases on one item than the contract allows (12): not reachable with a species' chips.
+    const planDraft = draftFromPlan(plan)
+    const everything = VACCINE_TARGETS.map((target) => target.code)
+    const wrongPlan = { ...planDraft, items: [{ ...planDraft.items[0], targets: everything }] }
+    expect(readPlanChange(plan, wrongPlan, TODAY)).toEqual({ ok: false, rejected: true, problems: {} })
+  })
+
+  it('checks days with the shared rules: a real day, and the next date after the record', () => {
+    const draft = blankEventDraft('vaccination', 'done', TODAY)
+    expect(readNewEvent({ ...draft, date: '2026-02-30', items: [toggleTarget(manualItem('a', 'x'), 'rabies')] }, TODAY)).toEqual({
+      ok: false,
+      problems: { date: 'invalid' },
+    })
+    const withNext = { ...draft, items: [{ ...toggleTarget(manualItem('a', 'x'), 'rabies'), next: '2026-09-20' }] }
+    expect(readNewEvent(withNext, TODAY)).toEqual({ ok: false, problems: { item: { a: { next: 'notAfter' } } } })
   })
 })
 

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { HealthEvent } from '@lapka/contracts'
 import { ru } from '@/i18n/ru'
-import { blankItem, draftFromEvent, draftChanged, nextDate, pickProduct, plannedItem, readDraft, renameItem, type EventDraft } from './event-form'
+import { blankItem, draftFromEvent, draftChanged, nextDate, pickProduct, plannedItem, readDraft, renameItem, warnsDoneIsFinal, type EventDraft } from './event-form'
 
 const NOW = new Date(2026, 8, 24, 12, 0) // 24 Sept 2026, local
 
@@ -218,5 +218,30 @@ describe('what a save planned, for the reminder question', () => {
 
   it('is nothing for a done record without next dates', () => {
     expect(plannedItem({ kind: 'vaccination', status: 'done', items: [{ ...item, next_on: null }] })).toBeNull()
+  })
+})
+
+describe('the done-is-final warning (MW-03 fix round 1)', () => {
+  it('warns before the first save of something done: a new done record and «Сделано» on a plan', () => {
+    expect(warnsDoneIsFinal('new', 'done')).toBe(true)
+    expect(warnsDoneIsFinal('complete', 'done')).toBe(true)
+    expect(warnsDoneIsFinal('new', 'planned')).toBe(false)
+    expect(warnsDoneIsFinal('edit', 'planned')).toBe(false)
+  })
+})
+
+describe('day rules shared with the site (MW-03 fix round 1)', () => {
+  it('refuses a done day after today, a plan day before it, and a day that does not exist', () => {
+    expect(readDraft(ru, draft({ date: '25.09.2026' }), 'new', NOW).ok).toBe(false)
+    expect(readDraft(ru, draft({ status: 'planned', date: '23.09.2026' }), 'new', NOW).ok).toBe(false)
+    expect(readDraft(ru, draft({ date: '30.02.2026' }), 'new', NOW).ok).toBe(false)
+    expect(readDraft(ru, draft({ status: 'planned', date: '24.09.2026' }), 'new', NOW).ok).toBe(true)
+  })
+
+  it('takes a custom next date only after the record and not in the past', () => {
+    const custom = (nextText: string) => ({ ...blankItem('a'), name: 'x', targets: ['rabies' as const], next: 'custom' as const, nextText })
+    expect(nextDate(custom('25.09.2027'), '2026-09-24', '2026-09-24')).toBe('2027-09-25')
+    expect(nextDate(custom('24.09.2026'), '2026-09-24', '2026-09-24')).toBeUndefined()
+    expect(nextDate(custom('20.09.2026'), '2026-09-10', '2026-09-24')).toBeUndefined()
   })
 })
