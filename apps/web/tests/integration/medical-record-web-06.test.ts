@@ -147,7 +147,8 @@ describe('criterion 2: two prescriptions; the chosen one is a course, once', () 
       diagnosis: 'Обострение гастрита',
       prescriptions: [
         { ...blankPrescription('a'), name: 'Фортифлора', instructions: '1 пакетик в день, 14 дней', toMedicines: true },
-        { ...blankPrescription('b'), name: 'Лечебный корм', instructions: 'Постоянно' },
+        // Ticked by default; the owner unticked it.
+        { ...blankPrescription('b'), name: 'Лечебный корм', instructions: 'Постоянно', toMedicines: false },
       ],
     }
     const read = readNewVisit(draft, TODAY)
@@ -167,11 +168,14 @@ describe('criterion 2: two prescriptions; the chosen one is a course, once', () 
     expect((await overview()).medications.map((m) => m.name)).toEqual(['Фортифлора'])
   })
 
-  it('nothing ticked, nothing in the medicines: a prescription is not a medicine by itself', async () => {
-    const read = readNewVisit({ ...blankVisit(TODAY), prescriptions: [{ ...blankPrescription('a'), name: 'Смекта' }] }, TODAY)
-    if (!read.ok) throw new Error('the form refused the visit')
-    await newVisit(read.value)
-    expect(await courses()).toEqual([])
+  it('a new prescription is ticked by default and becomes a course; one the owner unticks does not', async () => {
+    const ticked = readNewVisit({ ...blankVisit(TODAY), prescriptions: [{ ...blankPrescription('a'), name: 'Смекта' }] }, TODAY)
+    const unticked = readNewVisit({ ...blankVisit(TODAY), prescriptions: [{ ...blankPrescription('a'), name: 'Энтерофурил', toMedicines: false }] }, TODAY)
+    if (!ticked.ok || !unticked.ok) throw new Error('the form refused the visit')
+    expect(ticked.value.prescriptions).toEqual([{ name: 'Смекта', instructions: null, add_to_medications: true }])
+    await newVisit(ticked.value)
+    await newVisit(unticked.value)
+    expect((await courses()).map((c) => c.name)).toEqual(['Смекта'])
   })
 })
 
@@ -182,7 +186,7 @@ describe('criterion 3: repeating never multiplies; a visit that happened is not 
         ...blankVisit(TODAY),
         prescriptions: [
           { ...blankPrescription('a'), name: 'Фортифлора', toMedicines: true },
-          { ...blankPrescription('b'), name: 'Смекта' },
+          { ...blankPrescription('b'), name: 'Смекта', toMedicines: false },
         ],
       },
       TODAY,

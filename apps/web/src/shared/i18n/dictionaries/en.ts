@@ -1057,7 +1057,6 @@ const en: Dictionary = {
       noCheck: 'Do not link',
       checkOption: '{day} · {urgency} · {text}',
       checkHint: 'This pet’s checks of the last 30 days.',
-      fromCheck: 'After the check of {day} · {urgency}',
       notes: 'Note',
       counter: '{n} of {max}',
       doneWarning: 'Once saved, a visit that happened cannot be changed. Check the date, diagnosis and prescriptions.',

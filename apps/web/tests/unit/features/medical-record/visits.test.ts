@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { VISIT_LIMITS, type HealthEvent, type SymptomCheckRecord } from '@lapka/contracts'
 import { ApiError } from '@lapka/shared'
 import ru from '@/shared/i18n/dictionaries/ru'
@@ -18,6 +18,7 @@ import {
 import { visitErrorTexts } from '@/features/medical-record/visits/visit-form-text'
 import { parseVisitSaved, visitRecord, visitsPage } from '@/features/medical-record/visits/visit-view'
 import { eventSaveFailure } from '@/features/medical-record/events/event-form'
+import { updateVisit } from '@/server/medical-record/visit-service'
 import { murka } from './demo-overviews'
 
 // MW-06: vet visits, as data — the form (new, from a check, plan change,
@@ -78,8 +79,8 @@ describe('a new visit', () => {
     expect(read.ok && read.value.check_id).toBe(CHECK)
   })
 
-  it('sends two prescriptions, each to the medicines only when ticked; new ones start empty and unticked', () => {
-    expect(blankPrescription('x')).toEqual({ key: 'x', name: '', instructions: '', toMedicines: false })
+  it('sends two prescriptions, each to the medicines only when ticked; a new one starts empty and ticked (spec §7.11)', () => {
+    expect(blankPrescription('x')).toEqual({ key: 'x', name: '', instructions: '', toMedicines: true })
     const draft = withPrescriptions({ ...blankVisit(TODAY), diagnosis: 'Гастрит' }, ['Фортифлора', '1 пакетик в день', true], ['Смекта', '', false])
     const read = readNewVisit(draft, TODAY)
     expect(read.ok && read.value).toEqual({
@@ -214,6 +215,28 @@ describe('a plan: changed, moved, or marked «Состоялся»', () => {
     expect(eventSaveFailure(new ApiError('record_done', 409, 'x'))).toBe('done')
     expect(eventSaveFailure(new ApiError('not_found', 404, 'x'))).toBe('gone')
     expect(eventSaveFailure(new ApiError('conflict', 409, 'x'))).toBe('alreadySaved')
+  })
+})
+
+describe('«Состоялся» on a visit that happened, sent again', () => {
+  it('fails as a storage error when the last key cannot be read — it neither passes nor calls the database write', async () => {
+    const rpc = vi.fn()
+    const query = {
+      select: () => query,
+      eq: () => query,
+      maybeSingle: async () => ({ data: null, error: { message: 'connection reset' } }),
+    }
+    const supabase = { from: () => query, rpc } as unknown as Parameters<typeof updateVisit>[0]
+    const result = await updateVisit(supabase, 'user', petId, held.id, { clinic: 'x' }, held, 'key-1')
+    expect(result).toEqual({ ok: false, reason: 'storage_error', message: 'connection reset' })
+    expect(rpc).not.toHaveBeenCalled()
+  })
+
+  it('without a key it is refused as record_done without reading the key', async () => {
+    const from = vi.fn()
+    const supabase = { from, rpc: vi.fn() } as unknown as Parameters<typeof updateVisit>[0]
+    expect(await updateVisit(supabase, 'user', petId, held.id, { clinic: 'x' }, held, null)).toEqual({ ok: false, reason: 'record_done' })
+    expect(from).not.toHaveBeenCalled()
   })
 })
 

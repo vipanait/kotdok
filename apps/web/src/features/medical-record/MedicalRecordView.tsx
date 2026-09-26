@@ -147,12 +147,25 @@ export default function MedicalRecordView({
   )
 }
 
-function CardHead({ id, title, href, dict }: { id: string; title: string; href: string | null; dict: Dictionary }) {
+function CardHead({
+  id,
+  title,
+  href,
+  dict,
+  label,
+}: {
+  id: string
+  title: string
+  href: string | null
+  dict: Dictionary
+  /** The link's accessible name; «Все: {раздел}» by default. */
+  label?: string
+}) {
   return (
     <div className="health-card-head">
       <h2 id={id}>{title}</h2>
       {href && (
-        <Link href={href} className="link" aria-label={dict.medicalRecord.allIn.replace('{section}', title)}>
+        <Link href={href} className="link" aria-label={label ?? dict.medicalRecord.allIn.replace('{section}', title)}>
           {dict.medicalRecord.all}
           <Icon name="arrow" />
         </Link>
@@ -292,6 +305,7 @@ function ChecksCard({
         title={words.title}
         href={checks.status === 'ready' && checks.items.length > 0 ? `/checks?pet=${petId}` : null}
         dict={dict}
+        label={words.allLabel}
       />
       {checks.status === 'failed' ? (
         <div className="health-checks-failed" role="alert">

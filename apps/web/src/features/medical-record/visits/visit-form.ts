@@ -9,6 +9,7 @@ import {
 } from '@lapka/contracts'
 import {
   eventDayProblem,
+  heldVisitDay,
   prescriptionProblems,
   visitTextProblems,
   type EventDayProblem,
@@ -27,8 +28,9 @@ import {
  *   check linked — the only way a new visit gets a link without the owner
  *   choosing one;
  * - «Назначения» are added one at a time, each empty, up to ten; each is
- *   removed on its own. A prescription becomes a medicine only when the
- *   owner ticks «Добавить в лекарства»: never by default;
+ *   removed on its own. «Добавить в лекарства» is ticked on a new one (spec
+ *   §7.11) and the owner unticks it before saving; only a ticked one starts
+ *   a course, once, however often the save is sent;
  * - switching «Был» / «Запланировать» keeps what was typed; a plan sends no
  *   diagnosis and no prescriptions (they are kept aside, not lost);
  * - a plan is changed (only what changed is sent, its day only when moved)
@@ -47,7 +49,7 @@ export type PrescriptionDraft = {
   name: string
   /** «Как принимать». */
   instructions: string
-  /** «Добавить в лекарства»: start a course from it when the visit is saved. Off until the owner ticks it. */
+  /** «Добавить в лекарства»: start a course from it when the visit is saved. Ticked on a new one; the owner may untick it. */
   toMedicines: boolean
 }
 
@@ -107,7 +109,7 @@ export function draftFromPlan(plan: HealthEvent): VisitDraft {
  * corrects it to the real day.
  */
 export function heldDraft(plan: HealthEvent, today: string): VisitDraft {
-  return { ...draftFromPlan(plan), status: 'done', date: plan.date <= today ? plan.date : today }
+  return { ...draftFromPlan(plan), status: 'done', date: heldVisitDay(plan.date, today) }
 }
 
 /** «Был» / «Запланировать»: the day starts over (today / none); everything else is kept. */
@@ -116,8 +118,14 @@ export function switchVisitStatus(draft: VisitDraft, status: HealthEvent['status
   return { ...draft, status, date: status === 'done' ? today : '' }
 }
 
+/**
+ * A new prescription: empty, with «Добавить в лекарства» ticked (spec §7.11,
+ * web v1 «visit-prescriptions»). The box is shown and the owner unticks it
+ * before saving if the prescription is not a medicine to take — that visible
+ * choice is theirs.
+ */
 export function blankPrescription(key: string): PrescriptionDraft {
-  return { key, name: '', instructions: '', toMedicines: false }
+  return { key, name: '', instructions: '', toMedicines: true }
 }
 
 export type VisitProblems = {

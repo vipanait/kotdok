@@ -78,15 +78,21 @@ export async function createVisit(
  * The Idempotency-Key of the last change the visit took, so a save sent
  * again can be told from a new one.
  */
-async function lastChangeKey(supabase: SupabaseService, userId: string, petId: string, eventId: string): Promise<string | null> {
-  const { data } = await supabase
+async function lastChangeKey(
+  supabase: SupabaseService,
+  userId: string,
+  petId: string,
+  eventId: string,
+): Promise<WeightResult<string | null>> {
+  const { data, error } = await supabase
     .from('pet_health_events')
     .select('update_key')
     .eq('id', eventId)
     .eq('pet_id', petId)
     .eq('user_id', userId)
     .maybeSingle()
-  return (data as { update_key: string | null } | null)?.update_key ?? null
+  if (error) return { ok: false, reason: 'storage_error', message: error.message }
+  return { ok: true, data: (data as { update_key: string | null } | null)?.update_key ?? null }
 }
 
 /**
@@ -112,7 +118,13 @@ export async function updateVisit(
   today: string = utcToday(),
 ): Promise<Result<HealthEvent> | DoneRecord> {
   if (current.status === 'done') {
-    const sameSave = idempotencyKey !== null && (await lastChangeKey(supabase, userId, petId, eventId)) === idempotencyKey
+    let sameSave = false
+    if (idempotencyKey !== null) {
+      const last = await lastChangeKey(supabase, userId, petId, eventId)
+      // Not knowing the last key is not a reason to let a change through: it is a failure.
+      if (!last.ok) return last
+      sameSave = last.data === idempotencyKey
+    }
     const done = refuseDoneChange(current, sameSave)
     if (done) return done
   }

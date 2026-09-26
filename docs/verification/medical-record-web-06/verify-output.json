@@ -1,17 +1,17 @@
 {
   "site": "http://localhost:3100",
   "today": "2026-09-26",
-  "murka": "3200bbc5-c545-4dc7-a038-bf9a2d955d49",
-  "bobik": "5b3b3f9d-616e-4e0e-be04-d8f0c292ea8b",
+  "murka": "4160f206-9bb3-4698-a14e-a3b2bbd59d67",
+  "bobik": "9cffe21b-9df6-46e9-91b5-70480b14327a",
   "checks": {
     "result": {
       "button": "Записать визит к врачу",
-      "href": "/pets/3200bbc5-c545-4dc7-a038-bf9a2d955d49/health/new?type=visit&check=95acd0d3-44ba-466a-9a7f-f46e5ee9f402",
+      "href": "/pets/4160f206-9bb3-4698-a14e-a3b2bbd59d67/health/new?type=visit&check=4fd8ef0b-eb1e-4c46-a65b-42fd281e293d",
       "healthyHasButton": false
     },
     "fromResultForm": {
       "title": "Визит к врачу",
-      "back": "/check/95acd0d3-44ba-466a-9a7f-f46e5ee9f402",
+      "back": "/check/4fd8ef0b-eb1e-4c46-a65b-42fd281e293d",
       "segment": [
         "Был*",
         "Запланировать"
@@ -32,7 +32,7 @@
     },
     "fromResultSaved": {
       "page": {
-        "url": "/pets/3200bbc5-c545-4dc7-a038-bf9a2d955d49/health/6dcc5b2d-27de-4f9d-895e-7a58b4a33186",
+        "url": "/pets/4160f206-9bb3-4698-a14e-a3b2bbd59d67/health/2ed78216-6e76-4135-8db7-2b439cc47452",
         "badge": "Сделано",
         "day": "26 сентября 2026",
         "facts": [
@@ -41,7 +41,7 @@
         ],
         "prescriptions": [],
         "check": "ПроверкаНаблюдаемПо проверке 1 августа",
-        "checkHref": "/check/95acd0d3-44ba-466a-9a7f-f46e5ee9f402",
+        "checkHref": "/check/4fd8ef0b-eb1e-4c46-a65b-42fd281e293d",
         "actions": [
           "Удалить запись"
         ],
@@ -49,7 +49,7 @@
         "notice": "Визит сохранён."
       },
       "server": {
-        "id": "6dcc5b2d-27de-4f9d-895e-7a58b4a33186",
+        "id": "2ed78216-6e76-4135-8db7-2b439cc47452",
         "kind": "visit",
         "status": "done",
         "date": "2026-09-26",
@@ -59,13 +59,13 @@
         "visit_kind": "illness",
         "reason": "Рвота два дня, отказ от еды",
         "diagnosis": "Гастрит, ремиссия",
-        "check_id": "95acd0d3-44ba-466a-9a7f-f46e5ee9f402"
+        "check_id": "4fd8ef0b-eb1e-4c46-a65b-42fd281e293d"
       },
-      "backToCheck": "/check/95acd0d3-44ba-466a-9a7f-f46e5ee9f402"
+      "backToCheck": "/check/4fd8ef0b-eb1e-4c46-a65b-42fd281e293d"
     },
     "directForm": {
       "title": "Визит к врачу",
-      "back": "/pets/3200bbc5-c545-4dc7-a038-bf9a2d955d49/health/visits",
+      "back": "/pets/4160f206-9bb3-4698-a14e-a3b2bbd59d67/health/visits",
       "segment": [
         "Был*",
         "Запланировать"
@@ -90,7 +90,8 @@
     },
     "addPrescription": {
       "afterOneClick": 1,
-      "focus": "input Название"
+      "focus": "input Название",
+      "tickedByDefault": true
     },
     "removeOwn": {
       "left": [
@@ -168,7 +169,7 @@
       }
     },
     "afterReload": {
-      "url": "/pets/3200bbc5-c545-4dc7-a038-bf9a2d955d49/health/88adcf33-b8c9-490b-a4c0-5679acb39781",
+      "url": "/pets/4160f206-9bb3-4698-a14e-a3b2bbd59d67/health/9ab1c1dc-8c59-456d-b4cf-7a7b8b0ad17b",
       "badge": "Сделано",
       "day": "26 сентября 2026",
       "facts": [
@@ -186,7 +187,7 @@
       "actionsBody": "Визит состоялся. Запись доступна только для просмотра.",
       "notice": null,
       "server": {
-        "id": "88adcf33-b8c9-490b-a4c0-5679acb39781",
+        "id": "9ab1c1dc-8c59-456d-b4cf-7a7b8b0ad17b",
         "kind": "visit",
         "status": "done",
         "date": "2026-09-26",
@@ -194,7 +195,7 @@
         "notes": null,
         "items": [
           {
-            "id": "b17261af-6bb3-4012-86c1-922b35d5a006",
+            "id": "a47e6b04-6175-44cc-985a-8fe7953ac2f5",
             "name": "Смекта",
             "targets": [],
             "source_item_id": null,
@@ -204,14 +205,14 @@
             "medication_id": null
           },
           {
-            "id": "8ed79c10-e805-4b3f-b326-558f2e580921",
+            "id": "d209fcaf-9c13-4b6b-8699-78e98255a3b9",
             "name": "Энтерофурил",
             "targets": [],
             "source_item_id": null,
             "product_id": null,
             "interval": null,
             "instructions": "2 капсулы 2 раза в день",
-            "medication_id": "9e10ef5a-16eb-41af-b779-a643fe4816c9"
+            "medication_id": "943b7af0-7e0a-43bb-836e-3a2cecd10066"
           }
         ],
         "visit_kind": "checkup",
@@ -234,8 +235,8 @@
       "actions": [
         "Удалить запись"
       ],
-      "editUrl": "/pets/3200bbc5-c545-4dc7-a038-bf9a2d955d49/health/88adcf33-b8c9-490b-a4c0-5679acb39781",
-      "completeUrl": "/pets/3200bbc5-c545-4dc7-a038-bf9a2d955d49/health/88adcf33-b8c9-490b-a4c0-5679acb39781",
+      "editUrl": "/pets/4160f206-9bb3-4698-a14e-a3b2bbd59d67/health/9ab1c1dc-8c59-456d-b4cf-7a7b8b0ad17b",
+      "completeUrl": "/pets/4160f206-9bb3-4698-a14e-a3b2bbd59d67/health/9ab1c1dc-8c59-456d-b4cf-7a7b8b0ad17b",
       "forms": false,
       "patch": {
         "status": 409,
@@ -253,26 +254,29 @@
         "Контрольный осмотрЗапланирован · 3 октября",
         "Пищевое отравление26 сентября"
       ],
-      "all": "/pets/3200bbc5-c545-4dc7-a038-bf9a2d955d49/health/visits"
+      "all": "/pets/4160f206-9bb3-4698-a14e-a3b2bbd59d67/health/visits"
     },
     "dueOnRecord": [
       {
         "text": "Блохи и клещиПросрочено на 14 дней · 12 сентября",
         "button": "Сделано",
-        "href": "/pets/3200bbc5-c545-4dc7-a038-bf9a2d955d49/health/32f2e837-27ad-45e5-95ef-398c982372ca/complete?item=7a4b00a1-6a47-4b00-8af0-32658281862d&from=medical"
+        "href": "/pets/4160f206-9bb3-4698-a14e-a3b2bbd59d67/health/f084e9ad-4ab2-449f-bbda-ce80a63cc78f/complete?item=aadf5857-72ac-4fff-abee-837d5c74de16&from=medical"
       },
       {
         "text": "ОсмотрЧерез 7 дней · 3 октября",
         "button": "Состоялся",
-        "href": "/pets/3200bbc5-c545-4dc7-a038-bf9a2d955d49/health/01cff892-0150-4029-8601-3c5cab8c6e9e/complete?from=medical"
+        "href": "/pets/4160f206-9bb3-4698-a14e-a3b2bbd59d67/health/1a55493d-c4c4-407d-996e-d9a16feaae68/complete?from=medical"
       },
       {
         "text": "ГлистыЧерез 9 дней · 5 октября",
         "button": "Сделано",
-        "href": "/pets/3200bbc5-c545-4dc7-a038-bf9a2d955d49/health/cd3f9253-82b0-4213-80b4-0aa9539ff446/complete?item=8dd940ab-2830-4fe1-ae46-7fa7b4780f83&from=medical"
+        "href": "/pets/4160f206-9bb3-4698-a14e-a3b2bbd59d67/health/2b5353b7-d411-41c5-9337-fb34560b7f38/complete?item=74640dc0-e1ca-4d7e-b273-fe4e34a52491&from=medical"
       }
     ],
-    "checksAll": "/checks?pet=3200bbc5-c545-4dc7-a038-bf9a2d955d49",
+    "checksAll": {
+      "href": "/checks?pet=4160f206-9bb3-4698-a14e-a3b2bbd59d67",
+      "label": "Все проверки питомца"
+    },
     "medicinesPage": [
       "Смекта",
       "Энтерофурил",
@@ -280,7 +284,7 @@
       "Фортифлора"
     ],
     "planView": {
-      "url": "/pets/3200bbc5-c545-4dc7-a038-bf9a2d955d49/health/01cff892-0150-4029-8601-3c5cab8c6e9e",
+      "url": "/pets/4160f206-9bb3-4698-a14e-a3b2bbd59d67/health/1a55493d-c4c4-407d-996e-d9a16feaae68",
       "badge": "Запланировано",
       "day": "3 октября 2026",
       "facts": [
@@ -299,7 +303,7 @@
     },
     "planEditForm": {
       "title": "Изменить план визита",
-      "back": "/pets/3200bbc5-c545-4dc7-a038-bf9a2d955d49/health/01cff892-0150-4029-8601-3c5cab8c6e9e",
+      "back": "/pets/4160f206-9bb3-4698-a14e-a3b2bbd59d67/health/1a55493d-c4c4-407d-996e-d9a16feaae68",
       "segment": [],
       "kind": "checkup",
       "date": "2026-10-03",
@@ -321,7 +325,7 @@
         "clinic": "Айболит"
       },
       "server": {
-        "id": "01cff892-0150-4029-8601-3c5cab8c6e9e",
+        "id": "1a55493d-c4c4-407d-996e-d9a16feaae68",
         "date": "2026-10-06",
         "status": "planned",
         "clinic": "Айболит"
@@ -336,7 +340,7 @@
     },
     "heldForm": {
       "title": "Отметить визит состоявшимся",
-      "back": "/pets/3200bbc5-c545-4dc7-a038-bf9a2d955d49/health/01cff892-0150-4029-8601-3c5cab8c6e9e",
+      "back": "/pets/4160f206-9bb3-4698-a14e-a3b2bbd59d67/health/1a55493d-c4c4-407d-996e-d9a16feaae68",
       "segment": [],
       "kind": "checkup",
       "date": "2026-09-26",
@@ -355,7 +359,7 @@
     "held": {
       "requests": 1,
       "page": {
-        "url": "/pets/3200bbc5-c545-4dc7-a038-bf9a2d955d49/health/01cff892-0150-4029-8601-3c5cab8c6e9e",
+        "url": "/pets/4160f206-9bb3-4698-a14e-a3b2bbd59d67/health/1a55493d-c4c4-407d-996e-d9a16feaae68",
         "badge": "Сделано",
         "day": "26 сентября 2026",
         "facts": [
@@ -395,7 +399,7 @@
     },
     "newPlanForm": {
       "title": "Визит к врачу",
-      "back": "/pets/3200bbc5-c545-4dc7-a038-bf9a2d955d49/health/visits",
+      "back": "/pets/4160f206-9bb3-4698-a14e-a3b2bbd59d67/health/visits",
       "segment": [
         "Был",
         "Запланировать*"
@@ -409,12 +413,8 @@
       "notes": "",
       "prescriptions": 0,
       "checkBanner": null,
-      "checkChoices": [
-        "none: Не связывать",
-        "check: 25 сентября · Всё в порядке · Плановый вопрос о питании",
-        "check: 23 сентября · Срочно · Хромает на левую лапу"
-      ],
-      "checkValue": "",
+      "checkChoices": null,
+      "checkValue": null,
       "warning": null,
       "submit": "Сохранить"
     },
@@ -432,7 +432,7 @@
       "gone": true,
       "due": []
     },
-    "sectionPlan": "a6f25a10-e8b1-47ab-8a2b-4c219139814e",
+    "sectionPlan": "524388a4-1a84-4a3b-8e91-fbb27bae3263",
     "section": {
       "subtitle": "Мурка · Диагнозы и назначения врача",
       "planned": [
@@ -451,11 +451,11 @@
     },
     "petHistory": {
       "subtitle": "Мурка · Результаты проверок питомца",
-      "back": "/pets/3200bbc5-c545-4dc7-a038-bf9a2d955d49",
+      "back": "/pets/4160f206-9bb3-4698-a14e-a3b2bbd59d67",
       "rows": [
-        "/check/95b62b57-2597-4b5c-9f6a-eb69279f22ef",
-        "/check/89d40cc1-8eb3-4339-96f5-4e01e5aca507",
-        "/check/95acd0d3-44ba-466a-9a7f-f46e5ee9f402"
+        "/check/19743641-b584-4b5f-919b-07bece31208a",
+        "/check/025f1b12-4057-4dae-b693-2667109efc37",
+        "/check/4fd8ef0b-eb1e-4c46-a65b-42fd281e293d"
       ]
     },
     "foreignCheckParam": {
@@ -464,8 +464,8 @@
       "h1": "Такой страницы нет"
     },
     "recentChoice": {
-      "recent": "89d40cc1-8eb3-4339-96f5-4e01e5aca507",
-      "healthy": "95b62b57-2597-4b5c-9f6a-eb69279f22ef"
+      "recent": "025f1b12-4057-4dae-b693-2667109efc37",
+      "healthy": "19743641-b584-4b5f-919b-07bece31208a"
     },
     "overflow390": {
       "visits": false,
@@ -507,43 +507,43 @@
       "form 320": false
     },
     "foreignPages": {
-      "/pets/3200bbc5-c545-4dc7-a038-bf9a2d955d49/health/visits": {
+      "/pets/4160f206-9bb3-4698-a14e-a3b2bbd59d67/health/visits": {
         "status": 200,
         "h1": "Такой страницы нет",
         "shown": false,
         "leaks": []
       },
-      "/pets/3200bbc5-c545-4dc7-a038-bf9a2d955d49/health/88adcf33-b8c9-490b-a4c0-5679acb39781": {
+      "/pets/4160f206-9bb3-4698-a14e-a3b2bbd59d67/health/9ab1c1dc-8c59-456d-b4cf-7a7b8b0ad17b": {
         "status": 200,
         "h1": "Такой страницы нет",
         "shown": false,
         "leaks": []
       },
-      "/pets/3200bbc5-c545-4dc7-a038-bf9a2d955d49/health/01cff892-0150-4029-8601-3c5cab8c6e9e/edit": {
+      "/pets/4160f206-9bb3-4698-a14e-a3b2bbd59d67/health/1a55493d-c4c4-407d-996e-d9a16feaae68/edit": {
         "status": 200,
         "h1": "Такой страницы нет",
         "shown": false,
         "leaks": []
       },
-      "/pets/3200bbc5-c545-4dc7-a038-bf9a2d955d49/health/01cff892-0150-4029-8601-3c5cab8c6e9e/complete": {
+      "/pets/4160f206-9bb3-4698-a14e-a3b2bbd59d67/health/1a55493d-c4c4-407d-996e-d9a16feaae68/complete": {
         "status": 200,
         "h1": "Такой страницы нет",
         "shown": false,
         "leaks": []
       },
-      "/pets/3200bbc5-c545-4dc7-a038-bf9a2d955d49/health/new?type=visit&check=95acd0d3-44ba-466a-9a7f-f46e5ee9f402": {
+      "/pets/4160f206-9bb3-4698-a14e-a3b2bbd59d67/health/new?type=visit&check=4fd8ef0b-eb1e-4c46-a65b-42fd281e293d": {
         "status": 200,
         "h1": "Такой страницы нет",
         "shown": false,
         "leaks": []
       },
-      "/check/95acd0d3-44ba-466a-9a7f-f46e5ee9f402": {
+      "/check/4fd8ef0b-eb1e-4c46-a65b-42fd281e293d": {
         "status": 200,
         "h1": "Такой страницы нет",
         "shown": false,
         "leaks": []
       },
-      "/checks?pet=3200bbc5-c545-4dc7-a038-bf9a2d955d49": {
+      "/checks?pet=4160f206-9bb3-4698-a14e-a3b2bbd59d67": {
         "status": 200,
         "h1": "Такой страницы нет",
         "shown": false,
