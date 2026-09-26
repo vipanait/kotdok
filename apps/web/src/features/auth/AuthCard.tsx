@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation'
 import { useLocale, useTranslations } from '@/components/LocaleProvider'
 import Icon from '@/components/ui/Icon'
 import ProviderButtons from '@/features/auth/ProviderButtons'
+import ConsentCheckbox, { ConsentTerms } from '@/features/consent/ConsentCheckbox'
+import { rememberProviderConsent } from '@/features/consent/provider-consent-cookie'
 import { emailSignUpOptions } from '@/features/auth/lib/sign-up-options'
 import { createClient } from '@/features/auth/lib/supabase-browser'
 import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
@@ -119,6 +121,7 @@ function LoginForm({ next, callbackFailed }: { next?: string; callbackFailed: bo
         <Link className="link" href={withNext('/forgot-password', next)}>{t.forgotPassword}</Link>
       </div>
       <ProviderButtons next={safeNext} onError={setError} />
+      <ConsentTerms />
     </Card>
   )
 }
@@ -131,28 +134,26 @@ function RegisterForm({ next }: { next?: string }) {
   const t = dict.auth.register
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [acceptedTos, setAcceptedTos] = useState(false)
-  const [tosError, setTosError] = useState(false)
+  const [consented, setConsented] = useState(false)
+  const [consentInvalid, setConsentInvalid] = useState(false)
   const [error, setError] = useState('')
   const [sentTo, setSentTo] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const errorId = useId()
-  const tosId = useId()
-  const tosErrorId = useId()
   const hintId = useId()
-  const tosRef = useRef<HTMLInputElement>(null)
+  const consentRef = useRef<HTMLInputElement>(null)
 
-  /** The terms cover email and every provider alike. */
-  function requireTos(): boolean {
-    if (acceptedTos) return true
-    setTosError(true)
-    tosRef.current?.focus()
+  /** The consent covers email and every provider alike. */
+  function requireConsent(): boolean {
+    if (consented) return true
+    setConsentInvalid(true)
+    consentRef.current?.focus()
     return false
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!requireTos()) return
+    if (!requireConsent()) return
     setLoading(true); setError('')
     const trimmedEmail = email.trim()
     const supabase = createClient()
@@ -191,35 +192,27 @@ function RegisterForm({ next }: { next?: string }) {
           hintId={hintId}
           describedBy={describedBy}
         />
-        <div className="auth-terms">
-          <label className="terms" htmlFor={tosId}>
-            <input
-              ref={tosRef}
-              id={tosId}
-              type="checkbox"
-              checked={acceptedTos}
-              onChange={e => {
-                setAcceptedTos(e.target.checked)
-                if (e.target.checked) setTosError(false)
-              }}
-              aria-invalid={tosError || undefined}
-              aria-describedby={tosError ? tosErrorId : undefined}
-            />
-            <span>
-              {t.tosPrefix}{' '}
-              <Link href="/legal" target="_blank" rel="noopener noreferrer">{t.tosLink}</Link>
-            </span>
-          </label>
-          {tosError && (
-            <p id={tosErrorId} className="field-error" role="alert">{t.errorTosRequired}</p>
-          )}
-        </div>
+        <ConsentCheckbox
+          checked={consented}
+          onChange={value => {
+            setConsented(value)
+            if (value) setConsentInvalid(false)
+          }}
+          invalid={consentInvalid}
+          inputRef={consentRef}
+        />
         <SubmitButton loading={loading} label={t.submit} loadingLabel={t.submitting} />
       </form>
       <div className="auth-links">
         <Link className="link" href={withNext('/login', next)}>{t.haveAccount}</Link>
       </div>
-      <ProviderButtons next={safeNext} canStart={requireTos} onError={setError} />
+      <ProviderButtons
+        next={safeNext}
+        canStart={requireConsent}
+        beforeStart={rememberProviderConsent}
+        onError={setError}
+      />
+      <ConsentTerms />
     </Card>
   )
 }

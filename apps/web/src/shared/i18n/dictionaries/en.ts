@@ -106,8 +106,6 @@ const en: Dictionary = {
     register: {
       heading: 'Sign up',
       passwordHint: 'At least 8 characters',
-      tosPrefix: 'I accept the',
-      tosLink: 'terms of service',
       submit: 'Sign up',
       submitting: 'Creating your account...',
       haveAccount: 'I already have an account',
@@ -118,7 +116,6 @@ const en: Dictionary = {
       errorInvalidEmail: 'Enter a valid email address',
       errorEmailDelivery:
         'Could not send the confirmation email. Try again later or sign in with Yandex ID.',
-      errorTosRequired: 'To sign up, please accept the terms of service',
       errorGeneric: 'Could not sign up. Check your details and try again.',
     },
     forgotPassword: {

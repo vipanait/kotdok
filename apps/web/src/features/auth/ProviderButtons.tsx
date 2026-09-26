@@ -27,9 +27,14 @@ interface Props {
   next: () => string
   /**
    * Runs before a provider is opened; `false` stops it. Registration uses it
-   * to require the terms, which apply to every provider as to email.
+   * to require the consent, which applies to every provider as to email.
    */
   canStart?: () => boolean
+  /**
+   * Runs once `canStart` has agreed, right before leaving for the provider.
+   * Registration uses it to carry the ticked consent to the callback.
+   */
+  beforeStart?: () => void
   /** Called with '' when a provider starts, and with a message when it fails. */
   onError: (message: string) => void
 }
@@ -39,7 +44,7 @@ interface Props {
  * forms. Each button shows that it is waiting for its provider; the others are
  * held meanwhile so a second redirect cannot start.
  */
-export default function ProviderButtons({ next, canStart, onError }: Props) {
+export default function ProviderButtons({ next, canStart, beforeStart, onError }: Props) {
   const dict = useTranslations()
   const t = dict.auth.providers
   const [pending, setPending] = useState<Provider | null>(null)
@@ -62,6 +67,7 @@ export default function ProviderButtons({ next, canStart, onError }: Props) {
 
   async function start(provider: Provider) {
     if (canStart && !canStart()) return
+    beforeStart?.()
     setPending(provider)
     onError('')
     const supabase = createClient()
