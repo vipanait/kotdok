@@ -117,7 +117,7 @@ const en: Dictionary = {
       errorWeakPassword: 'Password must be at least 8 characters',
       errorInvalidEmail: 'Enter a valid email address',
       errorEmailDelivery:
-        'Could not send the confirmation email. Try again later or sign in with Yandex ID, Google or Apple.',
+        'Could not send the confirmation email. Try again later or sign in with Yandex ID.',
       errorTosRequired: 'To sign up, please accept the terms of service',
       errorGeneric: 'Could not sign up. Check your details and try again.',
     },

@@ -19,7 +19,8 @@ const MARK = {
   apple: <AppleMark />,
 }
 
-const ORDER: Provider[] = ['yandex', 'google', 'apple']
+// Google and Apple are hidden on the web for now; the app keeps them.
+const ORDER: Provider[] = ['yandex']
 
 interface Props {
   /** Where the callback sends the person once signed in; already checked. */
@@ -34,7 +35,7 @@ interface Props {
 }
 
 /**
- * «или» and the three sign-in providers under the login and registration
+ * «или» and the sign-in providers under the login and registration
  * forms. Each button shows that it is waiting for its provider; the others are
  * held meanwhile so a second redirect cannot start.
  */
