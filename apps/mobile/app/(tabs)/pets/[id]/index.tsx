@@ -1,177 +1,377 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ActivityIndicator, StyleSheet, View } from 'react-native'
-import { router, useLocalSearchParams } from 'expo-router'
+import { Pressable, StyleSheet, View } from 'react-native'
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
+import * as SecureStore from 'expo-secure-store'
+import type { HealthOverview } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
+import { localToday } from '@/lib/calendar-day'
 import { describeFailure } from '@/lib/errors'
 import { useText } from '@/i18n'
-import { PetFields } from '@/features/pets/PetFields'
 import {
-  formToInput,
-  petFormChanged,
-  petToForm,
-  remainingError,
-  type FieldError,
-  type PetForm,
-} from '@/features/pets/pet-form'
-import { Button, LinkButton } from '@/ui/Button'
-import { Banner, SettingRow } from '@/ui/Card'
-import { useUnsavedChanges } from '@/features/unsaved/useUnsavedChanges'
-import { ConfirmDialog, SaveChangesDialog } from '@/ui/Dialog'
+  headerFacts,
+  importantFacts,
+  sectionRows,
+  type SectionRow,
+} from '@/features/medical-record/overview'
+import { AddRecordSheet, type AddChoice } from '@/features/medical-record/AddRecordSheet'
+import { DueRow } from '@/features/medical-record/DueRow'
+import { doneRoute, dueItems, dueStatus } from '@/features/medical-record/due'
+import { Button, IconButton, LinkButton } from '@/ui/Button'
+import { Avatar, Banner, Card, SettingRow } from '@/ui/Card'
+import { Icon, type IconName } from '@/ui/Icon'
 import { Screen } from '@/ui/Screen'
-import { colour, space } from '@/ui/theme'
+import { Text } from '@/ui/Text'
+import { colour, radius, shadow, space } from '@/ui/theme'
 
-export default function EditPet() {
+const SECTION_ICONS: Record<SectionRow['section'], IconName> = {
+  vaccinations: 'vaccine',
+  parasites: 'parasite',
+  visits: 'visit',
+  medications: 'med',
+  weight: 'weight',
+}
+
+/** The shape of the record while it loads: header, one card, the section list. */
+function Skeleton() {
+  return (
+    <View>
+      <View style={styles.header}>
+        <View style={[styles.blank, styles.blankAvatar]} />
+        <View style={styles.headerCopy}>
+          <View style={[styles.blank, styles.blankLine]} />
+          <View style={[styles.blank, styles.blankWeight]} />
+        </View>
+      </View>
+      <View style={[styles.blank, styles.blankCard]} />
+      <View style={[styles.blank, styles.blankSections]} />
+    </View>
+  )
+}
+
+/** Where an openable section leads. Each stage adds its own. */
+const SECTION_ROUTES: Partial<Record<SectionRow['section'], string>> = {
+  vaccinations: 'vaccinations',
+  parasites: 'parasites',
+  visits: 'visits',
+  medications: 'medications',
+  weight: 'weight',
+}
+
+/** At most this many due dates on the record itself; the rest behind «Все сроки» (spec §7.2). */
+const DUE_ON_RECORD = 3
+
+/** Where «Скрыть подсказку» is remembered, per pet and per phone. */
+const hintKey = (petId: string) => `medical-record-hint-hidden-${petId}`
+
+function Section({ row, onPress }: { row: SectionRow; onPress: () => void }) {
+  const content = (
+    <>
+      <Icon name={SECTION_ICONS[row.section]} color={colour.accentText} />
+      <View style={styles.sectionCopy}>
+        <Text variant="h3">{row.title}</Text>
+        <Text variant="label" tone="muted">
+          {row.summary}
+        </Text>
+      </View>
+      {row.openable ? <Icon name="chevron" size={20} color={colour.faint} /> : null}
+    </>
+  )
+
+  // A section whose records cannot be stored yet is a line of text, not a
+  // button that leads nowhere.
+  if (!row.openable) {
+    return (
+      <View accessible accessibilityLabel={`${row.title}, ${row.summary}`} style={styles.section}>
+        {content}
+      </View>
+    )
+  }
+
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`${row.title}, ${row.summary}`}
+      onPress={onPress}
+      style={({ pressed }) => [styles.section, { opacity: pressed ? 0.6 : 1 }]}
+    >
+      {content}
+    </Pressable>
+  )
+}
+
+/**
+ * The pet's medical record: what the owner said in the form, and — as the
+ * record's stages land — the history behind it. The form keeps its fields and
+ * sits one tap away under «Анкета».
+ */
+export default function MedicalRecord() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const t = useText()
-  const [form, setForm] = useState<PetForm | null>(null)
-  // What the server holds, to tell an edit from a form that was only looked at.
-  const [saved, setSaved] = useState<PetForm | null>(null)
+  const [overview, setOverview] = useState<HealthOverview | null>(null)
   const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
-  const [invalid, setInvalid] = useState<FieldError | null>(null)
-  const [busy, setBusy] = useState(false)
-  const [asking, setAsking] = useState(false)
+
+  const [hintHidden, setHintHidden] = useState(true)
+  const [adding, setAdding] = useState(false)
+
+  // Hidden until the phone says otherwise: a hint that flashes up and vanishes
+  // is worse than one that appears a moment late.
+  useEffect(() => {
+    SecureStore.getItemAsync(hintKey(id))
+      .then((value) => setHintHidden(value === '1'))
+      .catch(() => setHintHidden(false))
+  }, [id])
+
+  const hideHint = () => {
+    setHintHidden(true)
+    SecureStore.setItemAsync(hintKey(id), '1').catch(() => {})
+  }
 
   const load = useCallback(async () => {
     setError(null)
     try {
-      const pet = await withFreshSession((api) => api.getPet(id))
-      setForm(petToForm(pet))
-      setSaved(petToForm(pet))
+      setOverview(await withFreshSession((api) => api.getHealthOverview(id)))
     } catch (cause) {
-      setError(describeFailure(t, cause, t.errors.loadPetFailed))
+      // What was on screen stays there under the banner.
+      setError(describeFailure(t, cause, t.errors.loadHealthFailed))
     }
   }, [id, t])
 
-  useEffect(() => {
-    void load()
-  }, [load])
-
-  const unsaved = useUnsavedChanges(
-    form !== null && saved !== null && petFormChanged(saved, form),
+  // On focus, not on mount: coming back from «Анкета» has to show what was saved.
+  useFocusEffect(
+    useCallback(() => {
+      void load()
+    }, [load]),
   )
 
-  function change(patch: Partial<PetForm>) {
-    setForm((current) => (current ? { ...current, ...patch } : current))
-    setInvalid((current) => remainingError(current, patch))
-  }
+  // Only ever this pet's record: a screen reused for another id never shows the previous one.
+  const shown = overview?.pet.id === id ? overview : null
+  const openForm = () => router.push(`/pets/${id}/edit`)
 
-  /** @param then where to go once saved: the list, or wherever the person was headed. */
-  async function save(then: () => void = () => router.replace('/pets')) {
-    if (!form) return
+  const banner = error ? (
+    <>
+      <Banner text={error.text} tone="error" icon={error.offline ? 'wifi' : 'alert'} />
+      <Button title={t.common.retry} kind="secondary" onPress={() => void load()} />
+      <View style={styles.gap} />
+    </>
+  ) : null
 
-    const input = formToInput(t, form)
-    if (!input.ok) {
-      setInvalid({ field: input.field, message: input.message })
-      setError(null)
-      return
-    }
+  const formAction = { label: t.medicalRecord.form, onPress: openForm }
+  const history = (
+    <SettingRow
+      icon="history"
+      title={t.pets.history}
+      onPress={() => router.push(`/pets/${id}/checks`)}
+    />
+  )
+  // «Для врача» (M11): the record as a summary to show or send.
+  const forVet = <SettingRow icon="checkup" title={t.vetSummary.entry} onPress={() => router.push(`/pets/${id}/vet-summary`)} />
 
-    setInvalid(null)
-    setBusy(true)
-    setError(null)
-    try {
-      await withFreshSession((api) => api.updatePet(id, input.value))
-      unsaved.leave(then)
-    } catch (cause) {
-      setError(describeFailure(t, cause, t.errors.saveChangesFailed))
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  async function remove() {
-    setBusy(true)
-    setError(null)
-    try {
-      await withFreshSession((api) => api.deletePet(id))
-      setAsking(false)
-      unsaved.leave(() => router.replace('/pets'))
-    } catch (cause) {
-      setAsking(false)
-      setError(describeFailure(t, cause, t.errors.removePetFailed))
-      setBusy(false)
-    }
-  }
-
-  if (!form) {
+  if (!shown) {
+    // The form, its delete and the check history do not depend on the record:
+    // a record that fails to load must not take them with it.
     return (
-      <Screen title={t.pets.fallbackTitle} onBack={() => router.back()}>
+      <Screen
+        title={t.pets.fallbackTitle}
+        onBack={() => router.back()}
+        action={error ? formAction : undefined}
+        scroll
+      >
+        {banner}
         {error ? (
           <>
-            <Banner text={error.text} tone="error" icon={error.offline ? 'wifi' : 'alert'} />
-            <Button title={t.common.retry} kind="secondary" onPress={() => void load()} />
-            <LinkButton title={t.common.toList} onPress={() => router.replace('/pets')} />
+            {history}
+            <LinkButton title={t.common.toList} onPress={() => router.dismissTo('/pets')} />
           </>
         ) : (
-          // Until this arrives the screen has nothing but a title, and a blank
-          // page reads as a broken one rather than as a slow one.
-          <ActivityIndicator color={colour.accent} />
+          <Skeleton />
         )}
       </Screen>
     )
   }
 
+  const { pet } = shown
+  const today = localToday()
+  const facts = headerFacts(t, shown, today)
+  const important = importantFacts(t, pet, shown.medications, today)
+  const due = dueItems(shown.events)
+  const canVaccinate = shown.writable.includes('vaccinations')
+  const empty = shown.events.length === 0 && shown.weights.length === 0 && shown.medications.length === 0
+  const addVaccination = () => router.push(`/pets/${id}/event-form?mode=new&status=done`)
+  const choices: AddChoice[] = [
+    ...(canVaccinate
+      ? [{ key: 'vaccination', icon: 'vaccine' as const, label: t.medicalRecord.addVaccinationRow, onPress: addVaccination }]
+      : []),
+    ...(shown.writable.includes('parasites')
+      ? [
+          {
+            key: 'parasite',
+            icon: 'parasite' as const,
+            label: t.medicalRecord.addTreatmentRow,
+            onPress: () => router.push(`/pets/${id}/event-form?mode=new&status=done&kind=parasite`),
+          },
+        ]
+      : []),
+    ...(shown.writable.includes('visits')
+      ? [{ key: 'visit', icon: 'visit' as const, label: t.medicalRecord.visits.addRow, onPress: () => router.push(`/pets/${id}/visit-form`) }]
+      : []),
+    ...(shown.writable.includes('medications')
+      ? [{ key: 'medication', icon: 'med' as const, label: t.medicalRecord.meds.addRow, onPress: () => router.push(`/pets/${id}/medication-form`) }]
+      : []),
+    ...(shown.writable.includes('weight')
+      ? [{ key: 'weight', icon: 'weight' as const, label: t.medicalRecord.addWeightRow, onPress: () => router.push(`/pets/${id}/weight`) }]
+      : []),
+  ]
+
   return (
     <Screen
-      title={form.name || t.pets.fallbackTitle}
+      title={pet.name}
       onBack={() => router.back()}
+      action={formAction}
       scroll
-      dock={<Button title={t.common.save} onPress={() => void save()} busy={busy} />}
+      dock={
+        choices.length > 0 ? (
+          <Button title={t.medicalRecord.addRecord} onPress={() => setAdding(true)} />
+        ) : null
+      }
     >
-      <SettingRow
-        title={t.pets.history}
-        onPress={() => router.push(`/pets/${id}/checks`)}
-      />
-      <View style={styles.spacer} />
+      {banner}
 
-      <PetFields form={form} onChange={change} invalid={invalid} />
+      <View
+        style={styles.header}
+        accessible
+        accessibilityLabel={[facts.meta, facts.neutered, facts.weight].filter(Boolean).join(', ')}
+      >
+        <Avatar species={pet.species} size={64} />
+        <View style={styles.headerCopy}>
+          <Text variant="label" tone="muted">
+            {facts.meta}
+          </Text>
+          {facts.neutered ? (
+            <Text variant="label" tone="muted">
+              {facts.neutered}
+            </Text>
+          ) : null}
+          {facts.weight ? (
+            <>
+              <Text variant="h2" style={styles.weight}>
+                {facts.weight}
+              </Text>
+              <Text variant="caption" tone="faint">
+                {facts.weightNote}
+              </Text>
+            </>
+          ) : null}
+        </View>
+      </View>
 
-      {error ? (
-        <Banner
-          text={error.text}
-          tone="error"
-          icon={error.offline ? 'wifi' : 'alert'}
-          style={styles.error}
-        />
+      {empty && canVaccinate && !hintHidden ? (
+        <View style={styles.hint}>
+          <View style={styles.hintCopy}>
+            <Text tone="accent">{t.medicalRecord.firstFillBanner}</Text>
+            <LinkButton title={t.medicalRecord.firstFillAction} onPress={addVaccination} align="left" />
+          </View>
+          <IconButton icon="close" label={t.medicalRecord.hideBanner} onPress={hideHint} />
+        </View>
       ) : null}
 
-      <View style={styles.gap} />
-      {/* Deleting a pet takes its checks with it, so this asks rather than
-          acting on a single tap. */}
-      <Button
-        title={t.pets.remove}
-        kind="outlineDanger"
-        disabled={busy}
-        onPress={() => setAsking(true)}
-      />
+      {due.length > 0 ? (
+        <Card style={styles.due}>
+          <Text variant="h2">{t.medicalRecord.dueTitle}</Text>
+          {due.slice(0, DUE_ON_RECORD).map((item, index) => (
+            <View key={item.itemId} style={index > 0 ? styles.rowDivider : null}>
+              <DueRow
+                due={item}
+                status={dueStatus(t, item.date, today)}
+                onDone={() => router.push(doneRoute(id, item))}
+              />
+            </View>
+          ))}
+          {due.length > DUE_ON_RECORD ? (
+            <LinkButton
+              title={t.medicalRecord.allDue(due.length)}
+              align="left"
+              onPress={() => router.push(`/pets/${id}/due`)}
+            />
+          ) : null}
+        </Card>
+      ) : null}
 
-      <ConfirmDialog
-        visible={asking}
-        title={t.pets.removeTitle}
-        message={t.pets.removeBody}
-        confirmTitle={t.pets.removeConfirm}
-        busy={busy}
-        onConfirm={() => void remove()}
-        onCancel={() => setAsking(false)}
-      />
+      {important.length > 0 ? (
+        <View style={styles.important}>
+          <Text variant="h2" style={styles.importantTitle}>
+            {t.medicalRecord.important}
+          </Text>
+          {important.map((fact) => (
+            <View key={fact.label} style={styles.fact}>
+              <Text variant="label" tone="muted">
+                {fact.label}
+              </Text>
+              <Text>{fact.value}</Text>
+            </View>
+          ))}
+          <LinkButton title={t.medicalRecord.editInForm} onPress={openForm} align="left" />
+        </View>
+      ) : null}
 
-      <SaveChangesDialog
-        visible={unsaved.pending !== null}
-        busy={busy}
-        onSave={() => {
-          const next = unsaved.pending
-          unsaved.stay()
-          if (next) void save(next)
-        }}
-        onDiscard={() => unsaved.pending && unsaved.leave(unsaved.pending)}
-        onStay={unsaved.stay}
-      />
+      <Card style={styles.sections}>
+        {sectionRows(t, shown, today).map((row, index) => (
+          <View key={row.section}>
+            {index > 0 ? <View style={styles.divider} /> : null}
+            <Section
+              row={row}
+              onPress={() => {
+                const route = SECTION_ROUTES[row.section]
+                if (route) router.push(`/pets/${id}/${route}`)
+              }}
+            />
+          </View>
+        ))}
+      </Card>
+
+      {forVet}
+      {history}
+
+      <AddRecordSheet visible={adding} choices={choices} onClose={() => setAdding(false)} />
     </Screen>
   )
 }
 
 const styles = StyleSheet.create({
-  spacer: { height: space.block },
-  gap: { height: space.section },
-  error: { marginTop: space.block },
+  gap: { height: space.block },
+  header: { flexDirection: 'row', alignItems: 'center', gap: 16, marginBottom: space.block },
+  headerCopy: { flex: 1, minWidth: 0 },
+  weight: { marginTop: 6 },
+
+  important: {
+    backgroundColor: colour.soft,
+    borderRadius: radius.card,
+    padding: space.block,
+    marginBottom: space.block,
+  },
+  importantTitle: { marginBottom: space.row },
+  fact: { marginBottom: space.row, gap: 2 },
+
+  hint: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+    backgroundColor: colour.accentSoft,
+    borderRadius: radius.card,
+    padding: 16,
+    marginBottom: space.block,
+  },
+  hintCopy: { flex: 1 },
+  due: { paddingVertical: 16, marginBottom: space.block, ...shadow.card },
+  sections: { paddingVertical: 4, marginBottom: space.block, ...shadow.card },
+  section: { flexDirection: 'row', alignItems: 'center', gap: 16, minHeight: 64, paddingVertical: 12 },
+  sectionCopy: { flex: 1, minWidth: 0, gap: 2 },
+  divider: { height: StyleSheet.hairlineWidth, backgroundColor: colour.line },
+  rowDivider: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colour.line },
+
+  blank: { backgroundColor: colour.soft, borderRadius: radius.field },
+  blankAvatar: { width: 64, height: 64, borderRadius: radius.pill },
+  blankLine: { height: 14, width: '60%', marginBottom: 10 },
+  blankWeight: { height: 28, width: '40%' },
+  blankCard: { height: 120, borderRadius: radius.card, marginBottom: space.block },
+  blankSections: { height: 320, borderRadius: radius.card },
 })

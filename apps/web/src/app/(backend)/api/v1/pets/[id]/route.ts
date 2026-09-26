@@ -5,6 +5,7 @@ import { getPet, softDeletePetAndChecks, updatePet } from '@/server/pets/pet-ser
 import { toPetContract } from '@/server/pets/pet-contract'
 import { apiError, apiNoContent, apiSuccess } from '@/server/api/response'
 import { serviceFailureResponse } from '@/server/api/failure-response'
+import { isFutureDay } from '@/server/medical-record/weight-service'
 import { withApiAuth, type ApiContext } from '@/server/api/with-api-auth'
 
 type Params = { params: Promise<{ id: string }> }
@@ -40,7 +41,10 @@ export const PATCH = withApiAuth(async (request: NextRequest, context: ApiContex
   }
 
   const parsed = PetUpdateInputSchema.safeParse(body)
-  if (!parsed.success) {
+  // A weighing day ahead of every time zone is a wrong clock, and it would stay
+  // the newest measurement for ever.
+  const day = parsed.success ? parsed.data.weight_measured_on : undefined
+  if (!parsed.success || (day !== undefined && isFutureDay(day))) {
     return apiError(context.requestId, 'bad_request', 'Body does not match the contract')
   }
 

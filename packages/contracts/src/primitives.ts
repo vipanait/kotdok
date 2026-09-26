@@ -30,6 +30,15 @@ export const AccountStatusSchema = z.enum(ACCOUNT_STATUSES)
 /** UTC ISO 8601, as the roadmap requires for every date crossing the API. */
 export const IsoDateTimeSchema = z.iso.datetime({ offset: true })
 
+/**
+ * A calendar day, `YYYY-MM-DD`, with no time and no zone.
+ *
+ * For things that happen on a day rather than at a moment — a weighing, a
+ * vaccination. Converting one to UTC would move it by a day for half the
+ * world; it is stored and shown as the owner gave it.
+ */
+export const CalendarDateSchema = z.iso.date()
+
 export const UuidSchema = z.uuid()
 
 export type Urgency = z.infer<typeof UrgencySchema>

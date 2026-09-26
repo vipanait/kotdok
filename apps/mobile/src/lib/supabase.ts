@@ -48,6 +48,9 @@ const keychain = {
   deleteItemAsync: (key: string) => SecureStore.deleteItemAsync(key),
 }
 
+/** Plain keychain access for small settings that belong to this phone, not a session. */
+export const deviceStorage = keychain
+
 export const sessionStorage: SessionStorage = createSessionStorage({
   storage: keychain,
   onWriteFailure: (error: Error) => onWriteFailure(error),

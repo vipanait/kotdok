@@ -18,6 +18,7 @@ import {
   STOOL_VALUES,
   type Pet,
 } from '@lapka/contracts'
+import { summaryRecords } from '@lapka/shared'
 import { withFreshSession } from '@/lib/api'
 import { AppError, describeFailure, errorMessage, submitCheckMessage } from '@/lib/errors'
 import { preparePhoto, putPhoto } from '@/lib/photo-io'
@@ -72,6 +73,8 @@ export default function NewCheck() {
   // a restart, and the draft lives in the keychain, which is for small values.
   const [photos, setPhotos] = useState<PickedPhoto[]>([])
   const [pets, setPets] = useState<Pet[] | null>(null)
+  // «Учтём медкарту» only when this pet's record has something in it; unknown is no.
+  const [withRecord, setWithRecord] = useState<string | null>(null)
   const [petsError, setPetsError] = useState<{ text: string; offline: boolean } | null>(null)
   const [step, setStep] = useState<1 | 2>(1)
   const [symptomsError, setSymptomsError] = useState<string | null>(null)
@@ -409,6 +412,27 @@ export default function NewCheck() {
     await watch(jobId)
   }
 
+  // «Учтём медкарту»: by the rule the server includes the record by, read
+  // again whenever the screen comes back (a record may have been added).
+  // Before any early return: hooks run in the same order on every render.
+  useFocusEffect(
+    useCallback(() => {
+      const petId = form.petId
+      if (!petId) return
+      let current = true
+      withFreshSession((api) => api.getVetSummary(petId))
+        .then((summary) => {
+          if (current) setWithRecord(summaryRecords(summary) > 0 ? petId : null)
+        })
+        .catch(() => {
+          if (current) setWithRecord(null)
+        })
+      return () => {
+        current = false
+      }
+    }, [form.petId]),
+  )
+
   if (waiting || failure) {
     return <Waiting t={t} failure={failure} onRetry={() => void submit()} />
   }
@@ -498,6 +522,11 @@ export default function NewCheck() {
             <Text variant="h3">{chosen?.name ?? pets[0].name}</Text>
           </View>
         )}
+        {withRecord !== null && withRecord === form.petId ? (
+          <Text variant="caption" tone="muted" style={styles.recordCaption}>
+            {t.check.recordCaption}
+          </Text>
+        ) : null}
 
         <Field
           label={t.check.symptoms}
@@ -641,6 +670,7 @@ function Waiting({
 }
 
 const styles = StyleSheet.create({
+  recordCaption: { marginTop: -8, marginBottom: 16 },
   summaryCopy: { flex: 1, minWidth: 0 },
   onlyPet: { marginBottom: space.block, gap: 6 },
   // The pair stands rather than sits, so it needs the height; a narrow phone

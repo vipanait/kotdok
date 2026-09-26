@@ -33,6 +33,17 @@ const paths = {
   camera: '<path d="M3 7h4l2-3h6l2 3h4v14H3Z"/><circle cx="12" cy="13" r="4"/>',
   thumb: '<path d="M8 10l5-7c3 0 1 7 1 7h6l-2 11H8Zm-5 0h5v11H3Z"/>',
   thumbdown: '<g transform="rotate(180 12 12)"><path d="M8 10l5-7c3 0 1 7 1 7h6l-2 11H8Zm-5 0h5v11H3Z"/></g>',
+  // The medical record's section glyphs, from its own concept:
+  // docs/design/medical-record-concept-v1/screens.js, `const paths`.
+  vaccine: '<path d="m14 3 7 7m-9-5 7 7M5 12l7-7 7 7-7 7H5v-7ZM3 21l3-3m3-8 3 3m-6 0 3 3"/>',
+  parasite: '<path d="M12 2S4 11 4 15a8 8 0 0 0 16 0c0-4-8-13-8-13Z"/><path d="M8 15c0 2 1 3 3 3"/>',
+  visit: '<path d="M4 3v6a5 5 0 0 0 10 0V3M2 3h4m6 0h4M9 14v2a5 5 0 0 0 10 0v-3"/><circle cx="19" cy="10" r="3"/>',
+  med: '<path d="m8 4-4 4a6 6 0 0 0 8 12l8-8a6 6 0 0 0-8-8Zm-3 7 8 8"/>',
+  weight: '<rect x="3" y="3" width="18" height="18" rx="4"/><path d="M7 7h10l-2 5H9Zm5 0 2-2"/>',
+  // A due date soon, and one overdue — the exclamation says it without red.
+  calendar: '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4m10-4v4M3 10h18"/>',
+  bell: '<path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4Z"/><path d="M10 21h4"/>',
+  calendarAlert: '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4m10-4v4M3 10h18m-9 3v3m0 2h.01"/>',
 } as const
 
 export type IconName = keyof typeof paths

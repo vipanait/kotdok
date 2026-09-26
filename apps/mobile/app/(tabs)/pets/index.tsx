@@ -1,10 +1,12 @@
 import { useCallback, useState } from 'react'
 import { FlatList, Image, StyleSheet, View } from 'react-native'
 import { router, useFocusEffect } from 'expo-router'
-import type { Pet } from '@lapka/contracts'
+import type { DueItem, Pet } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
+import { localToday } from '@/lib/calendar-day'
 import { describeFailure } from '@/lib/errors'
 import { useText, type Dictionary } from '@/i18n'
+import { dueStatus, itemTitle } from '@/features/medical-record/due'
 import { Button } from '@/ui/Button'
 import { Avatar, Card } from '@/ui/Card'
 import { Banner } from '@/ui/Card'
@@ -19,6 +21,28 @@ function describe(t: Dictionary, pet: Pet): string {
   if (pet.breed) parts.push(pet.breed)
   if (pet.age_years !== null) parts.push(t.petAge(pet.age_years))
   return parts.join(' · ')
+}
+
+/**
+ * The pet's earliest due date, only when it is overdue or within two weeks
+ * (spec §7.1). `due` is sorted soonest first, so the first match is the one.
+ */
+function DueLine({ t, due }: { t: Dictionary; due: DueItem | undefined }) {
+  if (!due) return null
+  const status = dueStatus(t, due.date, localToday())
+  if (status.tone === 'later') return null
+  const title = itemTitle(t, { name: due.name, targets: due.targets }, due.kind)
+  return (
+    <Text
+      variant="caption"
+      numberOfLines={1}
+      style={[styles.petDue, { color: status.tone === 'overdue' ? colour.text : colour.accentText }]}
+    >
+      {status.tone === 'overdue'
+        ? t.medicalRecord.listDue.overdue(title)
+        : t.medicalRecord.listDue.soon(title, (status.text ?? status.day).toLowerCase())}
+    </Text>
+  )
 }
 
 /** Three card-shaped blanks while the first page is on its way. */
@@ -45,6 +69,7 @@ function Skeletons() {
 export default function Pets() {
   const t = useText()
   const [pets, setPets] = useState<Pet[] | null>(null)
+  const [due, setDue] = useState<DueItem[]>([])
   const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -53,6 +78,10 @@ export default function Pets() {
     setLoading(true)
     try {
       setPets(await withFreshSession((api) => api.listPets()))
+      // A missing due line is not worth an error over the whole list.
+      withFreshSession((api) => api.listDue())
+        .then(setDue)
+        .catch(() => setDue([]))
     } catch (cause) {
       // The list that is already on screen stays there: a lost connection is
       // not a reason to forget the pets we last saw.
@@ -140,6 +169,7 @@ export default function Pets() {
                 <Text variant="caption" tone="faint" style={styles.petMeta}>
                   {describe(t, item)}
                 </Text>
+                <DueLine t={t} due={due.find((row) => row.pet_id === item.id)} />
               </View>
               <Icon name="chevron" size={20} color={colour.faint} />
             </Card>
@@ -155,6 +185,7 @@ const styles = StyleSheet.create({
   petCard: { flexDirection: 'row', alignItems: 'center', gap: space.row, minHeight: 96 },
   petCopy: { flex: 1, minWidth: 0 },
   petMeta: { marginTop: 4 },
+  petDue: { marginTop: 4, fontWeight: '600' },
   emptyArt: { width: 228, height: 228, alignSelf: 'center', marginBottom: 8 },
   emptyTitle: { marginBottom: space.row },
   emptyCopy: { marginBottom: 24, alignSelf: 'center', maxWidth: 310 },

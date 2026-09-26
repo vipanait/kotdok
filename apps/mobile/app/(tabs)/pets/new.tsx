@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { router } from 'expo-router'
 import { withFreshSession } from '@/lib/api'
+import { localToday } from '@/lib/calendar-day'
 import { errorMessage } from '@/lib/errors'
 import { useText } from '@/i18n'
 import { PetFields } from '@/features/pets/PetFields'
@@ -60,7 +61,9 @@ export default function NewPet() {
     setBusy(true)
     setError(null)
     try {
-      const pet = await withFreshSession((api) => api.createPet(input.value))
+      const pet = await withFreshSession((api) =>
+        api.createPet({ ...input.value, weight_measured_on: localToday() }),
+      )
       unsaved.leave(then ?? (() => router.replace(`/pets/${pet.id}`)))
     } catch (cause) {
       setError(errorMessage(t, cause, t.errors.savePetFailed))

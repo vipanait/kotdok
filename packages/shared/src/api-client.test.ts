@@ -72,3 +72,46 @@ describe('api client deadline', () => {
     await expect(api.listPets()).rejects.toBeInstanceOf(ApiError)
   })
 })
+
+describe('medical record', () => {
+  it('reads the overview from the pet’s health path and validates it', async () => {
+    const pet = {
+      id: '11111111-1111-4111-8111-000000000002',
+      species: 'dog',
+      name: 'Бобик',
+      breed: null,
+      age_years: 5,
+      weight_kg: 28,
+      sex: null,
+      neutered: null,
+      indoor_outdoor: null,
+      diet: null,
+      size_class: null,
+      walk_activity: null,
+      allergies: [],
+      vaccinated: true,
+      chronic_conditions: [],
+      medications: [],
+      notes: null,
+      created_at: '2026-05-01T10:00:00.000Z',
+    }
+    const seen: string[] = []
+    const fetch: FetchLike = async (url) => {
+      seen.push(String(url))
+      return ok({ pet, writable: [] })
+    }
+    const api = createApiClient({ baseUrl: BASE, fetch })
+
+    const overview = await api.getHealthOverview(pet.id)
+
+    expect(seen).toEqual([`${BASE}/api/v1/pets/${pet.id}/health`])
+    expect(overview.pet.weight_kg).toBe(28)
+  })
+
+  it('refuses a body that is not an overview', async () => {
+    const fetch: FetchLike = async () => ok({ pet: null })
+    const api = createApiClient({ baseUrl: BASE, fetch })
+
+    await expect(api.getHealthOverview('x')).rejects.toThrow()
+  })
+})

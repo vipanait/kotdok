@@ -9,6 +9,7 @@ export type ServiceFailure =
   | 'account_not_found'
   | 'not_found'
   | 'bad_cursor'
+  | 'conflict'
   | 'storage_error'
 
 /**
@@ -25,6 +26,8 @@ export function serviceFailureResponse(requestId: string, reason: ServiceFailure
       return apiError(requestId, 'not_found', 'No such resource')
     case 'bad_cursor':
       return apiError(requestId, 'bad_request', 'Cursor is not valid')
+    case 'conflict':
+      return apiError(requestId, 'conflict', 'Conflicts with an existing record')
     default:
       return apiError(requestId, 'internal_error', 'Storage is unavailable')
   }

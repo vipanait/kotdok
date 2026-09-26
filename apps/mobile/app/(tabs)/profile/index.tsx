@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ActivityIndicator, StyleSheet, View } from 'react-native'
+import { ActivityIndicator, AppState, StyleSheet, View } from 'react-native'
 import { router, useFocusEffect } from 'expo-router'
 import Constants from 'expo-constants'
 import * as Updates from 'expo-updates'
 import type { PublicProfile } from '@lapka/contracts'
 import { SUPPORTED_LOCALES } from '@lapka/shared'
 import { runningUpdate } from '@/features/updates/update-state'
+import { reminderStore, useReminders } from '@/features/medical-record/reminders/ReminderProvider'
+import { permissionState } from '@/features/medical-record/reminders/notifications'
 import { withFreshSession } from '@/lib/api'
 import { describeFailure } from '@/lib/errors'
 import { useAuth } from '@/providers/AuthProvider'
@@ -25,6 +27,7 @@ const localeLabels = { ru: 'Русский', en: 'English' } as const
 
 export default function Profile() {
   const t = useText()
+  const reminders = useReminders()
   const locale = useLocale()
   const setLocale = useSetLocale()
   const { currentlyRunning } = Updates.useUpdates()
@@ -47,12 +50,27 @@ export default function Profile() {
     }
   }, [t, setLocale])
 
+  const [remindersOn, setRemindersOn] = useState<boolean | null>(null)
+
   useFocusEffect(
     useCallback(() => {
+      // «Вкл» only when both this phone's setting and the system allow it;
+      // read again when the app comes back from the phone's Settings.
+      const readReminders = () =>
+        void Promise.all([reminderStore.settings(), permissionState()])
+          .then(([settings, permission]) => setRemindersOn(settings.enabled && permission === 'granted'))
+          .catch(() => setRemindersOn(null))
+      readReminders()
+      const subscription = AppState.addEventListener('change', (state) => {
+        if (state === 'active') readReminders()
+      })
       void load()
       // A confirmation belongs to the moment it confirms. Coming back to the
       // profile later, it would announce a change nobody just made.
-      return () => setNotice(null)
+      return () => {
+        subscription.remove()
+        setNotice(null)
+      }
     }, [load]),
   )
 
@@ -73,6 +91,8 @@ export default function Profile() {
     try {
       setProfile(await withFreshSession((api) => api.updateMe({ locale })))
       setLocale(locale)
+      // Reminder texts are written in the account's language.
+      reminders.refresh()
       setNotice(dictionary(locale).profile.localeSaved)
     } catch (cause) {
       setError(describeFailure(t, cause, t.errors.changeLocaleFailed))
@@ -149,6 +169,12 @@ export default function Profile() {
         title={t.profile.language}
         value={localeLabels[profile.locale]}
         onPress={() => setPickingLocale(true)}
+      />
+      <SettingRow
+        icon="bell"
+        title={t.reminders.title}
+        value={remindersOn === null ? undefined : remindersOn ? t.reminders.on : t.reminders.off}
+        onPress={() => router.push('/profile/reminders')}
       />
       <SettingRow
         icon="history"

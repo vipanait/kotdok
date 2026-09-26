@@ -1,0 +1,416 @@
+{
+  "screens": [
+    {
+      "id": "M1",
+      "name": "Питомцы · сроки",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "M2",
+      "name": "Мурка · медкарта",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "M3",
+      "name": "Бобик · только анкета",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "M4",
+      "name": "Добавить запись",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "M5",
+      "name": "Прививки",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "M6",
+      "name": "Прививка · сделано",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "M7",
+      "name": "Справочник · популярные",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "M8",
+      "name": "Паразиты",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "M9",
+      "name": "Визит · форма",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "M10",
+      "name": "Вес · история",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "M11",
+      "name": "Для врача",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "M12",
+      "name": "Разрешение напоминаний",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "M13",
+      "name": "Прививки · из анкеты",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "M14",
+      "name": "Прививка · запланировать",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "M15",
+      "name": "Справочник · поиск",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "M16",
+      "name": "Обработка · две позиции",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "M17",
+      "name": "Визиты · история",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "M18",
+      "name": "Лекарства · курсы",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "M19",
+      "name": "Лекарство · форма",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "M20",
+      "name": "Вес · шторка",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "M21",
+      "name": "План · просмотр",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "M22",
+      "name": "Удаление записи",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "M23",
+      "name": "Напоминания · включены",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "M24",
+      "name": "Напоминания · запрещены",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "M25",
+      "name": "Уведомление",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "M26",
+      "name": "Результат · визит к врачу",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "M27",
+      "name": "Анкета · подсказки",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "M28",
+      "name": "Сводка · A4",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "X-dates",
+      "name": "Все сроки",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "X-profile",
+      "name": "Профиль · вход в напоминания",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "X-complete",
+      "name": "Сделано · одна позиция",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "X-saved",
+      "name": "Сохранено",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "X-system",
+      "name": "Разрешение ОС · схема",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "X-manual",
+      "name": "Своё название",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "X-targets",
+      "name": "Без препарата",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "X-catalog-empty",
+      "name": "Поиск · нет результатов",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "X-catalog-error",
+      "name": "Справочник · ошибка",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "X-catalog-parasites",
+      "name": "Средства от паразитов",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "X-parasites-empty",
+      "name": "Паразиты · пусто",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "X-visits-empty",
+      "name": "Визиты · пусто",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "X-meds-empty",
+      "name": "Лекарства · пусто",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "X-weight-one",
+      "name": "Вес · одна точка",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "X-record",
+      "name": "Сделанная запись",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "X-cancel",
+      "name": "Отмена плана",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "X-course",
+      "name": "Текущий курс",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "X-legacy-course",
+      "name": "Курс из анкеты",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "X-visit-plan",
+      "name": "Визит · план",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "X-visit-record",
+      "name": "Визит · просмотр",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "X-history",
+      "name": "История Мурки",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "X-check",
+      "name": "Проверка · учтём медкарту",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "X-dog-form",
+      "name": "Анкета Бобика",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "X-loading",
+      "name": "Медкарта · загрузка",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "X-load-error",
+      "name": "Медкарта · ошибка",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "X-save-error",
+      "name": "Сохранение · нет сети",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "X-pdf-loading",
+      "name": "PDF · подготовка",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "X-pdf-error",
+      "name": "PDF · ошибка",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "X-unsaved",
+      "name": "Несохранённые изменения",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    },
+    {
+      "id": "X-components",
+      "name": "Сроки и компоненты",
+      "invalidLinks": [],
+      "overflow": false,
+      "images": true
+    }
+  ],
+  "errors": [],
+  "journey": "passed",
+  "small": {
+    "overflow": false,
+    "duesVisible": true
+  }
+}

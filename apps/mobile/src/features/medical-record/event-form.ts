@@ -1,0 +1,247 @@
+import { PARASITE_TARGETS, type HealthEvent, type HealthEventInput, type HealthProduct, type HealthTarget } from '@lapka/contracts'
+import { addInterval, type Interval } from '@lapka/shared'
+import type { Dictionary } from '@/i18n'
+import { dayInput, localToday, parseDayInput, parseDayText, parseFutureDayInput } from '@/lib/calendar-day'
+
+/**
+ * The record form — vaccinations and treatments — as text fields, and turning it into a request. No
+ * React here, so the rules of MR-03.3 run in the unit tests.
+ */
+
+export type NextChoice = 'year' | 'custom' | 'none'
+
+/**
+ * How an item was named: picked from the catalogue, typed by hand, «Без
+ * препарата» (diseases only), or not yet — a new item opens the catalogue.
+ */
+export type ItemSource = 'unset' | 'catalog' | 'manual' | 'none'
+
+export type ItemDraft = {
+  /** Stable across renders, for React keys and error messages. */
+  key: string
+  kind: HealthEvent['kind']
+  /** Set for an item that already exists: the server updates it instead of adding one. */
+  id?: string
+  name: string
+  targets: HealthTarget[]
+  next: NextChoice
+  nextText: string
+  source: ItemSource
+  productId: string | null
+  /** The product's repeat interval; a year when there is none. */
+  interval: Interval | null
+}
+
+export type EventDraft = {
+  kind: HealthEvent['kind']
+  status: 'done' | 'planned'
+  date: string
+  items: ItemDraft[]
+  clinic: string
+  notes: string
+}
+
+/** new: a record and its plans; edit: an existing record, no next dates; complete: «Сделано» on one plan. */
+export type FormMode = 'new' | 'edit' | 'complete'
+
+export function blankItem(key: string, kind: HealthEvent['kind'] = 'vaccination'): ItemDraft {
+  return { key, kind, name: '', targets: [], next: 'year', nextText: '', source: 'unset', productId: null, interval: null }
+}
+
+/**
+ * A parasite chip is a group — блохи, клещи, глисты. Turning it off removes
+ * every code in the group (a picked product's ear mites go with ticks);
+ * turning it on adds the group's own code.
+ */
+export function toggleGroup(item: ItemDraft, group: 'fleas' | 'ticks' | 'worms'): ItemDraft {
+  const inGroup = PARASITE_TARGETS.filter((target) => target.group === group).map((target) => target.code as string)
+  const has = item.targets.some((target) => inGroup.includes(target))
+  return {
+    ...item,
+    targets: has
+      ? item.targets.filter((target) => !inGroup.includes(target))
+      : [...item.targets, group as HealthTarget],
+  }
+}
+
+/**
+ * A product picked from the catalogue replaces everything the item said —
+ * name, diseases, interval — and the next date follows its interval again.
+ */
+export function pickProduct(item: ItemDraft, product: HealthProduct): ItemDraft {
+  return {
+    ...item,
+    name: product.name,
+    targets: product.targets as HealthTarget[],
+    productId: product.id,
+    interval: product.interval,
+    source: 'catalog',
+    next: 'year',
+    nextText: '',
+  }
+}
+
+/**
+ * A name typed by hand is the owner's own: the item no longer claims to be the
+ * catalogue product, and nothing typed is replaced by the catalogue's values.
+ */
+export function renameItem(item: ItemDraft, name: string): ItemDraft {
+  return { ...item, name, productId: null, source: 'manual' }
+}
+
+/** The interval «suggested» next dates use: the product's, else a year for a vaccine, a month or three for a treatment. */
+export function itemInterval(item: ItemDraft): Interval {
+  if (item.interval) return item.interval
+  if (item.kind === 'vaccination') return { value: 1, unit: 'year' }
+  // Against worms alone every three months; fleas and ticks, monthly.
+  const wormsOnly = item.targets.length > 0 && item.targets.every((target) => target === 'worms' || target === 'heartworm')
+  return wormsOnly ? { value: 3, unit: 'month' } : { value: 1, unit: 'month' }
+}
+
+export function blankDraft(
+  status: 'done' | 'planned',
+  now: Date = new Date(),
+  kind: HealthEvent['kind'] = 'vaccination',
+): EventDraft {
+  return { kind, status, date: status === 'done' ? dayInput(localToday(now)) : '', items: [], clinic: '', notes: '' }
+}
+
+export function draftFromEvent(event: HealthEvent): EventDraft {
+  return {
+    kind: event.kind,
+    status: event.status,
+    date: dayInput(event.date),
+    items: event.items.map((item) => ({
+      key: item.id,
+      kind: event.kind,
+      id: item.id,
+      name: item.name ?? '',
+      targets: item.targets as HealthTarget[],
+      next: 'year',
+      nextText: '',
+      source: item.product_id ? 'catalog' : item.name ? 'manual' : 'none',
+      productId: item.product_id,
+      interval: item.interval,
+    })),
+    clinic: event.clinic ?? '',
+    notes: event.notes ?? '',
+  }
+}
+
+export function draftChanged(before: EventDraft, after: EventDraft): boolean {
+  return JSON.stringify(before) !== JSON.stringify(after)
+}
+
+export type DraftErrors = {
+  date?: string
+  form?: string
+  items?: Record<string, string>
+  next?: Record<string, string>
+}
+
+type ItemInput = {
+  id?: string
+  name: string | null
+  targets: HealthTarget[]
+  product_id: string | null
+  next_on: string | null
+}
+
+/**
+ * What a save put in the future, for «Напомнить о бешенстве?» (spec §7.19):
+ * the plan itself, or the first next date a done record set. Null if nothing.
+ */
+export function plannedItem(value: {
+  kind: HealthEvent['kind']
+  status: HealthEvent['status']
+  items: readonly Pick<ItemInput, 'name' | 'targets' | 'next_on'>[]
+}): { kind: HealthEvent['kind']; name: string | null; targets: string[] } | null {
+  const item = value.status === 'planned' ? value.items[0] : value.items.find((candidate) => candidate.next_on !== null)
+  return item ? { kind: value.kind, name: item.name, targets: [...item.targets] } : null
+}
+
+export type ReadDraft =
+  | { ok: true; value: Omit<HealthEventInput, 'items'> & { items: ItemInput[] } }
+  | { ok: false; errors: DraftErrors }
+
+/**
+ * The next date an item's choice gives: null for none, undefined when a custom
+ * date is not a later day that is still to come.
+ *
+ * «Через год» from a vaccination two years ago lands in the past: that plans
+ * nothing, instead of filling backfilled history with overdue reminders.
+ */
+export function nextDate(item: ItemDraft, recordDay: string, today: string = localToday()): string | null | undefined {
+  if (item.next === 'none') return null
+  if (item.next === 'year') {
+    const next = addInterval(recordDay, itemInterval(item))
+    return next >= today ? next : null
+  }
+  const day = parseDayText(item.nextText)
+  return day !== null && day > recordDay && day >= today ? day : undefined
+}
+
+/**
+ * @param keptDate the record's current day when editing: an overdue plan may
+ * keep it — only a new day has to be ahead (MR-03.3).
+ */
+export function readDraft(
+  t: Dictionary,
+  draft: EventDraft,
+  mode: FormMode,
+  now: Date = new Date(),
+  keptDate?: string,
+): ReadDraft {
+  if (draft.kind === 'visit') throw new Error('a visit is saved by the visit form')
+  const words = t.medicalRecord
+  const errors: DraftErrors = {}
+
+  const unchanged = keptDate !== undefined && parseDayText(draft.date) === keptDate
+  const date = unchanged
+    ? keptDate
+    : draft.status === 'done'
+      ? parseDayInput(draft.date, now)
+      : parseFutureDayInput(draft.date, now)
+  if (!date) errors.date = draft.status === 'done' ? words.dateInvalid : words.plannedDateInvalid
+
+  const treatment = draft.kind === 'parasite'
+  if (draft.items.length === 0) errors.form = treatment ? words.productsRequired : words.itemsRequired
+
+  const itemErrors: Record<string, string> = {}
+  const nextErrors: Record<string, string> = {}
+  const withNext = mode !== 'edit' && draft.status === 'done'
+
+  const items = draft.items.map((item) => {
+    const name = item.name.trim()
+    if (name === '' && item.targets.length === 0) itemErrors[item.key] = treatment ? words.itemEmptyTreatment : words.itemEmpty
+    let next_on: string | null = null
+    if (withNext && date) {
+      const next = nextDate(item, date, localToday(now))
+      if (next === undefined) nextErrors[item.key] = words.nextInvalid
+      else next_on = next
+    }
+    return {
+      ...(item.id ? { id: item.id } : {}),
+      name: name === '' ? null : name,
+      targets: item.targets,
+      product_id: item.productId,
+      next_on,
+    }
+  })
+
+  if (Object.keys(itemErrors).length > 0) errors.items = itemErrors
+  if (Object.keys(nextErrors).length > 0) errors.next = nextErrors
+  if (Object.keys(errors).length > 0 || !date) return { ok: false, errors }
+
+  return {
+    ok: true,
+    value: {
+      kind: draft.kind,
+      status: draft.status,
+      date,
+      clinic: draft.clinic.trim() === '' ? null : draft.clinic.trim(),
+      notes: draft.notes.trim() === '' ? null : draft.notes.trim(),
+      items,
+    },
+  }
+}
