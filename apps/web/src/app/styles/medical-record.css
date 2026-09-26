@@ -425,3 +425,66 @@
     .event-record-page .pagehead { flex-wrap: wrap; }
   }
 }
+
+/*
+ * Treatments and due dates (MW-04): web v1 «parasites», «parasites-empty»,
+ * «parasite-done», «parasite-plan», «parasite-complete», «planned-complete», «due».
+ */
+@layer components {
+  /* «Сделано» beside a due date: a pill, with the whole 44px to press. */
+  .due-row .due-done {
+    flex-shrink: 0;
+    justify-content: center;
+    min-height: 44px;
+    min-width: 88px;
+    padding: 0 16px;
+    font-size: 13px;
+  }
+  .due-row .due-done:hover { background: #CDEBE3; }
+  .due-row .due-done:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+
+  .due-page .due-list { padding: 12px 28px; border-radius: 24px; }
+  .due-page .due-row { padding: 18px 0; }
+  .due-page .due-row strong { font-size: 15px; }
+  .due-page .due-row p { margin-top: 4px; font-size: 13px; line-height: 18px; }
+  /* The same words and icons as in the record: overdue neutral, soon green, later muted. */
+  .due-page .due-state.overdue { font-weight: 700; color: var(--text); }
+  .due-page .due-state.soon { font-weight: 600; color: var(--green); }
+  .due-page .due-state.later { color: var(--muted); }
+
+  .parasite-covers { display: grid; gap: 20px; }
+  /* Two cards in one aside: not the record's single «facts» grid area. */
+  .parasite-covers .parasite-cover { grid-area: auto; }
+  .section-aside .parasite-cover { background: var(--paper); border-color: var(--line); }
+  .section-aside .parasite-cover h2 { font-size: 24px; }
+  .parasite-cover .cover-last { margin-top: 14px; font-size: 15px; font-weight: 700; color: var(--text); }
+  .section-aside .parasite-cover .cover-product { margin-top: 4px; font-size: 13px; }
+  .parasite-cover .cover-next { display: grid; gap: 6px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+  .parasite-cover .cover-next .event-due.later { color: var(--muted); font-weight: 600; }
+  .parasite-cover .cover-next .event-due.none { color: var(--muted); font-weight: 400; }
+  .parasite-cover .cover-next .link { justify-self: start; min-height: 44px; }
+
+  .complete-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-bottom: 22px; }
+  .complete-head .event-badge { margin-bottom: 0; }
+  .complete-item { margin: 4px 0 24px; padding-top: 18px; }
+  .complete-item-facts { display: grid; gap: 12px; margin: 0 0 16px; }
+  .complete-item-facts dt { font-size: 13px; font-weight: 700; color: var(--text); }
+  .complete-item-facts dd { margin: 2px 0 0; font-size: 15px; overflow-wrap: anywhere; }
+
+  .complete-choose { max-width: 680px; }
+  .complete-choose p { font-size: 15px; }
+  .complete-choose ul { display: grid; gap: 12px; margin-top: 18px; }
+  .complete-choice { display: grid; justify-items: center; gap: 2px; width: 100%; min-height: 48px; padding: 10px 20px; text-align: center; overflow-wrap: anywhere; }
+  .complete-choice span { font-size: 12px; font-weight: 500; opacity: 0.9; }
+}
+
+@layer components {
+  @media (max-width: 760px) {
+    .due-page .due-list { padding: 4px 20px; }
+    .due-row .due-done { min-width: 0; }
+  }
+}
+
+@layer components {
+  .pagehead-actions { display: flex; flex-wrap: wrap; gap: 12px; flex-shrink: 0; }
+}

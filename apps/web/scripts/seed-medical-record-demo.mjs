@@ -113,8 +113,13 @@ try {
   for (const file of ['draft-vaccines.sql', 'draft-antiparasitics.sql']) {
     await db.query(readFileSync(resolve(repoRoot, 'supabase', 'catalog', file), 'utf8'))
   }
-  const { rows: products } = await db.query(`select id, name from public.health_products where kind = 'vaccine'`)
-  const productId = (name) => products.find((row) => row.name === name)?.id ?? null
+  const { rows: products } = await db.query(`select id, kind, name, interval_value, interval_unit from public.health_products`)
+  const product = (kind, name) => products.find((row) => row.kind === kind && row.name === name) ?? null
+  const productId = (name) => product('vaccine', name)?.id ?? null
+  // Treatments carry their catalogue product too, so «Сделано» suggests the next
+  // date by its own interval (Бравекто Спот-он: 12 weeks; Мильбемакс: 3 months).
+  const spotOn = product('antiparasitic', 'Бравекто Спот-он')
+  const milbemax = product('antiparasitic', 'Мильбемакс')
 
   // ---------- Мурка: a record filled through the API ----------
   const murka = await api('POST', '/pets', {
@@ -152,7 +157,7 @@ try {
   const bravecto = await api(
     'POST',
     `/pets/${murka.id}/health/events`,
-    { kind: 'parasite', status: 'done', date: '2026-06-20', items: [{ name: 'Бравекто Спот-он', targets: ['fleas', 'ticks'] }] },
+    { kind: 'parasite', status: 'done', date: '2026-06-20', items: [{ name: 'Бравекто Спот-он', targets: ['fleas', 'ticks'], product_id: spotOn?.id ?? null }] },
     withKey(),
   )
   // Its next date, 12 September, is overdue by now. The API rightly refuses a
@@ -164,14 +169,14 @@ try {
     [userId, murka.id],
   )
   await db.query(
-    `insert into public.pet_health_items (event_id, user_id, pet_id, name, targets, source_item_id)
-     values ($1, $2, $3, 'Бравекто Спот-он', array['fleas', 'ticks'], $4)`,
-    [overduePlan.id, userId, murka.id, bravecto.items[0].id],
+    `insert into public.pet_health_items (event_id, user_id, pet_id, name, targets, source_item_id, product_id, interval_value, interval_unit)
+     values ($1, $2, $3, 'Бравекто Спот-он', array['fleas', 'ticks'], $4, $5, $6, $7)`,
+    [overduePlan.id, userId, murka.id, bravecto.items[0].id, spotOn?.id ?? null, spotOn?.interval_value ?? null, spotOn?.interval_unit ?? null],
   )
   await api(
     'POST',
     `/pets/${murka.id}/health/events`,
-    { kind: 'parasite', status: 'done', date: '2026-07-05', items: [{ name: 'Мильбемакс', targets: ['worms'], next_on: '2026-10-05' }] },
+    { kind: 'parasite', status: 'done', date: '2026-07-05', items: [{ name: 'Мильбемакс', targets: ['worms'], product_id: milbemax?.id ?? null, next_on: '2026-10-05' }] },
     withKey(),
   )
 

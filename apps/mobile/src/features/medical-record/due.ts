@@ -1,5 +1,5 @@
 import type { HealthEvent, HealthItem, PetSpecies } from '@lapka/contracts'
-import { addMonths, coreVaccinations, dueEntries, dueTiming, parasiteGroups, type DueTone } from '@lapka/shared'
+import { addMonths, coreVaccinations, dueEntries, dueTiming, parasiteCovers, parasiteGroups, type DueTone } from '@lapka/shared'
 import type { Dictionary } from '@/i18n'
 
 /**
@@ -194,32 +194,18 @@ export type ParasiteStatus = {
 }
 
 /**
- * The two status cards of the parasites section: fleas and ticks, and worms.
- * A combined product counts in both — it is still one item and one plan.
+ * The two status cards of the parasites section, in the app's words. Which
+ * treatment is the last and which plan is next is decided once for the app
+ * and the site (`parasiteCovers`, packages/shared): a combined product counts
+ * in both — it is still one item and one plan.
  */
 export function parasiteStatuses(t: Dictionary, events: readonly HealthEvent[], today: string): ParasiteStatus[] {
-  const cards = [
-    { group: 'fleasTicks' as const, covers: ['fleas', 'ticks'] as const, title: t.medicalRecord.parasiteTitle.fleasTicks },
-    { group: 'worms' as const, covers: ['worms'] as const, title: t.medicalRecord.parasiteTitle.worms },
-  ]
-  return cards.map(({ group, covers, title }) => {
-    const touches = (item: HealthItem) => {
-      const groups = parasiteGroups(item.targets)
-      return covers.some((cover) => groups.includes(cover))
-    }
-    const withItem = events
-      .filter((event) => event.kind === 'parasite')
-      .flatMap((event) => event.items.filter(touches).map((item) => ({ event, item })))
-    const last = withItem
-      .filter(({ event }) => event.status === 'done')
-      .sort((a, b) => b.event.date.localeCompare(a.event.date))[0]
-    const next = withItem
-      .filter(({ event }) => event.status === 'planned')
-      .sort((a, b) => a.event.date.localeCompare(b.event.date))[0]
+  const titles = { fleasTicks: t.medicalRecord.parasiteTitle.fleasTicks, worms: t.medicalRecord.parasiteTitle.worms }
+  return parasiteCovers(events).map(({ cover, last, next }) => {
     const status = next ? dueStatus(t, next.event.date, today) : null
     return {
-      group,
-      title,
+      group: cover,
+      title: titles[cover],
       last: last ? day(t, last.event.date, today) : null,
       product: last?.item.name ?? null,
       next: status ? { text: dueLine(status), tone: status.tone } : null,

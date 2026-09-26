@@ -13,11 +13,13 @@ import { EVENT_FORM_KINDS, type EventFormKind } from './event-form'
 import { eventsPage, type EventCard, type EventSaved } from './event-view'
 
 /**
- * `/pets/[id]/health/vaccinations` (web v1 «vaccines», «vaccines-empty»;
- * MW-04 opens it for treatments): the plans, soonest first, then what was
- * done, newest first — each record a card that opens it. Beside them, the
- * core vaccinations of the pet's species from the records alone; the form's
- * «привит» is said as the form's answer, with no date.
+ * `/pets/[id]/health/vaccinations` and `/parasites` (web v1 «vaccines»,
+ * «vaccines-empty», «parasites», «parasites-empty»): the plans, soonest
+ * first, then what was done, newest first — each record a card that opens
+ * it. Beside them, the core vaccinations of the pet's species from the
+ * records alone (the form's «привит» is said as the form's answer, with no
+ * date) — or, for treatments, fleas with ticks and worms: the last one, the
+ * next one and its «Сделано».
  */
 export default function EventsScreen({ petId, kind, saved }: { petId: string; kind: EventFormKind; saved: EventSaved | null }) {
   const dict = useTranslations()
@@ -71,6 +73,30 @@ export default function EventsScreen({ petId, kind, saved }: { petId: string; ki
           {view.planned.length > 0 && <EventList id="events-planned" title={page.planned} cards={view.planned} />}
           {view.done.length > 0 && <EventList id="events-done" title={page.done} cards={view.done} />}
         </div>
+
+        {view.covers && (
+          <aside className="section-aside parasite-covers" aria-label={page.covers.label}>
+            {view.covers.map((cover) => (
+              <section key={cover.cover} className="card health-facts parasite-cover" aria-labelledby={`cover-${cover.cover}`}>
+                <h2 id={`cover-${cover.cover}`}>{cover.title}</h2>
+                <p className="cover-last">{cover.last}</p>
+                {cover.product && <p className="cover-product">{cover.product}</p>}
+                <div className="cover-next">
+                  <span className={`event-due ${cover.next.tone}`}>
+                    {cover.next.tone === 'overdue' && <Icon name="calendarLate" />}
+                    {cover.next.tone === 'soon' && <Icon name="calendar" />}
+                    {cover.next.text}
+                  </span>
+                  {cover.completeHref ? (
+                    <Link href={cover.completeHref} className="link" aria-label={cover.completeLabel ?? undefined}>
+                      {page.covers.markDone}
+                    </Link>
+                  ) : null}
+                </div>
+              </section>
+            ))}
+          </aside>
+        )}
 
         {view.core && (
           <aside className="section-aside">

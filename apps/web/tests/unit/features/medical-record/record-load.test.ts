@@ -104,10 +104,12 @@ describe('stage flags', () => {
     expect(addableRecordTypes(murka.writable, none)).toEqual([])
   })
 
-  it('offers vaccinations and weight once MW-03 is on, nothing of a later stage', () => {
+  it('offers vaccinations, treatments and weight once MW-04 is on, nothing of a later stage', () => {
     expect(MEDICAL_RECORD_STAGE.weight).toBe(true)
     expect(MEDICAL_RECORD_STAGE.vaccinations).toBe(true)
-    expect(addableRecordTypes(murka.writable)).toEqual(['vaccination', 'weight'])
+    expect(MEDICAL_RECORD_STAGE.parasites).toBe(true)
+    expect(MEDICAL_RECORD_STAGE.due).toBe(true)
+    expect(addableRecordTypes(murka.writable)).toEqual(['vaccination', 'parasite', 'weight'])
   })
 
   it('reads ?type= strictly', () => {
