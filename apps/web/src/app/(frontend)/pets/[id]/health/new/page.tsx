@@ -4,13 +4,14 @@ import AddRecordChooser from '@/features/medical-record/AddRecordChooser'
 import { addableRecordTypes, parseRecordType } from '@/features/medical-record/stage'
 import { NewEventScreen } from '@/features/medical-record/events/EventFormScreen'
 import { NewWeightScreen } from '@/features/medical-record/weight/WeightFormScreen'
+import { NewCourseScreen } from '@/features/medical-record/medications/CourseFormScreen'
 import { openPetPage } from '@/components/cabinet/open-pet-page'
 import { privatePageMetadata } from '@/server/i18n/page-metadata'
 
 export const generateMetadata = privatePageMetadata(d => d.medicalRecord.addPage.title)
 
 /**
- * A new record: `?type=weight` or `?type=vaccination` is that type's form; no type is «Что
+ * A new record: `?type=weight`, `?type=vaccination`, `?type=medication`… is that type's form; no type is «Что
  * добавить?». A type whose stage is not open, or an unknown one, is a 404 —
  * the site has no form for it yet.
  */
@@ -41,6 +42,8 @@ export default async function NewRecordPage({
       ) : type === 'vaccination' || type === 'parasite' ? (
         // Keyed by pet: another pet's form starts clean, and its catalogue search with it.
         <NewEventScreen key={`${id}-${type}`} petId={id} petName={pet.name} species={pet.species} kind={type} />
+      ) : type === 'medication' ? (
+        <NewCourseScreen key={id} petId={id} petName={pet.name} />
       ) : type ? (
         notFound()
       ) : (

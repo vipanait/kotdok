@@ -291,6 +291,18 @@ export const HealthProductSchema = z.object({
 export type HealthProduct = z.infer<typeof HealthProductSchema>
 
 const MEDICATION_TEXT_MAX = 150
+const MEDICATIONS_MAX = 10
+
+/**
+ * The course form's bounds — the name and «Как давать» up to 150 characters,
+ * up to 10 courses in one save — the same numbers the schemas below check,
+ * so a form refuses a field where it is typed, not by a 400.
+ */
+export const MEDICATION_LIMITS = {
+  name: MEDICATION_TEXT_MAX,
+  dosage: MEDICATION_TEXT_MAX,
+  items: MEDICATIONS_MAX,
+} as const
 
 /**
  * A medication course. `started_on` null only for one brought over from the
@@ -330,7 +342,7 @@ function courseRange(value: { started_on?: string | null; ended_on?: string | nu
 export const MedicationInputSchema = z.strictObject(medicationFields).superRefine(courseRange)
 
 /** Several courses at once, as the form adds them. */
-export const MedicationsInputSchema = z.strictObject({ items: z.array(MedicationInputSchema).min(1).max(10) })
+export const MedicationsInputSchema = z.strictObject({ items: z.array(MedicationInputSchema).min(1).max(MEDICATIONS_MAX) })
 
 export type MedicationsInput = z.infer<typeof MedicationsInputSchema>
 

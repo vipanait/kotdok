@@ -1,4 +1,5 @@
-import type { Medication, MedicationsInput } from '@lapka/contracts'
+import { MEDICATION_LIMITS, type Medication, type MedicationsInput } from '@lapka/contracts'
+import { courseDayProblems } from '@lapka/shared'
 import type { Dictionary } from '@/i18n'
 import { dayInput, dayParts, localToday, parseDayText } from '@/lib/calendar-day'
 
@@ -26,6 +27,9 @@ export function courseDates(t: Dictionary, course: Medication, today: string): s
     return course.ongoing ? words.sinceOngoing(from) : words.since(from)
   }
   if (!course.started_on && course.ended_on) return words.range('…', t.day(course.ended_on, course.ended_on.slice(0, 4) !== year))
+
+  // A one-day course: its day, once.
+  if (course.started_on === course.ended_on) return t.day(course.ended_on!, course.ended_on!.slice(0, 4) !== year)
 
   const start = dayParts(course.started_on!)
   const end = dayParts(course.ended_on!)
@@ -65,7 +69,12 @@ export type CourseErrors = Record<string, { name?: string; dosage?: string; star
 
 export type ReadCourses = { ok: true; value: MedicationsInput['items'] } | { ok: false; errors: CourseErrors }
 
-/** Checked like the server: a name up to 150 characters, dates that exist, an end not before the start. */
+/**
+ * Checked like the server: a name up to 150 characters, dates that exist, an
+ * end not before the start. The day rules are the site's too
+ * (`courseDayProblems` in @lapka/shared); the phone lets the start be left
+ * empty, as it always has (MR-06).
+ */
 export function readCourses(t: Dictionary, drafts: readonly CourseDraft[]): ReadCourses {
   const words = t.medicalRecord.meds
   const errors: CourseErrors = {}
@@ -74,19 +83,27 @@ export function readCourses(t: Dictionary, drafts: readonly CourseDraft[]): Read
     const problems: CourseErrors[string] = {}
     const name = draft.name.trim()
     if (name === '') problems.name = words.nameRequired
-    else if (name.length > 150) problems.name = words.tooLong
+    else if (name.length > MEDICATION_LIMITS.name) problems.name = words.tooLong
 
-    const start = draft.start.trim() === '' ? null : parseDayText(draft.start)
-    if (draft.start.trim() !== '' && start === null) problems.start = words.dateInvalid
-
-    const end = draft.ongoing || draft.end.trim() === '' ? null : parseDayText(draft.end)
-    if (!draft.ongoing && draft.end.trim() !== '' && end === null) problems.end = words.dateInvalid
-    else if (start && end && end < start) problems.end = words.endBeforeStart
+    // «24.09.2026» as the shared rule reads it: a day, '' for none, or the text as typed (not a day).
+    const typed = (text: string) => (text.trim() === '' ? '' : (parseDayText(text) ?? text.trim()))
+    const start = typed(draft.start)
+    const end = typed(draft.end)
+    const days = courseDayProblems({ start, end, ongoing: draft.ongoing }, true)
+    if (days.start) problems.start = words.dateInvalid
+    if (days.end === 'invalid') problems.end = words.dateInvalid
+    else if (days.end === 'beforeStart') problems.end = words.endBeforeStart
 
     const dosage = draft.dosage.trim()
-    if (dosage.length > 150) problems.dosage = words.tooLong
+    if (dosage.length > MEDICATION_LIMITS.dosage) problems.dosage = words.tooLong
     if (Object.keys(problems).length > 0) errors[draft.key] = problems
-    return { name, dosage: dosage === '' ? null : dosage, started_on: start, ended_on: end, ongoing: draft.ongoing }
+    return {
+      name,
+      dosage: dosage === '' ? null : dosage,
+      started_on: start === '' ? null : start,
+      ended_on: draft.ongoing || end === '' ? null : end,
+      ongoing: draft.ongoing,
+    }
   })
 
   return Object.keys(errors).length > 0 ? { ok: false, errors } : { ok: true, value }

@@ -57,6 +57,8 @@ export const recordDay = day
 
 /** «2–15 августа», «28 июля – 15 августа», with years when the course is not all in this year. */
 export function formatRange(words: Words, from: string, to: string, today: string): string {
+  // A one-day course: its day, once.
+  if (from === to) return day(words, from, today)
   const withYear = from.slice(0, 4) !== to.slice(0, 4) || to.slice(0, 4) !== today.slice(0, 4)
   if (!withYear && from.slice(0, 7) === to.slice(0, 7) && words.dayFormat.startsWith('{d}')) {
     return `${Number(from.slice(8))}–${formatDay(words, to, false)}`
@@ -399,6 +401,8 @@ function courseDetail(dict: Dictionary, course: Medication, current: boolean, to
   const record = dict.medicalRecord
   if (current) {
     if (course.ongoing) return joinDetail(words.current, words.ongoing)
+    // Its end is said too, so a course that ends is told from one taken «Постоянно».
+    if (course.started_on && course.ended_on) return joinDetail(words.current, formatRange(record, course.started_on, course.ended_on, today))
     if (course.started_on) return joinDetail(words.current, words.since.replace('{day}', day(record, course.started_on, today)))
     // From the form: no start was ever given, and none is invented.
     return joinDetail(words.current, course.source === 'form' ? words.fromForm : null)

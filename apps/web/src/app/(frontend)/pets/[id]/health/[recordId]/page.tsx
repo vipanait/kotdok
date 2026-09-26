@@ -1,6 +1,8 @@
 import { notFound, redirect } from 'next/navigation'
 import CabinetShell from '@/components/cabinet/CabinetShell'
 import EventRecordScreen from '@/features/medical-record/events/EventRecordScreen'
+import CourseScreen from '@/features/medical-record/medications/CourseScreen'
+import { parseCourseSaved } from '@/features/medical-record/medications/course-view'
 import { parseEventSaved } from '@/features/medical-record/events/event-view'
 import { MEDICAL_RECORD_STAGE, medicalRecordHref, recordKindOpen } from '@/features/medical-record/stage'
 import { openPetPage } from '@/components/cabinet/open-pet-page'
@@ -17,8 +19,9 @@ export const generateMetadata = privatePageMetadata(d => d.medicalRecord.title)
  * routes beside this one and win over it.
  *
  * A weighing has no page of its own to read (web v1: the history lists
- * every value), so its address opens its form. A vaccination (MW-03) is
- * read here, done or planned.
+ * every value), so its address opens its form. A vaccination (MW-03) or a
+ * treatment (MW-04) is read here, done or planned; a medication course
+ * (MW-05), current or finished.
  */
 export default async function HealthRecordPage({
   params,
@@ -32,6 +35,14 @@ export default async function HealthRecordPage({
   const record = await findHealthRecord(createServiceClient(), cabinet.user.id, id, recordId)
 
   if (record?.kind === 'weight' && MEDICAL_RECORD_STAGE.weight) redirect(medicalRecordHref.recordEdit(id, recordId))
+  if (record?.kind === 'medication') {
+    if (!MEDICAL_RECORD_STAGE.medications) notFound()
+    return (
+      <CabinetShell cabinet={cabinet} active="pets" crumb={`${dict.medicalRecord.title} / ${dict.medicalRecord.addPage.types.medication}`}>
+        <CourseScreen key={recordId} petId={id} courseId={recordId} saved={parseCourseSaved((await searchParams).saved)} />
+      </CabinetShell>
+    )
+  }
   if (!record || record.kind === 'weight' || record.kind === 'visit' || !recordKindOpen(record.kind)) notFound()
 
   const saved = parseEventSaved((await searchParams).saved)

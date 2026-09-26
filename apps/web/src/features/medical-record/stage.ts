@@ -16,7 +16,7 @@ export const MEDICAL_RECORD_STAGE = {
   /** MW-04: «Сделано» on a due date and the page with all of them. */
   due: true,
   /** MW-05: the medicines page and form. */
-  medications: false,
+  medications: true,
   /** MW-06: the visits page and form. */
   visits: false,
   /** MW-07: the summary for the vet. */

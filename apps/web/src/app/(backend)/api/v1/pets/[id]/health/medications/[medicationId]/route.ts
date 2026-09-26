@@ -14,7 +14,12 @@ async function readIds(params: Params): Promise<{ petId: string; medicationId: s
   return { petId: id, medicationId }
 }
 
-/** A correction, or «Завершить курс»: `{ ended_on: today, ongoing: false }`. */
+/**
+ * A correction, or «Завершить курс»: `{ ended_on: today, ongoing: false }`.
+ * Only a current course changes: a finished one is history (owner rule of
+ * 26 September 2026) and any change of it is `record_done`, 409 —
+ * `courseOverEverywhere` in the medication service decides.
+ */
 export const PATCH = withApiAuth(async (request: NextRequest, context: ApiContext, params: Params) => {
   const ids = await readIds(params)
   if (!ids) return apiError(context.requestId, 'not_found', 'No such resource')
@@ -32,6 +37,7 @@ export const PATCH = withApiAuth(async (request: NextRequest, context: ApiContex
   const result = await changeMedication(createServiceClient(), context.account.userId, ids.petId, ids.medicationId, parsed.data)
   if (!result.ok) {
     if (result.reason === 'bad_range') return apiError(context.requestId, 'bad_request', 'The end is before the start')
+    if (result.reason === 'record_done') return apiError(context.requestId, 'record_done', 'A finished course cannot be changed')
     return serviceFailureResponse(context.requestId, result.reason)
   }
   return apiSuccess(context.requestId, result.data)

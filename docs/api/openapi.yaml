@@ -3076,7 +3076,8 @@ paths:
                   message: No such resource for this user
                   request_id: 01J000000000000000000000
         "409":
-          description: "The record is a done procedure: it can be read and deleted, not changed"
+          description: "The record is a done procedure or a finished course: it can be read and deleted, not
+            changed"
           content:
             application/json:
               schema:
@@ -3084,7 +3085,8 @@ paths:
               example:
                 error:
                   code: record_done
-                  message: "The record is a done procedure: it can be read and deleted, not changed"
+                  message: "The record is a done procedure or a finished course: it can be read and deleted, not
+                    changed"
                   request_id: 01J000000000000000000000
         "429":
           description: Too many requests
@@ -3381,6 +3383,9 @@ paths:
           format: uuid
     patch:
       summary: Correct a course, or end it
+      description: "Only a current course changes: one that ended — its end is today or earlier in every
+        time zone — is history and answers 409 record_done (it can still be deleted). A change that
+        leaves a finished course as it is, such as «Завершить курс» sent again, answers 200."
       requestBody:
         required: true
         content:
@@ -3437,6 +3442,19 @@ paths:
                 error:
                   code: not_found
                   message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "409":
+          description: "The record is a done procedure or a finished course: it can be read and deleted, not
+            changed"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: record_done
+                  message: "The record is a done procedure or a finished course: it can be read and deleted, not
+                    changed"
                   request_id: 01J000000000000000000000
         "429":
           description: Too many requests
