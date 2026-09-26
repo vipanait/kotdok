@@ -147,15 +147,20 @@ export type WeightTrend = {
 }
 
 /**
- * The latest weight against the earliest one of the past year; null below
- * two points. Neutral on purpose: losing weight is sometimes the goal and
- * sometimes the symptom, and the record cannot tell which.
+ * The latest weight against the earliest one of the period — the past year
+ * unless a screen asks for its chart's period; null below two points.
+ * Neutral on purpose: losing weight is sometimes the goal and sometimes the
+ * symptom, and the record cannot tell which.
  */
-export function weightTrend(weights: readonly WeightMeasurement[], today: string): WeightTrend | null {
-  const year = weightsInPeriod(weights, 'year', today)
-  if (year.length < 2) return null
-  const first = year[0]
-  const last = year[year.length - 1]
+export function weightTrend(
+  weights: readonly WeightMeasurement[],
+  today: string,
+  period: WeightPeriod = 'year',
+): WeightTrend | null {
+  const points = weightsInPeriod(weights, period, today)
+  if (points.length < 2) return null
+  const first = points[0]
+  const last = points[points.length - 1]
   return {
     change: Math.round((last.weight_kg - first.weight_kg) * 10) / 10,
     months: monthsBetween(first.measured_on, last.measured_on),

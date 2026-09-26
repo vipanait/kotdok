@@ -10,11 +10,10 @@ import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
 import { formatCount } from '@/shared/i18n/plural'
 import type { ChecksPart } from './record-load'
 import { addableRecordTypes, medicalRecordHref, sectionOpen, MEDICAL_RECORD_STAGE } from './stage'
+import WeightChart from './WeightChart'
 import {
-  chartGeometry,
   dueBlock,
   formatDay,
-  formatWeight,
   headFacts,
   importantFacts,
   sectionCards,
@@ -22,7 +21,6 @@ import {
   type DueBlock,
   type SectionCard,
   type WeightCard,
-  type WeightPoint,
 } from './view-model'
 
 const KIND_ICON: Record<HealthEvent['kind'], IconName> = {
@@ -245,55 +243,6 @@ function WeightCardView({ card, href, dict }: { card: WeightCard; href: string |
         </ul>
       )}
     </section>
-  )
-}
-
-const CHART = { width: 640, height: 150, left: 58, right: 28, top: 26, bottom: 34 }
-
-function WeightChart({ points, label }: { points: WeightPoint[]; label: string }) {
-  const dict = useTranslations()
-  const words = dict.medicalRecord
-  const plotWidth = CHART.width - CHART.left - CHART.right
-  const geometry = chartGeometry(points, plotWidth, CHART.height)
-  const x = (value: number) => CHART.left + value
-  const y = (value: number) => CHART.top + value
-  const path = geometry.points.map((point, index) => `${index === 0 ? 'M' : 'L'}${x(point.x).toFixed(1)} ${y(point.y).toFixed(1)}`).join(' ')
-  // First, middle and last dates under the axis: enough to read the span, never crowded.
-  const ticks = [...new Set([0, Math.floor((points.length - 1) / 2), points.length - 1])].map((index) => geometry.points[index])
-  return (
-    <svg
-      className="weight-chart"
-      viewBox={`0 0 ${CHART.width} ${CHART.top + CHART.height + CHART.bottom}`}
-      role="img"
-      aria-label={label}
-    >
-      {geometry.guides.map((guide) => (
-        <g key={guide.y}>
-          <line x1={CHART.left} x2={CHART.width - CHART.right} y1={y(guide.y)} y2={y(guide.y)} />
-          <text className="guide-label" x={0} y={y(guide.y) + 4}>{formatWeight(words, guide.value)}</text>
-        </g>
-      ))}
-      <path d={path} />
-      {geometry.points.map((point) => (
-        <g key={point.key}>
-          <circle cx={x(point.x)} cy={y(point.y)} r={6} />
-          <text className="value" x={x(point.x)} y={y(point.y) - 14} textAnchor="middle">
-            {point.label.replace(/\s.*$/, '')}
-          </text>
-        </g>
-      ))}
-      {ticks.map((point, index) => (
-        <text
-          key={`tick-${point.key}`}
-          className="tick"
-          x={x(point.x)}
-          y={CHART.top + CHART.height + 26}
-          textAnchor={index === 0 ? 'start' : index === ticks.length - 1 ? 'end' : 'middle'}
-        >
-          {point.dayLabel}
-        </text>
-      ))}
-    </svg>
   )
 }
 

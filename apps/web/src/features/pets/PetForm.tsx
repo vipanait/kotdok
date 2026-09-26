@@ -1,13 +1,13 @@
 'use client'
 
-import { useEffect, useId, useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useId, useRef, useState } from 'react'
 import Link from 'next/link'
 import type { Pet, PetSizeClass, PetSpecies, PetWalkActivity } from '@/shared/types'
 import { useTranslations } from '@/components/LocaleProvider'
 import PetAvatar from '@/components/PetAvatar'
 import Icon from '@/components/ui/Icon'
 import ConfirmDialog from '@/features/pets/ConfirmDialog'
+import { useLeaveGuard } from '@/features/forms/use-leave-guard'
 import type { PetSavedKind } from '@/features/pets/pet-saved'
 import { csrfHeaders } from '@/shared/security/csrf-client'
 
@@ -55,7 +55,6 @@ function parseDecimal(value: string): number | null {
  * closing the tab — asks first. Delete is set apart and confirmed in a dialog.
  */
 export default function PetForm({ pet }: Props) {
-  const router = useRouter()
   const dict = useTranslations()
   const t = dict.pets
   const isEdit = !!pet
@@ -88,13 +87,9 @@ export default function PetForm({ pet }: Props) {
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState('')
-  const [leaveHref, setLeaveHref] = useState<string | null>(null)
 
   const nameRef = useRef<HTMLInputElement>(null)
   const deleteButtonRef = useRef<HTMLButtonElement>(null)
-  const leaveLinkRef = useRef<HTMLElement | null>(null)
-  /** Set once the form is done — saved, deleted or abandoned on purpose. */
-  const leavingRef = useRef(false)
 
   const sexFemale = species === 'dog' ? t.sexFemaleDog : t.sexFemaleCat
   const sexMale = species === 'dog' ? t.sexMaleDog : t.sexMaleCat
@@ -122,46 +117,8 @@ export default function PetForm({ pet }: Props) {
     notes !== (pet?.notes ?? '')
 
   // Unsaved changes: the browser asks on reload or closing the tab; a link
-  // anywhere on the page (the back link, "Cancel", the cabinet navigation)
-  // opens our own dialog first. Captured on window, before next/link acts.
-  useEffect(() => {
-    if (!dirty) return
-
-    function onBeforeUnload(e: BeforeUnloadEvent) {
-      if (leavingRef.current) return
-      e.preventDefault()
-      e.returnValue = ''
-    }
-
-    function onClick(e: MouseEvent) {
-      if (leavingRef.current || e.defaultPrevented || e.button !== 0) return
-      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
-      const anchor = (e.target as Element | null)?.closest?.('a[href]') as HTMLAnchorElement | null
-      if (!anchor || anchor.hasAttribute('download')) return
-      if (anchor.target && anchor.target !== '_self') return
-
-      const url = new URL(anchor.href, window.location.href)
-      if (url.origin !== window.location.origin) return
-      if (url.pathname === window.location.pathname && url.search === window.location.search) return
-
-      e.preventDefault()
-      leaveLinkRef.current = anchor
-      setLeaveHref(url.pathname + url.search + url.hash)
-    }
-
-    window.addEventListener('beforeunload', onBeforeUnload)
-    window.addEventListener('click', onClick, true)
-    return () => {
-      window.removeEventListener('beforeunload', onBeforeUnload)
-      window.removeEventListener('click', onClick, true)
-    }
-  }, [dirty])
-
-  function leave(href: string) {
-    leavingRef.current = true
-    router.push(href)
-    router.refresh()
-  }
+  // anywhere on the page opens our own dialog first.
+  const { leaveHref, leaveLinkRef, stay, leave } = useLeaveGuard(dirty)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -540,7 +497,7 @@ export default function PetForm({ pet }: Props) {
           body={t.leaveBody}
           cancelLabel={t.leaveStay}
           confirmLabel={t.leaveConfirm}
-          onCancel={() => setLeaveHref(null)}
+          onCancel={stay}
           onConfirm={() => leave(leaveHref)}
           returnFocusRef={leaveLinkRef}
         />

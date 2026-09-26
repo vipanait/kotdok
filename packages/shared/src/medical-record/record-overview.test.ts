@@ -106,6 +106,14 @@ describe('weight trend', () => {
     expect(weightTrend(weights, TODAY)).toEqual({ change: -0.3, months: 6, days: 184 })
   })
 
+  it('compares within a chosen period: the chart’s own span', () => {
+    const weights = [weight('c', '2026-09-12', 4.2), weight('a', '2026-03-12', 4.5), weight('b', '2026-06-20', 4.4), weight('d', '2024-09-01', 3.9)]
+    expect(weightTrend(weights, TODAY, 'halfYear')).toEqual({ change: -0.2, months: 2, days: 84 })
+    expect(weightTrend(weights, TODAY, 'all')).toMatchObject({ change: 0.3, months: 24 })
+    // The header's line keeps the year.
+    expect(weightTrend(weights, TODAY)).toEqual(weightTrend(weights, TODAY, 'year'))
+  })
+
   it('says nothing about one point or the undated form value', () => {
     expect(weightTrend([weight('a', null, 28, 'form')], TODAY)).toBeNull()
     expect(weightTrend([weight('a', null, 28, 'form'), weight('b', '2026-09-01', 27)], TODAY)).toBeNull()

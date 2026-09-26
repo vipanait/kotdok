@@ -188,3 +188,90 @@
     .health-skeleton-right { height: 420px; }
   }
 }
+
+/*
+ * Section pages and record forms (MW-02 onwards): web v1 «weight», «weight-new»,
+ * «weight-edit», «add». A section is its main column beside a 320px aside; a
+ * form is one centred card.
+ */
+@layer components {
+  .health-page .pagehead .btn { flex-shrink: 0; }
+  .health-saved:focus { outline: 2px solid var(--green); outline-offset: 2px; }
+
+  .section-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 24px;
+    align-items: start;
+  }
+  .section-main { display: grid; gap: 20px; min-width: 0; }
+  .section-layout .card { padding: 28px; border-radius: 24px; }
+  .section-aside .health-facts h2 { font-size: 24px; }
+  .section-aside .health-facts p { margin-top: 12px; font-size: 15px; }
+
+  /* ---------- Weight ---------- */
+
+  .weight-periods { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; border-radius: 14px; }
+  .weight-periods button { min-height: 44px; border-radius: 10px; font-size: 14px; }
+  .weight-periods button:hover:not([aria-pressed='true']) { color: var(--text); }
+  .weight-summary .weight-current,
+  .weight-summary h2 { margin-top: 24px; font: 800 26px/1.3 var(--font-display); }
+  .weight-summary h2 + p { margin-top: 6px; font-size: 15px; }
+  .weight-chart-large { margin-top: 28px; }
+
+  .weight-list h2 { font-size: 24px; margin-bottom: 12px; }
+  .record-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .record-table th { padding: 0 12px 12px 0; text-align: left; font-size: 12px; font-weight: 600; color: var(--muted); }
+  .record-table td { padding: 16px 12px 16px 0; border-top: 1px solid var(--line); vertical-align: middle; overflow-wrap: anywhere; }
+  .record-table tr:last-child td { border-bottom: 1px solid var(--line); }
+  .record-table th:first-child,
+  .record-table td:first-child { width: 46%; }
+  .record-table-note { display: block; margin-top: 2px; font-size: 12px; color: var(--muted); }
+  .record-table-action { text-align: right; white-space: nowrap; }
+  .record-table-action .link { font-size: 14px; }
+
+  /* ---------- Record forms ---------- */
+
+  .record-form { width: 100%; max-width: 460px; margin: 0 auto; padding: 28px; border-radius: 24px; }
+  .record-form .field-hint { font-size: 13px; }
+  .record-form .form-actions { margin-top: 28px; }
+  .record-form .form-actions .btn { min-width: 124px; }
+  .record-form-error { margin-top: 4px; overflow-wrap: anywhere; }
+  .link.danger { color: var(--red); }
+  .link.danger:hover { color: #8C2317; }
+  .record-form-delete { margin-top: 12px; }
+  .record-form-delete:disabled { opacity: 0.55; }
+
+  .record-chooser { max-width: 680px; }
+  .record-chooser .record-line { padding: 10px 0; }
+  .record-chooser .record-line:first-child { padding-top: 0; }
+  .record-chooser .record-line:last-child { padding-bottom: 0; }
+  .record-chooser .link { width: 100%; font-size: 15px; }
+  .record-chooser .link .icon { width: 22px; height: 22px; }
+
+  .weight-skeleton-main { height: 480px; }
+  .weight-skeleton-aside { height: 190px; }
+  .weight-skeleton-form { height: 330px; }
+}
+
+@layer components {
+  @media (max-width: 1150px) {
+    .section-layout { grid-template-columns: minmax(0, 1fr) 280px; }
+  }
+
+  @media (max-width: 900px) {
+    /* One column; the aside's explanation first, as on the phone (web v1, «weight» 390). */
+    .section-layout { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+    .section-aside { order: -1; }
+  }
+
+  @media (max-width: 760px) {
+    .section-layout .card,
+    .record-form { padding: 22px 20px; }
+    .section-aside .health-facts h2 { font-size: 22px; }
+    .weight-summary .weight-current,
+    .weight-summary h2 { font-size: 24px; }
+    .record-table td { padding: 14px 8px 14px 0; }
+    .record-form .form-actions .btn { min-width: 0; }
+  }
+}
