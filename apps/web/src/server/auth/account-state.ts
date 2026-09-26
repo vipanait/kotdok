@@ -1,6 +1,6 @@
 import 'server-only'
 
-import type { AccountStatus, Locale, UserRole } from '@lapka/contracts'
+import { PD_CONSENT_VERSION, type AccountStatus, type Locale, type UserRole } from '@lapka/contracts'
 import type { createServiceClient } from '@/server/supabase/server'
 
 type SupabaseService = ReturnType<typeof createServiceClient>
@@ -16,6 +16,12 @@ export type AccountContext = {
   role: UserRole
   locale: Locale
   credits: number
+  /**
+   * A new account that has not consented to the current edition of the
+   * personal data consent. Business operations wait until it has; the profile,
+   * the consent itself and leaving do not.
+   */
+  pdConsentRequired: boolean
 }
 
 export type AccountLookupFailure =
@@ -39,12 +45,27 @@ export async function loadAccount(
 ): Promise<AccountLookup> {
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, status, role, locale, credits')
+    .select('id, status, role, locale, credits, pd_consent_required')
     .eq('id', userId)
     .maybeSingle()
 
   if (error || !data) return { ok: false, reason: 'not_found' }
   if (data.status !== 'active') return { ok: false, reason: 'account_deleting' }
+
+  // Only accounts created after consent became a separate act carry the flag,
+  // so only they pay for the second query.
+  let pdConsentRequired = false
+  if (data.pd_consent_required) {
+    const { data: consent, error: consentError } = await supabase
+      .from('personal_data_consents')
+      .select('id')
+      .eq('user_id', data.id)
+      .eq('version', PD_CONSENT_VERSION)
+      .limit(1)
+      .maybeSingle()
+    if (consentError) return { ok: false, reason: 'not_found' }
+    pdConsentRequired = !consent
+  }
 
   return {
     ok: true,
@@ -54,6 +75,7 @@ export async function loadAccount(
       role: data.role,
       locale: data.locale,
       credits: data.credits ?? 0,
+      pdConsentRequired,
     },
   }
 }

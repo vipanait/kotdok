@@ -16,6 +16,8 @@ export type CabinetState =
   | { kind: 'signed_out' }
   /** Deletion has started: the session still works, the cabinet is closed. */
   | { kind: 'deleting' }
+  /** A new account that has not consented yet: the consent page comes first. */
+  | { kind: 'consent_required' }
 
 /**
  * Who is looking at the cabinet, and whether it is open to them. A profile
@@ -32,6 +34,7 @@ export async function loadCabinetState(): Promise<CabinetState> {
     if (account.reason === 'account_deleting') return { kind: 'deleting' }
     throw new Error('Could not read the signed-in account')
   }
+  if (account.account.pdConsentRequired) return { kind: 'consent_required' }
 
   return {
     kind: 'open',

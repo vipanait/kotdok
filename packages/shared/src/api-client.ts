@@ -8,6 +8,7 @@ import {
   CheckJobStatusSchema,
   DELETION_RECEIPT_HEADER,
   CheckFeedbackSchema,
+  ConsentStatusSchema,
   ExtraCheckRequestStatusSchema,
   DueListReadSchema,
   VetSummaryReadSchema,
@@ -26,6 +27,7 @@ import {
   type AccountDeletionRequest,
   type CheckCreateInput,
   type CheckHistoryQuery,
+  type ConsentInput,
   type ErrorCode,
   type FeedbackInput,
   type PetCreateInput,
@@ -236,6 +238,10 @@ export function createApiClient(options: ApiClientOptions) {
     getMe: () => call('/me', PublicProfileSchema),
     updateMe: (body: ProfileUpdateInput) =>
       call('/me', PublicProfileSchema, { method: 'PATCH', body }),
+
+    getConsentStatus: () => call('/consent', ConsentStatusSchema),
+    /** Consent to one edition of the text; repeating it is harmless. */
+    giveConsent: (body: ConsentInput) => call<void>('/consent', null, { method: 'POST', body }),
 
     listPets: () => call('/pets', z.array(PetSchema)),
     createPet: (body: PetCreateInput) => call('/pets', PetSchema, { method: 'POST', body }),

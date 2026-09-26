@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { Session } from '@supabase/supabase-js'
+import { PD_CONSENT_VERSION } from '@lapka/contracts'
 import { Platform } from 'react-native'
 import * as WebBrowser from 'expo-web-browser'
 import * as AppleAuthentication from 'expo-apple-authentication'
@@ -10,6 +11,7 @@ import { setSessionLostHandler } from '@/lib/api'
 import { authRedirectUrl } from '@/lib/auth-links'
 import { deviceLocale } from '@/lib/device-locale'
 import { useSetLocale, useText } from '@/i18n'
+import { consentSource } from '@/features/consent/consent-gate'
 import {
   createProviderSignIn,
   type ProviderId,
@@ -93,6 +95,19 @@ type AuthState = {
   requestPasswordReset(email: string): Promise<void>
   signOut(): Promise<void>
   dismissNotice(): void
+  /**
+   * The registration screen's ticked consent box, waiting for the session a
+   * provider sign-in brings, to be sent with it. Memory only: an app killed in
+   * between loses it, and the consent screen asks again.
+   */
+  consentPending: boolean
+  setConsentPending(pending: boolean): void
+  /**
+   * The user whose consent the tabs have settled. Code outside the tabs that
+   * calls the API — reminders — waits for it (see `consentSettled`).
+   */
+  consentSettledFor: string | null
+  setConsentSettledFor(userId: string | null): void
 }
 
 const AuthContext = createContext<AuthState | null>(null)
@@ -109,6 +124,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
   const [notice, setNotice] = useState<string | null>(null)
+  const [consentPending, setConsentPending] = useState(false)
+  const [consentSettledFor, setConsentSettledFor] = useState<string | null>(null)
 
   /**
    * Ends the session and removes everything belonging to it. Used both for a
@@ -135,6 +152,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Russian after a sign-out.
       setLocale(deviceLocale())
       setSession(null)
+      setConsentPending(false)
+      setConsentSettledFor(null)
       setNotice(reason)
     },
     [setLocale],
@@ -199,7 +218,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // have a language, and the trigger that creates the profile takes it
           // from this. Later the person's own choice governs, and nothing
           // overwrites it from the device again.
-          data: { locale: deviceLocale() },
+          data: {
+            locale: deviceLocale(),
+            // The screen only calls this with the consent box ticked; the same
+            // trigger records it, so an email sign-up needs no second step.
+            pd_consent: { version: PD_CONSENT_VERSION, source: consentSource(Platform.OS) },
+          },
         },
         })
         if (error) throw error
@@ -214,8 +238,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
 
       signOut: () => endSession(null),
+
+      consentPending,
+      setConsentPending,
+      consentSettledFor,
+      setConsentSettledFor,
     }),
-    [session, loading, notice, endSession, t],
+    [session, loading, notice, consentPending, consentSettledFor, endSession, t],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
