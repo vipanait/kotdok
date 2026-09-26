@@ -3,9 +3,9 @@
   "today": "2026-09-26",
   "pets": {
     "count": 5,
-    "murka": "3b6ce35b-acf5-4e33-8ae9-0a9541d97873",
-    "bobik": "e72951ef-65bf-4b98-ae0d-ddda37761527",
-    "baron": "07b14203-b75d-406a-96b8-b508e2f67709"
+    "murka": "b00ea3d2-fa1e-48d8-bacc-438d0ee2103b",
+    "bobik": "4dedcf93-2dd3-42be-88c1-7960f1dc5306",
+    "baron": "0a752263-9db7-4769-9e16-4aeb9bb504c5"
   },
   "checks": {
     "dueApi": {
@@ -47,13 +47,13 @@
           "due": "Блохи и клещи — просрочено",
           "tone": "overdue",
           "dueOneLine": true,
-          "href": "/pets/3b6ce35b-acf5-4e33-8ae9-0a9541d97873",
+          "href": "/pets/b00ea3d2-fa1e-48d8-bacc-438d0ee2103b",
           "accessibleName": "МуркаСибирская · 3 годаБлохи и клещи — просроченоПоследняя проверка:Наблюдаем"
         }
       ],
       "wrongLines": [],
       "firstLineOpens": {
-        "path": "/pets/3b6ce35b-acf5-4e33-8ae9-0a9541d97873",
+        "path": "/pets/b00ea3d2-fa1e-48d8-bacc-438d0ee2103b",
         "heading": "Мурка"
       },
       "listRows": 5,
@@ -105,7 +105,17 @@
         "medications_before": [],
         "weightsBefore": 0,
         "weightsAfter": 0
-      }
+      },
+      "afterSave": {
+        "path": "/pets/4dedcf93-2dd3-42be-88c1-7960f1dc5306",
+        "drawnFirst": "skeleton",
+        "notice": {
+          "text": "Анкета сохранена.",
+          "focused": true,
+          "addressCleared": true
+        }
+      },
+      "cancelHref": "/pets/4dedcf93-2dd3-42be-88c1-7960f1dc5306"
     },
     "criterion3": {
       "measured": 110,
@@ -181,7 +191,7 @@
         {
           "outside": false,
           "text": "МуркаСибирская · 3 годаБлохи и клещи — просроченоПоследняя п",
-          "href": "/pets/3b6ce35b-acf5-4e33-8ae9-0a9541d97873",
+          "href": "/pets/b00ea3d2-fa1e-48d8-bacc-438d0ee2103b",
           "focusVisible": true
         }
       ],
@@ -231,7 +241,7 @@
       },
       "signedOut": {
         "status": 307,
-        "location": "/login?next=%2Fpets%2F3b6ce35b-acf5-4e33-8ae9-0a9541d97873%2Fvet-summary"
+        "location": "/login?next=%2Fpets%2Fb00ea3d2-fa1e-48d8-bacc-438d0ee2103b%2Fvet-summary"
       }
     },
     "fileTitle": {
@@ -248,11 +258,11 @@
     }
   },
   "consoleErrors": [
-    "owner-a@fixture.local 390 /pets/3b6ce35b-acf5-4e33-8ae9-0a9541d97873/health/new: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
-    "owner-a@fixture.local 390 /pets/3b6ce35b-acf5-4e33-8ae9-0a9541d97873/health/new: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
-    "owner-a@fixture.local 390 /pets/e72951ef-65bf-4b98-ae0d-ddda37761527/edit: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
-    "owner-a@fixture.local 390 /pets/3b6ce35b-acf5-4e33-8ae9-0a9541d97873: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
-    "owner-a@fixture.local 390 /pets/3b6ce35b-acf5-4e33-8ae9-0a9541d97873: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
-    "owner-b@fixture.local 1440 /pets/3b6ce35b-acf5-4e33-8ae9-0a9541d97873: Failed to load resource: the server responded with a status of 404 (Not Found)"
+    "owner-a@fixture.local 390 /pets/b00ea3d2-fa1e-48d8-bacc-438d0ee2103b/health/new: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "owner-a@fixture.local 390 /pets/b00ea3d2-fa1e-48d8-bacc-438d0ee2103b/health/new: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "owner-a@fixture.local 390 /pets/4dedcf93-2dd3-42be-88c1-7960f1dc5306/edit: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "owner-a@fixture.local 390 /pets/b00ea3d2-fa1e-48d8-bacc-438d0ee2103b: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "owner-a@fixture.local 390 /pets/b00ea3d2-fa1e-48d8-bacc-438d0ee2103b: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "owner-b@fixture.local 1440 /pets/b00ea3d2-fa1e-48d8-bacc-438d0ee2103b: Failed to load resource: the server responded with a status of 404 (Not Found)"
   ]
 }
