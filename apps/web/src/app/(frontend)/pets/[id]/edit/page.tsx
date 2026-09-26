@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import CabinetShell from '@/components/cabinet/CabinetShell'
 import PetPageHead from '@/features/pets/PetPageHead'
 import PetForm from '@/features/pets/PetForm'
+import { medicalRecordHref } from '@/features/medical-record/stage'
 import { requireCabinet } from '@/components/cabinet/require-cabinet'
 import { getDictionary } from '@/server/i18n/get-dictionary'
 import { getLocale } from '@/server/i18n/get-locale'
@@ -39,7 +40,12 @@ export default async function EditPetPage({ params }: { params: Promise<{ id: st
 
   return (
     <CabinetShell cabinet={cabinet} active="pets" crumb={`${t.listTitle} / ${name}`}>
-      <PetPageHead title={name} subtitle={t.editSubtitle} backLabel={t.listTitle} />
+      <PetPageHead
+        title={name}
+        subtitle={t.editSubtitle}
+        backLabel={dict.medicalRecord.title}
+        backHref={medicalRecordHref.record(id)}
+      />
       <PetForm pet={pet as Pet} />
     </CabinetShell>
   )
