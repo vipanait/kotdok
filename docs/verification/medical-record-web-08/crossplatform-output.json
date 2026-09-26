@@ -1,0 +1,37 @@
+{
+  "1_web_create (crossplatform.mjs create)": {
+    "murka": "73b73d66-c549-4d13-be65-4aa9eea8ebf0",
+    "created": {
+      "id": "a6f4085e-b0a4-499f-9a53-c13ed36467bc",
+      "status": "planned",
+      "date": "2026-10-16",
+      "clinic": "Web clinic MW08",
+      "items": [
+        "Нобивак Rabies"
+      ]
+    }
+  },
+  "2_phone (iOS Simulator, by hand)": {
+    "all_due": "Бешенство · 16 октября",
+    "record": "Запланировано · 16 октября 2026 · Web clinic MW08",
+    "change": "«Перенести» → clinic + ' phone' → saved as 'Web clinic MW08 зрщту' (the simulator's hardware keyboard layout is Russian)"
+  },
+  "3_web_after_refresh (crossplatform.mjs check, first run)": {
+    "api": {
+      "id": "a6f4085e-b0a4-499f-9a53-c13ed36467bc",
+      "date": "2026-10-16",
+      "clinic": "Web clinic MW08 зрщту"
+    },
+    "webView": "…Запланировано16 октября 2026Клиника: Web clinic MW08 зрщтуНобивак RabiesБешенство…"
+  },
+  "4_after «Сделано» elsewhere + phone mismatch (crossplatform.mjs check, second run)": {
+    "murka": "73b73d66-c549-4d13-be65-4aa9eea8ebf0",
+    "api": {
+      "id": "a6f4085e-b0a4-499f-9a53-c13ed36467bc",
+      "status": "done",
+      "date": "2026-09-26",
+      "clinic": "Web clinic MW08 зрщту"
+    },
+    "webView": "В разделПрививкаМуркаСделано26 сентября 2026Клиника: Web clinic MW08 зрщтуНобивак RabiesБешенствоДействия с записьюПроцедура выполнена. Запись сохранена в истории и недоступна для редактирования.Удалить записьЛапка — информационный инструмент. Не заменяет осмотр ветеринара."
+  }
+}
