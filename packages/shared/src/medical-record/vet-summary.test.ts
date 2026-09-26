@@ -108,5 +108,7 @@ describe('text for files and print', () => {
 
   it('quotes a CSS string so owner’s text cannot end it', () => {
     expect(cssString('a"b\\c\nd</style>')).toBe('"a\\"b\\\\c d\\3C /style>"')
+    // Every CSS newline ends an unescaped string: \n, \r and the form feed.
+    expect(cssString('a\rb\fc\r\nd')).toBe('"a b c  d"')
   })
 })

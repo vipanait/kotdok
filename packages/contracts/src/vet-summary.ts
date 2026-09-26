@@ -62,7 +62,8 @@ export type VetSummary = z.infer<typeof VetSummarySchema>
 /**
  * `GET /pets/{id}/health/summary?today=YYYY-MM-DD`: the owner's own calendar
  * day, which decides the courses taken now and the year of visits. The
- * server takes it only while it is today somewhere on Earth (UTC−12…UTC+14);
+ * server takes it only from the UTC day before its own to the UTC day after
+ * (a margin around every zone's today, UTC−12…UTC+14, not its exact edge);
  * any other value, or none — an app older than this field — gives the
  * server's UTC day, as before.
  */

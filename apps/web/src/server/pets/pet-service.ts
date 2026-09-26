@@ -92,8 +92,8 @@ function formWeight(body: Record<string, unknown>, sanitized: { weight_kg: numbe
 /**
  * The owner's day for the form's medicines (a name added starts a course on
  * it, a name removed ends one): the weighing day both apps send, which is
- * their own today. Trusted only while it is today somewhere on Earth, like
- * the summary's `?today=` (`clientToday`) — an older client's past weighing
+ * their own today. Trusted only from the UTC day before the server's to the
+ * UTC day after, like the summary's `?today=` (`clientToday`) — an older client's past weighing
  * day must not start a course in the past; otherwise today in UTC.
  */
 function formDay(body: Record<string, unknown>): string {
