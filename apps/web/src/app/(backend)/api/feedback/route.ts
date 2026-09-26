@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { FeedbackInputSchema, UuidSchema } from '@lapka/contracts'
 import { getAuthUser } from '@/server/auth/get-auth-user'
+import { owesConsent } from '@/server/consent/consent-service'
 import { createServiceClient } from '@/server/supabase/server'
 import { getCheckFeedback, submitFeedback } from '@/server/feedback/feedback-service'
 import { csrfForbiddenResponse, verifyCsrf } from '@/server/security/csrf'
@@ -10,6 +11,7 @@ export async function POST(request: NextRequest) {
 
   const user = await getAuthUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (await owesConsent(user.id)) return NextResponse.json({ error: 'Consent required' }, { status: 403 })
 
   let body: unknown
   try {
@@ -50,6 +52,7 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   const user = await getAuthUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (await owesConsent(user.id)) return NextResponse.json({ error: 'Consent required' }, { status: 403 })
 
   const checkId = request.nextUrl.searchParams.get('check_id')
   if (!UuidSchema.safeParse(checkId).success) return NextResponse.json({ error: 'Not found' }, { status: 404 })

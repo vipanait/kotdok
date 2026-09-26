@@ -62,6 +62,20 @@ export const en: Dictionary = {
     passwordHint: (min: number) => `At least ${min} characters`,
     legalPrefix: 'By continuing you accept the',
     legalLink: 'Terms of Use',
+    legalAnd: 'and the',
+    policyLink: 'Personal Data Policy',
+  },
+
+  consent: {
+    title: 'Consent to data processing',
+    lead: 'To use Lapka, we need your consent to process your personal data.',
+    checkboxPrefix: 'I give my',
+    checkboxLink: 'consent to personal data processing',
+    errorRequired: 'Tick the consent to continue',
+    errorFailed: 'Could not save the consent. Please try again.',
+    continue: 'Continue',
+    signOut: 'Sign out',
+    deleteAccount: 'Delete account',
   },
 
   pets: {
@@ -667,6 +681,7 @@ export const en: Dictionary = {
     unsupportedMedia: 'Unsupported format',
     rateLimited: 'Too often. Wait a moment',
     accountDeleting: 'The account is being deleted',
+    consentRequired: 'Consent to personal data processing is required',
     reauthRequired: 'Confirm it is you: sign in again',
     dependencyUnavailable: 'The service is temporarily unavailable',
     internal: 'Something went wrong on our side',

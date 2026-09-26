@@ -38,7 +38,17 @@ const APPLE_MARK_HEIGHT = 20
  * While one provider is running the others are disabled. Two sign-ins racing
  * would leave whichever finished second holding a code the first already spent.
  */
-export function ProviderButtons({ onOutcome }: { onOutcome: (outcome: ProviderOutcome) => void }) {
+export function ProviderButtons({
+  onOutcome,
+  canStart,
+}: {
+  onOutcome: (outcome: ProviderOutcome) => void
+  /**
+   * Asked before a provider opens; `false` stops it. Registration uses it to
+   * require the consent box, which covers the providers as it covers email.
+   */
+  canStart?: () => boolean
+}) {
   const { signInWithProvider } = useAuth()
   const t = useText()
   const [busy, setBusy] = useState<ProviderId | null>(null)
@@ -49,6 +59,7 @@ export function ProviderButtons({ onOutcome }: { onOutcome: (outcome: ProviderOu
 
   async function start(provider: ProviderId) {
     if (running.current) return
+    if (canStart && !canStart()) return
     running.current = true
     setBusy(provider)
     try {

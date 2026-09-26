@@ -6,10 +6,12 @@ import { DELETE as deletePetRoute, PUT as updatePetRoute } from '@/app/(backend)
 import { getAuthUser } from '@/server/auth/get-auth-user'
 import { createServiceClient } from '@/server/supabase/server'
 import { createPet, listPets, softDeletePetAndChecks, updatePet } from '@/server/pets/pet-service'
+import { owesConsent } from '@/server/consent/consent-service'
 import { CSRF_COOKIE_NAME, CSRF_HEADER_NAME } from '@/server/security/csrf'
 
 vi.mock('@/server/auth/get-auth-user', () => ({ getAuthUser: vi.fn() }))
 vi.mock('@/server/supabase/server', () => ({ createServiceClient: vi.fn() }))
+vi.mock('@/server/consent/consent-service', () => ({ owesConsent: vi.fn() }))
 vi.mock('@/server/pets/pet-service', () => ({
   createPet: vi.fn(),
   listPets: vi.fn(),
@@ -59,6 +61,7 @@ describe('pets API routes', () => {
   beforeEach(() => {
     vi.mocked(getAuthUser).mockResolvedValue(user)
     vi.mocked(createServiceClient).mockReturnValue(serviceClient as never)
+    vi.mocked(owesConsent).mockResolvedValue(false)
     vi.mocked(createPet).mockReset()
     vi.mocked(listPets).mockReset()
     vi.mocked(softDeletePetAndChecks).mockReset()
@@ -71,6 +74,15 @@ describe('pets API routes', () => {
     const response = await listPetsRoute()
 
     expect(response.status).toBe(401)
+    expect(listPets).not.toHaveBeenCalled()
+  })
+
+  it('refuses an account that still owes consent', async () => {
+    vi.mocked(owesConsent).mockResolvedValue(true)
+
+    const response = await listPetsRoute()
+
+    expect(response.status).toBe(403)
     expect(listPets).not.toHaveBeenCalled()
   })
 

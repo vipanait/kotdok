@@ -11,6 +11,7 @@ vi.mock('openai', () => ({
 }))
 vi.mock('@/server/auth/get-auth-user', () => ({ getAuthUser: vi.fn() }))
 vi.mock('@/server/supabase/server', () => ({ createServiceClient: vi.fn() }))
+vi.mock('@/server/consent/consent-service', () => ({ owesConsent: vi.fn(async () => false) }))
 
 const user: User = {
   id: 'user-1',

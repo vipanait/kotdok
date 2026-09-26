@@ -7,6 +7,7 @@ import { withFreshSession } from '@/lib/api'
 import { deviceStorage } from '@/lib/supabase'
 import { useText } from '@/i18n'
 import { useAuth } from '@/providers/AuthProvider'
+import { consentSettled } from '@/features/consent/consent-gate'
 import { Button } from '@/ui/Button'
 import { Text } from '@/ui/Text'
 import { colour, radius, space } from '@/ui/theme'
@@ -43,8 +44,12 @@ export function useReminders(): Reminders {
  */
 export function ReminderProvider({ children }: { children: ReactNode }) {
   const t = useText()
-  const { session, loading } = useAuth()
+  const { session, loading, consentSettledFor } = useAuth()
   const userId = session?.user.id ?? null
+  // No API call until the tabs have settled this user's consent: a call made
+  // earlier can overtake the consent handed over from registration, be refused
+  // and send the person to a consent screen they have already ticked.
+  const ready = consentSettled(userId, consentSettledFor)
   const words = t.reminders
   const tRef = useRef(t)
   tRef.current = t
@@ -55,7 +60,7 @@ export function ReminderProvider({ children }: { children: ReactNode }) {
   )
 
   const refresh = useCallback(() => {
-    if (!userId) return
+    if (!userId || !ready) return
     void sync
       .run({
         userId,
@@ -66,7 +71,7 @@ export function ReminderProvider({ children }: { children: ReactNode }) {
           }),
       })
       .catch(() => {})
-  }, [sync, userId])
+  }, [sync, userId, ready])
 
   useEffect(() => {
     void prepareChannel(words.title).catch(() => {})
@@ -89,7 +94,7 @@ export function ReminderProvider({ children }: { children: ReactNode }) {
   const response = Notifications.useLastNotificationResponse()
   const handled = useRef<string | null>(null)
   useEffect(() => {
-    if (!response || loading || !userId) return
+    if (!response || loading || !userId || !ready) return
     const key = `${response.notification.request.identifier}|${response.notification.date}`
     if (handled.current === key) return
     handled.current = key
@@ -98,7 +103,7 @@ export function ReminderProvider({ children }: { children: ReactNode }) {
       // navigate, not push: the list is usually on screen already after sign-in.
       .then((pets) => router.navigate(openTarget(data, userId, pets) as never))
       .catch(() => router.navigate('/pets'))
-  }, [response, loading, userId])
+  }, [response, loading, userId, ready])
 
   const [asking, setAsking] = useState<{ about: string; denied: boolean } | null>(null)
   const [days, setDays] = useState(3)

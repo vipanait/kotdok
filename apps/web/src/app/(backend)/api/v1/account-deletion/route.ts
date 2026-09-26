@@ -64,4 +64,4 @@ export const POST = withApiAuth(async (request: NextRequest, context: ApiContext
   response.headers.set('Cache-Control', 'no-store')
   response.headers.set('Vary', DELETION_RECEIPT_HEADER)
   return response
-})
+}, { consent: 'skip' })

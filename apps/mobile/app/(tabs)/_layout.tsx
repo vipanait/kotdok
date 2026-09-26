@@ -1,8 +1,11 @@
-import { Redirect } from 'expo-router'
+import { Redirect, router } from 'expo-router'
 import { Tabs } from 'expo-router/tabs'
 import { useEffect } from 'react'
+import { Platform } from 'react-native'
+import { PD_CONSENT_VERSION } from '@lapka/contracts'
+import { consentSettled, consentSource, settleConsent } from '@/features/consent/consent-gate'
 import { guardTabSwitch } from '@/features/unsaved/tab-guard'
-import { withFreshSession } from '@/lib/api'
+import { openConsentScreen, setConsentRequiredHandler, withFreshSession } from '@/lib/api'
 import { useAuth } from '@/providers/AuthProvider'
 import { useSetLocale, useText } from '@/i18n'
 import { Icon } from '@/ui/Icon'
@@ -16,7 +19,9 @@ import { colour, type } from '@/ui/theme'
  * the API with no session and show its own error instead of the sign-in form.
  */
 export default function TabsLayout() {
-  const { session, loading } = useAuth()
+  const { session, loading, consentPending, setConsentPending, consentSettledFor, setConsentSettledFor } =
+    useAuth()
+  const userId = session?.user.id ?? null
   const t = useText()
   const setLocale = useSetLocale()
 
@@ -35,8 +40,45 @@ export default function TabsLayout() {
       .catch(() => {})
   }, [session, setLocale])
 
+  /**
+   * Consent to personal data processing, settled once per signed-in user before
+   * the tabs appear (stage 12): the consent ticked on registration is handed
+   * over first, then a new account that still owes one goes to the consent
+   * screen. Keyed on the user, not the session object, which a token refresh
+   * replaces.
+   */
+  useEffect(() => {
+    setConsentRequiredHandler(() => router.replace('/consent'))
+  }, [])
+
+  useEffect(() => {
+    if (!userId) return
+    let active = true
+    void settleConsent({
+      pending: consentPending,
+      give: () =>
+        withFreshSession((api) =>
+          api.giveConsent({ version: PD_CONSENT_VERSION, source: consentSource(Platform.OS) }),
+        ),
+      status: () => withFreshSession((api) => api.getConsentStatus()),
+    }).then((result) => {
+      if (!active) return
+      setConsentPending(false)
+      // Through the same guard as a refused call, so a refusal arriving at the
+      // same moment does not open the screen a second time.
+      if (result === 'consent') openConsentScreen()
+      else setConsentSettledFor(userId)
+    })
+    return () => {
+      active = false
+    }
+    // The pending consent is read once, when the user arrives; later changes to
+    // it belong to the next sign-in, so it is deliberately not a dependency.
+  }, [userId])
+
   if (loading) return null
   if (!session) return <Redirect href="/sign-in" />
+  if (!consentSettled(userId, consentSettledFor)) return null
 
   return (
     <Tabs
