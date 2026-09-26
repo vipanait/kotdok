@@ -52,4 +52,4 @@ export const POST = withApiAuth(async (request: NextRequest, context: ApiContext
     context.requestId,
     ReauthProofSchema.parse({ token: proof.token, expires_at: proof.expiresAt.toISOString() }),
   )
-})
+}, { consent: 'skip' })

@@ -16,6 +16,11 @@ export const ERROR_CODES = {
   rate_limited: 'rate_limited',
   account_deleting: 'account_deleting',
   /**
+   * The account has not consented to personal-data processing, or not to the
+   * current edition of the text. The client's next move is the consent screen.
+   */
+  consent_required: 'consent_required',
+  /**
    * The session is valid, but the person authenticated too long ago for what
    * they are asking. The client's next move is to re-authenticate, which is a
    * different thing from signing in again — hence its own code rather than
@@ -52,6 +57,7 @@ export const ERROR_STATUS: Record<ErrorCode, number> = {
   unsupported_media_type: 415,
   rate_limited: 429,
   account_deleting: 403,
+  consent_required: 403,
   reauth_required: 401,
   record_done: 409,
   dependency_unavailable: 503,

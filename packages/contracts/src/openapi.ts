@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { API_VERSION } from './version'
 import { ApiErrorEnvelopeSchema, ERROR_STATUS, type ErrorCode } from './errors'
 import { ProfileUpdateInputSchema, PublicProfileSchema } from './profile'
+import { ConsentInputSchema, ConsentStatusSchema } from './consent'
 import { PetCreateInputSchema, PetSchema, PetUpdateInputSchema } from './pet'
 import {
   CompleteItemInputSchema,
@@ -53,6 +54,8 @@ const COMPONENTS: Array<[string, z.ZodType]> = [
   ['ApiError', ApiErrorEnvelopeSchema],
   ['PublicProfile', PublicProfileSchema],
   ['ProfileUpdateInput', ProfileUpdateInputSchema],
+  ['ConsentStatus', ConsentStatusSchema],
+  ['ConsentInput', ConsentInputSchema],
   ['Pet', PetSchema],
   ['PetCreateInput', PetCreateInputSchema],
   ['PetUpdateInput', PetUpdateInputSchema],
@@ -143,7 +146,11 @@ function commonErrors(...extra: ErrorCode[]): Record<string, unknown> {
     unsupported_media_type: 'File format is not accepted',
     rate_limited: 'Too many requests',
     reauth_required: 'Signed in, but the last authentication is too old for this operation',
-    account_deleting: 'Account is being deleted',
+    // Both answer 403 and a response map holds one entry per status, so the
+    // shared entry names both; clients branch on error.code.
+    account_deleting:
+      'Account is being deleted, or consent to personal data processing is required (error.code tells which)',
+    consent_required: 'Consent to personal data processing is required first',
     record_done: 'The record is a done procedure, a visit that happened or a finished course: it can be read and deleted, not changed',
     dependency_unavailable: 'A dependency is temporarily unavailable',
     internal_error: 'Unexpected server error',
@@ -241,6 +248,20 @@ export function buildOpenApiDocument(): Record<string, unknown> {
             '200': json('PublicProfile', 'Updated profile'),
             ...commonErrors('bad_request'),
           },
+        },
+      },
+      '/consent': {
+        get: {
+          summary: 'Whether the caller still has to consent to personal data processing',
+          responses: { '200': json('ConsentStatus', 'Consent status'), ...commonErrors() },
+        },
+        post: {
+          summary: 'Record consent to the current edition of the text',
+          description:
+            'Repeating the call is harmless. Any edition other than the current one is refused, ' +
+            'because the client that sent it did not show the text being agreed to.',
+          requestBody: body('ConsentInput'),
+          responses: { '204': { description: 'Recorded' }, ...commonErrors('bad_request') },
         },
       },
       '/pets': {

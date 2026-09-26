@@ -37,6 +37,7 @@ components:
                 - unsupported_media_type
                 - rate_limited
                 - account_deleting
+                - consent_required
                 - reauth_required
                 - record_done
                 - dependency_unavailable
@@ -106,6 +107,35 @@ components:
           enum:
             - ru
             - en
+      additionalProperties: false
+    ConsentStatus:
+      type: object
+      properties:
+        required:
+          type: boolean
+        version:
+          type: string
+          minLength: 1
+      required:
+        - required
+        - version
+      additionalProperties: false
+    ConsentInput:
+      type: object
+      properties:
+        version:
+          type: string
+          minLength: 1
+          maxLength: 32
+        source:
+          type: string
+          enum:
+            - web
+            - ios
+            - android
+      required:
+        - version
+        - source
       additionalProperties: false
     Pet:
       type: object
@@ -1608,6 +1638,7 @@ components:
                 - unsupported_media_type
                 - rate_limited
                 - account_deleting
+                - consent_required
                 - reauth_required
                 - record_done
                 - dependency_unavailable
@@ -1872,7 +1903,8 @@ paths:
                   message: Missing, malformed, expired or foreign access token
                   request_id: 01J000000000000000000000
         "403":
-          description: Account is being deleted
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
           content:
             application/json:
               schema:
@@ -1880,7 +1912,8 @@ paths:
               example:
                 error:
                   code: account_deleting
-                  message: Account is being deleted
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
                   request_id: 01J000000000000000000000
         "429":
           description: Too many requests
@@ -1926,7 +1959,8 @@ paths:
                   message: Missing, malformed, expired or foreign access token
                   request_id: 01J000000000000000000000
         "403":
-          description: Account is being deleted
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
           content:
             application/json:
               schema:
@@ -1934,7 +1968,8 @@ paths:
               example:
                 error:
                   code: account_deleting
-                  message: Account is being deleted
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
                   request_id: 01J000000000000000000000
         "429":
           description: Too many requests
@@ -1996,7 +2031,8 @@ paths:
                   message: Missing, malformed, expired or foreign access token
                   request_id: 01J000000000000000000000
         "403":
-          description: Account is being deleted
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
           content:
             application/json:
               schema:
@@ -2004,7 +2040,134 @@ paths:
               example:
                 error:
                   code: account_deleting
-                  message: Account is being deleted
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
+  /consent:
+    get:
+      summary: Whether the caller still has to consent to personal data processing
+      responses:
+        "200":
+          description: Consent status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConsentStatus"
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
+    post:
+      summary: Record consent to the current edition of the text
+      description: Repeating the call is harmless. Any edition other than the current one is refused,
+        because the client that sent it did not show the text being agreed to.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConsentInput"
+      responses:
+        "204":
+          description: Recorded
+        "400":
+          description: Request body or query is invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: bad_request
+                  message: Request body or query is invalid
+                  request_id: 01J000000000000000000000
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
                   request_id: 01J000000000000000000000
         "429":
           description: Too many requests
@@ -2052,7 +2215,8 @@ paths:
                   message: Missing, malformed, expired or foreign access token
                   request_id: 01J000000000000000000000
         "403":
-          description: Account is being deleted
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
           content:
             application/json:
               schema:
@@ -2060,7 +2224,8 @@ paths:
               example:
                 error:
                   code: account_deleting
-                  message: Account is being deleted
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
                   request_id: 01J000000000000000000000
         "429":
           description: Too many requests
@@ -2122,7 +2287,8 @@ paths:
                   message: Missing, malformed, expired or foreign access token
                   request_id: 01J000000000000000000000
         "403":
-          description: Account is being deleted
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
           content:
             application/json:
               schema:
@@ -2130,7 +2296,8 @@ paths:
               example:
                 error:
                   code: account_deleting
-                  message: Account is being deleted
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
                   request_id: 01J000000000000000000000
         "429":
           description: Too many requests
@@ -2184,7 +2351,8 @@ paths:
                   message: Missing, malformed, expired or foreign access token
                   request_id: 01J000000000000000000000
         "403":
-          description: Account is being deleted
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
           content:
             application/json:
               schema:
@@ -2192,7 +2360,8 @@ paths:
               example:
                 error:
                   code: account_deleting
-                  message: Account is being deleted
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
                   request_id: 01J000000000000000000000
         "404":
           description: No such resource for this user
@@ -2265,7 +2434,8 @@ paths:
                   message: Missing, malformed, expired or foreign access token
                   request_id: 01J000000000000000000000
         "403":
-          description: Account is being deleted
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
           content:
             application/json:
               schema:
@@ -2273,7 +2443,8 @@ paths:
               example:
                 error:
                   code: account_deleting
-                  message: Account is being deleted
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
                   request_id: 01J000000000000000000000
         "404":
           description: No such resource for this user
@@ -2325,7 +2496,8 @@ paths:
                   message: Missing, malformed, expired or foreign access token
                   request_id: 01J000000000000000000000
         "403":
-          description: Account is being deleted
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
           content:
             application/json:
               schema:
@@ -2333,7 +2505,8 @@ paths:
               example:
                 error:
                   code: account_deleting
-                  message: Account is being deleted
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
                   request_id: 01J000000000000000000000
         "404":
           description: No such resource for this user
@@ -2392,7 +2565,8 @@ paths:
                   message: Missing, malformed, expired or foreign access token
                   request_id: 01J000000000000000000000
         "403":
-          description: Account is being deleted
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
           content:
             application/json:
               schema:
@@ -2400,7 +2574,8 @@ paths:
               example:
                 error:
                   code: account_deleting
-                  message: Account is being deleted
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
                   request_id: 01J000000000000000000000
         "404":
           description: No such resource for this user
@@ -2471,7 +2646,8 @@ paths:
                   message: Missing, malformed, expired or foreign access token
                   request_id: 01J000000000000000000000
         "403":
-          description: Account is being deleted
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
           content:
             application/json:
               schema:
@@ -2479,7 +2655,8 @@ paths:
               example:
                 error:
                   code: account_deleting
-                  message: Account is being deleted
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
                   request_id: 01J000000000000000000000
         "404":
           description: No such resource for this user
@@ -2556,7 +2733,8 @@ paths:
                   message: Missing, malformed, expired or foreign access token
                   request_id: 01J000000000000000000000
         "403":
-          description: Account is being deleted
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
           content:
             application/json:
               schema:
@@ -2564,7 +2742,8 @@ paths:
               example:
                 error:
                   code: account_deleting
-                  message: Account is being deleted
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
                   request_id: 01J000000000000000000000
         "404":
           description: No such resource for this user
@@ -2646,7 +2825,8 @@ paths:
                   message: Missing, malformed, expired or foreign access token
                   request_id: 01J000000000000000000000
         "403":
-          description: Account is being deleted
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
           content:
             application/json:
               schema:
@@ -2654,7 +2834,8 @@ paths:
               example:
                 error:
                   code: account_deleting
-                  message: Account is being deleted
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
                   request_id: 01J000000000000000000000
         "404":
           description: No such resource for this user
@@ -2717,7 +2898,8 @@ paths:
                   message: Missing, malformed, expired or foreign access token
                   request_id: 01J000000000000000000000
         "403":
-          description: Account is being deleted
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
           content:
             application/json:
               schema:
@@ -2725,7 +2907,8 @@ paths:
               example:
                 error:
                   code: account_deleting
-                  message: Account is being deleted
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
                   request_id: 01J000000000000000000000
         "404":
           description: No such resource for this user
@@ -2819,7 +3002,8 @@ paths:
                   message: Missing, malformed, expired or foreign access token
                   request_id: 01J000000000000000000000
         "403":
-          description: Account is being deleted
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
           content:
             application/json:
               schema:
@@ -2827,7 +3011,8 @@ paths:
               example:
                 error:
                   code: account_deleting
-                  message: Account is being deleted
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
                   request_id: 01J000000000000000000000
         "429":
           description: Too many requests
@@ -2875,7 +3060,8 @@ paths:
                   message: Missing, malformed, expired or foreign access token
                   request_id: 01J000000000000000000000
         "403":
-          description: Account is being deleted
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
           content:
             application/json:
               schema:
@@ -2883,7 +3069,8 @@ paths:
               example:
                 error:
                   code: account_deleting
-                  message: Account is being deleted
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
                   request_id: 01J000000000000000000000
         "429":
           description: Too many requests
@@ -2959,7 +3146,8 @@ paths:
                   message: Missing, malformed, expired or foreign access token
                   request_id: 01J000000000000000000000
         "403":
-          description: Account is being deleted
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
           content:
             application/json:
               schema:
@@ -2967,7 +3155,8 @@ paths:
               example:
                 error:
                   code: account_deleting
-                  message: Account is being deleted
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
                   request_id: 01J000000000000000000000
         "404":
           description: No such resource for this user
@@ -3063,7 +3252,8 @@ paths:
                   message: Missing, malformed, expired or foreign access token
                   request_id: 01J000000000000000000000
         "403":
-          description: Account is being deleted
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
           content:
             application/json:
               schema:
@@ -3071,7 +3261,8 @@ paths:
               example:
                 error:
                   code: account_deleting
-                  message: Account is being deleted
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
                   request_id: 01J000000000000000000000
         "404":
           description: No such resource for this user
@@ -3136,7 +3327,8 @@ paths:
                   message: Missing, malformed, expired or foreign access token
                   request_id: 01J000000000000000000000
         "403":
-          description: Account is being deleted
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
           content:
             application/json:
               schema:
@@ -3144,7 +3336,8 @@ paths:
               example:
                 error:
                   code: account_deleting
-                  message: Account is being deleted
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
                   request_id: 01J000000000000000000000
         "404":
           description: No such resource for this user
@@ -3228,7 +3421,8 @@ paths:
                   message: Missing, malformed, expired or foreign access token
                   request_id: 01J000000000000000000000
         "403":
-          description: Account is being deleted
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
           content:
             application/json:
               schema:
@@ -3236,7 +3430,8 @@ paths:
               example:
                 error:
                   code: account_deleting
-                  message: Account is being deleted
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
                   request_id: 01J000000000000000000000
         "404":
           description: No such resource for this user
@@ -3327,7 +3522,8 @@ paths:
                   message: Missing, malformed, expired or foreign access token
                   request_id: 01J000000000000000000000
         "403":
-          description: Account is being deleted
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
           content:
             application/json:
               schema:
@@ -3335,7 +3531,8 @@ paths:
               example:
                 error:
                   code: account_deleting
-                  message: Account is being deleted
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
                   request_id: 01J000000000000000000000
         "404":
           description: No such resource for this user
@@ -3431,7 +3628,8 @@ paths:
                   message: Missing, malformed, expired or foreign access token
                   request_id: 01J000000000000000000000
         "403":
-          description: Account is being deleted
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
           content:
             application/json:
               schema:
@@ -3439,7 +3637,8 @@ paths:
               example:
                 error:
                   code: account_deleting
-                  message: Account is being deleted
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
                   request_id: 01J000000000000000000000
         "404":
           description: No such resource for this user
@@ -3504,7 +3703,8 @@ paths:
                   message: Missing, malformed, expired or foreign access token
                   request_id: 01J000000000000000000000
         "403":
-          description: Account is being deleted
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
           content:
             application/json:
               schema:
@@ -3512,7 +3712,8 @@ paths:
               example:
                 error:
                   code: account_deleting
-                  message: Account is being deleted
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
                   request_id: 01J000000000000000000000
         "404":
           description: No such resource for this user
@@ -3592,7 +3793,8 @@ paths:
                   message: Missing, malformed, expired or foreign access token
                   request_id: 01J000000000000000000000
         "403":
-          description: Account is being deleted
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
           content:
             application/json:
               schema:
@@ -3600,7 +3802,8 @@ paths:
               example:
                 error:
                   code: account_deleting
-                  message: Account is being deleted
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
                   request_id: 01J000000000000000000000
         "404":
           description: No such resource for this user
@@ -3700,7 +3903,8 @@ paths:
                   message: Missing, malformed, expired or foreign access token
                   request_id: 01J000000000000000000000
         "403":
-          description: Account is being deleted
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
           content:
             application/json:
               schema:
@@ -3708,7 +3912,8 @@ paths:
               example:
                 error:
                   code: account_deleting
-                  message: Account is being deleted
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
                   request_id: 01J000000000000000000000
         "404":
           description: No such resource for this user
@@ -3792,7 +3997,8 @@ paths:
                   message: Missing, malformed, expired or foreign access token
                   request_id: 01J000000000000000000000
         "403":
-          description: Account is being deleted
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
           content:
             application/json:
               schema:
@@ -3800,7 +4006,8 @@ paths:
               example:
                 error:
                   code: account_deleting
-                  message: Account is being deleted
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
                   request_id: 01J000000000000000000000
         "404":
           description: No such resource for this user
@@ -3877,7 +4084,8 @@ paths:
                   message: Missing, malformed, expired or foreign access token
                   request_id: 01J000000000000000000000
         "403":
-          description: Account is being deleted
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
           content:
             application/json:
               schema:
@@ -3885,7 +4093,8 @@ paths:
               example:
                 error:
                   code: account_deleting
-                  message: Account is being deleted
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
                   request_id: 01J000000000000000000000
         "429":
           description: Too many requests
@@ -3973,7 +4182,8 @@ paths:
                   message: Missing, malformed, expired or foreign access token
                   request_id: 01J000000000000000000000
         "403":
-          description: Account is being deleted
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
           content:
             application/json:
               schema:
@@ -3981,7 +4191,8 @@ paths:
               example:
                 error:
                   code: account_deleting
-                  message: Account is being deleted
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
                   request_id: 01J000000000000000000000
         "429":
           description: Too many requests
@@ -4064,7 +4275,8 @@ paths:
                   message: No checks left on the balance
                   request_id: 01J000000000000000000000
         "403":
-          description: Account is being deleted
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
           content:
             application/json:
               schema:
@@ -4072,7 +4284,8 @@ paths:
               example:
                 error:
                   code: account_deleting
-                  message: Account is being deleted
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
                   request_id: 01J000000000000000000000
         "404":
           description: No such resource for this user
@@ -4175,7 +4388,8 @@ paths:
                   message: Missing, malformed, expired or foreign access token
                   request_id: 01J000000000000000000000
         "403":
-          description: Account is being deleted
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
           content:
             application/json:
               schema:
@@ -4183,7 +4397,8 @@ paths:
               example:
                 error:
                   code: account_deleting
-                  message: Account is being deleted
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
                   request_id: 01J000000000000000000000
         "404":
           description: No such resource for this user
@@ -4242,7 +4457,8 @@ paths:
                   message: Missing, malformed, expired or foreign access token
                   request_id: 01J000000000000000000000
         "403":
-          description: Account is being deleted
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
           content:
             application/json:
               schema:
@@ -4250,7 +4466,8 @@ paths:
               example:
                 error:
                   code: account_deleting
-                  message: Account is being deleted
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
                   request_id: 01J000000000000000000000
         "404":
           description: No such resource for this user
@@ -4312,7 +4529,8 @@ paths:
                   message: Missing, malformed, expired or foreign access token
                   request_id: 01J000000000000000000000
         "403":
-          description: Account is being deleted
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
           content:
             application/json:
               schema:
@@ -4320,7 +4538,8 @@ paths:
               example:
                 error:
                   code: account_deleting
-                  message: Account is being deleted
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
                   request_id: 01J000000000000000000000
         "404":
           description: No such resource for this user
@@ -4377,7 +4596,8 @@ paths:
                   message: Missing, malformed, expired or foreign access token
                   request_id: 01J000000000000000000000
         "403":
-          description: Account is being deleted
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
           content:
             application/json:
               schema:
@@ -4385,7 +4605,8 @@ paths:
               example:
                 error:
                   code: account_deleting
-                  message: Account is being deleted
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
                   request_id: 01J000000000000000000000
         "429":
           description: Too many requests
@@ -4431,7 +4652,8 @@ paths:
                   message: Missing, malformed, expired or foreign access token
                   request_id: 01J000000000000000000000
         "403":
-          description: Account is being deleted
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
           content:
             application/json:
               schema:
@@ -4439,7 +4661,8 @@ paths:
               example:
                 error:
                   code: account_deleting
-                  message: Account is being deleted
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
                   request_id: 01J000000000000000000000
         "409":
           description: Same idempotency key with different data
@@ -4510,7 +4733,8 @@ paths:
                   message: Missing, malformed, expired or foreign access token
                   request_id: 01J000000000000000000000
         "403":
-          description: Account is being deleted
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
           content:
             application/json:
               schema:
@@ -4518,7 +4742,8 @@ paths:
               example:
                 error:
                   code: account_deleting
-                  message: Account is being deleted
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
                   request_id: 01J000000000000000000000
         "404":
           description: No such resource for this user

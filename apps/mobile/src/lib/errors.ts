@@ -64,6 +64,7 @@ const apiMessages = (t: Dictionary): Record<string, string> => ({
   unsupported_media_type: t.errors.unsupportedMedia,
   rate_limited: t.errors.rateLimited,
   account_deleting: t.errors.accountDeleting,
+  consent_required: t.errors.consentRequired,
   reauth_required: t.errors.reauthRequired,
   record_done: t.errors.recordDone,
   dependency_unavailable: t.errors.dependencyUnavailable,

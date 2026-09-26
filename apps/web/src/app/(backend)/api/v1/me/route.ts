@@ -24,8 +24,11 @@ function publicProfile(account: AccountContext) {
   })
 }
 
-export const GET = withApiAuth((_request, context: ApiContext) =>
-  apiSuccess(context.requestId, publicProfile(context.account)),
+// The profile and the account's language stay reachable before consent: the
+// app reads them on the way in, and the consent screen speaks that language.
+export const GET = withApiAuth(
+  (_request, context: ApiContext) => apiSuccess(context.requestId, publicProfile(context.account)),
+  { consent: 'skip' },
 )
 
 export const PATCH = withApiAuth(async (request: NextRequest, context: ApiContext) => {
@@ -52,4 +55,4 @@ export const PATCH = withApiAuth(async (request: NextRequest, context: ApiContex
   }
 
   return apiSuccess(context.requestId, publicProfile({ ...context.account, ...parsed.data }))
-})
+}, { consent: 'skip' })
