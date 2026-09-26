@@ -8,7 +8,7 @@ import PetAvatar from '@/components/PetAvatar'
 import Icon from '@/components/ui/Icon'
 import ConfirmDialog from '@/features/pets/ConfirmDialog'
 import { useLeaveGuard } from '@/features/forms/use-leave-guard'
-import type { PetSavedKind } from '@/features/pets/pet-saved'
+import { petFormCancelHref, petFormDoneHref } from '@/features/pets/pet-form-exit'
 import { csrfHeaders } from '@/shared/security/csrf-client'
 import { localToday } from '@lapka/shared'
 
@@ -30,10 +30,6 @@ interface Props {
   pet?: Pet
   hints?: PetFormHintTexts
 }
-
-/** Where the form leads after a save or a delete, with the confirmation banner. */
-const LIST_HREF = '/pets'
-const savedHref = (kind: PetSavedKind) => `${LIST_HREF}?petSaved=${kind}`
 
 const NOTES_MAX = 300
 
@@ -194,7 +190,7 @@ export default function PetForm({ pet, hints = {} }: Props) {
       return
     }
 
-    leave(savedHref(isEdit ? 'updated' : 'created'))
+    leave(petFormDoneHref(isEdit ? 'updated' : 'created', pet?.id))
   }
 
   async function handleDelete() {
@@ -213,7 +209,7 @@ export default function PetForm({ pet, hints = {} }: Props) {
       setDeleting(false)
       return
     }
-    leave(savedHref('deleted'))
+    leave(petFormDoneHref('deleted', pet.id))
   }
 
   return (
@@ -480,7 +476,7 @@ export default function PetForm({ pet, hints = {} }: Props) {
             </button>
           ) : null}
           <div className="row">
-            <Link href={LIST_HREF} className="link">{t.cancelBtn}</Link>
+            <Link href={petFormCancelHref(pet?.id)} className="link">{t.cancelBtn}</Link>
             <button type="submit" className="btn primary" disabled={saving}>
               {saving ? t.savingBtn : isEdit ? t.saveBtn : t.addBtn}
             </button>

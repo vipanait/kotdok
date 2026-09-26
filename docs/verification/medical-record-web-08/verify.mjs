@@ -19,7 +19,7 @@
  * Writes PNGs next to this file and prints a JSON summary. It writes to the
  * local database only through the site, as the owner would: one course
  * («Проверка MW-08», deleted again at the end) and the pet form of «Бобик»
- * saved unchanged. Local only: it refuses any origin or database that is not
+ * saved unchanged (opened from its record, back on the record after the save). Local only: it refuses any origin or database that is not
  * localhost.
  */
 
@@ -256,13 +256,35 @@ try {
     const bobikHints = await hints()
     await shot(page, 'pet-edit-bobik-1440')
 
-    // Saved unchanged: the body carries the owner's day and the form as opened; the weight history does not grow.
+    // Saved unchanged, from the form opened on the record (the record is then
+    // kept in the tab): the body carries the owner's day and the form as
+    // opened; the weight history does not grow; the form returns to the
+    // record with its notice, and the record is read anew — the one kept from
+    // before the save is not drawn while it loads.
+    await open(page, `/pets/${bobik.id}`, '.health-head')
+    await Promise.all([page.waitForURL((url) => url.pathname === `/pets/${bobik.id}/edit`), page.click('.health-form-link')])
+    await page.waitForSelector('form.pet-form')
+    const cancelHref = await page.getAttribute('form.pet-form .form-actions .row a.link', 'href')
     const weightsBefore = (await api(`/pets/${bobik.id}/health`, tokenA)).body.weights.length
     const bodies = []
     page.on('request', (request) => {
       if (request.method() === 'PUT' && new URL(request.url()).pathname === `/api/pets/${bobik.id}`) bodies.push(request.postDataJSON())
     })
-    await Promise.all([page.waitForURL((url) => url.pathname === '/pets'), page.click('form.pet-form button[type=submit]')])
+    // The record's read after the save is held a moment, so what is drawn first can be seen.
+    await page.route(`**/api/v1/pets/${bobik.id}/health`, async (route) => {
+      await new Promise((done) => setTimeout(done, 1500))
+      await route.continue().catch(() => {})
+    })
+    await Promise.all([page.waitForURL((url) => url.pathname === `/pets/${bobik.id}`), page.click('form.pet-form button[type=submit]')])
+    await page.waitForSelector('.health-skeleton, .health-grid', { timeout: 60_000 })
+    const drawnFirst = (await page.$('.health-grid')) ? 'record kept from before the save' : 'skeleton'
+    await page.waitForSelector('.health-saved', { timeout: 60_000 })
+    await page.unroute(`**/api/v1/pets/${bobik.id}/health`)
+    const notice = {
+      text: text(await page.textContent('.health-saved')),
+      focused: await page.evaluate(() => document.activeElement?.classList.contains('health-saved') ?? false),
+      addressCleared: !new URL(page.url()).searchParams.has('saved'),
+    }
     const weightsAfter = (await api(`/pets/${bobik.id}/health`, tokenA)).body.weights.length
     result.checks.petForm = {
       murkaHints,
@@ -274,7 +296,10 @@ try {
         weightsBefore,
         weightsAfter,
       },
+      afterSave: { path: new URL(page.url()).pathname, drawnFirst, notice },
+      cancelHref,
     }
+    await shot(page, 'pet-saved-record-1440', false)
     await context.close()
   }
   {

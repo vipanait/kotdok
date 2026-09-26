@@ -7,6 +7,7 @@ import { localToday } from '@lapka/shared'
 import { useTranslations } from '@/components/LocaleProvider'
 import MedicalRecordView, { RetryButton } from './MedicalRecordView'
 import type { RecordState } from './record-load'
+import SavedNotice from './SavedNotice'
 import { useMedicalRecord } from './use-medical-record'
 
 /**
@@ -14,9 +15,10 @@ import { useMedicalRecord } from './use-medical-record'
  * site's session. Every state is its own screen — a skeleton while loading,
  * an error with a retry instead of an empty record, the old data with a
  * banner when a refresh fails, and nothing of the record when the pet is not
- * the caller's or the session is gone.
+ * the caller's or the session is gone. `formSaved`: back from the pet form
+ * after a save — its confirmation, once the record is on screen.
  */
-export default function MedicalRecordScreen({ petId }: { petId: string }) {
+export default function MedicalRecordScreen({ petId, formSaved = false }: { petId: string; formSaved?: boolean }) {
   const dict = useTranslations()
   const words = dict.medicalRecord.states
   const { state, reload } = useMedicalRecord(petId)
@@ -42,7 +44,12 @@ export default function MedicalRecordScreen({ petId }: { petId: string }) {
       today={today}
       onRetry={reload}
       retrying={state.refreshing}
-      notice={<StaleNotice state={state} reload={reload} />}
+      notice={
+        <>
+          {formSaved && <SavedNotice text={dict.medicalRecord.formSaved} />}
+          <StaleNotice state={state} reload={reload} />
+        </>
+      }
     />
   )
 }
