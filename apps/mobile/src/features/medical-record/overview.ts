@@ -6,10 +6,9 @@ import {
   type Pet,
   type WeightMeasurement,
 } from '@lapka/contracts'
+import { isCurrentCourse, lastDoneDate } from '@lapka/shared'
 import type { Dictionary } from '@/i18n'
-import { lastTreatment, lastVaccination } from './due'
 import { weightTrend } from './weight'
-import { isCurrent } from './medications'
 import { visitSummary } from './visits'
 
 /**
@@ -88,7 +87,7 @@ export function importantFacts(
   today: string = '',
 ): Fact[] {
   const words = t.medicalRecord
-  const current = courses.filter((course) => isCurrent(course, today))
+  const current = courses.filter((course) => isCurrentCourse(course, today))
   const medicines =
     courses.length > 0
       ? current.map((course) => (course.ongoing ? `${course.name} (${words.meds.ongoingOnly})` : course.name)).join(', ')
@@ -121,7 +120,7 @@ function summary(t: Dictionary, section: HealthSection, overview: HealthOverview
   const { pet } = overview
   switch (section) {
     case 'vaccinations': {
-      const last = lastVaccination(overview.events)
+      const last = lastDoneDate(overview.events, 'vaccination')
       if (last) return words.lastVaccination(t.day(last, true))
       if (pet.vaccinated === true) return words.vaccinatedInForm
       if (pet.vaccinated === false) return words.notVaccinatedInForm
@@ -132,7 +131,7 @@ function summary(t: Dictionary, section: HealthSection, overview: HealthOverview
       if (courses.length === 0) {
         return pet.medications.length > 0 ? words.currentCount(pet.medications.length) : words.noRecords
       }
-      return words.meds.summary(courses.filter((course) => isCurrent(course, today)).length, courses.length)
+      return words.meds.summary(courses.filter((course) => isCurrentCourse(course, today)).length, courses.length)
     }
     case 'weight': {
       const latest = latestDated(overview.weights)
@@ -140,7 +139,7 @@ function summary(t: Dictionary, section: HealthSection, overview: HealthOverview
       return pet.weight_kg === null ? words.noRecords : words.weightFromForm(words.weight(pet.weight_kg))
     }
     case 'parasites': {
-      const last = lastTreatment(overview.events)
+      const last = lastDoneDate(overview.events, 'parasite')
       return last ? words.lastTreatment(day(t, last, today)) : words.noRecords
     }
     case 'visits':

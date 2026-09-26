@@ -6,7 +6,8 @@ import { withFreshSession } from '@/lib/api'
 import { describeFailure } from '@/lib/errors'
 import { localToday } from '@/lib/calendar-day'
 import { useText } from '@/i18n'
-import { courseDates, isCurrent } from '@/features/medical-record/medications'
+import { isCurrentCourse } from '@lapka/shared'
+import { courseDates } from '@/features/medical-record/medications'
 import { Button, LinkButton } from '@/ui/Button'
 import { Banner, Card } from '@/ui/Card'
 import { ConfirmDialog } from '@/ui/Dialog'
@@ -80,7 +81,7 @@ export default function MedicationView() {
       scroll
       // A course that has not started yet is corrected or deleted, not ended.
       dock={
-        course && isCurrent(course, today) && (course.started_on === null || course.started_on <= today) ? (
+        course && isCurrentCourse(course, today) && (course.started_on === null || course.started_on <= today) ? (
           <Button title={words.end_} onPress={() => void end()} busy={busy} />
         ) : null
       }

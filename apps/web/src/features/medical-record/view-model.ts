@@ -1,5 +1,8 @@
 import type { HealthEvent, HealthItem, HealthOverview, HealthSection, Medication, Pet } from '@lapka/contracts'
 import {
+  chartLayout,
+  chartTicks,
+  chartY,
   datedWeights,
   doneEvents,
   dueEntries,
@@ -8,7 +11,7 @@ import {
   plannedEvents,
   splitCourses,
   weightTrend,
-  weightsOfYear,
+  weightsInPeriod,
   type DueEntry,
   type DueTone,
 } from '@lapka/shared'
@@ -370,7 +373,7 @@ export type WeightCard =
 
 export function weightCard(dict: Dictionary, overview: HealthOverview, today: string): WeightCard {
   const words = dict.medicalRecord
-  const year = weightsOfYear(overview.weights, today)
+  const year = weightsInPeriod(overview.weights, 'year', today)
   if (year.length >= 2) {
     const points = year.map((weight) => ({
       key: weight.id,
@@ -397,31 +400,24 @@ export function weightCard(dict: Dictionary, overview: HealthOverview, today: st
 
 export type ChartGeometry = {
   points: Array<WeightPoint & { x: number; y: number }>
-  /** Three horizontal guides, top to bottom, with their values. */
+  /** Guide lines at round weights, each drawn at exactly the weight its label says. */
   guides: Array<{ y: number; value: number }>
 }
 
 /**
- * Where each point goes in a `width` × `height` box. The axis is the data's
- * range with a margin, not zero upwards: from zero a 0.3 kg change would be a
- * flat line. Time runs by calendar days; points on one day are spread evenly.
+ * Where each point and guide goes in a `width` × `height` box — the shared
+ * layout of the app's chart (`chartLayout`, axis from 10% below the lightest
+ * weight, spec §7.8) and its round guide weights (`chartTicks`).
  */
 export function chartGeometry(points: readonly WeightPoint[], width: number, height: number): ChartGeometry {
-  const values = points.map((point) => point.value)
-  const low = Math.min(...values)
-  const high = Math.max(...values)
-  const pad = Math.max((high - low) * 0.25, 0.1)
-  const min = low - pad
-  const max = high + pad
-  const first = Date.parse(`${points[0].day}T00:00:00Z`)
-  const span = Date.parse(`${points[points.length - 1].day}T00:00:00Z`) - first
-  const y = (value: number) => height - ((value - min) / (max - min)) * height
+  const layout = chartLayout(
+    points.map((point) => ({ id: point.key, measured_on: point.day, weight_kg: point.value, source: 'record' as const })),
+    width,
+    height,
+  )
+  if (!layout) return { points: [], guides: [] }
   return {
-    points: points.map((point, index) => ({
-      ...point,
-      x: span > 0 ? ((Date.parse(`${point.day}T00:00:00Z`) - first) / span) * width : (index / Math.max(points.length - 1, 1)) * width,
-      y: y(point.value),
-    })),
-    guides: [max, (max + min) / 2, min].map((value) => ({ y: y(value), value: Math.round(value * 10) / 10 })),
+    points: points.map((point, index) => ({ ...point, x: layout.points[index].x, y: layout.points[index].y })),
+    guides: chartTicks(layout.min, layout.max).map((value) => ({ value, y: chartY(layout, value, height) })),
   }
 }

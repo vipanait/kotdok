@@ -9,7 +9,7 @@ import { useText, type Dictionary } from '@/i18n'
 import { WeightChart } from '@/features/medical-record/WeightChart'
 import { WeightSheet } from '@/features/medical-record/WeightSheet'
 import { headerFacts } from '@/features/medical-record/overview'
-import { pointsInPeriod, type Period } from '@/features/medical-record/weight'
+import { weightsInPeriod, type WeightPeriod } from '@lapka/shared'
 import { Button } from '@/ui/Button'
 import { Banner, Card } from '@/ui/Card'
 import { Segment } from '@/ui/Field'
@@ -18,7 +18,7 @@ import { Screen } from '@/ui/Screen'
 import { Text } from '@/ui/Text'
 import { colour, space } from '@/ui/theme'
 
-const PERIODS: Period[] = ['halfYear', 'year', 'all']
+const PERIODS: WeightPeriod[] = ['halfYear', 'year', 'all']
 
 /** «12 сентября 2026», «12 сентября 2026 · из анкеты», «дата не указана · из анкеты». */
 function measurementLine(t: Dictionary, weight: WeightMeasurement): string {
@@ -38,7 +38,7 @@ export default function Weight() {
   const words = t.medicalRecord
   const [overview, setOverview] = useState<HealthOverview | null>(null)
   const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
-  const [period, setPeriod] = useState<Period>('halfYear')
+  const [period, setPeriod] = useState<WeightPeriod>('halfYear')
   // Open and what it edits are kept apart, so a closing sheet keeps its title
   // and values while it slides away instead of flipping to «Добавить вес».
   const [sheetOpen, setSheetOpen] = useState(false)
@@ -66,7 +66,7 @@ export default function Weight() {
   const shown = overview?.pet.id === id ? overview : null
   const today = localToday()
   const weights = shown?.weights ?? []
-  const points = pointsInPeriod(weights, period, today)
+  const points = weightsInPeriod(weights, period, today)
   const current = shown?.pet.weight_kg ?? null
   // The same line as under the weight in the record's header: the trend, the
   // day of a lone measurement, or «Из анкеты».

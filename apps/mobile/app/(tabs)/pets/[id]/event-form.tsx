@@ -8,8 +8,8 @@ import { describeFailure } from '@/lib/errors'
 import { dayInput, localToday, parseDayInput } from '@/lib/calendar-day'
 import { newRequestKey } from '@/lib/request-key'
 import { useText } from '@/i18n'
-import { addInterval } from '@lapka/shared'
-import { itemName, parasiteGroups, saveSummary, targetList } from '@/features/medical-record/due'
+import { addInterval, parasiteGroups } from '@lapka/shared'
+import { itemName, saveSummary, targetList } from '@/features/medical-record/due'
 import { ProductSheet, type ProductChoice } from '@/features/medical-record/ProductSheet'
 import {
   blankDraft,
@@ -383,7 +383,7 @@ export default function EventForm() {
                   label={words.parasiteFrom}
                   options={groupChoices}
                   values={groupChoices
-                    .filter(({ value }) => parasiteGroups(item.targets).has(value))
+                    .filter(({ value }) => parasiteGroups(item.targets).includes(value))
                     .map(({ value }) => value)}
                   onToggle={(group) =>
                     setDraft((current) =>

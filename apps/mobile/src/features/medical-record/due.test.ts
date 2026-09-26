@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest'
 import type { HealthEvent } from '@lapka/contracts'
 import { en } from '@/i18n/en'
 import { ru } from '@/i18n/ru'
-import { coreStatuses, dueItems, dueLine, dueStatus, itemTitle, lastVaccination, nextYear, saveSummary } from './due'
+import { lastDoneDate } from '@lapka/shared'
+import { coreStatuses, dueItems, dueLine, dueStatus, itemTitle, nextYear, saveSummary } from './due'
 
 const TODAY = '2026-09-24'
 
@@ -73,8 +74,8 @@ describe('due items', () => {
   })
 
   it('finds the last done vaccination', () => {
-    expect(lastVaccination(events)).toBe('2026-03-12')
-    expect(lastVaccination([])).toBeNull()
+    expect(lastDoneDate(events, 'vaccination')).toBe('2026-03-12')
+    expect(lastDoneDate([], 'vaccination')).toBeNull()
   })
 })
 

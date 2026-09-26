@@ -6,6 +6,7 @@ import {
   dueBlock,
   formatDay,
   formatRange,
+  formatWeight,
   headFacts,
   importantFacts,
   sectionCards,
@@ -126,10 +127,14 @@ describe('dates', () => {
 })
 
 describe('chart geometry', () => {
-  it('keeps every point inside the box, the lightest lowest', () => {
+  function murkaChart() {
     const card = weightCard(ru, murka, DESIGN_TODAY)
     if (card.kind !== 'chart') throw new Error('expected a chart')
-    const { points, guides } = chartGeometry(card.points, 500, 150)
+    return chartGeometry(card.points, 500, 150)
+  }
+
+  it('keeps every point inside the box, the lightest lowest', () => {
+    const { points } = murkaChart()
     for (const point of points) {
       expect(point.x).toBeGreaterThanOrEqual(0)
       expect(point.x).toBeLessThanOrEqual(500)
@@ -137,7 +142,17 @@ describe('chart geometry', () => {
       expect(point.y).toBeLessThan(150)
     }
     expect(points[2].y).toBeGreaterThan(points[0].y)
-    expect(guides).toHaveLength(3)
+  })
+
+  it('draws each guide at the weight its label says: the 4,4 kg point sits on the «4,4 кг» line', () => {
+    const { points, guides } = murkaChart()
+    // Round weights only, labelled as drawn.
+    expect(guides.map((guide) => formatWeight(ru.medicalRecord, guide.value))).toEqual(['3,8 кг', '4 кг', '4,2 кг', '4,4 кг'])
+    const line44 = guides.find((guide) => guide.value === 4.4)!
+    const point44 = points.find((point) => point.value === 4.4)!
+    expect(point44.y).toBeCloseTo(line44.y, 9)
+    const line42 = guides.find((guide) => guide.value === 4.2)!
+    expect(points.find((point) => point.value === 4.2)!.y).toBeCloseTo(line42.y, 9)
   })
 
   it('does not divide by zero when every point is the same', () => {
@@ -150,5 +165,6 @@ describe('chart geometry', () => {
       150,
     )
     expect(flat.points.every((point) => Number.isFinite(point.x) && Number.isFinite(point.y))).toBe(true)
+    expect(flat.guides.every((guide) => Number.isFinite(guide.y))).toBe(true)
   })
 })

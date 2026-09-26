@@ -15,9 +15,11 @@
  * Local stack only. The API is the site running with apps/web/.env.integration
  * (`next dev -p 3100`, see .claude/launch.json «web-local»); both it and the
  * database must be 127.0.0.1, or the script stops before writing anything.
- * Run again to start over: earlier «Мурка» and «Бобик» of owner A are deleted
- * through the API first. `npm run test:integration` recreates the fixture
- * owners, so run this again after it.
+ * Run again to start over: the demo pets of an earlier run (marked by their
+ * note, DEMO_NOTE) are deleted through the API first; fixture pets are never
+ * touched. `npm run test:integration` recreates the fixture owners, which
+ * removes the demo pets — run this again after it (and, if the suite ended
+ * with the owners gone, `tests/integration/fixtures.test.ts` first).
  *
  *   node apps/web/scripts/seed-medical-record-demo.mjs [--api http://localhost:3100]
  */
@@ -60,6 +62,9 @@ const password = /FIXTURE_PASSWORD = '([^']+)'/.exec(fixtures)?.[1]
 if (!password) stop('FIXTURE_PASSWORD not found in tests/integration/fixtures.ts')
 const OWNER_A = 'owner-a@fixture.local'
 
+/** How the demo pets are told apart from anything else of owner A: the form's note. */
+const DEMO_NOTE = 'Демо медкарты (seed-medical-record-demo)'
+
 async function signIn(email) {
   const response = await fetch(`${env.TEST_SUPABASE_URL}/auth/v1/token?grant_type=password`, {
     method: 'POST',
@@ -87,9 +92,13 @@ async function api(method, path, body, headers = {}) {
 
 const withKey = () => ({ 'Idempotency-Key': randomUUID() })
 
-// Start over: earlier demo pets go the way an owner would delete them.
+// Start over: earlier demo pets go the way an owner would delete them. Only
+// pets this script made — they carry DEMO_NOTE — and never an integration
+// fixture (fixed ids 11111111-… / 22222222-…): the fixture «Мурка» is test
+// data the integration suite relies on, not a demo pet.
+const isFixture = (id) => /^(11111111|22222222)-/.test(id)
 for (const pet of await api('GET', '/pets')) {
-  if (pet.name === 'Мурка' || pet.name === 'Бобик') await api('DELETE', `/pets/${pet.id}`)
+  if (pet.notes === DEMO_NOTE && !isFixture(pet.id)) await api('DELETE', `/pets/${pet.id}`)
 }
 
 const db = new pg.Client({ connectionString: env.TEST_DATABASE_URL })
@@ -107,6 +116,7 @@ try {
     vaccinated: true,
     allergies: ['Курица'],
     chronic_conditions: ['Хронический гастрит'],
+    notes: DEMO_NOTE,
   })
 
   for (const [measured_on, weight_kg] of [['2026-03-12', 4.5], ['2026-06-20', 4.4], ['2026-09-12', 4.2]]) {
@@ -206,10 +216,10 @@ try {
 
   // ---------- Бобик: the pet form of an older account ----------
   const { rows: [bobik] } = await db.query(
-    `insert into public.pets (user_id, name, species, age_years, weight_kg, vaccinated)
-     values ($1, 'Бобик', 'dog', 5, 28, true)
+    `insert into public.pets (user_id, name, species, age_years, weight_kg, vaccinated, notes)
+     values ($1, 'Бобик', 'dog', 5, 28, true, $2)
      returning id`,
-    [userId],
+    [userId, DEMO_NOTE],
   )
 
   console.log(JSON.stringify({ owner: OWNER_A, murka: murka.id, bobik: bobik.id }, null, 2))

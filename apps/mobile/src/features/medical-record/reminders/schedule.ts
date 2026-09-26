@@ -2,7 +2,7 @@ import type { DueItem } from '@lapka/contracts'
 import type { Dictionary } from '@/i18n'
 import { dayParts } from '@/lib/calendar-day'
 import { plural } from '@/lib/plural'
-import { parasiteGroups } from '../due'
+import { parasiteGroups } from '@lapka/shared'
 
 /** This phone's choices (spec §7.20). Kept on the device, not in the account. */
 export type ReminderSettings = {
@@ -54,8 +54,8 @@ function itemPhrase(t: Dictionary, item: DueItem): { text: string; form: 'f' | '
   if (item.kind === 'visit') return { text: words.visit, form: 'm' }
   if (item.kind === 'parasite') {
     const groups = parasiteGroups(item.targets)
-    if (groups.size > 0) {
-      return { text: words.treatment(GROUP_ORDER.filter((group) => groups.has(group)).map((group) => words.parasiteGroups[group])), form: 'f' }
+    if (groups.length > 0) {
+      return { text: words.treatment(GROUP_ORDER.filter((group) => groups.includes(group)).map((group) => words.parasiteGroups[group])), form: 'f' }
     }
     return { text: item.name ? words.namedTreatment(item.name) : words.plainTreatment, form: 'f' }
   }
@@ -82,7 +82,7 @@ export function reminderAbout(t: Dictionary, item: Pick<DueItem, 'kind' | 'name'
   if (item.kind === 'visit') return words.aboutVisit
   if (item.kind === 'parasite') {
     const groups = parasiteGroups(item.targets)
-    if (groups.size > 0) return words.aboutTreatment(GROUP_ORDER.filter((group) => groups.has(group)).map((group) => words.parasiteGroups[group]))
+    if (groups.length > 0) return words.aboutTreatment(GROUP_ORDER.filter((group) => groups.includes(group)).map((group) => words.parasiteGroups[group]))
     return words.aboutPlainTreatment
   }
   if (item.targets.length === 1 && words.about[item.targets[0]]) return words.about[item.targets[0]]
