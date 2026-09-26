@@ -1,4 +1,13 @@
 import type { VetSummary } from '@lapka/contracts'
+import {
+  fileNameStem,
+  summaryCheckDay,
+  summaryNext,
+  summaryPetWeight,
+  summaryTaking,
+  summaryVisit,
+  summaryWeights,
+} from '@lapka/shared'
 import type { Dictionary } from '@/i18n'
 import { dayInput, localToday } from '@/lib/calendar-day'
 import { headerFacts, importantFacts } from './overview'
@@ -31,26 +40,38 @@ const NONE = '—'
 export function summaryView(t: Dictionary, summary: VetSummary, today: string = localToday()): SummaryView {
   const words = t.vetSummary
   const day = (value: string) => t.day(value, value.slice(0, 4) !== today.slice(0, 4))
-  const next = (value: string | null) => (value === null ? NONE : value < today ? words.overdueSince(day(value)) : day(value))
+  const next = (value: string | null) => {
+    const due = summaryNext(value, today)
+    return due === null ? NONE : due.overdue ? words.overdueSince(day(due.day)) : day(due.day)
+  }
   const { pet } = summary
 
   const facts = headerFacts(t, { pet, weights: [], events: [], medications: [], writable: [] }, today)
-  const latest = summary.weights[0]
+  const petWeight = summaryPetWeight(summary)
   const weight =
-    latest && latest.measured_on
-      ? words.weightOn(t.medicalRecord.weight(latest.weight_kg), day(latest.measured_on))
-      : pet.weight_kg !== null
-        ? words.weightFromForm(t.medicalRecord.weight(pet.weight_kg))
+    petWeight.from === 'measured'
+      ? words.weightOn(t.medicalRecord.weight(petWeight.kg), day(petWeight.day))
+      : petWeight.from === 'form'
+        ? words.weightFromForm(t.medicalRecord.weight(petWeight.kg))
         : `${words.weight}: ${words.notStated}`
 
   // «Важно знать» lists only what is on file; here every line stays, empty or not.
   const onFile = new Map(importantFacts(t, pet).map((fact) => [fact.label, fact.value]))
-  const courses = summary.medications.map((course) => (course.dosage ? `${course.name} — ${course.dosage}` : course.name)).join('; ')
+  const taking = summaryTaking(summary)
   const important = [
     { label: t.medicalRecord.allergies, value: onFile.get(t.medicalRecord.allergies) },
     { label: t.medicalRecord.chronic, value: onFile.get(t.medicalRecord.chronic) },
-    { label: t.medicalRecord.takingNow, value: summary.medications.length > 0 ? courses : onFile.get(t.medicalRecord.takingNow) },
+    {
+      label: t.medicalRecord.takingNow,
+      value:
+        taking.from === 'courses'
+          ? taking.courses.map((course) => (course.dosage ? `${course.name} — ${course.dosage}` : course.name)).join('; ')
+          : taking.from === 'form'
+            ? taking.names.join(', ')
+            : '',
+    },
   ].map((fact) => ({ label: fact.label, value: fact.value || words.notStated }))
+  const weights = summaryWeights(summary)
 
   const targetName = (code: string) => (t.medicalRecord.targets as Record<string, string>)[code] ?? code
 
@@ -71,23 +92,17 @@ export function summaryView(t: Dictionary, summary: VetSummary, today: string = 
       row.product ?? NONE,
       next(row.next),
     ]),
-    visits: summary.visits.map((visit) => [
+    visits: summary.visits.map(summaryVisit).map(({ visit, finding, prescriptions }) => [
       day(visit.date),
       visit.visit_kind ? t.medicalRecord.visits.kindsShort[visit.visit_kind] : NONE,
-      visit.diagnosis ?? visit.reason ?? NONE,
-      visit.items.length > 0
-        ? visit.items.map((item) => (item.instructions ? `${item.name} — ${item.instructions}` : (item.name ?? ''))).join('; ')
+      finding ?? NONE,
+      prescriptions.length > 0
+        ? prescriptions.map((item) => (item.instructions ? `${item.name} — ${item.instructions}` : item.name)).join('; ')
         : NONE,
     ]),
-    weights: summary.weights.flatMap((w) => (w.measured_on ? [[day(w.measured_on), t.medicalRecord.weight(w.weight_kg)]] : [])),
-    chart: summary.weights
-      .flatMap((w) => (w.measured_on ? [{ day: w.measured_on, kg: w.weight_kg, label: t.medicalRecord.weight(w.weight_kg) }] : []))
-      .reverse(),
-    checks: summary.checks.map((check) => [
-      day(localToday(new Date(check.created_at))),
-      t.urgency[check.urgency].label,
-      check.summary,
-    ]),
+    weights: weights.latestFirst.map((w) => [day(w.measured_on), t.medicalRecord.weight(w.weight_kg)]),
+    chart: weights.chart.map((w) => ({ day: w.measured_on, kg: w.weight_kg, label: t.medicalRecord.weight(w.weight_kg) })),
+    checks: summary.checks.map((check) => [day(summaryCheckDay(check.created_at)), t.urgency[check.urgency].label, check.summary]),
     footer: words.footer(t.day(today, true)),
   }
 }
@@ -98,14 +113,5 @@ export function summaryView(t: Dictionary, summary: VetSummary, today: string = 
  * «Питомец».
  */
 export function summaryFileName(t: Dictionary, name: string, today: string): string {
-  const cleaned = name
-    // eslint-disable-next-line no-control-regex
-    .replace(/[\u0000-\u001f\u007f/\\:*?"<>|]/g, '')
-    // Direction and zero-width marks: a name must read as what it is.
-    .replace(/\p{Cf}/gu, '')
-    .replace(/\s+/g, ' ')
-    .replace(/^[.\s]+|[.\s]+$/g, '')
-  // By code points, so an emoji is never cut in half.
-  const safe = Array.from(cleaned).slice(0, 60).join('').replace(/[.\s]+$/g, '')
-  return `${t.vetSummary.fileName(safe || t.vetSummary.pet, dayInput(today))}.pdf`
+  return `${t.vetSummary.fileName(fileNameStem(name) || t.vetSummary.pet, dayInput(today))}.pdf`
 }

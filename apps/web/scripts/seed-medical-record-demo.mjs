@@ -12,6 +12,9 @@
  * - «Бобик» — a dog of an "older account": the pet form only, written
  *   straight to the table as it was before the record existed, so the
  *   weight has no day and vaccination is only the form's answer.
+ * - «Барон …» — a cat with a long record (over thirty entries, the longest
+ *   names and texts the contracts allow, one unbroken word) for the printed,
+ *   several-page summary for the vet (MW-07).
  *
  * Local stack only. The API is the site running with apps/web/.env.integration
  * (`next dev -p 3100`, see .claude/launch.json «web-local»); both it and the
@@ -238,7 +241,110 @@ try {
     [userId, DEMO_NOTE],
   )
 
-  console.log(JSON.stringify({ owner: OWNER_A, murka: murka.id, bobik: bobik.id }, null, 2))
+  // ---------- Барон: a long record, for the printed summary (MW-07) ----------
+  // Over thirty records, the longest names and texts the contracts allow and
+  // one unbroken word: the vet summary must run to several A4 pages without
+  // cutting a table, splitting a row or letting a line out of the margins.
+  const dayBefore = (days) => {
+    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Moscow' }).format(new Date())
+    return new Date(Date.parse(`${today}T00:00:00Z`) - days * 86_400_000).toISOString().slice(0, 10)
+  }
+  const cut = (text, max) => Array.from(text).slice(0, max).join('')
+  const baron = await api('POST', '/pets', {
+    species: 'cat',
+    name: cut('Барон Мурлыкенштейн фон Длиннохвостов-Пушистиков Третий, главный кот третьего подъезда', 100),
+    breed: 'Британская короткошёрстная голубая',
+    age_years: 11,
+    sex: 'male',
+    neutered: true,
+    vaccinated: true,
+    allergies: ['Курица', 'Говядина', 'Пыльца злаковых трав', 'Некоторые антибиотики пенициллинового ряда'],
+    chronic_conditions: ['Хроническая болезнь почек, стадия 2 по IRIS', 'Гипертиреоз', 'Артроз локтевых суставов'],
+    notes: DEMO_NOTE,
+  })
+  for (const [back, kg] of [[700, 5.9], [540, 6.1], [400, 6.0], [300, 5.8], [200, 5.6], [120, 5.5], [60, 5.4], [10, 5.3]]) {
+    await api('POST', `/pets/${baron.id}/health/weights`, { measured_on: dayBefore(back), weight_kg: kg })
+  }
+  const longProduct = cut('Нобивак Tricat Trio — комплексная вакцина против панлейкопении, калицивироза и ринотрахеита', 100)
+  const vaccineRuns = [
+    [720, longProduct, ['panleukopenia', 'calicivirus', 'rhinotracheitis']],
+    [700, 'Нобивак Rabies', ['rabies']],
+    [600, 'Пуревакс FeLV', ['felv']],
+    [360, longProduct, ['panleukopenia', 'calicivirus', 'rhinotracheitis']],
+    [340, 'Нобивак Rabies', ['rabies']],
+    [250, 'Фелоцел CVR-C с компонентом против хламидиоза', ['chlamydia']],
+  ]
+  for (const [back, name, targets] of vaccineRuns) {
+    await api('POST', `/pets/${baron.id}/health/events`, { kind: 'vaccination', status: 'done', date: dayBefore(back), clinic: 'Ветеринарный центр «Айболит» на Садовой', items: [{ name, targets }] }, withKey())
+  }
+  for (const [back, name, targets] of [[150, 'Бравекто Спот-он', ['fleas', 'ticks']], [90, 'Мильбемакс', ['worms']], [45, 'Стронгхолд Плюс', ['fleas', 'ticks']], [20, 'Профендер', ['worms']]]) {
+    await api('POST', `/pets/${baron.id}/health/events`, { kind: 'parasite', status: 'done', date: dayBefore(back), items: [{ name, targets }] }, withKey())
+  }
+  const unbroken = 'Амоксициллинклавуланатсуспензиядляперорального'.repeat(2)
+  const diagnoses = [
+    'Обострение хронической болезни почек',
+    'Гипертиреоз, подбор дозы',
+    `Хроническая болезнь почек, стадия 2 по IRIS, с умеренной протеинурией и артериальной гипертензией; рекомендовано наблюдение нефролога каждые три месяца, контроль креатинина, SDMA и соотношения белок/креатинин в моче, ограничение фосфора в рационе и повторное измерение давления через две недели после начала терапии. ${unbroken}`,
+    'Артроз локтевых суставов',
+    'Зубной камень, гингивит',
+  ]
+  for (let index = 0; index < 24; index += 1) {
+    const prescriptions = Array.from({ length: 1 + (index % 4) }, (_, n) => ({
+      name: n === 0 && index === 2 ? unbroken.slice(0, 100) : cut(`Препарат ${n + 1} после визита ${index + 1} — ${['Семинтра', 'Ипакитине', 'Метимазол', 'Мелоксидил'][n]}`, 100),
+      instructions: cut(
+        index % 3 === 0
+          ? 'По 0,5 таблетки два раза в день во время еды, курс 14 дней; при рвоте или отказе от еды прекратить приём и сообщить лечащему врачу клиники'
+          : 'По схеме врача',
+        150,
+      ),
+      add_to_medications: false,
+    }))
+    await api(
+      'POST',
+      `/pets/${baron.id}/health/visits`,
+      {
+        status: 'done',
+        date: dayBefore(350 - index * 14),
+        visit_kind: ['checkup', 'illness', 'tests', 'other'][index % 4],
+        clinic: 'Ветеринарный центр «Айболит» на Садовой',
+        reason: 'Контроль хронических болезней',
+        diagnosis: cut(diagnoses[index % diagnoses.length], 500),
+        prescriptions,
+      },
+      withKey(),
+    )
+  }
+  await api(
+    'POST',
+    `/pets/${baron.id}/health/medications`,
+    {
+      items: [
+        { name: 'Семинтра', dosage: cut('1 мл раствора внутрь один раз в день утром, вместе с небольшим количеством корма, строго в одно и то же время', 150), started_on: dayBefore(200), ongoing: true },
+        { name: 'Метимазол', dosage: '2,5 мг два раза в день', started_on: dayBefore(120), ongoing: true },
+        { name: 'Ренальный лечебный корм', dosage: 'Постоянно, вместо обычного', started_on: dayBefore(300), ongoing: true },
+        { name: 'Ипакитине', dosage: '1 мерная ложка на 5 кг веса с каждым кормлением', started_on: dayBefore(90), ended_on: dayBefore(-30) },
+        { name: 'Мелоксидил', dosage: '0,1 мл на кг один раз в день', started_on: dayBefore(40), ended_on: dayBefore(20) },
+        // Starts later: under «Сейчас» on the medicines page, not in «Принимает сейчас» nor in the summary.
+        { name: 'Витамины для суставов', dosage: '1 таблетка в день', started_on: dayBefore(-5), ongoing: true },
+      ],
+    },
+    withKey(),
+  )
+  for (const [back, urgency, text] of [
+    [30, 'monitor', 'Стал больше пить и чаще ходить в лоток, аппетит сохранён, вес немного снизился за последний месяц'],
+    [12, 'urgent', 'Рвота трижды за сутки, отказ от еды со вчерашнего вечера, вялый'],
+    [3, 'home_care', 'Чихает второй день, выделения из носа прозрачные'],
+  ]) {
+    await db.query(
+      `insert into public.symptom_checks
+         (user_id, pet_id, symptoms_input, urgency, urgency_reason, possible_causes, species_specific_warning,
+          home_care_steps, vet_questions, full_response, created_at, locale)
+       values ($1, $2, $3, $4, 'Демо MW-07', array[]::text[], null, array[]::text[], array[]::text[], '{}'::jsonb, $5, 'ru')`,
+      [userId, baron.id, text, urgency, `${dayBefore(back)}T09:00:00Z`],
+    )
+  }
+
+  console.log(JSON.stringify({ owner: OWNER_A, murka: murka.id, bobik: bobik.id, baron: baron.id }, null, 2))
 } finally {
   await db.end()
 }

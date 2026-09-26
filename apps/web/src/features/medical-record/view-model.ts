@@ -7,6 +7,7 @@ import {
   doneEvents,
   dueEntries,
   dueTiming,
+  isTakenNow,
   parasiteGroups,
   plannedEvents,
   splitCourses,
@@ -275,15 +276,19 @@ export type Fact = { label: string; value: string }
 
 /**
  * Allergies, chronic conditions and what the pet takes now — only what is on
- * file. Medicines come from the courses when there are any, the form's list
- * otherwise; an empty list is "not said" and is left out, never "none".
+ * file. Medicines come from the courses when there are any — those being
+ * given now (`isTakenNow`: one that starts later is not taken yet, as in the
+ * summary for the vet) — the form's list otherwise; an empty list is "not
+ * said" and is left out, never "none".
  */
 export function importantFacts(dict: Dictionary, overview: HealthOverview, today: string): Fact[] {
   const words = dict.medicalRecord.important
   const { pet, medications } = overview
   const taking =
     medications.length > 0
-      ? splitCourses(medications, today).current.map((course) => (course.ongoing ? `${course.name} · ${words.ongoing}` : course.name))
+      ? splitCourses(medications, today)
+          .current.filter((course) => isTakenNow(course, today))
+          .map((course) => (course.ongoing ? `${course.name} · ${words.ongoing}` : course.name))
       : pet.medications
   return [
     { label: words.allergies, value: pet.allergies.join(', ') },

@@ -168,5 +168,13 @@ describe('medicines in «Важно знать»', () => {
     ], TODAY)
     expect(facts).toEqual([{ label: 'Принимает сейчас', value: 'Лечебный корм (постоянно)' }])
   })
+
+  it('leaves out a course that starts later, as the summary for the vet does (MW-07)', () => {
+    const facts = importantFacts(ru, pet({ medications: ['Лечебный корм', 'Витамины'] }), [
+      { id: 'a', name: 'Лечебный корм', dosage: null, started_on: '2026-08-02', ended_on: null, ongoing: true, source: 'record' },
+      { id: 'c', name: 'Витамины', dosage: null, started_on: '2026-10-01', ended_on: null, ongoing: false, source: 'record' },
+    ], TODAY)
+    expect(facts).toEqual([{ label: 'Принимает сейчас', value: 'Лечебный корм (постоянно)' }])
+  })
 })
 

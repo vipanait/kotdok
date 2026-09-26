@@ -19,8 +19,8 @@ export const MEDICAL_RECORD_STAGE = {
   medications: true,
   /** MW-06: the visits page and form, «Состоялся» on a planned visit, the visit from a check result. */
   visits: true,
-  /** MW-07: the summary for the vet. */
-  vetSummary: false,
+  /** MW-07: the summary for the vet, its print and «Сохранить PDF» through the browser's print dialog. */
+  vetSummary: true,
 } as const
 
 export type MedicalRecordStage = { readonly [K in keyof typeof MEDICAL_RECORD_STAGE]: boolean }
