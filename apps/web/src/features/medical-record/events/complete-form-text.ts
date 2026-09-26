@@ -3,7 +3,7 @@ import type { Locale } from '@/shared/i18n/config'
 import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
 import { formatCount } from '@/shared/i18n/plural'
 import { formatDay, recordDay } from '../view-model'
-import type { CompleteDraft, CompleteProblems } from './complete-form'
+import type { CompleteDraft, CompleteProblems, CompletionMismatch } from './complete-form'
 import type { EventSaveFailure } from './event-form'
 
 /**
@@ -69,4 +69,15 @@ export function completeFailureText(dict: Dictionary, failure: Exclude<EventSave
   const own = dict.medicalRecord.completeForm.errors
   if (failure === 'alreadySaved' || failure === 'gone') return own[failure]
   return dict.medicalRecord.eventForm.errors[failure]
+}
+
+/**
+ * The item was already done, and the server answered with that record, not
+ * with what the form sent: nothing new was saved, and a done record is not
+ * changed. Never «Отмечено сделанным».
+ */
+export function earlierText(dict: Dictionary, mismatch: CompletionMismatch, day: string): string {
+  const words = dict.medicalRecord.completeForm.errors
+  const shown = formatDay(dict.medicalRecord, day, true)
+  return (mismatch === 'doneOn' ? words.earlierDay : words.earlierNext).replace('{day}', shown)
 }

@@ -4,7 +4,7 @@ import { useId, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { HEALTH_EVENT_LIMITS, type HealthEvent, type HealthTarget, type PetSpecies } from '@lapka/contracts'
-import { PARASITE_GROUPS, parasiteGroups, toggleParasiteGroup, vaccineTargetsFor } from '@lapka/shared'
+import { PARASITE_GROUPS, nextDayMin, parasiteGroups, toggleParasiteGroup, vaccineTargetsFor } from '@lapka/shared'
 import { useTranslations } from '@/components/LocaleProvider'
 import Icon from '@/components/ui/Icon'
 import { browserApi } from '@/features/api/browser-api'
@@ -367,7 +367,7 @@ export default function EventForm({
                         className="input"
                         type="date"
                         value={item.next}
-                        min={draft.date && draft.date >= today ? draft.date : today}
+                        min={nextDayMin(draft.date, today)}
                         readOnly={saving}
                         aria-invalid={itemErrors.next ? true : undefined}
                         aria-describedby={[itemErrors.next ? `${id}-${item.key}-next-error` : null, `${id}-${item.key}-next-hint`].filter(Boolean).join(' ')}

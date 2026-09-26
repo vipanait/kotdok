@@ -839,7 +839,11 @@ const en: Dictionary = {
       errors: {
         alreadySaved: 'This was already marked done earlier, with the earlier details. Open the section to check it.',
         gone: 'This item of the plan is gone — the plan may have been cancelled or marked done on another device.',
+        earlierDay: 'This item was already marked done earlier — {day}. The new details were not saved: a done record cannot be changed. Open it to check.',
+        earlierNext: 'This item was already marked done earlier ({day}) with another next date. The new details were not saved: a done record cannot be changed. Open it to check.',
       },
+      keptClinic: 'If you leave this empty, the plan’s clinic stays: {text}.',
+      keptNotes: 'If you leave this empty, the plan’s note stays.',
       missingTitle: 'This item can no longer be marked',
       missingBody: 'It was marked done or removed from the plan — maybe on another device.',
       doneTitle: 'The plan is already done',

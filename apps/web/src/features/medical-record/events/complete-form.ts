@@ -5,7 +5,7 @@ import {
   type HealthEvent,
   type HealthItem,
 } from '@lapka/contracts'
-import { eventDayProblem, nextDayProblem, suggestNextDay, type EventDayProblem, type NextDayProblem } from '@lapka/shared'
+import { eventDayProblem, nextDayOf, nextDayProblem, suggestNextDay, type EventDayProblem, type NextDayProblem } from '@lapka/shared'
 import type { ContractRefusal } from './event-form'
 
 /**
@@ -21,8 +21,12 @@ import type { ContractRefusal } from './event-form'
  *   12 weeks from 24 September is 17 December, not 3 months later — by the
  *   shared calendar arithmetic (`suggestNextDay`); the owner changes or
  *   clears it; an item with no interval gets no suggestion;
- * - the clinic and the note start as the plan's own, since the server keeps
- *   the plan's clinic unless another is given.
+ * - the clinic and the note start as the plan's own. The server keeps the
+ *   plan's clinic — and, for a plan of one item, its note — when the field
+ *   comes empty, so an empty field cannot clear them: the form says so
+ *   beside the field (`keptFromPlan`) instead of pretending it will.
+ * - a 200 is not taken on trust: an item already done is answered with the
+ *   record as it was (`completionMismatch`), which the owner is told.
  *
  * The contract's schema has the last word before anything is sent.
  */
@@ -114,4 +118,44 @@ export function completionChanged(before: CompleteDraft, after: CompleteDraft): 
 /** The other items of the plan: they stay planned, and the form says so. */
 export function othersInPlan(plan: HealthEvent, item: Pick<HealthItem, 'id'>): number {
   return plan.items.filter((candidate) => candidate.id !== item.id).length
+}
+
+/**
+ * The plan's own text that stays although its field is left empty: the
+ * server fills an empty clinic from the plan, and an empty note too when the
+ * plan itself becomes the done record (one item). A plan of several gives the
+ * item a record of its own, whose note is only what is sent. Null: an empty
+ * field means empty.
+ */
+export function keptFromPlan(
+  plan: Pick<HealthEvent, 'clinic' | 'notes' | 'items'>,
+  item: Pick<HealthItem, 'id'>,
+  draft: Pick<CompleteDraft, 'clinic' | 'notes'>,
+): { clinic: string | null; notes: string | null } {
+  const alone = plan.items.every((candidate) => candidate.id === item.id)
+  return {
+    clinic: draft.clinic.trim() === '' && plan.clinic?.trim() ? plan.clinic.trim() : null,
+    notes: alone && draft.notes.trim() === '' && plan.notes?.trim() ? plan.notes.trim() : null,
+  }
+}
+
+/**
+ * Whether the record the server answered is the one this form sent. An item
+ * already done — a retry after a lost answer, another device, the same key
+ * with an edited day on a plan of one item — is answered with 200 and the
+ * record as it was first saved. Its day, and the plan of the next date when
+ * the record's events are known, must be what was sent; otherwise the form
+ * must not claim success: the done record can no longer be changed.
+ */
+export type CompletionMismatch = 'doneOn' | 'next'
+
+export function completionMismatch(
+  input: CompleteItemInput,
+  saved: Pick<HealthEvent, 'date'>,
+  itemId: string,
+  events: readonly HealthEvent[] | null,
+): CompletionMismatch | null {
+  if (saved.date !== input.done_on) return 'doneOn'
+  if (events && nextDayOf(itemId, events) !== (input.next_on ?? null)) return 'next'
+  return null
 }
