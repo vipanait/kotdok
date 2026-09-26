@@ -13,7 +13,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       url: `${siteUrl}/legal`,
-      lastModified: new Date('2026-04-14'),
+      lastModified: new Date('2026-09-26'),
+      changeFrequency: 'yearly',
+      priority: 0.3,
+    },
+    {
+      url: `${siteUrl}/legal/privacy`,
+      lastModified: new Date('2026-09-26'),
+      changeFrequency: 'yearly',
+      priority: 0.3,
+    },
+    {
+      url: `${siteUrl}/legal/personal-data`,
+      lastModified: new Date('2026-09-26'),
       changeFrequency: 'yearly',
       priority: 0.3,
     },
