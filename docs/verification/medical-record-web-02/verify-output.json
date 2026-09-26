@@ -1,0 +1,339 @@
+{
+  "site": "http://localhost:3100",
+  "today": "2026-09-26",
+  "murka": "69339148-eaa4-42fc-887a-3ee476106c27",
+  "bobik": "7d685b61-cb75-4dea-a713-fb556b56d555",
+  "checks": {
+    "recordEntryPoints": {
+      "weightAll": true,
+      "addRecord": true,
+      "otherSections": 1
+    },
+    "headBefore": "4,2 кг−0,3 кг за 6 месяцев",
+    "chooser": [
+      "Вес → /pets/69339148-eaa4-42fc-887a-3ee476106c27/health/new?type=weight"
+    ],
+    "weightHalfYear": {
+      "current": "4,2 кг",
+      "note": [
+        "−0,2 кг за 2 месяца"
+      ],
+      "chartPoints": 2,
+      "chartLabel": "График веса за полгода: от 4,4 до 4,2 кг",
+      "period": "Полгода",
+      "rows": [
+        "12 сентября 20264,2 кгИзменить",
+        "20 июня 20264,4 кгИзменить",
+        "12 марта 20264,5 кгИзменить"
+      ]
+    },
+    "weightYear": {
+      "current": "4,2 кг",
+      "note": [
+        "−0,3 кг за 6 месяцев"
+      ],
+      "chartPoints": 3,
+      "chartLabel": "График веса за год: от 4,5 до 4,2 кг",
+      "period": "Год",
+      "rows": [
+        "12 сентября 20264,2 кгИзменить",
+        "20 июня 20264,4 кгИзменить",
+        "12 марта 20264,5 кгИзменить"
+      ]
+    },
+    "weightAll": {
+      "current": "4,2 кг",
+      "note": [
+        "−0,3 кг за 6 месяцев"
+      ],
+      "chartPoints": 3,
+      "chartLabel": "График веса за всё время: от 4,5 до 4,2 кг",
+      "period": "Всё",
+      "rows": [
+        "12 сентября 20264,2 кгИзменить",
+        "20 июня 20264,4 кгИзменить",
+        "12 марта 20264,5 кгИзменить"
+      ]
+    },
+    "newFormDefaults": {
+      "weight": "",
+      "day": "2026-09-26",
+      "max": "2026-09-26"
+    },
+    "validation": {
+      "«» 2026-09-26": [
+        "Укажите вес"
+      ],
+      "«0» 2026-09-26": [
+        "Вес — число от 0,1 до 200, один знак после запятой"
+      ],
+      "«-1» 2026-09-26": [
+        "Вес — число от 0,1 до 200, один знак после запятой"
+      ],
+      "«200,1» 2026-09-26": [
+        "Вес — число от 0,1 до 200, один знак после запятой"
+      ],
+      "«4,25» 2026-09-26": [
+        "Вес — число от 0,1 до 200, один знак после запятой"
+      ],
+      "«абв» 2026-09-26": [
+        "Вес — число от 0,1 до 200, один знак после запятой"
+      ],
+      "«4,2» 2026-09-27": [
+        "Дата не может быть позже сегодняшней"
+      ],
+      "«4,2» (no date)": [
+        "Укажите дату"
+      ]
+    },
+    "requestsAfterInvalid": 0,
+    "apiRefuses": {
+      "{\"measured_on\":\"2026-09-26\",\"weight_kg\":0}": 400,
+      "{\"measured_on\":\"2026-09-26\",\"weight_kg\":-1}": 400,
+      "{\"measured_on\":\"2026-09-26\",\"weight_kg\":200.1}": 400,
+      "{\"measured_on\":\"2099-01-01\",\"weight_kg\":4.2}": 400,
+      "{\"measured_on\":\"2026-09-26\"}": 400
+    },
+    "leaveDialog": {
+      "title": "Уйти без сохранения?",
+      "focus": "button Остаться"
+    },
+    "leaveStay": {
+      "url": "/pets/69339148-eaa4-42fc-887a-3ee476106c27/health/new?type=weight",
+      "value": "4,2",
+      "focus": "a Отмена"
+    },
+    "saveOffline": {
+      "banner": "Нет связи с сервером. Введённое не потеряно — попробуйте ещё раз.",
+      "weight": "4,2",
+      "day": "2026-09-26",
+      "button": "Сохранить",
+      "buttonDisabled": false
+    },
+    "pending": {
+      "button": "Сохраняем…",
+      "ariaBusy": "true",
+      "readOnly": true
+    },
+    "requestsForOneSave": 1,
+    "sentBody": "{\"measured_on\":\"2026-09-26\",\"weight_kg\":4.2}",
+    "afterAdd": {
+      "notice": "Вес сохранён.",
+      "focus": "div Вес сохранён.",
+      "url": "/pets/69339148-eaa4-42fc-887a-3ee476106c27/health/weight",
+      "page": {
+        "current": "4,2 кг",
+        "note": [
+          "−0,2 кг за 3 месяца"
+        ],
+        "chartPoints": 3,
+        "chartLabel": "График веса за полгода: от 4,4 до 4,2 кг",
+        "period": "Полгода",
+        "rows": [
+          "26 сентября 20264,2 кгИзменить",
+          "12 сентября 20264,2 кгИзменить",
+          "20 июня 20264,4 кгИзменить",
+          "12 марта 20264,5 кгИзменить"
+        ]
+      }
+    },
+    "afterAddReload": {
+      "notice": false,
+      "page": {
+        "current": "4,2 кг",
+        "note": [
+          "−0,2 кг за 3 месяца"
+        ],
+        "chartPoints": 3,
+        "chartLabel": "График веса за полгода: от 4,4 до 4,2 кг",
+        "period": "Полгода",
+        "rows": [
+          "26 сентября 20264,2 кгИзменить",
+          "12 сентября 20264,2 кгИзменить",
+          "20 июня 20264,4 кгИзменить",
+          "12 марта 20264,5 кгИзменить"
+        ]
+      }
+    },
+    "headAfterAdd": "4,2 кг−0,3 кг за 6 месяцев",
+    "editForm": {
+      "url": "/pets/69339148-eaa4-42fc-887a-3ee476106c27/health/f1d72e0d-5051-4ec1-b45f-3e7c7e84078b/edit",
+      "title": "Изменить измерение",
+      "weight": "4,2",
+      "day": "2026-09-26"
+    },
+    "afterEdit": {
+      "notice": "Измерение изменено.",
+      "page": {
+        "current": "4,6 кг",
+        "note": [
+          "+0,2 кг за 3 месяца"
+        ],
+        "chartPoints": 3,
+        "chartLabel": "График веса за полгода: от 4,4 до 4,6 кг",
+        "period": "Полгода",
+        "rows": [
+          "26 сентября 20264,6 кгИзменить",
+          "12 сентября 20264,2 кгИзменить",
+          "20 июня 20264,4 кгИзменить",
+          "12 марта 20264,5 кгИзменить"
+        ]
+      }
+    },
+    "headAfterEdit": "4,6 кг+0,1 кг за 6 месяцев",
+    "recordChartAfterEdit": "График веса, от 4,5 до 4,6 кг",
+    "petFormAfterEdit": "4.6",
+    "dayTaken": {
+      "error": "На эту дату уже есть измерение. Измените его или выберите другую дату.",
+      "stayed": true
+    },
+    "deleteDialog": {
+      "title": "Удалить измерение 4,6 кг, 26 сентября 2026?",
+      "body": "Оно исчезнет из истории веса. Анкета покажет предыдущее измерение. Отменить это будет нельзя.",
+      "focus": "button Не удалять"
+    },
+    "deleteEscapeFocus": "button Удалить измерение",
+    "afterDelete": {
+      "notice": "Измерение удалено.",
+      "page": {
+        "current": "4,2 кг",
+        "note": [
+          "−0,2 кг за 2 месяца"
+        ],
+        "chartPoints": 2,
+        "chartLabel": "График веса за полгода: от 4,4 до 4,2 кг",
+        "period": "Полгода",
+        "rows": [
+          "12 сентября 20264,2 кгИзменить",
+          "20 июня 20264,4 кгИзменить",
+          "12 марта 20264,5 кгИзменить"
+        ]
+      }
+    },
+    "headAfterDelete": "4,2 кг−0,3 кг за 6 месяцев",
+    "recordChartAfterDelete": "График веса, от 4,5 до 4,2 кг",
+    "recordRoute": "/pets/69339148-eaa4-42fc-887a-3ee476106c27/health/57be0bd3-9f7d-4aef-849c-1e8bc77abab8/edit",
+    "notFoundRoutes": {
+      "/pets/69339148-eaa4-42fc-887a-3ee476106c27/health/00000000-0000-4000-8000-000000000000/edit": {
+        "h1": "Такой страницы нет",
+        "form": false
+      },
+      "/pets/69339148-eaa4-42fc-887a-3ee476106c27/health/weights": {
+        "h1": "Такой страницы нет",
+        "form": false
+      },
+      "/pets/69339148-eaa4-42fc-887a-3ee476106c27/health/new?type=vaccination": {
+        "h1": "Такой страницы нет",
+        "form": false
+      },
+      "/pets/69339148-eaa4-42fc-887a-3ee476106c27/health/new?type=nope": {
+        "h1": "Такой страницы нет",
+        "form": false
+      }
+    },
+    "bobikBefore": {
+      "current": "28 кг",
+      "note": [
+        "Добавьте ещё одно измерение, чтобы увидеть изменения."
+      ],
+      "chartPoints": 0,
+      "chartLabel": null,
+      "period": "Полгода",
+      "rows": [
+        "Дата не указанаиз анкеты28 кгУточнить"
+      ]
+    },
+    "bobikHalfYear": {
+      "current": "27,5 кг",
+      "note": [
+        "Измерений за полгода нет. Последнее — 10 января 2025."
+      ],
+      "chartPoints": 0,
+      "chartLabel": null,
+      "period": "Полгода",
+      "rows": [
+        "10 января 202527,5 кгИзменить",
+        "Дата не указанаиз анкеты28 кгУточнить"
+      ]
+    },
+    "bobikAll": {
+      "current": "27,5 кг",
+      "note": [
+        "Добавьте ещё одно измерение, чтобы увидеть изменения."
+      ],
+      "chartPoints": 0,
+      "chartLabel": null,
+      "period": "Всё",
+      "rows": [
+        "10 января 202527,5 кгИзменить",
+        "Дата не указанаиз анкеты28 кгУточнить"
+      ]
+    },
+    "bobikUndatedForm": {
+      "weight": "28",
+      "day": "",
+      "hint": "Дата не указана. Укажите её, если знаете, или оставьте поле пустым."
+    },
+    "overflow390": {
+      "weight": false,
+      "bobik": false,
+      "newForm": false,
+      "editForm": false,
+      "chooser": false
+    },
+    "overflowByWidth": {
+      "weight 1150": false,
+      "form 1150": false,
+      "weight 1024": false,
+      "form 1024": false,
+      "weight 900": false,
+      "form 900": false,
+      "weight 768": false,
+      "form 768": false,
+      "weight 760": false,
+      "form 760": false,
+      "weight 360": false,
+      "form 360": false,
+      "weight 320": false,
+      "form 320": false
+    },
+    "foreignPages": {
+      "/pets/69339148-eaa4-42fc-887a-3ee476106c27/health/weight": {
+        "status": 200,
+        "h1": "Такой страницы нет",
+        "weightShown": false,
+        "leaks": []
+      },
+      "/pets/69339148-eaa4-42fc-887a-3ee476106c27/health/new?type=weight": {
+        "status": 200,
+        "h1": "Такой страницы нет",
+        "weightShown": false,
+        "leaks": []
+      },
+      "/pets/69339148-eaa4-42fc-887a-3ee476106c27/health/57be0bd3-9f7d-4aef-849c-1e8bc77abab8": {
+        "status": 200,
+        "h1": "Такой страницы нет",
+        "weightShown": false,
+        "leaks": []
+      },
+      "/pets/69339148-eaa4-42fc-887a-3ee476106c27/health/57be0bd3-9f7d-4aef-849c-1e8bc77abab8/edit": {
+        "status": 200,
+        "h1": "Такой страницы нет",
+        "weightShown": false,
+        "leaks": []
+      }
+    },
+    "foreignApiRequests": [],
+    "foreignApi": {
+      "read": 404,
+      "add": 404,
+      "change": 404,
+      "delete": 404
+    },
+    "ownerAWeightsUntouched": true
+  },
+  "consoleErrors": [
+    "owner-a@fixture.local: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "owner-a@fixture.local: Failed to load resource: the server responded with a status of 409 (Conflict)"
+  ]
+}
