@@ -54,7 +54,8 @@ export type VisitFormMode =
  * and «Подтвердить визит». Diagnosis (optional, several lines) and
  * «Назначения» belong to a visit that happened: one heading, prescriptions
  * added one at a time and empty, each removed by its own ×, and «Добавить в
- * лекарства» off until the owner ticks it. From a check result the check is
+ * лекарства» ticked on a new one (spec §7.11) — the owner unticks it before
+ * saving. From a check result the check is
  * linked and said; otherwise the owner may pick one of the pet's checks of
  * the last 30 days, and a plan keeps the link it has, however old.
  *

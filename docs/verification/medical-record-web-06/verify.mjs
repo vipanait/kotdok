@@ -268,9 +268,15 @@ const prescription = (page, n, field) => page.locator(`.visit-prescription >> nt
   await shot(page, 'visit-new-1440')
   await page.click('.visit-prescriptions-form button.event-add-item')
   await page.waitForTimeout(150)
-  summary.checks.addPrescription = { afterOneClick: await page.locator('.visit-prescription').count(), focus: await focused(page) }
+  summary.checks.addPrescription = {
+    afterOneClick: await page.locator('.visit-prescription').count(),
+    focus: await focused(page),
+    // Spec §7.11: a new prescription has «Добавить в лекарства» ticked; the owner may untick it.
+    tickedByDefault: await page.locator('.visit-prescription >> nth=0').locator('input[type=checkbox]').isChecked(),
+  }
   await prescription(page, 0, 'name').fill('Смекта')
   await prescription(page, 0, 'instructions').fill('при поносе')
+  await page.locator('.visit-prescription >> nth=0').locator('input[type=checkbox]').uncheck()
   await page.click('.visit-prescriptions-form button.event-add-item')
   await prescription(page, 1, 'name').fill('Энтерофурил')
   await prescription(page, 1, 'instructions').fill('2 капсулы 2 раза в день')
@@ -383,7 +389,9 @@ const prescription = (page, n, field) => page.locator(`.visit-prescription >> nt
   summary.checks.dueOnRecord = await page.$$eval('.health-due .due-row', (rows) =>
     rows.map((row) => ({ text: row.querySelector('.copy')?.textContent.replace(/\s+/g, ' ').trim(), button: row.querySelector('.due-done')?.textContent ?? null, href: row.querySelector('.due-done')?.getAttribute('href') ?? null })),
   )
-  summary.checks.checksAll = await page.getAttribute('#health-checks-title + a, .health-card-head:has(#health-checks-title) a', 'href').catch(() => null)
+  summary.checks.checksAll = await page
+    .$eval('.health-card-head:has(#health-checks-title) a', (a) => ({ href: a.getAttribute('href'), label: a.getAttribute('aria-label') }))
+    .catch(() => null)
   await open(page, `/pets/${murka.id}/health/medications`, '.courses-page')
   summary.checks.medicinesPage = await page.$$eval('.course-card .event-card-day', (nodes) => nodes.map((node) => node.textContent))
 

@@ -1,5 +1,5 @@
 import type { HealthEvent, VisitInput, VisitKind } from '@lapka/contracts'
-import { eventDayProblem, linkableChecks, prescriptionProblems, visitEditable } from '@lapka/shared'
+import { eventDayProblem, heldVisitDay, linkableChecks, prescriptionProblems, visitEditable } from '@lapka/shared'
 import type { Dictionary } from '@/i18n'
 import { dayInput, localToday, parseDayText } from '@/lib/calendar-day'
 
@@ -50,12 +50,13 @@ export function blankVisit(status: 'done' | 'planned', now: Date = new Date()): 
 
 /**
  * A visit as the form opens it: to correct, or — `as: 'done'` — to mark a
- * plan as having happened, today, with what the plan said.
+ * plan as having happened, with what the plan said.
  */
 export function visitDraftFrom(event: HealthEvent, as?: 'done', now: Date = new Date()): VisitDraft {
   return {
     status: as ?? event.status,
-    date: as === 'done' ? dayInput(localToday(now)) : dayInput(event.date),
+    // «Был» on a plan: its day once it has come, otherwise today (shared with the site).
+    date: as === 'done' ? dayInput(heldVisitDay(event.date, localToday(now))) : dayInput(event.date),
     visitKind: event.visit_kind ?? 'other',
     clinic: event.clinic ?? '',
     reason: event.reason ?? '',

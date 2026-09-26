@@ -256,7 +256,9 @@ describe('criterion 3: dates and all-or-none', () => {
     const key = crypto.randomUUID()
     const first = await saveNew(drafts, key)
     const retry = await saveNew(drafts, key)
-    expect(retry.map((c) => c.id)).toEqual(first.map((c) => c.id))
+    // The same courses, in any order: the replay reads them back by key, and the rows of one batch
+    // share their created_at (pet_medications has no position column; ordering them would take a migration).
+    expect(retry.map((c) => c.id).sort()).toEqual(first.map((c) => c.id).sort())
     expect(await rows()).toBe(2)
     // The same key with other fields is not taken for a second save.
     const changed = readNewCourses([draft('a', { name: 'Первый', start: day(-1), dosage: 'иначе' })])

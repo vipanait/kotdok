@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { VISIT_LIMITS } from '@lapka/contracts'
 import { eventDayProblem } from './event-entry'
-import { CHECK_LINK_DAYS, linkableChecks, prescriptionProblems, reasonFromCheck, visitEditable, visitTextProblems } from './visit-entry'
+import { CHECK_LINK_DAYS, heldVisitDay, linkableChecks, prescriptionProblems, reasonFromCheck, visitEditable, visitTextProblems } from './visit-entry'
 
 // MW-06: the visit rules the site and the phone share. A visit that happened
 // is only read; a plan is changed, moved or marked held. The checks a visit
@@ -22,6 +22,14 @@ describe('which visit can change', () => {
     expect(eventDayProblem('2026-09-25', 'planned', TODAY)).toBe('past')
     // An overdue plan corrected in another field keeps its own day.
     expect(eventDayProblem('2026-09-20', 'planned', TODAY, '2026-09-20')).toBeNull()
+  })
+})
+
+describe('the day «Состоялся» starts with', () => {
+  it('is the planned day once it has come, otherwise today', () => {
+    expect(heldVisitDay('2026-09-20', TODAY)).toBe('2026-09-20')
+    expect(heldVisitDay(TODAY, TODAY)).toBe(TODAY)
+    expect(heldVisitDay('2026-10-03', TODAY)).toBe(TODAY)
   })
 })
 

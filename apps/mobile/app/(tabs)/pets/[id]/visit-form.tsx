@@ -46,8 +46,7 @@ type Params = {
  * plan is changed or marked «Был»: a visit that happened is history (owner
  * rule of 26 September 2026) — its form does not open, and a `record_done`
  * answer locks the form. Saving a visit that happened warns first that it
- * cannot be changed afterwards. A new prescription goes to the medicines
- * only when the owner ticks it.
+ * cannot be changed afterwards.
  */
 export default function VisitForm() {
   const params = useLocalSearchParams<Params>()
@@ -278,8 +277,7 @@ export default function VisitForm() {
             align="left"
             onPress={() =>
               change({
-                // Off until the owner ticks it: a prescription is not a medicine by itself.
-                prescriptions: [...draft.prescriptions, { key: `new-${nextKey.current++}`, name: '', instructions: '', toMedicines: false }],
+                prescriptions: [...draft.prescriptions, { key: `new-${nextKey.current++}`, name: '', instructions: '', toMedicines: true }],
               })
             }
           />

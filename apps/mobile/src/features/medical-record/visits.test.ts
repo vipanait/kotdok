@@ -106,9 +106,11 @@ describe('the visit form', () => {
     expect(read.ok && read.value.prescriptions).toEqual([{ id: 'i1', name: 'Фортифлора', instructions: '1 пакетик' }])
   })
 
-  it('opens «Был» on a plan as done today with the plan’s fields', () => {
+  it('opens «Был» on a plan as done with the plan’s fields: today for a plan still ahead, its own day once it has come', () => {
     const draft = visitDraftFrom(visit({ status: 'planned', date: '2026-10-03', diagnosis: null }), 'done', NOW)
     expect(draft).toMatchObject({ status: 'done', date: '24.09.2026', visitKind: 'illness', clinic: 'Айболит' })
+    const overdue = visitDraftFrom(visit({ status: 'planned', date: '2026-09-20', diagnosis: null }), 'done', NOW)
+    expect(overdue.date).toBe('20.09.2026')
   })
 })
 

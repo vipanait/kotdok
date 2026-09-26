@@ -22,6 +22,15 @@ export function visitEditable(visit: Pick<HealthEvent, 'status'>): boolean {
   return visit.status === 'planned'
 }
 
+/**
+ * The day a planned visit is marked «Состоялся» with by default: its planned
+ * day if that has come, otherwise today — the owner corrects it to the real
+ * day. Never after today: a visit that happened is not in the future.
+ */
+export function heldVisitDay(plannedDay: string, today: string): string {
+  return plannedDay <= today ? plannedDay : today
+}
+
 export type PrescriptionProblems = { name?: 'empty' | 'tooLong'; instructions?: 'tooLong' }
 
 /** What is wrong with one prescription as typed: a name is needed; both texts have the contract's limits. */
