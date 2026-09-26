@@ -37,7 +37,7 @@ export default async function HealthRecordPage({
   const saved = parseEventSaved((await searchParams).saved)
   return (
     <CabinetShell cabinet={cabinet} active="pets" crumb={`${dict.medicalRecord.title} / ${dict.medicalRecord.recordKinds[record.kind]}`}>
-      <EventRecordScreen key={recordId} petId={id} eventId={recordId} saved={saved} />
+      <EventRecordScreen key={recordId} petId={id} eventId={recordId} kind={record.kind} saved={saved} />
     </CabinetShell>
   )
 }

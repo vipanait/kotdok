@@ -1,4 +1,5 @@
 import {
+  CalendarDateSchema,
   PARASITE_TARGETS,
   VACCINE_TARGETS,
   type HealthEvent,
@@ -58,6 +59,45 @@ export function suggestNextDay(recordDay: string, interval: Interval | null, tod
   if (!interval) return null
   const next = addInterval(recordDay, interval)
   return next >= today ? next : null
+}
+
+/** Why a record's day cannot be saved, as the phone and the site both check it before sending. */
+export type EventDayProblem = 'empty' | 'invalid' | 'future' | 'past'
+
+/**
+ * The day of a vaccination or treatment record (MR-03.3): something done is
+ * not after today, a plan is today or later. A plan being corrected may keep
+ * its own day even once it has passed — only a new day has to be ahead, so an
+ * overdue plan can still be fixed. `day` is `YYYY-MM-DD` or '' when none was
+ * given; the contract's own schema decides whether it is a real day.
+ */
+export function eventDayProblem(
+  day: string,
+  status: HealthEvent['status'],
+  today: string,
+  keptDay: string | null = null,
+): EventDayProblem | null {
+  if (day === '') return 'empty'
+  if (!CalendarDateSchema.safeParse(day).success) return 'invalid'
+  if (keptDay !== null && day === keptDay) return null
+  if (status === 'done' && day > today) return 'future'
+  if (status === 'planned' && day < today) return 'past'
+  return null
+}
+
+/** Why an item's next date cannot be saved. */
+export type NextDayProblem = 'invalid' | 'notAfter' | 'past'
+
+/**
+ * The next date of a done item: a real day after the record's own day and
+ * not before today — the server refuses a plan in the past. `recordDay` null
+ * when the record's day is itself not readable yet: only the other rules apply.
+ */
+export function nextDayProblem(next: string, recordDay: string | null, today: string): NextDayProblem | null {
+  if (!CalendarDateSchema.safeParse(next).success) return 'invalid'
+  if (recordDay !== null && next <= recordDay) return 'notAfter'
+  if (next < today) return 'past'
+  return null
 }
 
 export type CoreVaccination = {

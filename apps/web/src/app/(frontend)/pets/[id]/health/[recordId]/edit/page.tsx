@@ -40,7 +40,7 @@ export default async function EditHealthRecordPage({ params }: { params: Promise
 
   return (
     <CabinetShell cabinet={cabinet} active="pets" crumb={`${dict.medicalRecord.title} / ${dict.medicalRecord.recordKinds[record.kind]}`}>
-      <EditEventScreen key={recordId} petId={id} petName={pet.name} species={pet.species} eventId={recordId} />
+      <EditEventScreen key={recordId} petId={id} petName={pet.name} species={pet.species} eventId={recordId} kind={record.kind} />
     </CabinetShell>
   )
 }

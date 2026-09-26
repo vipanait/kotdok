@@ -23,6 +23,7 @@ import {
   renameItem,
   toggleGroup,
   readDraft,
+  warnsDoneIsFinal,
   type DraftErrors,
   type EventDraft,
   type FormMode,
@@ -478,6 +479,11 @@ export default function EventForm() {
       <Field label={words.notes} value={draft.notes} onChangeText={(notes) => change({ notes })} multiline />
 
       {summary ? <Banner text={summary} tone="info" style={styles.gapBottom} /> : null}
+      {warnsDoneIsFinal(mode, draft.status) ? (
+        <Text variant="caption" tone="muted" style={styles.gapBottom}>
+          {words.doneWarning}
+        </Text>
+      ) : null}
       {error ? (
         <Banner text={error.text} tone="error" icon={error.offline ? 'wifi' : 'alert'} style={styles.gapBottom} />
       ) : null}
