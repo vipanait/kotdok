@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { en } from '@/i18n/en'
 import { ru } from '@/i18n/ru'
-import { checkAnswers, formatCheckedAt, photoObservations } from './check-answers'
+import { checkAnswers, formatCheckedAt, offersVisit, photoObservations, visitReason } from './check-answers'
 
 describe('reading back what was answered on the second step', () => {
   it('names every answer in the order the form asks', () => {
@@ -64,5 +64,23 @@ describe('what the analysis saw in the photos', () => {
   it('shows nothing rather than an empty heading', () => {
     expect(photoObservations({ photo_count: 1, photo_observations: '  ' })).toBeNull()
     expect(photoObservations({ photo_count: 1, photo_observations: null })).toBeNull()
+  })
+})
+
+describe('a visit from a result (MR-07.5)', () => {
+  it('is offered on the four levels that need a vet, not on «healthy»', () => {
+    for (const urgency of ['emergency', 'urgent', 'monitor', 'home_care']) {
+      expect(offersVisit({ urgency, pet_id: 'p' }), urgency).toBe(true)
+    }
+    expect(offersVisit({ urgency: 'healthy', pet_id: 'p' })).toBe(false)
+    expect(offersVisit({ urgency: 'urgent', pet_id: null })).toBe(false)
+  })
+
+  it('takes the first line of the description as the reason', () => {
+    expect(visitReason('Рвота два дня\nне ест')).toBe('Рвота два дня')
+  })
+
+  it('skips blank lines before the description', () => {
+    expect(visitReason('\n  \nРвота два дня\nне ест')).toBe('Рвота два дня')
   })
 })

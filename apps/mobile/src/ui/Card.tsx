@@ -27,7 +27,17 @@ export function Card({
 }) {
   const skin = [styles.card, outlined ? styles.outlined : shadow.card, style]
 
-  if (!onPress) return <View style={skin}>{children}</View>
+  // A label without a press still makes the card one thing to VoiceOver,
+  // read as the label says rather than line by line.
+  if (!onPress) {
+    return accessibilityLabel ? (
+      <View style={skin} accessible accessibilityLabel={accessibilityLabel}>
+        {children}
+      </View>
+    ) : (
+      <View style={skin}>{children}</View>
+    )
+  }
 
   return (
     <Pressable
@@ -47,9 +57,14 @@ export function Card({
  * Deliberately drawn rather than photographic: the app has no pictures of the
  * animal it is talking about, and a photo-like avatar would imply it did.
  */
-export function Avatar({ species }: { species: 'cat' | 'dog' }) {
+export function Avatar({ species, size = 48 }: { species: 'cat' | 'dog'; size?: number }) {
   return (
-    <Image source={art[species]} style={styles.avatar} resizeMode="contain" accessible={false} />
+    <Image
+      source={art[species]}
+      style={{ width: size, height: size }}
+      resizeMode="contain"
+      accessible={false}
+    />
   )
 }
 
@@ -191,7 +206,6 @@ const styles = StyleSheet.create({
     marginBottom: space.row,
   },
   outlined: { borderWidth: 1, borderColor: colour.line },
-  avatar: { width: 48, height: 48 },
   iconAvatar: {
     borderRadius: radius.pill,
     backgroundColor: colour.accentSoft,

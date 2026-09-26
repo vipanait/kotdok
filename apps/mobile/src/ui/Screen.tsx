@@ -11,13 +11,17 @@ import {
 import { Keyboard, KeyboardAvoidingView, ScrollView, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useText } from '@/i18n'
-import { IconButton } from './Button'
+import { IconButton, LinkButton } from './Button'
 import { hiddenBelowKeyboard } from './keyboard-reveal'
 import { CONTROL_FONT_LIMIT, Text } from './Text'
 import type { IconName } from './Icon'
 import { colour, space } from './theme'
 
-export type ScreenAction = { icon: IconName; label: string; onPress: () => void }
+/**
+ * The heading's action. A glyph when there is one («плюс»); a word when the
+ * action has no good glyph — the medical record's «Анкета».
+ */
+export type ScreenAction = { icon?: IconName; label: string; onPress: () => void }
 
 /**
  * How wide the content column is allowed to get.
@@ -157,8 +161,10 @@ export function Screen({
       >
         {title}
       </Text>
-      {action ? (
+      {action?.icon ? (
         <IconButton icon={action.icon} label={action.label} onPress={action.onPress} soft />
+      ) : action ? (
+        <LinkButton title={action.label} onPress={action.onPress} align="right" />
       ) : null}
     </View>
   ) : null

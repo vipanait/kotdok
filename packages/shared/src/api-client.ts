@@ -10,6 +10,12 @@ import {
   CheckFeedbackSchema,
   ConsentStatusSchema,
   ExtraCheckRequestStatusSchema,
+  DueListReadSchema,
+  VetSummaryReadSchema,
+  HealthEventSchema,
+  HealthProductSchema,
+  MedicationSchema,
+  HealthOverviewReadSchema,
   HealthSchema,
   IDEMPOTENCY_KEY_HEADER,
   PetSchema,
@@ -17,6 +23,7 @@ import {
   ReauthProofSchema,
   SymptomCheckRecordSchema,
   UploadGrantSchema,
+  WeightMeasurementSchema,
   type AccountDeletionRequest,
   type CheckCreateInput,
   type CheckHistoryQuery,
@@ -28,6 +35,17 @@ import {
   type ProfileUpdateInput,
   type ReauthRequest,
   type UploadRequest,
+  type CompleteItemInput,
+  type HealthEventInput,
+  type HealthEventPatch,
+  type MedicationPatch,
+  type MedicationsInput,
+  type VisitInput,
+  type VisitPatch,
+  type PetSpecies,
+  type ProductKind,
+  type WeightInput,
+  type WeightPatch,
 } from '@lapka/contracts'
 import { z } from 'zod'
 
@@ -231,6 +249,63 @@ export function createApiClient(options: ApiClientOptions) {
     updatePet: (id: string, body: PetUpdateInput) =>
       call(`/pets/${id}`, PetSchema, { method: 'PATCH', body }),
     deletePet: (id: string) => call<void>(`/pets/${id}`, null, { method: 'DELETE' }),
+
+    getHealthOverview: (petId: string) => call(`/pets/${petId}/health`, HealthOverviewReadSchema),
+    addWeight: (petId: string, body: WeightInput) =>
+      call(`/pets/${petId}/health/weights`, WeightMeasurementSchema, { method: 'POST', body }),
+    changeWeight: (petId: string, weightId: string, body: WeightPatch) =>
+      call(`/pets/${petId}/health/weights/${weightId}`, WeightMeasurementSchema, { method: 'PATCH', body }),
+    deleteWeight: (petId: string, weightId: string) =>
+      call<void>(`/pets/${petId}/health/weights/${weightId}`, null, { method: 'DELETE' }),
+
+    createHealthEvent: (petId: string, body: HealthEventInput, idempotencyKey: string) =>
+      call(`/pets/${petId}/health/events`, HealthEventSchema, {
+        method: 'POST',
+        body,
+        headers: { [IDEMPOTENCY_KEY_HEADER]: idempotencyKey },
+      }),
+    changeHealthEvent: (petId: string, eventId: string, body: HealthEventPatch) =>
+      call(`/pets/${petId}/health/events/${eventId}`, HealthEventSchema, { method: 'PATCH', body }),
+    deleteHealthEvent: (petId: string, eventId: string) =>
+      call<void>(`/pets/${petId}/health/events/${eventId}`, null, { method: 'DELETE' }),
+    completeHealthItem: (petId: string, itemId: string, body: CompleteItemInput, idempotencyKey: string) =>
+      call(`/pets/${petId}/health/items/${itemId}/complete`, HealthEventSchema, {
+        method: 'POST',
+        body,
+        headers: { [IDEMPOTENCY_KEY_HEADER]: idempotencyKey },
+      }),
+    listDue: () => call('/pets/due', DueListReadSchema),
+    getVetSummary: (petId: string) => call(`/pets/${petId}/health/summary`, VetSummaryReadSchema),
+    createVisit: (petId: string, body: VisitInput, idempotencyKey: string) =>
+      call(`/pets/${petId}/health/visits`, HealthEventSchema, {
+        method: 'POST',
+        body,
+        headers: { [IDEMPOTENCY_KEY_HEADER]: idempotencyKey },
+      }),
+    /** The key makes a retried save harmless: new prescriptions are added once. */
+    changeVisit: (petId: string, eventId: string, body: VisitPatch, idempotencyKey?: string) =>
+      call(`/pets/${petId}/health/visits/${eventId}`, HealthEventSchema, {
+        method: 'PATCH',
+        body,
+        ...(idempotencyKey ? { headers: { [IDEMPOTENCY_KEY_HEADER]: idempotencyKey } } : {}),
+      }),
+    prescriptionToMedication: (petId: string, itemId: string) =>
+      call(`/pets/${petId}/health/items/${itemId}/medication`, z.object({ medication_id: z.string() }), { method: 'POST' }),
+    addMedications: (petId: string, body: MedicationsInput, idempotencyKey: string) =>
+      call(`/pets/${petId}/health/medications`, z.array(MedicationSchema), {
+        method: 'POST',
+        body,
+        headers: { [IDEMPOTENCY_KEY_HEADER]: idempotencyKey },
+      }),
+    changeMedication: (petId: string, medicationId: string, body: MedicationPatch) =>
+      call(`/pets/${petId}/health/medications/${medicationId}`, MedicationSchema, { method: 'PATCH', body }),
+    deleteMedication: (petId: string, medicationId: string) =>
+      call<void>(`/pets/${petId}/health/medications/${medicationId}`, null, { method: 'DELETE' }),
+    getCatalog: (species: PetSpecies, kind: ProductKind, query = '') =>
+      call(
+        `/health/catalog?species=${species}&kind=${kind}&q=${encodeURIComponent(query)}`,
+        z.array(HealthProductSchema),
+      ),
 
     requestUploads: (body: UploadRequest) =>
       call('/uploads', UploadGrantSchema, { method: 'POST', body }),

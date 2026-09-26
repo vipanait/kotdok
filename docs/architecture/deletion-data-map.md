@@ -20,12 +20,16 @@
 | Откуда | Куда | При удалении родителя |
 | --- | --- | --- |
 | `auth.identities`, `auth.sessions`, `auth.mfa_factors`, `auth.one_time_tokens`, `auth.oauth_authorizations`, `auth.oauth_consents`, `auth.webauthn_*` → `auth.users` | Auth | CASCADE |
-| `public.check_jobs.user_id`, `public.extra_check_requests.user_id`, `public.payment_methods.user_id`, `public.photo_uploads.user_id` → `auth.users` | Auth | CASCADE |
+| `public.check_jobs.user_id`, `public.extra_check_requests.user_id`, `public.payment_methods.user_id`, `public.photo_uploads.user_id`, `public.pet_weights.user_id`, `public.pet_health_events.user_id`, `public.pet_health_items.user_id`, `public.pet_medications.user_id` → `auth.users` | Auth | CASCADE |
+| `public.pet_weights.pet_id`, `public.pet_health_events.pet_id`, `public.pet_health_items.pet_id`, `public.pet_medications.pet_id` → `pets` | питомец | CASCADE |
+| `public.pet_health_items.event_id` → `pet_health_events` | запись медкарты | CASCADE |
 | `public.profiles.id` → `auth.users` | Auth | **NO ACTION** |
 | `public.transactions.user_id`, `public.credit_ledger.user_id` → `auth.users` | Auth | **RESTRICT** |
 | `public.pets.user_id`, `public.symptom_checks.user_id`, `public.credit_transactions.user_id` → `profiles` | профиль | **NO ACTION** |
 | `public.user_feedback.user_id` → `profiles` | профиль | CASCADE |
 | `public.symptom_checks.pet_id` → `pets` | питомец | **NO ACTION** |
+| `public.pet_health_events.check_id` → `symptom_checks` | проверка | SET NULL |
+| `public.pet_medications.visit_item_id` → `pet_health_items` | назначение | SET NULL |
 | `public.credit_ledger.symptom_check_id` → `symptom_checks` | проверка | **NO ACTION** |
 | `public.credit_ledger.transaction_id` → `transactions` | транзакция | **NO ACTION** |
 | `public.extra_check_requests.granted_ledger_id` → `credit_ledger` | запись баланса | **NO ACTION** |
@@ -62,6 +66,10 @@
 | `profiles` | Язык, роль, баланс, статус аккаунта, флаг «нужно согласие на обработку ПДн» | Удаляется | — | — | — |
 | `personal_data_consents` | Факт согласия на обработку ПДн: редакция текста, источник (web / ios / android), время. Добавлена 26 сентября 2026 (этап 12) | Удаляется каскадом от `auth.users` | — | Согласие отзывается удалением аккаунта | — |
 | `pets` | Кличка, порода, возраст, вес, болезни, препараты, заметки | Удаляется, включая помеченные `deleted_at` | — | — | — |
+| `health_products` | Ничего о человеке: общий справочник вакцин и препаратов (MR-04). Позиции записей ссылаются на него через `product_id` (`on delete set null`) | Не удаляется при удалении аккаунта | Справочник целиком | Не персональные данные | — |
+| `pet_health_events`, `pet_health_items` | Прививки, обработки, визиты: даты, клиника, заметка, причина и диагноз визита, назначения, названия препаратов, болезни, ссылка на проверку (MR-03, MR-05, MR-07) | Удаляются каскадом вместе с `pets`, включая помеченные `deleted_at` | — | — | — |
+| `pet_medications` | Курсы лекарств: название, как давать, даты (MR-06) | Удаляется каскадом вместе с `pets`, включая помеченные `deleted_at` | — | — | — |
+| `pet_weights` | Даты и значения взвешиваний питомца (MR-02) | Удаляется каскадом вместе с `pets`, включая помеченные `deleted_at` | — | — | — |
 | `symptom_checks` | Описание симптомов своими словами, ответ модели, уровень срочности | Удаляется | — | — | — |
 | `check_jobs` | Идемпотентный ключ, статус задачи анализа | Удаляется (каскад от `auth.users` и от проверки) | — | — | — |
 | `user_feedback` | Оценка и свободный комментарий | Удаляется (каскад от профиля) | — | — | — |
