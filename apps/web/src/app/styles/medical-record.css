@@ -399,7 +399,9 @@
   .event-item-hint { margin: 0 0 12px; }
   .event-item .chip-group-label { margin-top: 10px; }
   .event-item .chips { margin-bottom: 14px; }
-  .event-item .chips:focus { outline: none; }
+  /* The group takes focus when a save names it («Выберите, от чего прививка»): a keyboard
+     user sees where it went, like every control of the site; a pointer user gets no ring. */
+  .event-item .chips:focus-visible { outline: 3px solid var(--green); outline-offset: 3px; border-radius: 12px; }
   .event-targets-error { margin: -6px 0 14px; }
   .event-item-next { margin-bottom: 16px; }
   .event-next-row { display: flex; align-items: center; gap: 12px; }
