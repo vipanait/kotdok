@@ -6,7 +6,8 @@ import { withFreshSession } from '@/lib/api'
 import { describeFailure } from '@/lib/errors'
 import { localToday } from '@/lib/calendar-day'
 import { useText } from '@/i18n'
-import { courseDates, isCurrent } from '@/features/medical-record/medications'
+import { ApiError, canEndCourse, courseEditable, endCoursePatch } from '@lapka/shared'
+import { courseDates } from '@/features/medical-record/medications'
 import { Button, LinkButton } from '@/ui/Button'
 import { Banner, Card } from '@/ui/Card'
 import { ConfirmDialog } from '@/ui/Dialog'
@@ -14,7 +15,11 @@ import { Screen } from '@/ui/Screen'
 import { Text } from '@/ui/Text'
 import { space } from '@/ui/theme'
 
-/** One course (X-course): its details, «Изменить», «Завершить курс» while current, delete. */
+/**
+ * One course (X-course): its details; while it goes on, «Изменить» and
+ * «Завершить курс»; delete always. A finished course is only read (owner rule
+ * of 26 September 2026) — the server refuses its change (`record_done`).
+ */
 export default function MedicationView() {
   const { id, medicationId } = useLocalSearchParams<{ id: string; medicationId: string }>()
   const t = useText()
@@ -51,9 +56,15 @@ export default function MedicationView() {
     setBusy(true)
     setError(null)
     try {
-      setCourse(await withFreshSession((api) => api.changeMedication(id, medicationId, { ended_on: today, ongoing: false })))
+      setCourse(await withFreshSession((api) => api.changeMedication(id, medicationId, endCoursePatch(today))))
     } catch (cause) {
-      setError(describeFailure(t, cause, words.saveFailed))
+      // Finished meanwhile, on another device: show it as it is now — read
+      // only, which the screen then says in place of «Изменить».
+      if (cause instanceof ApiError && cause.code === 'record_done') {
+        void load()
+      } else {
+        setError(describeFailure(t, cause, words.saveFailed))
+      }
     } finally {
       setBusy(false)
     }
@@ -80,7 +91,7 @@ export default function MedicationView() {
       scroll
       // A course that has not started yet is corrected or deleted, not ended.
       dock={
-        course && isCurrent(course, today) && (course.started_on === null || course.started_on <= today) ? (
+        course && canEndCourse(course, today) ? (
           <Button title={words.end_} onPress={() => void end()} busy={busy} />
         ) : null
       }
@@ -93,7 +104,11 @@ export default function MedicationView() {
             {course.dosage ? <Text tone="muted">{course.dosage}</Text> : null}
             <Text tone="muted">{courseDates(t, course, today)}</Text>
           </Card>
-          <LinkButton title={words.edit} align="left" onPress={() => router.push(`/pets/${id}/medication-form?medicationId=${course.id}`)} />
+          {courseEditable(course, today) ? (
+            <LinkButton title={words.edit} align="left" onPress={() => router.push(`/pets/${id}/medication-form?medicationId=${course.id}`)} />
+          ) : (
+            <Text tone="muted">{words.finishedReadOnly}</Text>
+          )}
           <LinkButton title={words.delete} align="left" onPress={() => setAsking(true)} />
         </>
       ) : null}

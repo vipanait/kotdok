@@ -41,7 +41,7 @@ export const VetSummaryCheckSchema = z.object({
  * Not strict, like the overview: later stages may add to it.
  */
 export const VetSummarySchema = z.object({
-  /** The server's day the summary was made; «за последний год» counts back from it. */
+  /** The day the summary was made for — the owner's `today` when the server accepted it, else the server's UTC day; «за последний год» counts back from it. */
   generated_on: CalendarDateSchema,
   pet: PetSchema,
   /** The newest dated measurements, newest first, at most five. The form's undated weight is `pet.weight_kg`. */
@@ -58,6 +58,18 @@ export const VetSummarySchema = z.object({
 })
 
 export type VetSummary = z.infer<typeof VetSummarySchema>
+
+/**
+ * `GET /pets/{id}/health/summary?today=YYYY-MM-DD`: the owner's own calendar
+ * day, which decides the courses taken now and the year of visits. The
+ * server takes it only from the UTC day before its own to the UTC day after
+ * (a margin around every zone's today, UTC−12…UTC+14, not its exact edge);
+ * any other value, or none — an app older than this field — gives the
+ * server's UTC day, as before.
+ */
+export const VetSummaryQuerySchema = z.object({ today: CalendarDateSchema.optional() })
+
+export type VetSummaryQuery = z.infer<typeof VetSummaryQuerySchema>
 export type VetSummaryVaccination = z.infer<typeof VetSummaryVaccinationSchema>
 export type VetSummaryParasite = z.infer<typeof VetSummaryParasiteSchema>
 

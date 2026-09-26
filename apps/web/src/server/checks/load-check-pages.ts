@@ -63,15 +63,16 @@ export async function loadCheckResult(
   return { check, pet: (pet as CheckPet | null) ?? null }
 }
 
-/** Every saved result of this user, newest first. */
-export async function loadCheckHistory(userId: string): Promise<SymptomCheckRecord[]> {
+/** Every saved result of this user — or, with `petId`, of that one pet — newest first. */
+export async function loadCheckHistory(userId: string, petId: string | null = null): Promise<SymptomCheckRecord[]> {
   const service = createServiceClient()
-  const { data, error } = await service
+  let query = service
     .from('symptom_checks')
     .select(symptomCheckSelect())
     .eq('user_id', userId)
     .is('deleted_at', null)
-    .order('created_at', { ascending: false })
+  if (petId) query = query.eq('pet_id', petId)
+  const { data, error } = await query.order('created_at', { ascending: false })
   // A failed read must reach the error page, not pass for an empty history.
   if (error) throw new Error(`Could not load check history: ${error.message}`)
   return (data ?? []).map(toRecord)

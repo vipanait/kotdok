@@ -1,14 +1,17 @@
-import { PARASITE_TARGETS, VACCINE_TARGETS, type HealthEvent, type HealthItem, type PetSpecies } from '@lapka/contracts'
+import type { HealthEvent, HealthItem, PetSpecies } from '@lapka/contracts'
+import { addMonths, coreVaccinations, dueEntries, dueTiming, parasiteCovers, parasiteGroups, type DueTone } from '@lapka/shared'
 import type { Dictionary } from '@/i18n'
-import { addMonths, daysBetween } from '@/lib/calendar-day'
 
 /**
- * Due dates and vaccination summaries, worked out for the screens. Days are
- * calendar days compared as calendar days — never milliseconds — so a due
- * date does not move at midnight or at the turn of a month (MR-03.4).
+ * Due dates and vaccination summaries, in the app's words. Which dates are
+ * due, in what order, and how far away (overdue, the 14 "soon" days, "since"
+ * past two months) is decided once for the app and the site, in
+ * packages/shared (medical-record/record-overview.ts). Days are calendar
+ * days compared as calendar days, so a due date does not move at midnight
+ * or at the turn of a month (MR-03.4).
  */
 
-export type DueTone = 'overdue' | 'soon' | 'later'
+export type { DueTone }
 
 export type DueStatus = {
   tone: DueTone
@@ -20,9 +23,6 @@ export type DueStatus = {
   day: string
 }
 
-/** Within this many days a due date is "soon" (spec §8). */
-const SOON_DAYS = 14
-
 function day(t: Dictionary, date: string, today: string): string {
   return t.day(date, date.slice(0, 4) !== today.slice(0, 4))
 }
@@ -30,20 +30,18 @@ function day(t: Dictionary, date: string, today: string): string {
 export function dueStatus(t: Dictionary, date: string, today: string): DueStatus {
   const words = t.medicalRecord.due
   const shown = day(t, date, today)
-  const ahead = daysBetween(today, date)
+  const timing = dueTiming(date, today)
 
-  if (ahead < 0) {
-    const late = -ahead
+  if (timing.tone === 'overdue') {
     // «Просрочено на 83 дня» stops meaning anything; the date says it better.
-    if (late > 1 && addMonths(date, 2) < today) {
-      return { tone: 'overdue', text: words.overdueSince(shown), day: shown, dated: true }
-    }
+    if (timing.longOverdue) return { tone: 'overdue', text: words.overdueSince(shown), day: shown, dated: true }
+    const late = -timing.days
     return { tone: 'overdue', text: late === 1 ? words.overdueYesterday : words.overdueDays(late), day: shown }
   }
-  if (ahead === 0) return { tone: 'soon', text: words.today, day: shown }
-  if (ahead === 1) return { tone: 'soon', text: words.tomorrow, day: shown }
-  if (ahead <= SOON_DAYS) return { tone: 'soon', text: words.inDays(ahead), day: shown }
-  return { tone: 'later', text: null, day: shown }
+  if (timing.tone === 'later') return { tone: 'later', text: null, day: shown }
+  if (timing.days === 0) return { tone: 'soon', text: words.today, day: shown }
+  if (timing.days === 1) return { tone: 'soon', text: words.tomorrow, day: shown }
+  return { tone: 'soon', text: words.inDays(timing.days), day: shown }
 }
 
 /** «Просрочено на 12 дней · 12 сентября», or just «12 марта 2027». */
@@ -62,51 +60,41 @@ export type Due = {
   others: number
 }
 
-/** Every planned item, overdue ones first, then the soonest. */
+/** Every planned item, overdue ones first, then the soonest (the shared order). */
 export function dueItems(events: readonly HealthEvent[]): Due[] {
-  return events
-    .filter((event) => event.status === 'planned')
-    .flatMap((event) =>
-      // A planned visit has no items: it is one due date, its id standing for an item.
-      event.kind === 'visit'
-        ? [{
-            kind: event.kind,
-            eventId: event.id,
-            itemId: event.id,
-            date: event.date,
-            item: { id: event.id, name: null, targets: [], source_item_id: null, product_id: null, interval: null, instructions: null, medication_id: null },
-            others: 0,
-          }]
-        : event.items.map((item) => ({
-        kind: event.kind,
-        eventId: event.id,
-        itemId: item.id,
-        date: event.date,
-        item,
-        others: event.items.length - 1,
-      })),
-    )
-    .sort((a, b) => a.date.localeCompare(b.date))
+  return dueEntries(events).map((entry) =>
+    entry.item === null
+      ? {
+          // A planned visit has no items: it is one due date, its id standing for an item.
+          kind: entry.kind,
+          eventId: entry.event.id,
+          itemId: entry.key,
+          date: entry.date,
+          item: { id: entry.event.id, name: null, targets: [], source_item_id: null, product_id: null, interval: null, instructions: null, medication_id: null },
+          others: 0,
+        }
+      : {
+          kind: entry.kind,
+          eventId: entry.event.id,
+          itemId: entry.key,
+          date: entry.date,
+          item: entry.item,
+          others: entry.event.items.length - 1,
+        },
+  )
 }
 
 function targetName(t: Dictionary, code: string): string {
   return (t.medicalRecord.targets as Record<string, string>)[code] ?? code
 }
 
-/** The groups a treatment covers — fleas, ticks, worms — however fine its codes. */
-export function parasiteGroups(targets: readonly string[]): Set<'fleas' | 'ticks' | 'worms'> {
-  return new Set(
-    PARASITE_TARGETS.filter((target) => targets.includes(target.code)).map((target) => target.group),
-  )
-}
-
 /** «Блохи и клещи», «Глисты», «Блохи, клещи и глисты». */
 function parasiteTitle(t: Dictionary, targets: readonly string[]): string | null {
   const groups = parasiteGroups(targets)
   const words = t.medicalRecord.parasiteTitle
-  const fleas = groups.has('fleas')
-  const ticks = groups.has('ticks')
-  const worms = groups.has('worms')
+  const fleas = groups.includes('fleas')
+  const ticks = groups.includes('ticks')
+  const worms = groups.includes('worms')
   if (fleas && ticks && worms) return words.all
   if (fleas && ticks) return words.fleasTicks
   if (fleas && worms) return words.fleasWorms
@@ -142,17 +130,10 @@ export function itemName(t: Dictionary, item: Pick<HealthItem, 'name' | 'targets
 export function targetList(t: Dictionary, targets: readonly string[]): string {
   const parasites = parasiteGroups(targets)
   const names =
-    parasites.size > 0
-      ? (['fleas', 'ticks', 'worms'] as const).filter((group) => parasites.has(group)).map((group) => t.medicalRecord.parasiteGroups[group])
+    parasites.length > 0
+      ? parasites.map((group) => t.medicalRecord.parasiteGroups[group])
       : targets.map((code) => targetName(t, code))
   return names.map((name, index) => (index === 0 ? name : name.toLowerCase())).join(', ')
-}
-
-/** The day of the latest done vaccination, if any. */
-export function lastVaccination(events: readonly HealthEvent[]): string | null {
-  return events
-    .filter((event) => event.kind === 'vaccination' && event.status === 'done')
-    .reduce<string | null>((latest, event) => (latest === null || event.date > latest ? event.date : latest), null)
 }
 
 export type CoreStatus = {
@@ -174,31 +155,20 @@ export function coreStatuses(
   today: string,
 ): CoreStatus[] {
   const words = t.medicalRecord
-  return VACCINE_TARGETS.filter(
-    (target) => target.core && (target.species as readonly string[]).includes(species),
-  ).map(({ code }) => {
-    const covering = events.filter(
-      (event) => event.kind === 'vaccination' && event.items.some((item) => item.targets.includes(code)),
-    )
-    const next = covering
-      .filter((event) => event.status === 'planned')
-      .sort((a, b) => a.date.localeCompare(b.date))[0]
-    const last = covering
-      .filter((event) => event.status === 'done')
-      .sort((a, b) => b.date.localeCompare(a.date))[0]
-
+  // Where each stands is decided once for the app and the site (packages/shared, event-entry.ts).
+  return coreVaccinations(species, events).map(({ target, next, last }) => {
     if (next) {
-      const status = dueStatus(t, next.date, today)
+      const status = dueStatus(t, next, today)
       return {
-        target: code,
-        title: targetName(t, code),
+        target,
+        title: targetName(t, target),
         text: status.tone === 'later' ? words.coreNext(status.day) : dueLine(status),
         tone: status.tone,
       }
     }
     // A past vaccination always with its year: «12 марта» alone could be any March.
-    if (last) return { target: code, title: targetName(t, code), text: words.coreLast(t.day(last.date, true)), tone: 'none' }
-    return { target: code, title: targetName(t, code), text: words.coreNone, tone: 'none' }
+    if (last) return { target, title: targetName(t, target), text: words.coreLast(t.day(last, true)), tone: 'none' }
+    return { target, title: targetName(t, target), text: words.coreNone, tone: 'none' }
   })
 }
 
@@ -214,13 +184,6 @@ export function saveSummary(t: Dictionary, nextDays: readonly (string | null)[],
   return t.medicalRecord.summaryDone(days.length, same ? day(t, days[0], today) : null)
 }
 
-/** The day of the latest done parasite treatment, if any. */
-export function lastTreatment(events: readonly HealthEvent[]): string | null {
-  return events
-    .filter((event) => event.kind === 'parasite' && event.status === 'done')
-    .reduce<string | null>((latest, event) => (latest === null || event.date > latest ? event.date : latest), null)
-}
-
 export type ParasiteStatus = {
   group: 'fleasTicks' | 'worms'
   title: string
@@ -231,32 +194,18 @@ export type ParasiteStatus = {
 }
 
 /**
- * The two status cards of the parasites section: fleas and ticks, and worms.
- * A combined product counts in both — it is still one item and one plan.
+ * The two status cards of the parasites section, in the app's words. Which
+ * treatment is the last and which plan is next is decided once for the app
+ * and the site (`parasiteCovers`, packages/shared): a combined product counts
+ * in both — it is still one item and one plan.
  */
 export function parasiteStatuses(t: Dictionary, events: readonly HealthEvent[], today: string): ParasiteStatus[] {
-  const cards = [
-    { group: 'fleasTicks' as const, covers: ['fleas', 'ticks'] as const, title: t.medicalRecord.parasiteTitle.fleasTicks },
-    { group: 'worms' as const, covers: ['worms'] as const, title: t.medicalRecord.parasiteTitle.worms },
-  ]
-  return cards.map(({ group, covers, title }) => {
-    const touches = (item: HealthItem) => {
-      const groups = parasiteGroups(item.targets)
-      return covers.some((cover) => groups.has(cover))
-    }
-    const withItem = events
-      .filter((event) => event.kind === 'parasite')
-      .flatMap((event) => event.items.filter(touches).map((item) => ({ event, item })))
-    const last = withItem
-      .filter(({ event }) => event.status === 'done')
-      .sort((a, b) => b.event.date.localeCompare(a.event.date))[0]
-    const next = withItem
-      .filter(({ event }) => event.status === 'planned')
-      .sort((a, b) => a.event.date.localeCompare(b.event.date))[0]
+  const titles = { fleasTicks: t.medicalRecord.parasiteTitle.fleasTicks, worms: t.medicalRecord.parasiteTitle.worms }
+  return parasiteCovers(events).map(({ cover, last, next }) => {
     const status = next ? dueStatus(t, next.event.date, today) : null
     return {
-      group,
-      title,
+      group: cover,
+      title: titles[cover],
       last: last ? day(t, last.event.date, today) : null,
       product: last?.item.name ?? null,
       next: status ? { text: dueLine(status), tone: status.tone } : null,

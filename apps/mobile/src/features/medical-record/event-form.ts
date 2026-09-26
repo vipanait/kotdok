@@ -1,7 +1,7 @@
-import { PARASITE_TARGETS, type HealthEvent, type HealthEventInput, type HealthProduct, type HealthTarget } from '@lapka/contracts'
-import { addInterval, type Interval } from '@lapka/shared'
+import type { HealthEvent, HealthEventInput, HealthProduct, HealthTarget } from '@lapka/contracts'
+import { eventDayProblem, fallbackInterval, nextDayProblem, suggestNextDay, toggleParasiteGroup, type Interval } from '@lapka/shared'
 import type { Dictionary } from '@/i18n'
-import { dayInput, localToday, parseDayInput, parseDayText, parseFutureDayInput } from '@/lib/calendar-day'
+import { dayInput, localToday, parseDayText } from '@/lib/calendar-day'
 
 /**
  * The record form — vaccinations and treatments — as text fields, and turning it into a request. No
@@ -54,14 +54,7 @@ export function blankItem(key: string, kind: HealthEvent['kind'] = 'vaccination'
  * turning it on adds the group's own code.
  */
 export function toggleGroup(item: ItemDraft, group: 'fleas' | 'ticks' | 'worms'): ItemDraft {
-  const inGroup = PARASITE_TARGETS.filter((target) => target.group === group).map((target) => target.code as string)
-  const has = item.targets.some((target) => inGroup.includes(target))
-  return {
-    ...item,
-    targets: has
-      ? item.targets.filter((target) => !inGroup.includes(target))
-      : [...item.targets, group as HealthTarget],
-  }
+  return { ...item, targets: toggleParasiteGroup(item.targets, group) }
 }
 
 /**
@@ -91,11 +84,7 @@ export function renameItem(item: ItemDraft, name: string): ItemDraft {
 
 /** The interval «suggested» next dates use: the product's, else a year for a vaccine, a month or three for a treatment. */
 export function itemInterval(item: ItemDraft): Interval {
-  if (item.interval) return item.interval
-  if (item.kind === 'vaccination') return { value: 1, unit: 'year' }
-  // Against worms alone every three months; fleas and ticks, monthly.
-  const wormsOnly = item.targets.length > 0 && item.targets.every((target) => target === 'worms' || target === 'heartworm')
-  return wormsOnly ? { value: 3, unit: 'month' } : { value: 1, unit: 'month' }
+  return item.interval ?? fallbackInterval(item.kind, item.targets)
 }
 
 export function blankDraft(
@@ -126,6 +115,16 @@ export function draftFromEvent(event: HealthEvent): EventDraft {
     clinic: event.clinic ?? '',
     notes: event.notes ?? '',
   }
+}
+
+/**
+ * Whether the form says that a done record cannot be changed afterwards: a
+ * new done record, and «Сделано» on a plan — the first save of something
+ * done (implementation-handoff, «Окончательное правило»). A plan being moved
+ * stays a plan, so it does not.
+ */
+export function warnsDoneIsFinal(mode: FormMode, status: EventDraft['status']): boolean {
+  return mode === 'complete' || (mode === 'new' && status === 'done')
 }
 
 export function draftChanged(before: EventDraft, after: EventDraft): boolean {
@@ -173,12 +172,10 @@ export type ReadDraft =
  */
 export function nextDate(item: ItemDraft, recordDay: string, today: string = localToday()): string | null | undefined {
   if (item.next === 'none') return null
-  if (item.next === 'year') {
-    const next = addInterval(recordDay, itemInterval(item))
-    return next >= today ? next : null
-  }
+  if (item.next === 'year') return suggestNextDay(recordDay, itemInterval(item), today)
   const day = parseDayText(item.nextText)
-  return day !== null && day > recordDay && day >= today ? day : undefined
+  // The rule is shared with the site: after the record's day, not in the past.
+  return day !== null && nextDayProblem(day, recordDay, today) === null ? day : undefined
 }
 
 /**
@@ -196,12 +193,11 @@ export function readDraft(
   const words = t.medicalRecord
   const errors: DraftErrors = {}
 
-  const unchanged = keptDate !== undefined && parseDayText(draft.date) === keptDate
-  const date = unchanged
-    ? keptDate
-    : draft.status === 'done'
-      ? parseDayInput(draft.date, now)
-      : parseFutureDayInput(draft.date, now)
+  // The day rules are shared with the site (@lapka/shared `eventDayProblem`): done not after
+  // today, a plan not before it, an overdue plan may keep its own day.
+  const typed = parseDayText(draft.date)
+  const date =
+    typed !== null && eventDayProblem(typed, draft.status, localToday(now), keptDate ?? null) === null ? typed : null
   if (!date) errors.date = draft.status === 'done' ? words.dateInvalid : words.plannedDateInvalid
 
   const treatment = draft.kind === 'parasite'

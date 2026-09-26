@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { ApiError, ApiTimeoutError, createApiClient, type FetchLike } from './api-client'
+import { ApiError, ApiTimeoutError, createApiClient, type AbortSignalLike, type FetchLike } from './api-client'
 
 const BASE = 'https://example.test'
 
@@ -73,6 +73,55 @@ describe('api client deadline', () => {
   })
 })
 
+/** The runtime's abort and timers; this package compiles without DOM or Node types. */
+const runtime = globalThis as unknown as {
+  AbortController: new () => { signal: AbortSignalLike; abort(): void }
+  setTimeout: (handler: () => void, ms: number) => unknown
+}
+
+describe('catalogue search', () => {
+  it('aborts a search the caller no longer wants, without calling it a timeout', async () => {
+    const urls: string[] = []
+    const hang: FetchLike = (url, init) =>
+      new Promise((_resolve, reject) => {
+        urls.push(url)
+        // As fetch does: an already aborted signal rejects at once.
+        const signal = init?.signal as { aborted: boolean; addEventListener(type: string, fn: () => void): void }
+        if (signal.aborted) reject(new Error('aborted'))
+        signal.addEventListener('abort', () => reject(new Error('aborted')))
+      })
+    const api = createApiClient({ baseUrl: BASE, fetch: hang, timeoutMs: 10_000 })
+    const caller = new runtime.AbortController()
+
+    const search = api.getCatalog('dog', 'vaccine', 'нобив', { signal: caller.signal })
+    // In flight: asked, no answer yet.
+    await new Promise<void>((resolve) => runtime.setTimeout(resolve, 0))
+    expect(urls).toHaveLength(1)
+    caller.abort()
+
+    await expect(search).rejects.toThrow('aborted')
+    await expect(search).rejects.not.toBeInstanceOf(ApiTimeoutError)
+    expect(urls).toEqual([`${BASE}/api/v1/health/catalog?species=dog&kind=vaccine&q=%D0%BD%D0%BE%D0%B1%D0%B8%D0%B2`])
+  })
+
+  it('does not even ask when the caller gave up before the call', async () => {
+    let aborted = false
+    const hang: FetchLike = (_url, init) =>
+      new Promise((_resolve, reject) => {
+        const signal = init?.signal as { aborted: boolean; addEventListener(type: string, fn: () => void): void }
+        aborted = signal.aborted
+        if (signal.aborted) reject(new Error('aborted'))
+        signal.addEventListener('abort', () => reject(new Error('aborted')))
+      })
+    const api = createApiClient({ baseUrl: BASE, fetch: hang })
+    const caller = new runtime.AbortController()
+    caller.abort()
+
+    await expect(api.getCatalog('cat', 'vaccine', '', { signal: caller.signal })).rejects.toThrow('aborted')
+    expect(aborted).toBe(true)
+  })
+})
+
 describe('consent calls', () => {
   it('reads the status and sends consent', async () => {
     const seen: Array<[string, string]> = []
@@ -135,5 +184,23 @@ describe('medical record', () => {
     const api = createApiClient({ baseUrl: BASE, fetch })
 
     await expect(api.getHealthOverview('x')).rejects.toThrow()
+  })
+})
+
+describe('summary for the vet', () => {
+  it('sends the owner’s day when given, and nothing when not (an older caller)', async () => {
+    const seen: string[] = []
+    const fetch: FetchLike = async (url) => {
+      seen.push(String(url))
+      // Any body: only the address matters here.
+      return ok({})
+    }
+    const api = createApiClient({ baseUrl: BASE, fetch })
+    const pet = '11111111-1111-4111-8111-000000000001'
+
+    await api.getVetSummary(pet, '2026-09-27').catch(() => null)
+    await api.getVetSummary(pet).catch(() => null)
+
+    expect(seen).toEqual([`${BASE}/api/v1/pets/${pet}/health/summary?today=2026-09-27`, `${BASE}/api/v1/pets/${pet}/health/summary`])
   })
 })

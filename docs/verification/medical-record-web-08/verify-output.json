@@ -1,0 +1,268 @@
+{
+  "site": "http://localhost:3100",
+  "today": "2026-09-26",
+  "pets": {
+    "count": 5,
+    "murka": "b00ea3d2-fa1e-48d8-bacc-438d0ee2103b",
+    "bobik": "4dedcf93-2dd3-42be-88c1-7960f1dc5306",
+    "baron": "0a752263-9db7-4769-9e16-4aeb9bb504c5"
+  },
+  "checks": {
+    "dueApi": {
+      "total": 5,
+      "expectedLines": {
+        "Мурка": {
+          "date": "2026-09-12",
+          "kind": "parasite"
+        }
+      }
+    },
+    "criterion1": {
+      "pets": 5,
+      "overviewRows": 3,
+      "overviewCardHeight": 576,
+      "allLink": {
+        "text": "Все питомцы · 5",
+        "href": "/pets"
+      },
+      "rows": [
+        {
+          "name": "Мурка",
+          "due": null,
+          "tone": null,
+          "dueOneLine": null,
+          "href": "/pets/11111111-1111-4111-8111-000000000001",
+          "accessibleName": "Муркаsiberian · 4 годаПоследняя проверка:Наблюдаем"
+        },
+        {
+          "name": "Рекс",
+          "due": null,
+          "tone": null,
+          "dueOneLine": null,
+          "href": "/pets/11111111-1111-4111-8111-000000000002",
+          "accessibleName": "Рексlabrador · 3 годаПоследняя проверка:Срочно"
+        },
+        {
+          "name": "Мурка",
+          "due": "Блохи и клещи — просрочено",
+          "tone": "overdue",
+          "dueOneLine": true,
+          "href": "/pets/b00ea3d2-fa1e-48d8-bacc-438d0ee2103b",
+          "accessibleName": "МуркаСибирская · 3 годаБлохи и клещи — просроченоПоследняя проверка:Наблюдаем"
+        }
+      ],
+      "wrongLines": [],
+      "firstLineOpens": {
+        "path": "/pets/b00ea3d2-fa1e-48d8-bacc-438d0ee2103b",
+        "heading": "Мурка"
+      },
+      "listRows": 5,
+      "listRowsWithLine": [
+        {
+          "name": "Мурка",
+          "due": "Блохи и клещи — просрочено",
+          "tone": "overdue",
+          "oneLine": true
+        }
+      ],
+      "wrongListLines": [],
+      "browserApiRequestsOnOverview": []
+    },
+    "lines390": [
+      {
+        "due": "Блохи и клещи — просрочено",
+        "oneLine": true
+      }
+    ],
+    "lines320": [
+      {
+        "due": "Блохи и клещи — просрочено",
+        "oneLine": true
+      }
+    ],
+    "petForm": {
+      "murkaHints": [
+        {
+          "label": "Вес, кг",
+          "hint": "История веса — в медкарте",
+          "describedBy": true
+        },
+        {
+          "label": "Вакцинация",
+          "hint": "В медкарте 1 прививка",
+          "describedBy": true
+        },
+        {
+          "label": "Принимает препараты",
+          "hint": "Дозировка и даты — в медкарте",
+          "describedBy": true
+        }
+      ],
+      "bobikHints": [],
+      "savedUnchanged": {
+        "weight_measured_on": "2026-09-26",
+        "weight_kg_before": 28,
+        "medications_before": [],
+        "weightsBefore": 0,
+        "weightsAfter": 0
+      },
+      "afterSave": {
+        "path": "/pets/4dedcf93-2dd3-42be-88c1-7960f1dc5306",
+        "drawnFirst": "skeleton",
+        "notice": {
+          "text": "Анкета сохранена.",
+          "focused": true,
+          "addressCleared": true
+        }
+      },
+      "cancelHref": "/pets/4dedcf93-2dd3-42be-88c1-7960f1dc5306"
+    },
+    "criterion3": {
+      "measured": 110,
+      "problems": [],
+      "sample": {
+        "record@390": {
+          "overflow": 0,
+          "pinned": [
+            "health-actions",
+            "mobile-nav"
+          ],
+          "coveredBy": 0,
+          "actionsOverNav": 0
+        },
+        "new-medication@390": {
+          "overflow": 0,
+          "pinned": [
+            "mobile-nav"
+          ],
+          "coveredBy": 0,
+          "actionsOverNav": null
+        }
+      }
+    },
+    "criterion4": {
+      "offline": {
+        "banner": "Нет связи с сервером. Введённые данные сохранены в форме — попробуйте ещё раз.",
+        "name": "Проверка MW-08",
+        "dosage": "1 таблетка вечером",
+        "stillOnForm": true,
+        "buttonUsable": true
+      },
+      "pending": {
+        "ariaBusy": "true",
+        "button": "Сохраняем…",
+        "requestsForTwoTaps": 1
+      },
+      "lost": {
+        "banner": "Нет связи с сервером. Введённые данные сохранены в форме — попробуйте ещё раз.",
+        "name": "Проверка MW-08",
+        "stored": 1
+      },
+      "retry": {
+        "keys": 1,
+        "requests": 3,
+        "storedOnce": true
+      },
+      "petForm": {
+        "error": "Не удалось сохранить профиль. Попробуйте ещё раз.",
+        "allergies": "Курица, рыба",
+        "stillOnForm": true
+      }
+    },
+    "recordOffline": {
+      "problem": "Не удалось загрузить медкартуПроверьте соединение и попробуйте ещё раз. Данные питомца не изменились.Повторить",
+      "emptyRecordShown": false,
+      "afterRetry": true
+    },
+    "keyboard": {
+      "petRowStops": [
+        {
+          "outside": false,
+          "text": "Муркаsiberian · 4 годаПоследняя проверка:Наблюдаем",
+          "href": "/pets/11111111-1111-4111-8111-000000000001",
+          "focusVisible": true
+        },
+        {
+          "outside": false,
+          "text": "Рексlabrador · 3 годаПоследняя проверка:Срочно",
+          "href": "/pets/11111111-1111-4111-8111-000000000002",
+          "focusVisible": true
+        },
+        {
+          "outside": false,
+          "text": "МуркаСибирская · 3 годаБлохи и клещи — просроченоПоследняя п",
+          "href": "/pets/b00ea3d2-fa1e-48d8-bacc-438d0ee2103b",
+          "focusVisible": true
+        }
+      ],
+      "pageStops": 28,
+      "allFocusVisible": true,
+      "withoutVisibleFocus": [],
+      "overdueLinkByName": 1
+    },
+    "criterion5": {
+      "ownerBRows": [
+        "Barsik"
+      ],
+      "ownerBSeesA": false,
+      "foreignPages": {
+        "/": {
+          "status": 404,
+          "leaksData": []
+        },
+        "/edit": {
+          "status": 404,
+          "leaksData": []
+        },
+        "/vet-summary": {
+          "status": 404,
+          "leaksData": []
+        },
+        "/health/due": {
+          "status": 404,
+          "leaksData": []
+        },
+        "/health/vaccinations": {
+          "status": 404,
+          "leaksData": []
+        },
+        "/health/new?type=vaccination": {
+          "status": 404,
+          "leaksData": []
+        }
+      },
+      "malformedId": 404,
+      "api": {
+        "bReadsARecord": 404,
+        "bReadsASummary": 404,
+        "bPatchesAPet": 404,
+        "noToken": 401,
+        "bDueHasA": false
+      },
+      "signedOut": {
+        "status": 307,
+        "location": "/login?next=%2Fpets%2Fb00ea3d2-fa1e-48d8-bacc-438d0ee2103b%2Fvet-summary"
+      }
+    },
+    "fileTitle": {
+      "onSummary": "Мурка — медкарта — 26.09.2026",
+      "afterLeaving": "Питомцы — Лапка"
+    },
+    "push": {
+      "calls": [],
+      "note": "Notification.requestPermission, serviceWorker.register and PushManager.subscribe wrapped on every page of the run",
+      "afterRun": {
+        "notificationPermission": "default",
+        "serviceWorkers": 0
+      }
+    }
+  },
+  "consoleErrors": [
+    "owner-a@fixture.local 390 /pets/b00ea3d2-fa1e-48d8-bacc-438d0ee2103b/health/new: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "owner-a@fixture.local 390 /pets/b00ea3d2-fa1e-48d8-bacc-438d0ee2103b/health/new: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "owner-a@fixture.local 390 /pets/4dedcf93-2dd3-42be-88c1-7960f1dc5306/edit: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "owner-a@fixture.local 390 /pets/b00ea3d2-fa1e-48d8-bacc-438d0ee2103b: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "owner-a@fixture.local 390 /pets/b00ea3d2-fa1e-48d8-bacc-438d0ee2103b: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "owner-b@fixture.local 1440 /pets/b00ea3d2-fa1e-48d8-bacc-438d0ee2103b: Failed to load resource: the server responded with a status of 404 (Not Found)"
+  ]
+}

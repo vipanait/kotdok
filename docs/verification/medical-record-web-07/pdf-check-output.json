@@ -1,0 +1,448 @@
+{
+  "baron.pdf": {
+    "pages": 7,
+    "detail": [
+      {
+        "page": 1,
+        "size_mm": [
+          210,
+          297
+        ],
+        "chars": 1559,
+        "cyrillic_chars": 1120,
+        "words_outside_side_margins": [],
+        "footer": true,
+        "table_headings": {
+          "vaccinations": 1,
+          "parasites": 1
+        },
+        "first_line": "Медкарта: Барон Мурлыкенштейн фон Длиннохвостов-",
+        "blank": false
+      },
+      {
+        "page": 2,
+        "size_mm": [
+          210,
+          297
+        ],
+        "chars": 2043,
+        "cyrillic_chars": 1519,
+        "words_outside_side_margins": [],
+        "footer": true,
+        "table_headings": {
+          "visits": 1
+        },
+        "first_line": "Визиты за последний год",
+        "blank": false
+      },
+      {
+        "page": 3,
+        "size_mm": [
+          210,
+          297
+        ],
+        "chars": 2319,
+        "cyrillic_chars": 1745,
+        "words_outside_side_margins": [],
+        "footer": true,
+        "table_headings": {
+          "visits": 1
+        },
+        "first_line": "Дата / вид",
+        "blank": false
+      },
+      {
+        "page": 4,
+        "size_mm": [
+          210,
+          297
+        ],
+        "chars": 2419,
+        "cyrillic_chars": 1787,
+        "words_outside_side_margins": [],
+        "footer": true,
+        "table_headings": {
+          "visits": 1
+        },
+        "first_line": "Дата / вид",
+        "blank": false
+      },
+      {
+        "page": 5,
+        "size_mm": [
+          210,
+          297
+        ],
+        "chars": 2625,
+        "cyrillic_chars": 1969,
+        "words_outside_side_margins": [],
+        "footer": true,
+        "table_headings": {
+          "visits": 1
+        },
+        "first_line": "Дата / вид",
+        "blank": false
+      },
+      {
+        "page": 6,
+        "size_mm": [
+          210,
+          297
+        ],
+        "chars": 1478,
+        "cyrillic_chars": 1080,
+        "words_outside_side_margins": [],
+        "footer": true,
+        "table_headings": {
+          "visits": 1
+        },
+        "first_line": "Дата / вид",
+        "blank": false
+      },
+      {
+        "page": 7,
+        "size_mm": [
+          210,
+          297
+        ],
+        "chars": 500,
+        "cyrillic_chars": 381,
+        "words_outside_side_margins": [],
+        "footer": true,
+        "table_headings": {},
+        "first_line": "Последние проверки",
+        "blank": false
+      }
+    ]
+  },
+  "bobik.pdf": {
+    "pages": 1,
+    "detail": [
+      {
+        "page": 1,
+        "size_mm": [
+          210,
+          297
+        ],
+        "chars": 516,
+        "cyrillic_chars": 397,
+        "words_outside_side_margins": [],
+        "footer": true,
+        "table_headings": {},
+        "first_line": "Медкарта: Бобик",
+        "blank": false
+      }
+    ]
+  },
+  "foreign-print.pdf": {
+    "pages": 1,
+    "detail": [
+      {
+        "page": 1,
+        "size_mm": [
+          216,
+          279
+        ],
+        "chars": 269,
+        "cyrillic_chars": 211,
+        "words_outside_side_margins": [
+          "Лапка",
+          "EN"
+        ],
+        "footer": false,
+        "table_headings": {},
+        "first_line": "Личный кабинет",
+        "blank": false
+      }
+    ]
+  },
+  "ios-safari-baron-before-fix.pdf": {
+    "pages": 9,
+    "detail": [
+      {
+        "page": 1,
+        "size_mm": [
+          210,
+          297
+        ],
+        "chars": 1224,
+        "cyrillic_chars": 821,
+        "words_outside_side_margins": [],
+        "footer": false,
+        "table_headings": {
+          "vaccinations": 1
+        },
+        "first_line": "главный кот третьего подъезда",
+        "blank": false
+      },
+      {
+        "page": 2,
+        "size_mm": [
+          210,
+          297
+        ],
+        "chars": 1267,
+        "cyrillic_chars": 826,
+        "words_outside_side_margins": [],
+        "footer": false,
+        "table_headings": {
+          "visits": 1
+        },
+        "first_line": "калицивироза и",
+        "blank": false
+      },
+      {
+        "page": 3,
+        "size_mm": [
+          210,
+          297
+        ],
+        "chars": 1567,
+        "cyrillic_chars": 1087,
+        "words_outside_side_margins": [],
+        "footer": false,
+        "table_headings": {},
+        "first_line": "измерение давления через",
+        "blank": false
+      },
+      {
+        "page": 4,
+        "size_mm": [
+          210,
+          297
+        ],
+        "chars": 1483,
+        "cyrillic_chars": 1047,
+        "words_outside_side_margins": [],
+        "footer": false,
+        "table_headings": {},
+        "first_line": "приём и сообщить лечащему врачу",
+        "blank": false
+      },
+      {
+        "page": 5,
+        "size_mm": [
+          210,
+          297
+        ],
+        "chars": 1612,
+        "cyrillic_chars": 1126,
+        "words_outside_side_margins": [],
+        "footer": false,
+        "table_headings": {},
+        "first_line": "приём и сообщить лечащему врачу",
+        "blank": false
+      },
+      {
+        "page": 6,
+        "size_mm": [
+          210,
+          297
+        ],
+        "chars": 1799,
+        "cyrillic_chars": 1241,
+        "words_outside_side_margins": [],
+        "footer": false,
+        "table_headings": {},
+        "first_line": "пензиядляперорального",
+        "blank": false
+      },
+      {
+        "page": 7,
+        "size_mm": [
+          210,
+          297
+        ],
+        "chars": 1502,
+        "cyrillic_chars": 1046,
+        "words_outside_side_margins": [],
+        "footer": false,
+        "table_headings": {},
+        "first_line": "креатинин в моче,",
+        "blank": false
+      },
+      {
+        "page": 8,
+        "size_mm": [
+          210,
+          297
+        ],
+        "chars": 1604,
+        "cyrillic_chars": 1167,
+        "words_outside_side_margins": [],
+        "footer": false,
+        "table_headings": {},
+        "first_line": "дней; при рвоте или отказе от еды",
+        "blank": false
+      },
+      {
+        "page": 9,
+        "size_mm": [
+          210,
+          297
+        ],
+        "chars": 1006,
+        "cyrillic_chars": 612,
+        "words_outside_side_margins": [],
+        "footer": false,
+        "table_headings": {},
+        "first_line": "Ипакитине — По схеме врача",
+        "blank": false
+      }
+    ]
+  },
+  "ios-safari-baron.pdf": {
+    "pages": 8,
+    "detail": [
+      {
+        "page": 1,
+        "size_mm": [
+          210,
+          297
+        ],
+        "chars": 1222,
+        "cyrillic_chars": 836,
+        "words_outside_side_margins": [],
+        "footer": false,
+        "table_headings": {},
+        "first_line": "главный кот третьего подъезда",
+        "blank": false
+      },
+      {
+        "page": 2,
+        "size_mm": [
+          210,
+          297
+        ],
+        "chars": 729,
+        "cyrillic_chars": 432,
+        "words_outside_side_margins": [],
+        "footer": false,
+        "table_headings": {},
+        "first_line": "Препарат: Нобивак Tricat Trio — комплексная вакцина против панлейкопении,",
+        "blank": false
+      },
+      {
+        "page": 3,
+        "size_mm": [
+          210,
+          297
+        ],
+        "chars": 2156,
+        "cyrillic_chars": 1519,
+        "words_outside_side_margins": [],
+        "footer": false,
+        "table_headings": {},
+        "first_line": "Назначения: Препарат 1 после визита 24 — Семинтра — По схеме врача; Препарат 2",
+        "blank": false
+      },
+      {
+        "page": 4,
+        "size_mm": [
+          210,
+          297
+        ],
+        "chars": 2712,
+        "cyrillic_chars": 1944,
+        "words_outside_side_margins": [],
+        "footer": false,
+        "table_headings": {},
+        "first_line": "Назначения: Препарат 1 после визита 19 — Семинтра — По 0,5 таблетки два раза в день",
+        "blank": false
+      },
+      {
+        "page": 5,
+        "size_mm": [
+          210,
+          297
+        ],
+        "chars": 2333,
+        "cyrillic_chars": 1652,
+        "words_outside_side_margins": [],
+        "footer": false,
+        "table_headings": {},
+        "first_line": "Назначения: Препарат 1 после визита 14 — Семинтра — По схеме врача; Препарат 2",
+        "blank": false
+      },
+      {
+        "page": 6,
+        "size_mm": [
+          210,
+          297
+        ],
+        "chars": 2762,
+        "cyrillic_chars": 1989,
+        "words_outside_side_margins": [],
+        "footer": false,
+        "table_headings": {},
+        "first_line": "артериальной гипертензией; рекомендовано наблюдение нефролога каждые три",
+        "blank": false
+      },
+      {
+        "page": 7,
+        "size_mm": [
+          210,
+          297
+        ],
+        "chars": 1548,
+        "cyrillic_chars": 1052,
+        "words_outside_side_margins": [],
+        "footer": false,
+        "table_headings": {},
+        "first_line": "артериальной гипертензией; рекомендовано наблюдение нефролога каждые три",
+        "blank": false
+      },
+      {
+        "page": 8,
+        "size_mm": [
+          210,
+          297
+        ],
+        "chars": 503,
+        "cyrillic_chars": 305,
+        "words_outside_side_margins": [],
+        "footer": false,
+        "table_headings": {},
+        "first_line": "23 сентября 2026",
+        "blank": false
+      }
+    ]
+  },
+  "murka.pdf": {
+    "pages": 2,
+    "detail": [
+      {
+        "page": 1,
+        "size_mm": [
+          210,
+          297
+        ],
+        "chars": 1055,
+        "cyrillic_chars": 639,
+        "words_outside_side_margins": [],
+        "footer": true,
+        "table_headings": {
+          "vaccinations": 1,
+          "parasites": 1,
+          "visits": 1
+        },
+        "first_line": "Медкарта: Мурка",
+        "blank": false
+      },
+      {
+        "page": 2,
+        "size_mm": [
+          210,
+          297
+        ],
+        "chars": 261,
+        "cyrillic_chars": 196,
+        "words_outside_side_margins": [],
+        "footer": true,
+        "table_headings": {},
+        "first_line": "Последние проверки",
+        "blank": false
+      }
+    ]
+  }
+}

@@ -27,6 +27,14 @@ export const ERROR_CODES = {
    * `unauthorized`.
    */
   reauth_required: 'reauth_required',
+  /**
+   * The record is a procedure that was done (a vaccination or a treatment),
+   * a vet visit that happened, or a finished medication course: it is history and can be read or deleted, never changed (owner rule of
+   * 26 September 2026). Its own code, not `conflict`: nothing the client
+   * sends again will be accepted, and the client's next move is to show the
+   * record, not to offer a retry.
+   */
+  record_done: 'record_done',
   dependency_unavailable: 'dependency_unavailable',
   internal_error: 'internal_error',
 } as const
@@ -51,6 +59,7 @@ export const ERROR_STATUS: Record<ErrorCode, number> = {
   account_deleting: 403,
   consent_required: 403,
   reauth_required: 401,
+  record_done: 409,
   dependency_unavailable: 503,
   internal_error: 500,
 }

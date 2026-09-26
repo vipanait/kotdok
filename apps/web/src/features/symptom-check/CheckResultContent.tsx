@@ -9,6 +9,7 @@ import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
 import type { CheckPet } from '@/shared/types'
 import { petSummary } from '@/shared/utils/pet-summary'
 import { CLINIC_URGENCIES, VET_URGENCIES, urgencyTitle } from '@/shared/utils/urgency'
+import { MEDICAL_RECORD_STAGE, medicalRecordHref } from '@/features/medical-record/stage'
 
 /** A map search for clinics near the owner, in the site's language. */
 function clinicSearchUrl(query: string): string {
@@ -91,6 +92,12 @@ export default function CheckResultContent({ check, dict, locale, timeZone, pet,
     || (petSpecies === 'dog' ? t.speciesDog : petSpecies === 'cat' ? t.speciesCat : '')
   const when = formatCheckDateTime(check.created_at, locale, timeZone)
   const newCheckHref = pet ? `/check?pet=${pet.id}` : '/check'
+  // «Записать визит к врачу» (spec §7.22): a saved result of a pet that is still there, any urgency
+  // but «Всё в порядке». The visit form gets this check's real id and links it.
+  const visitHref =
+    MEDICAL_RECORD_STAGE.visits && check.id && pet && !isHealthy
+      ? `${medicalRecordHref.newRecord(pet.id, 'visit')}&check=${encodeURIComponent(check.id)}`
+      : null
 
   return (
     <>
@@ -201,6 +208,11 @@ export default function CheckResultContent({ check, dict, locale, timeZone, pet,
             <p className="footnote result-disclaimer" lang={text(full.disclaimer) ? answerLang : undefined}>
               {disclaimer}
             </p>
+            {visitHref && (
+              <Link href={visitHref} className="btn secondary result-visit">
+                {t.recordVisit}
+              </Link>
+            )}
           </section>
         </div>
 

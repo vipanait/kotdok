@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import type { Medication } from '@lapka/contracts'
 import { ru } from '@/i18n/ru'
-import { blankCourse, courseDates, isCurrent, readCourses, splitCourses } from './medications'
+import { isCurrentCourse as isCurrent, splitCourses } from '@lapka/shared'
+import { blankCourse, courseDates, readCourses } from './medications'
 
 const TODAY = '2026-09-24'
 const NOW = new Date(2026, 8, 24, 12, 0)
@@ -35,6 +36,8 @@ describe('the dates of a course (MR-06.4)', () => {
     expect(courseDates(ru, course({ started_on: '2025-12-20', ended_on: '2026-01-10' }), TODAY)).toBe('20 декабря 2025 – 10 января 2026')
     expect(courseDates(ru, course({ started_on: '2026-08-02' }), TODAY)).toBe('с 2 августа')
     expect(courseDates(ru, course({ source: 'form' }), TODAY)).toBe('Из анкеты — добавьте дозировку и даты')
+    // Ended on the day it started (MW-05: «Завершить курс» on a course begun today).
+    expect(courseDates(ru, course({ started_on: TODAY, ended_on: TODAY }), TODAY)).toBe('24 сентября')
   })
 })
 

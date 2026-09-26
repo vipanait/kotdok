@@ -288,21 +288,41 @@ describe('marking a plan done', () => {
 })
 
 describe('correcting, cancelling and listing', () => {
-  it('replaces the items of a record and keeps plans made from it', async () => {
+  it('replaces the items of a plan and keeps its id and day (owner rule 26.09: a done record is not corrected)', async () => {
+    const plan = HealthEventSchema.parse(
+      await (await create({ kind: 'vaccination', status: 'planned', date: day(30), items: [tricat, rabies] })).json(),
+    )
+    const response = await patchEvent(
+      request(tokenA, 'PATCH', { clinic: 'Вет-клиника', items: [{ id: plan.items[0].id, name: 'Пуревакс RCP', targets: tricat.targets }] }),
+      eventParams(pet, plan.id),
+    )
+    expect(response.status).toBe(200)
+    const fixed = HealthEventSchema.parse(await response.json())
+    expect(fixed.id).toBe(plan.id)
+    expect(fixed.date).toBe(day(30))
+    expect(fixed.clinic).toBe('Вет-клиника')
+    expect(fixed.items.map((i) => [i.id, i.name])).toEqual([[plan.items[0].id, 'Пуревакс RCP']])
+  })
+
+  it('refuses any change of a done record with record_done and keeps it and its plans as they were', async () => {
     const done = HealthEventSchema.parse(
       await (
         await create({ kind: 'vaccination', status: 'done', date: day(-1), items: [{ ...tricat, next_on: day(364) }, rabies] })
       ).json(),
     )
-    const response = await patchEvent(
-      request(tokenA, 'PATCH', { clinic: 'Вет-клиника', items: [{ id: done.items[0].id, name: 'Пуревакс RCP', targets: tricat.targets }] }),
-      eventParams(pet, done.id),
-    )
-    expect(response.status).toBe(200)
-    const fixed = HealthEventSchema.parse(await response.json())
-    expect(fixed.clinic).toBe('Вет-клиника')
-    expect(fixed.items.map((i) => i.name)).toEqual(['Пуревакс RCP'])
-    expect((await overview()).events.filter((e) => e.status === 'planned')).toHaveLength(1)
+    for (const body of [
+      { clinic: 'Вет-клиника' },
+      { notes: 'x' },
+      { date: day(-2) },
+      { items: [{ id: done.items[0].id, name: 'Пуревакс RCP', targets: tricat.targets }] },
+    ]) {
+      const response = await patchEvent(request(tokenA, 'PATCH', body), eventParams(pet, done.id))
+      expect(response.status).toBe(409)
+      expect((await response.json()).error.code).toBe('record_done')
+    }
+    const after = (await overview()).events
+    expect(after.find((e) => e.id === done.id)).toEqual(done)
+    expect(after.filter((e) => e.status === 'planned')).toHaveLength(1)
   })
 
   it('cancels a plan and deletes a record', async () => {

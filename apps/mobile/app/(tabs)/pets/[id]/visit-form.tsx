@@ -9,7 +9,16 @@ import { localToday } from '@/lib/calendar-day'
 import { newRequestKey } from '@/lib/request-key'
 import { useText } from '@/i18n'
 import { urgencyText } from '@/features/checks/urgency'
-import { blankVisit, readVisit, recentChecks, visitDraftFrom, type VisitDraft, type VisitErrors } from '@/features/medical-record/visits'
+import {
+  blankVisit,
+  readVisit,
+  recentChecks,
+  visitDraftFrom,
+  visitLocked,
+  warnsHeldIsFinal,
+  type VisitDraft,
+  type VisitErrors,
+} from '@/features/medical-record/visits'
 import { useReminders } from '@/features/medical-record/reminders/ReminderProvider'
 import { useUnsavedChanges } from '@/features/unsaved/useUnsavedChanges'
 import { Button, IconButton, LinkButton } from '@/ui/Button'
@@ -33,7 +42,11 @@ type Params = {
 /**
  * A vet visit (M9): «Был» with diagnosis and prescriptions, or «Запланировать».
  * From a result it opens filled in (§7.22). The check list holds this pet's
- * checks of the last 30 days; a link made earlier stays after that.
+ * checks of the last 30 days; a link made earlier stays after that. Only a
+ * plan is changed or marked «Был»: a visit that happened is history (owner
+ * rule of 26 September 2026) — its form does not open, and a `record_done`
+ * answer locks the form. Saving a visit that happened warns first that it
+ * cannot be changed afterwards.
  */
 export default function VisitForm() {
   const params = useLocalSearchParams<Params>()
@@ -45,18 +58,20 @@ export default function VisitForm() {
   const [initial, setInitial] = useState<VisitDraft | null>(null)
   const [draft, setDraft] = useState<VisitDraft | null>(null)
   const [keptDate, setKeptDate] = useState<string | undefined>(undefined)
-  const [checks, setChecks] = useState<SymptomCheckRecord[]>([])
+  /** This pet's latest checks as loaded; which of them the form offers is worked out when drawn. */
+  const [loadedChecks, setLoadedChecks] = useState<SymptomCheckRecord[]>([])
   const [errors, setErrors] = useState<VisitErrors>({})
   const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
   const [busy, setBusy] = useState(false)
+  /** A visit that happened: nothing here can change it. */
+  const [locked, setLocked] = useState(false)
   const requestKey = useRef(newRequestKey())
   const nextKey = useRef(1)
 
   useEffect(() => {
-    // Checks of the last 30 days: a visit follows a check soon after it.
     withFreshSession((api) => api.listChecks({ pet_id: petId, limit: HISTORY_PAGE_SIZE_MAX }))
-      .then((page) => setChecks(recentChecks(page.items)))
-      .catch(() => setChecks([]))
+      .then((page) => setLoadedChecks(page.items))
+      .catch(() => setLoadedChecks([]))
 
     if (mode === 'new') {
       const start = blankVisit('done')
@@ -73,6 +88,10 @@ export default function VisitForm() {
       .then((overview) => {
         const visit = overview.events.find((event) => event.id === params.eventId && event.kind === 'visit')
         if (!visit) throw new Error('not found')
+        if (visitLocked(visit)) {
+          setLocked(true)
+          return
+        }
         const start = visitDraftFrom(visit, mode === 'done' ? 'done' : undefined)
         setKeptDate(visit.date)
         setInitial(start)
@@ -116,22 +135,35 @@ export default function VisitForm() {
       else reminders.refresh()
       unsaved.leave(then)
     } catch (cause) {
-      if (cause instanceof ApiError && cause.code === 'conflict') setError({ text: t.medicalRecord.alreadySaved, offline: false })
+      if (cause instanceof ApiError && cause.code === 'record_done') {
+        // Marked «Был» meanwhile (another device): history now, nothing to save.
+        unsaved.leave(() => setLocked(true))
+      } else if (cause instanceof ApiError && cause.code === 'conflict') setError({ text: t.medicalRecord.alreadySaved, offline: false })
       else setError(describeFailure(t, cause, t.medicalRecord.saveEventFailed))
     } finally {
       setBusy(false)
     }
   }
 
-  if (!draft) {
+  if (!draft || locked) {
     return (
       <Screen title={words.visitTitle} onBack={() => router.back()}>
-        {error ? <Banner text={error.text} tone="error" icon={error.offline ? 'wifi' : 'alert'} /> : null}
+        {error && !locked ? <Banner text={error.text} tone="error" icon={error.offline ? 'wifi' : 'alert'} /> : null}
+        {locked ? (
+          <>
+            <Banner text={words.heldLocked} tone="info" />
+            <Button title={t.common.back} kind="secondary" onPress={() => router.back()} />
+          </>
+        ) : null}
       </Screen>
     )
   }
 
   const done = draft.status === 'done'
+  // Checks of the last 30 days (a visit follows a check soon after it), and
+  // the one the visit was opened with however old: a plan linked to it, or a
+  // new visit written from that check's result.
+  const checks = recentChecks(loadedChecks, new Date(), initial?.checkId ?? null)
   const checkOptions = checks.map((check) => ({
     value: check.id,
     label: words.checkLine(urgencyText(t, check.urgency).label, t.day(localToday(new Date(check.created_at)), false)),
@@ -267,6 +299,11 @@ export default function VisitForm() {
       ) : null}
       <Field label={t.medicalRecord.notes} value={draft.notes} onChangeText={(notes) => change({ notes })} multiline />
 
+      {warnsHeldIsFinal(mode, draft.status) ? (
+        <Text variant="caption" tone="muted" style={styles.gap}>
+          {words.heldWarning}
+        </Text>
+      ) : null}
       {error ? <Banner text={error.text} tone="error" icon={error.offline ? 'wifi' : 'alert'} style={styles.gap} /> : null}
 
       <SaveChangesDialog

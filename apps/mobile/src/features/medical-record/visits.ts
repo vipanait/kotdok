@@ -1,11 +1,15 @@
 import type { HealthEvent, VisitInput, VisitKind } from '@lapka/contracts'
+import { eventDayProblem, heldVisitDay, linkableChecks, prescriptionProblems, visitEditable } from '@lapka/shared'
 import type { Dictionary } from '@/i18n'
-import { dayInput, localToday, parseDayInput, parseDayText, parseFutureDayInput } from '@/lib/calendar-day'
+import { dayInput, localToday, parseDayText } from '@/lib/calendar-day'
 
 /**
  * The visit form (M9) as text fields, and turning it into a request. A plan
  * sends no diagnosis and no prescriptions (MR-07.3); a prescription the visit
- * already has keeps its id and is never sent to the medicines again.
+ * already has keeps its id and is never sent to the medicines again. The day
+ * and length rules are the site's (@lapka/shared `eventDayProblem`,
+ * `prescriptionProblems`); only a plan is changed — a visit that happened is
+ * history (owner rule of 26 September 2026, `visitEditable`).
  */
 
 export type PrescriptionDraft = {
@@ -46,12 +50,13 @@ export function blankVisit(status: 'done' | 'planned', now: Date = new Date()): 
 
 /**
  * A visit as the form opens it: to correct, or — `as: 'done'` — to mark a
- * plan as having happened, today, with what the plan said.
+ * plan as having happened, with what the plan said.
  */
 export function visitDraftFrom(event: HealthEvent, as?: 'done', now: Date = new Date()): VisitDraft {
   return {
     status: as ?? event.status,
-    date: as === 'done' ? dayInput(localToday(now)) : dayInput(event.date),
+    // «Был» on a plan: its day once it has come, otherwise today (shared with the site).
+    date: as === 'done' ? dayInput(heldVisitDay(event.date, localToday(now))) : dayInput(event.date),
     visitKind: event.visit_kind ?? 'other',
     clinic: event.clinic ?? '',
     reason: event.reason ?? '',
@@ -73,15 +78,29 @@ export type VisitErrors = { date?: string; prescriptions?: Record<string, string
 
 export type ReadVisit = { ok: true; value: VisitInput } | { ok: false; errors: VisitErrors }
 
-// The server's limits: a prescription is an item of the record.
-const PRESCRIPTION_NAME_MAX = 100
-const INSTRUCTIONS_MAX = 150
+/**
+ * Checks a visit may follow: those of the last 30 days by the phone's day,
+ * and the one it is already linked to however old (shared `linkableChecks`).
+ */
+export function recentChecks<Check extends { id: string; created_at: string }>(
+  checks: readonly Check[],
+  now: Date = new Date(),
+  linked: string | null = null,
+): Check[] {
+  return linkableChecks(checks, localToday(now), linked)
+}
 
-/** Checks a visit may follow: those of the last 30 days, by the phone's day. */
-export function recentChecks<Check extends { created_at: string }>(checks: readonly Check[], now: Date = new Date()): Check[] {
-  const today = localToday(now)
-  const monthAgo = new Date(Date.parse(`${today}T00:00:00Z`) - 30 * 86_400_000).toISOString().slice(0, 10)
-  return checks.filter((check) => localToday(new Date(check.created_at)) >= monthAgo)
+/** Whether the visit's form may open: a plan only; a visit that happened is read and deleted, never changed. */
+export function visitLocked(visit: Pick<HealthEvent, 'status'>): boolean {
+  return !visitEditable(visit)
+}
+
+/**
+ * Whether saving makes a visit that happened, which cannot be changed
+ * afterwards: a new «Был», or «Был» on a plan. The form warns first.
+ */
+export function warnsHeldIsFinal(mode: 'new' | 'edit' | 'done', status: VisitDraft['status']): boolean {
+  return mode === 'done' || (mode === 'new' && status === 'done')
 }
 
 const clean = (text: string) => (text.trim() === '' ? null : text.trim())
@@ -100,21 +119,21 @@ export function readVisit(
   const words = t.medicalRecord
   const errors: VisitErrors = {}
 
-  const unchanged = keptDate !== undefined && parseDayText(draft.date) === keptDate && mode === 'edit'
-  const date = unchanged
-    ? keptDate
-    : draft.status === 'done'
-      ? parseDayInput(draft.date, now)
-      : parseFutureDayInput(draft.date, now)
+  // The day rules are shared with the site: done not after today, a plan not before it, an
+  // overdue plan being changed may keep its own day.
+  const typed = parseDayText(draft.date)
+  const kept = mode === 'edit' ? (keptDate ?? null) : null
+  const date = typed !== null && eventDayProblem(typed, draft.status, localToday(now), kept) === null ? typed : null
   if (!date) errors.date = draft.status === 'done' ? words.dateInvalid : words.plannedDateInvalid
 
   const done = draft.status === 'done'
   const prescriptionErrors: Record<string, string> = {}
   const prescriptions = done
     ? draft.prescriptions.map((item) => {
-        if (item.name.trim() === '') prescriptionErrors[item.key] = words.visits.nameRequired
-        else if (item.name.trim().length > PRESCRIPTION_NAME_MAX) prescriptionErrors[item.key] = words.visits.nameTooLong
-        else if (item.instructions.trim().length > INSTRUCTIONS_MAX) prescriptionErrors[item.key] = words.visits.instructionsTooLong
+        const found = prescriptionProblems(item)
+        if (found.name === 'empty') prescriptionErrors[item.key] = words.visits.nameRequired
+        else if (found.name === 'tooLong') prescriptionErrors[item.key] = words.visits.nameTooLong
+        else if (found.instructions) prescriptionErrors[item.key] = words.visits.instructionsTooLong
         return item.id
           ? { id: item.id, name: item.name.trim(), instructions: clean(item.instructions) }
           : { name: item.name.trim(), instructions: clean(item.instructions), add_to_medications: item.toMedicines }

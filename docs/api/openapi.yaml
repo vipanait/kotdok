@@ -39,6 +39,7 @@ components:
                 - account_deleting
                 - consent_required
                 - reauth_required
+                - record_done
                 - dependency_unavailable
                 - internal_error
             message:
@@ -1639,6 +1640,7 @@ components:
                 - account_deleting
                 - consent_required
                 - reauth_required
+                - record_done
                 - dependency_unavailable
                 - internal_error
             - type: "null"
@@ -2613,9 +2615,19 @@ paths:
       - *a1
     get:
       summary: Everything to show a vet, the source of the «Для врача» screen and PDF
-      description: Core vaccinations of the species are listed even with no record; null means not
+      description: "Core vaccinations of the species are listed even with no record; null means not
         recorded, never «none». Visits of the last year, the five latest dated weights, current
-        courses, the three latest checks.
+        courses, the three latest checks. `today` is the owner's calendar day: it decides which
+        courses are taken now and which visits fall in the last year. It is used only from the UTC
+        day before the server's to the UTC day after (a margin around every time zone's today);
+        otherwise, or without it, the server's UTC day is used."
+      parameters:
+        - name: today
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
       responses:
         "200":
           description: The summary
@@ -3201,7 +3213,10 @@ paths:
           type: string
           format: uuid
     patch:
-      summary: Correct a record, or move a plan
+      summary: Correct or move a plan
+      description: "Only a planned record changes: a done one is history and answers 409 record_done (it
+        can still be deleted). A plan keeps its id and its items; «Сделано» is POST
+        /pets/{id}/health/items/{item_id}/complete."
       requestBody:
         required: true
         content:
@@ -3210,7 +3225,7 @@ paths:
               $ref: "#/components/schemas/HealthEventPatch"
       responses:
         "200":
-          description: The record
+          description: The plan
           content:
             application/json:
               schema:
@@ -3260,6 +3275,19 @@ paths:
                 error:
                   code: not_found
                   message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "409":
+          description: "The record is a done procedure, a visit that happened or a finished course: it can be
+            read and deleted, not changed"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: record_done
+                  message: "The record is a done procedure, a visit that happened or a finished course: it can be read
+                    and deleted, not changed"
                   request_id: 01J000000000000000000000
         "429":
           description: Too many requests
@@ -3562,6 +3590,9 @@ paths:
           format: uuid
     patch:
       summary: Correct a course, or end it
+      description: "Only a current course changes: one that ended — its end is today or earlier in every
+        time zone — is history and answers 409 record_done (it can still be deleted). A change that
+        leaves a finished course as it is, such as «Завершить курс» sent again, answers 200."
       requestBody:
         required: true
         content:
@@ -3620,6 +3651,19 @@ paths:
                 error:
                   code: not_found
                   message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "409":
+          description: "The record is a done procedure, a visit that happened or a finished course: it can be
+            read and deleted, not changed"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: record_done
+                  message: "The record is a done procedure, a visit that happened or a finished course: it can be read
+                    and deleted, not changed"
                   request_id: 01J000000000000000000000
         "429":
           description: Too many requests
@@ -3816,9 +3860,12 @@ paths:
           type: string
           format: uuid
     patch:
-      summary: Correct a visit, or mark a planned one as having happened
-      description: Removing a prescription keeps the course it started, without the link. The same key
-        sent again with the same body changes nothing; with another body it is a conflict.
+      summary: Change a planned visit, or mark it as having happened
+      description: "Only a planned visit changes: one that happened is history and answers 409 record_done
+        (it can still be deleted, and a prescription of it still added to the medicines). Marking a
+        plan done with status done may carry the diagnosis and prescriptions. The same key sent
+        again with the same body changes nothing and answers 200, even once the visit is done; with
+        another body it is a conflict."
       parameters:
         - *a2
       requestBody:
@@ -3881,16 +3928,27 @@ paths:
                   message: No such resource for this user
                   request_id: 01J000000000000000000000
         "409":
-          description: Same idempotency key with different data
+          description: "One of (error.code tells which): conflict — Same idempotency key with different data;
+            record_done — The record is a done procedure, a visit that happened or a finished
+            course: it can be read and deleted, not changed"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
-              example:
-                error:
-                  code: conflict
-                  message: Same idempotency key with different data
-                  request_id: 01J000000000000000000000
+              examples:
+                conflict:
+                  value:
+                    error:
+                      code: conflict
+                      message: Same idempotency key with different data
+                      request_id: 01J000000000000000000000
+                record_done:
+                  value:
+                    error:
+                      code: record_done
+                      message: "The record is a done procedure, a visit that happened or a finished course: it can be read
+                        and deleted, not changed"
+                      request_id: 01J000000000000000000000
         "429":
           description: Too many requests
           content:
@@ -4771,16 +4829,27 @@ paths:
                   message: Missing, malformed, expired or foreign access token
                   request_id: 01J000000000000000000000
         "403":
-          description: Authenticated but not allowed to perform this operation
+          description: "One of (error.code tells which): account_deleting — Account is being deleted, or
+            consent to personal data processing is required (error.code tells which); forbidden —
+            Authenticated but not allowed to perform this operation"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
-              example:
-                error:
-                  code: forbidden
-                  message: Authenticated but not allowed to perform this operation
-                  request_id: 01J000000000000000000000
+              examples:
+                account_deleting:
+                  value:
+                    error:
+                      code: account_deleting
+                      message: Account is being deleted, or consent to personal data processing is required (error.code
+                        tells which)
+                      request_id: 01J000000000000000000000
+                forbidden:
+                  value:
+                    error:
+                      code: forbidden
+                      message: Authenticated but not allowed to perform this operation
+                      request_id: 01J000000000000000000000
         "404":
           description: No such resource for this user
           content:

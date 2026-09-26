@@ -1,6 +1,7 @@
 import 'server-only'
 
 import {
+  CalendarDateSchema,
   WeightMeasurementSchema,
   type WeightInput,
   type WeightMeasurement,
@@ -119,8 +120,10 @@ export function utcToday(now: Date = new Date()): string {
 }
 
 /**
- * Whether a day is later than any time zone's today. A weighing cannot be in
- * the future; a day ahead of UTC is still "today" somewhere east of it.
+ * Whether a day is after the UTC day that follows the server's: then it is
+ * later than any time zone's today. A weighing cannot be in the future; a day
+ * ahead of UTC is still "today" somewhere east of it. The margin is a whole
+ * UTC day, not the exact UTC+14 edge.
  */
 export function isFutureDay(day: string, now: Date = new Date()): boolean {
   const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000)
@@ -128,12 +131,28 @@ export function isFutureDay(day: string, now: Date = new Date()): boolean {
 }
 
 /**
- * Whether a day is earlier than any time zone's today: a plan cannot be made
- * for it. A day behind UTC is still "today" somewhere west of it.
+ * Whether a day is before the UTC day that precedes the server's: then it is
+ * earlier than any time zone's today, and a plan cannot be made for it. A day
+ * behind UTC is still "today" somewhere west of it. The margin is a whole UTC
+ * day, not the exact UTC−12 edge.
  */
 export function isPastDay(day: string, now: Date = new Date()): boolean {
   const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000)
   return day < utcToday(yesterday)
+}
+
+/**
+ * The owner's today as a client said it (`?today=` of the summary), trusted
+ * only from the UTC day before the server's to the UTC day after
+ * (`isPastDay`, `isFutureDay`): every zone's today, UTC−12…UTC+14, lies in
+ * that window, which is a little wider than the exact edges. Anything else,
+ * and nothing at all (an app older than the field), is the server's UTC day,
+ * as it always was.
+ */
+export function clientToday(given: unknown, now: Date = new Date()): string {
+  return typeof given === 'string' && CalendarDateSchema.safeParse(given).success && !isPastDay(given, now) && !isFutureDay(given, now)
+    ? given
+    : utcToday(now)
 }
 
 /**

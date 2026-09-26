@@ -151,13 +151,46 @@ function commonErrors(...extra: ErrorCode[]): Record<string, unknown> {
     account_deleting:
       'Account is being deleted, or consent to personal data processing is required (error.code tells which)',
     consent_required: 'Consent to personal data processing is required first',
+    record_done: 'The record is a done procedure, a visit that happened or a finished course: it can be read and deleted, not changed',
     dependency_unavailable: 'A dependency is temporarily unavailable',
     internal_error: 'Unexpected server error',
   }
 
+  // A response map holds one entry per status. Codes that share a status —
+  // 409 conflict and record_done on a visit's change, 403 forbidden and
+  // account_deleting — get one entry naming each of them, instead of the last
+  // one silently replacing the others.
+  const byStatus = new Map<string, ErrorCode[]>()
+  for (const code of codes) {
+    const status = String(ERROR_STATUS[code])
+    const shared = byStatus.get(status) ?? []
+    if (!shared.includes(code)) shared.push(code)
+    byStatus.set(status, shared)
+  }
   return Object.fromEntries(
-    codes.map((code) => [String(ERROR_STATUS[code]), errorResponse(code, descriptions[code])]),
+    [...byStatus].map(([status, shared]) => [
+      status,
+      shared.length === 1 ? errorResponse(shared[0], descriptions[shared[0]]) : sharedErrorResponse(shared, descriptions),
+    ]),
   )
+}
+
+/** One status, several codes: every code named in the description, an example of each. */
+function sharedErrorResponse(codes: ErrorCode[], descriptions: Record<ErrorCode, string>) {
+  return {
+    description: `One of (error.code tells which): ${codes.map((code) => `${code} — ${descriptions[code]}`).join('; ')}`,
+    content: {
+      'application/json': {
+        schema: ref('ApiError'),
+        examples: Object.fromEntries(
+          codes.map((code) => [
+            code,
+            { value: { error: { code, message: descriptions[code], request_id: '01J000000000000000000000' } } },
+          ]),
+        ),
+      },
+    },
+  }
 }
 
 function json(name: string, description: string) {
@@ -314,7 +347,13 @@ export function buildOpenApiDocument(): Record<string, unknown> {
           summary: 'Everything to show a vet, the source of the «Для врача» screen and PDF',
           description:
             'Core vaccinations of the species are listed even with no record; null means not recorded, never «none». ' +
-            'Visits of the last year, the five latest dated weights, current courses, the three latest checks.',
+            'Visits of the last year, the five latest dated weights, current courses, the three latest checks. ' +
+            '`today` is the owner\'s calendar day: it decides which courses are taken now and which visits fall in the last year. ' +
+            'It is used only from the UTC day before the server\'s to the UTC day after (a margin around every time zone\'s today); ' +
+            'otherwise, or without it, the server\'s UTC day is used.',
+          parameters: [
+            { name: 'today', in: 'query', required: false, schema: { type: 'string', format: 'date' } },
+          ],
           responses: { '200': json('VetSummary', 'The summary'), ...commonErrors('not_found') },
         },
       },
@@ -397,9 +436,16 @@ export function buildOpenApiDocument(): Record<string, unknown> {
       '/pets/{id}/health/events/{event_id}': {
         parameters: [idParam, { name: 'event_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
         patch: {
-          summary: 'Correct a record, or move a plan',
+          summary: 'Correct or move a plan',
+          description:
+            'Only a planned record changes: a done one is history and answers 409 record_done ' +
+            '(it can still be deleted). A plan keeps its id and its items; «Сделано» is ' +
+            'POST /pets/{id}/health/items/{item_id}/complete.',
           requestBody: body('HealthEventPatch'),
-          responses: { '200': json('HealthEvent', 'The record'), ...commonErrors('bad_request', 'not_found') },
+          responses: {
+            '200': json('HealthEvent', 'The plan'),
+            ...commonErrors('bad_request', 'not_found', 'record_done'),
+          },
         },
         delete: {
           summary: 'Delete a record or cancel a plan; plans made from it stay',
@@ -437,8 +483,12 @@ export function buildOpenApiDocument(): Record<string, unknown> {
         parameters: [idParam, { name: 'medication_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
         patch: {
           summary: 'Correct a course, or end it',
+          description:
+            'Only a current course changes: one that ended — its end is today or earlier in every ' +
+            'time zone — is history and answers 409 record_done (it can still be deleted). A change ' +
+            'that leaves a finished course as it is, such as «Завершить курс» sent again, answers 200.',
           requestBody: body('MedicationPatch'),
-          responses: { '200': json('Medication', 'The course'), ...commonErrors('bad_request', 'not_found') },
+          responses: { '200': json('Medication', 'The course'), ...commonErrors('bad_request', 'not_found', 'record_done') },
         },
         delete: {
           summary: 'Delete a course',
@@ -460,13 +510,19 @@ export function buildOpenApiDocument(): Record<string, unknown> {
       '/pets/{id}/health/visits/{event_id}': {
         parameters: [idParam, { name: 'event_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
         patch: {
-          summary: 'Correct a visit, or mark a planned one as having happened',
+          summary: 'Change a planned visit, or mark it as having happened',
           description:
-            'Removing a prescription keeps the course it started, without the link. ' +
-            'The same key sent again with the same body changes nothing; with another body it is a conflict.',
+            'Only a planned visit changes: one that happened is history and answers 409 record_done ' +
+            '(it can still be deleted, and a prescription of it still added to the medicines). ' +
+            'Marking a plan done with status done may carry the diagnosis and prescriptions. ' +
+            'The same key sent again with the same body changes nothing and answers 200, even once the visit is done; ' +
+            'with another body it is a conflict.',
           parameters: [idempotencyParam],
           requestBody: body('VisitPatch'),
-          responses: { '200': json('HealthEvent', 'The visit'), ...commonErrors('bad_request', 'not_found', 'conflict') },
+          responses: {
+            '200': json('HealthEvent', 'The visit'),
+            ...commonErrors('bad_request', 'not_found', 'conflict', 'record_done'),
+          },
         },
       },
       '/pets/{id}/health/items/{item_id}/medication': {

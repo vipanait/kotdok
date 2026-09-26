@@ -1,26 +1,35 @@
 'use client'
 
-import { useEffect, useId, useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useId, useRef, useState } from 'react'
 import Link from 'next/link'
 import type { Pet, PetSizeClass, PetSpecies, PetWalkActivity } from '@/shared/types'
 import { useTranslations } from '@/components/LocaleProvider'
 import PetAvatar from '@/components/PetAvatar'
 import Icon from '@/components/ui/Icon'
 import ConfirmDialog from '@/features/pets/ConfirmDialog'
-import type { PetSavedKind } from '@/features/pets/pet-saved'
+import { useLeaveGuard } from '@/features/forms/use-leave-guard'
+import { petFormCancelHref, petFormDoneHref } from '@/features/pets/pet-form-exit'
 import { csrfHeaders } from '@/shared/security/csrf-client'
+import { localToday } from '@lapka/shared'
 
 type PetFormValues = Omit<Pet, 'id' | 'user_id' | 'created_at'>
+
+/**
+ * Standing notes under the fields the medical record says more about
+ * (spec §4) — «История веса — в медкарте» — already in words; none while the
+ * record is empty on that field (`petFormHints`, packages/shared).
+ */
+export interface PetFormHintTexts {
+  weight?: string
+  vaccinated?: string
+  medications?: string
+}
 
 interface Props {
   /** The pet being edited; none for a new one. */
   pet?: Pet
+  hints?: PetFormHintTexts
 }
-
-/** Where the form leads after a save or a delete, with the confirmation banner. */
-const LIST_HREF = '/pets'
-const savedHref = (kind: PetSavedKind) => `${LIST_HREF}?petSaved=${kind}`
 
 const NOTES_MAX = 300
 
@@ -54,8 +63,7 @@ function parseDecimal(value: string): number | null {
  * right. Leaving with unsaved changes — any link on the page, a reload or
  * closing the tab — asks first. Delete is set apart and confirmed in a dialog.
  */
-export default function PetForm({ pet }: Props) {
-  const router = useRouter()
+export default function PetForm({ pet, hints = {} }: Props) {
   const dict = useTranslations()
   const t = dict.pets
   const isEdit = !!pet
@@ -88,13 +96,9 @@ export default function PetForm({ pet }: Props) {
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState('')
-  const [leaveHref, setLeaveHref] = useState<string | null>(null)
 
   const nameRef = useRef<HTMLInputElement>(null)
   const deleteButtonRef = useRef<HTMLButtonElement>(null)
-  const leaveLinkRef = useRef<HTMLElement | null>(null)
-  /** Set once the form is done — saved, deleted or abandoned on purpose. */
-  const leavingRef = useRef(false)
 
   const sexFemale = species === 'dog' ? t.sexFemaleDog : t.sexFemaleCat
   const sexMale = species === 'dog' ? t.sexMaleDog : t.sexMaleCat
@@ -122,46 +126,8 @@ export default function PetForm({ pet }: Props) {
     notes !== (pet?.notes ?? '')
 
   // Unsaved changes: the browser asks on reload or closing the tab; a link
-  // anywhere on the page (the back link, "Cancel", the cabinet navigation)
-  // opens our own dialog first. Captured on window, before next/link acts.
-  useEffect(() => {
-    if (!dirty) return
-
-    function onBeforeUnload(e: BeforeUnloadEvent) {
-      if (leavingRef.current) return
-      e.preventDefault()
-      e.returnValue = ''
-    }
-
-    function onClick(e: MouseEvent) {
-      if (leavingRef.current || e.defaultPrevented || e.button !== 0) return
-      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
-      const anchor = (e.target as Element | null)?.closest?.('a[href]') as HTMLAnchorElement | null
-      if (!anchor || anchor.hasAttribute('download')) return
-      if (anchor.target && anchor.target !== '_self') return
-
-      const url = new URL(anchor.href, window.location.href)
-      if (url.origin !== window.location.origin) return
-      if (url.pathname === window.location.pathname && url.search === window.location.search) return
-
-      e.preventDefault()
-      leaveLinkRef.current = anchor
-      setLeaveHref(url.pathname + url.search + url.hash)
-    }
-
-    window.addEventListener('beforeunload', onBeforeUnload)
-    window.addEventListener('click', onClick, true)
-    return () => {
-      window.removeEventListener('beforeunload', onBeforeUnload)
-      window.removeEventListener('click', onClick, true)
-    }
-  }, [dirty])
-
-  function leave(href: string) {
-    leavingRef.current = true
-    router.push(href)
-    router.refresh()
-  }
+  // anywhere on the page opens our own dialog first.
+  const { leaveHref, leaveLinkRef, stay, leave } = useLeaveGuard(dirty)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -194,13 +160,24 @@ export default function PetForm({ pet }: Props) {
       notes: notes.trim() || null,
     }
 
+    // What the record needs to read the form the way the phone's form is read
+    // (pet-service): the owner's own day for a weight or a medicine the form
+    // adds or removes — not the server's UTC one — and, on an edit, the weight
+    // and the list as the form was opened (an older pet's missing list is the
+    // empty one the form shows), so saving an untouched weight is
+    // not a new measurement and a course added meanwhile elsewhere is not ended.
+    const recordContext = {
+      weight_measured_on: localToday(),
+      ...(isEdit ? { weight_kg_before: pet!.weight_kg, medications_before: pet!.medications ?? [] } : {}),
+    }
+
     const url = isEdit ? `/api/pets/${pet!.id}` : '/api/pets'
     const method = isEdit ? 'PUT' : 'POST'
     try {
       const res = await fetch(url, {
         method,
         headers: csrfHeaders({ 'Content-Type': 'application/json' }),
-        body: JSON.stringify(body),
+        body: JSON.stringify({ ...body, ...recordContext }),
       })
       if (!res.ok) {
         setFormError(t.saveError)
@@ -213,7 +190,7 @@ export default function PetForm({ pet }: Props) {
       return
     }
 
-    leave(savedHref(isEdit ? 'updated' : 'created'))
+    leave(petFormDoneHref(isEdit ? 'updated' : 'created', pet?.id))
   }
 
   async function handleDelete() {
@@ -232,7 +209,7 @@ export default function PetForm({ pet }: Props) {
       setDeleting(false)
       return
     }
-    leave(savedHref('deleted'))
+    leave(petFormDoneHref('deleted', pet.id))
   }
 
   return (
@@ -299,9 +276,10 @@ export default function PetForm({ pet }: Props) {
               />
             </Field>
 
-            <Field id={fieldId('weight')} label={t.weightKg}>
+            <Field id={fieldId('weight')} label={t.weightKg} hint={hints.weight}>
               <input
                 id={fieldId('weight')}
+                aria-describedby={hints.weight ? `${fieldId('weight')}-hint` : undefined}
                 type="text"
                 inputMode="decimal"
                 value={weightKg}
@@ -343,9 +321,10 @@ export default function PetForm({ pet }: Props) {
               </select>
             </Field>
 
-            <Field id={fieldId('vaccinated')} label={t.vaccination}>
+            <Field id={fieldId('vaccinated')} label={t.vaccination} hint={hints.vaccinated}>
               <select
                 id={fieldId('vaccinated')}
+                aria-describedby={hints.vaccinated ? `${fieldId('vaccinated')}-hint` : undefined}
                 value={vaccinated == null ? '' : vaccinated ? 'yes' : 'no'}
                 onChange={e => setVaccinated(e.target.value === '' ? null : e.target.value === 'yes')}
                 className={selectCls(vaccinated == null)}
@@ -378,9 +357,10 @@ export default function PetForm({ pet }: Props) {
               />
             </Field>
 
-            <Field id={fieldId('medications')} label={t.medications}>
+            <Field id={fieldId('medications')} label={t.medications} hint={hints.medications}>
               <input
                 id={fieldId('medications')}
+                aria-describedby={hints.medications ? `${fieldId('medications')}-hint` : undefined}
                 value={medications}
                 onChange={e => setMedications(e.target.value)}
                 placeholder={medicationsPlaceholder}
@@ -496,7 +476,7 @@ export default function PetForm({ pet }: Props) {
             </button>
           ) : null}
           <div className="row">
-            <Link href={LIST_HREF} className="link">{t.cancelBtn}</Link>
+            <Link href={petFormCancelHref(pet?.id)} className="link">{t.cancelBtn}</Link>
             <button type="submit" className="btn primary" disabled={saving}>
               {saving ? t.savingBtn : isEdit ? t.saveBtn : t.addBtn}
             </button>
@@ -540,7 +520,7 @@ export default function PetForm({ pet }: Props) {
           body={t.leaveBody}
           cancelLabel={t.leaveStay}
           confirmLabel={t.leaveConfirm}
-          onCancel={() => setLeaveHref(null)}
+          onCancel={stay}
           onConfirm={() => leave(leaveHref)}
           returnFocusRef={leaveLinkRef}
         />
@@ -559,10 +539,13 @@ function Field({
   children,
   error,
   errorId,
+  hint,
   required = false,
 }: {
   id: string
   label: string
+  /** A standing note under the control, read with it (`${id}-hint`). */
+  hint?: string
   /** Marks the label with an asterisk for sight; the input says it with `aria-required`. */
   required?: boolean
   children: React.ReactNode
@@ -576,6 +559,7 @@ function Field({
         {required && <span aria-hidden> *</span>}
       </label>
       {children}
+      {hint && <span id={`${id}-hint`} className="field-hint">{hint}</span>}
       {error && <span id={errorId} className="field-error" role="alert">{error}</span>}
     </div>
   )

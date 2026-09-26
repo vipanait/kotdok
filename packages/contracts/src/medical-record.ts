@@ -71,6 +71,18 @@ const NOTES_MAX = 300
 const ITEMS_MAX = 10
 
 /**
+ * The length and count limits of a vaccination or treatment record, as the
+ * schemas below check them: forms show them and check them before sending,
+ * so a field is refused where it is typed, not by a 400.
+ */
+export const HEALTH_EVENT_LIMITS = {
+  itemName: ITEM_NAME_MAX,
+  clinic: CLINIC_MAX,
+  notes: NOTES_MAX,
+  items: ITEMS_MAX,
+} as const
+
+/**
  * One vaccine in a record. `name` null is «Без препарата»; `source_item_id`
  * is the done item a plan was made from.
  */
@@ -204,6 +216,21 @@ export type CompleteItemInput = z.infer<typeof CompleteItemInputSchema>
 const VISIT_TEXT_MAX = 500
 const MEDICATION_TEXT_MAX_FOR_VISITS = 150
 
+/**
+ * The limits of a vet visit, as the schemas below check them: the forms of
+ * both apps show and check them before sending. A prescription is an item
+ * of the record, so its name is no longer than any item's.
+ */
+export const VISIT_LIMITS = {
+  reason: VISIT_TEXT_MAX,
+  diagnosis: VISIT_TEXT_MAX,
+  clinic: CLINIC_MAX,
+  notes: NOTES_MAX,
+  prescriptionName: ITEM_NAME_MAX,
+  instructions: MEDICATION_TEXT_MAX_FOR_VISITS,
+  prescriptions: ITEMS_MAX,
+} as const
+
 const PrescriptionInputSchema = z.strictObject({
   /** Set for a prescription the visit already has. */
   id: UuidSchema.optional(),
@@ -223,7 +250,7 @@ const visitFields = {
   diagnosis: z.string().trim().max(VISIT_TEXT_MAX).nullable().optional(),
   /** The symptom check it followed; of the same pet and owner. */
   check_id: UuidSchema.nullable().optional(),
-  prescriptions: z.array(PrescriptionInputSchema).max(10).optional(),
+  prescriptions: z.array(PrescriptionInputSchema).max(ITEMS_MAX).optional(),
 }
 
 /** A plan has not happened: no diagnosis, no prescriptions (MR-07.3). */
@@ -279,6 +306,18 @@ export const HealthProductSchema = z.object({
 export type HealthProduct = z.infer<typeof HealthProductSchema>
 
 const MEDICATION_TEXT_MAX = 150
+const MEDICATIONS_MAX = 10
+
+/**
+ * The course form's bounds — the name and «Как давать» up to 150 characters,
+ * up to 10 courses in one save — the same numbers the schemas below check,
+ * so a form refuses a field where it is typed, not by a 400.
+ */
+export const MEDICATION_LIMITS = {
+  name: MEDICATION_TEXT_MAX,
+  dosage: MEDICATION_TEXT_MAX,
+  items: MEDICATIONS_MAX,
+} as const
 
 /**
  * A medication course. `started_on` null only for one brought over from the
@@ -318,7 +357,7 @@ function courseRange(value: { started_on?: string | null; ended_on?: string | nu
 export const MedicationInputSchema = z.strictObject(medicationFields).superRefine(courseRange)
 
 /** Several courses at once, as the form adds them. */
-export const MedicationsInputSchema = z.strictObject({ items: z.array(MedicationInputSchema).min(1).max(10) })
+export const MedicationsInputSchema = z.strictObject({ items: z.array(MedicationInputSchema).min(1).max(MEDICATIONS_MAX) })
 
 export type MedicationsInput = z.infer<typeof MedicationsInputSchema>
 

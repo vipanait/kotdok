@@ -1,0 +1,267 @@
+{
+ "ios-safari-baron-before-fix.pdf": {
+  "pages": 9,
+  "detail": [
+   {
+    "page": 1,
+    "size_mm": [
+     210,
+     297
+    ],
+    "cyrillic_chars": 821,
+    "words_outside_10mm": [],
+    "first_line": "Медкарта: Барон Мурлыкенштейн фон",
+    "last_line": "—",
+    "safari_footer": true,
+    "our_page_footer": false,
+    "closing_footer": false,
+    "table_heading_row": 1
+   },
+   {
+    "page": 2,
+    "size_mm": [
+     210,
+     297
+    ],
+    "cyrillic_chars": 826,
+    "words_outside_10mm": [],
+    "first_line": "комплексная вакцина",
+    "last_line": "Метимазол — По схеме врача",
+    "safari_footer": true,
+    "our_page_footer": false,
+    "closing_footer": false,
+    "table_heading_row": 1
+   },
+   {
+    "page": 3,
+    "size_mm": [
+     210,
+     297
+    ],
+    "cyrillic_chars": 1087,
+    "words_outside_10mm": [],
+    "first_line": "ограничение фосфора в",
+    "last_line": "0,5 таблетки два раза в день во",
+    "safari_footer": true,
+    "our_page_footer": false,
+    "closing_footer": false,
+    "table_heading_row": 0
+   },
+   {
+    "page": 4,
+    "size_mm": [
+     210,
+     297
+    ],
+    "cyrillic_chars": 1047,
+    "words_outside_10mm": [],
+    "first_line": "время еды, курс 14 дней; при рвоте",
+    "last_line": "0,5 таблетки два раза в день во",
+    "safari_footer": true,
+    "our_page_footer": false,
+    "closing_footer": false,
+    "table_heading_row": 0
+   },
+   {
+    "page": 5,
+    "size_mm": [
+     210,
+     297
+    ],
+    "cyrillic_chars": 1126,
+    "words_outside_10mm": [],
+    "first_line": "время еды, курс 14 дней; при рвоте",
+    "last_line": "лечащему врачу клиники",
+    "safari_footer": true,
+    "our_page_footer": false,
+    "closing_footer": false,
+    "table_heading_row": 0
+   },
+   {
+    "page": 6,
+    "size_mm": [
+     210,
+     297
+    ],
+    "cyrillic_chars": 1241,
+    "words_outside_10mm": [],
+    "first_line": "спензиядляпероральногоА",
+    "last_line": "Мелоксидил — По схеме врача",
+    "safari_footer": true,
+    "our_page_footer": false,
+    "closing_footer": false,
+    "table_heading_row": 0
+   },
+   {
+    "page": 7,
+    "size_mm": [
+     210,
+     297
+    ],
+    "cyrillic_chars": 1046,
+    "words_outside_10mm": [],
+    "first_line": "контроль креатинина, SDMA",
+    "last_line": "раза в день во время еды, курс 14",
+    "safari_footer": true,
+    "our_page_footer": false,
+    "closing_footer": false,
+    "table_heading_row": 0
+   },
+   {
+    "page": 8,
+    "size_mm": [
+     210,
+     297
+    ],
+    "cyrillic_chars": 1167,
+    "words_outside_10mm": [],
+    "first_line": "центр «Айболит»",
+    "last_line": "Препарат 2 после визита 2 —",
+    "safari_footer": true,
+    "our_page_footer": false,
+    "closing_footer": false,
+    "table_heading_row": 0
+   },
+   {
+    "page": 9,
+    "size_mm": [
+     210,
+     297
+    ],
+    "cyrillic_chars": 612,
+    "words_outside_10mm": [],
+    "first_line": "центр «Айболит»",
+    "last_line": "Составлено владельцем в «Лапке» 26 сентября 2026. Не является ветеринарным документом.",
+    "safari_footer": true,
+    "our_page_footer": false,
+    "closing_footer": true,
+    "table_heading_row": 0
+   }
+  ]
+ },
+ "ios-safari-baron.pdf": {
+  "pages": 8,
+  "detail": [
+   {
+    "page": 1,
+    "size_mm": [
+     210,
+     297
+    ],
+    "cyrillic_chars": 836,
+    "words_outside_10mm": [],
+    "first_line": "Медкарта: Барон Мурлыкенштейн фон",
+    "last_line": "Следующая: —",
+    "safari_footer": true,
+    "our_page_footer": false,
+    "closing_footer": false,
+    "table_heading_row": 0
+   },
+   {
+    "page": 2,
+    "size_mm": [
+     210,
+     297
+    ],
+    "cyrillic_chars": 432,
+    "words_outside_10mm": [],
+    "first_line": "Болезнь: Ринотрахеит",
+    "last_line": "Визиты за последний год",
+    "safari_footer": true,
+    "our_page_footer": false,
+    "closing_footer": false,
+    "table_heading_row": 0
+   },
+   {
+    "page": 3,
+    "size_mm": [
+     210,
+     297
+    ],
+    "cyrillic_chars": 1519,
+    "words_outside_10mm": [],
+    "first_line": "Дата / вид: 29.08.2026 · Визит к врачу · Ветеринарный центр «Айболит» на Садовой",
+    "last_line": "— По схеме врача; Препарат 4 после визита 20 — Мелоксидил — По схеме врача",
+    "safari_footer": true,
+    "our_page_footer": false,
+    "closing_footer": false,
+    "table_heading_row": 0
+   },
+   {
+    "page": 4,
+    "size_mm": [
+     210,
+     297
+    ],
+    "cyrillic_chars": 1944,
+    "words_outside_10mm": [],
+    "first_line": "Дата / вид: 20.06.2026 · Анализы · Ветеринарный центр «Айболит» на Садовой",
+    "last_line": "схеме врача",
+    "safari_footer": true,
+    "our_page_footer": false,
+    "closing_footer": false,
+    "table_heading_row": 0
+   },
+   {
+    "page": 5,
+    "size_mm": [
+     210,
+     297
+    ],
+    "cyrillic_chars": 1652,
+    "words_outside_10mm": [],
+    "first_line": "Дата / вид: 11.04.2026 · Болезнь · Ветеринарный центр «Айболит» на Садовой",
+    "last_line": "Назначения: Препарат 1 после визита 9 — Семинтра — По схеме врача",
+    "safari_footer": true,
+    "our_page_footer": false,
+    "closing_footer": false,
+    "table_heading_row": 0
+   },
+   {
+    "page": 6,
+    "size_mm": [
+     210,
+     297
+    ],
+    "cyrillic_chars": 1989,
+    "words_outside_10mm": [],
+    "first_line": "Дата / вид: 17.01.2026 · Визит к врачу · Ветеринарный центр «Айболит» на Садовой",
+    "last_line": "отказе от еды прекратить приём и сообщить лечащему врачу клиники",
+    "safari_footer": true,
+    "our_page_footer": false,
+    "closing_footer": false,
+    "table_heading_row": 0
+   },
+   {
+    "page": 7,
+    "size_mm": [
+     210,
+     297
+    ],
+    "cyrillic_chars": 1052,
+    "words_outside_10mm": [],
+    "first_line": "Дата / вид: 08.11.2025 · Анализы · Ветеринарный центр «Айболит» на Садовой",
+    "last_line": "28 июля — 5,4 кг · 29 мая — 5,5 кг · 10 марта — 5,6 кг · 30 ноября 2025 — 5,8 кг",
+    "safari_footer": true,
+    "our_page_footer": false,
+    "closing_footer": false,
+    "table_heading_row": 0
+   },
+   {
+    "page": 8,
+    "size_mm": [
+     210,
+     297
+    ],
+    "cyrillic_chars": 305,
+    "words_outside_10mm": [],
+    "first_line": "Последние проверки",
+    "last_line": "Составлено владельцем в «Лапке» 26 сентября 2026. Не является ветеринарным документом.",
+    "safari_footer": true,
+    "our_page_footer": false,
+    "closing_footer": true,
+    "table_heading_row": 0
+   }
+  ]
+ }
+}

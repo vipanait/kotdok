@@ -186,14 +186,14 @@ describe('saving a product with a record', () => {
     expect(HealthEventSchema.parse(await response.json()).items[0].product_id).toBeNull()
   })
 
-  it('still lets an old record be corrected after its product left the catalogue (review 1)', async () => {
+  it('still lets a plan be corrected after its product left the catalogue (review 1)', async () => {
     const done = HealthEventSchema.parse(
       await (
         await createEvent(
           request('http://test.local/x', 'POST', {
             kind: 'vaccination',
-            status: 'done',
-            date: day(-1),
+            status: 'planned',
+            date: day(30),
             items: [{ name: 'Тест Рабикан', targets: ['rabies'], product_id: ids['Тест Рабикан'] }],
           }),
           params(cat),
@@ -237,11 +237,11 @@ describe('saving a product with a record', () => {
     }
   })
 
-  it('refuses a product of another species when a record is corrected', async () => {
+  it('refuses a product of another species when a plan is corrected', async () => {
     const done = HealthEventSchema.parse(
       await (
         await createEvent(
-          request('http://test.local/x', 'POST', { kind: 'vaccination', status: 'done', date: day(-1), items: [{ targets: ['rabies'] }] }),
+          request('http://test.local/x', 'POST', { kind: 'vaccination', status: 'planned', date: day(30), items: [{ targets: ['rabies'] }] }),
           params(cat),
         )
       ).json(),

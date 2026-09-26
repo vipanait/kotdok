@@ -87,8 +87,9 @@ export async function changeMedication(
   petId: string,
   medicationId: string,
   patch: MedicationPatch,
-  today: string = utcToday(),
-): Promise<WeightResult<Medication> | { ok: false; reason: 'bad_range'; message?: string }> {
+  now: Date = new Date(),
+): Promise<WeightResult<Medication> | { ok: false; reason: 'bad_range' | 'record_done'; message?: string }> {
+  const today = utcToday(now)
   const { data: current, error: readError } = await supabase
     .from('pet_medications')
     .select(COLUMNS)
@@ -100,13 +101,22 @@ export async function changeMedication(
   if (readError) return { ok: false, reason: 'storage_error', message: readError.message }
   if (!current) return { ok: false, reason: 'not_found' }
 
+  // A finished course is history (owner rule of 26 September 2026): read,
+  // deleted if wrong, never corrected — nor started again by moving its end.
+  // Sending what it already holds, such as «Завершить курс» again after a
+  // lost answer, is not a change and is answered with the course.
+  if (courseOverEverywhere(current as MedicationRow, now)) {
+    if (!changesCourse(current as MedicationRow, patch)) return { ok: true, data: toMedicationContract(current as MedicationRow) }
+    return { ok: false, reason: 'record_done' }
+  }
+
   const merged = { ...(current as MedicationRow), ...patch }
   if (merged.ongoing && merged.ended_on) return { ok: false, reason: 'bad_range' }
   if (merged.started_on && merged.ended_on && merged.ended_on < merged.started_on) return { ok: false, reason: 'bad_range' }
 
   // «Завершить курс» sends the phone's own today, which east of UTC is ahead
   // of the server's: counting from it takes the course off the list now.
-  const listDay = patch.ended_on && patch.ended_on > today && !isFutureDay(patch.ended_on) ? patch.ended_on : today
+  const listDay = patch.ended_on && patch.ended_on > today && !isFutureDay(patch.ended_on, now) ? patch.ended_on : today
 
   const { error } = await supabase.rpc('change_pet_medication', {
     p_user_id: userId,
@@ -159,7 +169,42 @@ export async function syncFormMedications(
   return { ok: true, data: null }
 }
 
-/** Whether a course is going on on `today`: no end, or an end after it. */
-export function isCurrentCourse(course: Pick<Medication, 'ended_on'>, today: string = utcToday()): boolean {
-  return course.ended_on === null || course.ended_on > today
+/**
+ * Whether a course has ended for every owner, wherever they are: its last
+ * day is today or earlier even in the westernmost time zone (UTC−12), whose
+ * today is the earliest on Earth. The server does not know the owner's zone;
+ * the apps hide «Изменить» by the owner's own day, and this refuses the
+ * change once no owner anywhere can still be in the course — never a course
+ * that is current for someone. A course ended today east of UTC is therefore
+ * refused a few hours later, not at once; the apps never offer the change.
+ */
+export function courseOverEverywhere(course: Pick<Medication, 'ended_on'>, now: Date = new Date()): boolean {
+  if (course.ended_on === null) return false
+  return course.ended_on <= utcToday(new Date(now.getTime() - 12 * 60 * 60 * 1000))
 }
+
+/** Whether a patch would change anything of the course as stored (texts as the database keeps them). */
+export function changesCourse(
+  course: Pick<Medication, 'name' | 'dosage' | 'started_on' | 'ended_on' | 'ongoing'>,
+  patch: MedicationPatch,
+): boolean {
+  const text = (value: string | null | undefined) => {
+    const trimmed = value?.trim() ?? ''
+    return trimmed === '' ? null : trimmed
+  }
+  return (Object.keys(patch) as (keyof MedicationPatch)[]).some((key) => {
+    switch (key) {
+      case 'name':
+        return text(patch.name) !== text(course.name)
+      case 'dosage':
+        return text(patch.dosage) !== course.dosage
+      case 'started_on':
+        return (patch.started_on ?? null) !== course.started_on
+      case 'ended_on':
+        return (patch.ended_on ?? null) !== course.ended_on
+      case 'ongoing':
+        return (patch.ongoing ?? false) !== course.ongoing
+    }
+  })
+}
+

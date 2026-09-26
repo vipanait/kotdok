@@ -1,7 +1,8 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { FlatList, Image, StyleSheet, View } from 'react-native'
 import { router, useFocusEffect } from 'expo-router'
 import type { DueItem, Pet } from '@lapka/contracts'
+import { nearestDueByPet } from '@lapka/shared'
 import { withFreshSession } from '@/lib/api'
 import { localToday } from '@/lib/calendar-day'
 import { describeFailure } from '@/lib/errors'
@@ -25,12 +26,12 @@ function describe(t: Dictionary, pet: Pet): string {
 
 /**
  * The pet's earliest due date, only when it is overdue or within two weeks
- * (spec §7.1). `due` is sorted soonest first, so the first match is the one.
+ * (spec §7.1) — which one is `nearestDueByPet`, shared with the site's pet
+ * rows.
  */
 function DueLine({ t, due }: { t: Dictionary; due: DueItem | undefined }) {
   if (!due) return null
   const status = dueStatus(t, due.date, localToday())
-  if (status.tone === 'later') return null
   const title = itemTitle(t, { name: due.name, targets: due.targets }, due.kind)
   return (
     <Text
@@ -72,6 +73,7 @@ export default function Pets() {
   const [due, setDue] = useState<DueItem[]>([])
   const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
   const [loading, setLoading] = useState(false)
+  const dueByPet = useMemo(() => nearestDueByPet(due, localToday()), [due])
 
   const load = useCallback(async () => {
     setError(null)
@@ -169,7 +171,7 @@ export default function Pets() {
                 <Text variant="caption" tone="faint" style={styles.petMeta}>
                   {describe(t, item)}
                 </Text>
-                <DueLine t={t} due={due.find((row) => row.pet_id === item.id)} />
+                <DueLine t={t} due={dueByPet[item.id]} />
               </View>
               <Icon name="chevron" size={20} color={colour.faint} />
             </Card>

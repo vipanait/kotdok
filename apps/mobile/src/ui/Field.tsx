@@ -150,6 +150,7 @@ export function Segment<Value extends string>({
   value,
   onChange,
   clearable = true,
+  note,
 }: {
   label: string
   /** A switch whose options name themselves — «Полгода / Год / Всё» — needs no heading. */
@@ -158,6 +159,8 @@ export function Segment<Value extends string>({
   value: Value | null
   onChange: (value: Value | null) => void
   clearable?: boolean
+  /** A standing note under the switch, like a field's hint. */
+  note?: string
 }) {
   const t = useText()
 
@@ -184,6 +187,11 @@ export function Segment<Value extends string>({
           )
         })}
       </View>
+      {note ? (
+        <Text variant="caption" tone="faint" style={styles.errorText}>
+          {note}
+        </Text>
+      ) : null}
     </View>
   )
 }

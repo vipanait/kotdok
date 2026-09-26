@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { ActivityIndicator, StyleSheet, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
+import { petFormHints, type PetFormHints } from '@lapka/shared'
 import { withFreshSession } from '@/lib/api'
 import { localToday } from '@/lib/calendar-day'
 import { describeFailure } from '@/lib/errors'
@@ -28,8 +29,7 @@ export default function EditPet() {
   const t = useText()
   const reminders = useReminders()
   const [form, setForm] = useState<PetForm | null>(null)
-  const [hasWeights, setHasWeights] = useState(false)
-  const [hasCourses, setHasCourses] = useState(false)
+  const [hints, setHints] = useState<PetFormHints>({ weight: false, vaccinations: 0, medications: false })
   // What the server holds, to tell an edit from a form that was only looked at.
   const [saved, setSaved] = useState<PetForm | null>(null)
   // The medicines and weight as opened: the server changes only what the owner changed.
@@ -44,12 +44,13 @@ export default function EditPet() {
     try {
       // The record, not just the pet: the form points to the weight history
       // when there is one.
-      const { pet, weights, medications } = await withFreshSession((api) => api.getHealthOverview(id))
+      const overview = await withFreshSession((api) => api.getHealthOverview(id))
+      const { pet } = overview
       setForm(petToForm(pet))
       setSaved(petToForm(pet))
       setOpened({ medications: pet.medications, weight_kg: pet.weight_kg })
-      setHasWeights(weights.length > 0)
-      setHasCourses(medications.some((course) => course.source === 'record' || course.dosage !== null))
+      // Which fields the record says more about: one rule with the site (spec §4).
+      setHints(petFormHints(overview))
     } catch (cause) {
       setError(describeFailure(t, cause, t.errors.loadPetFailed))
     }
@@ -150,8 +151,9 @@ export default function EditPet() {
         onChange={change}
         invalid={invalid}
         notes={{
-          weight: hasWeights ? t.medicalRecord.weightHistoryHint : undefined,
-          medications: hasCourses ? t.medicalRecord.meds.formHint : undefined,
+          weight: hints.weight ? t.medicalRecord.weightHistoryHint : undefined,
+          vaccinated: hints.vaccinations > 0 ? t.medicalRecord.vaccinationsHint(hints.vaccinations) : undefined,
+          medications: hints.medications ? t.medicalRecord.meds.formHint : undefined,
         }}
       />
 

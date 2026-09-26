@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { ru } from '@/i18n/ru'
-import { cssString, summaryHtml } from './summary-html'
+import { cssString } from '@lapka/shared'
+import { summaryHtml } from './summary-html'
 import type { SummaryView } from './summary-view'
 
 function view(overrides: Partial<SummaryView> = {}): SummaryView {

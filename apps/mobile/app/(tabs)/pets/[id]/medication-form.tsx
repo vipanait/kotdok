@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
-import { ApiError } from '@lapka/shared'
+import { ApiError, courseEditable } from '@lapka/shared'
 import { withFreshSession } from '@/lib/api'
 import { describeFailure } from '@/lib/errors'
+import { localToday } from '@/lib/calendar-day'
 import { newRequestKey } from '@/lib/request-key'
 import { useText } from '@/i18n'
 import { blankCourse, courseDraft, readCourses, type CourseDraft, type CourseErrors } from '@/features/medical-record/medications'
@@ -19,7 +20,8 @@ import { TAP_TARGET, colour, space } from '@/ui/theme'
 /**
  * Medicines (M19): several courses at once for a new entry, one for a
  * correction (`?medicationId=`). Free text with no catalogue: the dose is
- * the vet's (spec §7.12).
+ * the vet's (spec §7.12). A finished course is not corrected (owner rule of
+ * 26 September 2026): opened here, it shows why and no save.
  */
 export default function MedicationForm() {
   const { id: petId, medicationId } = useLocalSearchParams<{ id: string; medicationId?: string }>()
@@ -31,6 +33,8 @@ export default function MedicationForm() {
   const [errors, setErrors] = useState<CourseErrors>({})
   const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
   const [busy, setBusy] = useState(false)
+  /** The course being corrected has finished: history, read only. */
+  const [locked, setLocked] = useState(false)
   const requestKey = useRef(newRequestKey())
   const nextKey = useRef(1)
 
@@ -45,6 +49,10 @@ export default function MedicationForm() {
       .then((overview) => {
         const course = overview.medications.find((m) => m.id === medicationId)
         if (!course) throw new Error('not found')
+        if (!courseEditable(course, localToday())) {
+          setLocked(true)
+          return
+        }
         setInitial([courseDraft(course)])
         setDrafts([courseDraft(course)])
       })
@@ -77,6 +85,10 @@ export default function MedicationForm() {
     } catch (cause) {
       if (cause instanceof ApiError && cause.code === 'conflict') {
         setError({ text: t.medicalRecord.alreadySaved, offline: false })
+      } else if (cause instanceof ApiError && cause.code === 'record_done') {
+        // Finished meanwhile (or on another device): nothing to save here any
+        // more, so nothing to ask about on the way out either.
+        unsaved.leave(() => setLocked(true))
       } else {
         setError(describeFailure(t, cause, words.saveFailed))
       }
@@ -90,9 +102,15 @@ export default function MedicationForm() {
       title={words.courseTitle}
       onBack={() => router.back()}
       scroll
-      dock={drafts ? <Button title={t.common.save} onPress={() => void save()} busy={busy} /> : null}
+      dock={drafts && !locked ? <Button title={t.common.save} onPress={() => void save()} busy={busy} /> : null}
     >
-      {drafts?.map((draft) => (
+      {locked ? (
+        <>
+          <Banner text={words.finishedReadOnly} tone="info" style={styles.note} />
+          <Button title={t.common.back} kind="secondary" onPress={() => unsaved.leave(() => router.back())} />
+        </>
+      ) : null}
+      {!locked && drafts?.map((draft) => (
         <Card key={draft.key} outlined style={styles.card}>
           <View style={styles.head}>
             <View style={styles.fill}>
@@ -153,7 +171,7 @@ export default function MedicationForm() {
         </Card>
       ))}
 
-      {drafts && !editing ? (
+      {drafts && !editing && !locked ? (
         <LinkButton
           title={words.addAnother}
           align="left"
