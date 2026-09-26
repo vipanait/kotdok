@@ -50,8 +50,11 @@ function request(token: string, method = 'GET', body?: unknown) {
 
 const params = (id: string) => ({ params: Promise.resolve({ id }) })
 
+// One reading of the clock for the whole file: TODAY and every day(n) are
+// counted from it, so a run across midnight UTC cannot mix two todays.
+const NOW = Date.now()
 function day(offset: number): string {
-  return new Date(Date.now() + offset * 86_400_000).toISOString().slice(0, 10)
+  return new Date(NOW + offset * 86_400_000).toISOString().slice(0, 10)
 }
 const TODAY = day(0)
 
