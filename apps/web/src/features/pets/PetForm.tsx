@@ -167,11 +167,12 @@ export default function PetForm({ pet, hints = {} }: Props) {
     // What the record needs to read the form the way the phone's form is read
     // (pet-service): the owner's own day for a weight or a medicine the form
     // adds or removes — not the server's UTC one — and, on an edit, the weight
-    // and the list as the form was opened, so saving an untouched weight is
+    // and the list as the form was opened (an older pet's missing list is the
+    // empty one the form shows), so saving an untouched weight is
     // not a new measurement and a course added meanwhile elsewhere is not ended.
     const recordContext = {
       weight_measured_on: localToday(),
-      ...(isEdit ? { weight_kg_before: pet!.weight_kg, medications_before: pet!.medications } : {}),
+      ...(isEdit ? { weight_kg_before: pet!.weight_kg, medications_before: pet!.medications ?? [] } : {}),
     }
 
     const url = isEdit ? `/api/pets/${pet!.id}` : '/api/pets'
