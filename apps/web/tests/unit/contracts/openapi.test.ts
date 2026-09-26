@@ -98,6 +98,30 @@ describe('OpenAPI document', () => {
     expect(publicOperations.sort()).toEqual(['get /account-deletion/status', 'get /health'])
   })
 
+  it('names every error code that shares a status, instead of the last one replacing the others', () => {
+    type Media = { example?: { error: { code: string } }; examples?: Record<string, { value: { error: { code: string } } }> }
+    type Response = { description: string; content: { 'application/json': Media } }
+    const document = buildOpenApiDocument() as { paths: Record<string, Record<string, { responses?: Record<string, Response> }>> }
+    const codesOf = (response: Response) => {
+      const media = response.content['application/json']
+      return media.examples ? Object.values(media.examples).map((entry) => entry.value.error.code) : [media.example!.error.code]
+    }
+
+    // A visit's change: the idempotency conflict and the visit that already happened.
+    const visitConflict = document.paths['/pets/{id}/health/visits/{event_id}'].patch.responses!['409']
+    expect(codesOf(visitConflict)).toEqual(['conflict', 'record_done'])
+    expect(visitConflict.description).toContain('conflict')
+    expect(visitConflict.description).toContain('record_done')
+
+    // Every authenticated operation still says the account may be closing.
+    for (const [path, item] of Object.entries(document.paths)) {
+      for (const [method, operation] of Object.entries(item)) {
+        const forbidden = operation.responses?.['403']
+        if (forbidden) expect(codesOf(forbidden), `${method.toUpperCase()} ${path}`).toContain('account_deleting')
+      }
+    }
+  })
+
   it('never exposes a private field through the profile schema', () => {
     const document = buildOpenApiDocument() as {
       components: { schemas: Record<string, { properties?: Record<string, unknown>; additionalProperties?: boolean }> }

@@ -156,9 +156,41 @@ function commonErrors(...extra: ErrorCode[]): Record<string, unknown> {
     internal_error: 'Unexpected server error',
   }
 
+  // A response map holds one entry per status. Codes that share a status —
+  // 409 conflict and record_done on a visit's change, 403 forbidden and
+  // account_deleting — get one entry naming each of them, instead of the last
+  // one silently replacing the others.
+  const byStatus = new Map<string, ErrorCode[]>()
+  for (const code of codes) {
+    const status = String(ERROR_STATUS[code])
+    const shared = byStatus.get(status) ?? []
+    if (!shared.includes(code)) shared.push(code)
+    byStatus.set(status, shared)
+  }
   return Object.fromEntries(
-    codes.map((code) => [String(ERROR_STATUS[code]), errorResponse(code, descriptions[code])]),
+    [...byStatus].map(([status, shared]) => [
+      status,
+      shared.length === 1 ? errorResponse(shared[0], descriptions[shared[0]]) : sharedErrorResponse(shared, descriptions),
+    ]),
   )
+}
+
+/** One status, several codes: every code named in the description, an example of each. */
+function sharedErrorResponse(codes: ErrorCode[], descriptions: Record<ErrorCode, string>) {
+  return {
+    description: `One of (error.code tells which): ${codes.map((code) => `${code} — ${descriptions[code]}`).join('; ')}`,
+    content: {
+      'application/json': {
+        schema: ref('ApiError'),
+        examples: Object.fromEntries(
+          codes.map((code) => [
+            code,
+            { value: { error: { code, message: descriptions[code], request_id: '01J000000000000000000000' } } },
+          ]),
+        ),
+      },
+    },
+  }
 }
 
 function json(name: string, description: string) {
@@ -317,7 +349,8 @@ export function buildOpenApiDocument(): Record<string, unknown> {
             'Core vaccinations of the species are listed even with no record; null means not recorded, never «none». ' +
             'Visits of the last year, the five latest dated weights, current courses, the three latest checks. ' +
             '`today` is the owner\'s calendar day: it decides which courses are taken now and which visits fall in the last year. ' +
-            'It is used only while it is today in some time zone; otherwise, or without it, the server\'s UTC day is used.',
+            'It is used only from the UTC day before the server\'s to the UTC day after (a margin around every time zone\'s today); ' +
+            'otherwise, or without it, the server\'s UTC day is used.',
           parameters: [
             { name: 'today', in: 'query', required: false, schema: { type: 'string', format: 'date' } },
           ],

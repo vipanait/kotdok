@@ -107,8 +107,9 @@ export function fileNameStem(name: string, max = 60): string {
 
 /**
  * Text as a CSS string, for the page footers of the printed summary:
- * quotes, backslashes, line breaks and «<» cannot end it or the style block.
+ * quotes, backslashes, line breaks (a form feed is one in CSS too) and «<»
+ * cannot end it or the style block.
  */
 export function cssString(text: string): string {
-  return `"${text.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/[\n\r]/g, ' ').replace(/</g, '\\3C ')}"`
+  return `"${text.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/[\n\r\f]/g, ' ').replace(/</g, '\\3C ')}"`
 }

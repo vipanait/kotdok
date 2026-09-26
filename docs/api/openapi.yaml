@@ -2618,8 +2618,9 @@ paths:
       description: "Core vaccinations of the species are listed even with no record; null means not
         recorded, never «none». Visits of the last year, the five latest dated weights, current
         courses, the three latest checks. `today` is the owner's calendar day: it decides which
-        courses are taken now and which visits fall in the last year. It is used only while it is
-        today in some time zone; otherwise, or without it, the server's UTC day is used."
+        courses are taken now and which visits fall in the last year. It is used only from the UTC
+        day before the server's to the UTC day after (a margin around every time zone's today);
+        otherwise, or without it, the server's UTC day is used."
       parameters:
         - name: today
           in: query
@@ -3927,18 +3928,27 @@ paths:
                   message: No such resource for this user
                   request_id: 01J000000000000000000000
         "409":
-          description: "The record is a done procedure, a visit that happened or a finished course: it can be
-            read and deleted, not changed"
+          description: "One of (error.code tells which): conflict — Same idempotency key with different data;
+            record_done — The record is a done procedure, a visit that happened or a finished
+            course: it can be read and deleted, not changed"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
-              example:
-                error:
-                  code: record_done
-                  message: "The record is a done procedure, a visit that happened or a finished course: it can be read
-                    and deleted, not changed"
-                  request_id: 01J000000000000000000000
+              examples:
+                conflict:
+                  value:
+                    error:
+                      code: conflict
+                      message: Same idempotency key with different data
+                      request_id: 01J000000000000000000000
+                record_done:
+                  value:
+                    error:
+                      code: record_done
+                      message: "The record is a done procedure, a visit that happened or a finished course: it can be read
+                        and deleted, not changed"
+                      request_id: 01J000000000000000000000
         "429":
           description: Too many requests
           content:
@@ -4819,16 +4829,27 @@ paths:
                   message: Missing, malformed, expired or foreign access token
                   request_id: 01J000000000000000000000
         "403":
-          description: Authenticated but not allowed to perform this operation
+          description: "One of (error.code tells which): account_deleting — Account is being deleted, or
+            consent to personal data processing is required (error.code tells which); forbidden —
+            Authenticated but not allowed to perform this operation"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
-              example:
-                error:
-                  code: forbidden
-                  message: Authenticated but not allowed to perform this operation
-                  request_id: 01J000000000000000000000
+              examples:
+                account_deleting:
+                  value:
+                    error:
+                      code: account_deleting
+                      message: Account is being deleted, or consent to personal data processing is required (error.code
+                        tells which)
+                      request_id: 01J000000000000000000000
+                forbidden:
+                  value:
+                    error:
+                      code: forbidden
+                      message: Authenticated but not allowed to perform this operation
+                      request_id: 01J000000000000000000000
         "404":
           description: No such resource for this user
           content:
