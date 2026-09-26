@@ -19,4 +19,14 @@
   .auth-card .auth-terms .field-error { margin-left: 26px; }
 
   .auth-card .auth-sent-text { margin-bottom: 24px; }
+
+  /* The terms are accepted by the button: a line under the ways in, not a box. */
+  .auth-card .auth-terms-note {
+    margin: 20px 0 0;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--muted);
+    text-align: center;
+  }
+  .auth-card .auth-terms-note a { text-decoration: underline; }
 }
