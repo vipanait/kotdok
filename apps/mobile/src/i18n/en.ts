@@ -132,6 +132,7 @@ export const en: Dictionary = {
     deleteWeightBody: 'It disappears from the medical record. This cannot be undone.',
     deleteWeightFailed: 'Could not delete the measurement',
     chartLabel: (from: string, to: string) => `Weight chart, from ${from} to ${to}`,
+    vaccinationsHint: (n: number) => `${n} ${n === 1 ? 'vaccination' : 'vaccinations'} in the medical record`,
     weightHistoryHint: 'Weight history is in the medical record',
     targets: {
       panleukopenia: 'Panleukopenia',
@@ -334,6 +335,10 @@ export const en: Dictionary = {
     },
     nextPassed: 'That date has passed — no reminder',
     alreadySaved: 'This record was already saved earlier, without the latest changes. Go back to the medical record and edit it there.',
+    earlierDone: (day: string) =>
+      `This item was already marked done earlier — ${day}. The new details were not saved: a done record cannot be changed. Open it in the medical record to check.`,
+    earlierNext: (day: string) =>
+      `This item was already marked done earlier (${day}) with another next date. The new details were not saved: a done record cannot be changed. Open it in the medical record to check.`,
     nextCustom: 'Pick a date',
     nextNone: 'No reminder',
     nextDate: 'Next date',

@@ -169,6 +169,13 @@ const en: Dictionary = {
     recentEmpty: 'Results of your checks will appear here.',
   },
   pets: {
+    dueOverdue: '{title} — overdue',
+    dueSoon: '{title} — {when}',
+    recordHints: {
+      weight: 'Weight history is in the medical record',
+      vaccinations: { one: '{n} vaccination in the medical record', few: '{n} vaccinations in the medical record', many: '{n} vaccinations in the medical record', other: '{n} vaccinations in the medical record' },
+      medications: 'Dosage and dates are in the medical record',
+    },
     lastCheckLabel: 'Last check:',
     lastCheckNone: 'none yet',
     sectionBasic: 'Basics',

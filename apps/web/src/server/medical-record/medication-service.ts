@@ -208,7 +208,3 @@ export function changesCourse(
   })
 }
 
-/** Whether a course is going on on `today`: no end, or an end after it. */
-export function isCurrentCourse(course: Pick<Medication, 'ended_on'>, today: string = utcToday()): boolean {
-  return course.ended_on === null || course.ended_on > today
-}

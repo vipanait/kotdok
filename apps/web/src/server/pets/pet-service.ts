@@ -5,7 +5,7 @@ import { loadAccount } from '@/server/auth/account-state'
 import { sanitizePet } from '@/shared/utils/pet-utils'
 import type { Pet } from '@/shared/types'
 import { WEIGHT_MAX_KG } from '@lapka/contracts'
-import { isFutureDay, recordWeight, utcToday } from '@/server/medical-record/weight-service'
+import { clientToday, isFutureDay, recordWeight, utcToday } from '@/server/medical-record/weight-service'
 import { syncFormMedications } from '@/server/medical-record/medication-service'
 
 type SupabaseService = ReturnType<typeof createServiceClient>
@@ -90,12 +90,14 @@ function formWeight(body: Record<string, unknown>, sanitized: { weight_kg: numbe
 }
 
 /**
- * The owner's day for the form's changes: the weighing day the phone sends,
- * which is its own today, else today in UTC.
+ * The owner's day for the form's medicines (a name added starts a course on
+ * it, a name removed ends one): the weighing day both apps send, which is
+ * their own today. Trusted only while it is today somewhere on Earth, like
+ * the summary's `?today=` (`clientToday`) — an older client's past weighing
+ * day must not start a course in the past; otherwise today in UTC.
  */
 function formDay(body: Record<string, unknown>): string {
-  const given = body.weight_measured_on
-  return typeof given === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(given) && !isFutureDay(given) ? given : utcToday()
+  return clientToday(body.weight_measured_on)
 }
 
 /** Whether the pet has any live measurement, so the form cannot blank a weight the history still holds. */

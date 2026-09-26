@@ -1,4 +1,4 @@
-import type { HealthEvent, HealthItem, HealthOverview, HealthSection, Medication, Pet } from '@lapka/contracts'
+import type { DueItem, HealthEvent, HealthItem, HealthOverview, HealthSection, Medication, Pet } from '@lapka/contracts'
 import {
   chartLayout,
   chartTicks,
@@ -169,18 +169,49 @@ function groupsTitle(dict: Dictionary, targets: readonly string[]): string | nul
   return joined.charAt(0).toUpperCase() + joined.slice(1).toLowerCase()
 }
 
-/** What a due row is called: the disease, «Блохи и клещи», the visit's kind, the owner's own name. */
-export function dueTitle(dict: Dictionary, entry: DueEntry): string {
+/** A due date's name from its parts; a planned visit by its kind, when it has one. */
+function dueItemTitle(
+  dict: Dictionary,
+  kind: HealthEvent['kind'],
+  item: Pick<HealthItem, 'name' | 'targets'> | null,
+  visitKind: HealthEvent['visit_kind'],
+): string {
   const words = dict.medicalRecord
-  if (entry.kind === 'visit') {
-    const kind = entry.event.visit_kind
-    return kind ? words.visits.kinds[kind] : words.due.visit
-  }
-  const item = entry.item as HealthItem
-  if (entry.kind === 'parasite') return groupsTitle(dict, item.targets) ?? item.name ?? words.due.noProduct
+  if (kind === 'visit' || item === null) return visitKind ? words.visits.kinds[visitKind] : words.due.visit
+  if (kind === 'parasite') return groupsTitle(dict, item.targets) ?? item.name ?? words.due.noProduct
   if (item.targets.length === 1) return targetName(dict, item.targets[0])
   if (item.targets.length > 1) return words.due.complexVaccination
   return item.name ?? words.due.noProduct
+}
+
+/** What a due row is called: the disease, «Блохи и клещи», the visit's kind, the owner's own name. */
+export function dueTitle(dict: Dictionary, entry: DueEntry): string {
+  return dueItemTitle(dict, entry.kind, entry.item, entry.kind === 'visit' ? entry.event.visit_kind : null)
+}
+
+export type PetDueLine = { text: string; tone: Exclude<DueTone, 'later'> }
+
+/**
+ * The line under a pet in the overview and on «Питомцы» (spec §7.1, §9):
+ * «Блохи и клещи — просрочено», «Бешенство — через 5 дней» — the same names
+ * as the record's «Сроки» and the phone's pet list. One date per pet, picked
+ * from the whole `/pets/due` list by `nearestDueByPet`; nothing past the
+ * fourteen "soon" days. `/pets/due` has no visit kind: a planned visit is
+ * «Визит к врачу».
+ */
+export function petDueLine(
+  dict: Dictionary,
+  locale: Locale,
+  due: Pick<DueItem, 'kind' | 'date' | 'name' | 'targets'>,
+  today: string,
+): PetDueLine | null {
+  const timing = dueTiming(due.date, today)
+  if (timing.tone === 'later') return null
+  const title = dueItemTitle(dict, due.kind, due.kind === 'visit' ? null : { name: due.name, targets: due.targets }, null)
+  if (timing.tone === 'overdue') return { tone: 'overdue', text: dict.pets.dueOverdue.replace('{title}', title) }
+  const words = dict.medicalRecord.due
+  const when = timing.days === 0 ? words.today : timing.days === 1 ? words.tomorrow : formatCount(words.inDays, timing.days, locale)
+  return { tone: 'soon', text: dict.pets.dueSoon.replace('{title}', title).replace('{when}', when.toLocaleLowerCase(locale)) }
 }
 
 export function dueStatusText(dict: Dictionary, locale: Locale, date: string, today: string): { text: string; tone: DueTone } {

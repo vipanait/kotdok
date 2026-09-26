@@ -4,7 +4,7 @@ import { useEffect, useId, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { HEALTH_EVENT_LIMITS, type HealthEvent, type HealthItem } from '@lapka/contracts'
-import { localToday, nextDayMin } from '@lapka/shared'
+import { completionMismatch, localToday, nextDayMin, type CompletionMismatch } from '@lapka/shared'
 import { useLocale, useTranslations } from '@/components/LocaleProvider'
 import Icon from '@/components/ui/Icon'
 import { browserApi } from '@/features/api/browser-api'
@@ -21,14 +21,12 @@ import {
   changeDoneDay,
   completeDraft,
   completionChanged,
-  completionMismatch,
   completionTarget,
   keptFromPlan,
   othersInPlan,
   readCompletion,
   type CompleteDraft,
   type CompleteProblems,
-  type CompletionMismatch,
 } from './complete-form'
 import { completeErrorTexts, completeFailureText, completionNote, earlierText, nextHint, planDayText } from './complete-form-text'
 import { eventSaveFailure, EVENT_FORM_KINDS, type EventFormKind, type EventSaveFailure } from './event-form'

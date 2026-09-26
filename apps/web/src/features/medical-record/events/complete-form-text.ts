@@ -3,7 +3,8 @@ import type { Locale } from '@/shared/i18n/config'
 import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
 import { formatCount } from '@/shared/i18n/plural'
 import { formatDay, recordDay } from '../view-model'
-import type { CompleteDraft, CompleteProblems, CompletionMismatch } from './complete-form'
+import type { CompletionMismatch } from '@lapka/shared'
+import type { CompleteDraft, CompleteProblems } from './complete-form'
 import type { EventSaveFailure } from './event-form'
 
 /**

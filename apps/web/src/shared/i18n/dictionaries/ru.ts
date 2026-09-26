@@ -167,6 +167,15 @@ const ru = {
     recentEmpty: 'Здесь появятся результаты ваших проверок.',
   },
   pets: {
+    /** Under a pet in the overview and the list (spec §7.1): its one nearest due date. */
+    dueOverdue: '{title} — просрочено',
+    dueSoon: '{title} — {when}',
+    /** The pet form's notes where the record says more (spec §4). */
+    recordHints: {
+      weight: 'История веса — в медкарте',
+      vaccinations: { one: 'В медкарте {n} прививка', few: 'В медкарте {n} прививки', many: 'В медкарте {n} прививок', other: 'В медкарте {n} прививки' },
+      medications: 'Дозировка и даты — в медкарте',
+    },
     lastCheckLabel: 'Последняя проверка:',
     lastCheckNone: 'пока нет',
     sectionBasic: 'Основное',

@@ -96,6 +96,29 @@ export function dueEntries(events: readonly HealthEvent[]): DueEntry[] {
     .map(({ entry }) => entry)
 }
 
+/**
+ * The one due date a pet list shows under each pet (spec §7.1, §9): the
+ * pet's earliest planned date, and only when it is overdue or within the
+ * fourteen "soon" days — a pet whose next date is further away gets no line.
+ * `due` is the whole `/pets/due` list of the owner, so the list needs one
+ * request for every pet, never one per pet. Ties keep the list's order.
+ */
+export function nearestDueByPet<T extends { pet_id: string; date: string }>(
+  due: readonly T[],
+  today: string,
+): Record<string, T> {
+  const earliest: Record<string, T> = {}
+  for (const entry of due) {
+    const held = earliest[entry.pet_id]
+    if (!held || entry.date < held.date) earliest[entry.pet_id] = entry
+  }
+  const shown: Record<string, T> = {}
+  for (const [petId, entry] of Object.entries(earliest)) {
+    if (dueTiming(entry.date, today).tone !== 'later') shown[petId] = entry
+  }
+  return shown
+}
+
 /** Done records of a kind, newest first. */
 export function doneEvents(events: readonly HealthEvent[], kind: HealthEvent['kind']): HealthEvent[] {
   return events
@@ -233,5 +256,31 @@ export function splitCourses<T extends Pick<Medication, 'started_on' | 'ended_on
     past: byStart
       .filter((course) => !isCurrentCourse(course, today))
       .sort((a, b) => (b.ended_on ?? '').localeCompare(a.ended_on ?? '')),
+  }
+}
+
+/**
+ * The pet form's standing notes (spec §4), shown only where the record
+ * already holds more than the form: the weight has a dated history (the
+ * form's own undated value is not one); vaccinations are recorded as done
+ * (their number); a course carries a dosage or was written in the record,
+ * not just the form's name. Nothing, while the record is empty on that field.
+ */
+export type PetFormHints = {
+  weight: boolean
+  /** Done vaccination records; 0 is no note. */
+  vaccinations: number
+  medications: boolean
+}
+
+export function petFormHints(record: {
+  weights: readonly WeightMeasurement[]
+  events: readonly HealthEvent[]
+  medications: readonly Pick<Medication, 'source' | 'dosage'>[]
+}): PetFormHints {
+  return {
+    weight: datedWeights(record.weights).length > 0,
+    vaccinations: doneEvents(record.events, 'vaccination').length,
+    medications: record.medications.some((course) => course.source === 'record' || course.dosage !== null),
   }
 }

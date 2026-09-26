@@ -11,16 +11,19 @@ function Tristate({
   onChange,
   yes,
   no,
+  note,
 }: {
   label: string
   value: boolean | null
   onChange: (value: boolean | null) => void
   yes: string
   no: string
+  note?: string
 }) {
   return (
     <Segment
       label={label}
+      note={note}
       options={[
         { value: 'yes' as const, label: yes },
         { value: 'no' as const, label: no },
@@ -65,7 +68,7 @@ export function PetFields({
    * Standing notes under fields that the medical record expands on — «История
    * веса — в медкарте». Only where the record has something (spec §4).
    */
-  notes?: { weight?: string; medications?: string }
+  notes?: { weight?: string; vaccinated?: string; medications?: string }
 }) {
   const t = useText()
   const errorFor = (field: keyof PetForm) => (invalid?.field === field ? invalid.message : null)
@@ -156,6 +159,7 @@ export function PetFields({
           onChange={(vaccinated) => onChange({ vaccinated })}
           yes={t.petForm.vaccinatedYes}
           no={t.petForm.no}
+          note={notes.vaccinated}
         />
         <Field
           label={t.petForm.allergies}

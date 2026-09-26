@@ -175,7 +175,9 @@
       padding: 12px 20px;
       background: linear-gradient(to bottom, rgb(251 246 238 / 0), var(--bg) 30%);
     }
-    .health-grid.has-actions { padding-bottom: 80px; }
+    /* The room is made below the page's last line (the site's footnote), not below the grid:
+       otherwise that line ends up under the pinned actions (MW-08). */
+    .workspace:has(.health-grid.has-actions) { padding-bottom: calc(95px + 80px + env(safe-area-inset-bottom)); }
 
     /* The chart is drawn at 640 units and shrinks to the phone: its words and marks grow to stay legible. */
     .weight-chart text.value,

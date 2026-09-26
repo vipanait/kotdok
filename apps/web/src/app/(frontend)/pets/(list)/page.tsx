@@ -10,6 +10,8 @@ import { loadPetsOverview } from '@/server/dashboard/load-dashboard'
 import { getDictionary } from '@/server/i18n/get-dictionary'
 import { getLocale } from '@/server/i18n/get-locale'
 import { privatePageMetadata } from '@/server/i18n/page-metadata'
+import { getTimeZone } from '@/server/i18n/get-time-zone'
+import { dayInZone } from '@/shared/i18n/time-zone'
 
 export const generateMetadata = privatePageMetadata(d => d.shell.pets)
 
@@ -20,8 +22,10 @@ export default async function PetsPage({
 }) {
   const cabinet = await requireCabinet('/login?next=/pets')
 
-  const [{ pets, latestChecksByPet }, params, locale] = await Promise.all([
-    loadPetsOverview(cabinet.user.id),
+  // The owner's day, not the server's: "overdue" and "in 5 days" turn at their midnight.
+  const today = dayInZone(new Date(), await getTimeZone())
+  const [{ pets, latestChecksByPet, dueByPet }, params, locale] = await Promise.all([
+    loadPetsOverview(cabinet.user.id, today),
     searchParams,
     getLocale(),
   ])
@@ -51,7 +55,14 @@ export default async function PetsPage({
 
       {pets.length ? (
         <section className="card pet-directory" aria-label={t.listTitle}>
-          <PetRows pets={pets} latestChecksByPet={latestChecksByPet} dict={dict} locale={locale} />
+          <PetRows
+            pets={pets}
+            latestChecksByPet={latestChecksByPet}
+            dueByPet={dueByPet}
+            today={today}
+            dict={dict}
+            locale={locale}
+          />
         </section>
       ) : (
         <PetsEmptyCard dict={dict} />

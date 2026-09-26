@@ -1,13 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import type { HealthEvent, HealthItem } from '@lapka/contracts'
-import { ApiError } from '@lapka/shared'
+import { ApiError, completionMismatch } from '@lapka/shared'
 import ru from '@/shared/i18n/dictionaries/ru'
 import en from '@/shared/i18n/dictionaries/en'
 import {
   changeDoneDay,
   completeDraft,
   completionChanged,
-  completionMismatch,
   completionTarget,
   keptFromPlan,
   othersInPlan,
