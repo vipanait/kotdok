@@ -22,6 +22,9 @@ function Label({ children, hint }: { children: string; hint?: string }) {
   )
 }
 
+/** What a form holds of a field to move to it (`fieldRef`). */
+export type FieldHandle = { focus: () => void }
+
 export function Field({
   label,
   labelHidden = false,
@@ -37,7 +40,7 @@ export function Field({
   autoComplete,
   autoCorrect,
   style,
-  inputRef,
+  fieldRef,
 }: {
   label: string
   /** Draw the name or not; either way the field answers to it out loud. */
@@ -59,8 +62,12 @@ export function Field({
    */
   autoCorrect?: boolean
   style?: ViewStyle
-  /** The text input itself, for a form that moves the focus to its first error. */
-  inputRef?: (input: TextInput | null) => void
+  /**
+   * For a form that moves to its first error: `focus()` brings the field into
+   * view and puts the caret in it — also when it already had the focus, where
+   * the text input itself would do nothing.
+   */
+  fieldRef?: (field: FieldHandle | null) => void
 }) {
   const t = useText()
   const [focused, setFocused] = useState(false)
@@ -91,7 +98,19 @@ export function Field({
           onChangeText={onChangeText}
           ref={(node) => {
             input.current = node
-            inputRef?.(node)
+            fieldRef?.(
+              node
+                ? {
+                    focus: () => {
+                      // A field gaining the focus is brought into view by `hold` (onFocus);
+                      // one that already had it raises no event, so it asks here.
+                      const had = node.isFocused()
+                      node.focus()
+                      if (had) revealing?.show(node)
+                    },
+                  }
+                : null,
+            )
           }}
           onFocus={() => {
             setFocused(true)
