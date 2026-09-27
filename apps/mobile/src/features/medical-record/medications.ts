@@ -1,5 +1,5 @@
 import { MEDICATION_LIMITS, type Medication, type MedicationsInput } from '@lapka/contracts'
-import { courseDayProblems } from '@lapka/shared'
+import { courseDayProblems, endsByToday } from '@lapka/shared'
 import type { Dictionary } from '@/i18n'
 import { dayInput, dayParts, localToday, parseDayText } from '@/lib/calendar-day'
 
@@ -69,33 +69,37 @@ export type CourseErrors = Record<string, { name?: string; dosage?: string; star
 
 export type ReadCourses = { ok: true; value: MedicationsInput['items'] } | { ok: false; errors: CourseErrors }
 
+/** «24.09.2026» as the shared rules read it: a day, '' for none, or the text as typed (not a day). */
+const typedDay = (text: string) => (text.trim() === '' ? '' : (parseDayText(text) ?? text.trim()))
+
 /**
- * Checked like the server: a name up to 150 characters, dates that exist, an
- * end not before the start. The day rules are the site's too
- * (`courseDayProblems` in @lapka/shared); the phone lets the start be left
- * empty, as it always has (MR-06).
+ * Checked like the server and the site: texts within the contract's limits,
+ * dates that exist, an end not before the start, and a start (spec §7.12) —
+ * unless `startOptional`, a course from the pet form being corrected whose
+ * start nobody knows (shared `startMayStayEmpty`). The day rules are the
+ * site's (`courseDayProblems` in @lapka/shared).
  */
-export function readCourses(t: Dictionary, drafts: readonly CourseDraft[]): ReadCourses {
+export function readCourses(t: Dictionary, drafts: readonly CourseDraft[], startOptional = false): ReadCourses {
   const words = t.medicalRecord.meds
+  const tooLong = t.medicalRecord.tooLong
   const errors: CourseErrors = {}
 
   const value = drafts.map((draft) => {
     const problems: CourseErrors[string] = {}
     const name = draft.name.trim()
     if (name === '') problems.name = words.nameRequired
-    else if (name.length > MEDICATION_LIMITS.name) problems.name = words.tooLong
+    else if (name.length > MEDICATION_LIMITS.name) problems.name = tooLong(MEDICATION_LIMITS.name)
 
-    // «24.09.2026» as the shared rule reads it: a day, '' for none, or the text as typed (not a day).
-    const typed = (text: string) => (text.trim() === '' ? '' : (parseDayText(text) ?? text.trim()))
-    const start = typed(draft.start)
-    const end = typed(draft.end)
-    const days = courseDayProblems({ start, end, ongoing: draft.ongoing }, true)
-    if (days.start) problems.start = words.dateInvalid
+    const start = typedDay(draft.start)
+    const end = typedDay(draft.end)
+    const days = courseDayProblems({ start, end, ongoing: draft.ongoing }, startOptional)
+    if (days.start === 'empty') problems.start = words.startRequired
+    else if (days.start) problems.start = words.dateInvalid
     if (days.end === 'invalid') problems.end = words.dateInvalid
     else if (days.end === 'beforeStart') problems.end = words.endBeforeStart
 
     const dosage = draft.dosage.trim()
-    if (dosage.length > MEDICATION_LIMITS.dosage) problems.dosage = words.tooLong
+    if (dosage.length > MEDICATION_LIMITS.dosage) problems.dosage = tooLong(MEDICATION_LIMITS.dosage)
     if (Object.keys(problems).length > 0) errors[draft.key] = problems
     return {
       name,
@@ -107,4 +111,20 @@ export function readCourses(t: Dictionary, drafts: readonly CourseDraft[]): Read
   })
 
   return Object.keys(errors).length > 0 ? { ok: false, errors } : { ok: true, value }
+}
+
+/**
+ * Whether the course as typed ends today or earlier: saved like that it is
+ * finished and only read from then on, so the form says so before saving —
+ * the site's rule (shared `endsByToday`). An end that is not a day yet says
+ * nothing; its error comes on saving.
+ */
+export function courseEndsByToday(draft: CourseDraft, today: string = localToday()): boolean {
+  const end = draft.end.trim() === '' ? '' : parseDayText(draft.end)
+  return end !== null && endsByToday({ end, ongoing: draft.ongoing }, today)
+}
+
+/** Whether «+ Ещё препарат» may add one more: one save takes the contract's number of courses. */
+export function canAddCourse(drafts: readonly CourseDraft[]): boolean {
+  return drafts.length < MEDICATION_LIMITS.items
 }

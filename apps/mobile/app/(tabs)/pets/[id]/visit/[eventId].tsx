@@ -8,6 +8,7 @@ import { localToday } from '@/lib/calendar-day'
 import { useText } from '@/i18n'
 import { useReminders } from '@/features/medical-record/reminders/ReminderProvider'
 import { dueLine, dueStatus } from '@/features/medical-record/due'
+import { heldNote } from '@/features/medical-record/visits'
 import { Button, LinkButton } from '@/ui/Button'
 import { Banner, Card, SettingRow } from '@/ui/Card'
 import { ConfirmDialog } from '@/ui/Dialog'
@@ -82,6 +83,7 @@ export default function VisitView() {
   }
 
   const planned = visit?.status === 'planned'
+  const note = visit ? heldNote(t, visit) : null
   const status = visit && planned ? dueStatus(t, visit.date, localToday()) : null
   const edit = (mode: 'edit' | 'done') => router.push(`/pets/${id}/visit-form?mode=${mode}&eventId=${eventId}`)
 
@@ -114,9 +116,9 @@ export default function VisitView() {
             ) : null}
           </Card>
 
-          {!planned ? (
+          {note ? (
             <Text tone="muted" style={styles.gap}>
-              {words.heldReadOnly}
+              {note}
             </Text>
           ) : null}
 

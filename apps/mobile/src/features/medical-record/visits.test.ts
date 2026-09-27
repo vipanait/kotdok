@@ -1,8 +1,18 @@
 import { describe, expect, it } from 'vitest'
-import type { HealthEvent } from '@lapka/contracts'
+import { VISIT_LIMITS, type HealthEvent } from '@lapka/contracts'
 import { ru } from '@/i18n/ru'
 import { dueItems, itemTitle } from './due'
-import { blankVisit, readVisit, recentChecks, visitDraftFrom, visitLocked, visitSummary, warnsHeldIsFinal } from './visits'
+import {
+  blankVisit,
+  canAddPrescription,
+  heldNote,
+  readVisit,
+  recentChecks,
+  visitDraftFrom,
+  visitLocked,
+  visitSummary,
+  warnsHeldIsFinal,
+} from './visits'
 
 const NOW = new Date(2026, 8, 24, 12, 0)
 const TODAY = '2026-09-24'
@@ -58,11 +68,48 @@ describe('the visit form', () => {
   it('refuses a prescription name or instructions longer than the record keeps', () => {
     const long = (name: string, instructions: string) =>
       readVisit(ru, { ...blankVisit('done', NOW), prescriptions: [{ key: 'a', name, instructions, toMedicines: true }] }, 'new', NOW)
-    const name = long('Ф'.repeat(101), '')
+    const name = long('Ф'.repeat(VISIT_LIMITS.prescriptionName + 1), '')
     expect(name.ok ? null : name.errors.prescriptions).toEqual({ a: 'Не длиннее 100 символов' })
-    const instructions = long('Фортифлора', 'x'.repeat(151))
-    expect(instructions.ok ? null : instructions.errors.prescriptions).toEqual({ a: 'Не длиннее 150 символов' })
-    expect(long('Ф'.repeat(100), 'x'.repeat(150)).ok).toBe(true)
+    // Each said at its own field.
+    const both = long('Ф'.repeat(VISIT_LIMITS.prescriptionName + 1), 'x'.repeat(VISIT_LIMITS.instructions + 1))
+    expect(both.ok ? null : both.errors).toEqual({ prescriptions: { a: 'Не длиннее 100 символов' }, instructions: { a: 'Не длиннее 150 символов' } })
+    expect(long('Ф'.repeat(VISIT_LIMITS.prescriptionName), 'x'.repeat(VISIT_LIMITS.instructions)).ok).toBe(true)
+  })
+
+  it('refuses a clinic, reason, diagnosis or note longer than the contract keeps, before sending', () => {
+    const over = (field: 'clinic' | 'reason' | 'diagnosis' | 'notes') => 'а'.repeat(VISIT_LIMITS[field] + 1)
+    const read = readVisit(
+      ru,
+      { ...blankVisit('done', NOW), clinic: over('clinic'), reason: over('reason'), diagnosis: over('diagnosis'), notes: over('notes') },
+      'new',
+      NOW,
+    )
+    expect(read.ok ? null : read.errors).toEqual({
+      clinic: `Не длиннее ${VISIT_LIMITS.clinic} символов`,
+      reason: `Не длиннее ${VISIT_LIMITS.reason} символов`,
+      diagnosis: `Не длиннее ${VISIT_LIMITS.diagnosis} символов`,
+      notes: `Не длиннее ${VISIT_LIMITS.notes} символов`,
+    })
+    const atLimit = (field: 'clinic' | 'reason' | 'diagnosis' | 'notes') => 'а'.repeat(VISIT_LIMITS[field])
+    expect(
+      readVisit(
+        ru,
+        { ...blankVisit('done', NOW), clinic: atLimit('clinic'), reason: atLimit('reason'), diagnosis: atLimit('diagnosis'), notes: atLimit('notes') },
+        'new',
+        NOW,
+      ).ok,
+    ).toBe(true)
+    // A plan sends no diagnosis: whatever the hidden field holds is not read.
+    const plan = { ...blankVisit('planned', NOW), date: '03.10.2026', diagnosis: over('diagnosis') }
+    expect(readVisit(ru, plan, 'new', NOW).ok).toBe(true)
+  })
+
+  it('adds prescriptions up to what a visit keeps', () => {
+    const many = (n: number) => ({
+      prescriptions: Array.from({ length: n }, (_, i) => ({ key: `k${i}`, name: 'x', instructions: '', toMedicines: true })),
+    })
+    expect(canAddPrescription(many(VISIT_LIMITS.prescriptions - 1))).toBe(true)
+    expect(canAddPrescription(many(VISIT_LIMITS.prescriptions))).toBe(false)
   })
 
   it('offers the checks of the last 30 days by the phone’s day', () => {
@@ -126,5 +173,23 @@ describe('visits elsewhere', () => {
     expect(visitSummary(ru, [visit({})], TODAY)).toBe('Последний — 2 августа, Обострение гастрита')
     expect(visitSummary(ru, [visit({ diagnosis: null, reason: null })], TODAY)).toBe('Последний — 2 августа, Болезнь')
     expect(visitSummary(ru, [], TODAY)).toBeNull()
+  })
+})
+
+describe('a visit that happened, as viewed', () => {
+  const prescription = (medication_id: string | null) => ({
+    id: `p-${medication_id ?? 'none'}`, name: 'Фортифлора', targets: [], source_item_id: null, product_id: null,
+    interval: null, instructions: null, medication_id,
+  })
+
+  it('offers the medicines only while a prescription is not there yet', () => {
+    expect(heldNote(ru, visit({ items: [prescription(null), prescription('m1')] }))).toBe(ru.medicalRecord.visits.heldReadOnlyAdd)
+    expect(heldNote(ru, visit({ items: [prescription('m1')] }))).toBe(ru.medicalRecord.visits.heldReadOnly)
+    expect(heldNote(ru, visit({ items: [] }))).toBe(ru.medicalRecord.visits.heldReadOnly)
+    expect(ru.medicalRecord.visits.heldReadOnly).not.toMatch(/лекарств/)
+  })
+
+  it('says nothing of the kind for a plan', () => {
+    expect(heldNote(ru, visit({ status: 'planned', items: [prescription(null)] }))).toBeNull()
   })
 })

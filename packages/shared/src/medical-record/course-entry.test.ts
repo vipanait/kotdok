@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { MedicationPatchSchema, type Medication } from '@lapka/contracts'
-import { canEndCourse, courseDayProblems, courseEditable, endCoursePatch } from './course-entry'
+import { canEndCourse, courseDayProblems, courseEditable, endCoursePatch, endsByToday, startMayStayEmpty } from './course-entry'
 import { splitCourses } from './record-overview'
 
 // MW-05: the course rules the site and the phone share. A finished course is
@@ -66,5 +66,22 @@ describe('a course’s dates as typed', () => {
     expect(courseDayProblems({ start: '', end: '2026-09-01', ongoing: false }, true)).toEqual({})
     // An unreadable start does not make up a range problem on top.
     expect(courseDayProblems({ start: 'x', end: '2026-09-01', ongoing: false })).toEqual({ start: 'invalid' })
+  })
+})
+
+describe('a course’s start and end as the forms warn', () => {
+  it('lets only a course with no start on file keep it empty', () => {
+    expect(startMayStayEmpty(null)).toBe(false)
+    expect(startMayStayEmpty({ started_on: null })).toBe(true)
+    expect(startMayStayEmpty({ started_on: '2026-09-01' })).toBe(false)
+  })
+
+  it('says a course that ends today or earlier will be saved finished', () => {
+    expect(endsByToday({ end: '2026-09-26', ongoing: false }, '2026-09-26')).toBe(true)
+    expect(endsByToday({ end: '2026-09-01', ongoing: false }, '2026-09-26')).toBe(true)
+    expect(endsByToday({ end: '2026-09-27', ongoing: false }, '2026-09-26')).toBe(false)
+    expect(endsByToday({ end: '', ongoing: false }, '2026-09-26')).toBe(false)
+    // «Постоянно» has no end, whatever the hidden field still holds.
+    expect(endsByToday({ end: '2026-09-01', ongoing: true }, '2026-09-26')).toBe(false)
   })
 })

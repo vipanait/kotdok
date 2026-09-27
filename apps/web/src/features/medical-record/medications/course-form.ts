@@ -6,7 +6,7 @@ import {
   type MedicationPatch,
   type MedicationsInput,
 } from '@lapka/contracts'
-import { courseDayProblems, type CourseDayProblems } from '@lapka/shared'
+import { courseDayProblems, startMayStayEmpty, type CourseDayProblems } from '@lapka/shared'
 
 /**
  * The medicine form (web v1 «medication-new», «course-edit») as data, apart
@@ -113,7 +113,7 @@ export function readNewCourses(drafts: readonly CourseDraft[]): CourseRead<Medic
  * unknown.
  */
 export function readCourseChange(course: Medication, draft: CourseDraft): CourseRead<MedicationPatch | null> {
-  const found = problemsOf(draft, course.started_on === null)
+  const found = problemsOf(draft, startMayStayEmpty(course))
   if (hasProblems(found)) return { ok: false, problems: { course: { [draft.key]: found } } }
 
   const next = courseValue(draft)
@@ -135,12 +135,4 @@ export function coursesChanged(initial: readonly CourseDraft[], drafts: readonly
   const read = (list: readonly CourseDraft[]) =>
     JSON.stringify(list.map((draft) => ({ ...courseValue(draft), end: draft.end, key: undefined })))
   return read(initial) !== read(drafts)
-}
-
-/**
- * Whether the course as typed ends today or earlier: saved like that it is
- * finished, and from then on only read — the form says so before saving.
- */
-export function endsByToday(draft: CourseDraft, today: string): boolean {
-  return !draft.ongoing && draft.end !== '' && draft.end <= today
 }

@@ -1,13 +1,22 @@
 import { useEffect, useRef, useState } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
-import { ApiError, courseEditable } from '@lapka/shared'
+import { MEDICATION_LIMITS } from '@lapka/contracts'
+import { ApiError, courseEditable, startMayStayEmpty } from '@lapka/shared'
 import { withFreshSession } from '@/lib/api'
 import { describeFailure } from '@/lib/errors'
 import { localToday } from '@/lib/calendar-day'
 import { newRequestKey } from '@/lib/request-key'
 import { useText } from '@/i18n'
-import { blankCourse, courseDraft, readCourses, type CourseDraft, type CourseErrors } from '@/features/medical-record/medications'
+import {
+  blankCourse,
+  canAddCourse,
+  courseDraft,
+  courseEndsByToday,
+  readCourses,
+  type CourseDraft,
+  type CourseErrors,
+} from '@/features/medical-record/medications'
 import { useUnsavedChanges } from '@/features/unsaved/useUnsavedChanges'
 import { Button, IconButton, LinkButton } from '@/ui/Button'
 import { Banner, Card } from '@/ui/Card'
@@ -20,8 +29,11 @@ import { TAP_TARGET, colour, space } from '@/ui/theme'
 /**
  * Medicines (M19): several courses at once for a new entry, one for a
  * correction (`?medicationId=`). Free text with no catalogue: the dose is
- * the vet's (spec §7.12). A finished course is not corrected (owner rule of
- * 26 September 2026): opened here, it shows why and no save.
+ * the vet's (spec §7.12). A course needs a start, today by default; only one
+ * from the pet form whose start nobody knows may keep it empty. An end of
+ * today or earlier is said before saving: the course will be finished. A
+ * finished course is not corrected (owner rule of 26 September 2026): opened
+ * here, it shows why and no save.
  */
 export default function MedicationForm() {
   const { id: petId, medicationId } = useLocalSearchParams<{ id: string; medicationId?: string }>()
@@ -35,6 +47,8 @@ export default function MedicationForm() {
   const [busy, setBusy] = useState(false)
   /** The course being corrected has finished: history, read only. */
   const [locked, setLocked] = useState(false)
+  /** The course being corrected has no start on file and may keep it so (shared `startMayStayEmpty`). */
+  const [startOptional, setStartOptional] = useState(false)
   const requestKey = useRef(newRequestKey())
   const nextKey = useRef(1)
 
@@ -53,6 +67,7 @@ export default function MedicationForm() {
           setLocked(true)
           return
         }
+        setStartOptional(startMayStayEmpty(course))
         setInitial([courseDraft(course)])
         setDrafts([courseDraft(course)])
       })
@@ -67,7 +82,7 @@ export default function MedicationForm() {
 
   async function save(then: () => void = () => router.back()) {
     if (!drafts) return
-    const read = readCourses(t, drafts)
+    const read = readCourses(t, drafts, startOptional)
     if (!read.ok) {
       setErrors(read.errors)
       return
@@ -146,6 +161,7 @@ export default function MedicationForm() {
             placeholder={t.medicalRecord.datePlaceholder}
             keyboardType="numbers-and-punctuation"
             error={errors[draft.key]?.start}
+            hint={startOptional ? words.startUnknownHint : undefined}
           />
           <Pressable
             accessibilityRole="checkbox"
@@ -167,17 +183,24 @@ export default function MedicationForm() {
               placeholder={t.medicalRecord.datePlaceholder}
               keyboardType="numbers-and-punctuation"
               error={errors[draft.key]?.end}
+              hint={courseEndsByToday(draft) ? words.endsNow : undefined}
             />
           ) : null}
         </Card>
       ))}
 
       {drafts && !editing && !locked ? (
-        <LinkButton
-          title={words.addAnother}
-          align="left"
-          onPress={() => setDrafts([...drafts, blankCourse(`new-${nextKey.current++}`)])}
-        />
+        canAddCourse(drafts) ? (
+          <LinkButton
+            title={words.addAnother}
+            align="left"
+            onPress={() => setDrafts([...drafts, blankCourse(`new-${nextKey.current++}`)])}
+          />
+        ) : (
+          <Text variant="caption" tone="muted">
+            {words.itemsFull(MEDICATION_LIMITS.items)}
+          </Text>
+        )
       ) : null}
 
       <Text variant="caption" tone="faint" style={styles.note}>

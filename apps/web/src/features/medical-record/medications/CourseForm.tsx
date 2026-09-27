@@ -4,6 +4,7 @@ import { useEffect, useId, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { MEDICATION_LIMITS, type Medication } from '@lapka/contracts'
+import { endsByToday, startMayStayEmpty } from '@lapka/shared'
 import { useTranslations } from '@/components/LocaleProvider'
 import Icon from '@/components/ui/Icon'
 import { browserApi } from '@/features/api/browser-api'
@@ -17,7 +18,6 @@ import {
   blankCourse,
   coursesChanged,
   draftFromCourse,
-  endsByToday,
   readCourseChange,
   readNewCourses,
   type CourseDraft,
@@ -205,7 +205,7 @@ export default function CourseForm({
         {drafts.map((draft, index) => {
           const own = errors.course[draft.key] ?? {}
           const title = draft.name.trim() || `${form.itemTitle}${drafts.length > 1 ? ` ${index + 1}` : ''}`
-          const startOptional = course !== null && course.started_on === null
+          const startOptional = startMayStayEmpty(course)
           const endsNow = endsByToday(draft, today)
           return (
             <section key={draft.key} className="event-item course-item" aria-label={title}>

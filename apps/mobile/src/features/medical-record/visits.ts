@@ -1,5 +1,13 @@
-import type { HealthEvent, VisitInput, VisitKind } from '@lapka/contracts'
-import { eventDayProblem, heldVisitDay, linkableChecks, prescriptionProblems, visitEditable } from '@lapka/shared'
+import { VISIT_LIMITS, type HealthEvent, type VisitInput, type VisitKind } from '@lapka/contracts'
+import {
+  eventDayProblem,
+  heldVisitDay,
+  linkableChecks,
+  prescriptionProblems,
+  visitEditable,
+  visitTextProblems,
+  type VisitTextField,
+} from '@lapka/shared'
 import type { Dictionary } from '@/i18n'
 import { dayInput, localToday, parseDayText } from '@/lib/calendar-day'
 
@@ -8,8 +16,9 @@ import { dayInput, localToday, parseDayText } from '@/lib/calendar-day'
  * sends no diagnosis and no prescriptions (MR-07.3); a prescription the visit
  * already has keeps its id and is never sent to the medicines again. The day
  * and length rules are the site's (@lapka/shared `eventDayProblem`,
- * `prescriptionProblems`); only a plan is changed — a visit that happened is
- * history (owner rule of 26 September 2026, `visitEditable`).
+ * `prescriptionProblems`, `visitTextProblems`, the contract's `VISIT_LIMITS`),
+ * checked before anything is sent; only a plan is changed — a visit that
+ * happened is history (owner rule of 26 September 2026, `visitEditable`).
  */
 
 export type PrescriptionDraft = {
@@ -74,7 +83,13 @@ export function visitDraftFrom(event: HealthEvent, as?: 'done', now: Date = new 
   }
 }
 
-export type VisitErrors = { date?: string; prescriptions?: Record<string, string> }
+export type VisitErrors = {
+  date?: string
+  /** Under a prescription's name, by its key. */
+  prescriptions?: Record<string, string>
+  /** Under a prescription's «Как принимать», by its key. */
+  instructions?: Record<string, string>
+} & Partial<Record<VisitTextField, string>>
 
 export type ReadVisit = { ok: true; value: VisitInput } | { ok: false; errors: VisitErrors }
 
@@ -93,6 +108,22 @@ export function recentChecks<Check extends { id: string; created_at: string }>(
 /** Whether the visit's form may open: a plan only; a visit that happened is read and deleted, never changed. */
 export function visitLocked(visit: Pick<HealthEvent, 'status'>): boolean {
   return !visitEditable(visit)
+}
+
+/** Whether «+ Добавить назначение» may add one more: a visit keeps the contract's number of them. */
+export function canAddPrescription(draft: Pick<VisitDraft, 'prescriptions'>): boolean {
+  return draft.prescriptions.length < VISIT_LIMITS.prescriptions
+}
+
+/**
+ * What the view of a visit that happened says about it: history, read and
+ * deleted — and that a prescription can go to the medicines only while one
+ * of them is not there yet. Null for a plan.
+ */
+export function heldNote(t: Dictionary, visit: Pick<HealthEvent, 'status' | 'items'>): string | null {
+  if (visitEditable(visit)) return null
+  const words = t.medicalRecord.visits
+  return visit.items.some((item) => item.medication_id === null) ? words.heldReadOnlyAdd : words.heldReadOnly
 }
 
 /**
@@ -118,6 +149,7 @@ export function readVisit(
 ): ReadVisit {
   const words = t.medicalRecord
   const errors: VisitErrors = {}
+  const done = draft.status === 'done'
 
   // The day rules are shared with the site: done not after today, a plan not before it, an
   // overdue plan being changed may keep its own day.
@@ -126,20 +158,30 @@ export function readVisit(
   const date = typed !== null && eventDayProblem(typed, draft.status, localToday(now), kept) === null ? typed : null
   if (!date) errors.date = draft.status === 'done' ? words.dateInvalid : words.plannedDateInvalid
 
-  const done = draft.status === 'done'
+  // A plan sends no diagnosis, so whatever the hidden field holds is not read.
+  const long = visitTextProblems({
+    clinic: draft.clinic,
+    reason: draft.reason,
+    notes: draft.notes,
+    ...(done ? { diagnosis: draft.diagnosis } : {}),
+  })
+  for (const field of long) errors[field] = words.tooLong(VISIT_LIMITS[field])
+
   const prescriptionErrors: Record<string, string> = {}
+  const instructionErrors: Record<string, string> = {}
   const prescriptions = done
     ? draft.prescriptions.map((item) => {
         const found = prescriptionProblems(item)
         if (found.name === 'empty') prescriptionErrors[item.key] = words.visits.nameRequired
-        else if (found.name === 'tooLong') prescriptionErrors[item.key] = words.visits.nameTooLong
-        else if (found.instructions) prescriptionErrors[item.key] = words.visits.instructionsTooLong
+        else if (found.name === 'tooLong') prescriptionErrors[item.key] = words.tooLong(VISIT_LIMITS.prescriptionName)
+        if (found.instructions) instructionErrors[item.key] = words.tooLong(VISIT_LIMITS.instructions)
         return item.id
           ? { id: item.id, name: item.name.trim(), instructions: clean(item.instructions) }
           : { name: item.name.trim(), instructions: clean(item.instructions), add_to_medications: item.toMedicines }
       })
     : []
   if (Object.keys(prescriptionErrors).length > 0) errors.prescriptions = prescriptionErrors
+  if (Object.keys(instructionErrors).length > 0) errors.instructions = instructionErrors
   if (Object.keys(errors).length > 0 || !date) return { ok: false, errors }
 
   return {
