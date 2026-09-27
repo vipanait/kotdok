@@ -22,7 +22,6 @@ import {
   completeDraft,
   completionChanged,
   completionTarget,
-  keptFromPlan,
   othersInPlan,
   readCompletion,
   type CompleteDraft,
@@ -212,7 +211,6 @@ function CompleteItemForm({
   const { leaveHref, leaveLinkRef, stay, leave } = useLeaveGuard(dirty && !saving)
   const errors = completeErrorTexts(dict, problems)
   const others = othersInPlan(plan, item)
-  const kept = keptFromPlan(plan, item, draft)
   const name = eventItemName(dict, kind, item)
 
   function clear(field: keyof CompleteProblems) {
@@ -382,17 +380,13 @@ function CompleteItemForm({
             value={draft.clinic}
             readOnly={saving}
             aria-invalid={errors.clinic ? true : undefined}
-            aria-describedby={[errors.clinic ? `${id}-clinic-error` : null, kept.clinic ? `${id}-clinic-kept` : null].filter(Boolean).join(' ') || undefined}
+            aria-describedby={errors.clinic ? `${id}-clinic-error` : undefined}
             onChange={(e) => {
               setDraft({ ...draft, clinic: e.target.value })
               clear('clinic')
             }}
           />
           {errors.clinic && <span id={`${id}-clinic-error`} className="field-error" role="alert">{errors.clinic}</span>}
-          {/* The server keeps the plan's clinic when none is sent: said, not hidden. */}
-          {kept.clinic && (
-            <span id={`${id}-clinic-kept`} className="field-hint complete-kept">{words.keptClinic.replace('{text}', kept.clinic)}</span>
-          )}
         </div>
 
         <div className="field">
@@ -407,14 +401,13 @@ function CompleteItemForm({
             value={draft.notes}
             readOnly={saving}
             aria-invalid={errors.notes ? true : undefined}
-            aria-describedby={[errors.notes ? `${id}-notes-error` : null, kept.notes ? `${id}-notes-kept` : null, `${id}-notes-count`].filter(Boolean).join(' ')}
+            aria-describedby={[errors.notes ? `${id}-notes-error` : null, `${id}-notes-count`].filter(Boolean).join(' ')}
             onChange={(e) => {
               setDraft({ ...draft, notes: e.target.value })
               clear('notes')
             }}
           />
           {errors.notes && <span id={`${id}-notes-error`} className="field-error" role="alert">{errors.notes}</span>}
-          {kept.notes && <span id={`${id}-notes-kept`} className="field-hint complete-kept">{words.keptNotes}</span>}
           <span id={`${id}-notes-count`} className="field-hint event-counter">
             {form.counter.replace('{n}', String(draft.notes.length)).replace('{max}', String(HEALTH_EVENT_LIMITS.notes))}
           </span>

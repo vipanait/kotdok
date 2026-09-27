@@ -361,11 +361,17 @@ export function buildOpenApiDocument(): Record<string, unknown> {
         parameters: [idParam],
         post: {
           summary: 'Record a weighing; a second one for the same day replaces that day\'s value',
-          description: 'The pet form\'s weight becomes the latest measurement. A day in the future is refused.',
+          description:
+            'The pet form\'s weight becomes the latest measurement. A day in the future is refused. ' +
+            'While the pet has no measurement yet, the form\'s earlier weight stays in the history as an ' +
+            'undated one — unless this weighing has that very value: then it is the form\'s weight given its day, one row. ' +
+            'The same Idempotency-Key with the same data returns the measurement it made (a retry after midnight ' +
+            'adds nothing); with other data, 409 conflict with details.reason idempotency_key_reused.',
+          parameters: [idempotencyParam],
           requestBody: body('WeightInput'),
           responses: {
             '201': json('WeightMeasurement', 'The day\'s measurement'),
-            ...commonErrors('bad_request', 'not_found'),
+            ...commonErrors('bad_request', 'not_found', 'conflict'),
           },
         },
       },
@@ -376,6 +382,10 @@ export function buildOpenApiDocument(): Record<string, unknown> {
         ],
         patch: {
           summary: 'Correct a measurement',
+          description:
+            '409 conflict: the day already has a measurement, or — with details.reason idempotency_key_reused — ' +
+            'the Idempotency-Key was used for other data. The same key with the same data returns the measurement.',
+          parameters: [idempotencyParam],
           requestBody: body('WeightPatch'),
           responses: {
             '200': json('WeightMeasurement', 'The corrected measurement'),
@@ -456,6 +466,10 @@ export function buildOpenApiDocument(): Record<string, unknown> {
         parameters: [idParam, { name: 'item_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
         post: {
           summary: 'Mark one planned item done; others planned for the same day stay planned',
+          description:
+            'clinic and notes absent or null keep the plan\'s text; an empty string clears it. ' +
+            'The same Idempotency-Key with the same data returns the done record; with other data, 409 conflict. ' +
+            'An item already done under another key returns its record as it was.',
           parameters: [idempotencyParam],
           requestBody: body('CompleteItemInput'),
           responses: {
@@ -484,9 +498,12 @@ export function buildOpenApiDocument(): Record<string, unknown> {
         patch: {
           summary: 'Correct a course, or end it',
           description:
-            'Only a current course changes: one that ended — its end is today or earlier in every ' +
-            'time zone — is history and answers 409 record_done (it can still be deleted). A change ' +
-            'that leaves a finished course as it is, such as «Завершить курс» sent again, answers 200.',
+            'Only a current course changes: one that ended is history and answers 409 record_done ' +
+            '(it can still be deleted). Ended means its end is `today` or earlier when the owner\'s day is given ' +
+            '(taken only from the UTC day before the server\'s to the UTC day after), otherwise today or earlier ' +
+            'in every time zone. A change that leaves a finished course as it is, such as «Завершить курс» sent ' +
+            'again, answers 200.',
+          parameters: [{ name: 'today', in: 'query', required: false, schema: { type: 'string', format: 'date' } }],
           requestBody: body('MedicationPatch'),
           responses: { '200': json('Medication', 'The course'), ...commonErrors('bad_request', 'not_found', 'record_done') },
         },

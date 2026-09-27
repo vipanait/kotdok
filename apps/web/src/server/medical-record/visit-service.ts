@@ -2,7 +2,7 @@ import 'server-only'
 
 import type { HealthEvent, VisitInput, VisitPatch } from '@lapka/contracts'
 import type { createServiceClient } from '@/server/supabase/server'
-import { readEvent, refuseDoneChange, type DoneRecord } from './event-service'
+import { changeFailure, readEvent, refuseDoneChange, type DoneRecord } from './event-service'
 import { utcToday, type WeightResult } from './weight-service'
 
 type SupabaseService = ReturnType<typeof createServiceClient>
@@ -142,7 +142,8 @@ export async function updateVisit(
     p_today: today,
     p_key: idempotencyKey,
   })
-  if (error) return failure(error)
+  // A visit marked «Состоялся» meanwhile is refused by update_visit itself.
+  if (error) return changeFailure(error)
   return readEvent(supabase, userId, petId, eventId)
 }
 

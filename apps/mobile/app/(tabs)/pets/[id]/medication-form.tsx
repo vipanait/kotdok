@@ -78,7 +78,8 @@ export default function MedicationForm() {
     try {
       await withFreshSession<unknown>((api) =>
         editing
-          ? api.changeMedication(petId, medicationId!, read.value[0])
+          ? // With the owner's day: the server counts a finished course by it, as this form does.
+            api.changeMedication(petId, medicationId!, read.value[0], localToday())
           : api.addMedications(petId, { items: read.value }, requestKey.current),
       )
       unsaved.leave(then)

@@ -9,6 +9,7 @@ import { useTranslations } from '@/components/LocaleProvider'
 import Icon from '@/components/ui/Icon'
 import { browserApi } from '@/features/api/browser-api'
 import { useLeaveGuard } from '@/features/forms/use-leave-guard'
+import { useSaveKey } from '@/features/forms/save-key'
 import ConfirmDialog from '@/features/pets/ConfirmDialog'
 import { recordCache } from '../record-load'
 import { medicalRecordHref } from '../stage'
@@ -27,16 +28,19 @@ import type { WeightSaved } from './weight-view'
  * fresh — and so do the record's head and the pet form, which the server
  * keeps on the latest measurement.
  *
- * A retry needs no idempotency key here: a weighing is stored per day (a
- * second save for the day replaces its value) and a correction sets values,
- * so sending the same save twice leaves the same history (see the stage
- * report). Deleting a measurement that is already gone counts as done.
+ * One Idempotency-Key per form (`useSaveKey`), as the other record forms:
+ * a retry — a second press, «нет связи», a lost answer, even after midnight —
+ * is the same save, and the server keeps one measurement. If an earlier try
+ * did land and the fields changed since, the server answers that the key was
+ * used for other data, and the form says the measurement was already saved.
+ * Deleting a measurement that is already gone counts as done.
  */
 export default function WeightForm({
   petId,
   petName,
   editing,
   today,
+  formWeight = null,
 }: {
   petId: string
   petName: string
@@ -44,6 +48,12 @@ export default function WeightForm({
   editing: WeightMeasurement | null
   /** The owner's calendar day: the latest a weighing can be. */
   today: string
+  /**
+   * A new weighing that dates the pet form's weight («Уточнить» with no
+   * history): it starts from that value and an empty day. Saved with that
+   * value, it is the one measurement, not a second one beside it.
+   */
+  formWeight?: number | null
 }) {
   const dict = useTranslations()
   const router = useRouter()
@@ -52,10 +62,15 @@ export default function WeightForm({
   const id = useId()
   const historyHref = medicalRecordHref.section(petId, 'weight')
 
+  const dating = editing === null && formWeight !== null
   const initial = {
-    weight: editing ? weightFieldText(editing.weight_kg, words.decimalSeparator) : '',
+    weight: editing
+      ? weightFieldText(editing.weight_kg, words.decimalSeparator)
+      : formWeight !== null
+        ? weightFieldText(formWeight, words.decimalSeparator)
+        : '',
     // The form's undated weight opens with an empty day, not today's: its day is unknown.
-    day: editing ? (editing.measured_on ?? '') : today,
+    day: editing ? (editing.measured_on ?? '') : dating ? '' : today,
   }
   const [weightText, setWeightText] = useState(initial.weight)
   const [day, setDay] = useState(initial.day)
@@ -65,6 +80,7 @@ export default function WeightForm({
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState<string | undefined>()
+  const saveKey = useSaveKey()
 
   const inFlight = useRef(false)
   const weightRef = useRef<HTMLInputElement>(null)
@@ -112,8 +128,8 @@ export default function WeightForm({
     setBanner(null)
     try {
       const api = browserApi()
-      if (editing && 'patch' in read && read.patch) await api.changeWeight(petId, editing.id, read.patch)
-      else if ('input' in read) await api.addWeight(petId, read.input)
+      if (editing && 'patch' in read && read.patch) await api.changeWeight(petId, editing.id, read.patch, saveKey.current())
+      else if ('input' in read) await api.addWeight(petId, read.input, saveKey.current())
       done(editing ? 'changed' : 'added')
     } catch (error) {
       inFlight.current = false
@@ -217,7 +233,7 @@ export default function WeightForm({
           />
           {errors.day && <span id={dayErrorId} className="field-error" role="alert">{errors.day}</span>}
           <span id={dayHintId} className="field-hint">
-            {undated ? form.undatedHint : editing ? form.editHint : form.newHint}
+            {undated ? form.undatedHint : dating ? form.datingHint : editing ? form.editHint : form.newHint}
           </span>
         </div>
 

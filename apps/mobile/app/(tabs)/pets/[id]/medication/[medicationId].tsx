@@ -56,7 +56,7 @@ export default function MedicationView() {
     setBusy(true)
     setError(null)
     try {
-      setCourse(await withFreshSession((api) => api.changeMedication(id, medicationId, endCoursePatch(today))))
+      setCourse(await withFreshSession((api) => api.changeMedication(id, medicationId, endCoursePatch(today), today)))
     } catch (cause) {
       // Finished meanwhile, on another device: show it as it is now — read
       // only, which the screen then says in place of «Изменить».

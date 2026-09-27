@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, View } from 'react-native'
 import type { WeightMeasurement } from '@lapka/contracts'
-import { ApiError } from '@lapka/shared'
+import { ApiError, isKeyReused } from '@lapka/shared'
 import { withFreshSession } from '@/lib/api'
+import { newRequestKey } from '@/lib/request-key'
 import { describeFailure } from '@/lib/errors'
 import { dayInput, localToday, parseDayInput } from '@/lib/calendar-day'
 import { useText } from '@/i18n'
@@ -19,6 +20,12 @@ import { parseWeight, weightPatch } from './weight'
  * `editing` null is a new weighing for today; otherwise that measurement,
  * with a way to delete it. The sheet closes only when the server has the
  * change: a failed save keeps what was typed and says why.
+ *
+ * One Idempotency-Key each time the sheet opens, as the record forms keep
+ * one per form (event-form.tsx): pressing «Сохранить» again, or after «нет
+ * связи», is the same save — even after midnight it adds no second
+ * measurement. If an earlier try did land with other values, the server says
+ * the key was used, and the sheet says the weight was already saved.
  */
 export function WeightSheet({
   petId,
@@ -41,10 +48,12 @@ export function WeightSheet({
   const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
   const [busy, setBusy] = useState(false)
   const [asking, setAsking] = useState(false)
+  const requestKey = useRef(newRequestKey())
 
   // Fresh values each time the sheet opens, not whatever the last one left.
   useEffect(() => {
     if (!visible) return
+    requestKey.current = newRequestKey()
     setWeight(editing ? t.decimal(editing.weight_kg) : '')
     // An undated weight from the form opens with an empty day, not today's.
     setDay(editing ? (editing.measured_on ? dayInput(editing.measured_on) : '') : dayInput(localToday()))
@@ -75,12 +84,15 @@ export function WeightSheet({
     try {
       await withFreshSession((api) =>
         editing && patch
-          ? api.changeWeight(petId, editing.id, patch)
-          : api.addWeight(petId, { measured_on: parsedDay!, weight_kg: parsedWeight.value }),
+          ? api.changeWeight(petId, editing.id, patch, requestKey.current)
+          : api.addWeight(petId, { measured_on: parsedDay!, weight_kg: parsedWeight.value }, requestKey.current),
       )
       onSaved()
     } catch (cause) {
-      if (cause instanceof ApiError && cause.code === 'conflict') {
+      if (isKeyReused(cause)) {
+        // An earlier try of this save landed, with the values it had then.
+        setError({ text: words.weightAlreadySaved, offline: false })
+      } else if (cause instanceof ApiError && cause.code === 'conflict') {
         setInvalid({ day: words.dayTaken })
       } else {
         setError(describeFailure(t, cause, words.saveWeightFailed))

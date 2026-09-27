@@ -152,7 +152,8 @@ export default function CourseForm({
     try {
       const api = browserApi()
       if (course && !('items' in read.value)) {
-        await api.changeMedication(petId, course.id, read.value)
+        // With the owner's day: the server refuses a finished course by the same day this form is offered by.
+        await api.changeMedication(petId, course.id, read.value, today)
         recordCache.forget(petId)
         leave(`${backHref}?saved=changed`)
       } else if ('items' in read.value) {

@@ -119,8 +119,10 @@ export default function EventForm() {
           status: 'done',
           date: dayInput(localToday()),
           items: [{ ...draftFromEvent({ ...event, items: [item] }).items[0], next: 'year' }],
+          // Both start as the plan's own: what the fields hold is what the done
+          // record gets, and a field emptied here clears the plan's text.
           clinic: event.clinic ?? '',
-          notes: '',
+          notes: event.notes ?? '',
         }
       }
       setInitial(start)
@@ -195,7 +197,17 @@ export default function EventForm() {
       const value = read.value
       const completion =
         mode === 'complete' && params.itemId
-          ? { itemId: params.itemId, input: { done_on: value.date, next_on: value.items[0]?.next_on ?? null, clinic: value.clinic, notes: value.notes } }
+          ? {
+              itemId: params.itemId,
+              input: {
+                done_on: value.date,
+                next_on: value.items[0]?.next_on ?? null,
+                // '' is "sent empty" and clears the plan's text; null would keep
+                // it (the contract's rule since MW-09, CompleteItemInputSchema).
+                clinic: value.clinic ?? '',
+                notes: value.notes ?? '',
+              },
+            }
           : null
       const saved = await withFreshSession((api) => {
         if (mode === 'edit' && params.eventId) {

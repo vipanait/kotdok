@@ -12,7 +12,7 @@ import {
   type HealthEventPatch,
 } from '@lapka/contracts'
 import type { createServiceClient } from '@/server/supabase/server'
-import type { WeightResult } from './weight-service'
+import { RECORD_DONE_SQLSTATE, type WeightResult } from './weight-service'
 import { productsFitPet } from './catalog-service'
 import { getPet } from '@/server/pets/pet-service'
 
@@ -85,6 +85,12 @@ function failure(error: { code?: string; message: string }): { ok: false; reason
   if (error.code === 'P0002') return { ok: false, reason: 'not_found', message: error.message }
   if (error.code === '23505') return { ok: false, reason: 'conflict', message: error.message }
   return { ok: false, reason: 'storage_error', message: error.message }
+}
+
+/** `failure`, with the database's own refusal of a done record as `record_done`. */
+export function changeFailure(error: { code?: string; message: string }): ReturnType<typeof failure> | DoneRecord {
+  if (error.code === RECORD_DONE_SQLSTATE) return { ok: false, reason: 'record_done' }
+  return failure(error)
 }
 
 /** A pet's live records with their live items, newest day first. */
@@ -215,9 +221,11 @@ export type DoneRecord = { ok: false; reason: 'record_done' }
  * «Состоялся»). It changes nothing — the database answers it from the key —
  * so it is not refused: the retry gets the saved visit, not an error.
  *
- * Read-then-write, not inside the SQL function: a «Сделано» landing between
- * the read and the write of a change to the same plan is not caught (see the
- * MW-03 report); every ordinary path is.
+ * This read answers the ordinary case clearly before any work is done. The
+ * last word is the SQL function's own: `update_health_event` and
+ * `update_visit` refuse a done record under the pet's lock (SQLSTATE
+ * `LP409`, `changeFailure`), so a «Сделано» landing between this read and
+ * the write is refused too (MW-09).
  */
 export function refuseDoneChange(current: Pick<HealthEvent, 'status'>, sameSave = false): DoneRecord | null {
   return current.status === 'done' && !sameSave ? { ok: false, reason: 'record_done' } : null
@@ -271,7 +279,7 @@ export async function updateEvent(
     p_items: patch.items ?? null,
   })
 
-  if (error) return failure(error)
+  if (error) return changeFailure(error)
   return readEvent(supabase, userId, petId, eventId)
 }
 
@@ -304,6 +312,8 @@ export async function completeItem(
     p_item_id: itemId,
     p_done_on: input.done_on,
     p_next_on: input.next_on ?? null,
+    // Absent or null keeps the plan's text; '' (sent empty) clears it — the
+    // contract's rule, which the function applies (CompleteItemInputSchema).
     p_clinic: input.clinic ?? null,
     p_notes: input.notes ?? null,
     p_key: idempotencyKey,

@@ -275,7 +275,7 @@ describe('«Сделано» again, and failures (MW-04.4)', () => {
     expect(await liveCounts()).toEqual(counts)
   })
 
-  it('a plan of one item: the same key with an edited day answers 200 with the first record — the form sees it is not what it sent', async () => {
+  it('a plan of one item: the same key with an edited day is 409 (MW-09: the completion keeps its key); another key gets the first record, which the form sees is not what it sent', async () => {
     await created(twoTreatments(day(-2)))
     const plan = (await overview()).events.find((event) => event.status === 'planned' && event.items.length === 1)!
     const key = crypto.randomUUID()
@@ -288,11 +288,18 @@ describe('«Сделано» again, and failures (MW-04.4)', () => {
     // The answer was lost; the owner moved the day to today and saved again with the same key.
     const edited = await complete(plan, 0, TODAY, key)
     expect(edited.input.done_on).toBe(TODAY)
-    // The server does not refuse: the item is done, it answers with that record as it was.
-    expect(edited.response.status).toBe(200)
-    const answered = HealthEventSchema.parse(await edited.response.json())
+    // The key was used for other data: refused, as on every other record (MW-09 — the plan
+    // of one item used to keep only its create key, and this was a 200 with the first record).
+    expect(edited.response.status).toBe(409)
+    expect((await edited.response.json()).error.code).toBe('conflict')
+    expect(await liveCounts()).toEqual(counts)
+
+    // Another device, another key: the item is done, it answers with that record as it was.
+    const elsewhere = await complete(plan, 0, TODAY)
+    expect(elsewhere.response.status).toBe(200)
+    const answered = HealthEventSchema.parse(await elsewhere.response.json())
     expect([answered.id, answered.date]).toEqual([firstRecord.id, day(-1)])
-    expect(completionMismatch(edited.input, answered, plan.items[0].id, (await overview()).events)).toBe('doneOn')
+    expect(completionMismatch(elsewhere.input, answered, plan.items[0].id, (await overview()).events)).toBe('doneOn')
     expect(await liveCounts()).toEqual(counts)
 
     // The same day, the next date cleared: the stored next plan is not the one sent.

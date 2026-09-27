@@ -8,7 +8,6 @@ import {
   completeDraft,
   completionChanged,
   completionTarget,
-  keptFromPlan,
   othersInPlan,
   readCompletion,
 } from '@/features/medical-record/events/complete-form'
@@ -70,7 +69,7 @@ describe('the «Сделано» form (MW-04 criterion 2)', () => {
     expect(completeDraft(fleaPlan, fleaPlan.items[0], TODAY).next).toBe('')
   })
 
-  it('starts from the plan’s clinic and note, which the done record keeps anyway', () => {
+  it('starts from the plan’s clinic and note', () => {
     const plan = { ...fleaPlan, clinic: 'Айболит', notes: 'Капать на холку' }
     expect(completeDraft(plan, bravecto, TODAY)).toMatchObject({ clinic: 'Айболит', notes: 'Капать на холку' })
   })
@@ -79,8 +78,10 @@ describe('the «Сделано» form (MW-04 criterion 2)', () => {
     const draft = changeDoneDay(completeDraft(fleaPlan, bravecto, TODAY), bravecto, '2026-09-24', TODAY)
     expect(readCompletion({ ...draft, clinic: '  Айболит ' }, TODAY)).toEqual({
       ok: true,
-      input: { done_on: '2026-09-24', next_on: '2026-12-17', clinic: 'Айболит', notes: null },
+      input: { done_on: '2026-09-24', next_on: '2026-12-17', clinic: 'Айболит', notes: '' },
     })
+    // An emptied field is sent empty, which clears the plan's text; never null, which would keep it.
+    expect(readCompletion({ ...draft, clinic: '  ', notes: '' }, TODAY)).toMatchObject({ ok: true, input: { clinic: '', notes: '' } })
     expect(readCompletion({ ...draft, next: '' }, TODAY)).toMatchObject({ ok: true, input: { next_on: null } })
   })
 
@@ -151,16 +152,6 @@ describe('fix round 1: no false success, no silent clearing', () => {
     expect(earlierText(ru, 'next', '2026-09-24')).toContain('с другой следующей датой')
   })
 
-  it('says which of the plan’s texts stay when a field is left empty', () => {
-    const plan = { ...fleaPlan, clinic: 'Айболит', notes: 'Капать на холку' }
-    const item = plan.items[0]
-    expect(keptFromPlan(plan, item, { clinic: '', notes: '' })).toEqual({ clinic: 'Айболит', notes: 'Капать на холку' })
-    expect(keptFromPlan(plan, item, { clinic: 'Другая', notes: 'Своя' })).toEqual({ clinic: null, notes: null })
-    // A plan of several: the item gets its own record, whose note is only what is sent.
-    const several = { ...vaccinePlan, clinic: 'Айболит', notes: 'Общая' }
-    expect(keptFromPlan(several, several.items[0], { clinic: ' ', notes: '' })).toEqual({ clinic: 'Айболит', notes: null })
-    expect(keptFromPlan({ ...plan, clinic: null, notes: null }, item, { clinic: '', notes: '' })).toEqual({ clinic: null, notes: null })
-  })
 })
 
 describe('where «Сделано» is offered', () => {

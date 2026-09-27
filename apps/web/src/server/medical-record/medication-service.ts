@@ -2,7 +2,7 @@ import 'server-only'
 
 import { MedicationSchema, type Medication, type MedicationPatch, type MedicationsInput } from '@lapka/contracts'
 import type { createServiceClient } from '@/server/supabase/server'
-import { isFutureDay, utcToday, type WeightResult } from './weight-service'
+import { RECORD_DONE_SQLSTATE, isFutureDay, utcToday, type WeightResult } from './weight-service'
 
 type SupabaseService = ReturnType<typeof createServiceClient>
 
@@ -80,6 +80,12 @@ export async function addMedications(
 /**
  * A correction. The stored start and end are merged with the change before
  * the range is checked: moving only the end must still land after the start.
+ *
+ * `ownerToday`: the owner's calendar day as the app sent it (`?today=`,
+ * already checked by `clientToday`'s window), or null. With it, a course
+ * whose end is that day or earlier is finished and refused — the owner's own
+ * day, exactly as the apps hide «Изменить». Without it (older apps), the
+ * server's window: finished in every time zone (`courseOverEverywhere`).
  */
 export async function changeMedication(
   supabase: SupabaseService,
@@ -88,8 +94,10 @@ export async function changeMedication(
   medicationId: string,
   patch: MedicationPatch,
   now: Date = new Date(),
+  ownerToday: string | null = null,
 ): Promise<WeightResult<Medication> | { ok: false; reason: 'bad_range' | 'record_done'; message?: string }> {
   const today = utcToday(now)
+  const overBy = courseOverBy(now, ownerToday)
   const { data: current, error: readError } = await supabase
     .from('pet_medications')
     .select(COLUMNS)
@@ -105,7 +113,10 @@ export async function changeMedication(
   // deleted if wrong, never corrected — nor started again by moving its end.
   // Sending what it already holds, such as «Завершить курс» again after a
   // lost answer, is not a change and is answered with the course.
-  if (courseOverEverywhere(current as MedicationRow, now)) {
+  // A clear answer before any work; change_pet_medication makes the same
+  // decision again under the pet's lock (a course finished on another device
+  // between this read and the write is refused there, SQLSTATE LP409).
+  if (courseFinished(current as MedicationRow, overBy)) {
     if (!changesCourse(current as MedicationRow, patch)) return { ok: true, data: toMedicationContract(current as MedicationRow) }
     return { ok: false, reason: 'record_done' }
   }
@@ -124,8 +135,9 @@ export async function changeMedication(
     p_medication_id: medicationId,
     p_changes: patch,
     p_today: listDay,
+    p_over_by: overBy,
   })
-  if (error) return failure(error)
+  if (error) return error.code === RECORD_DONE_SQLSTATE ? { ok: false, reason: 'record_done' } : failure(error)
   const read = await readByIds(supabase, [medicationId])
   if (!read.ok) return read
   return read.data[0] ? { ok: true, data: read.data[0] } : { ok: false, reason: 'not_found' }
@@ -179,8 +191,21 @@ export async function syncFormMedications(
  * refused a few hours later, not at once; the apps never offer the change.
  */
 export function courseOverEverywhere(course: Pick<Medication, 'ended_on'>, now: Date = new Date()): boolean {
-  if (course.ended_on === null) return false
-  return course.ended_on <= utcToday(new Date(now.getTime() - 12 * 60 * 60 * 1000))
+  return courseFinished(course, courseOverBy(now, null))
+}
+
+/**
+ * The last day a course may end on and count as finished: the owner's
+ * today when the app said it, otherwise the UTC day of twelve hours ago —
+ * today in the westernmost zone (`courseOverEverywhere`).
+ */
+export function courseOverBy(now: Date, ownerToday: string | null): string {
+  return ownerToday ?? utcToday(new Date(now.getTime() - 12 * 60 * 60 * 1000))
+}
+
+/** Whether a course ended on `overBy` or earlier: history, not to be changed. */
+export function courseFinished(course: Pick<Medication, 'ended_on'>, overBy: string): boolean {
+  return course.ended_on !== null && course.ended_on <= overBy
 }
 
 /** Whether a patch would change anything of the course as stored (texts as the database keeps them). */
