@@ -41,6 +41,16 @@ export function createLeaveGuard(
   router: LeaveRouter,
   later: (run: () => void) => void,
   memo?: CopyMemo,
+  /**
+   * True once per loaded document, for the first form guard that asks
+   * (`documentFirstMount`). Only that one may take a copy already in history
+   * as its own: after a reload on the copy, nothing else put it there. A form
+   * re-keyed on a page that stays (new data taken, «Загрузить новые данные»)
+   * is a second mount in the same document — the copy there is the old
+   * form's, which takes it back itself (`unmounted`); adopting it too made
+   * both act on it and Back left the form (MW-09 fix round 2).
+   */
+  firstOnDocument: () => boolean = () => true,
 ): LeaveGuard {
   const back = createBackGuard(port, memo)
   let dirty = false
@@ -94,8 +104,10 @@ export function createLeaveGuard(
     },
     mounted() {
       onPage = true
-      // Reloaded on the copy: it is this form's, counted once.
-      back.adopt()
+      // Reloaded on the copy: it is this form's, counted once — only on the
+      // document's first form mount (React's development double mount keeps
+      // this guard, already holding the copy).
+      if (firstOnDocument()) back.adopt()
     },
     unmounted() {
       onPage = false
