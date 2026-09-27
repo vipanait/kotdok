@@ -165,8 +165,13 @@ const ru = {
   },
   pets: {
     /** Under a pet in the overview and the list (spec §7.1): its one nearest due date. */
-    dueOverdue: '{title} — просрочено',
-    dueSoon: '{title} — {when}',
+    /**
+     * The line is the name, then its status: «Обработка от блох и клещей —
+     * просрочено». Only the name is cut with an ellipsis on a narrow screen;
+     * the status is always shown whole (MW-09 review).
+     */
+    dueStatus: '— {status}',
+    dueOverdue: 'просрочено',
     /**
      * What the line calls the due date (spec §7.1), by the shared rule
      * `dueName`: the procedure with what it is against, not the record's

@@ -56,7 +56,13 @@ export default function PetRows({
               <div className="compact-pet-copy">
                 <h3>{pet.name}</h3>
                 <p>{meta}</p>
-                {due && <p className={`compact-pet-due ${due.tone}`}>{due.text}</p>}
+                {/* The title gives way on a narrow screen, the status never does (MW-09). */}
+                {due && (
+                  <p className={`compact-pet-due ${due.tone}`}>
+                    <span className="compact-pet-due-title">{due.title}</span>{' '}
+                    <span className="compact-pet-due-status">{due.status}</span>
+                  </p>
+                )}
                 <div className="compact-pet-status">
                   <span>{t.lastCheckLabel}</span>
                   {latest && isUrgencyKey(latest.urgency)

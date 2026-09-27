@@ -247,6 +247,7 @@
       "location": "/consent?next=%2Fpets%2F52add5a7-bb35-4854-be74-cc0eddfafd30"
     },
     "spoofedHeader": "/consent?next=%2Fpets%2F52add5a7-bb35-4854-be74-cc0eddfafd30%2Fedit",
-    "spoofedOtherPet": "/consent?next=%2Fpets%2F52add5a7-bb35-4854-be74-cc0eddfafd30%2Fedit"
+    "spoofedOtherPet": "/consent?next=%2Fpets%2F52add5a7-bb35-4854-be74-cc0eddfafd30%2Fedit",
+    "spoofedSamePet": "/consent?next=%2Fpets%2F52add5a7-bb35-4854-be74-cc0eddfafd30"
   }
 }

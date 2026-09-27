@@ -175,8 +175,8 @@ export const en: Dictionary = {
       inDays: (count: number) => `In ${count} ${count === 1 ? 'day' : 'days'}`,
     },
     listDue: {
-      overdue: (title: string) => `${title} — overdue`,
-      soon: (title: string, when: string) => `${title} — ${when}`,
+      overdue: '— overdue',
+      soon: (when: string) => `— ${when}`,
     },
     dueTitle: 'Due dates',
     allDue: (count: number) => `All due dates · ${count}`,

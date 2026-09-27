@@ -3,7 +3,7 @@ import type { HealthEvent } from '@lapka/contracts'
 import { en } from '@/i18n/en'
 import { ru } from '@/i18n/ru'
 import { lastDoneDate } from '@lapka/shared'
-import { coreStatuses, dueItems, dueLine, dueLineTitle, dueStatus, itemTitle, nextYear, saveSummary } from './due'
+import { coreStatuses, dueItems, dueLine, dueLineTitle, dueStatus, itemTitle, listDueLine, nextYear, saveSummary } from './due'
 
 const TODAY = '2026-09-24'
 
@@ -148,8 +148,20 @@ describe('the pet list’s due line names the date as spec §7.1 does (MW-09)', 
     expect(dueLineTitle(en, due('visit', [], null, 'checkup'))).toBe('Vet visit: checkup')
   })
 
-  it('uses the shared overdue/soon words around it', () => {
-    expect(ru.medicalRecord.listDue.overdue(dueLineTitle(ru, due('parasite', ['fleas', 'ticks'])))).toBe('Обработка от блох и клещей — просрочено')
-    expect(ru.medicalRecord.listDue.soon(dueLineTitle(ru, due('visit', [], null, 'checkup')), 'завтра')).toBe('Визит к врачу: осмотр — завтра')
+  it('gives the name and the status apart, so a narrow row cuts the name and never «— просрочено» (MW-09 review)', () => {
+    expect(listDueLine(ru, { ...due('parasite', ['fleas', 'ticks']), date: '2026-09-12' }, TODAY)).toEqual({
+      tone: 'overdue',
+      title: 'Обработка от блох и клещей',
+      status: '— просрочено',
+      text: 'Обработка от блох и клещей — просрочено',
+    })
+    expect(listDueLine(ru, { ...due('visit', [], null, 'checkup'), date: '2026-09-25' }, TODAY)).toEqual({
+      tone: 'soon',
+      title: 'Визит к врачу: осмотр',
+      status: '— завтра',
+      text: 'Визит к врачу: осмотр — завтра',
+    })
+    expect(listDueLine(en, { ...due('vaccination', ['rabies']), date: '2026-09-29' }, TODAY)?.text).toBe('Rabies vaccination — in 5 days')
+    expect(listDueLine(ru, { ...due('vaccination', ['rabies']), date: '2026-10-20' }, TODAY)).toBeNull()
   })
 })

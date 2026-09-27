@@ -181,9 +181,10 @@ export const ru = {
       tomorrow: 'Завтра',
       inDays: (count: number) => `Через ${count} ${plural(count, 'день', 'дня', 'дней')}`,
     },
+    /** The status after the name; drawn apart, so a narrow row cuts the name, never this (MW-09). */
     listDue: {
-      overdue: (title: string) => `${title} — просрочено`,
-      soon: (title: string, when: string) => `${title} — ${when}`,
+      overdue: '— просрочено',
+      soon: (when: string) => `— ${when}`,
     },
     dueTitle: 'Сроки',
     allDue: (count: number) => `Все сроки · ${count}`,

@@ -182,14 +182,20 @@ describe('the pet rows’ due line (spec §7.1, MW-08, MW-09)', () => {
   ) => ({ kind, date, name, targets, visit_kind })
 
   it('names the date as §7.1 does — the procedure and what it is against — and says how far it is', () => {
+    // The title and the status apart: a narrow row cuts the title, never «— просрочено» (MW-09 review).
     expect(petDueLine(ru, 'ru', due('parasite', '2026-09-12', ['fleas', 'ticks']), today)).toEqual({
       tone: 'overdue',
+      title: 'Обработка от блох и клещей',
+      status: '— просрочено',
       text: 'Обработка от блох и клещей — просрочено',
     })
     expect(petDueLine(ru, 'ru', due('vaccination', '2026-09-29', ['rabies']), today)).toEqual({
       tone: 'soon',
+      title: 'Прививка от бешенства',
+      status: '— через 5 дней',
       text: 'Прививка от бешенства — через 5 дней',
     })
+    expect(petDueLine(en, 'en', due('parasite', '2026-09-12', ['fleas']), today)).toMatchObject({ title: 'Flea treatment', status: '— overdue' })
     expect(petDueLine(ru, 'ru', due('visit', '2026-09-25', []), today)?.text).toBe('Визит к врачу — завтра')
     expect(petDueLine(ru, 'ru', due('vaccination', '2026-09-24', [], 'Нобивак'), today)?.text).toBe('Прививка «Нобивак» — сегодня')
     expect(petDueLine(en, 'en', due('vaccination', '2026-09-29', ['rabies']), today)?.text).toBe('Rabies vaccination — in 5 days')
