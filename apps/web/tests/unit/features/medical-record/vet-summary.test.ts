@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { VetSummary } from '@lapka/contracts'
 import ru from '@/shared/i18n/dictionaries/ru'
 import en from '@/shared/i18n/dictionaries/en'
-import { vetSummaryPage } from '@/features/medical-record/summary/summary-view'
+import { FILE_TITLE_MAX, vetSummaryPage } from '@/features/medical-record/summary/summary-view'
 
 // MW-07: «Для врача» in the site's words (web v1 «summary», «dog-summary», «print»).
 
@@ -167,6 +167,22 @@ describe('a pet with the form only (web v1 «dog-summary»)', () => {
   it('makes a safe file name of any pet name', () => {
     expect(vetSummaryPage(ru, 'ru', summary({}, { name: 'Му/р:ка?' }), TODAY).fileTitle).toBe('Мурка — медкарта — 26.09.2026')
     expect(vetSummaryPage(ru, 'ru', summary({}, { name: '...' }), TODAY).fileTitle).toBe('Питомец — медкарта — 26.09.2026')
+  })
+
+  it('keeps the file name within the 80 characters Safari on iOS names a PDF by, the date whole', () => {
+    // The demo's long pet: Safari cut «… — медкарта — 26.09.2026» to «… — 26.09.» (MW-07, MW-09).
+    const baron = 'Барон Мурлыкенштейн фон Длиннохвостов-Пушистиков Третий, главный кот третьего подъезда'
+    const ru_ = vetSummaryPage(ru, 'ru', summary({}, { name: baron }), TODAY).fileTitle
+    expect(ru_).toBe('Барон Мурлыкенштейн фон Длиннохвостов-Пушистиков Третий — медкарта — 26.09.2026')
+    expect(ru_.length).toBeLessThanOrEqual(FILE_TITLE_MAX)
+    const en_ = vetSummaryPage(en, 'en', summary({}, { name: baron }), TODAY).fileTitle
+    expect(en_).toMatch(/ — medical record — 26\.09\.2026$/)
+    expect(en_.length).toBeLessThanOrEqual(FILE_TITLE_MAX)
+    // An emoji is never cut in half, and a cut name never ends on a space, a comma or a dot.
+    const emoji = vetSummaryPage(ru, 'ru', summary({}, { name: `${'Ж'.repeat(55)}🐈 x` }), TODAY).fileTitle
+    expect(emoji).toBe(`${'Ж'.repeat(55)} — медкарта — 26.09.2026`)
+    // A short name is left as it is.
+    expect(vetSummaryPage(ru, 'ru', summary({}, { name: 'Мурка' }), TODAY).fileTitle).toBe('Мурка — медкарта — 26.09.2026')
   })
 
   it('speaks English', () => {

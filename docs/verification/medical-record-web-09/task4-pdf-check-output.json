@@ -1,0 +1,338 @@
+{
+  "chrome-baron.pdf": {
+    "pages": 6,
+    "blank_pages": [],
+    "disclaimers_per_page": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "headings_alone_at_foot": [],
+    "checks_as_printed": [
+      "24 сентября 2026 · Домашний уход · Чихает второй день, выделения из носа прозрачные",
+      "15 сентября 2026 · Срочно · Рвота трижды за сутки, отказ от еды со вчерашнего вечера, вялый",
+      "28 августа 2026 · Наблюдаем · Стал больше пить и чаще ходить в лоток, аппетит сохранён, вес…"
+    ],
+    "detail": [
+      {
+        "page": 1,
+        "size_mm": [
+          210,
+          297
+        ],
+        "blank": false,
+        "disclaimers": 1,
+        "cyrillic_chars": 1121,
+        "words_outside_side_margins": [],
+        "table_headings": {
+          "vaccinations": 1
+        },
+        "last_content": "Глисты\n07.09.2026\nПрофендер\n—",
+        "heading_alone_at_foot": false
+      },
+      {
+        "page": 2,
+        "size_mm": [
+          210,
+          297
+        ],
+        "blank": false,
+        "disclaimers": 1,
+        "cyrillic_chars": 1982,
+        "words_outside_side_margins": [],
+        "table_headings": {
+          "visits": 1
+        },
+        "last_content": "Артроз локтевых суставов\nПрепарат 1 после визита 19 — Семинтра — По\n0,5 таблетки",
+        "heading_alone_at_foot": false
+      },
+      {
+        "page": 3,
+        "size_mm": [
+          210,
+          297
+        ],
+        "blank": false,
+        "disclaimers": 1,
+        "cyrillic_chars": 1602,
+        "words_outside_side_margins": [],
+        "table_headings": {
+          "visits": 1
+        },
+        "last_content": "Артроз локтевых суставов\nПрепарат 1 после визита 14 — Семинтра — По\nсхеме врача;",
+        "heading_alone_at_foot": false
+      },
+      {
+        "page": 4,
+        "size_mm": [
+          210,
+          297
+        ],
+        "blank": false,
+        "disclaimers": 1,
+        "cyrillic_chars": 2022,
+        "words_outside_side_margins": [],
+        "table_headings": {
+          "visits": 1
+        },
+        "last_content": "Препарат 1 после визита 8 — Семинтра — По\nсхеме врача; Препарат 2 после визита 8",
+        "heading_alone_at_foot": false
+      },
+      {
+        "page": 5,
+        "size_mm": [
+          210,
+          297
+        ],
+        "blank": false,
+        "disclaimers": 1,
+        "cyrillic_chars": 1989,
+        "words_outside_side_margins": [],
+        "table_headings": {
+          "visits": 1
+        },
+        "last_content": "Амоксициллинклавуланатсуспензиядляперо\nральногоАмоксициллинклавуланатсуспензия\nд",
+        "heading_alone_at_foot": false
+      },
+      {
+        "page": 6,
+        "size_mm": [
+          210,
+          297
+        ],
+        "blank": false,
+        "disclaimers": 1,
+        "cyrillic_chars": 715,
+        "words_outside_side_margins": [],
+        "table_headings": {
+          "visits": 1
+        },
+        "last_content": "28 августа 2026 · Наблюдаем · Стал больше пить и чаще ходить в лоток, аппетит со",
+        "heading_alone_at_foot": false
+      }
+    ]
+  },
+  "chrome-bobik.pdf": {
+    "pages": 1,
+    "blank_pages": [],
+    "disclaimers_per_page": [
+      1
+    ],
+    "headings_alone_at_foot": [],
+    "checks_as_printed": [],
+    "detail": [
+      {
+        "page": 1,
+        "size_mm": [
+          210,
+          297
+        ],
+        "blank": false,
+        "disclaimers": 1,
+        "cyrillic_chars": 331,
+        "words_outside_side_margins": [],
+        "table_headings": {},
+        "last_content": "Пока нет проверок",
+        "heading_alone_at_foot": false
+      }
+    ]
+  },
+  "chrome-murka.pdf": {
+    "pages": 1,
+    "blank_pages": [],
+    "disclaimers_per_page": [
+      1
+    ],
+    "headings_alone_at_foot": [],
+    "checks_as_printed": [
+      "2 августа 2026 · Наблюдаем · Рвота два дня, отказ от еды"
+    ],
+    "detail": [
+      {
+        "page": 1,
+        "size_mm": [
+          210,
+          297
+        ],
+        "blank": false,
+        "disclaimers": 1,
+        "cyrillic_chars": 693,
+        "words_outside_side_margins": [],
+        "table_headings": {
+          "vaccinations": 1,
+          "visits": 1
+        },
+        "last_content": "2 августа 2026 · Наблюдаем · Рвота два дня, отказ от еды",
+        "heading_alone_at_foot": false
+      }
+    ]
+  },
+  "ios-safari-baron.pdf": {
+    "pages": 7,
+    "blank_pages": [],
+    "disclaimers_per_page": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    "headings_alone_at_foot": [],
+    "checks_as_printed": [
+      "24 сентября 2026 · Домашний уход · Чихает второй день, выделения из носа…",
+      "15 сентября 2026 · Срочно · Рвота трижды за сутки, отказ от еды со вчерашнего…",
+      "28 августа 2026 · Наблюдаем · Стал больше пить и чаще ходить в лоток, …"
+    ],
+    "detail": [
+      {
+        "page": 1,
+        "size_mm": [
+          210,
+          297
+        ],
+        "blank": false,
+        "disclaimers": 0,
+        "cyrillic_chars": 601,
+        "words_outside_side_margins": [],
+        "table_headings": {},
+        "last_content": "Аллергии: Курица, Говядина, Пыльца злаковых трав, Некоторые антибиотики\nпеницилл",
+        "heading_alone_at_foot": false
+      },
+      {
+        "page": 2,
+        "size_mm": [
+          210,
+          297
+        ],
+        "blank": false,
+        "disclaimers": 0,
+        "cyrillic_chars": 714,
+        "words_outside_side_margins": [],
+        "table_headings": {
+          "vaccinations": 1
+        },
+        "last_content": "Дата / вид: 30.08.2026 · Визит к врачу · Ветеринарный центр «Айболит» на Садовой",
+        "heading_alone_at_foot": false
+      },
+      {
+        "page": 3,
+        "size_mm": [
+          210,
+          297
+        ],
+        "blank": false,
+        "disclaimers": 0,
+        "cyrillic_chars": 2250,
+        "words_outside_side_margins": [],
+        "table_headings": {},
+        "last_content": "Дата / вид: 07.06.2026 · Болезнь · Ветеринарный центр «Айболит» на Садовой · Диа",
+        "heading_alone_at_foot": false
+      },
+      {
+        "page": 4,
+        "size_mm": [
+          210,
+          297
+        ],
+        "blank": false,
+        "disclaimers": 0,
+        "cyrillic_chars": 2140,
+        "words_outside_side_margins": [],
+        "table_headings": {},
+        "last_content": "Дата / вид: 01.03.2026 · Анализы · Ветеринарный центр «Айболит» на Садовой · Диа",
+        "heading_alone_at_foot": false
+      },
+      {
+        "page": 5,
+        "size_mm": [
+          210,
+          297
+        ],
+        "blank": false,
+        "disclaimers": 0,
+        "cyrillic_chars": 1838,
+        "words_outside_side_margins": [],
+        "table_headings": {},
+        "last_content": "Дата / вид: 07.12.2025 · Осмотр · Ветеринарный центр «Айболит» на Садовой · Диаг",
+        "heading_alone_at_foot": false
+      },
+      {
+        "page": 6,
+        "size_mm": [
+          210,
+          297
+        ],
+        "blank": false,
+        "disclaimers": 0,
+        "cyrillic_chars": 1680,
+        "words_outside_side_margins": [],
+        "table_headings": {},
+        "last_content": "17 сентября — 5,3 кг\n29 июля — 5,4 кг · 30 мая — 5,5 кг · 11 марта — 5,6 кг · 1 ",
+        "heading_alone_at_foot": false
+      },
+      {
+        "page": 7,
+        "size_mm": [
+          210,
+          297
+        ],
+        "blank": false,
+        "disclaimers": 1,
+        "cyrillic_chars": 235,
+        "words_outside_side_margins": [],
+        "table_headings": {},
+        "last_content": "28 августа 2026 · Наблюдаем · Стал больше пить и чаще ходить в лоток, …",
+        "heading_alone_at_foot": false
+      }
+    ]
+  },
+  "ios-safari-murka.pdf": {
+    "pages": 2,
+    "blank_pages": [],
+    "disclaimers_per_page": [
+      0,
+      1
+    ],
+    "headings_alone_at_foot": [],
+    "checks_as_printed": [
+      "2 августа 2026 · Наблюдаем · Рвота два дня, отказ от еды"
+    ],
+    "detail": [
+      {
+        "page": 1,
+        "size_mm": [
+          210,
+          297
+        ],
+        "blank": false,
+        "disclaimers": 0,
+        "cyrillic_chars": 512,
+        "words_outside_side_margins": [],
+        "table_headings": {
+          "vaccinations": 1
+        },
+        "last_content": "Дата / вид: 03.08.2026 · Болезнь · Айболит · Диагноз: Обострение гастрита · Назн",
+        "heading_alone_at_foot": false
+      },
+      {
+        "page": 2,
+        "size_mm": [
+          210,
+          297
+        ],
+        "blank": false,
+        "disclaimers": 1,
+        "cyrillic_chars": 171,
+        "words_outside_side_margins": [],
+        "table_headings": {},
+        "last_content": "2 августа 2026 · Наблюдаем · Рвота два дня, отказ от еды",
+        "heading_alone_at_foot": false
+      }
+    ]
+  }
+}

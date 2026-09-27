@@ -677,7 +677,10 @@
 
   .vet-checks { display: grid; gap: 16px; margin: 0; padding: 0; list-style: none; }
   .vet-check { display: grid; justify-items: start; gap: 6px; }
-  .vet-check span { font-size: 14px; color: var(--muted); overflow-wrap: anywhere; }
+  /* On screen the level leads (web v1 «summary»); the words come in reading order — day, level, text. */
+  .vet-check .vet-check-level { order: -1; }
+  /* The first line of what the owner wrote, whole: the page is shown to the vet as it is. */
+  .vet-check .vet-check-text { font-size: 14px; color: var(--muted); overflow-wrap: anywhere; }
 
   .vet-summary .vet-summary-footer { margin: 4px 0 0; font-size: 13px; color: var(--muted); }
 
@@ -720,64 +723,104 @@
   body:has(.vet-summary) .cabinet { min-height: 0; margin-left: 0; }
   body:has(.vet-summary) .workspace { max-width: none; margin: 0; padding: 0; }
 
-  .vet-summary { max-width: none; color: #000; font-size: 10.5pt; line-height: 1.4; }
+  /*
+   * Tight enough for a filled record to fit one A4 sheet (spec 7.18: one to
+   * two pages; «Мурка» of the demo is one, MW-09) — nothing is left out for it.
+   */
+  .vet-summary { max-width: none; color: #000; font-size: 10.5pt; line-height: 1.35; }
   .vet-summary-head,
   .vet-summary .health-stale { display: none; }
-  .vet-print-head { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; margin-bottom: 4mm; }
-  .vet-print-title { margin: 0; font: 800 18pt/1.2 var(--font-display); color: #000; }
+  .vet-print-head { display: flex; flex-direction: column; align-items: flex-start; gap: 1mm; margin-bottom: 3mm; }
+  .vet-print-logo { width: 22mm; height: auto; }
+  .vet-print-title { margin: 0; font: 800 17pt/1.2 var(--font-display); color: #000; }
 
   .vet-summary-body { display: block; }
-  .vet-summary .vet-card { margin: 0 0 5mm; padding: 0; border: 0; border-radius: 0; box-shadow: none; background: none; }
-  .vet-summary .vet-card h2 { margin: 0 0 2mm; font-size: 13pt; color: #000; break-after: avoid; page-break-after: avoid; }
+  .vet-summary .vet-card { margin: 0 0 4mm; padding: 0; border: 0; border-radius: 0; box-shadow: none; background: none; }
+  .vet-summary .vet-card h2 { margin: 0 0 1.5mm; font-size: 13pt; color: #000; break-after: avoid; page-break-after: avoid; }
   /* The printed heading already names the pet. */
   .vet-pet h2 { display: none; }
   .vet-summary .vet-card p,
   .vet-summary .vet-facts dd,
-  .vet-check span { font-size: 10.5pt; color: #222; }
+  .vet-check-text { font-size: 10.5pt; color: #222; }
   /* A short part — the pet, what to know, the weight, the checks, a one-line note — stays on one page. */
   .vet-summary :is(.vet-pet, .vet-keep) { break-inside: avoid; page-break-inside: avoid; }
-  .vet-facts dt { font-size: 10.5pt; }
+
+  /* What to know: a line a fact, «Аллергии: Курица», as the printed design. */
+  .vet-summary .vet-facts { display: block; }
+  .vet-summary .vet-fact { padding: 0; border: 0; }
+  .vet-summary .vet-facts :is(dt, dd) { display: inline; margin: 0; font-size: 10.5pt; }
+  .vet-summary .vet-facts dt::after { content: ': '; }
 
   .vet-summary .vet-table { font-size: 9.5pt; }
   .vet-summary .vet-table thead { display: table-header-group; }
   .vet-summary .vet-table tr { break-inside: avoid; page-break-inside: avoid; }
-  .vet-summary .vet-table th { padding: 0 3mm 2mm 0; font-size: 9pt; color: #333; border-bottom: 1px solid #999; }
-  .vet-summary .vet-table td { padding: 1.5mm 3mm 1.5mm 0; border-top: 1px solid #ccc; color: #000; }
+  .vet-summary .vet-table th { padding: 0 3mm 1.5mm 0; font-size: 9pt; color: #333; border-bottom: 1px solid #999; }
+  .vet-summary .vet-table td { padding: 1.2mm 3mm 1.2mm 0; border-top: 1px solid #ccc; color: #000; }
 
-  .vet-summary .vet-weight-chart { width: 100mm; max-width: 100%; margin: 0 0 2mm; }
+  .vet-summary .vet-weight-chart { width: 88mm; max-width: 100%; margin: 0 0 1.5mm; }
   .vet-summary .weight-chart text.value,
   .vet-summary .weight-chart text.tick { font-size: 15px; }
   .vet-summary .weight-chart .guide-label { display: inline; }
   .vet-summary .weight-chart path { stroke-width: 2.5; }
   .vet-summary .weight-chart circle { r: 6px; stroke-width: 2; }
+  .vet-summary .vet-card .vet-weight-earlier { margin-top: 0.5mm; }
 
-  .vet-summary .vet-checks { gap: 3mm; }
-  .vet-check { break-inside: avoid; }
+  /*
+   * A check is one line on paper (spec 7.17, web v1 «print»): «2 августа 2026
+   * · Наблюдаем · Рвота…». A longer text ends at the last word that fits,
+   * with «…»; the screen keeps the whole line.
+   */
+  .vet-summary .vet-checks { gap: 1mm; }
+  .vet-summary .vet-check { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 1; overflow: hidden; break-inside: avoid; page-break-inside: avoid; }
+  .vet-summary .vet-check > * { display: inline; }
+  .vet-summary .vet-check > * + *::before { content: ' · '; font-weight: 400; color: #222; }
+  /* A word is a box the «…» never cuts into (VetSummaryScreen, `Words`); a word longer than the line still wraps. */
+  .vet-summary .vet-check-word { display: inline-block; max-width: 100%; }
   /* The level is a word on paper; without background graphics the pill is only its text. */
-  .vet-check .badge { padding: 0; background: none; color: #000; }
+  .vet-check .badge { padding: 0; font-size: inherit; background: none; color: #000; }
   .vet-check .badge i { display: none; }
 
   /*
    * WebKit (Safari on the Mac and on iOS) neither repeats a table's heading
    * on the next page nor keeps a table row whole — checked on iOS 26 in the
-   * Simulator (MW-07 fix round 1). There each row prints as a record that
-   * names its own columns, as on the phone screen, and a record is a block
-   * WebKit does keep whole. `font: -apple-system-body` parses only in WebKit.
+   * Simulator (MW-07 fix round 1). `font: -apple-system-body` parses only in
+   * WebKit. There:
+   * - a short table (vaccinations, parasites: a row a disease or a group,
+   *   never a page) stays a table and is kept whole with its heading, a
+   *   block WebKit does not split;
+   * - the visits, which run on for pages, print a record a visit, the cells
+   *   one paragraph with their columns' names, «Дата / вид: 03.08.2026 · …
+   *   · Диагноз: …» (a cell a line took a filled record to a second page,
+   *   MW-09); a record is a block WebKit keeps whole.
+   * Nor does WebKit keep a heading with what follows it (`break-after`), and
+   * «Визиты за последний год» was left alone at the foot of a page (MW-07).
+   * So the visits' name is printed inside their first record (`data-heading`,
+   * VetSummaryScreen), which is never split, instead of by the heading (MW-09).
    */
   @supports (font: -apple-system-body) {
-    .vet-summary .vet-table,
-    .vet-summary .vet-table tbody { display: block; }
-    .vet-summary .vet-table thead,
-    .vet-summary .vet-table colgroup { display: none; }
-    .vet-summary .vet-table tr { display: block; padding: 1.5mm 0; border-top: 1px solid #ccc; break-inside: avoid; page-break-inside: avoid; }
-    .vet-summary .vet-table td { display: block; padding: 0.4mm 0; border: 0; }
-    .vet-summary .vet-table td::before { content: attr(data-label) ': '; font-weight: 700; }
+    .vet-summary .vet-card-short { break-inside: avoid; page-break-inside: avoid; }
+
+    .vet-summary .vet-card-long .vet-table,
+    .vet-summary .vet-card-long .vet-table tbody { display: block; }
+    .vet-summary .vet-card-long .vet-table thead,
+    .vet-summary .vet-card-long .vet-table colgroup { display: none; }
+    .vet-summary .vet-card-long .vet-table tr { display: block; padding: 1mm 0; border-top: 1px solid #ccc; break-inside: avoid; page-break-inside: avoid; }
+    .vet-summary .vet-card-long .vet-table td { display: inline; padding: 0; border: 0; }
+    .vet-summary .vet-card-long .vet-table td::before { content: attr(data-label) ': '; font-weight: 700; }
+    .vet-summary .vet-card-long .vet-table td:not(:last-child)::after { content: ' · '; }
+
+    .vet-summary .vet-card-long h2 { display: none; }
+    .vet-summary .vet-card-long .vet-table tr[data-heading] { padding-top: 0; border-top: 0; }
+    .vet-summary .vet-card-long .vet-table tr[data-heading]::before { content: attr(data-heading); display: block; margin: 0 0 1.5mm; padding-bottom: 1.5mm; border-bottom: 1px solid #ccc; font: 800 13pt/1.18 var(--font-display); color: #000; }
   }
 
   /*
    * The margin boxes carry the footer on every page (VetSummaryScreen); this
    * one ends the flow for a browser without them. It never starts a page of
-   * its own: an otherwise empty last page would be a blank sheet.
+   * its own: an otherwise empty last page would be a blank sheet. Where the
+   * browser does print the margin boxes (`data-page-margins`, Chromium 131+),
+   * this copy would say it twice on the last page, and is left out (MW-09).
    */
-  .vet-summary .vet-summary-footer { margin-top: 6mm; padding-top: 2mm; border-top: 1px solid #999; font-size: 8.5pt; color: #444; break-before: avoid; page-break-before: avoid; }
+  .vet-summary .vet-summary-footer { margin-top: 5mm; padding-top: 2mm; border-top: 1px solid #999; font-size: 8.5pt; color: #444; break-before: avoid; page-break-before: avoid; }
+  .vet-summary[data-page-margins] .vet-summary-footer { display: none; }
 }
