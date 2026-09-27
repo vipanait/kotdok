@@ -74,7 +74,6 @@ export function EditCourseScreen({ petId, petName, courseId }: { petId: string; 
   )
 }
 
-
 export function CourseGone({ petId }: { petId: string }) {
   const words = useTranslations().medicalRecord.courseRecord
   return (
@@ -100,4 +99,3 @@ function CourseFinished({ petId, courseId }: { petId: string; courseId: string }
     />
   )
 }
-

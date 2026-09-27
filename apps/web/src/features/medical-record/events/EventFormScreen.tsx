@@ -80,7 +80,6 @@ export function EditEventScreen({ petId, petName, species, eventId, kind }: PetF
   return <EventGone petId={petId} kind={kind} />
 }
 
-
 export function EventGone({ petId, kind }: { petId: string; kind: EventFormKind }) {
   const words = useTranslations().medicalRecord.eventRecord
   return (
@@ -106,4 +105,3 @@ function EventDone({ petId, eventId }: { petId: string; eventId: string }) {
     />
   )
 }
-

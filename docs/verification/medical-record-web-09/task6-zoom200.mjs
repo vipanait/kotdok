@@ -6,6 +6,12 @@
  * page is opened so, read for horizontal scrolling and for boxes of text or
  * controls that overlap, and photographed whole.
  *
+ * MW-09 Task 7 adds keyboard focus: each page is walked with Tab from its top,
+ * and no focused element may sit under a layer pinned over the page (the bottom
+ * navigation, the record's actions bar) or outside the window (WCAG 2.4.11).
+ * The script exits 1 if one does. A text area whose top line (and caret) is in
+ * view but whose lower part stays under a bar is listed apart, as partly covered.
+ *
  * Needs the local stack, the site on :3100 («web-local»), the demo seed, and
  * Playwright + Chrome (PLAYWRIGHT, CHROME) — as the verify.mjs scripts. Local
  * only. Reads, never writes: nothing is saved in the forms.
@@ -141,6 +147,105 @@ function inspect() {
   return { scrollWidth: doc.scrollWidth, innerWidth: window.innerWidth, horizontalScroll: wide, widest, overlaps: overlaps.slice(0, 10), leaves: boxes.length }
 }
 
+/**
+ * MW-09 Task 7 (WCAG 2.4.11 «Focus Not Obscured»): the layers pinned over the
+ * page — the bottom navigation and the record's actions bar at ≤760 px — must
+ * never hide the element keyboard focus lands on. Marks them once per page.
+ */
+function markPinnedLayers() {
+  const layers = [...document.querySelectorAll('body *')].filter(
+    (el) =>
+      getComputedStyle(el).position === 'fixed' &&
+      !el.closest('nextjs-portal, [role=dialog], .modal-backdrop, .sr-only, .skip-link') &&
+      el.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true }),
+  )
+  window.__pinnedLayers = layers
+  window.__focusSeen = new WeakSet()
+  window.__focusLast = null
+  return layers.map((el) => `${el.tagName.toLowerCase()}.${[...el.classList].join('.')} ${Math.round(el.getBoundingClientRect().height)}px`)
+}
+
+/**
+ * Where the last Tab put focus: whether it is inside the window and, when it is
+ * not itself on a pinned layer, whether a pinned layer covers any of it.
+ * `done` once focus leaves the page or comes back round to an element already met.
+ */
+function focusState() {
+  const el = document.activeElement
+  if (!el || el === document.body || el === document.documentElement) return { done: true }
+  if (el.closest('nextjs-portal') || el.tagName.toLowerCase() === 'nextjs-portal') return { skip: true }
+  // A date field keeps focus on the same input while Tab walks its day, month and year.
+  if (el === window.__focusLast) return { skip: true }
+  if (window.__focusSeen.has(el)) return { done: true }
+  window.__focusSeen.add(el)
+  window.__focusLast = el
+  const name = `${el.tagName.toLowerCase()}${el.id ? `#${el.id}` : ''} «${(el.getAttribute('aria-label') || el.textContent || el.getAttribute('name') || '').trim().replace(/\s+/g, ' ').slice(0, 40)}»`
+  const rect = el.getBoundingClientRect()
+  const onLayer = window.__pinnedLayers.some((layer) => layer.contains(el))
+  const outside = rect.bottom <= 0 || rect.top >= window.innerHeight
+  const covering = onLayer
+    ? []
+    : window.__pinnedLayers.filter((layer) => {
+        const box = layer.getBoundingClientRect()
+        const x = Math.min(rect.right, box.right) - Math.max(rect.left, box.left)
+        const y = Math.min(rect.bottom, box.bottom) - Math.max(rect.top, box.top)
+        return x > 1 && y > 1
+      })
+  // How much of the element, from its top edge down, the reader can see: up to the first pinned layer
+  // drawn over it, or the window's edge.
+  const cut = Math.min(window.innerHeight, ...covering.map((layer) => layer.getBoundingClientRect().top))
+  const seen = Math.max(0, cut - Math.max(rect.top, 0))
+  // Its top line — the first line of a text box, where Chrome puts the caret — is in view. A text
+  // area taller than the room left above the bars is revealed by its caret, so its lower part may
+  // stay under them (partly covered); anything less than its top line is hidden.
+  const topLine = Math.min(rect.height, 24)
+  return {
+    name,
+    onLayer,
+    outside,
+    covered: covering.map((layer) => `.${[...layer.classList].join('.')}`),
+    hidden: outside || (covering.length > 0 && (rect.top < 0 || seen < topLine)),
+    top: Math.round(rect.top),
+    bottom: Math.round(rect.bottom),
+    viewport: window.innerHeight,
+  }
+}
+
+/**
+ * Tabs through the whole page from its top. Photographs the first focus that
+ * lands in the lower third of the window (right above the pinned bars) and the
+ * first hidden one, if any.
+ */
+async function walkFocus(page, shot) {
+  const layers = await page.evaluate(markPinnedLayers)
+  await page.evaluate(() => {
+    window.scrollTo(0, 0)
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
+  })
+  const hidden = []
+  const partlyCovered = []
+  let focused = 0
+  let low = null
+  for (let step = 0; step < 250; step += 1) {
+    await page.keyboard.press('Tab')
+    const state = await page.evaluate(focusState)
+    if (state.done) break
+    if (state.skip) continue
+    focused += 1
+    if (state.hidden) {
+      if (hidden.length === 0) await page.screenshot({ path: resolve(here, `${shot}-focus-hidden.png`) })
+      hidden.push(state)
+    } else if (state.covered.length > 0) {
+      if (partlyCovered.length === 0) await page.screenshot({ path: resolve(here, `${shot}-focus-partly.png`) })
+      partlyCovered.push(state)
+    } else if (!low && !state.onLayer && state.bottom > state.viewport * 0.66) {
+      low = `${shot}-focus-low.png`
+      await page.screenshot({ path: resolve(here, low) })
+    }
+  }
+  return { pinnedLayers: layers, focused, hidden, partlyCovered, lowShot: low }
+}
+
 for (const view of WINDOWS) {
   const context = await browser.newContext({
     viewport: { width: view.width, height: view.height },
@@ -160,9 +265,13 @@ for (const view of WINDOWS) {
     await page.evaluate(() => document.fonts.ready)
     await page.waitForTimeout(300)
     const found = await page.evaluate(inspect)
-    // The fixed bottom navigation would cover the page's end in a full-page shot: drawn in the flow for the photo.
     // The viewport as the reader sees it at 200 %, pinned bars included.
     await page.screenshot({ path: resolve(here, `zoom200-${name}-${view.name}-viewport.png`) })
+    const focus = await walkFocus(page, `zoom200-${name}-${view.name}`)
+    await page.evaluate(() => {
+      if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
+      window.scrollTo(0, 0)
+    })
     // The whole page: the pinned bars would cover its middle in a full-page shot, so they are drawn at its end.
     const style = await page.addStyleTag({
       content: 'body{position:relative}.mobile-nav{position:absolute!important}.health-actions{position:absolute!important;bottom:66px!important}',
@@ -170,9 +279,16 @@ for (const view of WINDOWS) {
     const file = `zoom200-${name}-${view.name}.png`
     await page.screenshot({ path: resolve(here, file), fullPage: true })
     await style.evaluate((node) => node.remove())
-    results.pages[`${name} ${view.name}`] = { path, ...found, screenshot: file }
+    results.pages[`${name} ${view.name}`] = { path, ...found, focus, screenshot: file }
   }
   await context.close()
 }
 await browser.close()
+results.focusHidden = Object.entries(results.pages)
+  .filter(([, found]) => found.focus.hidden.length > 0)
+  .map(([key, found]) => `${key}: ${found.focus.hidden.length}`)
+results.focusPartlyCovered = Object.entries(results.pages)
+  .filter(([, found]) => found.focus.partlyCovered.length > 0)
+  .map(([key, found]) => `${key}: ${found.focus.partlyCovered.map((state) => state.name).join(', ')}`)
 console.log(JSON.stringify(results, null, 2))
+if (results.focusHidden.length > 0) process.exitCode = 1

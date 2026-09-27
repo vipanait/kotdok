@@ -1088,6 +1088,9 @@
 
     /* Room for the bottom navigation, plus the home indicator. */
     .workspace { padding: 24px 20px calc(95px + env(safe-area-inset-bottom)); }
+    /* Keyboard focus and in-page jumps stop above the pinned bottom navigation (66px), not under it
+       (WCAG 2.4.11); without it Chrome scrolls a focused field only until its edge meets the window's. */
+    html { scroll-padding-bottom: calc(66px + 16px + env(safe-area-inset-bottom)); }
 
     .pagehead { flex-direction: column; align-items: flex-start; gap: 16px; }
     .pagehead p { font-size: 14px; }

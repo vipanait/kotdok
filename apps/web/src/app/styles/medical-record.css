@@ -177,6 +177,8 @@
     /* The room is made below the page's last line (the site's footnote), not below the grid:
        otherwise that line ends up under the pinned actions (MW-08). */
     .workspace:has(.health-grid.has-actions) { padding-bottom: calc(95px + 80px + env(safe-area-inset-bottom)); }
+    /* Focus stops above both pinned bars: the navigation (66px) and these actions (72px). */
+    html:has(.health-grid.has-actions) { scroll-padding-bottom: calc(66px + 72px + 16px + env(safe-area-inset-bottom)); }
 
     /* The chart is drawn at 640 units and shrinks to the phone: its words and marks grow to stay legible. */
     .weight-chart text.value,

@@ -15,224 +15,469 @@
   ],
   "pages": {
     "record 1440": {
-      "path": "/pets/8979954c-1dd0-4976-a622-544625bd4db7",
+      "path": "/pets/bb4d3829-6ab5-45f4-8f71-8eb8d529003a",
       "scrollWidth": 720,
       "innerWidth": 720,
       "horizontalScroll": false,
       "widest": [],
       "overlaps": [],
       "leaves": 61,
+      "focus": {
+        "pinnedLayers": [
+          "nav.health-actions 72px",
+          "nav.mobile-nav 66px"
+        ],
+        "focused": 24,
+        "hidden": [],
+        "partlyCovered": [],
+        "lowShot": "zoom200-record-1440-focus-low.png"
+      },
       "screenshot": "zoom200-record-1440.png"
     },
     "due 1440": {
-      "path": "/pets/8979954c-1dd0-4976-a622-544625bd4db7/health/due",
+      "path": "/pets/bb4d3829-6ab5-45f4-8f71-8eb8d529003a/health/due",
       "scrollWidth": 720,
       "innerWidth": 720,
       "horizontalScroll": false,
       "widest": [],
       "overlaps": [],
       "leaves": 22,
+      "focus": {
+        "pinnedLayers": [
+          "nav.mobile-nav 66px"
+        ],
+        "focused": 14,
+        "hidden": [],
+        "partlyCovered": [],
+        "lowShot": "zoom200-due-1440-focus-low.png"
+      },
       "screenshot": "zoom200-due-1440.png"
     },
     "form-vaccination 1440": {
-      "path": "/pets/8979954c-1dd0-4976-a622-544625bd4db7/health/new?type=vaccination",
+      "path": "/pets/bb4d3829-6ab5-45f4-8f71-8eb8d529003a/health/new?type=vaccination",
       "scrollWidth": 720,
       "innerWidth": 720,
       "horizontalScroll": false,
       "widest": [],
       "overlaps": [],
       "leaves": 22,
+      "focus": {
+        "pinnedLayers": [
+          "nav.mobile-nav 66px"
+        ],
+        "focused": 17,
+        "hidden": [],
+        "partlyCovered": [
+          {
+            "name": "textarea#_R_2ppbn5ritqbn5ritmlb_-notes «»",
+            "onLayer": false,
+            "outside": false,
+            "covered": [
+              ".mobile-nav"
+            ],
+            "hidden": false,
+            "top": 384,
+            "bottom": 518,
+            "viewport": 500
+          }
+        ],
+        "lowShot": "zoom200-form-vaccination-1440-focus-low.png"
+      },
       "screenshot": "zoom200-form-vaccination-1440.png"
     },
     "form-complete 1440": {
-      "path": "/pets/8979954c-1dd0-4976-a622-544625bd4db7/health/1ea87fed-85a3-456a-b162-79f589dfe9c4/complete?item=79e6b56b-6174-4390-a433-fe9513448dcd",
+      "path": "/pets/bb4d3829-6ab5-45f4-8f71-8eb8d529003a/health/3c9a09ae-392d-4f3d-8e57-f8fa3af9aca2/complete?item=b49695fb-bda3-4780-babf-d4ea22367b43",
       "scrollWidth": 720,
       "innerWidth": 720,
       "horizontalScroll": false,
       "widest": [],
       "overlaps": [],
       "leaves": 28,
+      "focus": {
+        "pinnedLayers": [
+          "nav.mobile-nav 66px"
+        ],
+        "focused": 16,
+        "hidden": [],
+        "partlyCovered": [],
+        "lowShot": "zoom200-form-complete-1440-focus-low.png"
+      },
       "screenshot": "zoom200-form-complete-1440.png"
     },
     "form-weight 1440": {
-      "path": "/pets/8979954c-1dd0-4976-a622-544625bd4db7/health/new?type=weight",
+      "path": "/pets/bb4d3829-6ab5-45f4-8f71-8eb8d529003a/health/new?type=weight",
       "scrollWidth": 720,
       "innerWidth": 720,
       "horizontalScroll": false,
       "widest": [],
       "overlaps": [],
       "leaves": 14,
+      "focus": {
+        "pinnedLayers": [
+          "nav.mobile-nav 66px"
+        ],
+        "focused": 13,
+        "hidden": [],
+        "partlyCovered": [],
+        "lowShot": "zoom200-form-weight-1440-focus-low.png"
+      },
       "screenshot": "zoom200-form-weight-1440.png"
     },
     "form-visit 1440": {
-      "path": "/pets/8979954c-1dd0-4976-a622-544625bd4db7/health/new?type=visit",
+      "path": "/pets/bb4d3829-6ab5-45f4-8f71-8eb8d529003a/health/new?type=visit",
       "scrollWidth": 720,
       "innerWidth": 720,
       "horizontalScroll": false,
       "widest": [],
       "overlaps": [],
       "leaves": 27,
+      "focus": {
+        "pinnedLayers": [
+          "nav.mobile-nav 66px"
+        ],
+        "focused": 20,
+        "hidden": [],
+        "partlyCovered": [
+          {
+            "name": "textarea#_R_2ppbn5ritqbn5ritmlb_-reason «»",
+            "onLayer": false,
+            "outside": false,
+            "covered": [
+              ".mobile-nav"
+            ],
+            "hidden": false,
+            "top": 380,
+            "bottom": 476,
+            "viewport": 500
+          }
+        ],
+        "lowShot": "zoom200-form-visit-1440-focus-low.png"
+      },
       "screenshot": "zoom200-form-visit-1440.png"
     },
     "form-course 1440": {
-      "path": "/pets/8979954c-1dd0-4976-a622-544625bd4db7/health/ef01694b-77c4-42b1-84df-04500af6ae28/edit",
+      "path": "/pets/bb4d3829-6ab5-45f4-8f71-8eb8d529003a/health/193588ae-c62d-4f05-9809-c1a5c58083f9/edit",
       "scrollWidth": 720,
       "innerWidth": 720,
       "horizontalScroll": false,
       "widest": [],
       "overlaps": [],
       "leaves": 18,
+      "focus": {
+        "pinnedLayers": [
+          "nav.mobile-nav 66px"
+        ],
+        "focused": 15,
+        "hidden": [],
+        "partlyCovered": [],
+        "lowShot": "zoom200-form-course-1440-focus-low.png"
+      },
       "screenshot": "zoom200-form-course-1440.png"
     },
     "form-pet 1440": {
-      "path": "/pets/8979954c-1dd0-4976-a622-544625bd4db7/edit",
+      "path": "/pets/bb4d3829-6ab5-45f4-8f71-8eb8d529003a/edit",
       "scrollWidth": 720,
       "innerWidth": 720,
       "horizontalScroll": false,
       "widest": [],
       "overlaps": [],
       "leaves": 49,
+      "focus": {
+        "pinnedLayers": [
+          "nav.mobile-nav 66px"
+        ],
+        "focused": 27,
+        "hidden": [],
+        "partlyCovered": [],
+        "lowShot": "zoom200-form-pet-1440-focus-low.png"
+      },
       "screenshot": "zoom200-form-pet-1440.png"
     },
     "visit-record 1440": {
-      "path": "/pets/8979954c-1dd0-4976-a622-544625bd4db7/health/c0c6c789-29af-45ac-9158-1c4842ac7cf7",
+      "path": "/pets/bb4d3829-6ab5-45f4-8f71-8eb8d529003a/health/698b472e-5e94-440a-a2d1-b7c68f21792b",
       "scrollWidth": 720,
       "innerWidth": 720,
       "horizontalScroll": false,
       "widest": [],
       "overlaps": [],
       "leaves": 29,
+      "focus": {
+        "pinnedLayers": [
+          "nav.mobile-nav 66px"
+        ],
+        "focused": 13,
+        "hidden": [],
+        "partlyCovered": [],
+        "lowShot": "zoom200-visit-record-1440-focus-low.png"
+      },
       "screenshot": "zoom200-visit-record-1440.png"
     },
     "vet-summary 1440": {
-      "path": "/pets/8979954c-1dd0-4976-a622-544625bd4db7/vet-summary",
+      "path": "/pets/bb4d3829-6ab5-45f4-8f71-8eb8d529003a/vet-summary",
       "scrollWidth": 720,
       "innerWidth": 720,
       "horizontalScroll": false,
       "widest": [],
       "overlaps": [],
       "leaves": 62,
+      "focus": {
+        "pinnedLayers": [
+          "nav.mobile-nav 66px"
+        ],
+        "focused": 10,
+        "hidden": [],
+        "partlyCovered": [],
+        "lowShot": null
+      },
       "screenshot": "zoom200-vet-summary-1440.png"
     },
     "vet-summary-long 1440": {
-      "path": "/pets/26c543c4-1266-479c-904e-344de4f8a4a5/vet-summary",
+      "path": "/pets/c89501b5-0fff-4650-b403-e577c3f8de0b/vet-summary",
       "scrollWidth": 720,
       "innerWidth": 720,
       "horizontalScroll": false,
       "widest": [],
       "overlaps": [],
       "leaves": 171,
+      "focus": {
+        "pinnedLayers": [
+          "nav.mobile-nav 66px"
+        ],
+        "focused": 10,
+        "hidden": [],
+        "partlyCovered": [],
+        "lowShot": null
+      },
       "screenshot": "zoom200-vet-summary-long-1440.png"
     },
     "record 1280": {
-      "path": "/pets/8979954c-1dd0-4976-a622-544625bd4db7",
+      "path": "/pets/bb4d3829-6ab5-45f4-8f71-8eb8d529003a",
       "scrollWidth": 640,
       "innerWidth": 640,
       "horizontalScroll": false,
       "widest": [],
       "overlaps": [],
       "leaves": 61,
+      "focus": {
+        "pinnedLayers": [
+          "nav.health-actions 72px",
+          "nav.mobile-nav 66px"
+        ],
+        "focused": 24,
+        "hidden": [],
+        "partlyCovered": [],
+        "lowShot": null
+      },
       "screenshot": "zoom200-record-1280.png"
     },
     "due 1280": {
-      "path": "/pets/8979954c-1dd0-4976-a622-544625bd4db7/health/due",
+      "path": "/pets/bb4d3829-6ab5-45f4-8f71-8eb8d529003a/health/due",
       "scrollWidth": 640,
       "innerWidth": 640,
       "horizontalScroll": false,
       "widest": [],
       "overlaps": [],
       "leaves": 22,
+      "focus": {
+        "pinnedLayers": [
+          "nav.mobile-nav 66px"
+        ],
+        "focused": 14,
+        "hidden": [],
+        "partlyCovered": [],
+        "lowShot": "zoom200-due-1280-focus-low.png"
+      },
       "screenshot": "zoom200-due-1280.png"
     },
     "form-vaccination 1280": {
-      "path": "/pets/8979954c-1dd0-4976-a622-544625bd4db7/health/new?type=vaccination",
+      "path": "/pets/bb4d3829-6ab5-45f4-8f71-8eb8d529003a/health/new?type=vaccination",
       "scrollWidth": 640,
       "innerWidth": 640,
       "horizontalScroll": false,
       "widest": [],
       "overlaps": [],
       "leaves": 22,
+      "focus": {
+        "pinnedLayers": [
+          "nav.mobile-nav 66px"
+        ],
+        "focused": 17,
+        "hidden": [],
+        "partlyCovered": [
+          {
+            "name": "textarea#_R_2ppbn5ritqbn5ritmlb_-notes «»",
+            "onLayer": false,
+            "outside": false,
+            "covered": [
+              ".mobile-nav"
+            ],
+            "hidden": false,
+            "top": 232,
+            "bottom": 366,
+            "viewport": 400
+          }
+        ],
+        "lowShot": "zoom200-form-vaccination-1280-focus-low.png"
+      },
       "screenshot": "zoom200-form-vaccination-1280.png"
     },
     "form-complete 1280": {
-      "path": "/pets/8979954c-1dd0-4976-a622-544625bd4db7/health/1ea87fed-85a3-456a-b162-79f589dfe9c4/complete?item=79e6b56b-6174-4390-a433-fe9513448dcd",
+      "path": "/pets/bb4d3829-6ab5-45f4-8f71-8eb8d529003a/health/3c9a09ae-392d-4f3d-8e57-f8fa3af9aca2/complete?item=b49695fb-bda3-4780-babf-d4ea22367b43",
       "scrollWidth": 640,
       "innerWidth": 640,
       "horizontalScroll": false,
       "widest": [],
       "overlaps": [],
       "leaves": 28,
+      "focus": {
+        "pinnedLayers": [
+          "nav.mobile-nav 66px"
+        ],
+        "focused": 16,
+        "hidden": [],
+        "partlyCovered": [],
+        "lowShot": "zoom200-form-complete-1280-focus-low.png"
+      },
       "screenshot": "zoom200-form-complete-1280.png"
     },
     "form-weight 1280": {
-      "path": "/pets/8979954c-1dd0-4976-a622-544625bd4db7/health/new?type=weight",
+      "path": "/pets/bb4d3829-6ab5-45f4-8f71-8eb8d529003a/health/new?type=weight",
       "scrollWidth": 640,
       "innerWidth": 640,
       "horizontalScroll": false,
       "widest": [],
       "overlaps": [],
       "leaves": 14,
+      "focus": {
+        "pinnedLayers": [
+          "nav.mobile-nav 66px"
+        ],
+        "focused": 13,
+        "hidden": [],
+        "partlyCovered": [],
+        "lowShot": "zoom200-form-weight-1280-focus-low.png"
+      },
       "screenshot": "zoom200-form-weight-1280.png"
     },
     "form-visit 1280": {
-      "path": "/pets/8979954c-1dd0-4976-a622-544625bd4db7/health/new?type=visit",
+      "path": "/pets/bb4d3829-6ab5-45f4-8f71-8eb8d529003a/health/new?type=visit",
       "scrollWidth": 640,
       "innerWidth": 640,
       "horizontalScroll": false,
       "widest": [],
       "overlaps": [],
       "leaves": 27,
+      "focus": {
+        "pinnedLayers": [
+          "nav.mobile-nav 66px"
+        ],
+        "focused": 20,
+        "hidden": [],
+        "partlyCovered": [],
+        "lowShot": "zoom200-form-visit-1280-focus-low.png"
+      },
       "screenshot": "zoom200-form-visit-1280.png"
     },
     "form-course 1280": {
-      "path": "/pets/8979954c-1dd0-4976-a622-544625bd4db7/health/ef01694b-77c4-42b1-84df-04500af6ae28/edit",
+      "path": "/pets/bb4d3829-6ab5-45f4-8f71-8eb8d529003a/health/193588ae-c62d-4f05-9809-c1a5c58083f9/edit",
       "scrollWidth": 640,
       "innerWidth": 640,
       "horizontalScroll": false,
       "widest": [],
       "overlaps": [],
       "leaves": 18,
+      "focus": {
+        "pinnedLayers": [
+          "nav.mobile-nav 66px"
+        ],
+        "focused": 15,
+        "hidden": [],
+        "partlyCovered": [],
+        "lowShot": "zoom200-form-course-1280-focus-low.png"
+      },
       "screenshot": "zoom200-form-course-1280.png"
     },
     "form-pet 1280": {
-      "path": "/pets/8979954c-1dd0-4976-a622-544625bd4db7/edit",
+      "path": "/pets/bb4d3829-6ab5-45f4-8f71-8eb8d529003a/edit",
       "scrollWidth": 640,
       "innerWidth": 640,
       "horizontalScroll": false,
       "widest": [],
       "overlaps": [],
       "leaves": 49,
+      "focus": {
+        "pinnedLayers": [
+          "nav.mobile-nav 66px"
+        ],
+        "focused": 27,
+        "hidden": [],
+        "partlyCovered": [],
+        "lowShot": "zoom200-form-pet-1280-focus-low.png"
+      },
       "screenshot": "zoom200-form-pet-1280.png"
     },
     "visit-record 1280": {
-      "path": "/pets/8979954c-1dd0-4976-a622-544625bd4db7/health/c0c6c789-29af-45ac-9158-1c4842ac7cf7",
+      "path": "/pets/bb4d3829-6ab5-45f4-8f71-8eb8d529003a/health/698b472e-5e94-440a-a2d1-b7c68f21792b",
       "scrollWidth": 640,
       "innerWidth": 640,
       "horizontalScroll": false,
       "widest": [],
       "overlaps": [],
       "leaves": 29,
+      "focus": {
+        "pinnedLayers": [
+          "nav.mobile-nav 66px"
+        ],
+        "focused": 13,
+        "hidden": [],
+        "partlyCovered": [],
+        "lowShot": "zoom200-visit-record-1280-focus-low.png"
+      },
       "screenshot": "zoom200-visit-record-1280.png"
     },
     "vet-summary 1280": {
-      "path": "/pets/8979954c-1dd0-4976-a622-544625bd4db7/vet-summary",
+      "path": "/pets/bb4d3829-6ab5-45f4-8f71-8eb8d529003a/vet-summary",
       "scrollWidth": 640,
       "innerWidth": 640,
       "horizontalScroll": false,
       "widest": [],
       "overlaps": [],
       "leaves": 62,
+      "focus": {
+        "pinnedLayers": [
+          "nav.mobile-nav 66px"
+        ],
+        "focused": 10,
+        "hidden": [],
+        "partlyCovered": [],
+        "lowShot": null
+      },
       "screenshot": "zoom200-vet-summary-1280.png"
     },
     "vet-summary-long 1280": {
-      "path": "/pets/26c543c4-1266-479c-904e-344de4f8a4a5/vet-summary",
+      "path": "/pets/c89501b5-0fff-4650-b403-e577c3f8de0b/vet-summary",
       "scrollWidth": 640,
       "innerWidth": 640,
       "horizontalScroll": false,
       "widest": [],
       "overlaps": [],
       "leaves": 171,
+      "focus": {
+        "pinnedLayers": [
+          "nav.mobile-nav 66px"
+        ],
+        "focused": 10,
+        "hidden": [],
+        "partlyCovered": [],
+        "lowShot": null
+      },
       "screenshot": "zoom200-vet-summary-long-1280.png"
     }
-  }
+  },
+  "focusHidden": [],
+  "focusPartlyCovered": [
+    "form-vaccination 1440: textarea#_R_2ppbn5ritqbn5ritmlb_-notes «»",
+    "form-visit 1440: textarea#_R_2ppbn5ritqbn5ritmlb_-reason «»",
+    "form-vaccination 1280: textarea#_R_2ppbn5ritqbn5ritmlb_-notes «»"
+  ]
 }

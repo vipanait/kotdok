@@ -74,7 +74,7 @@ export function suggestNextDay(recordDay: string, interval: Interval | null, tod
   return next >= today ? next : null
 }
 
-/** Why a record's day cannot be saved, as the phone and the site both check it before sending. */
+/** The free texts of a vaccination or treatment record that the contract limits in length. */
 export type EventTextField = 'clinic' | 'notes'
 
 /**
@@ -96,6 +96,7 @@ export function tooManyItems(items: readonly unknown[]): boolean {
   return items.length > HEALTH_EVENT_LIMITS.items
 }
 
+/** Why a record's day cannot be saved, as the phone and the site both check it before sending. */
 export type EventDayProblem = 'empty' | 'invalid' | 'future' | 'past'
 
 /**

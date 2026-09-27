@@ -143,7 +143,6 @@ function PlanScreen({
   )
 }
 
-
 export function VisitGone({ petId }: { petId: string }) {
   const words = useTranslations().medicalRecord.visitRecord
   return (
@@ -170,4 +169,3 @@ function VisitDone({ petId, visitId, held }: { petId: string; visitId: string; h
     />
   )
 }
-
