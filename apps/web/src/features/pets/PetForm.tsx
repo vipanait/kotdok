@@ -190,7 +190,7 @@ export default function PetForm({ pet, hints = {} }: Props) {
       return
     }
 
-    leave(petFormDoneHref(isEdit ? 'updated' : 'created', pet?.id))
+    leave(petFormDoneHref(isEdit && pet ? { kind: 'updated', petId: pet.id } : { kind: 'created' }))
   }
 
   async function handleDelete() {
@@ -209,7 +209,7 @@ export default function PetForm({ pet, hints = {} }: Props) {
       setDeleting(false)
       return
     }
-    leave(petFormDoneHref('deleted', pet.id))
+    leave(petFormDoneHref({ kind: 'deleted', petId: pet.id }))
   }
 
   return (

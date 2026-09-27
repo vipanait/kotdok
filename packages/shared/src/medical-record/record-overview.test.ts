@@ -156,6 +156,32 @@ describe('courses', () => {
     expect(current.map((c) => c.id)).toEqual(['food'])
     expect(past.map((c) => c.id)).toEqual(['flora', 'old'])
   })
+
+  it('breaks ties by the start: finished the same day, the later start first; the same days keep their order', () => {
+    const { current, past } = splitCourses(
+      [
+        course('early', '2026-08-01', '2026-09-10'),
+        course('late', '2026-09-01', '2026-09-10'),
+        course('twin-a', '2026-09-05', '2026-09-10'),
+        course('now-a', '2026-09-20', null),
+        course('now-b', '2026-09-20', '2026-10-01'),
+        course('twin-b', '2026-09-05', '2026-09-10'),
+      ],
+      TODAY,
+    )
+    // Two current courses begun the same day: neither jumps ahead of the other.
+    expect(current.map((c) => c.id)).toEqual(['now-a', 'now-b'])
+    expect(past.map((c) => c.id)).toEqual(['twin-a', 'twin-b', 'late', 'early'])
+  })
+
+  it('puts a course without a start after the dated ones it ties with', () => {
+    const { current, past } = splitCourses(
+      [course('unknown', null, '2026-09-10'), course('dated', '2026-09-01', '2026-09-10'), course('form', null, null), course('new', '2026-09-20', null)],
+      TODAY,
+    )
+    expect(current.map((c) => c.id)).toEqual(['new', 'form'])
+    expect(past.map((c) => c.id)).toEqual(['dated', 'unknown'])
+  })
 })
 
 describe('the age in a pet’s head (MW-09)', () => {

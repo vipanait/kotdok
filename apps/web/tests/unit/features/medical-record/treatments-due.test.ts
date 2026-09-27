@@ -16,15 +16,12 @@ import { nextHintText } from '@/features/medical-record/events/event-form-text'
 import { eventSaveFailure } from '@/features/medical-record/events/event-form'
 import { eventRecord, eventsPage, parseEventSaved } from '@/features/medical-record/events/event-view'
 import {
-  MEDICAL_RECORD_STAGE,
-  completeOpen,
   medicalRecordHref,
   parseCompleteFrom,
   parseRecordStepSaved,
   parseSavedRecord,
   withSaved,
-  type MedicalRecordStage,
-} from '@/features/medical-record/stage'
+} from '@/features/medical-record/routes'
 import { allDue, dueBlock } from '@/features/medical-record/view-model'
 import { DESIGN_TODAY, bobik, murka } from './demo-overviews'
 
@@ -203,15 +200,6 @@ describe('fix round 1: no false success, no silent clearing', () => {
 })
 
 describe('where «Сделано» is offered', () => {
-  const closed: MedicalRecordStage = { ...MEDICAL_RECORD_STAGE, due: false }
-
-  it('for vaccinations and treatments once the due stage is on; a visit is marked on its own form', () => {
-    expect(completeOpen('vaccination')).toBe(true)
-    expect(completeOpen('parasite')).toBe(true)
-    expect(completeOpen('visit')).toBe(false)
-    expect(completeOpen('parasite', closed)).toBe(false)
-  })
-
   it('addresses one item and remembers where it was pressed', () => {
     expect(medicalRecordHref.complete(petId, uuid(104), uuid(206))).toBe(`/pets/${petId}/health/${uuid(104)}/complete?item=${uuid(206)}`)
     expect(medicalRecordHref.complete(petId, uuid(102), null, 'due')).toBe(`/pets/${petId}/health/${uuid(102)}/complete?from=due`)
@@ -268,7 +256,6 @@ describe('«Все сроки» and the record’s «Сроки»', () => {
     const block = dueBlock(ru, 'ru', murka, DESIGN_TODAY)
     expect(block.rows).toHaveLength(3)
     expect(block.rows[0].completeHref).toContain('from=medical')
-    expect(dueBlock(ru, 'ru', murka, DESIGN_TODAY, { ...MEDICAL_RECORD_STAGE, due: false }).rows[0].completeHref).toBeNull()
     expect(allDue(ru, 'ru', bobik, DESIGN_TODAY)).toEqual({ rows: [], total: 0 })
     // An older server that does not store treatments: no «Сделано» that would fail.
     const older = { ...murka, writable: ['vaccinations' as const, 'weight' as const] }

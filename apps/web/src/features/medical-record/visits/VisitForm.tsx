@@ -14,7 +14,7 @@ import { useSaveKey } from '@/features/forms/save-key'
 import ConfirmDialog from '@/features/pets/ConfirmDialog'
 import { urgencyTitle } from '@/shared/utils/urgency'
 import { recordCache } from '../record-load'
-import { medicalRecordHref } from '../stage'
+import { medicalRecordHref } from '../routes'
 import { recordDay } from '../view-model'
 import { eventSaveFailure, type EventSaveFailure } from '../events/event-form'
 import {

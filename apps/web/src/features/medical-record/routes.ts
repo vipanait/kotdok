@@ -1,29 +1,10 @@
-import { UuidSchema, type HealthEvent, type HealthSection } from '@lapka/contracts'
-
 /**
- * Which parts of the web medical record are built, stage by stage
- * (docs/plans/medical-record-web). A part that is off is not drawn at all:
- * no link to a page that does not exist, no button that pretends to save.
- * A stage switches its part on here once its acceptance is closed.
+ * Where each part of the web medical record lives and what a page's query
+ * says, read strictly. What the owner may do in a section is the server's
+ * word (`writable` of the overview), not the site's.
  */
-export const MEDICAL_RECORD_STAGE = {
-  /** MW-02: the weight page, adding and correcting measurements. */
-  weight: true,
-  /** MW-03: the vaccinations page, form, record view and catalogue. */
-  vaccinations: true,
-  /** MW-04: the parasites page and form. */
-  parasites: true,
-  /** MW-04: «Сделано» on a due date and the page with all of them. */
-  due: true,
-  /** MW-05: the medicines page and form. */
-  medications: true,
-  /** MW-06: the visits page and form, «Состоялся» on a planned visit, the visit from a check result. */
-  visits: true,
-  /** MW-07: the summary for the vet, its print and «Сохранить PDF» through the browser's print dialog. */
-  vetSummary: true,
-} as const
 
-export type MedicalRecordStage = { readonly [K in keyof typeof MEDICAL_RECORD_STAGE]: boolean }
+import { UuidSchema, type HealthSection } from '@lapka/contracts'
 
 /** What «Добавить запись» offers, in the order of the chooser (spec §7.4). */
 export const RECORD_TYPES = ['vaccination', 'parasite', 'visit', 'medication', 'weight'] as const
@@ -40,16 +21,11 @@ export const RECORD_TYPE_SECTION: Record<RecordType, HealthSection> = {
 }
 
 /**
- * A section is open when this site has built it and the server can store it:
- * `writable` is the server's word, the stage is ours. Both are needed — an
- * older server must not get a form it cannot save.
+ * Whether the server stores records of a section — its `writable` list
+ * (spec §2.2): an older server gets no form, button or link that would fail.
  */
-export function sectionOpen(
-  section: HealthSection,
-  writable: readonly HealthSection[] | null,
-  stage: MedicalRecordStage = MEDICAL_RECORD_STAGE,
-): boolean {
-  return stage[section] && (writable === null || writable.includes(section))
+export function sectionOpen(section: HealthSection, writable: readonly HealthSection[]): boolean {
+  return writable.includes(section)
 }
 
 /** `?type=` of the new-record page, read strictly: anything else is no type. */
@@ -57,31 +33,9 @@ export function parseRecordType(value: string | string[] | undefined): RecordTyp
   return typeof value === 'string' && (RECORD_TYPES as readonly string[]).includes(value) ? (value as RecordType) : null
 }
 
-/** The record types «Добавить запись» may offer. None means no button at all. */
-export function addableRecordTypes(
-  writable: readonly HealthSection[] | null,
-  stage: MedicalRecordStage = MEDICAL_RECORD_STAGE,
-): RecordType[] {
-  return RECORD_TYPES.filter((type) => sectionOpen(RECORD_TYPE_SECTION[type], writable, stage))
-}
-
-/** Whether a saved vaccination or treatment can be opened: its section's stage is done. */
-export function recordKindOpen(kind: 'vaccination' | 'parasite', stage: MedicalRecordStage = MEDICAL_RECORD_STAGE): boolean {
-  return stage[RECORD_TYPE_SECTION[kind]]
-}
-
-/**
- * Whether «Сделано» is offered for a plan of this kind: the due stage and the
- * kind's own. A planned visit is marked «Состоялся» on its own form instead
- * (`heldOpen`, MW-06).
- */
-export function completeOpen(kind: HealthEvent['kind'], stage: MedicalRecordStage = MEDICAL_RECORD_STAGE): boolean {
-  return kind !== 'visit' && stage.due && recordKindOpen(kind, stage)
-}
-
-/** Whether «Состоялся» is offered for a planned visit — in its view and among the due dates. */
-export function heldOpen(stage: MedicalRecordStage = MEDICAL_RECORD_STAGE): boolean {
-  return stage.visits
+/** The record types «Добавить запись» may offer: those the server stores. None means no button at all. */
+export function addableRecordTypes(writable: readonly HealthSection[]): RecordType[] {
+  return RECORD_TYPES.filter((type) => sectionOpen(RECORD_TYPE_SECTION[type], writable))
 }
 
 /** Where «Сделано» was pressed: where its form goes back to. */

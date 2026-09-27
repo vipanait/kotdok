@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import Icon from '@/components/ui/Icon'
 import Illustration from '@/components/ui/Illustration'
-import { medicalRecordHref } from '@/features/medical-record/stage'
+import { medicalRecordHref } from '@/features/medical-record/routes'
 import { petDueLine } from '@/features/medical-record/view-model'
 import UrgencyBadge from '@/components/ui/UrgencyBadge'
 import type { Locale } from '@/shared/i18n/config'

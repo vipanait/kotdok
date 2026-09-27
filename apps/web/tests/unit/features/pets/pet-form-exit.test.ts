@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { recordCache, type RecordData } from '@/features/medical-record/record-load'
 import { parseRecordSaved, petFormCancelHref, petFormDoneHref } from '@/features/pets/pet-form-exit'
+import { parsePetSaved } from '@/features/pets/pet-saved'
 import { murka } from '../medical-record/demo-overviews'
 
 const PET = '11111111-1111-4111-8111-111111111111'
@@ -11,13 +12,13 @@ afterEach(() => recordCache.clear())
 
 describe('the way out of the pet form', () => {
   it('returns an edit to the record it was opened from, with the confirmation', () => {
-    expect(petFormDoneHref('updated', PET)).toBe(`/pets/${PET}?saved=form`)
+    expect(petFormDoneHref({ kind: 'updated', petId: PET })).toBe(`/pets/${PET}?saved=form`)
     expect(parseRecordSaved('form')).toBe(true)
   })
 
   it('sends a new pet and a deleted one to the list', () => {
-    expect(petFormDoneHref('created')).toBe('/pets?petSaved=created')
-    expect(petFormDoneHref('deleted', PET)).toBe('/pets?petSaved=deleted')
+    expect(petFormDoneHref({ kind: 'created' })).toBe('/pets?petSaved=created')
+    expect(petFormDoneHref({ kind: 'deleted', petId: PET })).toBe('/pets?petSaved=deleted')
   })
 
   it('cancels back to the record for an existing pet, to the list for a new one', () => {
@@ -28,13 +29,19 @@ describe('the way out of the pet form', () => {
   it('forgets the saved or deleted pet’s record kept in the tab, and only that one', () => {
     recordCache.set(PET, data)
     recordCache.set(OTHER, data)
-    petFormDoneHref('updated', PET)
+    petFormDoneHref({ kind: 'updated', petId: PET })
     expect(recordCache.get(PET)).toBeNull()
     expect(recordCache.get(OTHER)).toBe(data)
 
     recordCache.set(PET, data)
-    petFormDoneHref('deleted', PET)
+    petFormDoneHref({ kind: 'deleted', petId: PET })
     expect(recordCache.get(PET)).toBeNull()
+  })
+
+  it('confirms on the list only a new pet and a deleted one — an edit is confirmed on its record', () => {
+    expect(parsePetSaved('created')).toBe('created')
+    expect(parsePetSaved('deleted')).toBe('deleted')
+    for (const value of [undefined, 'updated', 'Created', ['created']]) expect(parsePetSaved(value)).toBeNull()
   })
 
   it('reads the record’s ?saved= strictly', () => {

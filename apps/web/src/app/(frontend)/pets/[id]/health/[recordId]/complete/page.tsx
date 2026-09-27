@@ -1,17 +1,15 @@
 import { notFound, redirect } from 'next/navigation'
+import { UuidSchema } from '@lapka/contracts'
 import CabinetShell from '@/components/cabinet/CabinetShell'
 import CompleteScreen from '@/features/medical-record/events/CompleteScreen'
-import { completeOpen, medicalRecordHref, parseCompleteFrom } from '@/features/medical-record/stage'
+import { medicalRecordHref, parseCompleteFrom } from '@/features/medical-record/routes'
 import { HeldVisitScreen } from '@/features/medical-record/visits/VisitFormScreen'
-import { MEDICAL_RECORD_STAGE } from '@/features/medical-record/stage'
 import { openPetPage } from '@/components/cabinet/open-pet-page'
 import { findHealthRecord } from '@/server/medical-record/record-lookup'
 import { privatePageMetadata } from '@/server/i18n/page-metadata'
 import { createServiceClient } from '@/server/supabase/server'
 
 export const generateMetadata = privatePageMetadata(d => d.medicalRecord.completeForm.title)
-
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 /**
  * «Сделано» on a plan: one of its items becomes a done record, the others
@@ -33,7 +31,6 @@ export default async function CompleteHealthRecordPage({
   const record = await findHealthRecord(createServiceClient(), cabinet.user.id, id, recordId)
   // «Состоялся» on a planned visit (MW-06): its own form.
   if (record?.kind === 'visit') {
-    if (!MEDICAL_RECORD_STAGE.visits) notFound()
     if (record.status === 'done') redirect(medicalRecordHref.recordView(id, recordId))
     return (
       <CabinetShell cabinet={cabinet} active="pets" crumb={`${dict.medicalRecord.title} / ${dict.medicalRecord.recordKinds.visit}`}>
@@ -41,10 +38,10 @@ export default async function CompleteHealthRecordPage({
       </CabinetShell>
     )
   }
-  if (!record || record.kind === 'weight' || record.kind === 'medication' || !completeOpen(record.kind)) notFound()
+  if (!record || record.kind === 'weight' || record.kind === 'medication') notFound()
   if (record.status === 'done') redirect(medicalRecordHref.recordView(id, recordId))
 
-  const itemId = typeof query.item === 'string' && UUID.test(query.item) ? query.item : null
+  const itemId = typeof query.item === 'string' && UuidSchema.safeParse(query.item).success ? query.item : null
   return (
     <CabinetShell cabinet={cabinet} active="pets" crumb={`${dict.medicalRecord.title} / ${dict.medicalRecord.recordKinds[record.kind]}`}>
       <CompleteScreen

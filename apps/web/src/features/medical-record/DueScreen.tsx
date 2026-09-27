@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from '@/components/LocaleProvider'
 import { RecordProblem, StaleNotice } from './MedicalRecordScreen'
 import { DueRows } from './MedicalRecordView'
 import SavedNotice from './SavedNotice'
-import { medicalRecordHref } from './stage'
+import { medicalRecordHref } from './routes'
 import { useMedicalRecord } from './use-medical-record'
 import { allDue } from './view-model'
 

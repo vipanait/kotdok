@@ -23,6 +23,19 @@ export function visitEditable(visit: Pick<HealthEvent, 'status'>): boolean {
 }
 
 /**
+ * Whether a prescription of a visit can go to the medicines: the visit
+ * happened, the prescription has a name, and it is not there yet. A plan's
+ * prescriptions wait for the visit. The view of the visit offers «В
+ * лекарства» by it, and says so only while one of them can.
+ */
+export function prescriptionAddable(
+  visit: Pick<HealthEvent, 'status'>,
+  item: Pick<HealthEvent['items'][number], 'medication_id' | 'name'>,
+): boolean {
+  return !visitEditable(visit) && item.medication_id === null && item.name !== null
+}
+
+/**
  * The day a planned visit is marked «Состоялся» with by default: its planned
  * day if that has come, otherwise today — the owner corrects it to the real
  * day. Never after today: a visit that happened is not in the future.

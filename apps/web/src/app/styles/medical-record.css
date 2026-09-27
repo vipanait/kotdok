@@ -73,7 +73,6 @@
   .health-grid .due-state.later { color: var(--muted); }
   .due-state .icon { display: inline-block; width: 14px; height: 14px; margin-right: 4px; vertical-align: -2px; }
   .health-due .link { min-height: 44px; }
-  .health-grid .health-due-more { margin-top: 8px; font-size: 13px; }
 
   /* ---------- What to know ---------- */
 

@@ -2,7 +2,7 @@ import type { HealthEvent, HealthOverview, HealthSection } from '@lapka/contract
 import { coreVaccinations, doneEvents, nextDayOf, parasiteCovers, parasiteGroups, plannedEvents, type DueTone, type ParasiteCover } from '@lapka/shared'
 import type { Locale } from '@/shared/i18n/config'
 import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
-import { MEDICAL_RECORD_STAGE, completeOpen, medicalRecordHref, sectionOpen, type MedicalRecordStage } from '../stage'
+import { medicalRecordHref, sectionOpen } from '../routes'
 import { dueStatusText, eventItemName, formatDay, recordDay, statusInSentence } from '../view-model'
 import type { EventFormKind } from './event-form'
 
@@ -96,7 +96,6 @@ export function eventsPage(
   kind: EventFormKind,
   overview: HealthOverview,
   today: string,
-  stage: MedicalRecordStage = MEDICAL_RECORD_STAGE,
 ): EventsPageView {
   const words = dict.medicalRecord
   const page = words.eventsPage[kind]
@@ -136,7 +135,7 @@ export function eventsPage(
       ? parasiteCovers(overview.events).map(({ cover, last, next }): CoverCard => {
           const title = coverWords.titles[cover]
           const status = next ? dueStatusText(dict, locale, next.event.date, today) : null
-          const offered = next !== null && completeOpen('parasite', stage) && sectionOpen('parasites', overview.writable, stage)
+          const offered = next !== null && sectionOpen('parasites', overview.writable)
           return {
             cover,
             title,
@@ -204,8 +203,7 @@ export function eventRecord(
   event: HealthEvent,
   events: readonly HealthEvent[],
   today: string,
-  writable: readonly HealthSection[] | null = null,
-  stage: MedicalRecordStage = MEDICAL_RECORD_STAGE,
+  writable: readonly HealthSection[],
 ): EventRecordView {
   if (event.kind === 'visit') throw new Error('a visit has its own page')
   const words = dict.medicalRecord
@@ -217,7 +215,7 @@ export function eventRecord(
   const kindWord = words.recordKinds[kind]
   const section = kind === 'vaccination' ? 'vaccinations' : 'parasites'
   // The server's word on what it stores: an older server gets no action that would fail.
-  const writes = sectionOpen(section, writable, stage)
+  const writes = sectionOpen(section, writable)
   return {
     kind,
     title: kindWord,
@@ -239,7 +237,7 @@ export function eventRecord(
     actionsBody: planned ? view.plannedBody : view.doneBody,
     editHref: planned && writes ? medicalRecordHref.recordEdit(petId, event.id) : null,
     completeHref:
-      planned && writes && completeOpen(kind, stage)
+      planned && writes
         ? medicalRecordHref.complete(petId, event.id, event.items.length === 1 ? event.items[0].id : null)
         : null,
     removable: writes,

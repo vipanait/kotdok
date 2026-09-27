@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Pressable, StyleSheet, View } from 'react-native'
+import { Pressable, StyleSheet, View, type TextInput } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import { HISTORY_PAGE_SIZE_MAX, VISIT_KINDS, VISIT_LIMITS, type SymptomCheckRecord, type VisitKind } from '@lapka/contracts'
 import { ApiError } from '@lapka/shared'
@@ -12,6 +12,7 @@ import { urgencyText } from '@/features/checks/urgency'
 import {
   blankVisit,
   canAddPrescription,
+  firstVisitError,
   readVisit,
   recentChecks,
   visitDraftFrom,
@@ -68,6 +69,12 @@ export default function VisitForm() {
   /** A visit that happened: nothing here can change it. */
   const [locked, setLocked] = useState(false)
   const requestKey = useRef(newRequestKey())
+  /** The form's text inputs by field (`firstVisitError`'s names), to move to the first error. */
+  const inputs = useRef(new Map<string, TextInput>())
+  const input = (field: string) => (node: TextInput | null) => {
+    if (node) inputs.current.set(field, node)
+    else inputs.current.delete(field)
+  }
   const nextKey = useRef(1)
 
   useEffect(() => {
@@ -111,6 +118,9 @@ export default function VisitForm() {
     const read = readVisit(t, draft, mode, new Date(), keptDate)
     if (!read.ok) {
       setErrors(read.errors)
+      // As on the site: the first field to correct, brought into view with the keyboard up.
+      const first = firstVisitError(read.errors, draft)
+      if (first) inputs.current.get(first)?.focus()
       return
     }
     setErrors({})
@@ -212,12 +222,14 @@ export default function VisitForm() {
         placeholder={t.medicalRecord.datePlaceholder}
         keyboardType="numbers-and-punctuation"
         error={errors.date}
+        inputRef={input('date')}
       />
       <Field
         label={t.medicalRecord.clinic}
         value={draft.clinic}
         onChangeText={(clinic) => change({ clinic })}
         error={errors.clinic}
+        inputRef={input('clinic')}
       />
       <Field
         label={words.reason}
@@ -226,6 +238,7 @@ export default function VisitForm() {
         placeholder={words.reasonPlaceholder}
         multiline
         error={errors.reason}
+        inputRef={input('reason')}
       />
 
       {done ? (
@@ -236,6 +249,7 @@ export default function VisitForm() {
             onChangeText={(diagnosis) => change({ diagnosis })}
             multiline
             error={errors.diagnosis}
+            inputRef={input('diagnosis')}
           />
           <Text variant="h3" style={styles.heading}>
             {words.prescriptions}
@@ -252,6 +266,7 @@ export default function VisitForm() {
                     }
                     autoCorrect={false}
                     error={errors.prescriptions?.[item.key]}
+                    inputRef={input(`prescription:${item.key}`)}
                   />
                 </View>
                 <IconButton
@@ -267,6 +282,7 @@ export default function VisitForm() {
                   change({ prescriptions: draft.prescriptions.map((p) => (p.key === item.key ? { ...p, instructions } : p)) })
                 }
                 error={errors.instructions?.[item.key]}
+                inputRef={input(`instructions:${item.key}`)}
               />
               {item.inMedicines ? (
                 <Text variant="label" tone="muted">
@@ -325,6 +341,7 @@ export default function VisitForm() {
         onChangeText={(notes) => change({ notes })}
         multiline
         error={errors.notes}
+        inputRef={input('notes')}
       />
 
       {warnsHeldIsFinal(mode, draft.status) ? (

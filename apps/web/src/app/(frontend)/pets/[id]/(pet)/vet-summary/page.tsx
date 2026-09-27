@@ -1,6 +1,5 @@
-import { notFound } from 'next/navigation'
 import CabinetShell from '@/components/cabinet/CabinetShell'
-import { MEDICAL_RECORD_STAGE, medicalRecordHref } from '@/features/medical-record/stage'
+import { medicalRecordHref } from '@/features/medical-record/routes'
 import VetSummaryScreen from '@/features/medical-record/summary/VetSummaryScreen'
 import { openPetPage } from '@/components/cabinet/open-pet-page'
 import { privatePageMetadata } from '@/server/i18n/page-metadata'
@@ -16,7 +15,6 @@ export const generateMetadata = privatePageMetadata(d => d.medicalRecord.vetSumm
  */
 export default async function VetSummaryPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  if (!MEDICAL_RECORD_STAGE.vetSummary) notFound()
   const { cabinet, dict } = await openPetPage(id, medicalRecordHref.vetSummary(id))
 
   return (

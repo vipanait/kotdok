@@ -22,15 +22,7 @@ import {
 import type { Locale } from '@/shared/i18n/config'
 import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
 import { formatCount } from '@/shared/i18n/plural'
-import {
-  MEDICAL_RECORD_STAGE,
-  completeOpen,
-  heldOpen,
-  medicalRecordHref,
-  sectionOpen,
-  type CompleteFrom,
-  type MedicalRecordStage,
-} from './stage'
+import { medicalRecordHref, sectionOpen, type CompleteFrom } from './routes'
 
 /**
  * What the medical record page says, worked out from the overview. No React
@@ -277,11 +269,7 @@ export function petDueLine(
   const timing = dueTiming(due.date, today)
   if (timing.tone === 'later') return null
   const title = dueLineTitle(dict, locale, due)
-  const words = dict.medicalRecord.due
-  const when =
-    timing.tone === 'overdue'
-      ? dict.pets.dueOverdue
-      : (timing.days === 0 ? words.today : timing.days === 1 ? words.tomorrow : formatCount(words.inDays, timing.days, locale)).toLocaleLowerCase(locale)
+  const when = timing.tone === 'overdue' ? dict.pets.dueOverdue : soonText(dict, locale, timing.days).toLocaleLowerCase(locale)
   const status = dict.pets.dueStatus.replace('{status}', when)
   return { tone: timing.tone, title, status, text: `${title} ${status}` }
 }
@@ -297,8 +285,13 @@ export function dueStatusText(dict: Dictionary, locale: Locale, date: string, to
     const text = late === 1 ? words.overdueYesterday : formatCount(words.overdueDays, late, locale)
     return { text: `${text} · ${shown}`, tone: 'overdue' }
   }
-  const soon = timing.days === 0 ? words.today : timing.days === 1 ? words.tomorrow : formatCount(words.inDays, timing.days, locale)
-  return { text: `${soon} · ${shown}`, tone: 'soon' }
+  return { text: `${soonText(dict, locale, timing.days)} · ${shown}`, tone: 'soon' }
+}
+
+/** «Сегодня», «Завтра», «Через 5 дней»: a date among the fourteen "soon" days. */
+function soonText(dict: Dictionary, locale: Locale, days: number): string {
+  const words = dict.medicalRecord.due
+  return days === 0 ? words.today : days === 1 ? words.tomorrow : formatCount(words.inDays, days, locale)
 }
 
 function dueRow(
@@ -308,16 +301,15 @@ function dueRow(
   entry: DueEntry,
   today: string,
   from: CompleteFrom,
-  stage: MedicalRecordStage,
 ): DueRow {
   const status = dueStatusText(dict, locale, entry.date, today)
   const title = dueTitle(dict, entry)
   const petId = overview.pet.id
-  // The site's stage and the server's word (`writable`): an older server gets no «Сделано» that would fail.
+  // The server's word (`writable`): an older server gets no «Сделано» that would fail.
   const words = dict.medicalRecord.due
   if (entry.kind === 'visit') {
     // «Состоялся»: the visit's own step, the whole plan (a planned visit has no items).
-    const held = heldOpen(stage) && sectionOpen('visits', overview.writable, stage)
+    const held = sectionOpen('visits', overview.writable)
     return {
       key: entry.key,
       kind: entry.kind,
@@ -329,8 +321,7 @@ function dueRow(
       completeLabel: words.markHeldLabel.replace('{title}', title).replace('{status}', statusInSentence(status)),
     }
   }
-  const offered =
-    completeOpen(entry.kind, stage) && sectionOpen(entry.kind === 'vaccination' ? 'vaccinations' : 'parasites', overview.writable, stage)
+  const offered = sectionOpen(entry.kind === 'vaccination' ? 'vaccinations' : 'parasites', overview.writable)
   return {
     key: entry.key,
     kind: entry.kind,
@@ -352,12 +343,11 @@ export function dueBlock(
   locale: Locale,
   overview: HealthOverview,
   today: string,
-  stage: MedicalRecordStage = MEDICAL_RECORD_STAGE,
 ): DueBlock {
   const entries = dueEntries(overview.events)
   return {
     total: entries.length,
-    rows: entries.slice(0, RECORD_DUE_LIMIT).map((entry) => dueRow(dict, locale, overview, entry, today, 'medical', stage)),
+    rows: entries.slice(0, RECORD_DUE_LIMIT).map((entry) => dueRow(dict, locale, overview, entry, today, 'medical')),
   }
 }
 
@@ -367,9 +357,8 @@ export function allDue(
   locale: Locale,
   overview: HealthOverview,
   today: string,
-  stage: MedicalRecordStage = MEDICAL_RECORD_STAGE,
 ): DueBlock {
-  const rows = dueEntries(overview.events).map((entry) => dueRow(dict, locale, overview, entry, today, 'due', stage))
+  const rows = dueEntries(overview.events).map((entry) => dueRow(dict, locale, overview, entry, today, 'due'))
   return { rows, total: rows.length }
 }
 

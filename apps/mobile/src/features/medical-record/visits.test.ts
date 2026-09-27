@@ -5,6 +5,7 @@ import { dueItems, itemTitle } from './due'
 import {
   blankVisit,
   canAddPrescription,
+  firstVisitError,
   heldNote,
   readVisit,
   recentChecks,
@@ -191,5 +192,36 @@ describe('a visit that happened, as viewed', () => {
 
   it('says nothing of the kind for a plan', () => {
     expect(heldNote(ru, visit({ status: 'planned', items: [prescription(null)] }))).toBeNull()
+  })
+
+  it('does not promise the medicines for a prescription without a name — the site’s rule (shared)', () => {
+    expect(heldNote(ru, visit({ items: [{ ...prescription(null), name: null }] }))).toBe(ru.medicalRecord.visits.heldReadOnly)
+  })
+})
+
+describe('the field a refused save moves to (MW-09)', () => {
+  const prescriptions = [
+    { key: 'a', name: '', instructions: '', toMedicines: true },
+    { key: 'b', name: '', instructions: '', toMedicines: true },
+  ]
+
+  it('is the first wrong field in the order the form draws them', () => {
+    expect(firstVisitError({ notes: 'x', clinic: 'x' }, { prescriptions })).toBe('clinic')
+    expect(firstVisitError({ notes: 'x', date: 'x' }, { prescriptions })).toBe('date')
+    expect(firstVisitError({ notes: 'x', instructions: { b: 'x' } }, { prescriptions })).toBe('instructions:b')
+    expect(firstVisitError({ instructions: { a: 'x' }, prescriptions: { b: 'x' } }, { prescriptions })).toBe('instructions:a')
+    expect(firstVisitError({ prescriptions: { a: 'x' }, instructions: { a: 'x' } }, { prescriptions })).toBe('prescription:a')
+    expect(firstVisitError({ diagnosis: 'x', reason: 'x' }, { prescriptions })).toBe('reason')
+  })
+
+  it('is nothing when nothing is wrong', () => {
+    expect(firstVisitError({}, { prescriptions })).toBeNull()
+    expect(firstVisitError({ prescriptions: {} }, { prescriptions: [] })).toBeNull()
+  })
+
+  it('follows readVisit: a clinic over the limit is where the form goes', () => {
+    const read = readVisit(ru, { ...blankVisit('done', NOW), clinic: 'к'.repeat(VISIT_LIMITS.clinic + 1), notes: 'н'.repeat(VISIT_LIMITS.notes + 1) }, 'new', NOW)
+    expect(read.ok).toBe(false)
+    if (!read.ok) expect(firstVisitError(read.errors, { prescriptions: [] })).toBe('clinic')
   })
 })

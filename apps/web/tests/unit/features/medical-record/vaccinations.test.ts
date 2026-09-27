@@ -285,7 +285,7 @@ describe('one record (MW-03.1: done is read-only)', () => {
     const withPlanFromIt = murka.events.map((event) =>
       event.id === plan.id ? { ...event, items: event.items.map((item, n) => ({ ...item, source_item_id: done.items[n].id })) } : event,
     )
-    const view = eventRecord(ru, 'ru', id(1), done, withPlanFromIt, TODAY)
+    const view = eventRecord(ru, 'ru', id(1), done, withPlanFromIt, TODAY, murka.writable)
     expect(view.editHref).toBeNull()
     expect(view.badge).toBe('Сделано')
     expect(view.actionsBody).toBe('Процедура выполнена. Запись сохранена в истории и недоступна для редактирования.')
@@ -297,7 +297,7 @@ describe('one record (MW-03.1: done is read-only)', () => {
   })
 
   it('lets a plan be changed or cancelled', () => {
-    const view = eventRecord(ru, 'ru', id(1), plan, murka.events, TODAY)
+    const view = eventRecord(ru, 'ru', id(1), plan, murka.events, TODAY, murka.writable)
     expect(view.editHref).toBe(`/pets/${id(1)}/health/${id(102)}/edit`)
     expect(view.removeTitle).toBe('Отменить план: прививка, 12 марта 2027?')
   })

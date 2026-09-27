@@ -37,6 +37,7 @@ export function Field({
   autoComplete,
   autoCorrect,
   style,
+  inputRef,
 }: {
   label: string
   /** Draw the name or not; either way the field answers to it out loud. */
@@ -58,6 +59,8 @@ export function Field({
    */
   autoCorrect?: boolean
   style?: ViewStyle
+  /** The text input itself, for a form that moves the focus to its first error. */
+  inputRef?: (input: TextInput | null) => void
 }) {
   const t = useText()
   const [focused, setFocused] = useState(false)
@@ -86,7 +89,10 @@ export function Field({
           style={[styles.text, multiline ? styles.textMultiline : null]}
           value={value}
           onChangeText={onChangeText}
-          ref={input}
+          ref={(node) => {
+            input.current = node
+            inputRef?.(node)
+          }}
           onFocus={() => {
             setFocused(true)
             revealing?.hold(input.current)

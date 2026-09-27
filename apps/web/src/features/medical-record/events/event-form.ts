@@ -1,5 +1,4 @@
 import {
-  HEALTH_EVENT_LIMITS,
   HealthEventInputSchema,
   HealthEventPatchSchema,
   ParasiteTargetSchema,
@@ -16,14 +15,17 @@ import {
   ApiError,
   ApiTimeoutError,
   eventDayProblem,
+  eventTextProblems,
+  itemNameTooLong,
   nextDayProblem,
   suggestNextDay,
   suggestionInterval,
+  tooManyItems,
   type EventDayProblem,
   type Interval,
   type NextDayProblem,
 } from '@lapka/shared'
-import type { RecordType } from '../stage'
+import type { RecordType } from '../routes'
 
 /**
  * The vaccination and treatment form (web v1 «vaccine-done», «vaccine-plan»,
@@ -207,7 +209,7 @@ const orNull = (text: string) => (text.trim() === '' ? null : text.trim())
 function itemProblems(item: ItemDraft, status: HealthEvent['status'], date: string, today: string): ItemProblems {
   const problems: ItemProblems = {}
   const name = trimmed(item.name)
-  if (name.length > HEALTH_EVENT_LIMITS.itemName) problems.name = 'tooLong'
+  if (itemNameTooLong(name)) problems.name = 'tooLong'
   // The owner chose to type a name: it is what the item is.
   if (item.source === 'manual' && name === '') problems.name = 'empty'
   // «Без препарата» says only what it was against: at least one disease (contract: a name or a disease).
@@ -246,7 +248,7 @@ function commonProblems(draft: EventDraft, today: string, keptDate: string | nul
   if (date) problems.date = date
 
   if (draft.items.length === 0) problems.items = 'none'
-  else if (draft.items.length > HEALTH_EVENT_LIMITS.items) problems.items = 'tooMany'
+  else if (tooManyItems(draft.items)) problems.items = 'tooMany'
 
   const itemProblemsByKey: Record<string, ItemProblems> = {}
   for (const item of draft.items) {
@@ -254,8 +256,7 @@ function commonProblems(draft: EventDraft, today: string, keptDate: string | nul
     if (Object.keys(found).length > 0) itemProblemsByKey[item.key] = found
   }
   if (Object.keys(itemProblemsByKey).length > 0) problems.item = itemProblemsByKey
-  if (trimmed(draft.clinic).length > HEALTH_EVENT_LIMITS.clinic) problems.clinic = 'tooLong'
-  if (trimmed(draft.notes).length > HEALTH_EVENT_LIMITS.notes) problems.notes = 'tooLong'
+  for (const field of eventTextProblems(draft)) problems[field] = 'tooLong'
   return problems
 }
 

@@ -1,13 +1,12 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
-import Link from 'next/link'
 import type { HealthEvent } from '@lapka/contracts'
 import { useTranslations } from '@/components/LocaleProvider'
 import { useToday } from '@/features/forms/use-today'
 import type { Fresh } from '../held-record'
+import { FormNotice, FormSkeleton } from '../form-parts'
 import { RecordProblem } from '../MedicalRecordScreen'
-import { medicalRecordHref, withSaved, type CompleteFrom } from '../stage'
+import { medicalRecordHref, withSaved, type CompleteFrom } from '../routes'
 import { DriftNotice, useHeldRecord } from '../use-held-record'
 import { useMedicalRecord } from '../use-medical-record'
 import { usePetChecks } from './use-pet-checks'
@@ -144,44 +143,31 @@ function PlanScreen({
   )
 }
 
-function useFocusOnMount<T extends HTMLElement>() {
-  const ref = useRef<T>(null)
-  useEffect(() => ref.current?.focus(), [])
-  return ref
-}
 
 export function VisitGone({ petId }: { petId: string }) {
-  const dict = useTranslations()
-  const words = dict.medicalRecord.visitRecord
-  const ref = useFocusOnMount<HTMLHeadingElement>()
+  const words = useTranslations().medicalRecord.visitRecord
   return (
-    <section className="card health-problem" aria-labelledby="visit-gone-title">
-      <h1 id="visit-gone-title" ref={ref} tabIndex={-1}>{words.notFoundTitle}</h1>
-      <p>{words.notFoundBody}</p>
-      <Link href={medicalRecordHref.section(petId, 'visits')} className="btn primary">{words.back}</Link>
-    </section>
+    <FormNotice
+      id="visit-gone"
+      title={words.notFoundTitle}
+      body={words.notFoundBody}
+      href={medicalRecordHref.section(petId, 'visits')}
+      action={words.back}
+    />
   )
 }
 
 /** A visit that happened, where a form was asked for: it is only read. */
 function VisitDone({ petId, visitId, held }: { petId: string; visitId: string; held: boolean }) {
-  const dict = useTranslations()
-  const words = dict.medicalRecord.visitRecord
-  const ref = useFocusOnMount<HTMLHeadingElement>()
+  const words = useTranslations().medicalRecord.visitRecord
   return (
-    <section className="card health-problem" aria-labelledby="visit-done-title">
-      <h1 id="visit-done-title" ref={ref} tabIndex={-1}>{held ? words.heldTitle : words.doneTitle}</h1>
-      <p>{words.doneBody2}</p>
-      <Link href={medicalRecordHref.recordView(petId, visitId)} className="btn primary">{words.openRecord}</Link>
-    </section>
+    <FormNotice
+      id="visit-done"
+      title={held ? words.heldTitle : words.doneTitle}
+      body={words.doneBody2}
+      href={medicalRecordHref.recordView(petId, visitId)}
+      action={words.openRecord}
+    />
   )
 }
 
-function FormSkeleton({ label }: { label: string }) {
-  return (
-    <div className="health-skeleton" role="status" aria-live="polite" aria-busy="true">
-      <span className="sr-only">{label}</span>
-      <div className="skeleton-block record-form event-skeleton-form" aria-hidden />
-    </div>
-  )
-}

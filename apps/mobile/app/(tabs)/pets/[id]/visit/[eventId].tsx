@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
 import type { HealthEvent } from '@lapka/contracts'
+import { prescriptionAddable } from '@lapka/shared'
 import { withFreshSession } from '@/lib/api'
 import { describeFailure } from '@/lib/errors'
 import { localToday } from '@/lib/calendar-day'
@@ -146,7 +147,8 @@ export default function VisitView() {
                         <Text variant="label" tone="faint">
                           {words.inMedicines}
                         </Text>
-                      ) : (
+                      ) : prescriptionAddable(visit, item) ? (
+                        // The site's rule (shared): a prescription of a visit that happened, with a name.
                         <LinkButton
                           title={words.toMedicines}
                           accessibilityLabel={`${words.toMedicines}: ${item.name}`}
@@ -154,7 +156,7 @@ export default function VisitView() {
                           disabled={busy}
                           onPress={() => void toMedicines(item.id)}
                         />
-                      )}
+                      ) : null}
                     </View>
                   ))}
                 </View>

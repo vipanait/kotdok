@@ -5,7 +5,7 @@ import { useTranslations } from '@/components/LocaleProvider'
 import Icon from '@/components/ui/Icon'
 import { RecordProblem, StaleNotice } from '../MedicalRecordScreen'
 import SavedNotice from '../SavedNotice'
-import { medicalRecordHref, sectionOpen } from '../stage'
+import { medicalRecordHref, sectionOpen } from '../routes'
 import { useMedicalRecord } from '../use-medical-record'
 import { coursesPage, type CourseCard, type CourseSaved } from './course-view'
 

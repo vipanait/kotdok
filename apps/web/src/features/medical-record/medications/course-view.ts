@@ -2,7 +2,7 @@ import type { HealthOverview, HealthSection, Medication } from '@lapka/contracts
 import { canEndCourse, courseEditable, isCurrentCourse, splitCourses } from '@lapka/shared'
 import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
 import { formatRange, recordDay } from '../view-model'
-import { medicalRecordHref } from '../stage'
+import { medicalRecordHref } from '../routes'
 import type { Drift } from '../held-record'
 
 /**

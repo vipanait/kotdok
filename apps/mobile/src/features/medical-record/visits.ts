@@ -3,6 +3,7 @@ import {
   eventDayProblem,
   heldVisitDay,
   linkableChecks,
+  prescriptionAddable,
   prescriptionProblems,
   visitEditable,
   visitTextProblems,
@@ -91,6 +92,31 @@ export type VisitErrors = {
   instructions?: Record<string, string>
 } & Partial<Record<VisitTextField, string>>
 
+/**
+ * The field the form moves to after a refused «Сохранить»: the first with an
+ * error, in the order the form draws them — the day, the clinic, the reason,
+ * the diagnosis, each prescription's name then «Как принимать», the note — as
+ * the site's form does. `prescription:<key>` / `instructions:<key>` name a
+ * prescription's fields. Null when nothing is wrong.
+ */
+export function firstVisitError(errors: VisitErrors, draft: Pick<VisitDraft, 'prescriptions'>): string | null {
+  const order = [
+    'date',
+    'clinic',
+    'reason',
+    'diagnosis',
+    ...draft.prescriptions.flatMap((item) => [`prescription:${item.key}`, `instructions:${item.key}`]),
+    'notes',
+  ]
+  const wrong = (field: string): boolean => {
+    const [part, key] = field.split(':')
+    if (part === 'prescription') return !!errors.prescriptions?.[key]
+    if (part === 'instructions') return !!errors.instructions?.[key]
+    return !!errors[field as 'date' | VisitTextField]
+  }
+  return order.find(wrong) ?? null
+}
+
 export type ReadVisit = { ok: true; value: VisitInput } | { ok: false; errors: VisitErrors }
 
 /**
@@ -123,7 +149,7 @@ export function canAddPrescription(draft: Pick<VisitDraft, 'prescriptions'>): bo
 export function heldNote(t: Dictionary, visit: Pick<HealthEvent, 'status' | 'items'>): string | null {
   if (visitEditable(visit)) return null
   const words = t.medicalRecord.visits
-  return visit.items.some((item) => item.medication_id === null) ? words.heldReadOnlyAdd : words.heldReadOnly
+  return visit.items.some((item) => prescriptionAddable(visit, item)) ? words.heldReadOnlyAdd : words.heldReadOnly
 }
 
 /**

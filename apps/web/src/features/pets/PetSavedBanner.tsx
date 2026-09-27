@@ -6,7 +6,8 @@ import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
 import type { PetSavedKind } from '@/features/pets/pet-saved'
 
 /**
- * Confirmation after the pet form: `?petSaved=created|updated|deleted`.
+ * Confirmation after the pet form: `?petSaved=created|deleted` (a saved
+ * edit is confirmed on the pet's record instead).
  * A new pet also gets the next step, checking its symptoms, when the balance
  * allows one.
  */
@@ -30,7 +31,7 @@ export default function PetSavedBanner({
     url.searchParams.delete('petSaved')
     window.history.replaceState(window.history.state, '', url.pathname + url.search + url.hash)
   }, [])
-  const text = kind === 'created' ? t.petAdded : kind === 'deleted' ? t.petDeleted : t.petSaved
+  const text = kind === 'created' ? t.petAdded : t.petDeleted
   return (
     <div ref={ref} tabIndex={-1} role="status" className="banner toast-banner pet-saved-banner">
       <span>{text}</span>

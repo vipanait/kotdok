@@ -1,6 +1,5 @@
-import { notFound } from 'next/navigation'
 import CabinetShell from '@/components/cabinet/CabinetShell'
-import { MEDICAL_RECORD_STAGE, parseSavedRecord } from '@/features/medical-record/stage'
+import { parseSavedRecord } from '@/features/medical-record/routes'
 import VisitsScreen from '@/features/medical-record/visits/VisitsScreen'
 import { parseVisitSaved } from '@/features/medical-record/visits/visit-view'
 import { openPetPage } from '@/components/cabinet/open-pet-page'
@@ -20,7 +19,6 @@ export default async function VisitsPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
   const { id } = await params
-  if (!MEDICAL_RECORD_STAGE.visits) notFound()
   const { cabinet, dict } = await openPetPage(id, `/pets/${id}/health/visits`)
   const query = await searchParams
   const saved = parseVisitSaved(query.saved)

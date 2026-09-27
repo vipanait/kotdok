@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import Icon, { type IconName } from '@/components/ui/Icon'
 import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
-import { medicalRecordHref, type RecordType } from './stage'
+import { medicalRecordHref, type RecordType } from './routes'
 
 const TYPE_ICON: Record<RecordType, IconName> = {
   vaccination: 'vaccine',
@@ -12,9 +12,7 @@ const TYPE_ICON: Record<RecordType, IconName> = {
 }
 
 /**
- * «Что добавить?» (web v1, «add»): the record types whose forms are built,
- * in the chooser's order. A type whose stage is not done is not listed —
- * never a link to a form that is not there.
+ * «Что добавить?» (web v1, «add»): the record types, in the chooser's order.
  */
 export default function AddRecordChooser({
   petId,
