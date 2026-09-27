@@ -9,7 +9,7 @@
  */
 
 import { ApiContractError, ApiError, ApiTimeoutError } from '@lapka/shared'
-import { isKnownErrorCode } from '@lapka/contracts'
+import { isKnownErrorCode, type ErrorCode } from '@lapka/contracts'
 import type { Dictionary } from '@/i18n'
 import { PhotoUploadError } from '@/features/checks/photo-upload'
 
@@ -53,8 +53,12 @@ const authMessages = (t: Dictionary): Record<string, string> => ({
   otp_expired: t.auth.linkExpired,
 })
 
-/** The API's own codes, from `packages/contracts/src/errors.ts`. */
-const apiMessages = (t: Dictionary): Record<string, string> => ({
+/**
+ * The API's own codes, from `packages/contracts/src/errors.ts`. Keyed by
+ * `ErrorCode`: a code added to the contract without a text here does not
+ * compile.
+ */
+const apiMessages = (t: Dictionary): Record<ErrorCode, string> => ({
   bad_request: t.errors.badRequest,
   unauthorized: t.errors.unauthorized,
   forbidden: t.errors.forbidden,
@@ -90,7 +94,7 @@ export function errorMessage(t: Dictionary, cause: unknown, fallback: string): s
   // simply never answered, and a write may still have gone through.
   if (cause instanceof ApiTimeoutError) return t.errors.noAnswer
   // A code a later server added has no text here yet: the screen's own words.
-  if (cause instanceof ApiError) return isKnownErrorCode(cause.code) ? apiMessages(t)[cause.code] : fallback
+  if (cause instanceof ApiError) return (isKnownErrorCode(cause.code) ? apiMessages(t)[cause.code] : undefined) ?? fallback
 
   const code = codeOf(cause)
   const auth = authMessages(t)

@@ -166,8 +166,8 @@ const en: Dictionary = {
     recentEmpty: 'Results of your checks will appear here.',
   },
   pets: {
-    dueOverdue: '{title} — overdue',
-    dueSoon: '{title} — {when}',
+    dueStatus: '— {status}',
+    dueOverdue: 'overdue',
     dueNames: {
       vaccination: '{against} vaccination',
       against: {

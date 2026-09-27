@@ -9,8 +9,9 @@
  * Needs the local Supabase stack, the site on http://localhost:3100 started
  * with apps/web/.env.integration («web-local»), the fixture owners and the
  * seeded demo pets. Local only: it refuses any origin or stack that is not
- * localhost. It writes to the local database twice, and undoes it: owner A's
- * `pd_consent_required` is set for the consent check and cleared again.
+ * localhost. It writes to the local database, and undoes what matters: owner A's
+ * consent rows are removed and `pd_consent_required` is set for the consent
+ * check, then the flag is cleared again (an account without the flag owes nothing).
  * Prints JSON.
  */
 
@@ -117,6 +118,8 @@ for (const path of ['', '/edit', '/vet-summary', '/health/due', '/health/vaccina
 }
 
 // Consent owed (#51): the pet gate sends to /consent with the page asked for, not the record.
+// Owed means the flag and no consent row yet (task2-screens.mjs consents through the site).
+await db.query('delete from public.personal_data_consents where user_id = $1', [a.userId])
 await setConsentOwed(a.userId, true)
 try {
   out.consent = {}
@@ -128,6 +131,8 @@ try {
   // by the client is replaced, and the way back stays this page.
   out.consent.spoofedHeader = (await page(`/pets/${murka.id}/edit`, a.cookie, { 'x-lapka-page': '//evil.example/x' })).location
   out.consent.spoofedOtherPet = (await page(`/pets/${murka.id}/edit`, a.cookie, { 'x-lapka-page': `/pets/${missing}/edit` })).location
+  // A spoofed page of the very same pet is not taken either: the record asked for stays the way back.
+  out.consent.spoofedSamePet = (await page(`/pets/${murka.id}`, a.cookie, { 'x-lapka-page': `/pets/${murka.id}/edit` })).location
 } finally {
   await setConsentOwed(a.userId, false)
   await db.end()

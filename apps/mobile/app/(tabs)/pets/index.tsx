@@ -7,7 +7,7 @@ import { withFreshSession } from '@/lib/api'
 import { localToday } from '@/lib/calendar-day'
 import { describeFailure } from '@/lib/errors'
 import { useText, type Dictionary } from '@/i18n'
-import { dueLineTitle, dueStatus } from '@/features/medical-record/due'
+import { listDueLine } from '@/features/medical-record/due'
 import { Button } from '@/ui/Button'
 import { Avatar, Card } from '@/ui/Card'
 import { Banner } from '@/ui/Card'
@@ -30,19 +30,19 @@ function describe(t: Dictionary, pet: Pet): string {
  * rows, and named as §7.1 names it (`dueLineTitle`), a visit by its kind.
  */
 function DueLine({ t, due }: { t: Dictionary; due: DueItem | undefined }) {
-  if (!due) return null
-  const status = dueStatus(t, due.date, localToday())
-  const title = dueLineTitle(t, due)
+  const line = due ? listDueLine(t, due, localToday()) : null
+  if (!line) return null
+  const colourStyle = { color: line.tone === 'overdue' ? colour.text : colour.accentText }
+  // Two texts in a row: only the name gives way on a narrow screen, the status never does (MW-09).
   return (
-    <Text
-      variant="caption"
-      numberOfLines={1}
-      style={[styles.petDue, { color: status.tone === 'overdue' ? colour.text : colour.accentText }]}
-    >
-      {status.tone === 'overdue'
-        ? t.medicalRecord.listDue.overdue(title)
-        : t.medicalRecord.listDue.soon(title, (status.text ?? status.day).toLowerCase())}
-    </Text>
+    <View style={styles.petDueRow} accessible accessibilityLabel={line.text}>
+      <Text variant="caption" numberOfLines={1} style={[styles.petDue, styles.petDueTitle, colourStyle]}>
+        {line.title}
+      </Text>
+      <Text variant="caption" numberOfLines={1} style={[styles.petDue, styles.petDueStatus, colourStyle]}>
+        {line.status}
+      </Text>
+    </View>
   )
 }
 
@@ -187,7 +187,10 @@ const styles = StyleSheet.create({
   petCard: { flexDirection: 'row', alignItems: 'center', gap: space.row, minHeight: 96 },
   petCopy: { flex: 1, minWidth: 0 },
   petMeta: { marginTop: 4 },
-  petDue: { marginTop: 4, fontWeight: '600' },
+  petDueRow: { flexDirection: 'row', marginTop: 4, minWidth: 0 },
+  petDue: { fontWeight: '600' },
+  petDueTitle: { flexShrink: 1 },
+  petDueStatus: { flexShrink: 0, marginLeft: 4 },
   emptyArt: { width: 228, height: 228, alignSelf: 'center', marginBottom: 8 },
   emptyTitle: { marginBottom: space.row },
   emptyCopy: { marginBottom: 24, alignSelf: 'center', maxWidth: 310 },

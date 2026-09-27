@@ -113,7 +113,7 @@ try {
   await db.query(`update public.profiles set pd_consent_required = false where id = $1`, [ownerA])
 
   // ----- The pet list's due lines (spec §7.1) and the owner's day on the record's request -----
-  for (const width of [390, 1440]) {
+  for (const width of [320, 390, 1440]) {
     const ctx = await context(width)
     const page = await ctx.newPage()
     const healthRequests = []
@@ -122,10 +122,32 @@ try {
       if (/^\/api\/v1\/pets\/[^/]+\/health$/.test(url.pathname)) healthRequests.push(url.search)
     })
     await signIn(page, '/pets')
-    await page.waitForSelector('main h1')
-    await page.waitForLoadState('networkidle').catch(() => {})
-    await shot(page, `pets-due-lines-${width}`)
-    const lines = await page.$$eval('main .compact-pet', (rows) => rows.map((row) => [row.querySelector('h3')?.textContent ?? '', row.querySelector('.compact-pet-due')?.textContent ?? null]))
+    const lines = {}
+    // The pet list and the overview: the status of every due line is shown whole, only the name is cut (MW-09 review).
+    for (const [where, path] of [['pets', '/pets'], ['dashboard', '/dashboard']]) {
+      await page.goto(`${SITE}${path}`)
+      await page.waitForSelector('main h1')
+      await page.waitForLoadState('networkidle').catch(() => {})
+      await shot(page, `${where}-due-lines-${width}`)
+      lines[where] = await page.$$eval('main .compact-pet', (rows) =>
+        rows
+          .filter((row) => row.querySelector('.compact-pet-due'))
+          .map((row) => {
+            const line = row.querySelector('.compact-pet-due')
+            const title = line.querySelector('.compact-pet-due-title')
+            const status = line.querySelector('.compact-pet-due-status')
+            const box = line.getBoundingClientRect()
+            const end = status.getBoundingClientRect()
+            return {
+              pet: row.querySelector('h3')?.textContent ?? '',
+              text: line.textContent.replace(/\s+/g, ' ').trim(),
+              status: status.textContent,
+              statusWhole: status.scrollWidth <= status.clientWidth && end.right <= box.right + 0.5 && end.left >= box.left,
+              titleCut: title.scrollWidth > title.clientWidth,
+            }
+          }),
+      )
+    }
     await page.goto(`${SITE}/pets/${murka.id}`)
     await page.waitForSelector('main h1')
     await page.waitForLoadState('networkidle').catch(() => {})

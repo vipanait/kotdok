@@ -266,3 +266,21 @@ export function dueLineTitle(t: Dictionary, due: Pick<DueItem, 'kind' | 'name' |
   const { text } = duePhrase(t, due)
   return text.charAt(0).toUpperCase() + text.slice(1)
 }
+
+export type ListDueLine = { tone: 'overdue' | 'soon'; title: string; status: string; text: string }
+
+/**
+ * The pet list's line in two parts: the name (`dueLineTitle`) and its status
+ * («— просрочено», «— через 5 дней»). The row cuts the name with an ellipsis
+ * on a narrow screen and always shows the status whole (MW-09 review), as
+ * the site's pet rows do; `text` is the whole line, for the screen reader.
+ * Null for a date past the fourteen "soon" days.
+ */
+export function listDueLine(t: Dictionary, due: Pick<DueItem, 'kind' | 'name' | 'targets' | 'date'> & Partial<Pick<DueItem, 'visit_kind'>>, today: string): ListDueLine | null {
+  const status = dueStatus(t, due.date, today)
+  if (status.tone === 'later') return null
+  const title = dueLineTitle(t, due)
+  const words = t.medicalRecord.listDue
+  const tail = status.tone === 'overdue' ? words.overdue : words.soon((status.text ?? status.day).toLowerCase())
+  return { tone: status.tone, title, status: tail, text: `${title} ${tail}` }
+}

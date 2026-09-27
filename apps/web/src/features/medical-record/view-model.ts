@@ -190,7 +190,12 @@ export function dueTitle(dict: Dictionary, entry: DueEntry): string {
   return dueItemTitle(dict, entry.kind, entry.item, entry.kind === 'visit' ? entry.event.visit_kind : null)
 }
 
-export type PetDueLine = { text: string; tone: Exclude<DueTone, 'later'> }
+/**
+ * `title` («Обработка от блох и клещей») and `status` («— просрочено») are
+ * drawn apart so that a narrow screen cuts the title, never the status;
+ * `text` is the whole line as it reads.
+ */
+export type PetDueLine = { text: string; title: string; status: string; tone: Exclude<DueTone, 'later'> }
 
 /** The words of `list` joined as a sentence would: «блох, клещей и глистов». */
 function joinWords(dict: Dictionary, list: readonly string[]): string {
@@ -259,10 +264,13 @@ export function petDueLine(
   const timing = dueTiming(due.date, today)
   if (timing.tone === 'later') return null
   const title = dueLineTitle(dict, locale, due)
-  if (timing.tone === 'overdue') return { tone: 'overdue', text: dict.pets.dueOverdue.replace('{title}', title) }
   const words = dict.medicalRecord.due
-  const when = timing.days === 0 ? words.today : timing.days === 1 ? words.tomorrow : formatCount(words.inDays, timing.days, locale)
-  return { tone: 'soon', text: dict.pets.dueSoon.replace('{title}', title).replace('{when}', when.toLocaleLowerCase(locale)) }
+  const when =
+    timing.tone === 'overdue'
+      ? dict.pets.dueOverdue
+      : (timing.days === 0 ? words.today : timing.days === 1 ? words.tomorrow : formatCount(words.inDays, timing.days, locale)).toLocaleLowerCase(locale)
+  const status = dict.pets.dueStatus.replace('{status}', when)
+  return { tone: timing.tone, title, status, text: `${title} ${status}` }
 }
 
 export function dueStatusText(dict: Dictionary, locale: Locale, date: string, today: string): { text: string; tone: DueTone } {
