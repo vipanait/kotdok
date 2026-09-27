@@ -414,7 +414,7 @@ export default function EventForm({
                       <span id={`${id}-${item.key}-next-error`} className="field-error" role="alert">{itemErrors.next}</span>
                     )}
                     <span id={`${id}-${item.key}-next-hint`} className="field-hint">
-                      {nextHintText(dict, locale, kind, item, draft.date, today)}
+                      {nextHintText(dict, locale, kind, item, draft.date, item.next, today)}
                     </span>
                   </div>
                 )}

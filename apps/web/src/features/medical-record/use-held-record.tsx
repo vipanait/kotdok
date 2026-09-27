@@ -51,7 +51,9 @@ export function useHeldRecord<T>(fresh: Fresh<T> | null): {
 
 /**
  * The form stays as the owner left it; this says why it may no longer be
- * what is stored (MW-09), and what can be done about it.
+ * what is stored (MW-09), and what can be done about it. The live region is
+ * always on the page, so the banner appearing inside it is announced — a
+ * region that appears with its text may not be (fix round 1).
  */
 export function DriftNotice({
   drift,
@@ -66,15 +68,18 @@ export function DriftNotice({
 }) {
   const dict = useTranslations()
   const words = dict.medicalRecord.drift
-  if (!drift) return null
   return (
-    <div className="banner health-drift" role="status">
-      <p>{words[drift]}</p>
-      {drift === 'changed' && (
-        <button type="button" className="link" onClick={onTakeLatest}>{words.takeLatest}</button>
+    <div className="health-drift-live" aria-live="polite" aria-atomic="true">
+      {drift && (
+        <div className="banner health-drift">
+          <p>{words[drift]}</p>
+          {drift === 'changed' && (
+            <button type="button" className="link" onClick={onTakeLatest}>{words.takeLatest}</button>
+          )}
+          {drift === 'gone' && <Link href={sectionHref} className="link">{words.toSection}</Link>}
+          {(drift === 'closed' || drift === 'ended') && recordHref && <Link href={recordHref} className="link">{words.openRecord}</Link>}
+        </div>
       )}
-      {drift === 'gone' && <Link href={sectionHref} className="link">{words.toSection}</Link>}
-      {drift === 'closed' && recordHref && <Link href={recordHref} className="link">{words.openRecord}</Link>}
     </div>
   )
 }

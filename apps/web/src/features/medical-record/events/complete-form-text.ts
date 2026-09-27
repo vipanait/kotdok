@@ -1,12 +1,11 @@
-import { HEALTH_EVENT_LIMITS, type HealthItem } from '@lapka/contracts'
+import { HEALTH_EVENT_LIMITS } from '@lapka/contracts'
 import type { Locale } from '@/shared/i18n/config'
 import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
 import { formatCount } from '@/shared/i18n/plural'
 import { formatDay, recordDay } from '../view-model'
 import type { CompletionMismatch } from '@lapka/shared'
 import type { CompleteDraft, CompleteProblems } from './complete-form'
-import type { EventFormKind, EventSaveFailure } from './event-form'
-import { nextHintText } from './event-form-text'
+import type { EventSaveFailure } from './event-form'
 
 /**
  * The words of «Сделано», apart from React so they are unit tested: what
@@ -52,22 +51,6 @@ export function completionNote(dict: Dictionary, locale: Locale, others: number,
     ? words.nextNote.replace('{day}', recordDay(dict.medicalRecord, draft.next, today))
     : words.noNextNote
   return `${scope} ${next}`
-}
-
-/**
- * Under the next date: which interval suggested it, in its own unit («12
- * недель», not «3 месяца») — the item's own or the usual one for its kind —
- * and nothing about a suggestion when none was made (MW-09).
- */
-export function nextHint(
-  dict: Dictionary,
-  locale: Locale,
-  kind: EventFormKind,
-  item: Pick<HealthItem, 'interval' | 'targets'>,
-  doneOn: string,
-  today: string,
-): string {
-  return nextHintText(dict, locale, kind, item, doneOn, today)
 }
 
 /**

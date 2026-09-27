@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { FlatList, Image, StyleSheet, View } from 'react-native'
 import { router, useFocusEffect } from 'expo-router'
 import type { DueItem, Pet } from '@lapka/contracts'
-import { nearestDueByPet } from '@lapka/shared'
+import { headAge, nearestDueByPet } from '@lapka/shared'
 import { withFreshSession } from '@/lib/api'
 import { localToday } from '@/lib/calendar-day'
 import { describeFailure } from '@/lib/errors'
@@ -20,7 +20,9 @@ import { colour, radius, shadow, space } from '@/ui/theme'
 function describe(t: Dictionary, pet: Pet): string {
   const parts: string[] = [t.species[pet.species]]
   if (pet.breed) parts.push(pet.breed)
-  if (pet.age_years !== null) parts.push(t.petAge(pet.age_years))
+  // The one age rule of the phone and the site (shared `headAge`, MW-09): zero is said.
+  const age = headAge(pet.age_years)
+  if (age !== null) parts.push(t.petAge(age))
   return parts.join(' · ')
 }
 

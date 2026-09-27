@@ -95,13 +95,13 @@ describe('the owner’s own name: the usual interval, as on the phone (MW-09)', 
   })
 
   it('names the interval under the date, and says so when nothing was suggested', () => {
-    expect(nextHintText(ru, 'ru', 'vaccination', { interval: null, targets: [] }, TODAY, TODAY)).toBe(
+    expect(nextHintText(ru, 'ru', 'vaccination', { interval: null, targets: [] }, TODAY, '2027-09-24', TODAY)).toBe(
       'Предложено по обычному интервалу: 1 год. Можно изменить или очистить дату. Уточните срок у врача.',
     )
-    expect(nextHintText(ru, 'ru', 'vaccination', { interval: { value: 1, unit: 'year' }, targets: [] }, '2024-01-10', TODAY)).toBe(
+    expect(nextHintText(ru, 'ru', 'vaccination', { interval: { value: 1, unit: 'year' }, targets: [] }, '2024-01-10', '', TODAY)).toBe(
       'Срок по интервалу (1 год) уже прошёл, поэтому дата не подставлена. Укажите её, если знаете.',
     )
-    expect(nextHintText(en, 'en', 'parasite', { interval: null, targets: ['worms'] }, TODAY, TODAY)).toContain('usual interval: 3 months')
+    expect(nextHintText(en, 'en', 'parasite', { interval: null, targets: ['worms'] }, TODAY, '2026-12-24', TODAY)).toContain('usual interval: 3 months')
   })
 })
 

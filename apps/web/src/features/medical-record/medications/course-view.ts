@@ -3,6 +3,7 @@ import { canEndCourse, courseEditable, isCurrentCourse, splitCourses } from '@la
 import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
 import { formatRange, recordDay } from '../view-model'
 import { medicalRecordHref } from '../stage'
+import type { Drift } from '../held-record'
 
 /**
  * What the medicine pages say (web v1 «medications», «medications-empty»,
@@ -141,4 +142,14 @@ export type CourseSaved = (typeof COURSE_SAVED)[number]
 /** `?saved=` of the medicine pages, read strictly. */
 export function parseCourseSaved(value: string | string[] | undefined): CourseSaved | null {
   return typeof value === 'string' && (COURSE_SAVED as readonly string[]).includes(value) ? (value as CourseSaved) : null
+}
+
+/**
+ * «Закрыт» is said honestly (fix round 1): a course the form opened with that
+ * is itself finished by today ended by its date at midnight — no other device
+ * was involved; otherwise it was finished elsewhere.
+ */
+export function courseDrift(drift: Drift | null, opened: Medication | null, today: string): Drift | null {
+  if (drift === 'closed' && opened && !courseEditable(opened, today)) return 'ended'
+  return drift
 }

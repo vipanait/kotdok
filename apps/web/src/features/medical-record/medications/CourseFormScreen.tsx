@@ -12,6 +12,7 @@ import { medicalRecordHref } from '../stage'
 import { DriftNotice, useHeldRecord } from '../use-held-record'
 import { useMedicalRecord } from '../use-medical-record'
 import CourseForm from './CourseForm'
+import { courseDrift } from './course-view'
 
 /**
  * `/pets/[id]/health/new?type=medication`: new courses, one empty to start with.
@@ -64,7 +65,7 @@ export function EditCourseScreen({ petId, petName, courseId }: { petId: string; 
       onDirtyChange={held.setDirty}
       notice={
         <DriftNotice
-          drift={held.drift}
+          drift={courseDrift(held.drift, course, today)}
           onTakeLatest={held.takeLatest}
           sectionHref={medicalRecordHref.section(petId, 'medications')}
           recordHref={medicalRecordHref.recordView(petId, course.id)}

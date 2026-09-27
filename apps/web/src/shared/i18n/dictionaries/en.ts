@@ -836,6 +836,8 @@ const en: Dictionary = {
       nextHint: 'You can change or clear the date. Check the timing with your vet.',
       nextSuggested: 'Suggested by the product interval: {interval}.',
       nextSuggestedUsual: 'Suggested by the usual interval: {interval}.',
+      nextInterval: 'The product interval is {interval}.',
+      nextIntervalUsual: 'The usual interval is {interval}.',
       interval: {
         day: { one: '{n} day', few: '{n} days', many: '{n} days', other: '{n} days' },
         week: { one: '{n} week', few: '{n} weeks', many: '{n} weeks', other: '{n} weeks' },
@@ -990,6 +992,7 @@ const en: Dictionary = {
       takeLatest: 'Load the new data (your edits are dropped)',
       gone: 'This record was deleted on another device, so the changes cannot be saved.',
       closed: 'This record was already done or finished on another device and cannot be changed.',
+      ended: 'A new day has begun and the course ended on its end date. A finished course can only be viewed — the changes cannot be saved.',
       toSection: 'To the section',
       openRecord: 'Open the record',
     },

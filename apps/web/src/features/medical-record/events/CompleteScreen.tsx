@@ -29,7 +29,8 @@ import {
   type CompleteDraft,
   type CompleteProblems,
 } from './complete-form'
-import { completeErrorTexts, completeFailureText, completionNote, confirmTexts, earlierText, nextHint, planDayText } from './complete-form-text'
+import { completeErrorTexts, completeFailureText, completionNote, confirmTexts, earlierText, planDayText } from './complete-form-text'
+import { nextHintText } from './event-form-text'
 import { eventSaveFailure, EVENT_FORM_KINDS, type EventFormKind, type EventSaveFailure } from './event-form'
 import { EventGone } from './EventFormScreen'
 import { targetsText } from './event-view'
@@ -412,7 +413,7 @@ function CompleteItemForm({
               )}
             </div>
             {errors.next && <span id={`${id}-next-error`} className="field-error" role="alert">{errors.next}</span>}
-            <span id={`${id}-next-hint`} className="field-hint">{nextHint(dict, locale, kind, item, draft.doneOn, today)}</span>
+            <span id={`${id}-next-hint`} className="field-hint">{nextHintText(dict, locale, kind, item, draft.doneOn, draft.next, today)}</span>
           </div>
         </section>
 
