@@ -2,7 +2,7 @@ import {
   API_VERSION,
   AccountDeletionAcceptedSchema,
   AccountDeletionStatusSchema,
-  ApiErrorEnvelopeSchema,
+  ApiErrorEnvelopeReadSchema,
   CheckHistoryPageSchema,
   CheckJobAcceptedSchema,
   CheckJobStatusSchema,
@@ -60,9 +60,18 @@ import { z } from 'zod'
  * Nothing here touches the DOM, React Native or Next.js.
  */
 
+/**
+ * The code of an error as the server sent it: one of `ErrorCode`, or one a
+ * later server added (the list only grows within v1). A `switch` over the
+ * known codes keeps working — a new one falls to its `default` — and
+ * `isKnownErrorCode` (contracts) tells the two apart where a code indexes a
+ * table of texts.
+ */
+export type ApiErrorCode = ErrorCode | (string & {})
+
 export class ApiError extends Error {
   constructor(
-    readonly code: ErrorCode,
+    readonly code: ApiErrorCode,
     readonly status: number,
     message: string,
     readonly requestId: string | null = null,
@@ -247,12 +256,15 @@ export function createApiClient(options: ApiClientOptions) {
     }
 
     if (!response.ok) {
-      const envelope = ApiErrorEnvelopeSchema.safeParse(payload)
+      // Read leniently (MW-09): a code or a field a later server added keeps
+      // its status and message instead of turning into internal_error. Only
+      // a body that is no envelope at all is unrecognised.
+      const envelope = ApiErrorEnvelopeReadSchema.safeParse(payload)
       if (!envelope.success) {
         throw new ApiError('internal_error', response.status, `Unrecognised error from ${path}`)
       }
       const { code, message, request_id, details } = envelope.data.error
-      throw new ApiError(code, response.status, message, request_id, details)
+      throw new ApiError(code, response.status, message || `Error ${response.status} (${code}) from ${path}`, request_id ?? null, details)
     }
 
     if (!schema) return undefined as T
@@ -280,7 +292,13 @@ export function createApiClient(options: ApiClientOptions) {
       call(`/pets/${id}`, PetSchema, { method: 'PATCH', body }),
     deletePet: (id: string) => call<void>(`/pets/${id}`, null, { method: 'DELETE' }),
 
-    getHealthOverview: (petId: string) => call(`/pets/${petId}/health`, HealthOverviewReadSchema),
+    /**
+     * `today`: the owner's calendar day (`localToday()`) — the pet form's list
+     * of medicines (`pet.medications`) is the courses current on it. The same
+     * `today` on the writes below that refresh that list.
+     */
+    getHealthOverview: (petId: string, today?: string) =>
+      call(`/pets/${petId}/health`, HealthOverviewReadSchema, { query: { today } }),
     /**
      * `idempotencyKey`: one per logical save, the same on every retry of it —
      * a retry after midnight then adds nothing. A 409 `conflict` whose
@@ -322,25 +340,31 @@ export function createApiClient(options: ApiClientOptions) {
     /** `today`: the owner's calendar day (`localToday()`), so «принимает сейчас» and the year of visits are counted from it. */
     getVetSummary: (petId: string, today?: string) =>
       call(`/pets/${petId}/health/summary`, VetSummaryReadSchema, { query: { today } }),
-    createVisit: (petId: string, body: VisitInput, idempotencyKey: string) =>
+    createVisit: (petId: string, body: VisitInput, idempotencyKey: string, today?: string) =>
       call(`/pets/${petId}/health/visits`, HealthEventSchema, {
         method: 'POST',
         body,
+        query: { today },
         headers: { [IDEMPOTENCY_KEY_HEADER]: idempotencyKey },
       }),
     /** The key makes a retried save harmless: new prescriptions are added once. */
-    changeVisit: (petId: string, eventId: string, body: VisitPatch, idempotencyKey?: string) =>
+    changeVisit: (petId: string, eventId: string, body: VisitPatch, idempotencyKey?: string, today?: string) =>
       call(`/pets/${petId}/health/visits/${eventId}`, HealthEventSchema, {
         method: 'PATCH',
         body,
+        query: { today },
         ...(idempotencyKey ? { headers: { [IDEMPOTENCY_KEY_HEADER]: idempotencyKey } } : {}),
       }),
-    prescriptionToMedication: (petId: string, itemId: string) =>
-      call(`/pets/${petId}/health/items/${itemId}/medication`, z.object({ medication_id: z.string() }), { method: 'POST' }),
-    addMedications: (petId: string, body: MedicationsInput, idempotencyKey: string) =>
+    prescriptionToMedication: (petId: string, itemId: string, today?: string) =>
+      call(`/pets/${petId}/health/items/${itemId}/medication`, z.object({ medication_id: z.string() }), {
+        method: 'POST',
+        query: { today },
+      }),
+    addMedications: (petId: string, body: MedicationsInput, idempotencyKey: string, today?: string) =>
       call(`/pets/${petId}/health/medications`, z.array(MedicationSchema), {
         method: 'POST',
         body,
+        query: { today },
         headers: { [IDEMPOTENCY_KEY_HEADER]: idempotencyKey },
       }),
     /**
@@ -350,8 +374,8 @@ export function createApiClient(options: ApiClientOptions) {
      */
     changeMedication: (petId: string, medicationId: string, body: MedicationPatch, today?: string) =>
       call(`/pets/${petId}/health/medications/${medicationId}`, MedicationSchema, { method: 'PATCH', body, query: { today } }),
-    deleteMedication: (petId: string, medicationId: string) =>
-      call<void>(`/pets/${petId}/health/medications/${medicationId}`, null, { method: 'DELETE' }),
+    deleteMedication: (petId: string, medicationId: string, today?: string) =>
+      call<void>(`/pets/${petId}/health/medications/${medicationId}`, null, { method: 'DELETE', query: { today } }),
     /** `signal`: a search the screen no longer shows (a newer query, another pet) is aborted. */
     getCatalog: (species: PetSpecies, kind: ProductKind, query = '', options: { signal?: AbortSignalLike } = {}) =>
       call(
@@ -371,12 +395,15 @@ export function createApiClient(options: ApiClientOptions) {
 
     /**
      * The key must be generated and stored before sending, so a lost response
-     * can be recovered by repeating the very same request.
+     * can be recovered by repeating the very same request. `today`: the
+     * owner's calendar day (`localToday()`) the pet's medical record is read
+     * on for the analysis.
      */
-    createCheck: (idempotencyKey: string, body: CheckCreateInput) =>
+    createCheck: (idempotencyKey: string, body: CheckCreateInput, today?: string) =>
       call('/checks', CheckJobAcceptedSchema, {
         method: 'POST',
         body,
+        query: { today },
         headers: { [IDEMPOTENCY_KEY_HEADER]: idempotencyKey },
       }),
     getCheckJob: (jobId: string) => call(`/check-jobs/${jobId}`, CheckJobStatusSchema),

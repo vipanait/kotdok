@@ -45,7 +45,7 @@ export default function MedicationForm() {
       setDrafts(start)
       return
     }
-    withFreshSession((api) => api.getHealthOverview(petId))
+    withFreshSession((api) => api.getHealthOverview(petId, localToday()))
       .then((overview) => {
         const course = overview.medications.find((m) => m.id === medicationId)
         if (!course) throw new Error('not found')
@@ -80,7 +80,7 @@ export default function MedicationForm() {
         editing
           ? // With the owner's day: the server counts a finished course by it, as this form does.
             api.changeMedication(petId, medicationId!, read.value[0], localToday())
-          : api.addMedications(petId, { items: read.value }, requestKey.current),
+          : api.addMedications(petId, { items: read.value }, requestKey.current, localToday()),
       )
       unsaved.leave(then)
     } catch (cause) {

@@ -167,6 +167,45 @@ const ru = {
     /** Under a pet in the overview and the list (spec §7.1): its one nearest due date. */
     dueOverdue: '{title} — просрочено',
     dueSoon: '{title} — {when}',
+    /**
+     * What the line calls the due date (spec §7.1), by the shared rule
+     * `dueName`: the procedure with what it is against, not the record's
+     * short «Бешенство».
+     */
+    dueNames: {
+      vaccination: 'Прививка {against}',
+      against: {
+        panleukopenia: 'от панлейкопении',
+        calicivirus: 'от калицивироза',
+        rhinotracheitis: 'от ринотрахеита',
+        distemper: 'от чумы плотоядных',
+        parvovirus: 'от парвовирусного энтерита',
+        adenovirus: 'от аденовироза',
+        rabies: 'от бешенства',
+        felv: 'от лейкоза',
+        chlamydia: 'от хламидиоза',
+        leptospirosis: 'от лептоспироза',
+        parainfluenza: 'от парагриппа',
+        bordetella: 'от кашля питомников',
+        coronavirus: 'от коронавирусного энтерита',
+      } as Record<string, string>,
+      complexVaccination: 'Комплексная прививка',
+      namedVaccination: 'Прививка «{name}»',
+      plainVaccination: 'Прививка',
+      treatment: 'Обработка от {groups}',
+      parasiteGroups: { fleas: 'блох', ticks: 'клещей', worms: 'глистов' },
+      namedTreatment: 'Обработка «{name}»',
+      plainTreatment: 'Обработка от паразитов',
+      visit: 'Визит к врачу',
+      /** A planned visit by its kind, when `/pets/due` says it. */
+      visitKinds: {
+        checkup: 'Визит к врачу: осмотр',
+        illness: 'Визит к врачу: болезнь',
+        surgery: 'Визит к врачу: операция',
+        tests: 'Визит к врачу: анализы',
+        other: 'Визит к врачу',
+      },
+    },
     /** The pet form's notes where the record says more (spec §4). */
     recordHints: {
       weight: 'История веса — в медкарте',

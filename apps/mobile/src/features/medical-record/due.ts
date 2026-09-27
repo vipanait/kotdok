@@ -1,5 +1,5 @@
-import type { HealthEvent, HealthItem, PetSpecies } from '@lapka/contracts'
-import { addMonths, coreVaccinations, dueEntries, dueTiming, parasiteCovers, parasiteGroups, type DueTone } from '@lapka/shared'
+import type { DueItem, HealthEvent, HealthItem, PetSpecies } from '@lapka/contracts'
+import { addMonths, coreVaccinations, dueEntries, dueName, dueTiming, parasiteCovers, parasiteGroups, type DueTone } from '@lapka/shared'
 import type { Dictionary } from '@/i18n'
 
 /**
@@ -218,4 +218,51 @@ export function doneRoute(petId: string, due: { kind: string; itemId: string; ev
   return due.kind === 'visit'
     ? `/pets/${petId}/visit-form?mode=done&eventId=${due.eventId}`
     : `/pets/${petId}/event-form?mode=complete&itemId=${due.itemId}&kind=${due.kind}`
+}
+
+/**
+ * «прививка от бешенства», «обработка от блох и клещей», «визит к врачу» —
+ * a due date by the shared rule `dueName` (spec §7.1), in lower case, as
+ * inside a sentence; the pet list's due line starts it with a capital.
+ * A visit is named by its kind only when `visitKind` is asked for: a
+ * reminder says «визит к врачу» («…: визит к врачу просрочен» reads badly
+ * with a second colon).
+ */
+export function duePhrase(
+  t: Dictionary,
+  item: Pick<DueItem, 'kind' | 'name' | 'targets'> & Partial<Pick<DueItem, 'visit_kind'>>,
+): { text: string; form: 'f' | 'm' } {
+  const words = t.reminders
+  const name = dueName(item)
+  switch (name.form) {
+    case 'visit':
+      return { text: name.visitKind ? words.visitKinds[name.visitKind] : words.visit, form: 'm' }
+    case 'treatment':
+      return { text: words.treatment(name.groups.map((group) => words.parasiteGroups[group])), form: 'f' }
+    case 'namedTreatment':
+      return { text: words.namedTreatment(name.name), form: 'f' }
+    case 'plainTreatment':
+      return { text: words.plainTreatment, form: 'f' }
+    case 'vaccination': {
+      const against = words.against[name.target]
+      if (against) return { text: words.vaccination(against), form: 'f' }
+      return { text: name.name ? words.namedVaccination(name.name) : words.plainVaccination, form: 'f' }
+    }
+    case 'complexVaccination':
+      return { text: words.complexVaccination, form: 'f' }
+    case 'namedVaccination':
+      return { text: words.namedVaccination(name.name), form: 'f' }
+    case 'plainVaccination':
+      return { text: words.plainVaccination, form: 'f' }
+  }
+}
+
+/**
+ * The pet list's due line names the date (spec §7.1): «Прививка от
+ * бешенства», «Обработка от блох и клещей», «Визит к врачу: осмотр» — as
+ * the site's pet rows (`dueLineTitle` there), by the same shared rule.
+ */
+export function dueLineTitle(t: Dictionary, due: Pick<DueItem, 'kind' | 'name' | 'targets'> & Partial<Pick<DueItem, 'visit_kind'>>): string {
+  const { text } = duePhrase(t, due)
+  return text.charAt(0).toUpperCase() + text.slice(1)
 }

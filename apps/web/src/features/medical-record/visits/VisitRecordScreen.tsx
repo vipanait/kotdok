@@ -109,7 +109,7 @@ export default function VisitRecordScreen({ petId, visitId, saved }: { petId: st
     setAdding(itemId)
     setAddError(null)
     try {
-      await browserApi().prescriptionToMedication(petId, itemId)
+      await browserApi().prescriptionToMedication(petId, itemId, today)
       inFlight.current = false
       setAdding(null)
       setAdded((count) => count + 1)

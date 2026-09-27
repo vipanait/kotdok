@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { isKnownErrorCode } from '@lapka/contracts'
 import { ApiError, ApiTimeoutError, createApiClient, isKeyReused, type AbortSignalLike, type FetchLike } from './api-client'
 
 const BASE = 'https://example.test'
@@ -251,5 +252,102 @@ describe('MW-09 additions', () => {
     expect(isKeyReused(new ApiError('conflict', 409, 'x', 'r'))).toBe(false)
     expect(isKeyReused(new ApiError('record_done', 409, 'x', 'r', { reason: 'idempotency_key_reused' }))).toBe(false)
     expect(isKeyReused(new Error('conflict'))).toBe(false)
+  })
+})
+
+describe('MW-09 Task 2: the owner’s day on the reads and writes that count the pet form’s medicines', () => {
+  const pet = '11111111-1111-4111-8111-000000000001'
+  const course = '11111111-1111-4111-8111-000000000002'
+  const visit = '11111111-1111-4111-8111-000000000003'
+  const item = '11111111-1111-4111-8111-000000000004'
+
+  it('puts `today` in the query when given, and leaves the address as it was when not (an older caller)', async () => {
+    const seen: string[] = []
+    const fetch: FetchLike = async (url, init) => {
+      seen.push(`${init?.method ?? 'GET'} ${String(url)}`)
+      return ok({})
+    }
+    const api = createApiClient({ baseUrl: BASE, fetch })
+    const day = '2026-09-27'
+    const visitBody = { status: 'planned', date: day, visit_kind: 'checkup' } as const
+
+    await api.getHealthOverview(pet, day).catch(() => null)
+    await api.getHealthOverview(pet).catch(() => null)
+    await api.addMedications(pet, { items: [{ name: 'Мильпразон' }] }, 'key-12345678', day).catch(() => null)
+    await api.deleteMedication(pet, course, day).catch(() => null)
+    await api.createVisit(pet, visitBody, 'key-12345678', day).catch(() => null)
+    await api.changeVisit(pet, visit, { clinic: 'Айболит' }, 'key-12345678', day).catch(() => null)
+    await api.changeVisit(pet, visit, { clinic: 'Айболит' }).catch(() => null)
+    await api.prescriptionToMedication(pet, item, day).catch(() => null)
+    await api.createCheck('key-12345678', { symptoms: 'Не ест второй день' }, day).catch(() => null)
+    await api.createCheck('key-12345678', { symptoms: 'Не ест второй день' }).catch(() => null)
+
+    expect(seen).toEqual([
+      `GET ${BASE}/api/v1/pets/${pet}/health?today=${day}`,
+      `GET ${BASE}/api/v1/pets/${pet}/health`,
+      `POST ${BASE}/api/v1/pets/${pet}/health/medications?today=${day}`,
+      `DELETE ${BASE}/api/v1/pets/${pet}/health/medications/${course}?today=${day}`,
+      `POST ${BASE}/api/v1/pets/${pet}/health/visits?today=${day}`,
+      `PATCH ${BASE}/api/v1/pets/${pet}/health/visits/${visit}?today=${day}`,
+      `PATCH ${BASE}/api/v1/pets/${pet}/health/visits/${visit}`,
+      `POST ${BASE}/api/v1/pets/${pet}/health/items/${item}/medication?today=${day}`,
+      `POST ${BASE}/api/v1/checks?today=${day}`,
+      `POST ${BASE}/api/v1/checks`,
+    ])
+  })
+})
+
+describe('MW-09 Task 2: an error the client does not know', () => {
+  const failing = (status: number, body: unknown): FetchLike => async () => ({ ok: false, status, json: async () => body })
+
+  it('keeps a code a later server added, with its status and message, instead of internal_error', async () => {
+    const api = createApiClient({
+      baseUrl: BASE,
+      fetch: failing(423, { error: { code: 'record_locked', message: 'Locked by the clinic', request_id: 'r9' } }),
+    })
+    const error = await api.listPets().catch((cause: unknown) => cause)
+
+    expect(error).toBeInstanceOf(ApiError)
+    expect(error).toMatchObject({ code: 'record_locked', status: 423, message: 'Locked by the clinic', requestId: 'r9' })
+  })
+
+  it('reads an envelope with a field this build does not know, or without a request id', async () => {
+    const extra = createApiClient({
+      baseUrl: BASE,
+      fetch: failing(409, { error: { code: 'conflict', message: 'taken', request_id: 'r1', hint: 'new field' }, trace: 'x' }),
+    })
+    await expect(extra.listPets()).rejects.toMatchObject({ code: 'conflict', status: 409, message: 'taken', requestId: 'r1' })
+
+    const bare = createApiClient({ baseUrl: BASE, fetch: failing(503, { error: { code: 'maintenance' } }) })
+    const error = await bare.listPets().catch((cause: unknown) => cause)
+    expect(error).toMatchObject({ code: 'maintenance', status: 503, requestId: null })
+    expect((error as ApiError).message).toContain('503')
+  })
+
+  it('still switches on the codes it knows as before', async () => {
+    const known = createApiClient({
+      baseUrl: BASE,
+      fetch: failing(409, { error: { code: 'record_done', message: 'done', request_id: 'r2' } }),
+    })
+    const error = (await known.listPets().catch((cause: unknown) => cause)) as ApiError
+    const branch = (code: ApiError['code']) => {
+      switch (code) {
+        case 'record_done':
+          return 'done'
+        case 'conflict':
+          return 'conflict'
+        default:
+          return 'failed'
+      }
+    }
+    expect(branch(error.code)).toBe('done')
+    expect(isKnownErrorCode(error.code)).toBe(true)
+    expect(branch('record_locked')).toBe('failed')
+    expect(isKnownErrorCode('record_locked')).toBe(false)
+  })
+
+  it('calls a body that is no envelope at all what it always did', async () => {
+    const api = createApiClient({ baseUrl: BASE, fetch: failing(502, '<html>Bad gateway</html>') })
+    await expect(api.listPets()).rejects.toMatchObject({ code: 'internal_error', status: 502 })
   })
 })

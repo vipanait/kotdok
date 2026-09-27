@@ -597,6 +597,14 @@ export const ru = {
     namedTreatment: (name: string) => `обработка «${name}»`,
     plainTreatment: 'обработка от паразитов',
     visit: 'визит к врачу',
+    /** A planned visit by its kind (`/pets/due` since MW-09): the pet list's due line. */
+    visitKinds: {
+      checkup: 'визит к врачу: осмотр',
+      illness: 'визит к врачу: болезнь',
+      surgery: 'визит к врачу: операция',
+      tests: 'визит к врачу: анализы',
+      other: 'визит к врачу',
+    },
     count: (kind: 'vaccination' | 'parasite' | 'visit' | 'mixed', count: number) =>
       `${count} ${
         {

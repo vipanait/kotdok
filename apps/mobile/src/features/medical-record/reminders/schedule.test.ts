@@ -39,6 +39,8 @@ describe('what the phone is told to show', () => {
     expect(today({ kind: 'vaccination', targets: ['panleukopenia', 'calicivirus'] })).toBe('Сегодня у Мурки: комплексная прививка')
     expect(today({ kind: 'vaccination', targets: [], name: 'Нобивак DHPPi' })).toBe('Сегодня у Мурки: прививка «Нобивак DHPPi»')
     expect(today({ kind: 'visit', targets: [] })).toBe('Сегодня у Мурки: визит к врачу')
+    // The kind `/pets/due` now sends (MW-09) is for the pet list: a reminder still says «визит к врачу».
+    expect(today({ kind: 'visit', targets: [], visit_kind: 'checkup' })).toBe('Сегодня у Мурки: визит к врачу')
   })
 
   it('gives two plans of one pet on one day a single notification (MR-08.2)', () => {

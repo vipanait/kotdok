@@ -36,7 +36,7 @@ export default function EventView() {
   const load = useCallback(async () => {
     setError(null)
     try {
-      const overview = await withFreshSession((api) => api.getHealthOverview(id))
+      const overview = await withFreshSession((api) => api.getHealthOverview(id, localToday()))
       const found = overview.events.find((e) => e.id === eventId)
       // A record deleted elsewhere, or gone since the list was read: nothing
       // left to show here, so back to the list.

@@ -2,14 +2,18 @@ import { NextRequest } from 'next/server'
 import { IDEMPOTENCY_KEY_HEADER, UuidSchema, VisitInputSchema } from '@lapka/contracts'
 import { createServiceClient } from '@/server/supabase/server'
 import { createVisit } from '@/server/medical-record/visit-service'
-import { isFutureDay, isPastDay, readIdempotencyKey } from '@/server/medical-record/weight-service'
+import { isFutureDay, isPastDay, readIdempotencyKey, requestToday } from '@/server/medical-record/weight-service'
 import { apiError, apiSuccess } from '@/server/api/response'
 import { serviceFailureResponse } from '@/server/api/failure-response'
 import { withApiAuth, type ApiContext } from '@/server/api/with-api-auth'
 
 type Params = { params: Promise<{ id: string }> }
 
-/** A visit that happened, with prescriptions, or a planned one. */
+/**
+ * A visit that happened, with prescriptions, or a planned one. A course a
+ * prescription adds refreshes the pet form's list, counted from the owner's
+ * `?today=` (`requestToday`).
+ */
 export const POST = withApiAuth(async (request: NextRequest, context: ApiContext, params: Params) => {
   const { id } = await params.params
   if (!UuidSchema.safeParse(id).success) return apiError(context.requestId, 'not_found', 'No such resource')
@@ -29,7 +33,7 @@ export const POST = withApiAuth(async (request: NextRequest, context: ApiContext
     return apiError(context.requestId, 'bad_request', 'Body does not match the contract')
   }
 
-  const result = await createVisit(createServiceClient(), context.account.userId, id, parsed.data, key.key)
+  const result = await createVisit(createServiceClient(), context.account.userId, id, parsed.data, key.key, requestToday(request.nextUrl))
   if (!result.ok) {
     if (result.reason === 'bad_check') return apiError(context.requestId, 'bad_request', 'The check is not of this pet')
     return serviceFailureResponse(context.requestId, result.reason)

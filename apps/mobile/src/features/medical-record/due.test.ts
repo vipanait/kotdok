@@ -3,7 +3,7 @@ import type { HealthEvent } from '@lapka/contracts'
 import { en } from '@/i18n/en'
 import { ru } from '@/i18n/ru'
 import { lastDoneDate } from '@lapka/shared'
-import { coreStatuses, dueItems, dueLine, dueStatus, itemTitle, nextYear, saveSummary } from './due'
+import { coreStatuses, dueItems, dueLine, dueLineTitle, dueStatus, itemTitle, nextYear, saveSummary } from './due'
 
 const TODAY = '2026-09-24'
 
@@ -119,5 +119,37 @@ describe('the form', () => {
       'После сохранения: одна запись и 2 следующих срока.',
     )
     expect(saveSummary(ru, [null], TODAY)).toBe('После сохранения: одна запись, без следующих сроков.')
+  })
+})
+
+describe('the pet list’s due line names the date as spec §7.1 does (MW-09)', () => {
+  const due = (kind: 'vaccination' | 'parasite' | 'visit', targets: string[], name: string | null = null, visit_kind?: 'checkup' | 'surgery' | 'other' | null) => ({
+    kind,
+    targets,
+    name,
+    visit_kind,
+  })
+
+  it('says the procedure and what it is against, as the site’s pet rows do', () => {
+    expect(dueLineTitle(ru, due('parasite', ['fleas', 'ticks']))).toBe('Обработка от блох и клещей')
+    expect(dueLineTitle(ru, due('vaccination', ['rabies']))).toBe('Прививка от бешенства')
+    expect(dueLineTitle(ru, due('vaccination', ['panleukopenia', 'calicivirus']))).toBe('Комплексная прививка')
+    expect(dueLineTitle(ru, due('vaccination', [], 'Нобивак'))).toBe('Прививка «Нобивак»')
+    expect(dueLineTitle(ru, due('parasite', []))).toBe('Обработка от паразитов')
+    expect(dueLineTitle(en, due('vaccination', ['rabies']))).toBe('Rabies vaccination')
+    expect(dueLineTitle(en, due('parasite', ['fleas', 'ticks']))).toBe('Flea and tick treatment')
+  })
+
+  it('names a planned visit by its kind when /pets/due says it, as before when not', () => {
+    expect(dueLineTitle(ru, due('visit', [], null, 'checkup'))).toBe('Визит к врачу: осмотр')
+    expect(dueLineTitle(ru, due('visit', [], null, 'surgery'))).toBe('Визит к врачу: операция')
+    expect(dueLineTitle(ru, due('visit', [], null, 'other'))).toBe('Визит к врачу')
+    expect(dueLineTitle(ru, due('visit', []))).toBe('Визит к врачу')
+    expect(dueLineTitle(en, due('visit', [], null, 'checkup'))).toBe('Vet visit: checkup')
+  })
+
+  it('uses the shared overdue/soon words around it', () => {
+    expect(ru.medicalRecord.listDue.overdue(dueLineTitle(ru, due('parasite', ['fleas', 'ticks'])))).toBe('Обработка от блох и клещей — просрочено')
+    expect(ru.medicalRecord.listDue.soon(dueLineTitle(ru, due('visit', [], null, 'checkup')), 'завтра')).toBe('Визит к врачу: осмотр — завтра')
   })
 })

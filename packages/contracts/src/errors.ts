@@ -75,6 +75,30 @@ export const ApiErrorEnvelopeSchema = z.strictObject({
 
 export type ApiErrorEnvelope = z.infer<typeof ApiErrorEnvelopeSchema>
 
+/** Whether a code is one this build knows (`ERROR_CODES`). */
+export function isKnownErrorCode(code: unknown): code is ErrorCode {
+  return ErrorCodeSchema.safeParse(code).success
+}
+
+/**
+ * The error envelope as a client reads it (MW-09). What the server sends is
+ * {@link ApiErrorEnvelopeSchema}; a client reads it leniently, because a
+ * later server may add a code (the list only grows within v1) or a field an
+ * installed app does not know. Such an error must still reach the screen as
+ * what it is — its HTTP status and message — not as `internal_error`: the
+ * code is kept as sent, and `isKnownErrorCode` tells whether this build
+ * knows it. Only a body that is no envelope at all (a gateway's page) is
+ * unreadable.
+ */
+export const ApiErrorEnvelopeReadSchema = z.object({
+  error: z.object({
+    code: z.string().min(1),
+    message: z.string().catch(''),
+    request_id: z.string().min(1).nullish().catch(null),
+    details: z.unknown().optional(),
+  }),
+})
+
 /**
  * `error.details.reason` of a 409 `conflict` that means "this Idempotency-Key
  * was already used for other data", on routes where 409 `conflict` can also

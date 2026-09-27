@@ -4,6 +4,7 @@ import {
   addMonths,
   daysBetween,
   dueEntries,
+  dueName,
   dueTiming,
   doneEvents,
   isCurrentCourse,
@@ -215,5 +216,39 @@ describe('the pet form’s notes (spec §4)', () => {
       }),
     ).toEqual({ weight: true, vaccinations: 1, medications: true })
     expect(petFormHints({ weights: [], events: [], medications: [course('record', null)] }).medications).toBe(true)
+  })
+})
+
+describe('what a due date is called on its own (spec §7.1, MW-09)', () => {
+  const due = (kind: 'vaccination' | 'parasite' | 'visit', targets: string[], name: string | null = null, visit_kind?: 'checkup' | null) => ({
+    kind,
+    targets,
+    name,
+    visit_kind,
+  })
+
+  it('names a vaccination by its one disease, several as a complex one, else by the owner’s name', () => {
+    expect(dueName(due('vaccination', ['rabies'], 'Нобивак Rabies'))).toEqual({ form: 'vaccination', target: 'rabies', name: 'Нобивак Rabies' })
+    expect(dueName(due('vaccination', ['panleukopenia', 'calicivirus']))).toEqual({ form: 'complexVaccination' })
+    expect(dueName(due('vaccination', [], ' Нобивак '))).toEqual({ form: 'namedVaccination', name: 'Нобивак' })
+    expect(dueName(due('vaccination', [], '  '))).toEqual({ form: 'plainVaccination' })
+  })
+
+  it('names a treatment by the groups it covers, in a fixed order, else by the owner’s name', () => {
+    expect(dueName(due('parasite', ['heartworm', 'ear_mites', 'fleas'], 'Стронгхолд'))).toEqual({ form: 'treatment', groups: ['fleas', 'ticks', 'worms'] })
+    expect(dueName(due('parasite', [], 'Бравекто'))).toEqual({ form: 'namedTreatment', name: 'Бравекто' })
+    expect(dueName(due('parasite', []))).toEqual({ form: 'plainTreatment' })
+  })
+
+  it('names a planned visit by its kind when the list says it', () => {
+    expect(dueName(due('visit', [], null, 'checkup'))).toEqual({ form: 'visit', visitKind: 'checkup' })
+    expect(dueName(due('visit', [], null, null))).toEqual({ form: 'visit', visitKind: null })
+    // An older server's row: no kind at all.
+    expect(dueName({ kind: 'visit', targets: [], name: null })).toEqual({ form: 'visit', visitKind: null })
+  })
+
+  it('works on the rows nearestDueByPet picks, kind and all', () => {
+    const rows = [{ pet_id: 'murka', date: '2026-09-25', kind: 'visit' as const, name: null, targets: [], visit_kind: 'checkup' as const }]
+    expect(dueName(nearestDueByPet(rows, TODAY).murka)).toEqual({ form: 'visit', visitKind: 'checkup' })
   })
 })

@@ -127,9 +127,12 @@ export async function changeMedication(
   if (merged.ongoing && merged.ended_on) return { ok: false, reason: 'bad_range' }
   if (merged.started_on && merged.ended_on && merged.ended_on < merged.started_on) return { ok: false, reason: 'bad_range' }
 
-  // «Завершить курс» sends the phone's own today, which east of UTC is ahead
-  // of the server's: counting from it takes the course off the list now.
-  const listDay = patch.ended_on && patch.ended_on > today && !isFutureDay(patch.ended_on, now) ? patch.ended_on : today
+  // The pet form's list is counted from the owner's day when the app said it
+  // (`?today=`). Without it (older apps): «Завершить курс» sends the phone's
+  // own today as the end, which east of UTC is ahead of the server's —
+  // counting from it takes the course off the list now.
+  const listDay =
+    ownerToday ?? (patch.ended_on && patch.ended_on > today && !isFutureDay(patch.ended_on, now) ? patch.ended_on : today)
 
   const { error } = await supabase.rpc('change_pet_medication', {
     p_user_id: userId,

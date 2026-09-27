@@ -9,6 +9,7 @@
  */
 
 import { ApiContractError, ApiError, ApiTimeoutError } from '@lapka/shared'
+import { isKnownErrorCode } from '@lapka/contracts'
 import type { Dictionary } from '@/i18n'
 import { PhotoUploadError } from '@/features/checks/photo-upload'
 
@@ -88,7 +89,8 @@ export function errorMessage(t: Dictionary, cause: unknown, fallback: string): s
   // Said apart from "no connection": the phone reached the server, the server
   // simply never answered, and a write may still have gone through.
   if (cause instanceof ApiTimeoutError) return t.errors.noAnswer
-  if (cause instanceof ApiError) return apiMessages(t)[cause.code] ?? fallback
+  // A code a later server added has no text here yet: the screen's own words.
+  if (cause instanceof ApiError) return isKnownErrorCode(cause.code) ? apiMessages(t)[cause.code] : fallback
 
   const code = codeOf(cause)
   const auth = authMessages(t)

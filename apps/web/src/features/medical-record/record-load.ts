@@ -1,5 +1,5 @@
 import type { HealthOverview, SymptomCheckRecord } from '@lapka/contracts'
-import { ApiError, type ApiClient } from '@lapka/shared'
+import { ApiError, localToday, type ApiClient } from '@lapka/shared'
 
 /**
  * Loading a medical record, as states a screen can draw. Kept apart from
@@ -89,9 +89,10 @@ export const RECORD_CHECKS_LIMIT = 3
  * fails, the whole load fails. The history failing only marks the history —
  * unless it failed for a reason that closes the page (session, access).
  */
-export async function fetchRecord(api: ApiClient, petId: string): Promise<RecordData> {
+export async function fetchRecord(api: ApiClient, petId: string, today: string = localToday()): Promise<RecordData> {
   const [overview, checks] = await Promise.allSettled([
-    api.getHealthOverview(petId),
+    // The owner's day: the pet form's list of medicines is counted from it.
+    api.getHealthOverview(petId, today),
     api.listChecks({ pet_id: petId, limit: RECORD_CHECKS_LIMIT }),
   ])
   if (overview.status === 'rejected') throw overview.reason

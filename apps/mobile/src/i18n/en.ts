@@ -579,6 +579,13 @@ export const en: Dictionary = {
     namedTreatment: (name: string) => `${name} treatment`,
     plainTreatment: 'parasite treatment',
     visit: 'vet visit',
+    visitKinds: {
+      checkup: 'vet visit: checkup',
+      illness: 'vet visit: illness',
+      surgery: 'vet visit: surgery',
+      tests: 'vet visit: tests',
+      other: 'vet visit',
+    },
     count: (kind: 'vaccination' | 'parasite' | 'visit' | 'mixed', count: number) =>
       `${count} ${{ vaccination: 'vaccinations', parasite: 'treatments', visit: 'vet visits', mixed: 'due dates' }[kind]}`,
     aboutComplex: 'about the combined vaccination',

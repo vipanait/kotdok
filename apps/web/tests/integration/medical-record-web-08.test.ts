@@ -110,9 +110,10 @@ describe('the overview’s due lines (MW-08.1)', () => {
     expect(pets.map((pet) => pet.id)).toEqual(expect.arrayContaining([overdue, soon, later, visit, none, PET_IDS.aCat, PET_IDS.aDog]))
 
     const line = (petId: string) => (dueByPet[petId] ? petDueLine(ru, 'ru', dueByPet[petId], TODAY) : null)
-    expect(line(overdue)).toEqual({ tone: 'overdue', text: 'Блохи и клещи — просрочено' })
-    expect(line(soon)).toEqual({ tone: 'soon', text: 'Бешенство — через 5 дней' })
-    expect(line(visit)).toEqual({ tone: 'soon', text: 'Визит к врачу — завтра' })
+    // Named as spec §7.1 names them (MW-09): the procedure and what it is against, a visit by its kind.
+    expect(line(overdue)).toEqual({ tone: 'overdue', text: 'Обработка от блох и клещей — просрочено' })
+    expect(line(soon)).toEqual({ tone: 'soon', text: 'Прививка от бешенства — через 5 дней' })
+    expect(line(visit)).toEqual({ tone: 'soon', text: 'Визит к врачу: осмотр — завтра' })
     expect(dueByPet[later]).toBeUndefined()
     expect(dueByPet[none]).toBeUndefined()
     // Each line belongs to its own pet: the row it is drawn in links to that pet.

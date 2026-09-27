@@ -113,6 +113,12 @@ describe('OpenAPI document', () => {
     expect(visitConflict.description).toContain('conflict')
     expect(visitConflict.description).toContain('record_done')
 
+    // A fresh authentication: the shared 401 no longer replaces reauth_required (MW-09).
+    for (const [path, method] of [['/account-deletion', 'post'], ['/auth/reauth', 'post']] as const) {
+      const unauthorized = document.paths[path][method].responses!['401']
+      expect(codesOf(unauthorized), `${method.toUpperCase()} ${path}`).toEqual(['unauthorized', 'reauth_required'])
+    }
+
     // Every authenticated operation still says the account may be closing.
     for (const [path, item] of Object.entries(document.paths)) {
       for (const [method, operation] of Object.entries(item)) {
@@ -120,6 +126,34 @@ describe('OpenAPI document', () => {
         if (forbidden) expect(codesOf(forbidden), `${method.toUpperCase()} ${path}`).toContain('account_deleting')
       }
     }
+  })
+
+  it('takes the owner’s day where the pet form’s list of medicines is counted, and names a due visit’s kind (MW-09)', () => {
+    type Operation = { parameters?: { name: string; in: string }[] }
+    const document = buildOpenApiDocument() as {
+      paths: Record<string, Record<string, Operation>>
+      components: { schemas: Record<string, { properties?: Record<string, unknown>; required?: string[] }> }
+    }
+    const takesToday = (path: string, method: string) =>
+      (document.paths[path][method].parameters ?? []).some((parameter) => parameter.name === 'today' && parameter.in === 'query')
+    for (const [path, method] of [
+      ['/pets/{id}/health', 'get'],
+      ['/pets/{id}/health/summary', 'get'],
+      ['/pets/{id}/health/medications', 'post'],
+      ['/pets/{id}/health/medications/{medication_id}', 'patch'],
+      ['/pets/{id}/health/medications/{medication_id}', 'delete'],
+      ['/pets/{id}/health/visits', 'post'],
+      ['/pets/{id}/health/visits/{event_id}', 'patch'],
+      ['/pets/{id}/health/items/{item_id}/medication', 'post'],
+      ['/checks', 'post'],
+    ]) {
+      expect(takesToday(path, method), `${method.toUpperCase()} ${path}`).toBe(true)
+    }
+
+    const due = document.components.schemas.DueItem
+    expect(Object.keys(due.properties ?? {})).toContain('visit_kind')
+    // Additive: a client may not count on it from an older server.
+    expect(due.required ?? []).not.toContain('visit_kind')
   })
 
   it('never exposes a private field through the profile schema', () => {

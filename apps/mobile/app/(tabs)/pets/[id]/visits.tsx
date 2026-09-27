@@ -31,7 +31,7 @@ export default function Visits() {
       .then((page) => setChecks(new Map(page.items.map((check) => [check.id, check]))))
       .catch(() => setChecks(new Map()))
     try {
-      setOverview(await withFreshSession((api) => api.getHealthOverview(id)))
+      setOverview(await withFreshSession((api) => api.getHealthOverview(id, localToday())))
     } catch (cause) {
       setError(describeFailure(t, cause, t.errors.loadHealthFailed))
     }

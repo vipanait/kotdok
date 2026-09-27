@@ -207,6 +207,11 @@ export type LoadedContext =
  * The block for one check of one pet of the caller. A record that cannot be
  * read does not stop the check: it goes on with the pet form alone, and says
  * so in its status rather than pretending the record was read.
+ *
+ * `today`: the owner's calendar day as the app said it (`?today=` of
+ * `POST /checks`, `today` of the site's check form, through `clientToday`) —
+ * what «current» courses, overdue dates and the medicines of the profile
+ * are counted from; the server's UTC day for apps older than it.
  */
 export async function loadAnalysisContext(
   supabase: SupabaseService,
@@ -216,7 +221,7 @@ export async function loadAnalysisContext(
 ): Promise<LoadedContext> {
   try {
     // The overview, not the full summary: the checks are not part of the context.
-    const overview = await getHealthOverview(supabase, userId, petId)
+    const overview = await getHealthOverview(supabase, userId, petId, today)
     if (!overview.ok) throw new Error(`${overview.reason}${overview.message ? `: ${overview.message}` : ''}`)
     const summary = { data: summarise({ ...overview.data, checks: [], today }) }
     const { text } = analysisContext(summary.data, today)

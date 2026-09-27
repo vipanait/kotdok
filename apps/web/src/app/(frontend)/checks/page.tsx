@@ -1,8 +1,11 @@
+import { Suspense } from 'react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { UuidSchema, type SymptomCheckRecord } from '@lapka/contracts'
+import type { CabinetUser } from '@/server/cabinet/load-cabinet'
 import Icon from '@/components/ui/Icon'
 import CabinetShell from '@/components/cabinet/CabinetShell'
+import CabinetSkeleton from '@/components/cabinet/CabinetSkeleton'
 import HistoryRows from '@/components/cabinet/HistoryRows'
 import Illustration from '@/components/ui/Illustration'
 import { formatMonthHeading, monthKey } from '@/features/symptom-check/check-options'
@@ -31,7 +34,11 @@ function groupByMonth(checks: SymptomCheckRecord[], timeZone: string) {
 /**
  * The check history (web v1 «history»); with `?pet=` the history of one pet
  * (web v1 «pet-history»), reached from its medical record. The pet must be
- * the caller's own and live — anything else is a 404.
+ * the caller's own and live — anything else is a 404, and an HTTP 404
+ * (MW-09): the pet is checked here, before anything streams, and only the
+ * history below waits behind the skeleton (no loading.tsx above this page —
+ * it would commit the response to 200 before the check, see Next's
+ * streaming guide, «The HTTP contract»).
  */
 export default async function ChecksPage({ searchParams }: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
   const rawPet = (await searchParams).pet
@@ -39,14 +46,22 @@ export default async function ChecksPage({ searchParams }: { searchParams: Promi
   const cabinet = await requireCabinet(`/login?next=${encodeURIComponent(petId ? `/checks?pet=${petId}` : '/checks')}`)
   if (petId !== null && !UuidSchema.safeParse(petId).success) notFound()
 
-  const [checks, pets, locale, timeZone] = await Promise.all([
-    loadCheckHistory(cabinet.user.id, petId),
-    petId ? loadCheckPets(cabinet.user.id) : Promise.resolve([]),
+  const pet = petId ? (await loadCheckPets(cabinet.user.id)).find(entry => entry.id === petId) ?? null : null
+  if (petId && !pet) notFound()
+
+  return (
+    <Suspense fallback={<CabinetSkeleton />}>
+      <ChecksHistory cabinet={cabinet} pet={pet} />
+    </Suspense>
+  )
+}
+
+async function ChecksHistory({ cabinet, pet }: { cabinet: CabinetUser; pet: { id: string; name: string } | null }) {
+  const [checks, locale, timeZone] = await Promise.all([
+    loadCheckHistory(cabinet.user.id, pet?.id ?? null),
     getLocale(),
     getTimeZone(),
   ])
-  const pet = petId ? pets.find(entry => entry.id === petId) ?? null : null
-  if (petId && !pet) notFound()
   const dict = await getDictionary(locale)
   const t = dict.history
 

@@ -33,6 +33,8 @@ export type CreateCheckJobInput = ParsedCheckCreateInput & {
   userId: string
   /** From the `Idempotency-Key` header, when the client sent one. */
   idempotencyKey: string | null
+  /** The owner's day (`?today=`, through `clientToday`) the pet's record is read on. */
+  today?: string
 }
 
 /**
@@ -139,6 +141,7 @@ async function runJob(
     duration: input.duration ?? null,
     stool: input.stool ?? null,
     pain_signs: input.pain_signs,
+    today: input.today,
   })
 
   if (outcome.ok) {

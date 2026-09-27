@@ -89,7 +89,7 @@ export default function EventForm() {
   const load = useCallback(async () => {
     setError(null)
     try {
-      const overview = await withFreshSession((api) => api.getHealthOverview(petId))
+      const overview = await withFreshSession((api) => api.getHealthOverview(petId, localToday()))
       setSpecies(overview.pet.species)
 
       let start: EventDraft
@@ -235,7 +235,7 @@ export default function EventForm() {
         // was first saved. The same check as the site's (completionMismatch,
         // packages/shared); the next plan is compared when the record can be
         // read again, otherwise the day alone decides.
-        const events = await withFreshSession((api) => api.getHealthOverview(petId)).then(
+        const events = await withFreshSession((api) => api.getHealthOverview(petId, localToday())).then(
           (overview) => overview.events,
           () => null,
         )

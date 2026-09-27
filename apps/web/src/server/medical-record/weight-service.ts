@@ -197,6 +197,18 @@ export function clientToday(given: unknown, now: Date = new Date()): string {
 }
 
 /**
+ * The owner's today of a request that says it in `?today=` (MW-09): what
+ * the pet form's list of current medicines is counted from — `GET /health`,
+ * the list a write of courses or visits refreshes, the record an analysis
+ * reads. Only a list follows this day, never a guard, so the whole
+ * `clientToday` window is taken as it is; absent or outside it, the
+ * server's UTC day, as for apps older than the parameter.
+ */
+export function requestToday(url: { searchParams: URLSearchParams }, now: Date = new Date()): string {
+  return clientToday(url.searchParams.get('today') ?? undefined, now)
+}
+
+/**
  * The Idempotency-Key of a medical record write: absent is fine (null), but
  * present means 8–200 characters — an empty key would otherwise become one
  * shared by every keyless request.

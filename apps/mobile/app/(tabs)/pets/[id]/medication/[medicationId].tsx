@@ -32,7 +32,7 @@ export default function MedicationView() {
   const load = useCallback(async () => {
     setError(null)
     try {
-      const overview = await withFreshSession((api) => api.getHealthOverview(id))
+      const overview = await withFreshSession((api) => api.getHealthOverview(id, localToday()))
       const found = overview.medications.find((m) => m.id === medicationId)
       if (!found) {
         router.back()
@@ -73,7 +73,7 @@ export default function MedicationView() {
   async function remove() {
     setBusy(true)
     try {
-      await withFreshSession((api) => api.deleteMedication(id, medicationId))
+      await withFreshSession((api) => api.deleteMedication(id, medicationId, localToday()))
       setAsking(false)
       router.back()
     } catch (cause) {

@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server'
 import { MedicationPatchSchema, UuidSchema } from '@lapka/contracts'
 import { createServiceClient } from '@/server/supabase/server'
 import { changeMedication, deleteMedication } from '@/server/medical-record/medication-service'
-import { clientToday } from '@/server/medical-record/weight-service'
+import { clientToday, requestToday } from '@/server/medical-record/weight-service'
 import { apiError, apiNoContent, apiSuccess } from '@/server/api/response'
 import { serviceFailureResponse } from '@/server/api/failure-response'
 import { withApiAuth, type ApiContext } from '@/server/api/with-api-auth'
@@ -55,11 +55,12 @@ export const PATCH = withApiAuth(async (request: NextRequest, context: ApiContex
   return apiSuccess(context.requestId, result.data)
 })
 
-export const DELETE = withApiAuth(async (_request, context: ApiContext, params: Params) => {
+/** The pet form's list follows, counted from the owner's `?today=` (`requestToday`). */
+export const DELETE = withApiAuth(async (request: NextRequest, context: ApiContext, params: Params) => {
   const ids = await readIds(params)
   if (!ids) return apiError(context.requestId, 'not_found', 'No such resource')
 
-  const result = await deleteMedication(createServiceClient(), context.account.userId, ids.petId, ids.medicationId)
+  const result = await deleteMedication(createServiceClient(), context.account.userId, ids.petId, ids.medicationId, requestToday(request.nextUrl))
   if (!result.ok) {
     if (result.reason === 'bad_range') return apiError(context.requestId, 'bad_request', 'The end is before the start')
     return serviceFailureResponse(context.requestId, result.reason)

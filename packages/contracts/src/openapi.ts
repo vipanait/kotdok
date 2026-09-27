@@ -211,6 +211,22 @@ const idempotencyParam = {
   schema: { type: 'string', minLength: 8, maxLength: 200 },
 }
 
+/**
+ * `?today=`: the owner's calendar day (MW-09), where the server counts
+ * something from it — here, the pet form's list of current medicines.
+ * Optional and additive: without it, or outside the UTC days around the
+ * server's, the server's UTC day, as for apps older than the parameter.
+ */
+const listDayParam = {
+  name: 'today',
+  in: 'query',
+  required: false,
+  description:
+    'The owner\'s calendar day: the pet form\'s list of current medicines is counted from it. Used only from the UTC day ' +
+    'before the server\'s to the UTC day after; otherwise, or without it, the server\'s UTC day.',
+  schema: { type: 'string', format: 'date' },
+}
+
 const idParam = {
   name: 'id',
   in: 'path',
@@ -263,8 +279,7 @@ export function buildOpenApiDocument(): Record<string, unknown> {
           requestBody: body('ReauthRequest'),
           responses: {
             '200': json('ReauthProof', 'A proof, good once and not for long'),
-            '401': errorResponse('reauth_required', 'The last authentication is too old'),
-            ...commonErrors('bad_request'),
+            ...commonErrors('bad_request', 'reauth_required'),
           },
         },
       },
@@ -338,6 +353,10 @@ export function buildOpenApiDocument(): Record<string, unknown> {
         parameters: [idParam],
         get: {
           summary: 'The pet\'s medical record: the pet form and the sections that accept records',
+          description:
+            'pet.medications is the pet form\'s list as the courses have it: the courses current on `today` ' +
+            '(the owner\'s day), when the pet has any courses.',
+          parameters: [listDayParam],
           responses: { '200': json('HealthOverview', 'The medical record'), ...commonErrors('not_found') },
         },
       },
@@ -484,7 +503,7 @@ export function buildOpenApiDocument(): Record<string, unknown> {
         parameters: [idParam],
         post: {
           summary: 'Add medication courses; the pet form\'s medicines list follows',
-          parameters: [idempotencyParam],
+          parameters: [idempotencyParam, listDayParam],
           requestBody: body('MedicationsInput'),
           responses: {
             '201': {
@@ -504,13 +523,15 @@ export function buildOpenApiDocument(): Record<string, unknown> {
             '(it can still be deleted). Ended means its end is today or earlier in every time zone, or — when the ' +
             'owner\'s day `today` is given (taken only from the UTC day before the server\'s to the UTC day after) ' +
             'and is later — `today` or earlier: the owner\'s day only tightens the rule. A change that leaves a ' +
-            'finished course as it is, such as «Завершить курс» sent again, answers 200.',
+            'finished course as it is, such as «Завершить курс» sent again, answers 200. ' +
+            'The pet form\'s list of current medicines is then counted from `today`.',
           parameters: [{ name: 'today', in: 'query', required: false, schema: { type: 'string', format: 'date' } }],
           requestBody: body('MedicationPatch'),
           responses: { '200': json('Medication', 'The course'), ...commonErrors('bad_request', 'not_found', 'record_done') },
         },
         delete: {
-          summary: 'Delete a course',
+          summary: 'Delete a course; the pet form\'s medicines list follows',
+          parameters: [listDayParam],
           responses: { '204': { description: 'Deleted' }, ...commonErrors('not_found') },
         },
       },
@@ -521,7 +542,7 @@ export function buildOpenApiDocument(): Record<string, unknown> {
           description:
             'A prescription with add_to_medications starts a course from the visit\'s day. ' +
             'A planned visit takes no diagnosis or prescriptions. The check must be of this pet.',
-          parameters: [idempotencyParam],
+          parameters: [idempotencyParam, listDayParam],
           requestBody: body('VisitInput'),
           responses: { '201': json('HealthEvent', 'The visit'), ...commonErrors('bad_request', 'not_found', 'conflict') },
         },
@@ -536,7 +557,7 @@ export function buildOpenApiDocument(): Record<string, unknown> {
             'Marking a plan done with status done may carry the diagnosis and prescriptions. ' +
             'The same key sent again with the same body changes nothing and answers 200, even once the visit is done; ' +
             'with another body it is a conflict.',
-          parameters: [idempotencyParam],
+          parameters: [idempotencyParam, listDayParam],
           requestBody: body('VisitPatch'),
           responses: {
             '200': json('HealthEvent', 'The visit'),
@@ -548,6 +569,7 @@ export function buildOpenApiDocument(): Record<string, unknown> {
         parameters: [idParam, { name: 'item_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
         post: {
           summary: 'Start a course from a prescription; once',
+          parameters: [listDayParam],
           responses: {
             '201': {
               description: 'The course',
@@ -603,13 +625,23 @@ export function buildOpenApiDocument(): Record<string, unknown> {
           description:
             'Returns a job, not a result. Repeating the request with the same ' +
             'idempotency key and the same data returns the original job; changing ' +
-            'the data returns 409.',
+            'the data returns 409. `today`, the owner\'s calendar day, is what the pet\'s medical record is read ' +
+            'on for the analysis (current courses, overdue dates) — a query parameter, since the body is strict.',
           parameters: [
             {
               name: IDEMPOTENCY_KEY_HEADER,
               in: 'header',
               required: true,
               schema: { type: 'string', minLength: 8, maxLength: 200 },
+            },
+            {
+              name: 'today',
+              in: 'query',
+              required: false,
+              description:
+                'The owner\'s calendar day. Used only from the UTC day before the server\'s to the UTC day after; ' +
+                'otherwise, or without it, the server\'s UTC day.',
+              schema: { type: 'string', format: 'date' },
             },
           ],
           requestBody: body('CheckCreateInput'),
@@ -694,8 +726,7 @@ export function buildOpenApiDocument(): Record<string, unknown> {
           requestBody: body('AccountDeletionRequest'),
           responses: {
             '202': json('AccountDeletionAccepted', 'Request accepted'),
-            '401': errorResponse('reauth_required', 'No valid proof of fresh authentication'),
-            ...commonErrors('bad_request', 'forbidden', 'not_found'),
+            ...commonErrors('bad_request', 'forbidden', 'not_found', 'reauth_required'),
           },
         },
       },

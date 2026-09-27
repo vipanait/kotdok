@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { localToday } from '@lapka/shared'
 import { useTranslations } from '@/components/LocaleProvider'
 import MedicalRecordView, { RetryButton } from './MedicalRecordView'
@@ -71,12 +71,16 @@ export function RecordProblem({
   reload: () => void
   /** The page's own skeleton. */
   loading: React.ReactNode
-  /** Where signing in again brings the owner back to; the record by default. */
+  /** Where signing in again brings the owner back to; this very page by default (MW-09), not the record. */
   returnTo?: string
 }) {
   const dict = useTranslations()
   const words = dict.medicalRecord.states
   const router = useRouter()
+  const pathname = usePathname()
+  const query = useSearchParams().toString()
+  // Only a page of this pet: the sign-in page checks `next` again anyway.
+  const here = pathname.startsWith(`/pets/${petId}`) ? `${pathname}${query ? `?${query}` : ''}` : `/pets/${petId}`
   const problemRef = useRef<HTMLHeadingElement>(null)
 
   useEffect(() => {
@@ -118,7 +122,7 @@ export function RecordProblem({
         <section className="card health-problem" aria-labelledby="health-problem-title">
           <h1 id="health-problem-title" ref={problemRef} tabIndex={-1}>{words.signedOutTitle}</h1>
           <p>{words.signedOutBody}</p>
-          <Link href={`/login?next=${encodeURIComponent(returnTo ?? `/pets/${petId}`)}`} className="btn primary">
+          <Link href={`/login?next=${encodeURIComponent(returnTo ?? here)}`} className="btn primary">
             {words.signIn}
           </Link>
         </section>
