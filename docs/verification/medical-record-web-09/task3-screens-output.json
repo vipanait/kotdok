@@ -1,7 +1,7 @@
 {
   "today": "2026-09-27",
-  "murka": "5ceac5c9-bc6c-4901-8e1d-7dd20b59c7d4",
-  "bobik": "4e268186-b1ba-491b-bffa-da36e290bdf0",
+  "murka": "aceed142-9d61-44c7-9da7-844c38e101f6",
+  "bobik": "51139217-092b-4eec-820c-46ce9826d8b6",
   "checks": {
     "complete1440": {
       "dueLabel": "Сделано: Блохи и клещи, просрочено на 14 дней · 13 сентября",
@@ -25,13 +25,13 @@
           "id": "",
           "label": ""
         },
-        "url": "/pets/5ceac5c9-bc6c-4901-8e1d-7dd20b59c7d4/health/81d037af-0fbc-4538-9f5a-d9d178ba1757/complete"
+        "url": "/pets/aceed142-9d61-44c7-9da7-844c38e101f6/health/0ca1e355-1277-4df5-bfab-d2d0a68a0dea/complete"
       },
-      "landedOn": "/pets/5ceac5c9-bc6c-4901-8e1d-7dd20b59c7d4/health/due?saved=completed&record=81d037af-0fbc-4538-9f5a-d9d178ba1757",
-      "recordParam": "81d037af-0fbc-4538-9f5a-d9d178ba1757",
+      "landedOn": "/pets/aceed142-9d61-44c7-9da7-844c38e101f6/health/due?saved=completed&record=0ca1e355-1277-4df5-bfab-d2d0a68a0dea",
+      "recordParam": "0ca1e355-1277-4df5-bfab-d2d0a68a0dea",
       "notice": {
         "text": "Отмечено сделанным.Открыть запись",
-        "link": "/pets/5ceac5c9-bc6c-4901-8e1d-7dd20b59c7d4/health/81d037af-0fbc-4538-9f5a-d9d178ba1757",
+        "link": "/pets/aceed142-9d61-44c7-9da7-844c38e101f6/health/0ca1e355-1277-4df5-bfab-d2d0a68a0dea",
         "focus": {
           "tag": "div",
           "text": "Отмечено сделанным.Открыть запись",
@@ -41,15 +41,15 @@
         "urlAfter": ""
       },
       "openedRecord": {
-        "path": "/pets/5ceac5c9-bc6c-4901-8e1d-7dd20b59c7d4/health/81d037af-0fbc-4538-9f5a-d9d178ba1757",
+        "path": "/pets/aceed142-9d61-44c7-9da7-844c38e101f6/health/0ca1e355-1277-4df5-bfab-d2d0a68a0dea",
         "heading": "Обработка от паразитов"
       }
     },
     "complete390": {
-      "landedOn": "/pets/5ceac5c9-bc6c-4901-8e1d-7dd20b59c7d4/health/a13c991a-b8c9-47d8-945a-153c606c26f7?saved=completed&record=43d635e0-c1f0-464f-96df-6e7c944eda5e",
+      "landedOn": "/pets/aceed142-9d61-44c7-9da7-844c38e101f6/health/7d319ad2-5302-4e92-a012-7846219e9bd6?saved=completed&record=9f6d2a34-ad29-4bd5-a380-af7d6ecf3cf4",
       "samePlan": true,
       "notice": "Отмечено сделанным.Открыть запись",
-      "link": "/pets/5ceac5c9-bc6c-4901-8e1d-7dd20b59c7d4/health/43d635e0-c1f0-464f-96df-6e7c944eda5e",
+      "link": "/pets/aceed142-9d61-44c7-9da7-844c38e101f6/health/9f6d2a34-ad29-4bd5-a380-af7d6ecf3cf4",
       "linkHeight": 44,
       "scrollsSideways": false
     },
@@ -85,10 +85,10 @@
         },
         "comboboxExpanded": "false"
       },
-      "landedOn": "/pets/5ceac5c9-bc6c-4901-8e1d-7dd20b59c7d4/health/vaccinations?saved=added&record=c3979fd8-4bd5-4bb3-b173-43cecdb24838",
+      "landedOn": "/pets/aceed142-9d61-44c7-9da7-844c38e101f6/health/vaccinations?saved=added&record=18ae2bfc-b4f1-4b17-9271-c79d57a0c87c",
       "notice": {
         "text": "Запись сохранена.Открыть запись",
-        "link": "/pets/5ceac5c9-bc6c-4901-8e1d-7dd20b59c7d4/health/c3979fd8-4bd5-4bb3-b173-43cecdb24838"
+        "link": "/pets/aceed142-9d61-44c7-9da7-844c38e101f6/health/18ae2bfc-b4f1-4b17-9271-c79d57a0c87c"
       },
       "openedRecord": {
         "heading": "Прививка",
@@ -127,10 +127,10 @@
         },
         "comboboxExpanded": "false"
       },
-      "landedOn": "/pets/5ceac5c9-bc6c-4901-8e1d-7dd20b59c7d4/health/vaccinations?saved=added&record=466dc775-d825-42d7-9bd3-859818a3dd52",
+      "landedOn": "/pets/aceed142-9d61-44c7-9da7-844c38e101f6/health/vaccinations?saved=added&record=714c64d5-2ec1-4235-b9f1-9c9f6b8344f0",
       "notice": {
         "text": "Запись сохранена.Открыть запись",
-        "link": "/pets/5ceac5c9-bc6c-4901-8e1d-7dd20b59c7d4/health/466dc775-d825-42d7-9bd3-859818a3dd52"
+        "link": "/pets/aceed142-9d61-44c7-9da7-844c38e101f6/health/714c64d5-2ec1-4235-b9f1-9c9f6b8344f0"
       },
       "openedRecord": {
         "heading": "Прививка",
@@ -155,14 +155,14 @@
         "weight": "29"
       },
       "askedAgain": true,
-      "left": "/pets/4e268186-b1ba-491b-bffa-da36e290bdf0/health/weight",
+      "left": "/pets/51139217-092b-4eec-820c-46ce9826d8b6/health/weight",
       "afterSaveBackTrail": [
-        "/pets/4e268186-b1ba-491b-bffa-da36e290bdf0/health/weight",
-        "/pets/4e268186-b1ba-491b-bffa-da36e290bdf0/health/new?type=weight",
-        "/pets/4e268186-b1ba-491b-bffa-da36e290bdf0/health/weight"
+        "/pets/51139217-092b-4eec-820c-46ce9826d8b6/health/weight",
+        "/pets/51139217-092b-4eec-820c-46ce9826d8b6/health/new?type=weight",
+        "/pets/51139217-092b-4eec-820c-46ce9826d8b6/health/weight"
       ],
       "cleanBack": {
-        "path": "/pets/4e268186-b1ba-491b-bffa-da36e290bdf0/health/weight",
+        "path": "/pets/51139217-092b-4eec-820c-46ce9826d8b6/health/weight",
         "dialog": false
       }
     },
@@ -184,14 +184,14 @@
         "weight": "29"
       },
       "askedAgain": true,
-      "left": "/pets/4e268186-b1ba-491b-bffa-da36e290bdf0/health/weight",
+      "left": "/pets/51139217-092b-4eec-820c-46ce9826d8b6/health/weight",
       "afterSaveBackTrail": [
-        "/pets/4e268186-b1ba-491b-bffa-da36e290bdf0/health/weight",
-        "/pets/4e268186-b1ba-491b-bffa-da36e290bdf0/health/new?type=weight",
-        "/pets/4e268186-b1ba-491b-bffa-da36e290bdf0/health/weight"
+        "/pets/51139217-092b-4eec-820c-46ce9826d8b6/health/weight",
+        "/pets/51139217-092b-4eec-820c-46ce9826d8b6/health/new?type=weight",
+        "/pets/51139217-092b-4eec-820c-46ce9826d8b6/health/weight"
       ],
       "cleanBack": {
-        "path": "/pets/4e268186-b1ba-491b-bffa-da36e290bdf0/health/weight",
+        "path": "/pets/51139217-092b-4eec-820c-46ce9826d8b6/health/weight",
         "dialog": false
       }
     },
@@ -267,7 +267,7 @@
       "history": {
         "heading": "История проверок",
         "subtitle": "Мурка · Результаты проверок питомца",
-        "back": "/pets/5ceac5c9-bc6c-4901-8e1d-7dd20b59c7d4",
+        "back": "/pets/aceed142-9d61-44c7-9da7-844c38e101f6",
         "cards": 1
       }
     },
@@ -280,7 +280,7 @@
       "history": {
         "heading": "История проверок",
         "subtitle": "Мурка · Результаты проверок питомца",
-        "back": "/pets/5ceac5c9-bc6c-4901-8e1d-7dd20b59c7d4",
+        "back": "/pets/aceed142-9d61-44c7-9da7-844c38e101f6",
         "cards": 1
       }
     },

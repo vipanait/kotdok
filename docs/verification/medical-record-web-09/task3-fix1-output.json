@@ -3,34 +3,34 @@
     "w1440": {
       "typeClearCancelBack": {
         "trail": [
-          "/pets/b0776628-7ed1-447b-8347-0bad193992ba/health/weight",
-          "/pets/b0776628-7ed1-447b-8347-0bad193992ba/health/new?type=weight",
-          "/pets/b0776628-7ed1-447b-8347-0bad193992ba/health/weight"
+          "/pets/3bfbb023-f9e3-4556-8390-1a1e0bb3ca87/health/weight",
+          "/pets/3bfbb023-f9e3-4556-8390-1a1e0bb3ca87/health/new?type=weight",
+          "/pets/3bfbb023-f9e3-4556-8390-1a1e0bb3ca87/health/weight"
         ],
         "dialog": false
       },
       "typeReloadTypeBackLeave": {
-        "formWas": "/pets/b0776628-7ed1-447b-8347-0bad193992ba/health/new?type=weight",
+        "formWas": "/pets/3bfbb023-f9e3-4556-8390-1a1e0bb3ca87/health/new?type=weight",
         "lengthOnForm": 4,
         "afterReload": {
-          "url": "/pets/b0776628-7ed1-447b-8347-0bad193992ba/health/new?type=weight",
+          "url": "/pets/3bfbb023-f9e3-4556-8390-1a1e0bb3ca87/health/new?type=weight",
           "copyRemembered": true,
           "historyLength": 5
         },
         "asked": {
-          "url": "/pets/b0776628-7ed1-447b-8347-0bad193992ba/health/new?type=weight",
+          "url": "/pets/3bfbb023-f9e3-4556-8390-1a1e0bb3ca87/health/new?type=weight",
           "title": "Уйти без сохранения?"
         },
         "afterStay": {
           "focus": {
             "tag": "input",
-            "id": "_R_ppbn5ritqbn5ritmlb_-weight",
+            "id": "_R_2ppbn5ritqbn5ritmlb_-weight",
             "inForm": true,
             "text": ""
           },
           "weight": "30"
         },
-        "leftTo": "/pets/b0776628-7ed1-447b-8347-0bad193992ba/health/weight",
+        "leftTo": "/pets/3bfbb023-f9e3-4556-8390-1a1e0bb3ca87/health/weight",
         "lengthAfterLeave": 5,
         "backAgain": "/dashboard"
       },
@@ -48,34 +48,34 @@
     "w390": {
       "typeClearCancelBack": {
         "trail": [
-          "/pets/b0776628-7ed1-447b-8347-0bad193992ba/health/weight",
-          "/pets/b0776628-7ed1-447b-8347-0bad193992ba/health/new?type=weight",
-          "/pets/b0776628-7ed1-447b-8347-0bad193992ba/health/weight"
+          "/pets/3bfbb023-f9e3-4556-8390-1a1e0bb3ca87/health/weight",
+          "/pets/3bfbb023-f9e3-4556-8390-1a1e0bb3ca87/health/new?type=weight",
+          "/pets/3bfbb023-f9e3-4556-8390-1a1e0bb3ca87/health/weight"
         ],
         "dialog": false
       },
       "typeReloadTypeBackLeave": {
-        "formWas": "/pets/b0776628-7ed1-447b-8347-0bad193992ba/health/new?type=weight",
+        "formWas": "/pets/3bfbb023-f9e3-4556-8390-1a1e0bb3ca87/health/new?type=weight",
         "lengthOnForm": 4,
         "afterReload": {
-          "url": "/pets/b0776628-7ed1-447b-8347-0bad193992ba/health/new?type=weight",
+          "url": "/pets/3bfbb023-f9e3-4556-8390-1a1e0bb3ca87/health/new?type=weight",
           "copyRemembered": true,
           "historyLength": 5
         },
         "asked": {
-          "url": "/pets/b0776628-7ed1-447b-8347-0bad193992ba/health/new?type=weight",
+          "url": "/pets/3bfbb023-f9e3-4556-8390-1a1e0bb3ca87/health/new?type=weight",
           "title": "Уйти без сохранения?"
         },
         "afterStay": {
           "focus": {
             "tag": "input",
-            "id": "_R_ppbn5ritqbn5ritmlb_-weight",
+            "id": "_R_2ppbn5ritqbn5ritmlb_-weight",
             "inForm": true,
             "text": ""
           },
           "weight": "30"
         },
-        "leftTo": "/pets/b0776628-7ed1-447b-8347-0bad193992ba/health/weight",
+        "leftTo": "/pets/3bfbb023-f9e3-4556-8390-1a1e0bb3ca87/health/weight",
         "lengthAfterLeave": 5,
         "backAgain": "/dashboard"
       },

@@ -1,18 +1,18 @@
 {
   "site": "http://localhost:3100",
   "today": "2026-09-27",
-  "murka": "4a29d16b-a41c-4831-9da5-a18a2171cd00",
-  "bobik": "818595af-d149-406d-bde8-68981750ba5e",
+  "murka": "cce66298-b5d3-464b-b6da-59f6f1693e9a",
+  "bobik": "dae1ae71-0e86-4a1e-b401-b8154ffdeecd",
   "checks": {
     "recordEntryPoints": {
       "vaccinationsLink": "Все: Прививки"
     },
     "chooser": [
-      "Прививка → /pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/new?type=vaccination",
-      "Обработка от паразитов → /pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/new?type=parasite",
-      "Визит к врачу → /pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/new?type=visit",
-      "Лекарство → /pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/new?type=medication",
-      "Вес → /pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/new?type=weight"
+      "Прививка → /pets/cce66298-b5d3-464b-b6da-59f6f1693e9a/health/new?type=vaccination",
+      "Обработка от паразитов → /pets/cce66298-b5d3-464b-b6da-59f6f1693e9a/health/new?type=parasite",
+      "Визит к врачу → /pets/cce66298-b5d3-464b-b6da-59f6f1693e9a/health/new?type=visit",
+      "Лекарство → /pets/cce66298-b5d3-464b-b6da-59f6f1693e9a/health/new?type=medication",
+      "Вес → /pets/cce66298-b5d3-464b-b6da-59f6f1693e9a/health/new?type=weight"
     ],
     "vaccinesPage": {
       "planned": [
@@ -257,8 +257,8 @@
     "retry": {
       "requestsForRetry": 1,
       "keys": [
-        "b57cf875-e4f9-4b9b-ba60-36c58041fa26",
-        "b57cf875-e4f9-4b9b-ba60-36c58041fa26"
+        "e3c960e6-7ab0-412a-94b6-d98101ef2650",
+        "e3c960e6-7ab0-412a-94b6-d98101ef2650"
       ],
       "sameKey": true,
       "sentBody": {
@@ -291,7 +291,7 @@
       "doneRecordsToday": 1
     },
     "savedRecord": {
-      "url": "/pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/b442f857-6127-480e-a624-190ad8ff2186",
+      "url": "/pets/cce66298-b5d3-464b-b6da-59f6f1693e9a/health/1b45852b-2025-46c4-b5a0-17a15dc11f00",
       "title": "Прививка",
       "badge": "Сделано",
       "day": "27 сентября 2026",
@@ -306,7 +306,7 @@
     },
     "savedRecordFocus": "body {\"@context\":\"https://schema.org\",\"@graph\":[{\"@type\":\"Organiz",
     "savedAfterReload": {
-      "url": "/pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/b442f857-6127-480e-a624-190ad8ff2186",
+      "url": "/pets/cce66298-b5d3-464b-b6da-59f6f1693e9a/health/1b45852b-2025-46c4-b5a0-17a15dc11f00",
       "title": "Прививка",
       "badge": "Сделано",
       "day": "27 сентября 2026",
@@ -320,7 +320,7 @@
       "notice": null
     },
     "doneEditUrl": {
-      "url": "/pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/b442f857-6127-480e-a624-190ad8ff2186",
+      "url": "/pets/cce66298-b5d3-464b-b6da-59f6f1693e9a/health/1b45852b-2025-46c4-b5a0-17a15dc11f00",
       "title": "Прививка",
       "badge": "Сделано",
       "day": "27 сентября 2026",
@@ -333,14 +333,14 @@
       "form": false,
       "notice": null
     },
-    "seededDoneEditUrl": "/pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/b62c47e2-f47f-4472-bb27-41c58bf088f0",
+    "seededDoneEditUrl": "/pets/cce66298-b5d3-464b-b6da-59f6f1693e9a/health/1004c006-3edc-4ea3-85c8-56546967855c",
     "donePatch": {
       "status": 409,
       "body": {
         "error": {
           "code": "record_done",
           "message": "A done record cannot be changed",
-          "request_id": "c27dfc49-9044-4b77-8fe3-fbb23c4a282b"
+          "request_id": "a9da76c6-0cd6-42f8-ae79-0a908ad691b4"
         }
       }
     },
@@ -363,7 +363,7 @@
       "gone": true
     },
     "planRecord": {
-      "url": "/pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/64ca1d8e-257b-436f-a11d-90679e6071d9",
+      "url": "/pets/cce66298-b5d3-464b-b6da-59f6f1693e9a/health/a91ce5e5-3164-476f-92db-24b591f73657",
       "title": "Прививка",
       "badge": "Запланировано",
       "day": "13 марта 2027",
@@ -400,10 +400,10 @@
       ],
       "nextFields": 0
     },
-    "planCancelBack": "/pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/64ca1d8e-257b-436f-a11d-90679e6071d9",
+    "planCancelBack": "/pets/cce66298-b5d3-464b-b6da-59f6f1693e9a/health/a91ce5e5-3164-476f-92db-24b591f73657",
     "planChanged": {
       "record": {
-        "url": "/pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/64ca1d8e-257b-436f-a11d-90679e6071d9",
+        "url": "/pets/cce66298-b5d3-464b-b6da-59f6f1693e9a/health/a91ce5e5-3164-476f-92db-24b591f73657",
         "title": "Прививка",
         "badge": "Запланировано",
         "day": "20 марта 2027",
@@ -474,7 +474,7 @@
     },
     "manualSaved": {
       "record": {
-        "url": "/pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/a156170d-ae6b-4ed7-a3ac-63cc64d29813",
+        "url": "/pets/cce66298-b5d3-464b-b6da-59f6f1693e9a/health/a1e8b7fc-08f2-4f14-94a9-7c3ae16ca80d",
         "title": "Прививка",
         "badge": "Сделано",
         "day": "27 сентября 2026",
@@ -579,15 +579,15 @@
       "catProducts": []
     },
     "notFoundRoutes": {
-      "/pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/00000000-0000-4000-8000-000000000000": {
+      "/pets/cce66298-b5d3-464b-b6da-59f6f1693e9a/health/00000000-0000-4000-8000-000000000000": {
         "h1": "Такой страницы нет",
         "form": false
       },
-      "/pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/new?type=parasite": {
+      "/pets/cce66298-b5d3-464b-b6da-59f6f1693e9a/health/new?type=parasite": {
         "h1": "Добавить обработку",
         "form": true
       },
-      "/pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/parasites": {
+      "/pets/cce66298-b5d3-464b-b6da-59f6f1693e9a/health/parasites": {
         "h1": "Паразиты",
         "form": false
       }
@@ -626,25 +626,25 @@
       "record 320": false
     },
     "foreignPages": {
-      "/pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/vaccinations": {
+      "/pets/cce66298-b5d3-464b-b6da-59f6f1693e9a/health/vaccinations": {
         "status": 404,
         "h1": "Такой страницы нет",
         "shown": false,
         "leaks": []
       },
-      "/pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/new?type=vaccination": {
+      "/pets/cce66298-b5d3-464b-b6da-59f6f1693e9a/health/new?type=vaccination": {
         "status": 404,
         "h1": "Такой страницы нет",
         "shown": false,
         "leaks": []
       },
-      "/pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/b62c47e2-f47f-4472-bb27-41c58bf088f0": {
+      "/pets/cce66298-b5d3-464b-b6da-59f6f1693e9a/health/1004c006-3edc-4ea3-85c8-56546967855c": {
         "status": 404,
         "h1": "Такой страницы нет",
         "shown": false,
         "leaks": []
       },
-      "/pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/64ca1d8e-257b-436f-a11d-90679e6071d9/edit": {
+      "/pets/cce66298-b5d3-464b-b6da-59f6f1693e9a/health/a91ce5e5-3164-476f-92db-24b591f73657/edit": {
         "status": 404,
         "h1": "Такой страницы нет",
         "shown": false,

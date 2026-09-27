@@ -34,6 +34,10 @@ const require = createRequire(import.meta.url)
 const { chromium } = require(process.env.PLAYWRIGHT ?? 'playwright')
 
 const SITE = process.env.SITE ?? 'http://localhost:3100'
+// Since MW-09 the site sends the owner's day (`?today=`) with these reads and writes, and a glob
+// ending in the path no longer matches: the address may carry a query.
+const MEDICATIONS_URL = /\/api\/v1\/pets\/[^/]+\/health\/medications(?:\?.*)?$/
+const healthUrl = (pet) => new RegExp(`/api/v1/pets/${pet}/health(?:\\?.*)?$`)
 if (!['localhost', '127.0.0.1'].includes(new URL(SITE).hostname)) throw new Error('Local site only')
 
 const env = Object.fromEntries(
@@ -154,7 +158,9 @@ const petRows = (page, scope) =>
       dueOneLine: (() => {
         const due = link.querySelector('.compact-pet-due')
         if (!due) return null
-        const style = getComputedStyle(due)
+        // Since MW-09 the ellipsis is on the title alone, and the status beside it is never cut.
+        const title = due.querySelector('.compact-pet-due-title') ?? due
+        const style = getComputedStyle(title)
         return style.whiteSpace === 'nowrap' && style.textOverflow === 'ellipsis' && due.getBoundingClientRect().height < 24
       })(),
       href: link.getAttribute('href'),
@@ -271,7 +277,7 @@ try {
       if (request.method() === 'PUT' && new URL(request.url()).pathname === `/api/pets/${bobik.id}`) bodies.push(request.postDataJSON())
     })
     // The record's read after the save is held a moment, so what is drawn first can be seen.
-    await page.route(`**/api/v1/pets/${bobik.id}/health`, async (route) => {
+    await page.route(healthUrl(bobik.id), async (route) => {
       await new Promise((done) => setTimeout(done, 1500))
       await route.continue().catch(() => {})
     })
@@ -279,7 +285,7 @@ try {
     await page.waitForSelector('.health-skeleton, .health-grid', { timeout: 60_000 })
     const drawnFirst = (await page.$('.health-grid')) ? 'record kept from before the save' : 'skeleton'
     await page.waitForSelector('.health-saved', { timeout: 60_000 })
-    await page.unroute(`**/api/v1/pets/${bobik.id}/health`)
+    await page.unroute(healthUrl(bobik.id))
     const notice = {
       text: text(await page.textContent('.health-saved')),
       focused: await page.evaluate(() => document.activeElement?.classList.contains('health-saved') ?? false),
@@ -423,7 +429,7 @@ try {
     await context.setOffline(false)
 
     // Slow: the answer takes three seconds; a second tap sends nothing more.
-    await page.route('**/api/v1/pets/*/health/medications', async (route) => {
+    await page.route(MEDICATIONS_URL, async (route) => {
       if (route.request().method() !== 'POST') return route.continue()
       await new Promise((done) => setTimeout(done, 3000))
       await route.fetch()
@@ -441,7 +447,7 @@ try {
     await page.waitForFunction(() => document.querySelector('.event-form-banner')?.textContent.includes('Нет связи'), null, { timeout: 20_000 })
     pending.requestsForTwoTaps = posts.length - sentBefore
     const lost = { banner: text(await page.textContent('.event-form-banner')), name: await field('name').inputValue(), stored: (await courses()).length - countBefore }
-    await page.unroute('**/api/v1/pets/*/health/medications')
+    await page.unroute(MEDICATIONS_URL)
 
     // The retry: the same key, and the course is stored once.
     await Promise.all([page.waitForURL(/\/health\/medications\?saved=added/), page.click('form.course-form button[type=submit]')])
@@ -476,13 +482,13 @@ try {
   // ----- The record's own read with no connection: an error with «Повторить», never an empty record; it works once back -----
   {
     const { context, page } = await signedInPage('owner-a@fixture.local', 390)
-    await page.route('**/api/v1/pets/*/health', (route) => route.abort('internetdisconnected'))
+    await page.route(healthUrl('[^/]+'), (route) => route.abort('internetdisconnected'))
     await page.goto(`${SITE}/pets/${murka.id}`)
     await page.waitForSelector('.health-problem', { timeout: 60_000 })
     const problem = text(await page.textContent('.health-problem'))
     const emptyRecordShown = !!(await page.$('.health-grid'))
     await shot(page, 'record-offline-390', false)
-    await page.unroute('**/api/v1/pets/*/health')
+    await page.unroute(healthUrl('[^/]+'))
     await page.click('.health-problem button')
     await page.waitForSelector('.health-grid', { timeout: 60_000 })
     result.checks.recordOffline = { problem, emptyRecordShown, afterRetry: !!(await page.$('.health-grid')) }
