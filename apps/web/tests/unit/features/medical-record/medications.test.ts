@@ -198,8 +198,11 @@ describe('one course', () => {
     expect(courseRecord(ru, petId, later, TODAY, murka.writable)).toMatchObject({ endable: false, editHref: `/pets/${petId}/health/${later.id}/edit` })
   })
 
-  it('offers no action on a server that does not store courses', () => {
-    expect(courseRecord(ru, petId, food, TODAY, ['weight'])).toMatchObject({ editHref: null, endable: false, removable: false })
+  it('offers no action on a server that does not store courses, and says nothing about it not having started (MW-09)', () => {
+    const view = courseRecord(ru, petId, food, TODAY, ['weight'])
+    expect(view).toMatchObject({ editHref: null, endable: false, removable: false })
+    expect(view.actionsBody).toBe('Курс сохранён в медкарте. Изменить его сейчас нельзя.')
+    expect(view.actionsBody).not.toBe(ru.medicalRecord.courseRecord.notStartedBody)
   })
 
   it('reads ?saved= strictly, and a finished course’s refusal as «done»', () => {

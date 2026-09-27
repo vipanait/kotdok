@@ -91,6 +91,12 @@ async function signedInPage(email, width = 1440) {
 }
 
 const text = (value) => (value ?? '').replace(/\s+/g, ' ').trim()
+
+// MW-09: a new record returns to its section; the notice opens the record.
+async function openSaved(page) {
+  await page.waitForSelector('.health-saved-link')
+  await Promise.all([page.waitForURL(/\/health\/[0-9a-f-]{36}$/), page.click('.health-saved-link')])
+}
 const settle = (page) => page.evaluate(() => document.fonts.ready)
 const overflow = (page) => page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1)
 const shot = (page, name, fullPage = true) => page.screenshot({ path: resolve(here, `${name}.png`), fullPage })
@@ -272,6 +278,7 @@ const readRecord = (page) =>
   await page.click('.event-form button[type=submit]', { force: true })
   await page.waitForURL(/\?saved=added/)
   await page.unroute('**/api/v1/pets/*/health/events')
+  await openSaved(page)
   await page.waitForSelector('.event-record-page')
   await settle(page)
   summary.checks.retry = {
@@ -397,6 +404,7 @@ const readRecord = (page) =>
   await shot(page, 'targets-1440')
   await page.click('.event-item:nth-of-type(2) .chip:text-is("Ринотрахеит")')
   await Promise.all([page.waitForURL(/\?saved=added/), page.click('.event-form button[type=submit]')])
+  await openSaved(page)
   await page.waitForSelector('.event-record-page')
   summary.checks.manualSaved = { record: await readRecord(page), body: posts[posts.length - 1]?.body }
   await shot(page, 'record-manual-1440')

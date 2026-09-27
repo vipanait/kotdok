@@ -44,6 +44,22 @@ export function parseWeight(text: string): ParsedWeight {
   return { ok: true, value }
 }
 
+/**
+ * The weight field of a form that opened with a value already stored: text
+ * that still says that value is that value, even with more decimals than a
+ * typed weight may have. The pet form keeps 4.25 kg; dating it («Уточнить»)
+ * or moving its measurement to another day must not round it to 4.3 or be
+ * refused for its second decimal — the owner did not type it. Anything else
+ * is read as typed (`parseWeight`). `kept` null: nothing was stored.
+ */
+export function parseWeightKeeping(text: string, kept: number | null): ParsedWeight {
+  if (kept !== null) {
+    const written = text.trim().replace(',', '.')
+    if (/^\d{1,3}(?:\.\d+)?$/.test(written) && Number(written) === kept) return { ok: true, value: kept }
+  }
+  return parseWeight(text)
+}
+
 export type WeightDayProblem = 'empty' | 'invalid' | 'future'
 
 /**
@@ -62,13 +78,16 @@ export type WeightFormProblems = { weight?: WeightTextProblem; day?: WeightDayPr
 /**
  * A new weighing from the form's two fields: the request body, or what is
  * wrong with each field. The body is the contract's own parse of the values.
+ * `kept`: the stored weight the form opened with (dating the pet form's
+ * weight), taken as it is while the field still says it.
  */
 export function newWeightInput(
   weightText: string,
   day: string,
   today: string,
+  kept: number | null = null,
 ): { ok: true; input: WeightInput } | { ok: false; problems: WeightFormProblems } {
-  const weight = parseWeight(weightText)
+  const weight = parseWeightKeeping(weightText, kept)
   const dayProblem = weightDayProblem(day, today)
   if (!weight.ok || dayProblem) {
     return { ok: false, problems: { weight: weight.ok ? undefined : weight.problem, day: dayProblem ?? undefined } }
@@ -99,7 +118,8 @@ export function weightCorrection(
   day: string,
   today: string,
 ): { ok: true; patch: WeightPatch | null } | { ok: false; problems: WeightFormProblems } {
-  const weight = parseWeight(weightText)
+  // Its own value, unchanged, is kept exactly — a pet-form weight of 4.25 can be dated.
+  const weight = parseWeightKeeping(weightText, editing.weight_kg)
   const keepUndated = editing.measured_on === null && day.trim() === ''
   const dayProblem = keepUndated ? null : weightDayProblem(day, today)
   if (!weight.ok || dayProblem) {

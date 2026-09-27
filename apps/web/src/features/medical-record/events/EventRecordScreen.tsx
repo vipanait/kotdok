@@ -3,7 +3,6 @@
 import { useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { localToday } from '@lapka/shared'
 import { useLocale, useTranslations } from '@/components/LocaleProvider'
 import Icon from '@/components/ui/Icon'
 import { browserApi } from '@/features/api/browser-api'
@@ -11,6 +10,7 @@ import ConfirmDialog from '@/features/pets/ConfirmDialog'
 import { RecordProblem, StaleNotice } from '../MedicalRecordScreen'
 import { recordCache } from '../record-load'
 import SavedNotice from '../SavedNotice'
+import { medicalRecordHref } from '../stage'
 import { useMedicalRecord } from '../use-medical-record'
 import { eventSaveFailure, type EventFormKind } from './event-form'
 import { EventGone } from './EventFormScreen'
@@ -31,20 +31,22 @@ export default function EventRecordScreen({
   eventId,
   kind,
   saved,
+  savedRecord = null,
 }: {
   petId: string
   eventId: string
   /** What the page found the record to be: where «В раздел» leads if it is gone by the time it loads. */
   kind: EventFormKind
   saved: EventSaved | null
+  /** «Сделано» on one item of this plan made another record: the notice opens it (MW-09). */
+  savedRecord?: string | null
 }) {
   const dict = useTranslations()
   const locale = useLocale()
   const router = useRouter()
   const words = dict.medicalRecord
   const view = words.eventRecord
-  const { state, reload } = useMedicalRecord(petId)
-  const [today] = useState(() => localToday())
+  const { state, reload, today } = useMedicalRecord(petId)
   const [asking, setAsking] = useState(false)
   const [removing, setRemoving] = useState(false)
   const [removeError, setRemoveError] = useState<string | undefined>()
@@ -117,7 +119,7 @@ export default function EventRecordScreen({
         )}
       </div>
 
-      {saved && <SavedNotice text={words.eventsPage.saved[saved]} />}
+      {saved && <SavedNotice text={words.eventsPage.saved[saved]} link={savedRecord ? { href: medicalRecordHref.recordView(petId, savedRecord), text: words.savedOpen } : null} />}
       <StaleNotice state={state} reload={reload} />
 
       <div className="section-layout">

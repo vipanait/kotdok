@@ -1,5 +1,5 @@
 import type { HealthEvent, HealthEventInput, HealthProduct, HealthTarget } from '@lapka/contracts'
-import { eventDayProblem, fallbackInterval, nextDayProblem, suggestNextDay, toggleParasiteGroup, type Interval } from '@lapka/shared'
+import { eventDayProblem, nextDayProblem, suggestNextDay, suggestionInterval, toggleParasiteGroup, type Interval } from '@lapka/shared'
 import type { Dictionary } from '@/i18n'
 import { dayInput, localToday, parseDayText } from '@/lib/calendar-day'
 
@@ -82,9 +82,13 @@ export function renameItem(item: ItemDraft, name: string): ItemDraft {
   return { ...item, name, productId: null, source: 'manual' }
 }
 
-/** The interval «suggested» next dates use: the product's, else a year for a vaccine, a month or three for a treatment. */
+/**
+ * The interval «suggested» next dates use: the product's, else a year for a
+ * vaccine, a month or three for a treatment — the rule the site uses too
+ * (shared `suggestionInterval`, MW-09).
+ */
 export function itemInterval(item: ItemDraft): Interval {
-  return item.interval ?? fallbackInterval(item.kind, item.targets)
+  return suggestionInterval(item.kind, item.interval, item.targets)
 }
 
 export function blankDraft(

@@ -126,7 +126,8 @@ export function courseRecord(
     editHref: canWrite && courseEditable(course, today) ? medicalRecordHref.recordEdit(petId, course.id) : null,
     endable,
     removable: canWrite,
-    actionsBody: !current ? words.finishedBody : endable ? words.currentBody : words.notStartedBody,
+    // A server that does not store medicines offers no action: a neutral line, not «ещё не начался» (MW-09).
+    actionsBody: !current ? words.finishedBody : !canWrite ? words.readOnlyBody : endable ? words.currentBody : words.notStartedBody,
     endTitle: words.endTitle.replace('{name}', course.name),
     endBody: words.endBody.replace('{day}', recordDay(dict.medicalRecord, today, today)),
     deleteTitle: words.deleteTitle.replace('{name}', course.name),

@@ -11,6 +11,7 @@ import { formatCount } from '@/shared/i18n/plural'
 import type { ChecksPart } from './record-load'
 import { addableRecordTypes, medicalRecordHref, sectionOpen, MEDICAL_RECORD_STAGE } from './stage'
 import WeightChart from './WeightChart'
+import { checkDayOf } from './visits/visit-view'
 import {
   dueBlock,
   formatDay,
@@ -124,7 +125,7 @@ export default function MedicalRecordView({
             href={sectionOpen('weight', overview.writable) ? medicalRecordHref.section(petId, 'weight') : null}
             dict={dict}
           />
-          <ChecksCard petId={petId} checks={checks} dict={dict} onRetry={onRetry} retrying={retrying} />
+          <ChecksCard petId={petId} checks={checks} dict={dict} today={today} onRetry={onRetry} retrying={retrying} />
         </div>
 
         {hasActions && (
@@ -276,23 +277,28 @@ function WeightCardView({ card, href, dict }: { card: WeightCard; href: string |
   )
 }
 
-/** A check's day on the owner's clock: the browser's own time zone. */
-function checkDay(dict: Dictionary, iso: string): string {
-  const when = new Date(iso)
-  const day = `${when.getFullYear()}-${String(when.getMonth() + 1).padStart(2, '0')}-${String(when.getDate()).padStart(2, '0')}`
-  return formatDay(dict.medicalRecord, day, when.getFullYear() !== new Date().getFullYear())
+/**
+ * A check's day on the owner's clock (the browser's own time zone), with the
+ * year when it is not the year of the page's day — the page's today, which
+ * moves on at midnight, not a second reading of the clock (MW-09).
+ */
+function checkDay(dict: Dictionary, iso: string, today: string): string {
+  const day = checkDayOf(iso)
+  return formatDay(dict.medicalRecord, day, day.slice(0, 4) !== today.slice(0, 4))
 }
 
 function ChecksCard({
   petId,
   checks,
   dict,
+  today,
   onRetry,
   retrying,
 }: {
   petId: string
   checks: ChecksPart
   dict: Dictionary
+  today: string
   onRetry: () => void
   retrying: boolean
 }) {
@@ -324,7 +330,7 @@ function ChecksCard({
           {checks.items.map((check: SymptomCheckRecord) => (
             <li key={check.id}>
               <Link href={`/check/${check.id}`} className="health-check">
-                <span className="health-check-day">{checkDay(dict, check.created_at)}</span>
+                <span className="health-check-day">{checkDay(dict, check.created_at, today)}</span>
                 <UrgencyBadge urgency={check.urgency} dict={dict} />
                 <span className="health-check-text">{check.symptoms_input}</span>
               </Link>

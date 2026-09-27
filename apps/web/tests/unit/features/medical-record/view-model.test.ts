@@ -70,6 +70,13 @@ describe('Мурка: the server record (MW-01.3)', () => {
 })
 
 describe('Бобик: the form only, no made-up dates (MW-01.3)', () => {
+  it('says an age of 0 like the phone does, «0 лет» (MW-09)', () => {
+    const young = { ...bobik, pet: { ...bobik.pet, age_years: 0 } }
+    expect(headFacts(ru, 'ru', young, DESIGN_TODAY).meta).toBe('Собака · 0 лет')
+    const unknown = { ...bobik, pet: { ...bobik.pet, age_years: null } }
+    expect(headFacts(ru, 'ru', unknown, DESIGN_TODAY).meta).toBe('Собака')
+  })
+
   it('says the weight comes from the form, with no day', () => {
     const head = headFacts(ru, 'ru', bobik, DESIGN_TODAY)
     expect(head).toEqual({ name: 'Бобик', meta: 'Собака · 5 лет', weight: '28 кг', weightNote: 'Из анкеты, дата не указана' })

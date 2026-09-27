@@ -1,4 +1,4 @@
-import type { HealthEvent, HealthSection } from '@lapka/contracts'
+import { UuidSchema, type HealthEvent, type HealthSection } from '@lapka/contracts'
 
 /**
  * Which parts of the web medical record are built, stage by stage
@@ -114,4 +114,26 @@ export const medicalRecordHref = {
     return `/pets/${petId}/health/${recordId}/complete${query ? `?${query}` : ''}`
   },
   vetSummary: (petId: string) => `/pets/${petId}/vet-summary`,
+}
+
+/**
+ * Where a save leads, with its confirmation (`?saved=`) and — for the
+ * notice's «Открыть запись» — the record it saved (`&record=`): after a save
+ * the site returns to the section or the page the form was opened from
+ * (implementation-handoff, «Поведение»; MW-09), and the record is one click
+ * away in the notice.
+ */
+export function withSaved(href: string, saved: string, recordId: string | null = null): string {
+  const joiner = href.includes('?') ? '&' : '?'
+  return `${href}${joiner}saved=${saved}${recordId ? `&record=${recordId}` : ''}`
+}
+
+/** `?record=` of a page after a save, read strictly: a record id or nothing. */
+export function parseSavedRecord(value: string | string[] | undefined): string | null {
+  return typeof value === 'string' && UuidSchema.safeParse(value).success ? value : null
+}
+
+/** `?saved=` of the record page (`/pets/[id]`) after «Сделано» or «Состоялся» pressed on it. */
+export function parseRecordStepSaved(value: string | string[] | undefined): 'completed' | 'held' | null {
+  return value === 'completed' || value === 'held' ? value : null
 }

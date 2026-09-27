@@ -3,7 +3,7 @@ import { coreVaccinations, doneEvents, nextDayOf, parasiteCovers, parasiteGroups
 import type { Locale } from '@/shared/i18n/config'
 import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
 import { MEDICAL_RECORD_STAGE, completeOpen, medicalRecordHref, sectionOpen, type MedicalRecordStage } from '../stage'
-import { dueStatusText, eventItemName, formatDay, recordDay } from '../view-model'
+import { dueStatusText, eventItemName, formatDay, recordDay, statusInSentence } from '../view-model'
 import type { EventFormKind } from './event-form'
 
 /**
@@ -149,7 +149,7 @@ export function eventsPage(
               : { text: coverWords.noNext, tone: 'none' },
             completeHref: offered && next ? medicalRecordHref.complete(petId, next.event.id, next.item.id, 'section') : null,
             completeLabel:
-              offered && status ? coverWords.markDoneLabel.replace('{title}', title).replace('{status}', status.text.toLowerCase()) : null,
+              offered && status ? coverWords.markDoneLabel.replace('{title}', title).replace('{status}', statusInSentence(status)) : null,
           }
         })
       : null

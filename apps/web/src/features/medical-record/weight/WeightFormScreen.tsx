@@ -1,11 +1,14 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { localToday } from '@lapka/shared'
+import type { WeightMeasurement } from '@lapka/contracts'
 import { useTranslations } from '@/components/LocaleProvider'
+import { useToday } from '@/features/forms/use-today'
+import type { Fresh } from '../held-record'
 import { RecordProblem } from '../MedicalRecordScreen'
 import { medicalRecordHref } from '../stage'
+import { DriftNotice, useHeldRecord } from '../use-held-record'
 import { useMedicalRecord } from '../use-medical-record'
 import WeightForm from './WeightForm'
 
@@ -27,7 +30,15 @@ export function NewWeightScreen({
   today: string
   formWeight?: number | null
 }) {
-  return <WeightForm petId={petId} petName={petName} editing={null} today={today} formWeight={formWeight} />
+  // The owner's day from the page, moving on at midnight (MW-09).
+  const day = useToday(today)
+  return <WeightForm petId={petId} petName={petName} editing={null} today={day} formWeight={formWeight} />
+}
+
+/** What the latest load says about the measurement being corrected. */
+function freshWeight(weights: WeightMeasurement[], weightId: string): Fresh<WeightMeasurement> {
+  const weight = weights.find((entry) => entry.id === weightId)
+  return weight ? { kind: 'open', record: weight } : { kind: 'gone' }
 }
 
 /**
@@ -39,17 +50,35 @@ export function NewWeightScreen({
 export function EditWeightScreen({ petId, petName, weightId }: { petId: string; petName: string; weightId: string }) {
   const dict = useTranslations()
   const form = dict.medicalRecord.weightForm
-  const { state, reload } = useMedicalRecord(petId)
-  const [today] = useState(() => localToday())
+  const { state, reload, today } = useMedicalRecord(petId)
+  // The form keeps the measurement it opened with while the owner types; a refresh underneath only tells (MW-09).
+  const held = useHeldRecord(state.status === 'ready' ? freshWeight(state.data.overview.weights, weightId) : null)
 
   if (state.status !== 'ready') {
     return <RecordProblem state={state} petId={petId} reload={reload} loading={<FormSkeleton title={form.editTitle} label={dict.medicalRecord.states.loading} />} />
   }
 
-  const weight = state.data.overview.weights.find((entry) => entry.id === weightId)
+  const weight = held.record
   if (!weight) return <WeightGone petId={petId} />
-  // Keyed by the measurement: the fields start from its values once, and a refresh underneath does not reset them.
-  return <WeightForm key={weight.id} petId={petId} petName={petName} editing={weight} today={today} />
+  // Keyed by the measurement and the load it started from: the fields start from its values once.
+  return (
+    <WeightForm
+      key={`${weight.id}-${held.version}`}
+      petId={petId}
+      petName={petName}
+      editing={weight}
+      today={today}
+      onDirtyChange={held.setDirty}
+      notice={
+        <DriftNotice
+          drift={held.drift}
+          onTakeLatest={held.takeLatest}
+          sectionHref={medicalRecordHref.section(petId, 'weight')}
+          recordHref={null}
+        />
+      }
+    />
+  )
 }
 
 function WeightGone({ petId }: { petId: string }) {

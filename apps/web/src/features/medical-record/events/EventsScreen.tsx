@@ -1,8 +1,6 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
-import { localToday } from '@lapka/shared'
 import { useLocale, useTranslations } from '@/components/LocaleProvider'
 import Icon from '@/components/ui/Icon'
 import { RecordProblem, StaleNotice } from '../MedicalRecordScreen'
@@ -21,13 +19,23 @@ import { eventsPage, type EventCard, type EventSaved } from './event-view'
  * date) — or, for treatments, fleas with ticks and worms: the last one, the
  * next one and its «Сделано».
  */
-export default function EventsScreen({ petId, kind, saved }: { petId: string; kind: EventFormKind; saved: EventSaved | null }) {
+export default function EventsScreen({
+  petId,
+  kind,
+  saved,
+  savedRecord = null,
+}: {
+  petId: string
+  kind: EventFormKind
+  saved: EventSaved | null
+  /** The record the save made: the notice opens it (MW-09). */
+  savedRecord?: string | null
+}) {
   const dict = useTranslations()
   const locale = useLocale()
   const words = dict.medicalRecord
   const page = words.eventsPage
-  const { state, reload } = useMedicalRecord(petId)
-  const [today] = useState(() => localToday())
+  const { state, reload, today } = useMedicalRecord(petId)
 
   if (state.status !== 'ready') {
     return <RecordProblem state={state} petId={petId} reload={reload} loading={<SectionSkeleton title={page[kind].title} label={words.states.loading} />} />
@@ -58,7 +66,7 @@ export default function EventsScreen({ petId, kind, saved }: { petId: string; ki
         )}
       </div>
 
-      {saved && <SavedNotice text={page.saved[saved]} />}
+      {saved && <SavedNotice text={page.saved[saved]} link={savedRecord ? { href: medicalRecordHref.recordView(petId, savedRecord), text: dict.medicalRecord.savedOpen } : null} />}
       <StaleNotice state={state} reload={reload} />
 
       <div className="section-layout">

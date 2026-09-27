@@ -1,18 +1,18 @@
 'use client'
 
-import { useId, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { HEALTH_EVENT_LIMITS, type HealthEvent, type HealthTarget, type PetSpecies } from '@lapka/contracts'
 import { PARASITE_GROUPS, nextDayMin, parasiteGroups, toggleParasiteGroup, vaccineTargetsFor } from '@lapka/shared'
-import { useTranslations } from '@/components/LocaleProvider'
+import { useLocale, useTranslations } from '@/components/LocaleProvider'
 import Icon from '@/components/ui/Icon'
 import { browserApi } from '@/features/api/browser-api'
 import { useLeaveGuard } from '@/features/forms/use-leave-guard'
 import { useSaveKey } from '@/features/forms/save-key'
 import ConfirmDialog from '@/features/pets/ConfirmDialog'
 import { recordCache } from '../record-load'
-import { medicalRecordHref } from '../stage'
+import { medicalRecordHref, withSaved } from '../stage'
 import CatalogCombobox from './CatalogCombobox'
 import {
   EVENT_FORM_KINDS,
@@ -21,6 +21,7 @@ import {
   draftChanged,
   draftFromPlan,
   eventSaveFailure,
+  followSuggestion,
   manualItem,
   noProductItem,
   productItem,
@@ -34,7 +35,7 @@ import {
   type EventSaveFailure,
   type ItemDraft,
 } from './event-form'
-import { eventErrorTexts, eventFailureText } from './event-form-text'
+import { eventErrorTexts, eventFailureText, nextHintText } from './event-form-text'
 
 type Banner = { failure: Exclude<EventSaveFailure, 'deleting'> }
 
@@ -52,7 +53,9 @@ type Banner = { failure: Exclude<EventSaveFailure, 'deleting'> }
  * Saving: one Idempotency-Key per form (`useSaveKey`), so pressing again,
  * or retrying after «нет связи», never makes a second record. A failure keeps
  * every field and says why above the form; the button works again. Success
- * shows the saved record — a done one is read-only from then on.
+ * goes back where the form was opened from (MW-09, implementation-handoff
+ * «Поведение»): a new record to its section, whose notice opens the record
+ * (a done one is read-only from then on); a changed plan to its own page.
  */
 export default function EventForm({
   petId,
@@ -61,6 +64,8 @@ export default function EventForm({
   kind,
   plan,
   today,
+  onDirtyChange,
+  notice = null,
 }: {
   petId: string
   petName: string
@@ -68,9 +73,15 @@ export default function EventForm({
   kind: EventFormKind
   /** The plan being corrected; null for a new record. Never a done record. */
   plan: HealthEvent | null
+  /** The owner's day; it moves on at midnight, and the date limits with it. */
   today: string
+  /** Whether the owner has typed (or is saving): a page refreshing the plan keeps the form as it is while so. */
+  onDirtyChange?: (dirty: boolean) => void
+  /** What became of the plan meanwhile, under the heading. */
+  notice?: React.ReactNode
 }) {
   const dict = useTranslations()
+  const locale = useLocale()
   const router = useRouter()
   const words = dict.medicalRecord
   const form = words.eventForm
@@ -87,11 +98,13 @@ export default function EventForm({
   const inFlight = useRef(false)
   const nextKey = useRef(0)
   const comboboxRef = useRef<HTMLInputElement>(null)
+  const itemsRef = useRef<HTMLFieldSetElement>(null)
 
   const sectionHref = medicalRecordHref.section(petId, EVENT_FORM_KINDS[kind].section)
   const backHref = plan ? medicalRecordHref.recordView(petId, plan.id) : sectionHref
   const dirty = draftChanged(initial, draft)
   const { leaveHref, leaveLinkRef, stay, leave } = useLeaveGuard(dirty && !saving)
+  useEffect(() => onDirtyChange?.(dirty || saving), [dirty, saving, onDirtyChange])
 
   const errors = eventErrorTexts(dict, kind, problems)
   const done = draft.status === 'done'
@@ -112,7 +125,8 @@ export default function EventForm({
   }
 
   function addItem(item: ItemDraft, focusId?: string) {
-    setDraft((current) => ({ ...current, items: [...current.items, item] }))
+    // Its next date is suggested at once — the catalogue's interval, or the usual one (MW-09).
+    setDraft((current) => ({ ...current, items: [...current.items, followSuggestion(item, current, today)] }))
     setProblems((current) => ({ ...current, items: undefined }))
     if (focusId) window.setTimeout(() => document.getElementById(focusId)?.focus(), 0)
   }
@@ -120,9 +134,17 @@ export default function EventForm({
   const newKey = () => `new-${nextKey.current++}`
 
   function removeItem(key: string) {
+    const index = draft.items.findIndex((item) => item.key === key)
+    const rest = draft.items.filter((item) => item.key !== key)
     setDraft((current) => ({ ...current, items: current.items.filter((item) => item.key !== key) }))
-    // Focus does not fall to the page: back to the search, where another item is added.
-    comboboxRef.current?.focus()
+    // Focus does not fall to the page, and does not open the catalogue's list
+    // either (MW-09): the item that took its place, or the one before it; with
+    // none left, the group of items, whose search comes next.
+    const neighbour = rest[index] ?? rest[index - 1] ?? null
+    window.setTimeout(() => {
+      if (neighbour) document.getElementById(`${id}-${neighbour.key}-item`)?.focus()
+      else itemsRef.current?.focus()
+    }, 0)
   }
 
   /** Where the first problem is, so focus lands on it. */
@@ -180,7 +202,8 @@ export default function EventForm({
       // The next save of this form would be a new record.
       saveKey.renew()
       recordCache.forget(petId)
-      leave(`${medicalRecordHref.recordView(petId, saved.id)}?saved=${plan ? 'changed' : 'added'}`)
+      // A changed plan: its own page, where the form was opened. A new record: its section, the record in the notice.
+      leave(plan ? withSaved(medicalRecordHref.recordView(petId, saved.id), 'changed') : withSaved(sectionHref, 'added', saved.id))
     } catch (error) {
       inFlight.current = false
       setSaving(false)
@@ -201,13 +224,14 @@ export default function EventForm({
           value: code,
           label: (words.targets as Record<string, string>)[code] ?? code,
           pressed: (item) => item.targets.includes(code),
-          toggle: (item) => toggleTarget(item, code),
+          toggle: (item) => followSuggestion(toggleTarget(item, code), draft, today),
         }))
       : PARASITE_GROUPS.map((group) => ({
           value: group,
           label: words.parasiteGroups[group],
           pressed: (item) => parasiteGroups(item.targets).includes(group),
-          toggle: (item) => ({ ...item, targets: toggleParasiteGroup(item.targets, group) as HealthTarget[] }),
+          // Worms alone or not changes the usual interval of an item without its own.
+          toggle: (item) => followSuggestion({ ...item, targets: toggleParasiteGroup(item.targets, group) as HealthTarget[] }, draft, today),
         }))
 
   return (
@@ -222,6 +246,8 @@ export default function EventForm({
           {plan ? form.toRecord : form.toSection}
         </Link>
       </div>
+
+      {notice}
 
       <form className="card record-form event-form" onSubmit={handleSubmit} noValidate aria-busy={saving || undefined}>
         {!plan && (
@@ -264,7 +290,7 @@ export default function EventForm({
           {errors.date && <span id={`${id}-date-error`} className="field-error" role="alert">{errors.date}</span>}
         </div>
 
-        <fieldset className="event-items" aria-describedby={errors.items ? `${id}-items-error` : undefined}>
+        <fieldset ref={itemsRef} tabIndex={-1} className="event-items" aria-describedby={errors.items ? `${id}-items-error` : undefined}>
           <legend className="event-items-title">{kindWords.items}</legend>
 
           {!full && (
@@ -293,7 +319,7 @@ export default function EventForm({
             const title = item.source === 'none' ? form.noProductTitle : item.name.trim() || form.nameLabel
             const targetsId = `${id}-${item.key}-targets`
             return (
-              <section key={item.key} className="event-item" aria-label={title}>
+              <section key={item.key} id={`${id}-${item.key}-item`} tabIndex={-1} className="event-item" aria-label={title}>
                 <div className="event-item-head">
                   {item.source === 'manual' ? (
                     <div className="field event-item-name">
@@ -388,7 +414,7 @@ export default function EventForm({
                       <span id={`${id}-${item.key}-next-error`} className="field-error" role="alert">{itemErrors.next}</span>
                     )}
                     <span id={`${id}-${item.key}-next-hint`} className="field-hint">
-                      {item.source === 'catalog' ? form.nextHint : `${form.nextHint} ${form.nextManualHint}`}
+                      {nextHintText(dict, locale, kind, item, draft.date, today)}
                     </span>
                   </div>
                 )}

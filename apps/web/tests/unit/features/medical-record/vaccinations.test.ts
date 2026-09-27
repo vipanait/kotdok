@@ -18,8 +18,9 @@ import {
   readPlanChange,
   switchStatus,
   toggleTarget,
+  followSuggestion,
 } from '@/features/medical-record/events/event-form'
-import { eventErrorTexts, eventFailureText } from '@/features/medical-record/events/event-form-text'
+import { eventErrorTexts, eventFailureText, nextHintText } from '@/features/medical-record/events/event-form-text'
 import { eventRecord, eventsPage, parseEventSaved } from '@/features/medical-record/events/event-view'
 import { DESIGN_TODAY, bobik, murka } from './demo-overviews'
 
@@ -70,6 +71,37 @@ describe('the form: «Сделано» and «Запланировать» (MW-03
   it('keeps only the pet’s kind of diseases from a product', () => {
     const draft = blankEventDraft('vaccination', 'done', TODAY)
     expect(productItem('a', product(1, { targets: ['rabies', 'fleas'] }), draft, TODAY).targets).toEqual(['rabies'])
+  })
+})
+
+describe('the owner’s own name: the usual interval, as on the phone (MW-09)', () => {
+  it('suggests a year for an own-name vaccine, and follows the day', () => {
+    const draft = blankEventDraft('vaccination', 'done', TODAY)
+    const own = followSuggestion(manualItem('b', 'Своя вакцина'), draft, TODAY)
+    expect(own.next).toBe('2027-09-24')
+    expect(changeDate({ ...draft, items: [own] }, '2026-09-20', TODAY).items[0].next).toBe('2027-09-20')
+    // A plan has no next dates.
+    expect(followSuggestion(manualItem('c', 'x'), { ...draft, status: 'planned', date: '' }, TODAY).next).toBe('')
+  })
+
+  it('follows the diseases of a treatment: worms alone three months, otherwise a month', () => {
+    const draft = blankEventDraft('parasite', 'done', TODAY)
+    const own = followSuggestion(noProductItem('n'), draft, TODAY)
+    expect(own.next).toBe('2026-10-24')
+    const worms = followSuggestion({ ...own, targets: ['worms'] }, draft, TODAY)
+    expect(worms.next).toBe('2026-12-24')
+    // A date the owner set stays.
+    expect(followSuggestion({ ...worms, next: '2027-02-01', nextTouched: true, targets: [] }, draft, TODAY).next).toBe('2027-02-01')
+  })
+
+  it('names the interval under the date, and says so when nothing was suggested', () => {
+    expect(nextHintText(ru, 'ru', 'vaccination', { interval: null, targets: [] }, TODAY, TODAY)).toBe(
+      'Предложено по обычному интервалу: 1 год. Можно изменить или очистить дату. Уточните срок у врача.',
+    )
+    expect(nextHintText(ru, 'ru', 'vaccination', { interval: { value: 1, unit: 'year' }, targets: [] }, '2024-01-10', TODAY)).toBe(
+      'Срок по интервалу (1 год) уже прошёл, поэтому дата не подставлена. Укажите её, если знаете.',
+    )
+    expect(nextHintText(en, 'en', 'parasite', { interval: null, targets: ['worms'] }, TODAY, TODAY)).toContain('usual interval: 3 months')
   })
 })
 

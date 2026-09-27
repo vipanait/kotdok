@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { endCoursePatch, localToday } from '@lapka/shared'
+import { endCoursePatch } from '@lapka/shared'
 import { useTranslations } from '@/components/LocaleProvider'
 import Icon from '@/components/ui/Icon'
 import { browserApi } from '@/features/api/browser-api'
@@ -30,8 +30,7 @@ export default function CourseScreen({ petId, courseId, saved }: { petId: string
   const router = useRouter()
   const words = dict.medicalRecord
   const view = words.courseRecord
-  const { state, reload } = useMedicalRecord(petId)
-  const [today] = useState(() => localToday())
+  const { state, reload, today } = useMedicalRecord(petId)
   const [asking, setAsking] = useState<'end' | 'delete' | null>(null)
   const [busy, setBusy] = useState(false)
   const [dialogError, setDialogError] = useState<string | undefined>()

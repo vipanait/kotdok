@@ -1,8 +1,6 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
-import { localToday } from '@lapka/shared'
 import { useTranslations } from '@/components/LocaleProvider'
 import Icon from '@/components/ui/Icon'
 import { RecordProblem, StaleNotice } from '../MedicalRecordScreen'
@@ -17,12 +15,20 @@ import { coursesPage, type CourseCard, type CourseSaved } from './course-view'
  * it. The same courses the medical record's «Принимает сейчас», the pet
  * form and the summary for the vet show — one list, from the server.
  */
-export default function CoursesScreen({ petId, saved }: { petId: string; saved: CourseSaved | null }) {
+export default function CoursesScreen({
+  petId,
+  saved,
+  savedRecord = null,
+}: {
+  petId: string
+  saved: CourseSaved | null
+  /** The course the save made, when it made one: the notice opens it (MW-09). */
+  savedRecord?: string | null
+}) {
   const dict = useTranslations()
   const words = dict.medicalRecord
   const page = words.coursesPage
-  const { state, reload } = useMedicalRecord(petId)
-  const [today] = useState(() => localToday())
+  const { state, reload, today } = useMedicalRecord(petId)
 
   if (state.status !== 'ready') {
     return <RecordProblem state={state} petId={petId} reload={reload} loading={<CoursesSkeleton title={page.title} label={words.states.loading} />} />
@@ -53,7 +59,7 @@ export default function CoursesScreen({ petId, saved }: { petId: string; saved: 
         )}
       </div>
 
-      {saved && <SavedNotice text={page.saved[saved]} />}
+      {saved && <SavedNotice text={page.saved[saved]} link={savedRecord ? { href: medicalRecordHref.recordView(petId, savedRecord), text: dict.medicalRecord.savedOpen } : null} />}
       <StaleNotice state={state} reload={reload} />
 
       <div className="section-layout">

@@ -1,13 +1,13 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { localToday } from '@lapka/shared'
 import { useTranslations } from '@/components/LocaleProvider'
 import MedicalRecordView, { RetryButton } from './MedicalRecordView'
 import type { RecordState } from './record-load'
 import SavedNotice from './SavedNotice'
+import { medicalRecordHref } from './stage'
 import { useMedicalRecord } from './use-medical-record'
 
 /**
@@ -18,12 +18,21 @@ import { useMedicalRecord } from './use-medical-record'
  * the caller's or the session is gone. `formSaved`: back from the pet form
  * after a save — its confirmation, once the record is on screen.
  */
-export default function MedicalRecordScreen({ petId, formSaved = false }: { petId: string; formSaved?: boolean }) {
+export default function MedicalRecordScreen({
+  petId,
+  formSaved = false,
+  stepSaved = null,
+  savedRecord = null,
+}: {
+  petId: string
+  formSaved?: boolean
+  /** «Сделано» or «Состоялся» pressed on the record: its confirmation, the record in it (MW-09). */
+  stepSaved?: 'completed' | 'held' | null
+  savedRecord?: string | null
+}) {
   const dict = useTranslations()
   const words = dict.medicalRecord.states
-  const { state, reload } = useMedicalRecord(petId)
-  // The owner's day, from the browser's clock; read once the record is on screen.
-  const [today] = useState(() => localToday())
+  const { state, reload, today } = useMedicalRecord(petId)
 
   if (state.status !== 'ready') {
     return (
@@ -47,6 +56,12 @@ export default function MedicalRecordScreen({ petId, formSaved = false }: { petI
       notice={
         <>
           {formSaved && <SavedNotice text={dict.medicalRecord.formSaved} />}
+          {stepSaved && (
+            <SavedNotice
+              text={stepSaved === 'held' ? dict.medicalRecord.visitsPage.saved.held : dict.medicalRecord.due.saved}
+              link={savedRecord ? { href: medicalRecordHref.recordView(petId, savedRecord), text: dict.medicalRecord.savedOpen } : null}
+            />
+          )}
           <StaleNotice state={state} reload={reload} />
         </>
       }

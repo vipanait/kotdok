@@ -12,7 +12,7 @@ import { Banner } from '@/ui/Card'
 import { Field } from '@/ui/Field'
 import { Text } from '@/ui/Text'
 import { colour, radius, space } from '@/ui/theme'
-import { parseWeight, weightPatch } from './weight'
+import { parseWeightKeeping, weightPatch } from './weight'
 
 /**
  * Adding a weighing, or correcting one (M20).
@@ -63,7 +63,8 @@ export function WeightSheet({
   }, [visible, editing, t])
 
   async function save() {
-    const parsedWeight = parseWeight(weight)
+    // The measurement's own value, unchanged, is taken as stored (4,25 from the pet form is not refused).
+    const parsedWeight = parseWeightKeeping(weight, editing?.weight_kg ?? null)
     // Only the undated weight may stay without a day.
     const dayOptional = editing !== null && editing.measured_on === null && day.trim() === ''
     const parsedDay = dayOptional ? null : parseDayInput(day)

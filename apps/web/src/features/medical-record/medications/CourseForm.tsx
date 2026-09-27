@@ -1,6 +1,6 @@
 'use client'
 
-import { useId, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { MEDICATION_LIMITS, type Medication } from '@lapka/contracts'
@@ -11,7 +11,7 @@ import { useLeaveGuard } from '@/features/forms/use-leave-guard'
 import { useSaveKey } from '@/features/forms/save-key'
 import ConfirmDialog from '@/features/pets/ConfirmDialog'
 import { recordCache } from '../record-load'
-import { medicalRecordHref } from '../stage'
+import { medicalRecordHref, withSaved } from '../stage'
 import { eventSaveFailure, type EventSaveFailure } from '../events/event-form'
 import {
   blankCourse,
@@ -46,12 +46,19 @@ export default function CourseForm({
   petName,
   course,
   today,
+  onDirtyChange,
+  notice = null,
 }: {
   petId: string
   petName: string
   /** The current course being corrected; null for new ones. Never a finished course. */
   course: Medication | null
+  /** The owner's day; it moves on at midnight, and the date limits with it. */
   today: string
+  /** Whether the owner has typed (or is saving): a page refreshing the course keeps the form as it is while so. */
+  onDirtyChange?: (dirty: boolean) => void
+  /** What became of the course meanwhile, under the heading. */
+  notice?: React.ReactNode
 }) {
   const dict = useTranslations()
   const router = useRouter()
@@ -73,6 +80,7 @@ export default function CourseForm({
   const backHref = course ? medicalRecordHref.recordView(petId, course.id) : sectionHref
   const dirty = coursesChanged(initial, drafts)
   const { leaveHref, leaveLinkRef, stay, leave } = useLeaveGuard(dirty && !saving)
+  useEffect(() => onDirtyChange?.(dirty || saving), [dirty, saving, onDirtyChange])
   const errors = courseErrorTexts(dict, problems)
   const full = drafts.length >= MEDICATION_LIMITS.items
 
@@ -155,13 +163,14 @@ export default function CourseForm({
         // With the owner's day: the server refuses a finished course by the same day this form is offered by.
         await api.changeMedication(petId, course.id, read.value, today)
         recordCache.forget(petId)
-        leave(`${backHref}?saved=changed`)
+        leave(withSaved(backHref, 'changed'))
       } else if ('items' in read.value) {
-        await api.addMedications(petId, read.value, saveKey.current(), today)
+        const saved = await api.addMedications(petId, read.value, saveKey.current(), today)
         // The next save of this form would be new courses.
         saveKey.renew()
         recordCache.forget(petId)
-        leave(`${sectionHref}?saved=added`)
+        // Back to the medicines; the notice opens the course when there is one (MW-09).
+        leave(withSaved(sectionHref, 'added', saved.length === 1 ? saved[0].id : null))
       }
     } catch (error) {
       inFlight.current = false
@@ -189,6 +198,8 @@ export default function CourseForm({
           {course ? form.toCourse : form.toSection}
         </Link>
       </div>
+
+      {notice}
 
       <form className="card record-form event-form course-form" onSubmit={handleSubmit} noValidate aria-busy={saving || undefined}>
         {drafts.map((draft, index) => {

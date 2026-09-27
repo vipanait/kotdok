@@ -1,20 +1,33 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { courseEditable, localToday } from '@lapka/shared'
+import type { Medication } from '@lapka/contracts'
+import { courseEditable } from '@lapka/shared'
 import { useTranslations } from '@/components/LocaleProvider'
+import { useToday } from '@/features/forms/use-today'
+import type { Fresh } from '../held-record'
 import { RecordProblem } from '../MedicalRecordScreen'
 import { medicalRecordHref } from '../stage'
+import { DriftNotice, useHeldRecord } from '../use-held-record'
 import { useMedicalRecord } from '../use-medical-record'
 import CourseForm from './CourseForm'
 
 /**
  * `/pets/[id]/health/new?type=medication`: new courses, one empty to start with.
- * `today`: the owner's day from the page, the same on the server and in the browser.
+ * `today`: the owner's day from the page, the same on the server and in the
+ * browser; it moves on at midnight (MW-09).
  */
 export function NewCourseScreen({ petId, petName, today }: { petId: string; petName: string; today: string }) {
-  return <CourseForm petId={petId} petName={petName} course={null} today={today} />
+  const day = useToday(today)
+  return <CourseForm petId={petId} petName={petName} course={null} today={day} />
+}
+
+/** What the latest load says about the course: finished by the owner's day is only read. */
+function freshCourse(courses: Medication[], courseId: string, today: string): Fresh<Medication> {
+  const course = courses.find((entry) => entry.id === courseId)
+  if (!course) return { kind: 'gone' }
+  return courseEditable(course, today) ? { kind: 'open', record: course } : { kind: 'closed' }
 }
 
 /**
@@ -26,18 +39,39 @@ export function NewCourseScreen({ petId, petName, today }: { petId: string; petN
  */
 export function EditCourseScreen({ petId, petName, courseId }: { petId: string; petName: string; courseId: string }) {
   const dict = useTranslations()
-  const { state, reload } = useMedicalRecord(petId)
-  const [today] = useState(() => localToday())
+  const { state, reload, today } = useMedicalRecord(petId)
+  // The form keeps the course it opened with while the owner types; a refresh
+  // underneath — or midnight ending the course — only tells (MW-09).
+  const held = useHeldRecord(state.status === 'ready' ? freshCourse(state.data.overview.medications, courseId, today) : null)
 
   if (state.status !== 'ready') {
     return <RecordProblem state={state} petId={petId} reload={reload} loading={<FormSkeleton label={dict.medicalRecord.states.loading} />} />
   }
 
-  const course = state.data.overview.medications.find((entry) => entry.id === courseId)
-  if (!course) return <CourseGone petId={petId} />
-  if (!courseEditable(course, today)) return <CourseFinished petId={petId} courseId={course.id} />
-  // Keyed by the course: the fields start from its values once; a refresh underneath does not reset them.
-  return <CourseForm key={course.id} petId={petId} petName={petName} course={course} today={today} />
+  const course = held.record
+  if (!course) {
+    const found = state.data.overview.medications.find((entry) => entry.id === courseId)
+    return found ? <CourseFinished petId={petId} courseId={found.id} /> : <CourseGone petId={petId} />
+  }
+  // Keyed by the course and the load it started from: the fields start from its values once.
+  return (
+    <CourseForm
+      key={`${course.id}-${held.version}`}
+      petId={petId}
+      petName={petName}
+      course={course}
+      today={today}
+      onDirtyChange={held.setDirty}
+      notice={
+        <DriftNotice
+          drift={held.drift}
+          onTakeLatest={held.takeLatest}
+          sectionHref={medicalRecordHref.section(petId, 'medications')}
+          recordHref={medicalRecordHref.recordView(petId, course.id)}
+        />
+      }
+    />
+  )
 }
 
 function useFocusOnMount<T extends HTMLElement>() {

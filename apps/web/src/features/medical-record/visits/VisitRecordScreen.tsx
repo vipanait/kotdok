@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { localToday } from '@lapka/shared'
 import { useLocale, useTranslations } from '@/components/LocaleProvider'
 import Icon from '@/components/ui/Icon'
 import UrgencyBadge from '@/components/ui/UrgencyBadge'
@@ -34,9 +33,8 @@ export default function VisitRecordScreen({ petId, visitId, saved }: { petId: st
   const router = useRouter()
   const words = dict.medicalRecord
   const view = words.visitRecord
-  const { state, reload } = useMedicalRecord(petId)
+  const { state, reload, today } = useMedicalRecord(petId)
   const checks = usePetChecks(petId)
-  const [today] = useState(() => localToday())
   const [asking, setAsking] = useState(false)
   const [removing, setRemoving] = useState(false)
   const [removeError, setRemoveError] = useState<string | undefined>()

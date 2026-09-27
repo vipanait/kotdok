@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { cssString, localToday } from '@lapka/shared'
+import { useEffect } from 'react'
+import { cssString } from '@lapka/shared'
+import { useToday } from '@/features/forms/use-today'
 import { useLocale, useTranslations } from '@/components/LocaleProvider'
 import LapkaLogo from '@/components/LapkaLogo'
 import UrgencyBadge from '@/components/ui/UrgencyBadge'
@@ -25,8 +26,9 @@ export default function VetSummaryScreen({ petId }: { petId: string }) {
   const locale = useLocale()
   const words = dict.medicalRecord.vetSummary
   // The owner's day, from the browser's clock: the server counts the courses
-  // taken now and the year of visits from it, the page overdue and the footer's date.
-  const [today] = useState(() => localToday())
+  // taken now and the year of visits from it, the page overdue and the footer's
+  // date. It moves on at midnight, and the summary is read again for it (MW-09).
+  const today = useToday()
   const { state, reload } = useVetSummary(petId, today)
   const page = state.status === 'ready' ? vetSummaryPage(dict, locale, state.data, today) : null
 

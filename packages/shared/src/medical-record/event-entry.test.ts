@@ -8,6 +8,7 @@ import {
   nextDayProblem,
   nextDayOf,
   suggestNextDay,
+  suggestionInterval,
   toggleParasiteGroup,
   vaccineTargetsFor,
 } from './event-entry'
@@ -62,6 +63,13 @@ describe('suggested next date', () => {
     expect(fallbackInterval('vaccination', [])).toEqual({ value: 1, unit: 'year' })
     expect(fallbackInterval('parasite', ['worms'])).toEqual({ value: 3, unit: 'month' })
     expect(fallbackInterval('parasite', ['worms', 'fleas'])).toEqual({ value: 1, unit: 'month' })
+  })
+
+  it('suggests by the item’s own interval, else by the fallback — the owner’s own name too (web and phone, MW-09)', () => {
+    expect(suggestionInterval('parasite', { value: 12, unit: 'week' }, ['worms'])).toEqual({ value: 12, unit: 'week' })
+    expect(suggestionInterval('vaccination', null, ['rabies'])).toEqual({ value: 1, unit: 'year' })
+    expect(suggestionInterval('parasite', null, ['worms'])).toEqual({ value: 3, unit: 'month' })
+    expect(suggestionInterval('parasite', null, [])).toEqual({ value: 1, unit: 'month' })
   })
 })
 

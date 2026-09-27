@@ -8,6 +8,7 @@ import {
   dueEntries,
   dueName,
   dueTiming,
+  headAge,
   isTakenNow,
   parasiteGroups,
   plannedEvents,
@@ -100,8 +101,9 @@ export function headFacts(dict: Dictionary, locale: Locale, overview: HealthOver
   const parts = [speciesWord(words, pet)]
   const breed = pet.breed?.trim()
   if (breed) parts.push(breed)
-  // An age of 0 is an unfilled field, not a newborn (as on the pet list).
-  if (pet.age_years != null && pet.age_years > 0) parts.push(formatCount(dict.pets.age, pet.age_years, locale))
+  // Zero included, as on the phone (shared `headAge`, MW-09).
+  const age = headAge(pet.age_years)
+  if (age !== null) parts.push(formatCount(dict.pets.age, age, locale))
   if (pet.neutered === true) parts.push(words.neutered[pet.sex ?? 'unknown'])
 
   return {
@@ -249,6 +251,17 @@ export function dueLineTitle(dict: Dictionary, locale: Locale, due: Pick<DueItem
 }
 
 /**
+ * A status inside a sentence («Сделано: Прививка, через 3 дня · 12 сентября»):
+ * its opening word goes lower case, never the date — a month keeps its
+ * capital in English («in 3 days · September 12», «March 12, 2027», MW-09).
+ * A later date is the date alone.
+ */
+export function statusInSentence(status: { text: string; tone: string }): string {
+  if (status.tone === 'later') return status.text
+  return status.text.charAt(0).toLocaleLowerCase() + status.text.slice(1)
+}
+
+/**
  * The line under a pet in the overview and on «Питомцы» (spec §7.1, §9):
  * «Обработка от блох и клещей — просрочено», «Прививка от бешенства — через
  * 5 дней», «Визит к врачу: осмотр — завтра» (`dueLineTitle`), as on the
@@ -313,7 +326,7 @@ function dueRow(
       tone: status.tone,
       completeHref: held ? medicalRecordHref.complete(petId, entry.event.id, null, from) : null,
       completeText: words.markHeld,
-      completeLabel: words.markHeldLabel.replace('{title}', title).replace('{status}', status.text.toLowerCase()),
+      completeLabel: words.markHeldLabel.replace('{title}', title).replace('{status}', statusInSentence(status)),
     }
   }
   const offered =
@@ -326,7 +339,7 @@ function dueRow(
     tone: status.tone,
     completeHref: offered ? medicalRecordHref.complete(petId, entry.event.id, entry.key, from) : null,
     completeText: words.markDone,
-    completeLabel: words.markDoneLabel.replace('{title}', title).replace('{status}', status.text.toLowerCase()),
+    completeLabel: words.markDoneLabel.replace('{title}', title).replace('{status}', statusInSentence(status)),
   }
 }
 

@@ -107,6 +107,19 @@ async function signedInPage(email, width = 1440, options = {}) {
 }
 
 const text = (value) => (value ?? '').replace(/\s+/g, ' ').trim()
+
+// MW-09: a new record returns to its section; the notice opens the record.
+async function openSaved(page) {
+  await page.waitForSelector('.health-saved-link')
+  await Promise.all([page.waitForURL(/\/health\/[0-9a-f-]{36}$/), page.click('.health-saved-link')])
+}
+
+// MW-09: «Сохранить» on «Сделано» asks first; the question's «Отметить сделанным» sends.
+async function submitComplete(page) {
+  await page.click('.complete-form button[type=submit]')
+  await page.waitForSelector('[role=dialog]')
+  await page.click('[role=dialog] button.btn.primary')
+}
 const settle = (page) => page.evaluate(() => document.fonts.ready)
 const overflow = (page) => page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1)
 const shot = (page, name, fullPage = true) => page.screenshot({ path: resolve(here, `${name}.png`), fullPage })
@@ -245,7 +258,9 @@ const readRecord = (page) =>
   await page.waitForSelector('.complete-form')
   await settle(page)
   summary.checks.vaccineCompleteForm = await completeForm(page)
-  await Promise.all([page.waitForURL(/\?saved=completed/), page.click('.complete-form button[type=submit]')])
+  // MW-09: back to the plan, whose other item stays; the notice opens the done record.
+  await Promise.all([page.waitForURL(/\?saved=completed&record=/), submitComplete(page)])
+  await openSaved(page)
   await page.waitForSelector('.event-record-page')
   await settle(page)
   summary.checks.vaccineCompleted = await readRecord(page)
@@ -277,7 +292,7 @@ const readRecord = (page) =>
     await route.fetch()
     await route.abort('internetdisconnected')
   })
-  await page.click('.complete-form button[type=submit]')
+  await submitComplete(page)
   await page.waitForSelector('.event-form-banner')
   summary.checks.lostAnswer = {
     form: await completeForm(page),
@@ -289,7 +304,7 @@ const readRecord = (page) =>
   }
   await shot(page, 'complete-error-1440')
   await page.unroute('**/api/v1/pets/*/health/items/*/complete')
-  await Promise.all([page.waitForURL(/\/health\/due\?saved=completed/), page.click('.complete-form button[type=submit]')])
+  await Promise.all([page.waitForURL(/\/health\/due\?saved=completed/), submitComplete(page)])
   await page.waitForSelector('.due-page .health-saved')
   await settle(page)
   const afterFlea = await events()
@@ -341,6 +356,7 @@ const readRecord = (page) =>
   await page.click('body', { position: { x: 5, y: 5 } })
   await shot(page, 'parasite-done-1440')
   await Promise.all([page.waitForURL(/\?saved=added/), page.click('.event-form button[type=submit]')])
+  await openSaved(page)
   await page.waitForSelector('.event-record-page')
   const twoSaved = await readRecord(page)
   const twoId = twoSaved.url.split('/').pop().split('?')[0]
@@ -368,7 +384,7 @@ const readRecord = (page) =>
     await route.continue()
   })
   const pressesBefore = completes.length
-  await page.click('.complete-form button[type=submit]')
+  await submitComplete(page)
   await page.waitForSelector('.complete-form button[aria-disabled=true]')
   summary.checks.pending = { label: text(await page.textContent('.complete-form button[type=submit]')), busy: await page.getAttribute('.complete-form', 'aria-busy') }
   await page.click('.complete-form button[type=submit]', { force: true })
@@ -397,7 +413,7 @@ const readRecord = (page) =>
   await page.route('**/api/v1/pets/*/health/items/*/complete', (route) =>
     route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ error: { code: 'dependency_unavailable', message: 'down', request_id: 'verify' } }) }),
   )
-  await page.click('.complete-form button[type=submit]')
+  await submitComplete(page)
   await page.waitForSelector('.event-form-banner')
   summary.checks.serverError = {
     banner: text(await page.textContent('.event-form-banner')),
@@ -409,7 +425,7 @@ const readRecord = (page) =>
   // The plan is cancelled on another device; «Сохранить» here gets 404.
   await api(`/pets/${murka.id}/health/events/${wormPlan.id}`, tokenA, { method: 'DELETE' })
   const beforeGone = JSON.stringify(await events())
-  await page.click('.complete-form button[type=submit]')
+  await submitComplete(page)
   await page.waitForFunction(() => document.querySelector('.event-form-banner')?.textContent.includes('больше нет'))
   summary.checks.goneMeanwhile = {
     banner: text(await page.textContent('.event-form-banner')),
@@ -458,11 +474,11 @@ const readRecord = (page) =>
     await route.fetch()
     await route.abort('internetdisconnected')
   })
-  await page.click('.complete-form button[type=submit]')
+  await submitComplete(page)
   await page.waitForSelector('.event-form-banner')
   await page.unroute('**/api/v1/pets/*/health/items/*/complete')
   await page.fill('.complete-form input[id$="-done"]', plusDays(today, -1))
-  await page.click('.complete-form button[type=submit]')
+  await submitComplete(page)
   await page.waitForFunction(() => document.querySelector('.event-form-banner')?.textContent.includes('раньше'))
   await page.waitForTimeout(800)
   const storedSingle = (await events()).find((event) => event.id === single.id)

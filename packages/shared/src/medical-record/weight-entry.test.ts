@@ -4,6 +4,7 @@ import {
   WEIGHT_MIN_KG,
   newWeightInput,
   parseWeight,
+  parseWeightKeeping,
   weightCorrection,
   weightDayProblem,
   weightFieldText,
@@ -95,6 +96,33 @@ describe('corrections', () => {
     const patch = weightCorrection(dated, '4,1', '2026-09-11', TODAY)
     expect(patch).toEqual({ ok: true, patch: { weight_kg: 4.1, measured_on: '2026-09-11' } })
     expect(patch.ok && WeightPatchSchema.safeParse(patch.patch).success).toBe(true)
+  })
+
+  it('re-dates a two-decimal weight from the pet form without touching its value (MW-09)', () => {
+    const undated = weight(null, 4.25, 'form')
+    // The field opens with «4,25»: moving it to a day sends the day alone.
+    expect(weightCorrection(undated, '4,25', '2026-09-01', TODAY)).toEqual({ ok: true, patch: { measured_on: '2026-09-01' } })
+    expect(weightCorrection(undated, ' 4.25 ', '', TODAY)).toEqual({ ok: true, patch: null })
+    // A dated one too: its day moves, its value stays 4.25.
+    const dated = weight('2026-09-12', 4.25)
+    expect(weightCorrection(dated, '4,25', '2026-09-10', TODAY)).toEqual({ ok: true, patch: { measured_on: '2026-09-10' } })
+    // Typed anew, the field's own rule holds: one decimal.
+    expect(weightCorrection(undated, '4,26', '2026-09-01', TODAY)).toEqual({ ok: false, problems: { weight: 'invalid', day: undefined } })
+    expect(weightCorrection(undated, '4,3', '2026-09-01', TODAY)).toEqual({ ok: true, patch: { weight_kg: 4.3, measured_on: '2026-09-01' } })
+  })
+
+  it('dates the pet form’s weight as a new weighing with its exact value', () => {
+    expect(newWeightInput('4,25', '2026-09-01', TODAY, 4.25)).toEqual({ ok: true, input: { measured_on: '2026-09-01', weight_kg: 4.25 } })
+    expect(newWeightInput('4,25', '2026-09-01', TODAY)).toEqual({ ok: false, problems: { weight: 'invalid', day: undefined } })
+  })
+
+  it('takes the stored value only while the text still says it', () => {
+    expect(parseWeightKeeping('4,25', 4.25)).toEqual({ ok: true, value: 4.25 })
+    expect(parseWeightKeeping('4,250', 4.25)).toEqual({ ok: true, value: 4.25 })
+    expect(parseWeightKeeping('4,2', 4.25)).toEqual({ ok: true, value: 4.2 })
+    expect(parseWeightKeeping('4,24', 4.25)).toEqual({ ok: false, problem: 'invalid' })
+    expect(parseWeightKeeping('4,25', null)).toEqual({ ok: false, problem: 'invalid' })
+    expect(parseWeightKeeping('', 4.25)).toEqual({ ok: false, problem: 'empty' })
   })
 
   it('shows a stored weight in the field with the locale’s separator', () => {

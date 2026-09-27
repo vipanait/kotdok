@@ -18,6 +18,7 @@ import {
   eventDayProblem,
   nextDayProblem,
   suggestNextDay,
+  suggestionInterval,
   type EventDayProblem,
   type Interval,
   type NextDayProblem,
@@ -33,8 +34,10 @@ import type { RecordType } from '../stage'
  *   items, and a plan has no next dates (they are kept aside, not lost);
  * - an item is a catalogue product (its name and diseases), the owner's own
  *   name, or «Без препарата» — diseases only, at least one;
- * - a catalogue interval only suggests the next date, the owner changes or
- *   clears it; the owner's own product gets no suggestion;
+ * - an interval only suggests the next date, the owner changes or clears
+ *   it: the catalogue product's own, or — the owner's own name, «Без
+ *   препарата» — the fallback for the kind and diseases, as on the phone
+ *   (shared `suggestionInterval`, MW-09);
  * - a plan being corrected keeps its id, its day unless moved, and its items'
  *   ids; a done record is never corrected (owner rule of 26 September 2026).
  *
@@ -110,7 +113,7 @@ export function draftFromPlan(event: HealthEvent): EventDraft {
 /** A product picked from the catalogue: its name, diseases and interval; the next date follows it. */
 export function productItem(key: string, product: HealthProduct, draft: EventDraft, today: string): ItemDraft {
   const fits = draft.kind === 'vaccination' ? VaccineTargetSchema : ParasiteTargetSchema
-  return {
+  const item: ItemDraft = {
     key,
     source: 'catalog',
     name: product.name,
@@ -118,12 +121,16 @@ export function productItem(key: string, product: HealthProduct, draft: EventDra
     productId: product.id,
     targets: product.targets.filter((code) => fits.safeParse(code).success) as HealthTarget[],
     interval: product.interval,
-    next: draft.status === 'done' && draft.date ? (suggestNextDay(draft.date, product.interval, today) ?? '') : '',
+    next: '',
     nextTouched: false,
   }
+  return followSuggestion(item, draft, today)
 }
 
-/** «Нет в списке — ввести название»: the owner's own name, no suggested date. */
+/**
+ * «Нет в списке — ввести название»: the owner's own name. Its next date is
+ * suggested once it is in a form (`followSuggestion`): by the fallback interval.
+ */
 export function manualItem(key: string, name: string): ItemDraft {
   return { key, source: 'manual', name, manufacturer: null, productId: null, targets: [], interval: null, next: '', nextTouched: false }
 }
@@ -141,13 +148,24 @@ export function switchStatus(draft: EventDraft, status: HealthEvent['status'], t
     ...draft,
     status,
     date,
-    items: draft.items.map((item) => (item.nextTouched ? item : { ...item, next: suggested(item, status, date, today) })),
+    items: draft.items.map((item) => followSuggestion(item, { kind: draft.kind, status, date }, today)),
   }
 }
 
-function suggested(item: ItemDraft, status: HealthEvent['status'], date: string, today: string): string {
-  if (status !== 'done' || !date || item.source !== 'catalog') return ''
-  return suggestNextDay(date, item.interval, today) ?? ''
+function suggested(kind: EventFormKind, item: ItemDraft, status: HealthEvent['status'], date: string, today: string): string {
+  if (status !== 'done' || !date) return ''
+  return suggestNextDay(date, suggestionInterval(kind, item.interval, item.targets), today) ?? ''
+}
+
+/**
+ * An item's next date follows the suggestion — for its interval, its
+ * diseases (the fallback depends on them) and the record's day — until the
+ * owner sets or clears it by hand.
+ */
+export function followSuggestion(item: ItemDraft, draft: Pick<EventDraft, 'kind' | 'status' | 'date'>, today: string): ItemDraft {
+  if (item.nextTouched) return item
+  const next = suggested(draft.kind, item, draft.status, draft.date, today)
+  return next === item.next ? item : { ...item, next }
 }
 
 /** A new record day moves the next dates the owner has not set by hand. */
@@ -155,7 +173,7 @@ export function changeDate(draft: EventDraft, date: string, today: string): Even
   return {
     ...draft,
     date,
-    items: draft.items.map((item) => (item.nextTouched ? item : { ...item, next: suggested(item, draft.status, date, today) })),
+    items: draft.items.map((item) => followSuggestion(item, { ...draft, date }, today)),
   }
 }
 

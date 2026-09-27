@@ -5,7 +5,14 @@ import {
   type HealthEvent,
   type HealthItem,
 } from '@lapka/contracts'
-import { eventDayProblem, nextDayProblem, suggestNextDay, type EventDayProblem, type NextDayProblem } from '@lapka/shared'
+import {
+  eventDayProblem,
+  nextDayProblem,
+  suggestNextDay,
+  suggestionInterval,
+  type EventDayProblem,
+  type NextDayProblem,
+} from '@lapka/shared'
 import type { ContractRefusal } from './event-form'
 
 /**
@@ -19,8 +26,9 @@ import type { ContractRefusal } from './event-form'
  * - the day it was done starts as the owner's today and is not after it;
  * - the next date is suggested from the item's own interval in its own unit —
  *   12 weeks from 24 September is 17 December, not 3 months later — by the
- *   shared calendar arithmetic (`suggestNextDay`); the owner changes or
- *   clears it; an item with no interval gets no suggestion;
+ *   shared calendar arithmetic (`suggestNextDay`); an item with none (the
+ *   owner's own name, «Без препарата») by the usual one for its kind, as on
+ *   the phone (`suggestionInterval`, MW-09); the owner changes or clears it;
  * - the clinic and the note start as the plan's own, and what the fields
  *   hold is what the done record gets: a field the owner empties is sent
  *   as '' and clears the plan's text (the contract tells "sent empty" from
@@ -51,6 +59,8 @@ export function completionTarget(plan: HealthEvent, itemId: string | null): Comp
 }
 
 export type CompleteDraft = {
+  /** The plan's kind: the usual interval of an item with none depends on it. */
+  kind: HealthEvent['kind']
   /** yyyy-mm-dd, or '' when cleared. */
   doneOn: string
   /** '' is none. */
@@ -61,18 +71,27 @@ export type CompleteDraft = {
   notes: string
 }
 
-function suggested(item: Pick<HealthItem, 'interval'>, doneOn: string, today: string): string {
+type SuggestedBy = Pick<HealthItem, 'interval' | 'targets'>
+
+function suggested(kind: HealthEvent['kind'], item: SuggestedBy, doneOn: string, today: string): string {
   if (!doneOn) return ''
-  return suggestNextDay(doneOn, item.interval, today) ?? ''
+  return suggestNextDay(doneOn, suggestionInterval(kind, item.interval, item.targets), today) ?? ''
 }
 
-export function completeDraft(plan: HealthEvent, item: Pick<HealthItem, 'interval'>, today: string): CompleteDraft {
-  return { doneOn: today, next: suggested(item, today, today), nextTouched: false, clinic: plan.clinic ?? '', notes: plan.notes ?? '' }
+export function completeDraft(plan: HealthEvent, item: SuggestedBy, today: string): CompleteDraft {
+  return {
+    kind: plan.kind,
+    doneOn: today,
+    next: suggested(plan.kind, item, today, today),
+    nextTouched: false,
+    clinic: plan.clinic ?? '',
+    notes: plan.notes ?? '',
+  }
 }
 
 /** A new done day moves a next date the owner has not set by hand. */
-export function changeDoneDay(draft: CompleteDraft, item: Pick<HealthItem, 'interval'>, doneOn: string, today: string): CompleteDraft {
-  return { ...draft, doneOn, next: draft.nextTouched ? draft.next : suggested(item, doneOn, today) }
+export function changeDoneDay(draft: CompleteDraft, item: SuggestedBy, doneOn: string, today: string): CompleteDraft {
+  return { ...draft, doneOn, next: draft.nextTouched ? draft.next : suggested(draft.kind, item, doneOn, today) }
 }
 
 export type CompleteProblems = {
