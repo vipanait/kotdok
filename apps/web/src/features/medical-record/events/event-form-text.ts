@@ -72,12 +72,13 @@ export function eventFailureText(dict: Dictionary, failure: Exclude<EventSaveFai
 }
 
 /**
- * Under an item's next date: what suggested it — the product's interval, in
- * its own unit («12 недель», not «3 месяца»), or the usual one for the kind
- * (shared `suggestionInterval`, the phone's rule) — and only when something
- * was suggested. A suggestion that would already be past is said not to be
- * one (MW-09: the hint never claims a date it did not put there). With no
- * readable record day yet, only that the date can be changed.
+ * Under an item's next date: what the interval is — the product's, in its
+ * own unit («12 недель», not «3 месяца»), or the usual one for the kind
+ * (shared `suggestionInterval`, the phone's rule). It says «Предложено…»
+ * only while the field holds the date the interval suggested (MW-09): not
+ * once the owner cleared or changed it, and not when the interval lands in
+ * the past and nothing was put there. With no readable record day yet, only
+ * that the date can be changed.
  */
 export function nextHintText(
   dict: Dictionary,
@@ -85,13 +86,19 @@ export function nextHintText(
   kind: HealthEvent['kind'],
   item: { interval: Interval | null; targets: readonly string[] },
   recordDay: string,
+  next: string,
   today: string,
 ): string {
   const form = dict.medicalRecord.eventForm
   if (!CalendarDateSchema.safeParse(recordDay).success) return form.nextHint
   const interval = suggestionInterval(kind, item.interval, item.targets)
   const spoken = formatCount(form.interval[interval.unit], interval.value, locale)
-  if (suggestNextDay(recordDay, interval, today) === null) return form.nextNotSuggested.replace('{interval}', spoken)
-  const why = (item.interval ? form.nextSuggested : form.nextSuggestedUsual).replace('{interval}', spoken)
-  return `${why} ${form.nextHint}`
+  const suggestion = suggestNextDay(recordDay, interval, today)
+  if (suggestion === null) return form.nextNotSuggested.replace('{interval}', spoken)
+  const own = item.interval !== null
+  const why =
+    next === suggestion
+      ? (own ? form.nextSuggested : form.nextSuggestedUsual)
+      : (own ? form.nextInterval : form.nextIntervalUsual)
+  return `${why.replace('{interval}', spoken)} ${form.nextHint}`
 }

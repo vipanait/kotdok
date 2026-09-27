@@ -11,7 +11,8 @@ import {
   othersInPlan,
   readCompletion,
 } from '@/features/medical-record/events/complete-form'
-import { completeErrorTexts, completeFailureText, completionNote, confirmTexts, earlierText, nextHint } from '@/features/medical-record/events/complete-form-text'
+import { completeErrorTexts, completeFailureText, completionNote, confirmTexts, earlierText } from '@/features/medical-record/events/complete-form-text'
+import { nextHintText } from '@/features/medical-record/events/event-form-text'
 import { eventSaveFailure } from '@/features/medical-record/events/event-form'
 import { eventRecord, eventsPage, parseEventSaved } from '@/features/medical-record/events/event-view'
 import {
@@ -126,23 +127,34 @@ describe('the «Сделано» form (MW-04 criterion 2)', () => {
     expect(completionNote(ru, 'ru', 0, { ...draft, next: '' }, TODAY)).toBe(
       'План станет выполненной записью. Следующий срок не будет запланирован.',
     )
-    expect(nextHint(ru, 'ru', 'parasite', bravecto, TODAY, TODAY)).toBe(
+    const fleaDraft = completeDraft(fleaPlan, bravecto, TODAY)
+    expect(nextHintText(ru, 'ru', 'parasite', bravecto, TODAY, fleaDraft.next, TODAY)).toBe(
       'Предложено по интервалу препарата: 12 недель. Можно изменить или очистить дату. Уточните срок у врача.',
     )
-    expect(nextHint(ru, 'ru', 'parasite', milbemax, TODAY, TODAY)).toContain('3 месяца')
-    expect(nextHint(en, 'en', 'parasite', bravecto, TODAY, TODAY)).toContain('12 weeks')
+    expect(nextHintText(ru, 'ru', 'parasite', milbemax, TODAY, completeDraft(find(106), milbemax, TODAY).next, TODAY)).toContain('3 месяца')
+    expect(nextHintText(en, 'en', 'parasite', bravecto, TODAY, fleaDraft.next, TODAY)).toContain('12 weeks')
   })
 
   it('never speaks of a suggestion that was not made (MW-09)', () => {
     // Done a year ago: 12 weeks from then is already past, so nothing was put in the field.
-    const hint = nextHint(ru, 'ru', 'parasite', bravecto, '2025-09-01', TODAY)
+    const hint = nextHintText(ru, 'ru', 'parasite', bravecto, '2025-09-01', '', TODAY)
     expect(hint).not.toContain('Предложено')
     expect(hint).toContain('12 недель')
     expect(hint).toContain('уже прошёл')
     // No interval of its own: the usual one, said as such.
-    expect(nextHint(ru, 'ru', 'vaccination', { interval: null, targets: ['rabies'] }, TODAY, TODAY)).toContain('Предложено по обычному интервалу: 1 год.')
+    expect(nextHintText(ru, 'ru', 'vaccination', { interval: null, targets: ['rabies'] }, TODAY, '2027-09-26', TODAY)).toContain('Предложено по обычному интервалу: 1 год.')
     // No readable day yet: only that the date can be changed.
-    expect(nextHint(ru, 'ru', 'parasite', bravecto, '', TODAY)).toBe('Можно изменить или очистить дату. Уточните срок у врача.')
+    expect(nextHintText(ru, 'ru', 'parasite', bravecto, '', '', TODAY)).toBe('Можно изменить или очистить дату. Уточните срок у врача.')
+    // Cleared or changed by the owner: the interval is named, never «Предложено» (fix round 1).
+    const fleaNext = completeDraft(fleaPlan, bravecto, TODAY).next
+    expect(nextHintText(ru, 'ru', 'parasite', bravecto, TODAY, '', TODAY)).toBe(
+      'Интервал препарата — 12 недель. Можно изменить или очистить дату. Уточните срок у врача.',
+    )
+    expect(nextHintText(ru, 'ru', 'parasite', bravecto, TODAY, '2027-01-10', TODAY)).not.toContain('Предложено')
+    expect(nextHintText(ru, 'ru', 'parasite', bravecto, TODAY, fleaNext, TODAY)).toContain('Предложено')
+    expect(nextHintText(ru, 'ru', 'vaccination', { interval: null, targets: [] }, TODAY, '', TODAY)).toBe(
+      'Обычный интервал — 1 год. Можно изменить или очистить дату. Уточните срок у врача.',
+    )
   })
 
   it('asks before saving, with the item and its day, and warns without «препараты» (MW-09)', () => {

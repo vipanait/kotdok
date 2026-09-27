@@ -25,6 +25,13 @@ export function nextDayCheckDelay(now: Date): number {
  * last time it looked. Only a change of the browser's day moves the page —
  * so a page drawn with the owner's zone is not moved to another zone's day
  * the first time it looks — and then to the browser's new day.
+ *
+ * Note the zone switch at that moment: until the first rollover the page
+ * shows the owner's day as the server drew it (the `lapka-tz` zone, Moscow
+ * without the cookie); from the rollover on it shows the browser's own day
+ * (`localToday`). The two are the same zone for an owner whose browser wrote
+ * the cookie (`TimeZoneCookie`); for one without it, the page moves to the
+ * browser's zone at the first midnight the browser sees, and stays there.
  */
 export function dayAfterLook(shown: string, seen: string, now: Date = new Date()): { shown: string; seen: string } {
   const current = localToday(now)

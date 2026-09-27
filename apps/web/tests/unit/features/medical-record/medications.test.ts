@@ -13,7 +13,7 @@ import {
   type CourseDraft,
 } from '@/features/medical-record/medications/course-form'
 import { courseErrorTexts } from '@/features/medical-record/medications/course-form-text'
-import { coursePeriod, courseRecord, coursesPage, parseCourseSaved } from '@/features/medical-record/medications/course-view'
+import { courseDrift, coursePeriod, courseRecord, coursesPage, parseCourseSaved } from '@/features/medical-record/medications/course-view'
 import { eventSaveFailure } from '@/features/medical-record/events/event-form'
 import { importantFacts, sectionCards } from '@/features/medical-record/view-model'
 import { bobik, murka } from './demo-overviews'
@@ -218,5 +218,18 @@ describe('dates of a course on the record’s card', () => {
     const withEnd = { ...murka, medications: [course({ started_on: '2026-09-26', ended_on: '2026-10-06' })] }
     expect(sectionCards(ru, withEnd, TODAY).find((c) => c.section === 'medications')?.lines[0].detail).toBe('Сейчас · 26 сентября – 6 октября')
     expect(coursePeriod(ru, course({ started_on: TODAY, ended_on: TODAY }), TODAY)).toBe('26 сентября')
+  })
+})
+
+describe('a course form open at midnight (MW-09 fix round 1)', () => {
+  it('says a course that ended by its date as such, not «на другом устройстве»', () => {
+    const endsToday = { ...food, ongoing: false, ended_on: TODAY }
+    const tomorrow = '2026-09-27'
+    // The form opened with a course ending today; at midnight it is finished — by its date.
+    expect(courseDrift('closed', endsToday, tomorrow)).toBe('ended')
+    // The form opened with an ongoing course; finished meanwhile — elsewhere.
+    expect(courseDrift('closed', food, tomorrow)).toBe('closed')
+    expect(courseDrift('changed', endsToday, tomorrow)).toBe('changed')
+    expect(ru.medicalRecord.drift.ended).not.toContain('другом устройстве')
   })
 })

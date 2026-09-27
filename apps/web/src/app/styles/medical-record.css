@@ -203,8 +203,9 @@
   .health-saved { display: flex; flex-wrap: wrap; align-items: center; column-gap: 16px; row-gap: 4px; }
   .health-saved-link { min-height: 44px; display: inline-flex; align-items: center; color: inherit; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
   /* A record changed or deleted elsewhere while its form was open (MW-09). */
-  .health-drift { display: grid; gap: 4px; max-width: 680px; margin: 0 auto 20px; }
-  .weight-form-page .health-drift { max-width: 460px; }
+  .health-drift-live { max-width: 680px; margin: 0 auto; }
+  .weight-form-page .health-drift-live { max-width: 460px; }
+  .health-drift { display: grid; gap: 4px; margin-bottom: 20px; }
   .health-drift p { color: inherit; }
   .health-drift .link { justify-self: start; min-height: 44px; display: inline-flex; align-items: center; color: inherit; text-decoration: underline; text-underline-offset: 3px; }
 

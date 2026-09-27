@@ -21,7 +21,12 @@ export type Fresh<T> =
   /** Done or finished meanwhile: only read from now on. */
   | { kind: 'closed' }
 
-export type Drift = 'changed' | 'gone' | 'closed'
+/**
+ * What happened to the record while the owner typed. `ended`: not another
+ * device — a course whose last day passed at midnight (the page tells it
+ * apart, `courseDrift`); it is finished now and only read.
+ */
+export type Drift = 'changed' | 'gone' | 'closed' | 'ended'
 
 /** The record the form was started from; `version` keys the form. */
 export type HeldState<T> = { record: T | null; version: number }

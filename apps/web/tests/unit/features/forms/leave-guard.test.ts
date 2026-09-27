@@ -1,0 +1,189 @@
+import { describe, expect, it } from 'vitest'
+import { GUARD_KEY, type HistoryPort } from '@/features/forms/back-guard'
+import { LEAVE_BACK, createLeaveGuard, type LeaveGuard } from '@/features/forms/leave-guard'
+
+/**
+ * A browser tab in miniature: history entries with an address and a state,
+ * a cursor, Next's router pushing and replacing, a reload that keeps the
+ * history and starts the page over — and the page's form guard fed the
+ * events the hook (`useLeaveGuard`) feeds it.
+ */
+let nextId = 0
+type Entry = { id: number; href: string; state: Record<string, unknown> }
+const entry = (href: string, state: Record<string, unknown> = { __NA: true }): Entry => ({ id: nextId++, href, state })
+
+function tab(start: string[]) {
+  const entries: Entry[] = start.map((href) => entry(href))
+  /** The tab's sessionStorage: which entry (by its Navigation API key) is the copy. */
+  let remembered: number | null = null
+  const memo = {
+    remember: () => void (remembered = entries[cursor].id),
+    isCopy: () => remembered === entries[cursor].id,
+    forget: () => void (remembered = null),
+  }
+  let cursor = entries.length - 1
+  const pending: Array<() => void> = []
+  let page: LeaveGuard | null = null
+
+  const port: HistoryPort = {
+    get state() {
+      return entries[cursor].state
+    },
+    pushState(data) {
+      entries.splice(cursor + 1)
+      entries.push(entry(entries[cursor].href, data as Record<string, unknown>))
+      cursor += 1
+    },
+    back() {
+      this.go(-1)
+    },
+    go(delta) {
+      cursor = Math.max(0, cursor + delta)
+      // The popstate reaches the form while it is on the page.
+      if (page && entries[cursor].href === formHref) popped.push(page.popped())
+    },
+    href: () => entries[cursor].href,
+  }
+  const router = {
+    push(href: string) {
+      entries.splice(cursor + 1)
+      entries.push(entry(href))
+      cursor += 1
+      page = null
+    },
+    replace(href: string) {
+      // A replace keeps the slot (and its Navigation API key).
+      entries[cursor] = { ...entries[cursor], href, state: { __NA: true } }
+      page = null
+    },
+    refresh() {},
+  }
+  let formHref = entries[cursor].href
+  const popped: string[] = []
+
+  function open() {
+    formHref = entries[cursor].href
+    page = createLeaveGuard(port, router, (run) => pending.push(run), memo)
+    page.mounted()
+    return page
+  }
+
+  return {
+    open,
+    /** The form's page is loaded again, on whatever entry is current — and Next rewrites its state, as it does. */
+    reload() {
+      entries[cursor] = { ...entries[cursor], state: { __NA: true } }
+      return open()
+    },
+    back: () => port.back(),
+    /** Timers that ran (the copy put back after a Back). */
+    settle: () => pending.splice(0).forEach((run) => run()),
+    here: () => entries[cursor].href,
+    addresses: () => entries.map((entry) => entry.href),
+    copies: () => entries.filter((entry) => entry.state[GUARD_KEY] === true).length,
+    popped,
+  }
+}
+
+describe('the leave guard over a whole visit to a form (MW-09 fix round 1)', () => {
+  it('type, clear, «Отмена», Back: the form is in history once', () => {
+    const t = tab(['/section', '/form'])
+    const form = t.open()
+    form.setDirty(true)
+    form.setDirty(false)
+    // «Отмена» is a link: the clean form with its copy still in history leaves through the guard.
+    expect(form.linkClicked('/section')).toBe('follow')
+    expect(t.addresses()).toEqual(['/section', '/form', '/section'])
+    t.back()
+    expect(t.here()).toBe('/form')
+    t.back()
+    expect(t.here()).toBe('/section')
+  })
+
+  it('a clean form never put a copy: its links are left alone', () => {
+    const t = tab(['/section', '/form'])
+    const form = t.open()
+    expect(form.linkClicked('/section')).toBe('pass')
+    expect(t.addresses()).toEqual(['/section', '/form'])
+  })
+
+  it('a form with changes holds its links and asks', () => {
+    const t = tab(['/section', '/form'])
+    const form = t.open()
+    form.setDirty(true)
+    expect(form.linkClicked('/section')).toBe('hold')
+    form.leave('/section')
+    expect(t.addresses()).toEqual(['/section', '/form', '/section'])
+  })
+
+  it('type, reload, type, Back, «Уйти»: the page before the form, not the form again', () => {
+    const t = tab(['/section', '/form'])
+    t.open().setDirty(true)
+    expect(t.addresses()).toEqual(['/section', '/form', '/form'])
+    // F5 on the copy: the page starts over, and recognises its copy.
+    const reloaded = t.reload()
+    // Next dropped the mark; the tab still knows which entry the copy is.
+    expect(t.copies()).toBe(0)
+    reloaded.setDirty(true)
+    expect(t.addresses()).toEqual(['/section', '/form', '/form'])
+    t.back()
+    expect(t.popped).toEqual(['ask'])
+    t.settle()
+    reloaded.leave(LEAVE_BACK)
+    expect(t.here()).toBe('/section')
+  })
+
+  it('type, reload, Back with nothing typed: one press leaves', () => {
+    const t = tab(['/section', '/form'])
+    t.open().setDirty(true)
+    t.reload()
+    t.back()
+    // The copy was skipped over: the owner is on the page before the form.
+    expect(t.here()).toBe('/section')
+  })
+
+  it('type, reload, clear link: the copy is replaced, not left behind', () => {
+    const t = tab(['/section', '/form'])
+    t.open().setDirty(true)
+    const reloaded = t.reload()
+    expect(reloaded.linkClicked('/elsewhere')).toBe('follow')
+    expect(t.addresses()).toEqual(['/section', '/form', '/elsewhere'])
+  })
+
+  it('a form taken off and put back at once (React’s development double mount) keeps its copy', () => {
+    const t = tab(['/section', '/form'])
+    t.open().setDirty(true)
+    const reloaded = t.reload()
+    reloaded.unmounted()
+    reloaded.mounted()
+    t.settle()
+    expect(t.here()).toBe('/form')
+    expect(t.addresses()).toEqual(['/section', '/form', '/form'])
+    reloaded.setDirty(true)
+    t.back()
+    t.settle()
+    reloaded.leave(LEAVE_BACK)
+    expect(t.here()).toBe('/section')
+  })
+
+  it('a form taken off for good (re-keyed) takes its copy back', () => {
+    const t = tab(['/section', '/form'])
+    const form = t.open()
+    form.setDirty(true)
+    form.unmounted()
+    t.settle()
+    expect(t.here()).toBe('/form')
+    expect(t.addresses()[1]).toBe('/form')
+  })
+
+  it('Back over changes asks, «Остаться» keeps the form, a second Back asks again', () => {
+    const t = tab(['/section', '/form'])
+    const form = t.open()
+    form.setDirty(true)
+    t.back()
+    t.settle()
+    t.back()
+    expect(t.popped).toEqual(['ask', 'ask'])
+    expect(t.here()).toBe('/form')
+  })
+})

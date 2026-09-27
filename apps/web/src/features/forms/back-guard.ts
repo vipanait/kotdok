@@ -8,8 +8,14 @@
  * the DOM so the history it leaves behind is unit tested.
  *
  * - a form that is saved or left on purpose leaves no extra entry behind:
- *   going away replaces the copy; a form that is clean again stops asking,
- *   and a Back that reaches the copy then simply goes on;
+ *   going away replaces the copy — also when the form is clean again by
+ *   then (changed, then changed back) and left through a link or «Отмена»;
+ *   a form that is clean again stops asking, and a Back that reaches the
+ *   copy then simply goes on;
+ * - a reload on the copy does not make it a second form entry for good: the
+ *   page recognises its copy (`adopt`) and counts it once. Next rewrites
+ *   `history.state` on a reload, so the copy is also remembered for the tab
+ *   (`CopyMemo`: the Navigation API's entry key where there is one);
  * - «Уйти» after Back goes back past both entries of the form.
  */
 
@@ -21,6 +27,20 @@ export type HistoryPort = {
   go(delta: number): void
   href(): string
 }
+
+/**
+ * Remembers, for this tab, which history entry is the copy — so a reload on
+ * it can tell (Next replaces `history.state` on load, dropping `GUARD_KEY`).
+ */
+export type CopyMemo = {
+  /** The current entry is the copy just put there. */
+  remember(): void
+  /** Whether the current entry is the copy remembered. */
+  isCopy(): boolean
+  forget(): void
+}
+
+const NO_MEMO: CopyMemo = { remember() {}, isCopy: () => false, forget() {} }
 
 /** Marks the extra entry in `history.state` (for whoever reads it in devtools). */
 export const GUARD_KEY = '__lapkaLeaveGuard'
@@ -48,9 +68,20 @@ export type BackGuard = {
   goBack(): void
   /** The form is gone while the page stayed: take the copy back off. */
   drop(): void
+  /**
+   * On opening: the page was reloaded on the copy (its `history.state`
+   * says so). The copy is taken as this form's, not held — nothing is typed
+   * yet — so it is replaced or skipped like one put there by `arm`.
+   */
+  adopt(): void
 }
 
-export function createBackGuard(port: HistoryPort): BackGuard {
+/** Whether a history entry is the copy a guard put there. */
+export function isGuardEntry(state: unknown): boolean {
+  return typeof state === 'object' && state !== null && (state as Record<string, unknown>)[GUARD_KEY] === true
+}
+
+export function createBackGuard(port: HistoryPort, memo: CopyMemo = NO_MEMO): BackGuard {
   /** Where the copy was put; null when there is none. */
   let armedAt: string | null = null
   let held = false
@@ -66,6 +97,7 @@ export function createBackGuard(port: HistoryPort): BackGuard {
       const state = typeof port.state === 'object' && port.state !== null ? port.state : {}
       port.pushState({ ...state, [GUARD_KEY]: true }, '')
       armedAt = port.href()
+      memo.remember()
     },
     disarm() {
       held = false
@@ -73,25 +105,35 @@ export function createBackGuard(port: HistoryPort): BackGuard {
     popped() {
       if (leaving || armedAt === null || port.href() !== armedAt) return 'pass'
       armedAt = null
+      memo.forget()
       return held ? 'ask' : 'skip'
     },
     leave() {
       leaving = true
       const how = armedAt !== null ? 'replace' : 'push'
       armedAt = null
+      memo.forget()
       return how
     },
     goBack() {
       leaving = true
       port.go(armedAt !== null ? -2 : -1)
       armedAt = null
+      memo.forget()
     },
     drop() {
       if (armedAt === null || leaving) return
       const at = armedAt
       armedAt = null
       held = false
+      memo.forget()
       if (port.href() === at) port.back()
+    },
+    adopt() {
+      if (armedAt !== null || leaving) return
+      if (!isGuardEntry(port.state) && !memo.isCopy()) return
+      armedAt = port.href()
+      held = false
     },
   }
 }
