@@ -117,3 +117,53 @@ export const recordCache = {
   forget: (petId: string) => void seen.delete(petId),
   clear: () => seen.clear(),
 }
+
+export type RecordCache = typeof recordCache
+
+/**
+ * One load of a record page — the record, or the summary for the vet — as
+ * their hooks run it: the action for the screen, with what this tab keeps of
+ * any record brought in line. After a 401 or a closing account nothing of any
+ * pet's record is kept; after a 404 nothing of this pet's; `keep` stores a
+ * fresh answer (the record is kept, the summary never is). `current` says
+ * whether the page still wants this answer (a newer load, another pet): an
+ * answer it no longer wants is dropped — null, and the cache untouched.
+ */
+export async function loadStep<T>(
+  read: () => Promise<T>,
+  petId: string,
+  current: () => boolean,
+  options: { keep?: (data: T) => void; label: string; cache?: RecordCache },
+): Promise<RecordAction<T> | null> {
+  const cache = options.cache ?? recordCache
+  try {
+    const data = await read()
+    if (!current()) return null
+    options.keep?.(data)
+    return { type: 'loaded', data }
+  } catch (error) {
+    if (!current()) return null
+    const failure = classifyFailure(error)
+    // Whatever was kept of a record must not outlive the right to see it.
+    if (failure === 'signed_out' || failure === 'deleting') cache.clear()
+    if (failure === 'not_found') cache.forget(petId)
+    // Expected when offline; the screen says so. Logged for whoever debugs it, not as an error.
+    if (failure === 'failed') console.warn(`[${options.label}] load failed`, error)
+    return { type: 'failed', failure }
+  }
+}
+
+/** The record of one pet for its pages, kept in the tab's cache (`useMedicalRecord`). */
+export function loadRecord(
+  api: ApiClient,
+  petId: string,
+  today: string,
+  current: () => boolean,
+  cache: RecordCache = recordCache,
+): Promise<RecordAction | null> {
+  return loadStep(() => fetchRecord(api, petId, today), petId, current, {
+    keep: (data) => cache.set(petId, data),
+    label: 'medical-record',
+    cache,
+  })
+}

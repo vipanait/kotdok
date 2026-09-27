@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { HEALTH_EVENT_LIMITS, type HealthEvent } from '@lapka/contracts'
 import { ru } from '@/i18n/ru'
-import { blankItem, canAddItem, draftFromEvent, draftChanged, nextDate, pickProduct, plannedItem, readDraft, renameItem, warnsDoneIsFinal, type EventDraft } from './event-form'
+import { blankItem, canAddItem, draftFromEvent, draftChanged, nextDate, pickProduct, plannedItem, readDraft, renameItem, warnsDoneIsFinal, type EventDraft, type ItemDraft } from './event-form'
 
 const NOW = new Date(2026, 8, 24, 12, 0) // 24 Sept 2026, local
 
@@ -93,14 +93,14 @@ describe('the lengths the contract keeps, before anything is sent (MW-09)', () =
   })
 
   it('refuses an item name over the limit, under that item', () => {
-    const long = { ...blankItem('long'), name: over(HEALTH_EVENT_LIMITS.itemName), targets: ['rabies'], source: 'manual' as const }
+    const long: ItemDraft = { ...blankItem('long'), name: over(HEALTH_EVENT_LIMITS.itemName), targets: ['rabies'], source: 'manual' }
     const read = readDraft(ru, draft({ items: [{ ...blankItem('a'), name: 'Нобивак', targets: ['rabies'] }, long] }), 'new', NOW)
     expect(read.ok).toBe(false)
     if (!read.ok) expect(read.errors.items).toEqual({ long: ru.medicalRecord.tooLong(HEALTH_EVENT_LIMITS.itemName) })
   })
 
   it('offers one more item only while the record has room, and refuses more than it keeps', () => {
-    const items = (n: number) => Array.from({ length: n }, (_, i) => ({ ...blankItem(`i${i}`), name: 'Нобивак', targets: ['rabies'] }))
+    const items = (n: number): ItemDraft[] => Array.from({ length: n }, (_, i) => ({ ...blankItem(`i${i}`), name: 'Нобивак', targets: ['rabies'] }))
     expect(canAddItem({ items: items(HEALTH_EVENT_LIMITS.items - 1) })).toBe(true)
     expect(canAddItem({ items: items(HEALTH_EVENT_LIMITS.items) })).toBe(false)
     const read = readDraft(ru, draft({ items: items(HEALTH_EVENT_LIMITS.items + 1) }), 'new', NOW)

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useReducer, useRef } from 'react'
 import type { VetSummary } from '@lapka/contracts'
 import { browserApi } from '@/features/api/browser-api'
-import { classifyFailure, initialRecordState, recordCache, recordReducer, type RecordState } from '../record-load'
+import { initialRecordState, loadStep, recordReducer, type RecordState } from '../record-load'
 
 /**
  * The summary for the vet through the v1 API (`getVetSummary`) for the
@@ -19,19 +19,11 @@ export function useVetSummary(petId: string, today: string): { state: RecordStat
 
   const run = useCallback(async () => {
     const request = ++latest.current
-    try {
-      const data = await browserApi().getVetSummary(petId, today)
-      if (request !== latest.current) return
-      dispatch({ type: 'loaded', data })
-    } catch (error) {
-      if (request !== latest.current) return
-      const failure = classifyFailure(error)
-      // Whatever was kept of a record must not outlive the right to see it.
-      if (failure === 'signed_out' || failure === 'deleting') recordCache.clear()
-      if (failure === 'not_found') recordCache.forget(petId)
-      if (failure === 'failed') console.warn('[vet-summary] load failed', error)
-      dispatch({ type: 'failed', failure })
-    }
+    // Never kept: `loadStep` only forgets what the tab kept of the record when access ends.
+    const action = await loadStep(() => browserApi().getVetSummary(petId, today), petId, () => request === latest.current, {
+      label: 'vet-summary',
+    })
+    if (action) dispatch(action)
   }, [petId, today])
 
   useEffect(() => {

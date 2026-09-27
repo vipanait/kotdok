@@ -4,7 +4,7 @@ import { useEffect, useId, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import type { WeightMeasurement } from '@lapka/contracts'
-import { newWeightInput, weightCorrection, weightFieldText } from '@lapka/shared'
+import { weightFieldText } from '@lapka/shared'
 import { useTranslations } from '@/components/LocaleProvider'
 import Icon from '@/components/ui/Icon'
 import { browserApi } from '@/features/api/browser-api'
@@ -14,7 +14,7 @@ import ConfirmDialog from '@/features/pets/ConfirmDialog'
 import { recordCache } from '../record-load'
 import { medicalRecordHref } from '../routes'
 import { formatDay, formatWeight } from '../view-model'
-import { fieldErrors, saveFailure, saveFailureText, type FieldErrors } from './weight-form'
+import { saveFailure, saveFailureText, weightFailureView, weightSaveStep, type FieldErrors } from './weight-form'
 import type { WeightSaved } from './weight-view'
 
 /**
@@ -116,17 +116,15 @@ export default function WeightForm({
     e.preventDefault()
     if (inFlight.current) return
 
-    // A stored value left as it opened is sent as it is — 4,25 from the pet form is not refused for its second decimal (MW-09).
-    const read = editing ? weightCorrection(editing, weightText, day, today) : newWeightInput(weightText, day, today, formWeight)
-    if (!read.ok) {
-      const next = fieldErrors(dict, read.problems)
-      setErrors(next)
+    const next = weightSaveStep(dict, { editing, weightText, day, today, formWeight })
+    if (next.step === 'invalid') {
+      setErrors(next.errors)
       setBanner(null)
-      ;(next.weight ? weightRef : dayRef).current?.focus()
+      ;(next.focus === 'weight' ? weightRef : dayRef).current?.focus()
       return
     }
     // Nothing changed: there is nothing to save, and nothing to confirm.
-    if (editing && 'patch' in read && read.patch === null) {
+    if (next.step === 'unchanged') {
       leave(historyHref)
       return
     }
@@ -137,21 +135,22 @@ export default function WeightForm({
     setBanner(null)
     try {
       const api = browserApi()
-      if (editing && 'patch' in read && read.patch) await api.changeWeight(petId, editing.id, read.patch, saveKey.current())
-      else if ('input' in read) await api.addWeight(petId, read.input, saveKey.current())
+      if (next.step === 'change' && editing) await api.changeWeight(petId, editing.id, next.patch, saveKey.current())
+      else if (next.step === 'add') await api.addWeight(petId, next.input, saveKey.current())
       done(editing ? 'changed' : 'added')
     } catch (error) {
       inFlight.current = false
       setSaving(false)
       const failure = saveFailure(error)
       if (failure !== 'offline') console.warn('[medical-record] weight save failed', error)
-      if (failure === 'deleting') {
-        router.replace('/account-deletion')
-      } else if (failure === 'dayTaken') {
-        setErrors({ day: form.errors.dayTaken })
+      const view = weightFailureView(dict, failure)
+      if ('leave' in view) {
+        router.replace(view.leave)
+      } else if ('dayError' in view) {
+        setErrors({ day: view.dayError })
         dayRef.current?.focus()
       } else {
-        setBanner(saveFailureText(dict, failure))
+        setBanner(view.banner)
       }
     }
   }
