@@ -1,10 +1,11 @@
 /**
  * MW-09 Task 4, in Chrome: the printed summary. A check is one line on
  * paper, cut at a word with «…», and whole on screen; a filled record
- * («Мурка») fits one A4 sheet; the footer is printed once a page where the
- * browser prints the page margins (the closing copy is left out); the file
- * name keeps the whole date and stays within the 80 characters Safari on
- * iOS names a PDF by.
+ * («Мурка») fits one A4 sheet; the disclaimer is printed once under the
+ * printed heading and in the page margins of every page, and not again at
+ * the end; without page margins (chrome-*-no-margins.pdf) it is still there;
+ * the file name keeps the whole date and stays within the 80 characters
+ * Safari on iOS names a PDF by.
  *
  * Needs the local stack, the site on http://localhost:3100 («web-local»),
  * the fixture owners, freshly seeded demo pets
@@ -117,7 +118,6 @@ for (const width of [1440, 390]) {
     await openSummary(page, pets[key])
     result.checks.screen[`${key} ${width}`] = {
       title: await page.title(),
-      pageMargins: await page.evaluate(() => document.querySelector('.vet-summary').hasAttribute('data-page-margins')),
       footerShown: await page.evaluate(() => getComputedStyle(document.querySelector('.vet-summary-footer')).display !== 'none'),
       checks: await readChecks(page),
     }
@@ -137,6 +137,11 @@ result.checks.print = {}
     await page.emulateMedia({ media: 'print' })
     result.checks.print[key] = {
       closingFooterPrinted: await page.evaluate(() => getComputedStyle(document.querySelector('.vet-summary-footer')).display !== 'none'),
+      // The disclaimer in the flow, under «Медкарта: …»: printed whatever the page margins (fix round 1).
+      printNote: await page.evaluate(() => {
+        const note = document.querySelector('.vet-print-head .vet-print-note')
+        return note && getComputedStyle(note).display !== 'none' ? note.textContent : null
+      }),
       theadRepeats: await page.evaluate(() => [...document.querySelectorAll('.vet-table thead')].every((node) => getComputedStyle(node).display === 'table-header-group')),
       checks: await readChecks(page),
     }
@@ -158,21 +163,17 @@ result.checks.print = {}
   await context.close()
 }
 
-// ---------- A browser without page margins keeps the closing footer ----------
-// Firefox and Safari have no user-agent brands; here the brands are taken away before the page runs.
+// ---------- Without page margins the disclaimer is still printed ----------
+// Chrome's dialog «Поля: нет» takes the margins, and the margin boxes with them; emulated here by
+// a rule that wins over the page's own @page margins. Safari never prints the margin boxes.
 {
-  const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ru-RU', timezoneId: 'Europe/Moscow' })
-  await context.addInitScript(() => Object.defineProperty(Navigator.prototype, 'userAgentData', { get: () => undefined }))
-  const page = await context.newPage()
-  await page.goto(`${SITE}/login`)
-  await page.fill('input[type=email]', 'owner-a@fixture.local')
-  await page.fill('input[type=password]', password)
-  await Promise.all([page.waitForURL((url) => !url.pathname.startsWith('/login')), page.press('input[type=password]', 'Enter')])
-  await openSummary(page, pets.murka)
-  await page.emulateMedia({ media: 'print' })
-  result.checks.withoutBrands = {
-    pageMargins: await page.evaluate(() => document.querySelector('.vet-summary').hasAttribute('data-page-margins')),
-    closingFooterPrinted: await page.evaluate(() => getComputedStyle(document.querySelector('.vet-summary-footer')).display !== 'none'),
+  const { context, page } = await signedInPage(1440)
+  for (const key of ['murka', 'baron']) {
+    await openSummary(page, pets[key])
+    await page.addStyleTag({ content: '@page { margin: 0 !important; }' })
+    await page.emulateMedia({ media: 'print' })
+    await page.pdf({ path: resolve(here, `chrome-${key}-no-margins.pdf`), preferCSSPageSize: true, printBackground: false })
+    await page.emulateMedia({ media: 'screen' })
   }
   await context.close()
 }

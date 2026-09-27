@@ -11,7 +11,6 @@ import { RecordProblem, StaleNotice } from '../MedicalRecordScreen'
 import { medicalRecordHref } from '../stage'
 import WeightChart from '../WeightChart'
 import { vetSummaryPage, type SummaryPart, type VetSummaryPage } from './summary-view'
-import { usePrintsPageMargins } from './page-margins'
 import { useVetSummary } from './use-vet-summary'
 
 /**
@@ -34,8 +33,6 @@ export default function VetSummaryScreen({ petId }: { petId: string }) {
   const page = state.status === 'ready' ? vetSummaryPage(dict, locale, state.data, today) : null
 
   useFileTitle(page?.fileTitle ?? null)
-  // Where the page margins carry the footer, the closing copy is not printed as well (MW-09).
-  const pageMargins = usePrintsPageMargins()
 
   if (state.status !== 'ready' || !page) {
     return (
@@ -50,7 +47,7 @@ export default function VetSummaryScreen({ petId }: { petId: string }) {
   }
 
   return (
-    <div className="vet-summary" data-page-margins={pageMargins ? '' : undefined}>
+    <div className="vet-summary">
       <header className="pagehead vet-summary-head">
         <div>
           <h1>{page.title}</h1>
@@ -70,10 +67,17 @@ export default function VetSummaryScreen({ petId }: { petId: string }) {
       <StaleNotice state={state} reload={reload} />
 
       <div className="vet-summary-body">
-        {/* On paper the page starts with the logo and «Медкарта: Мурка» (spec 7.18). */}
+        {/*
+          On paper the page starts with the logo and «Медкарта: Мурка» (spec
+          7.18), and under them the disclaimer. The page margins repeat it on
+          every page where the browser prints them (PageFooter); this line is
+          in the flow, so it is printed whatever the margins — «Поля: нет» in
+          Chrome's dialog drops them, Safari never prints them (MW-09).
+        */}
         <div className="vet-print-head">
           <LapkaLogo width={96} height={36} className="vet-print-logo" />
           <p className="vet-print-title">{page.printTitle}</p>
+          <p className="vet-print-note">{page.footer}</p>
         </div>
 
         <section className="card vet-card vet-pet" aria-labelledby="vet-pet-name">
@@ -223,9 +227,10 @@ function Words({ text }: { text: string }) {
  * The printed page (spec 7.18): A4, and in its bottom margin the footer and
  * «Страница N из M» on every page. The text holds the owner's day and the
  * site's words, so the rule is written here, only while this page is open;
- * `cssString` keeps it a CSS string whatever it holds. A browser without
- * margin boxes still prints the footer once, at the end of the summary; one
- * with them (`usePrintsPageMargins`) prints only these.
+ * `cssString` keeps it a CSS string whatever it holds. Where the browser
+ * prints no margin boxes (Safari; Chrome with «Поля: нет»), the disclaimer
+ * under the printed heading is still there; the closing footer of the
+ * screen is not printed, so no page says it twice but the first (MW-09).
  */
 function PageFooter({ footer, dict }: { footer: string; dict: Dictionary }) {
   const words = dict.medicalRecord.vetSummary

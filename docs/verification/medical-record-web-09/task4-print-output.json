@@ -5,7 +5,6 @@
     "screen": {
       "murka 1440": {
         "title": "Мурка — медкарта — 27.09.2026",
-        "pageMargins": true,
         "footerShown": true,
         "checks": [
           {
@@ -26,7 +25,6 @@
       },
       "baron 1440": {
         "title": "Барон Мурлыкенштейн фон Длиннохвостов-Пушистиков Третий — медкарта — 27.09.2026",
-        "pageMargins": true,
         "footerShown": true,
         "checks": [
           {
@@ -75,7 +73,6 @@
       },
       "murka 390": {
         "title": "Мурка — медкарта — 27.09.2026",
-        "pageMargins": true,
         "footerShown": true,
         "checks": [
           {
@@ -96,7 +93,6 @@
       },
       "baron 390": {
         "title": "Барон Мурлыкенштейн фон Длиннохвостов-Пушистиков Третий — медкарта — 27.09.2026",
-        "pageMargins": true,
         "footerShown": true,
         "checks": [
           {
@@ -147,6 +143,7 @@
     "print": {
       "murka": {
         "closingFooterPrinted": false,
+        "printNote": "Составлено владельцем в «Лапке» 27 сентября 2026. Не является ветеринарным документом.",
         "theadRepeats": true,
         "checks": [
           {
@@ -183,11 +180,13 @@
       },
       "bobik": {
         "closingFooterPrinted": false,
+        "printNote": "Составлено владельцем в «Лапке» 27 сентября 2026. Не является ветеринарным документом.",
         "theadRepeats": true,
         "checks": []
       },
       "baron": {
         "closingFooterPrinted": false,
+        "printNote": "Составлено владельцем в «Лапке» 27 сентября 2026. Не является ветеринарным документом.",
         "theadRepeats": true,
         "checks": [
           {
@@ -278,10 +277,6 @@
           }
         ]
       }
-    },
-    "withoutBrands": {
-      "pageMargins": false,
-      "closingFooterPrinted": true
     },
     "fileTitle": {
       "murka 1440": {

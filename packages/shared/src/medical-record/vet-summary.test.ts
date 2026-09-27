@@ -106,6 +106,25 @@ describe('text for files and print', () => {
     expect(fileNameStem(`${'Ж'.repeat(59)}🐱🐱`)).toBe(`${'Ж'.repeat(59)}🐱`)
   })
 
+  it('never cuts a flag or an emoji with its skin tone in half (MW-09)', () => {
+    // A flag is two code points, one letter to the reader.
+    expect(fileNameStem(`${'Ж'.repeat(59)}🇷🇺`)).toBe(`${'Ж'.repeat(59)}🇷🇺`)
+    expect(fileNameStem(`${'Ж'.repeat(60)}🇷🇺`)).toBe('Ж'.repeat(60))
+    expect(fileNameStem(`${'Ж'.repeat(59)}👍🏽x`)).toBe(`${'Ж'.repeat(59)}👍🏽`)
+  })
+
+  it('cuts by code points where the runtime has no Intl.Segmenter (the phone)', () => {
+    const intl = Intl as { Segmenter?: unknown }
+    const segmenter = intl.Segmenter
+    try {
+      intl.Segmenter = undefined
+      expect(fileNameStem(`${'Ж'.repeat(59)}🐱🐱`)).toBe(`${'Ж'.repeat(59)}🐱`)
+      expect(fileNameStem('Мурка', 3)).toBe('Мур')
+    } finally {
+      intl.Segmenter = segmenter
+    }
+  })
+
   it('quotes a CSS string so owner’s text cannot end it', () => {
     expect(cssString('a"b\\c\nd</style>')).toBe('"a\\"b\\\\c d\\3C /style>"')
     // Every CSS newline ends an unescaped string: \n, \r and the form feed.

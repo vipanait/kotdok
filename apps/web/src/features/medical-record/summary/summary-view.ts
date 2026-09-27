@@ -78,14 +78,21 @@ export type VetSummaryPage = {
  */
 export const FILE_TITLE_MAX = 80
 
-/** «Мурка — медкарта — 27.09.2026», the pet's name cut to what the date leaves of `FILE_TITLE_MAX`. */
-function fileTitle(template: string, name: string, day: string): string {
-  const around = fill(template, { name: '', day })
-  // By code points, so an emoji is never cut in half; counted in UTF-16, as the title's length is.
-  const letters = Array.from(name)
-  while (letters.length > 0 && around.length + letters.join('').length > FILE_TITLE_MAX) letters.pop()
-  // A cut name does not end on a space or a stray «,»/«.» before « — медкарта».
-  return fill(template, { name: letters.join('').replace(/[\s.,;:]+$/u, ''), day })
+/**
+ * «Мурка — медкарта — 27.09.2026»: the pet's name (`fileNameStem`, the rule
+ * the phone names its file by) cut to what the date leaves of
+ * `FILE_TITLE_MAX`. The shared rule counts letters, the limit is UTF-16 (an
+ * emoji is two), so the stem shrinks until it fits. A cut name does not end
+ * on a space or a stray «,», «.» or «-» before « — медкарта».
+ */
+function fileTitle(template: string, name: string, unnamed: string, day: string): string {
+  const whole = fileNameStem(name)
+  const budget = FILE_TITLE_MAX - fill(template, { name: '', day }).length
+  let letters = budget
+  let stem = fileNameStem(whole, letters)
+  while (stem.length > budget && letters > 0) stem = fileNameStem(whole, --letters)
+  if (stem !== whole) stem = stem.replace(/[\s.,;:\-–—]+$/u, '')
+  return fill(template, { name: stem || unnamed, day })
 }
 
 /** «12.03.2026»: tables give the full date, as the printed A4 of the design. */
@@ -276,7 +283,7 @@ export function vetSummaryPage(dict: Dictionary, locale: Locale, summary: VetSum
     title: words.title,
     subtitle: fill(words.subtitle, { name }),
     printTitle: fill(words.printTitle, { name }),
-    fileTitle: fileTitle(words.fileName, fileNameStem(name) || words.unnamed, numericDay(today)),
+    fileTitle: fileTitle(words.fileName, name, words.unnamed, numericDay(today)),
     pet: { name, meta: meta.join(' · '), weight: fill(words.weightLine, { weight: weightValue }) },
     important,
     vaccinations,

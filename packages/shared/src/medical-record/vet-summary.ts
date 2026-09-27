@@ -88,10 +88,22 @@ export function summaryCheckDay(createdAt: string): string {
 }
 
 /**
+ * The text as the reader sees its letters: grapheme clusters where the
+ * runtime can tell them (`Intl.Segmenter` — browsers, Node), so a flag or an
+ * emoji with its skin tone is one; code points where it cannot (Hermes on
+ * the phone may not have it), which still never cuts a UTF-16 pair.
+ */
+function letters(text: string): string[] {
+  const Segmenter = (Intl as { Segmenter?: typeof Intl.Segmenter }).Segmenter
+  if (!Segmenter) return Array.from(text)
+  return Array.from(new Segmenter(undefined, { granularity: 'grapheme' }).segment(text), (part) => part.segment)
+}
+
+/**
  * The pet's name as the stem of a file name («Мурка — медкарта — 24.09.2026»):
  * characters a file system or a share target refuses go, and so does any
- * path, direction or zero-width mark; at most `max` characters, never half
- * an emoji. '' when nothing is left — the app names it «Питомец».
+ * path, direction or zero-width mark; at most `max` letters, never half an
+ * emoji or a flag. '' when nothing is left — the app names it «Питомец».
  */
 export function fileNameStem(name: string, max = 60): string {
   const cleaned = name
@@ -101,8 +113,7 @@ export function fileNameStem(name: string, max = 60): string {
     .replace(/\p{Cf}/gu, '')
     .replace(/\s+/g, ' ')
     .replace(/^[.\s]+|[.\s]+$/g, '')
-  // By code points, so an emoji is never cut in half.
-  return Array.from(cleaned).slice(0, max).join('').replace(/[.\s]+$/g, '')
+  return letters(cleaned).slice(0, max).join('').replace(/[.\s]+$/g, '')
 }
 
 /**
