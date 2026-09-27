@@ -38,17 +38,22 @@ function toWeightContract(row: WeightRow): WeightMeasurement {
 export type KeyReused = { ok: false; reason: 'key_reused'; message: string }
 
 /**
+ * The SQLSTATE of a weight's Idempotency-Key sent again with other data —
+ * or taken meanwhile by a save for another pet (`pet_weight_by_key`,
+ * `remember_weight_key`, migration 20260927130000). Its own code: a
+ * unique_violation of a weight already means "that day has a measurement".
+ */
+export const WEIGHT_KEY_REUSED_SQLSTATE = 'LPKEY'
+
+/**
  * The SQL functions answer "not yours" and "no such row" with no_data_found,
- * and a day that is already taken with unique_violation — as they do a key
- * sent again with other data, told apart by its message
- * (`pet_weight_by_key`).
+ * a day that is already taken with unique_violation, and a reused key with
+ * `WEIGHT_KEY_REUSED_SQLSTATE`.
  */
 function failure(error: { code?: string; message: string }): { ok: false; reason: ServiceFailure; message: string } | KeyReused {
   if (error.code === 'P0002') return { ok: false, reason: 'not_found', message: error.message }
-  if (error.code === '23505') {
-    if (error.message.includes('idempotency key reused')) return { ok: false, reason: 'key_reused', message: error.message }
-    return { ok: false, reason: 'conflict', message: error.message }
-  }
+  if (error.code === WEIGHT_KEY_REUSED_SQLSTATE) return { ok: false, reason: 'key_reused', message: error.message }
+  if (error.code === '23505') return { ok: false, reason: 'conflict', message: error.message }
   return { ok: false, reason: 'storage_error', message: error.message }
 }
 
@@ -132,8 +137,10 @@ export async function deleteWeight(
 
   if (error) {
     const failed = failure(error)
-    // Deleting takes no key: it never meets a reused one.
-    return failed.reason === 'key_reused' ? { ok: false, reason: 'conflict', message: failed.message } : failed
+    // Deleting takes no key, so a reused one is not its answer to give: were
+    // the code ever to come back, it is a storage failure, not a conflict the
+    // route would have to explain.
+    return failed.reason === 'key_reused' ? { ok: false, reason: 'storage_error', message: failed.message } : failed
   }
   return { ok: true, data: null }
 }

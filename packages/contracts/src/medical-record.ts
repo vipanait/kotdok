@@ -201,11 +201,12 @@ export type HealthEventPatch = z.infer<typeof HealthEventPatchSchema>
 /**
  * «Сделано» on one planned item.
  *
- * `clinic` and `notes` tell "not sent" from "sent empty" (MW-09): absent or
- * null keeps the plan's own text on the done record — what every app built
- * before MW-09 sends for an empty field — and an empty string (after
- * trimming) clears it. A plan of several items gives the item a record of
- * its own, whose note is only what is sent; its clinic follows the same rule.
+ * `clinic` and `notes` tell "not sent" from "sent empty" (MW-09): an empty
+ * string (after trimming) clears the field; absent or null — what every app
+ * built before MW-09 sends for an empty field — keeps the plan's clinic, and
+ * keeps the plan's note when the plan has one item (it becomes the done
+ * record). An item of a plan of several gets a done record of its own, whose
+ * note is only what is sent: absent or null there is no note.
  */
 export const CompleteItemInputSchema = z
   .strictObject({
@@ -224,7 +225,9 @@ export const CompleteItemInputSchema = z
       .max(NOTES_MAX)
       .nullable()
       .optional()
-      .describe("Absent or null keeps the plan's note (a plan of one item); an empty string clears it."),
+      .describe(
+        "An empty string clears it. Absent or null: a plan of one item keeps its note; an item of a plan of several gets a record with no note.",
+      ),
   })
   .refine((value) => !value.next_on || value.next_on > value.done_on, {
     message: 'next date must follow the day it was done',

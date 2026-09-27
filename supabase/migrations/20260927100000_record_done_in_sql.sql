@@ -14,14 +14,24 @@
 -- a clear answer before any work; this one is the last word.
 --
 -- The refusal is SQLSTATE LP409 ("record done"), which the services answer
--- as 409 record_done. Older servers, which do not know the code, answer it
--- 500 — only in that race, which they let through before.
+-- as 409 record_done.
+--
+-- It is opt-in, like `p_over_by` of change_pet_medication: the server of this
+-- branch passes `p_refuse_done => true`; the server still in production until
+-- the site deploys (origin/main) calls these functions with its old argument
+-- list, gets the default `false`, and keeps its old behaviour — it has no
+-- done-is-history rule, and installed phones still offer «Изменить» on a done
+-- record there. Refusing unconditionally would turn every such edit into a
+-- 500 between the owner's `db push` and the deploy. The old signatures are
+-- dropped, so a call by the old argument list resolves to exactly one function.
 
 /**
- * Corrects a plan: its day, clinic and note, and its items. Only a plan: a
- * done record is refused (LP409), and so is an item of it that «Сделано»
- * has meanwhile moved into a done record of its own.
+ * Corrects a record: its day, clinic and note, and its items. With
+ * `p_refuse_done`, only a plan: a done record is refused (LP409), and so is
+ * an item of it that «Сделано» has meanwhile moved into a done record of its
+ * own. Without it (the previous server), any record, as before.
  */
+drop function if exists public.update_health_event(uuid, uuid, uuid, date, text, text, jsonb);
 create or replace function public.update_health_event(
   p_user_id uuid,
   p_pet_id uuid,
@@ -29,7 +39,8 @@ create or replace function public.update_health_event(
   p_date date,
   p_clinic text,
   p_notes text,
-  p_items jsonb
+  p_items jsonb,
+  p_refuse_done boolean default false
 )
 returns uuid
 language plpgsql
@@ -50,9 +61,9 @@ begin
          notes = case when p_notes is null then notes else nullif(btrim(p_notes), '') end,
          updated_at = now()
    where id = p_event_id and pet_id = p_pet_id and user_id = p_user_id and deleted_at is null
-     and status = 'planned';
+     and (not p_refuse_done or status = 'planned');
   if not found then
-    if exists (
+    if p_refuse_done and exists (
       select 1 from public.pet_health_events
        where id = p_event_id and pet_id = p_pet_id and user_id = p_user_id and deleted_at is null
     ) then
@@ -84,7 +95,7 @@ begin
         returning i.id into v_id;
         if v_id is null then
           -- «Сделано» took this item out of the plan into a done record.
-          if exists (
+          if p_refuse_done and exists (
             select 1 from public.pet_health_items i
               join public.pet_health_events e on e.id = i.event_id
              where i.id = (v_item->>'id')::uuid and i.pet_id = p_pet_id and i.deleted_at is null
@@ -123,11 +134,13 @@ end;
 $$;
 
 /**
- * A change of a planned visit, or «Состоялся» on it. A visit that happened is
- * refused (LP409) — except the very save that made it happen, sent again
- * with its key after a lost answer: that one changes nothing and is answered
- * with the visit, as before.
+ * A change of a planned visit, or «Состоялся» on it. With `p_refuse_done`, a
+ * visit that happened is refused (LP409) — except the very save that made it
+ * happen, sent again with its key after a lost answer: that one changes
+ * nothing and is answered with the visit, as before. Without it (the
+ * previous server), any visit, as before.
  */
+drop function if exists public.update_visit(uuid, uuid, uuid, jsonb, jsonb, date, text);
 create or replace function public.update_visit(
   p_user_id uuid,
   p_pet_id uuid,
@@ -135,7 +148,8 @@ create or replace function public.update_visit(
   p_changes jsonb,
   p_items jsonb,
   p_today date,
-  p_key text default null
+  p_key text default null,
+  p_refuse_done boolean default false
 )
 returns uuid
 language plpgsql
@@ -166,7 +180,7 @@ begin
     return p_event_id;
   end if;
 
-  if v_event.status = 'done' then
+  if p_refuse_done and v_event.status = 'done' then
     raise exception 'record done' using errcode = 'LP409';
   end if;
 
@@ -289,10 +303,10 @@ begin
 end;
 $$;
 
-revoke all on function public.update_health_event(uuid, uuid, uuid, date, text, text, jsonb) from public, anon, authenticated;
-revoke all on function public.update_visit(uuid, uuid, uuid, jsonb, jsonb, date, text) from public, anon, authenticated;
+revoke all on function public.update_health_event(uuid, uuid, uuid, date, text, text, jsonb, boolean) from public, anon, authenticated;
+revoke all on function public.update_visit(uuid, uuid, uuid, jsonb, jsonb, date, text, boolean) from public, anon, authenticated;
 revoke all on function public.change_pet_medication(uuid, uuid, uuid, jsonb, date, date) from public, anon, authenticated;
 
-grant execute on function public.update_health_event(uuid, uuid, uuid, date, text, text, jsonb) to service_role;
-grant execute on function public.update_visit(uuid, uuid, uuid, jsonb, jsonb, date, text) to service_role;
+grant execute on function public.update_health_event(uuid, uuid, uuid, date, text, text, jsonb, boolean) to service_role;
+grant execute on function public.update_visit(uuid, uuid, uuid, jsonb, jsonb, date, text, boolean) to service_role;
 grant execute on function public.change_pet_medication(uuid, uuid, uuid, jsonb, date, date) to service_role;
