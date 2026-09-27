@@ -10,9 +10,9 @@ import ConfirmDialog from '@/features/pets/ConfirmDialog'
 import { useLeaveGuard } from '@/features/forms/use-leave-guard'
 import { petFormCancelHref, petFormDoneHref } from '@/features/pets/pet-form-exit'
 import { csrfHeaders } from '@/shared/security/csrf-client'
+import { fromArr, petFormRequest } from '@/features/pets/pet-form-request'
 import { localToday } from '@lapka/shared'
 
-type PetFormValues = Omit<Pet, 'id' | 'user_id' | 'created_at'>
 
 /**
  * Standing notes under the fields the medical record says more about
@@ -33,14 +33,6 @@ interface Props {
 
 const NOTES_MAX = 300
 
-function toArr(val: string): string[] {
-  return val.split(',').map(s => s.trim()).filter(Boolean)
-}
-
-function fromArr(arr: string[]): string {
-  return arr.join(', ')
-}
-
 function sanitizeDecimalInput(raw: string): string {
   const cleaned = raw.replace(/[^\d.,]/g, '')
   const sepIndex = cleaned.search(/[.,]/)
@@ -49,13 +41,6 @@ function sanitizeDecimalInput(raw: string): string {
   const sep = cleaned[sepIndex]
   const frac = cleaned.slice(sepIndex + 1).replace(/[.,]/g, '')
   return intPart + sep + frac
-}
-
-function parseDecimal(value: string): number | null {
-  const normalized = value.trim().replace(',', '.')
-  if (normalized === '') return null
-  const n = Number(normalized)
-  return Number.isFinite(n) ? n : null
 }
 
 /**
@@ -141,43 +126,19 @@ export default function PetForm({ pet, hints = {} }: Props) {
     setFormError('')
     setNameError('')
 
-    const body: PetFormValues = {
-      species,
-      name: name.trim(),
-      breed: breed.trim() || null,
-      age_years: parseDecimal(ageYears),
-      weight_kg: parseDecimal(weightKg),
-      sex,
-      neutered,
-      indoor_outdoor: indoorOutdoor,
-      diet,
-      size_class: species === 'dog' ? sizeClass : null,
-      walk_activity: species === 'dog' ? walkActivity : null,
-      allergies: toArr(allergies),
-      vaccinated,
-      chronic_conditions: toArr(chronicConditions),
-      medications: toArr(medications),
-      notes: notes.trim() || null,
-    }
-
-    // What the record needs to read the form the way the phone's form is read
-    // (pet-service): the owner's own day for a weight or a medicine the form
-    // adds or removes — not the server's UTC one — and, on an edit, the weight
-    // and the list as the form was opened (an older pet's missing list is the
-    // empty one the form shows), so saving an untouched weight is
-    // not a new measurement and a course added meanwhile elsewhere is not ended.
-    const recordContext = {
-      weight_measured_on: localToday(),
-      ...(isEdit ? { weight_kg_before: pet!.weight_kg, medications_before: pet!.medications ?? [] } : {}),
-    }
-
-    const url = isEdit ? `/api/pets/${pet!.id}` : '/api/pets'
-    const method = isEdit ? 'PUT' : 'POST'
+    const request = petFormRequest(
+      pet,
+      {
+        species, name, breed, ageYears, weightKg, sex, neutered, indoorOutdoor, diet,
+        sizeClass, walkActivity, allergies, vaccinated, chronicConditions, medications, notes,
+      },
+      localToday(),
+    )
     try {
-      const res = await fetch(url, {
-        method,
+      const res = await fetch(request.url, {
+        method: request.method,
         headers: csrfHeaders({ 'Content-Type': 'application/json' }),
-        body: JSON.stringify({ ...body, ...recordContext }),
+        body: JSON.stringify(request.body),
       })
       if (!res.ok) {
         setFormError(t.saveError)
@@ -190,7 +151,7 @@ export default function PetForm({ pet, hints = {} }: Props) {
       return
     }
 
-    leave(petFormDoneHref(isEdit && pet ? { kind: 'updated', petId: pet.id } : { kind: 'created' }))
+    leave(petFormDoneHref(pet ? { kind: 'updated', petId: pet.id } : { kind: 'created' }))
   }
 
   async function handleDelete() {

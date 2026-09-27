@@ -46,6 +46,41 @@ export default function VetSummaryScreen({ petId }: { petId: string }) {
     )
   }
 
+  return <VetSummaryView page={page} dict={dict} onPrint={() => window.print()} notice={<StaleNotice state={state} reload={reload} />} />
+}
+
+/**
+ * «Распечатать» and «Сохранить PDF»: both open the browser's print dialog —
+ * saving a PDF is a choice inside it, which the hint under the button says.
+ */
+export function SummaryActions({ words, onPrint }: { words: Dictionary['medicalRecord']['vetSummary']; onPrint: () => void }) {
+  return (
+    <div className="vet-summary-actions" role="group" aria-label={words.actionsLabel}>
+      <button type="button" className="btn secondary" onClick={onPrint}>
+        {words.print}
+      </button>
+      <button type="button" className="btn primary" aria-describedby="vet-summary-pdf-hint" onClick={onPrint}>
+        {words.savePdf}
+      </button>
+      <p id="vet-summary-pdf-hint" className="vet-summary-hint">{words.pdfHint}</p>
+    </div>
+  )
+}
+
+/** The summary as read — on screen and, through the print style, on paper. */
+export function VetSummaryView({
+  page,
+  dict,
+  onPrint,
+  notice = null,
+}: {
+  page: VetSummaryPage
+  dict: Dictionary
+  onPrint: () => void
+  /** The data could not be refreshed: under the head, as on the record's pages. */
+  notice?: React.ReactNode
+}) {
+  const words = dict.medicalRecord.vetSummary
   return (
     <div className="vet-summary">
       <header className="pagehead vet-summary-head">
@@ -53,18 +88,10 @@ export default function VetSummaryScreen({ petId }: { petId: string }) {
           <h1>{page.title}</h1>
           <p>{page.subtitle}</p>
         </div>
-        <div className="vet-summary-actions" role="group" aria-label={words.actionsLabel}>
-          <button type="button" className="btn secondary" onClick={() => window.print()}>
-            {words.print}
-          </button>
-          <button type="button" className="btn primary" aria-describedby="vet-summary-pdf-hint" onClick={() => window.print()}>
-            {words.savePdf}
-          </button>
-          <p id="vet-summary-pdf-hint" className="vet-summary-hint">{words.pdfHint}</p>
-        </div>
+        <SummaryActions words={words} onPrint={onPrint} />
       </header>
 
-      <StaleNotice state={state} reload={reload} />
+      {notice}
 
       <div className="vet-summary-body">
         {/*
@@ -256,14 +283,16 @@ function PageFooter({ footer, dict }: { footer: string; dict: Dictionary }) {
  * set its own, and that one stays.
  */
 export function useFileTitle(fileTitle: string | null) {
-  useEffect(() => {
-    if (!fileTitle) return
-    const pageTitle = document.title
-    document.title = fileTitle
-    return () => {
-      if (document.title === fileTitle) document.title = pageTitle
-    }
-  }, [fileTitle])
+  useEffect(() => (fileTitle ? applyFileTitle(document, fileTitle) : undefined), [fileTitle])
+}
+
+/** Titles the page by the file name, and gives back the way to undo it (`useFileTitle`). */
+export function applyFileTitle(doc: { title: string }, fileTitle: string): () => void {
+  const pageTitle = doc.title
+  doc.title = fileTitle
+  return () => {
+    if (doc.title === fileTitle) doc.title = pageTitle
+  }
 }
 
 function SummarySkeleton({ title, label }: { title: string; label: string }) {

@@ -4,13 +4,18 @@ import { useEffect, useId, useRef, useState } from 'react'
 import type { HealthProduct, PetSpecies, ProductKind } from '@lapka/contracts'
 import { useTranslations } from '@/components/LocaleProvider'
 import { browserApi } from '@/features/api/browser-api'
+import { comboboxKey, searchKey as keyOf, startSearch, type CatalogAnswer, type SearchDeps } from './catalog-combobox'
 import { catalogOptions, productDetail, type CatalogOption } from './catalog-view'
 
-/** Answers by search: the products, or that the search failed. */
-type Answers = Record<string, HealthProduct[] | 'failed'>
+type Answers = Record<string, CatalogAnswer>
 
-/** How long typing pauses before a search is sent. */
-const SEARCH_DELAY_MS = 200
+/** The browser's API and clock for `startSearch`. */
+const browserSearch: SearchDeps = {
+  fetch: (species, productKind, query, init) => browserApi().getCatalog(species, productKind, query, init),
+  setTimer: (run, ms) => window.setTimeout(run, ms),
+  clearTimer: (timer) => window.clearTimeout(timer as number),
+  warn: (error) => console.warn('[medical-record] catalogue search failed', error),
+}
 
 /**
  * «Найти препарат» (web v1 «catalog», «dog-vaccine», «catalog-error»): a
@@ -20,11 +25,11 @@ const SEARCH_DELAY_MS = 200
  * препарата» — so a catalogue that fails or has nothing still lets the
  * record be made.
  *
- * Keyboard: ↓/↑ move through the list (opening it), Enter picks, Escape
- * closes. The input owns focus throughout; the active option is announced
- * through `aria-activedescendant`. A search the screen no longer needs — an
- * older query, another pet (the form is keyed by pet) — is aborted, and an
- * answer that arrives anyway is dropped.
+ * Keyboard (`comboboxKey`): ↓/↑ move through the list (opening it), Enter
+ * picks, Escape closes. The input owns focus throughout; the active option
+ * is announced through `aria-activedescendant`. A search the screen no
+ * longer needs — an older query, another pet (the form is keyed by pet) — is
+ * aborted, and an answer that arrives anyway is dropped (`startSearch`).
  */
 export default function CatalogCombobox({
   species,
@@ -58,30 +63,16 @@ export default function CatalogCombobox({
   const input = inputRef ?? ownInput
 
   const wanted = query.trim()
-  const searchKey = `${species}:${productKind}:${wanted}`
+  const searchKey = keyOf({ species, productKind, wanted })
   const answer = answers[searchKey]
   const known = Array.isArray(answer)
 
   useEffect(() => {
     // An answer already here is shown as it is; a failed one is asked again.
     if (!open || known) return
-    const controller = new AbortController()
-    const timer = window.setTimeout(() => {
-      browserApi()
-        .getCatalog(species, productKind, wanted, { signal: controller.signal })
-        .then((products) => {
-          if (!controller.signal.aborted) setAnswers((current) => ({ ...current, [searchKey]: products }))
-        })
-        .catch((error: unknown) => {
-          if (controller.signal.aborted) return
-          console.warn('[medical-record] catalogue search failed', error)
-          setAnswers((current) => ({ ...current, [searchKey]: 'failed' }))
-        })
-    }, wanted === '' ? 0 : SEARCH_DELAY_MS)
-    return () => {
-      window.clearTimeout(timer)
-      controller.abort()
-    }
+    return startSearch({ species, productKind, wanted }, browserSearch, (value) =>
+      setAnswers((current) => ({ ...current, [searchKey]: value })),
+    )
   }, [open, known, searchKey, wanted, species, productKind])
 
   const status: 'loading' | 'failed' | 'ready' = answer === undefined ? 'loading' : answer === 'failed' ? 'failed' : 'ready'
@@ -103,29 +94,17 @@ export default function CatalogCombobox({
   }
 
   function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-      e.preventDefault()
-      if (!open) {
-        setOpen(true)
-        setActive(e.key === 'ArrowDown' ? 0 : options.length - 1)
-        return
-      }
-      const step = e.key === 'ArrowDown' ? 1 : -1
-      setActive((current) => (current + step + options.length) % options.length)
-    } else if (e.key === 'Enter') {
-      // Never submits the form from here: Enter picks, or does nothing.
-      e.preventDefault()
-      if (open && activeOption) choose(activeOption)
-      else setOpen(true)
-    } else if (e.key === 'Escape') {
-      if (open) {
-        e.preventDefault()
-        e.stopPropagation()
-        close()
-      }
-    } else if (e.key === 'Tab') {
-      close()
+    const result = comboboxKey({ open, active }, e.key, options.length)
+    if (!result) return
+    if (result.prevent) e.preventDefault()
+    if (result.stop) e.stopPropagation()
+    // Enter never submits the form from here: it picks, or opens the list.
+    if (result.pick !== null) {
+      choose(options[result.pick])
+      return
     }
+    setOpen(result.state.open)
+    setActive(result.state.active)
   }
 
   const popularTitle = words.popular[species]

@@ -1,5 +1,13 @@
-import { WEIGHT_MAX_KG } from '@lapka/contracts'
-import { ApiError, ApiTimeoutError, WEIGHT_MIN_KG, isKeyReused, type WeightFormProblems } from '@lapka/shared'
+import { WEIGHT_MAX_KG, type WeightInput, type WeightMeasurement, type WeightPatch } from '@lapka/contracts'
+import {
+  ApiError,
+  ApiTimeoutError,
+  WEIGHT_MIN_KG,
+  isKeyReused,
+  newWeightInput,
+  weightCorrection,
+  type WeightFormProblems,
+} from '@lapka/shared'
 import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
 import { formatDecimal } from '../view-model'
 
@@ -82,4 +90,44 @@ export function saveFailure(error: unknown): SaveFailure {
 export function saveFailureText(dict: Dictionary, failure: Exclude<SaveFailure, 'dayTaken' | 'deleting'>): string {
   const errors = dict.medicalRecord.weightForm.errors
   return errors[failure]
+}
+
+/**
+ * What «Сохранить» does with the fields as they stand, before any request:
+ * refuse them (the errors, and the field to move to — the weight first), go
+ * back with nothing to save (a correction that changes nothing), or send the
+ * new measurement or the change. A stored value left as it opened is sent as
+ * it is — 4,25 from the pet form is not refused for its second decimal (MW-09).
+ */
+export type WeightSaveStep =
+  | { step: 'invalid'; errors: FieldErrors; focus: 'weight' | 'day' }
+  | { step: 'unchanged' }
+  | { step: 'add'; input: WeightInput }
+  | { step: 'change'; patch: WeightPatch }
+
+export function weightSaveStep(
+  dict: Dictionary,
+  fields: { editing: WeightMeasurement | null; weightText: string; day: string; today: string; formWeight: number | null },
+): WeightSaveStep {
+  const { editing, weightText, day, today, formWeight } = fields
+  const read = editing ? weightCorrection(editing, weightText, day, today) : newWeightInput(weightText, day, today, formWeight)
+  if (!read.ok) {
+    const errors = fieldErrors(dict, read.problems)
+    return { step: 'invalid', errors, focus: errors.weight ? 'weight' : 'day' }
+  }
+  if ('patch' in read) return read.patch === null ? { step: 'unchanged' } : { step: 'change', patch: read.patch }
+  return { step: 'add', input: read.input }
+}
+
+/**
+ * What the form shows for a save that failed — every field stays as typed:
+ * a taken day at the date field, the account being deleted leaves the
+ * cabinet, anything else is the banner under the fields.
+ */
+export type WeightFailureView = { leave: '/account-deletion' } | { dayError: string } | { banner: string }
+
+export function weightFailureView(dict: Dictionary, failure: SaveFailure): WeightFailureView {
+  if (failure === 'deleting') return { leave: '/account-deletion' }
+  if (failure === 'dayTaken') return { dayError: dict.medicalRecord.weightForm.errors.dayTaken }
+  return { banner: saveFailureText(dict, failure) }
 }
