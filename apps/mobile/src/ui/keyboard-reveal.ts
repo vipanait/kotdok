@@ -4,12 +4,16 @@ export const REVEAL_GAP = 12
 /**
  * How far a field has to travel down into view when it is above the top of
  * the scroller — scrolled past, and focused from below (the first field with
- * an error after «Сохранить» in the dock). Zero when its top is visible.
- * Window coordinates, like `hiddenBelowKeyboard`.
+ * an error after «Сохранить» in the dock), so far that its name above it
+ * shows too. Zero when that is visible. Window coordinates, like
+ * `hiddenBelowKeyboard`.
  */
 export function hiddenAboveTop(fieldTop: number, scrollerTop: number): number {
-  return Math.max(0, scrollerTop + REVEAL_GAP - fieldTop)
+  return Math.max(0, scrollerTop + LABEL_ROOM - fieldTop)
 }
+
+/** Room above a field brought down into view: its name (one line of label) and a gap. */
+export const LABEL_ROOM = 40
 
 /**
  * How far a field has to travel to sit above the keyboard and the dock.

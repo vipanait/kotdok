@@ -49,6 +49,8 @@ type Locatable = {
 const RevealContext = createContext<{
   hold: (field: Locatable | null) => void
   release: (field: Locatable | null) => void
+  /** Brings a field into view that is above the scroller's top — even one that already has the focus. */
+  show: (field: Locatable | null) => void
 } | null>(null)
 
 /**
@@ -128,7 +130,12 @@ export function Screen({
     view.measureInWindow((_x, scrollerTop) => {
       field.measureInWindow((_fx, fieldTop) => {
         const above = hiddenAboveTop(fieldTop, scrollerTop)
-        if (above > 0) scroller.current?.scrollTo({ y: Math.max(0, scrolled.current - above), animated: true })
+        if (above === 0) return
+        const target = Math.max(0, scrolled.current - above)
+        // Where the scroller is going, not where its last scroll event left it:
+        // a second measurement mid-animation must not add to the first.
+        scrolled.current = target
+        scroller.current?.scrollTo({ y: target, animated: true })
       })
     })
   }, [])
@@ -157,6 +164,7 @@ export function Screen({
       release: (field: Locatable | null) => {
         if (focusedField.current === field) focusedField.current = null
       },
+      show: showTop,
     }),
     [reveal, showTop],
   )

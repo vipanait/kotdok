@@ -78,7 +78,9 @@ if (step === 'create') {
   await page.waitForLoadState('networkidle')
   await page.screenshot({ path: resolve(outDir, 'crossplatform-1-web-created.png'), fullPage: true })
 } else {
-  const plan = (await api(`/pets/${murka.id}/health`)).events.find((event) => event.items.some((item) => item.name === 'Нобивак Rabies') && (event.clinic ?? '').includes('MW08'))
+  // The plan `create` made: its clinic starts «Web clinic»; the phone edits the rest of it
+  // (the simulator's hardware keyboard may type another layout, MW-08 and MW-09 runs).
+  const plan = (await api(`/pets/${murka.id}/health`)).events.find((event) => event.items.some((item) => item.name === 'Нобивак Rabies') && (event.clinic ?? '').startsWith('Web clinic'))
   out.api = { id: plan?.id, status: plan?.status, date: plan?.date, clinic: plan?.clinic }
   await page.goto(`${SITE}/pets/${murka.id}/health/${plan.id}`)
   await page.waitForSelector('main h1')

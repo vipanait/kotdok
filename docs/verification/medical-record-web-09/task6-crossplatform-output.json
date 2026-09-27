@@ -1,0 +1,26 @@
+{
+  "create": {
+    "murka": "8979954c-1dd0-4976-a622-544625bd4db7",
+    "created": {
+      "id": "a44588eb-9ef8-4fee-a5af-78d4dce41162",
+      "status": "planned",
+      "date": "2026-10-17",
+      "clinic": "Web clinic MW08",
+      "items": [
+        "Нобивак Rabies"
+      ]
+    }
+  },
+  "phone": "plan opened in the iOS Simulator, «Перенести», clinic edited, «Сохранить» (crossplatform-2a/2b)",
+  "check": {
+    "murka": "8979954c-1dd0-4976-a622-544625bd4db7",
+    "api": {
+      "id": "a44588eb-9ef8-4fee-a5af-78d4dce41162",
+      "status": "planned",
+      "date": "2026-10-17",
+      "clinic": "Web clinic  2709"
+    },
+    "webView": "В разделПрививкаМуркаСделаноИзменитьЗапланировано17 октября 2026Клиника: Web clinic 2709Нобивак RabiesБешенствоДействия с записьюИзмените план или отметьте процедуру сделанной. Ненужный план можно отменить.Отменить планЛапка — информационный инструмент. Не заменяет осмотр ветеринара.",
+    "screenshot": "crossplatform-3-web-after-phone.png"
+  }
+}
