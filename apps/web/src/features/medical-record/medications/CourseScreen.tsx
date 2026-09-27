@@ -106,7 +106,7 @@ export default function CourseScreen({ petId, courseId, saved }: { petId: string
     setBusy(true)
     setDialogError(undefined)
     try {
-      await browserApi().deleteMedication(petId, courseId)
+      await browserApi().deleteMedication(petId, courseId, today)
       gone()
     } catch (error) {
       // Already gone: deleted elsewhere, or an earlier attempt whose answer was lost.

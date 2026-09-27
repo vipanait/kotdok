@@ -181,13 +181,13 @@ export default function VisitForm({
   function prepare(): ReadVisit<(() => Promise<HealthEvent>) | null> {
     if (mode.kind === 'new') {
       const read = readNewVisit(draft, today)
-      return read.ok ? { ok: true, value: () => browserApi().createVisit(petId, read.value, saveKey.current()) } : read
+      return read.ok ? { ok: true, value: () => browserApi().createVisit(petId, read.value, saveKey.current(), today) } : read
     }
     const planId = mode.plan.id
     const read = mode.kind === 'edit' ? readPlanChange(mode.plan, draft, today) : readHeld(mode.plan, draft, today)
     if (!read.ok) return read
     const patch = read.value
-    return { ok: true, value: patch === null ? null : () => browserApi().changeVisit(petId, planId, patch, saveKey.current()) }
+    return { ok: true, value: patch === null ? null : () => browserApi().changeVisit(petId, planId, patch, saveKey.current(), today) }
   }
 
   async function handleSubmit(e: React.FormEvent) {

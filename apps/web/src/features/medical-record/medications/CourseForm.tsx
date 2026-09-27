@@ -157,7 +157,7 @@ export default function CourseForm({
         recordCache.forget(petId)
         leave(`${backHref}?saved=changed`)
       } else if ('items' in read.value) {
-        await api.addMedications(petId, read.value, saveKey.current())
+        await api.addMedications(petId, read.value, saveKey.current(), today)
         // The next save of this form would be new courses.
         saveKey.renew()
         recordCache.forget(petId)

@@ -1088,6 +1088,16 @@ components:
           type: array
           items:
             type: string
+        visit_kind:
+          anyOf:
+            - type: string
+              enum:
+                - checkup
+                - illness
+                - surgery
+                - tests
+                - other
+            - type: "null"
       required:
         - pet_id
         - event_id
@@ -1895,16 +1905,26 @@ paths:
                   message: Request body or query is invalid
                   request_id: 01J000000000000000000000
         "401":
-          description: Missing, malformed, expired or foreign access token
+          description: "One of (error.code tells which): unauthorized — Missing, malformed, expired or foreign
+            access token; reauth_required — Signed in, but the last authentication is too old for
+            this operation"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
-              example:
-                error:
-                  code: unauthorized
-                  message: Missing, malformed, expired or foreign access token
-                  request_id: 01J000000000000000000000
+              examples:
+                unauthorized:
+                  value:
+                    error:
+                      code: unauthorized
+                      message: Missing, malformed, expired or foreign access token
+                      request_id: 01J000000000000000000000
+                reauth_required:
+                  value:
+                    error:
+                      code: reauth_required
+                      message: Signed in, but the last authentication is too old for this operation
+                      request_id: 01J000000000000000000000
         "403":
           description: Account is being deleted, or consent to personal data processing is required
             (error.code tells which)
@@ -2330,7 +2350,7 @@ paths:
         name: id
         in: path
         required: true
-        schema: &a3
+        schema: &a4
           type: string
           format: uuid
     get:
@@ -2549,6 +2569,19 @@ paths:
       - *a1
     get:
       summary: "The pet's medical record: the pet form and the sections that accept records"
+      description: "pet.medications is the pet form's list as the courses have it: the courses current on
+        `today` (the owner's day), when the pet has any courses."
+      parameters:
+        - &a3
+          name: today
+          in: query
+          required: false
+          description: "The owner's calendar day: the pet form's list of current medicines is counted from it.
+            Used only from the UTC day before the server's to the UTC day after; otherwise, or
+            without it, the server's UTC day."
+          schema:
+            type: string
+            format: date
       responses:
         "200":
           description: The medical record
@@ -3516,6 +3549,7 @@ paths:
       summary: Add medication courses; the pet form's medicines list follows
       parameters:
         - *a2
+        - *a3
       requestBody:
         required: true
         content:
@@ -3626,7 +3660,7 @@ paths:
         when the owner's day `today` is given (taken only from the UTC day before the server's to
         the UTC day after) and is later — `today` or earlier: the owner's day only tightens the
         rule. A change that leaves a finished course as it is, such as «Завершить курс» sent again,
-        answers 200."
+        answers 200. The pet form's list of current medicines is then counted from `today`."
       parameters:
         - name: today
           in: query
@@ -3729,7 +3763,9 @@ paths:
                   message: Unexpected server error
                   request_id: 01J000000000000000000000
     delete:
-      summary: Delete a course
+      summary: Delete a course; the pet form's medicines list follows
+      parameters:
+        - *a3
       responses:
         "204":
           description: Deleted
@@ -3799,6 +3835,7 @@ paths:
         visit takes no diagnosis or prescriptions. The check must be of this pet.
       parameters:
         - *a2
+        - *a3
       requestBody:
         required: true
         content:
@@ -3909,6 +3946,7 @@ paths:
         another body it is a conflict."
       parameters:
         - *a2
+        - *a3
       requestBody:
         required: true
         content:
@@ -4023,6 +4061,8 @@ paths:
           format: uuid
     post:
       summary: Start a course from a prescription; once
+      parameters:
+        - *a3
       responses:
         "201":
           description: The course
@@ -4270,7 +4310,9 @@ paths:
     post:
       summary: Queue an analysis
       description: Returns a job, not a result. Repeating the request with the same idempotency key and
-        the same data returns the original job; changing the data returns 409.
+        the same data returns the original job; changing the data returns 409. `today`, the owner's
+        calendar day, is what the pet's medical record is read on for the analysis (current courses,
+        overdue dates) — a query parameter, since the body is strict.
       parameters:
         - name: Idempotency-Key
           in: header
@@ -4279,6 +4321,14 @@ paths:
             type: string
             minLength: 8
             maxLength: 200
+        - name: today
+          in: query
+          required: false
+          description: The owner's calendar day. Used only from the UTC day before the server's to the UTC day
+            after; otherwise, or without it, the server's UTC day.
+          schema:
+            type: string
+            format: date
       requestBody:
         required: true
         content:
@@ -4558,7 +4608,7 @@ paths:
       - name: job_id
         in: path
         required: true
-        schema: *a3
+        schema: *a4
     get:
       summary: Job state, and the check id once it succeeded
       responses:
@@ -4859,16 +4909,26 @@ paths:
                   message: Request body or query is invalid
                   request_id: 01J000000000000000000000
         "401":
-          description: Missing, malformed, expired or foreign access token
+          description: "One of (error.code tells which): unauthorized — Missing, malformed, expired or foreign
+            access token; reauth_required — Signed in, but the last authentication is too old for
+            this operation"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
-              example:
-                error:
-                  code: unauthorized
-                  message: Missing, malformed, expired or foreign access token
-                  request_id: 01J000000000000000000000
+              examples:
+                unauthorized:
+                  value:
+                    error:
+                      code: unauthorized
+                      message: Missing, malformed, expired or foreign access token
+                      request_id: 01J000000000000000000000
+                reauth_required:
+                  value:
+                    error:
+                      code: reauth_required
+                      message: Signed in, but the last authentication is too old for this operation
+                      request_id: 01J000000000000000000000
         "403":
           description: "One of (error.code tells which): account_deleting — Account is being deleted, or
             consent to personal data processing is required (error.code tells which); forbidden —

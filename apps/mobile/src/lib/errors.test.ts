@@ -64,6 +64,12 @@ describe('error messages', () => {
     const cause = Object.assign(new Error('nope'), { code: 'some_future_code' })
     expect(errorMessage(ru, cause, 'Не удалось войти')).toBe('Не удалось войти')
   })
+
+  it('says the screen’s own words for an API code a later server added (MW-09)', () => {
+    const cause = new ApiError('record_locked', 423, 'Locked by the clinic')
+    expect(errorMessage(ru, cause, ru.medicalRecord.saveEventFailed)).toBe(ru.medicalRecord.saveEventFailed)
+    expect(describeFailure(ru, cause, 'x').offline).toBe(false)
+  })
 })
 
 describe('what a failure banner should look like', () => {

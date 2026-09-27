@@ -7,7 +7,7 @@ import { withFreshSession } from '@/lib/api'
 import { localToday } from '@/lib/calendar-day'
 import { describeFailure } from '@/lib/errors'
 import { useText, type Dictionary } from '@/i18n'
-import { dueStatus, itemTitle } from '@/features/medical-record/due'
+import { dueLineTitle, dueStatus } from '@/features/medical-record/due'
 import { Button } from '@/ui/Button'
 import { Avatar, Card } from '@/ui/Card'
 import { Banner } from '@/ui/Card'
@@ -27,12 +27,12 @@ function describe(t: Dictionary, pet: Pet): string {
 /**
  * The pet's earliest due date, only when it is overdue or within two weeks
  * (spec §7.1) — which one is `nearestDueByPet`, shared with the site's pet
- * rows.
+ * rows, and named as §7.1 names it (`dueLineTitle`), a visit by its kind.
  */
 function DueLine({ t, due }: { t: Dictionary; due: DueItem | undefined }) {
   if (!due) return null
   const status = dueStatus(t, due.date, localToday())
-  const title = itemTitle(t, { name: due.name, targets: due.targets }, due.kind)
+  const title = dueLineTitle(t, due)
   return (
     <Text
       variant="caption"

@@ -9,6 +9,7 @@ import {
   formatWeight,
   headFacts,
   importantFacts,
+  dueLineTitle,
   petDueLine,
   sectionCards,
   weightCard,
@@ -170,27 +171,52 @@ describe('chart geometry', () => {
   })
 })
 
-describe('the pet rows’ due line (spec §7.1, MW-08)', () => {
+describe('the pet rows’ due line (spec §7.1, MW-08, MW-09)', () => {
   const today = '2026-09-24'
-  const due = (kind: 'vaccination' | 'parasite' | 'visit', date: string, targets: string[], name: string | null = null) => ({
-    kind,
-    date,
-    name,
-    targets,
-  })
+  const due = (
+    kind: 'vaccination' | 'parasite' | 'visit',
+    date: string,
+    targets: string[],
+    name: string | null = null,
+    visit_kind?: 'checkup' | 'illness' | 'surgery' | 'tests' | 'other' | null,
+  ) => ({ kind, date, name, targets, visit_kind })
 
-  it('names the date as the record’s «Сроки» do and says how far it is', () => {
+  it('names the date as §7.1 does — the procedure and what it is against — and says how far it is', () => {
     expect(petDueLine(ru, 'ru', due('parasite', '2026-09-12', ['fleas', 'ticks']), today)).toEqual({
       tone: 'overdue',
-      text: 'Блохи и клещи — просрочено',
+      text: 'Обработка от блох и клещей — просрочено',
     })
     expect(petDueLine(ru, 'ru', due('vaccination', '2026-09-29', ['rabies']), today)).toEqual({
       tone: 'soon',
-      text: 'Бешенство — через 5 дней',
+      text: 'Прививка от бешенства — через 5 дней',
     })
     expect(petDueLine(ru, 'ru', due('visit', '2026-09-25', []), today)?.text).toBe('Визит к врачу — завтра')
-    expect(petDueLine(ru, 'ru', due('vaccination', '2026-09-24', [], 'Нобивак'), today)?.text).toBe('Нобивак — сегодня')
-    expect(petDueLine(en, 'en', due('vaccination', '2026-09-29', ['rabies']), today)?.text).toBe('Rabies — in 5 days')
+    expect(petDueLine(ru, 'ru', due('vaccination', '2026-09-24', [], 'Нобивак'), today)?.text).toBe('Прививка «Нобивак» — сегодня')
+    expect(petDueLine(en, 'en', due('vaccination', '2026-09-29', ['rabies']), today)?.text).toBe('Rabies vaccination — in 5 days')
+    expect(petDueLine(en, 'en', due('parasite', '2026-09-12', ['fleas', 'ear_mites', 'worms']), today)?.text).toBe(
+      'Flea, tick and worm treatment — overdue',
+    )
+  })
+
+  it('names the rest of the cases the rule knows', () => {
+    const title = (entry: ReturnType<typeof due>) => dueLineTitle(ru, 'ru', entry)
+    expect(title(due('parasite', today, ['fleas', 'ticks', 'heartworm']))).toBe('Обработка от блох, клещей и глистов')
+    expect(title(due('parasite', today, [], 'Бравекто'))).toBe('Обработка «Бравекто»')
+    expect(title(due('parasite', today, []))).toBe('Обработка от паразитов')
+    expect(title(due('vaccination', today, ['panleukopenia', 'calicivirus']))).toBe('Комплексная прививка')
+    expect(title(due('vaccination', today, []))).toBe('Прививка')
+    // A disease a later server knows and this site does not: the owner's name, or the plain word.
+    expect(title(due('vaccination', today, ['new_disease'], 'Вакцина Х'))).toBe('Прививка «Вакцина Х»')
+    expect(title(due('vaccination', today, ['new_disease']))).toBe('Прививка')
+  })
+
+  it('names a planned visit by its kind when /pets/due says it (MW-09)', () => {
+    expect(petDueLine(ru, 'ru', due('visit', '2026-09-25', [], null, 'checkup'), today)?.text).toBe('Визит к врачу: осмотр — завтра')
+    expect(petDueLine(ru, 'ru', due('visit', '2026-09-25', [], null, 'surgery'), today)?.text).toBe('Визит к врачу: операция — завтра')
+    expect(petDueLine(ru, 'ru', due('visit', '2026-09-25', [], null, 'other'), today)?.text).toBe('Визит к врачу — завтра')
+    // An older server: no kind, the visit as before.
+    expect(petDueLine(ru, 'ru', due('visit', '2026-09-25', [], null, null), today)?.text).toBe('Визит к врачу — завтра')
+    expect(petDueLine(en, 'en', due('visit', '2026-09-25', [], null, 'tests'), today)?.text).toBe('Vet visit: tests — tomorrow')
   })
 
   it('draws nothing past the fourteen days', () => {

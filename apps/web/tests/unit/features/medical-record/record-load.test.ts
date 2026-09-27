@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { ApiError, ApiTimeoutError, type ApiClient } from '@lapka/shared'
+import { ApiError, ApiTimeoutError, localToday, type ApiClient } from '@lapka/shared'
 import {
   classifyFailure,
   fetchRecord,
@@ -64,11 +64,17 @@ describe('fetching the record', () => {
     return { getHealthOverview: vi.fn(overview), listChecks: vi.fn(checks) } as unknown as ApiClient
   }
 
-  it('asks for the record and this pet’s latest checks', async () => {
+  it('asks for the record on the owner’s day and this pet’s latest checks', async () => {
     const client = api(async () => murka, async () => ({ items: [], next_cursor: null }))
-    await expect(fetchRecord(client, murka.pet.id)).resolves.toEqual(data)
-    expect(client.getHealthOverview).toHaveBeenCalledWith(murka.pet.id)
+    await expect(fetchRecord(client, murka.pet.id, '2026-09-24')).resolves.toEqual(data)
+    expect(client.getHealthOverview).toHaveBeenCalledWith(murka.pet.id, '2026-09-24')
     expect(client.listChecks).toHaveBeenCalledWith({ pet_id: murka.pet.id, limit: 3 })
+  })
+
+  it('takes the browser’s day when the screen gives none (MW-09)', async () => {
+    const client = api(async () => murka, async () => ({ items: [], next_cursor: null }))
+    await fetchRecord(client, murka.pet.id)
+    expect(client.getHealthOverview).toHaveBeenCalledWith(murka.pet.id, localToday())
   })
 
   it('fails when the record fails, whatever the history did', async () => {

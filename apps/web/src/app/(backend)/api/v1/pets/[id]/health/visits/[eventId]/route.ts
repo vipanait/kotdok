@@ -3,7 +3,7 @@ import { IDEMPOTENCY_KEY_HEADER, UuidSchema, VisitPatchSchema } from '@lapka/con
 import { createServiceClient } from '@/server/supabase/server'
 import { readEvent } from '@/server/medical-record/event-service'
 import { updateVisit } from '@/server/medical-record/visit-service'
-import { isFutureDay, isPastDay, readIdempotencyKey } from '@/server/medical-record/weight-service'
+import { isFutureDay, isPastDay, readIdempotencyKey, requestToday } from '@/server/medical-record/weight-service'
 import { apiError, apiSuccess } from '@/server/api/response'
 import { serviceFailureResponse } from '@/server/api/failure-response'
 import { withApiAuth, type ApiContext } from '@/server/api/with-api-auth'
@@ -19,6 +19,8 @@ type Params = { params: Promise<{ id: string; eventId: string }> }
  * it is `record_done`, 409 — `refuseDoneChange`, through `updateVisit`,
  * decides, and its day is not checked here. An Idempotency-Key makes a
  * retried save harmless, including the «Состоялся» that made it done.
+ * `?today=`: the owner's day the pet form's list of medicines is counted
+ * from when a prescription adds a course (`requestToday`).
  */
 export const PATCH = withApiAuth(async (request: NextRequest, context: ApiContext, params: Params) => {
   const { id, eventId } = await params.params
@@ -58,7 +60,7 @@ export const PATCH = withApiAuth(async (request: NextRequest, context: ApiContex
     }
   }
 
-  const result = await updateVisit(supabase, userId, id, eventId, parsed.data, current.data, key.key)
+  const result = await updateVisit(supabase, userId, id, eventId, parsed.data, current.data, key.key, requestToday(request.nextUrl))
   if (!result.ok) {
     if (result.reason === 'record_done') return apiError(context.requestId, 'record_done', 'A visit that happened cannot be changed')
     if (result.reason === 'bad_check') return apiError(context.requestId, 'bad_request', 'The check is not of this pet')

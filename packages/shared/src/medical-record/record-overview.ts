@@ -4,6 +4,7 @@ import {
   type HealthItem,
   type Medication,
   type ParasiteGroup,
+  type VisitKind,
   type WeightMeasurement,
 } from '@lapka/contracts'
 
@@ -117,6 +118,49 @@ export function nearestDueByPet<T extends { pet_id: string; date: string }>(
     if (dueTiming(entry.date, today).tone !== 'later') shown[petId] = entry
   }
   return shown
+}
+
+/**
+ * What a due date is called where it stands alone — the line under a pet
+ * on the pet list (spec §7.1: «Обработка от блох и клещей — просрочено»,
+ * «Прививка от бешенства — через 5 дней», «Визит к врачу — завтра») and the
+ * phone's reminders: the kind of procedure with what it is against, not the
+ * record's short «Бешенство». Without words — each app phrases these:
+ *
+ * - `vaccination`: one disease (`target`, a code the app may not know yet —
+ *   it then falls back to `namedVaccination`/`plainVaccination` itself);
+ * - `complexVaccination`: several diseases;
+ * - `namedVaccination` / `plainVaccination`: the owner's name, or nothing;
+ * - `treatment`: the parasite groups it covers, in a fixed order;
+ * - `namedTreatment` / `plainTreatment`: the owner's name, or nothing;
+ * - `visit`: a planned visit, by its kind when `/pets/due` says it (MW-09).
+ */
+export type DueName =
+  | { form: 'vaccination'; target: string; name: string | null }
+  | { form: 'complexVaccination' }
+  | { form: 'namedVaccination'; name: string }
+  | { form: 'plainVaccination' }
+  | { form: 'treatment'; groups: ParasiteGroup[] }
+  | { form: 'namedTreatment'; name: string }
+  | { form: 'plainTreatment' }
+  | { form: 'visit'; visitKind: VisitKind | null }
+
+export function dueName(due: {
+  kind: HealthEvent['kind']
+  name: string | null
+  targets: readonly string[]
+  visit_kind?: VisitKind | null
+}): DueName {
+  if (due.kind === 'visit') return { form: 'visit', visitKind: due.visit_kind ?? null }
+  const name = due.name?.trim() ? due.name.trim() : null
+  if (due.kind === 'parasite') {
+    const groups = parasiteGroups(due.targets)
+    if (groups.length > 0) return { form: 'treatment', groups }
+    return name ? { form: 'namedTreatment', name } : { form: 'plainTreatment' }
+  }
+  if (due.targets.length === 1) return { form: 'vaccination', target: due.targets[0], name }
+  if (due.targets.length > 1) return { form: 'complexVaccination' }
+  return name ? { form: 'namedVaccination', name } : { form: 'plainVaccination' }
 }
 
 /** Done records of a kind, newest first. */

@@ -21,12 +21,14 @@ const readOwnPet = cache((userId: string, petId: string) => getPet(createService
  * else's pet, a deleted one and a malformed id are the same 404, answered
  * before anything of the record is drawn.
  *
- * The layout of /pets/[id] calls it first, above the segment's loading.tsx,
- * so the answer is decided before anything streams and a 404 goes out with
- * the HTTP status 404, not as a 200 page that says «not found» (MW-08). The
- * page calls it again for its data; the reads are made once per request.
+ * The layout of /pets/[id] calls it first, above the skeleton
+ * (`(pet)/loading.tsx`), so the answer is decided before anything streams
+ * and a 404 goes out with the HTTP status 404, not as a 200 page that says
+ * «not found» (MW-08). The page calls it again for its data; the reads are
+ * made once per request.
  *
- * `path` is where sign-in brings the visitor back to.
+ * `path` is where sign-in and consent bring the visitor back to: the layout
+ * passes the page asked for (MW-09, `petReturnPath`).
  */
 export async function openPetPage(
   petId: string,

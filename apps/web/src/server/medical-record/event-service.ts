@@ -331,6 +331,7 @@ type DueRow = {
   pet_id: string
   kind: DueItem['kind']
   event_date: string
+  visit_kind: DueItem['visit_kind']
   pet_health_items: ItemRow[]
   pets: { deleted_at: string | null } | null
 }
@@ -343,7 +344,7 @@ type DueRow = {
 export async function listDue(supabase: SupabaseService, userId: string): Promise<Result<DueItem[]>> {
   const { data, error } = await supabase
     .from('pet_health_events')
-    .select('id, pet_id, kind, event_date, pet_health_items(id, name, targets, source_item_id, product_id, interval_value, interval_unit, position, deleted_at), pets!inner(deleted_at)')
+    .select('id, pet_id, kind, event_date, visit_kind, pet_health_items(id, name, targets, source_item_id, product_id, interval_value, interval_unit, position, deleted_at), pets!inner(deleted_at)')
     .eq('user_id', userId)
     .eq('status', 'planned')
     .is('deleted_at', null)
@@ -362,7 +363,19 @@ export async function listDue(supabase: SupabaseService, userId: string): Promis
     data: (data as unknown as DueRow[]).flatMap((event) =>
       // A planned visit is one due date of its own, with no items: its id stands for the item.
       event.kind === 'visit'
-        ? [DueItemSchema.parse({ pet_id: event.pet_id, event_id: event.id, item_id: event.id, kind: 'visit', date: event.event_date, name: null, targets: [] })]
+        ? [
+            DueItemSchema.parse({
+              pet_id: event.pet_id,
+              event_id: event.id,
+              item_id: event.id,
+              kind: 'visit',
+              date: event.event_date,
+              name: null,
+              targets: [],
+              // Its kind names it on the pet list (spec §7.1).
+              visit_kind: event.visit_kind,
+            }),
+          ]
         : event.pet_health_items
         .filter((item) => item.deleted_at === null)
         .sort((a, b) => a.position - b.position)
@@ -375,6 +388,7 @@ export async function listDue(supabase: SupabaseService, userId: string): Promis
             date: event.event_date,
             name: item.name,
             targets: item.targets ?? [],
+            visit_kind: null,
           }),
         ),
     ),

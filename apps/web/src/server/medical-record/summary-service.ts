@@ -140,7 +140,8 @@ export async function getVetSummary(
   petId: string,
   today: string = utcToday(),
 ): Promise<PetResult<VetSummary>> {
-  const overview = await getHealthOverview(supabase, userId, petId)
+  // The pet form's list of medicines counted from the same day as the rest.
+  const overview = await getHealthOverview(supabase, userId, petId, today)
   if (!overview.ok) return overview
 
   const { data: checks, error } = await supabase

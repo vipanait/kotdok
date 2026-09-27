@@ -44,7 +44,7 @@ export default function EditPet() {
     try {
       // The record, not just the pet: the form points to the weight history
       // when there is one.
-      const overview = await withFreshSession((api) => api.getHealthOverview(id))
+      const overview = await withFreshSession((api) => api.getHealthOverview(id, localToday()))
       const { pet } = overview
       setForm(petToForm(pet))
       setSaved(petToForm(pet))

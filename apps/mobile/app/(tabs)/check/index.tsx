@@ -19,6 +19,7 @@ import {
   type Pet,
 } from '@lapka/contracts'
 import { summaryRecords } from '@lapka/shared'
+import { localToday } from '@/lib/calendar-day'
 import { withFreshSession } from '@/lib/api'
 import { AppError, describeFailure, errorMessage, submitCheckMessage } from '@/lib/errors'
 import { preparePhoto, putPhoto } from '@/lib/photo-io'
@@ -390,7 +391,7 @@ export default function NewCheck() {
         uploaded.current = { key: key.current, photos, ids }
       }
       const body = { ...checked.value, upload_ids: photos.length > 0 ? uploaded.current!.ids : [] }
-      const accepted = await withFreshSession((api) => api.createCheck(key.current!, body))
+      const accepted = await withFreshSession((api) => api.createCheck(key.current!, body, localToday()))
       jobId = accepted.job_id
       // Sent and charged: keeping it now would offer to send it a second time.
       finished.current = true

@@ -249,7 +249,7 @@ function CompleteItemForm({
       // A 200 is not success by itself: an item already done is answered with
       // the record as first saved. Its next plan is checked when the record
       // can be read; if not, the day alone decides.
-      const events = await api.getHealthOverview(petId).then((overview) => overview.events, () => null)
+      const events = await api.getHealthOverview(petId, today).then((overview) => overview.events, () => null)
       const mismatch = completionMismatch(read.input, saved, item.id, events)
       if (mismatch) {
         inFlight.current = false

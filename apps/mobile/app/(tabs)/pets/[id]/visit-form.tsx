@@ -84,7 +84,7 @@ export default function VisitForm() {
       setDraft(start)
       return
     }
-    withFreshSession((api) => api.getHealthOverview(petId))
+    withFreshSession((api) => api.getHealthOverview(petId, localToday()))
       .then((overview) => {
         const visit = overview.events.find((event) => event.id === params.eventId && event.kind === 'visit')
         if (!visit) throw new Error('not found')
@@ -117,7 +117,7 @@ export default function VisitForm() {
     try {
       const value = read.value
       await withFreshSession<unknown>((api) => {
-        if (mode === 'new') return api.createVisit(petId, value, requestKey.current)
+        if (mode === 'new') return api.createVisit(petId, value, requestKey.current, localToday())
         const { status, date, ...rest } = value
         return api.changeVisit(
           petId,
@@ -129,6 +129,7 @@ export default function VisitForm() {
             ...(status === 'planned' ? { diagnosis: undefined, prescriptions: undefined } : {}),
           },
           requestKey.current,
+          localToday(),
         )
       })
       if (value.status === 'planned' && mode === 'new') reminders.planSaved({ kind: 'visit', name: null, targets: [] })

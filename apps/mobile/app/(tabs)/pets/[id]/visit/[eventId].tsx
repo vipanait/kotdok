@@ -35,7 +35,7 @@ export default function VisitView() {
   const load = useCallback(async () => {
     setError(null)
     try {
-      const overview = await withFreshSession((api) => api.getHealthOverview(id))
+      const overview = await withFreshSession((api) => api.getHealthOverview(id, localToday()))
       const found = overview.events.find((event) => event.id === eventId && event.kind === 'visit')
       if (!found) {
         router.back()
@@ -57,7 +57,7 @@ export default function VisitView() {
     if (busy) return
     setBusy(true)
     try {
-      await withFreshSession((api) => api.prescriptionToMedication(id, itemId))
+      await withFreshSession((api) => api.prescriptionToMedication(id, itemId, localToday()))
       await load()
     } catch (cause) {
       setError(describeFailure(t, cause, t.medicalRecord.saveEventFailed))

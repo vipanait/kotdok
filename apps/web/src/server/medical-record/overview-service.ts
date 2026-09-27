@@ -28,6 +28,7 @@ export async function getHealthOverview(
   supabase: SupabaseService,
   userId: string,
   petId: string,
+  today: string = utcToday(),
 ): Promise<PetResult<HealthOverview>> {
   const pet = await getPet(supabase, userId, petId)
   if (!pet.ok) return pet
@@ -43,11 +44,11 @@ export async function getHealthOverview(
 
   // The stored list is refreshed on writes; a course that ran out since is
   // left out here, when there are courses to go by. By the shared rule
-  // (`isCurrentCourse`, the apps' own), counted on the UTC day: this read
-  // carries no day of the owner's (GET /health has no `today`), and the apps
-  // sort the courses themselves by their own day — this list is the form's.
+  // (`isCurrentCourse`, the apps' own), counted on `today`: the owner's day
+  // when the caller said it (`?today=` of GET /health, the page's day, the
+  // summary's), the server's UTC day otherwise (apps older than it). The
+  // apps sort the courses themselves by their own day — this list is the form's.
   const form = toPetContract(pet.data)
-  const today = utcToday()
   const current = medications.data.filter((course) => isCurrentCourse(course, today))
   const names = [...new Map(current.map((course) => [course.name.trim().toLowerCase(), course.name.trim()])).values()]
 

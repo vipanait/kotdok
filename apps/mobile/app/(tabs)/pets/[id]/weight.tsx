@@ -51,7 +51,7 @@ export default function Weight() {
   const load = useCallback(async () => {
     setError(null)
     try {
-      setOverview(await withFreshSession((api) => api.getHealthOverview(id)))
+      setOverview(await withFreshSession((api) => api.getHealthOverview(id, localToday())))
     } catch (cause) {
       setError(describeFailure(t, cause, t.errors.loadHealthFailed))
     }

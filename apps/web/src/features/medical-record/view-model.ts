@@ -6,6 +6,7 @@ import {
   datedWeights,
   doneEvents,
   dueEntries,
+  dueName,
   dueTiming,
   isTakenNow,
   parasiteGroups,
@@ -191,23 +192,73 @@ export function dueTitle(dict: Dictionary, entry: DueEntry): string {
 
 export type PetDueLine = { text: string; tone: Exclude<DueTone, 'later'> }
 
+/** The words of `list` joined as a sentence would: «блох, клещей и глистов». */
+function joinWords(dict: Dictionary, list: readonly string[]): string {
+  return list.length > 1 ? `${list.slice(0, -1).join(', ')} ${dict.medicalRecord.and} ${list[list.length - 1]}` : (list[0] ?? '')
+}
+
+/**
+ * What the pet list's line calls a due date (spec §7.1): «Обработка от блох
+ * и клещей», «Прививка от бешенства», «Визит к врачу: осмотр» — by the
+ * shared rule `dueName`, the phone's pet list and reminders too. A disease
+ * this site has no words for yet is named as the owner named the item.
+ */
+export function dueLineTitle(dict: Dictionary, locale: Locale, due: Pick<DueItem, 'kind' | 'name' | 'targets'> & Partial<Pick<DueItem, 'visit_kind'>>): string {
+  const words = dict.pets.dueNames
+  const name = dueName(due)
+  let text: string
+  switch (name.form) {
+    case 'visit':
+      text = name.visitKind ? words.visitKinds[name.visitKind] : words.visit
+      break
+    case 'treatment':
+      text = words.treatment.replace('{groups}', joinWords(dict, name.groups.map((group) => words.parasiteGroups[group])))
+      break
+    case 'namedTreatment':
+      text = words.namedTreatment.replace('{name}', name.name)
+      break
+    case 'plainTreatment':
+      text = words.plainTreatment
+      break
+    case 'vaccination': {
+      const against = words.against[name.target]
+      text = against
+        ? words.vaccination.replace('{against}', against)
+        : name.name
+          ? words.namedVaccination.replace('{name}', name.name)
+          : words.plainVaccination
+      break
+    }
+    case 'complexVaccination':
+      text = words.complexVaccination
+      break
+    case 'namedVaccination':
+      text = words.namedVaccination.replace('{name}', name.name)
+      break
+    case 'plainVaccination':
+      text = words.plainVaccination
+      break
+  }
+  // «{groups} treatment» starts with a lower-case word in English.
+  return text.charAt(0).toLocaleUpperCase(locale) + text.slice(1)
+}
+
 /**
  * The line under a pet in the overview and on «Питомцы» (spec §7.1, §9):
- * «Блохи и клещи — просрочено», «Бешенство — через 5 дней» — the same names
- * as the record's «Сроки» and the phone's pet list. One date per pet, picked
- * from the whole `/pets/due` list by `nearestDueByPet`; nothing past the
- * fourteen "soon" days. `/pets/due` has no visit kind: a planned visit is
- * «Визит к врачу».
+ * «Обработка от блох и клещей — просрочено», «Прививка от бешенства — через
+ * 5 дней», «Визит к врачу: осмотр — завтра» (`dueLineTitle`), as on the
+ * phone's pet list. One date per pet, picked from the whole `/pets/due`
+ * list by `nearestDueByPet`; nothing past the fourteen "soon" days.
  */
 export function petDueLine(
   dict: Dictionary,
   locale: Locale,
-  due: Pick<DueItem, 'kind' | 'date' | 'name' | 'targets'>,
+  due: Pick<DueItem, 'kind' | 'date' | 'name' | 'targets'> & Partial<Pick<DueItem, 'visit_kind'>>,
   today: string,
 ): PetDueLine | null {
   const timing = dueTiming(due.date, today)
   if (timing.tone === 'later') return null
-  const title = dueItemTitle(dict, due.kind, due.kind === 'visit' ? null : { name: due.name, targets: due.targets }, null)
+  const title = dueLineTitle(dict, locale, due)
   if (timing.tone === 'overdue') return { tone: 'overdue', text: dict.pets.dueOverdue.replace('{title}', title) }
   const words = dict.medicalRecord.due
   const when = timing.days === 0 ? words.today : timing.days === 1 ? words.tomorrow : formatCount(words.inDays, timing.days, locale)

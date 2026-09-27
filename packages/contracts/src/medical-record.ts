@@ -402,6 +402,13 @@ export const DueItemSchema = z.object({
   date: CalendarDateSchema,
   name: z.string().nullable(),
   targets: z.array(z.string()),
+  /**
+   * A planned visit's kind, so the pet list can name it (spec §7.1); null
+   * for other kinds. Added in MW-09 and always sent since: an app older than
+   * it drops the key, and a newer app reading an older server finds none —
+   * «Визит к врачу», as before.
+   */
+  visit_kind: VisitKindSchema.nullable().optional(),
 })
 
 export type DueItem = z.infer<typeof DueItemSchema>
@@ -493,5 +500,18 @@ export const HealthOverviewReadSchema = z.preprocess((value) => {
   return { ...overview, events: readableEvents(overview.events), weights: readableWeights(overview.weights) }
 }, HealthOverviewSchema)
 
-/** The due list as a client reads it: due dates of an unknown kind are left out. */
-export const DueListReadSchema = z.preprocess(knownKinds, z.array(DueItemSchema))
+/**
+ * The due list as a client reads it: due dates of an unknown kind are left
+ * out; a visit of a kind this app does not know stays, named as a visit
+ * with no kind.
+ */
+export const DueListReadSchema = z.preprocess((value) => {
+  const known = knownKinds(value)
+  if (!Array.isArray(known)) return known
+  return known.map((entry) => {
+    const visitKind = (entry as { visit_kind?: unknown } | null)?.visit_kind
+    return visitKind !== undefined && visitKind !== null && !(VISIT_KINDS as readonly unknown[]).includes(visitKind)
+      ? { ...(entry as object), visit_kind: null }
+      : entry
+  })
+}, z.array(DueItemSchema))

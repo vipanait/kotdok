@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { defaultLocale, locales, type Locale } from '@/shared/i18n/config'
 import { ensureCsrfCookie } from '@/server/security/csrf'
 import { buildContentSecurityPolicy } from '@/server/security/csp'
+import { PAGE_PATH_HEADER, pagePathOf } from '@/server/security/page-path'
 
 function detectLocale(request: NextRequest): Locale {
   const cookie = request.cookies.get('NEXT_LOCALE')?.value
@@ -25,6 +26,9 @@ export async function proxy(request: NextRequest) {
   const requestHeaders = new Headers(request.headers)
   requestHeaders.set('x-nonce', nonce)
   requestHeaders.set('Content-Security-Policy', csp)
+  // The page asked for, for the pet gate's way back after sign-in or consent
+  // (a layout is not given it). Set here, over anything the client sent.
+  requestHeaders.set(PAGE_PATH_HEADER, pagePathOf(request.nextUrl))
 
   let supabaseResponse = NextResponse.next({ request: { headers: requestHeaders } })
 

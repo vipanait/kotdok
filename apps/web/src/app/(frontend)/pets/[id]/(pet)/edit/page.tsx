@@ -4,6 +4,7 @@ import PetForm, { type PetFormHintTexts } from '@/features/pets/PetForm'
 import { medicalRecordHref } from '@/features/medical-record/stage'
 import { openPetPage } from '@/components/cabinet/open-pet-page'
 import { getLocale } from '@/server/i18n/get-locale'
+import { getOwnerToday } from '@/server/i18n/get-time-zone'
 import { getHealthOverview } from '@/server/medical-record/overview-service'
 import { createServiceClient } from '@/server/supabase/server'
 import { formatCount } from '@/shared/i18n/plural'
@@ -19,19 +20,31 @@ export const generateMetadata = privatePageMetadata(d => d.shell.pets)
  * where the record already says more than the form. Worked out by the rule
  * the phone uses (`petFormHints`). They are a pointer, not the form: a record
  * that cannot be read leaves the form without them rather than without a page.
+ *
+ * With them, the form's list of medicines as the record has it on the
+ * owner's day (MW-09: the courses current today, as the phone's form opens
+ * with) — null when the record could not be read, and the stored list stays.
  */
-async function hintTexts(userId: string, petId: string, dict: Dictionary, locale: Locale): Promise<PetFormHintTexts> {
-  const overview = await getHealthOverview(createServiceClient(), userId, petId)
+async function recordForForm(
+  userId: string,
+  petId: string,
+  dict: Dictionary,
+  locale: Locale,
+): Promise<{ hints: PetFormHintTexts; medications: string[] | null }> {
+  const overview = await getHealthOverview(createServiceClient(), userId, petId, await getOwnerToday())
   if (!overview.ok) {
     console.error('[pets] the form notes are left out: the record could not be read', overview.reason, overview.message)
-    return {}
+    return { hints: {}, medications: null }
   }
   const hints = petFormHints(overview.data)
   const words = dict.pets.recordHints
   return {
-    weight: hints.weight ? words.weight : undefined,
-    vaccinated: hints.vaccinations > 0 ? formatCount(words.vaccinations, hints.vaccinations, locale) : undefined,
-    medications: hints.medications ? words.medications : undefined,
+    hints: {
+      weight: hints.weight ? words.weight : undefined,
+      vaccinated: hints.vaccinations > 0 ? formatCount(words.vaccinations, hints.vaccinations, locale) : undefined,
+      medications: hints.medications ? words.medications : undefined,
+    },
+    medications: overview.data.pet.medications,
   }
 }
 
@@ -39,7 +52,7 @@ export default async function EditPetPage({ params }: { params: Promise<{ id: st
   const { id } = await params
   // The same gate as every page of the pet (it already ran in the layout).
   const [{ cabinet, pet, dict }, locale] = await Promise.all([openPetPage(id, `/pets/${id}/edit`), getLocale()])
-  const hints = await hintTexts(cabinet.user.id, id, dict, locale)
+  const { hints, medications } = await recordForForm(cabinet.user.id, id, dict, locale)
   const t = dict.pets
 
   return (
@@ -50,7 +63,7 @@ export default async function EditPetPage({ params }: { params: Promise<{ id: st
         backLabel={dict.medicalRecord.title}
         backHref={medicalRecordHref.record(id)}
       />
-      <PetForm pet={pet} hints={hints} />
+      <PetForm pet={medications ? { ...pet, medications } : pet} hints={hints} />
     </CabinetShell>
   )
 }
