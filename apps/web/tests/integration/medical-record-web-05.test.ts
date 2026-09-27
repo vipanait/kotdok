@@ -265,6 +265,8 @@ describe('criterion 3: dates and all-or-none', () => {
     expect(first.map((c) => c.name)).toEqual(names)
     expect(retry.map((c) => c.id)).toEqual(first.map((c) => c.id))
     expect(await rows()).toBe(5)
+    // And the record lists them so on every read — the site's and the phone's list (MW-09).
+    expect((await overview()).medications.map((c) => c.name)).toEqual(names)
     // The same key with other fields is not taken for a second save.
     const changed = readNewCourses([draft('a', { name: 'Первый', start: day(-1), dosage: 'иначе' })])
     if (!changed.ok) throw new Error('refused')

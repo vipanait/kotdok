@@ -66,17 +66,20 @@ const murka = pets.find((pet) => pet.name === 'Мурка' && pet.notes === DEMO
 const bobik = pets.find((pet) => pet.name === 'Бобик' && pet.notes === DEMO_NOTE)
 if (!murka || !bobik) throw new Error('Seed the demo pets first (apps/web/scripts/seed-medical-record-demo.mjs)')
 
+// The owner's day in the browser's zone (Europe/Moscow below), as the forms count it —
+// and as the demo seed counts its days (seed-medical-record-demo.mjs), so the
+// seeded record is found on any day it is seeded, not only on 26 September 2026.
+const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Moscow' }).format(new Date())
+const plusDays = (day, days) => new Date(Date.parse(`${day}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10)
+
 /** What the phone reads for its medicine screens: GET /pets/{id}/health with a bearer token. */
 const courses = async (petId = murka.id) => (await api(`/pets/${petId}/health`, tokenA)).body.medications
 const byName = (list, name) => list.filter((course) => course.name === name)
 const seeded = await courses()
 const food = byName(seeded, 'Лечебный корм')[0]
 const fortiflora = byName(seeded, 'Фортифлора')[0]
-if (!food?.ongoing || fortiflora?.ended_on !== '2026-08-15' || seeded.length !== 2) throw new Error('The seeded courses are not as expected; seed again')
+if (!food?.ongoing || fortiflora?.ended_on !== plusDays(today, -42) || seeded.length !== 2) throw new Error('The seeded courses are not as expected; seed again')
 
-// The owner's day in the browser's zone (Europe/Moscow below), as the forms count it.
-const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Moscow' }).format(new Date())
-const plusDays = (day, days) => new Date(Date.parse(`${day}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10)
 
 const browser = await chromium.launch({ executablePath: process.env.CHROME, headless: true })
 const summary = { site: SITE, today, murka: murka.id, bobik: bobik.id, checks: {} }
@@ -99,6 +102,12 @@ async function signedInPage(email, width = 1440) {
   await Promise.all([page.waitForURL((url) => !url.pathname.startsWith('/login')), page.press('input[type=password]', 'Enter')])
   return { context, page }
 }
+
+/**
+ * The medicines batch endpoint, with or without its query: since MW-09 the site
+ * sends the owner's day (`?today=`), which a glob ending in «medications» misses.
+ */
+const MEDICATIONS_URL = /\/api\/v1\/pets\/[^/]+\/health\/medications(?:\?.*)?$/
 
 const text = (value) => (value ?? '').replace(/\s+/g, ' ').trim()
 const settle = (page) => page.evaluate(() => document.fonts.ready)
@@ -245,7 +254,7 @@ async function formMedications(page) {
 
   // ----- MW-05.3: a failed batch keeps the form and stores nothing -----
   const countBefore = (await courses()).length
-  await page.route('**/api/v1/pets/*/health/medications', (route) =>
+  await page.route(MEDICATIONS_URL, (route) =>
     route.request().method() === 'POST'
       ? route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ error: { code: 'dependency_unavailable', message: 'down', request_id: 'verify' } }) })
       : route.continue(),
@@ -260,10 +269,10 @@ async function formMedications(page) {
     buttonUsable: await page.$eval('form.course-form button[type=submit]', (button) => !button.disabled && button.getAttribute('aria-disabled') !== 'true'),
     serverCourses: (await courses()).length - countBefore,
   }
-  await page.unroute('**/api/v1/pets/*/health/medications')
+  await page.unroute(MEDICATIONS_URL)
 
   // ----- MW-05.3: the answer is lost after the server stored the batch; the retry stores nothing twice -----
-  await page.route('**/api/v1/pets/*/health/medications', async (route) => {
+  await page.route(MEDICATIONS_URL, async (route) => {
     if (route.request().method() !== 'POST') return route.continue()
     await route.fetch()
     await route.abort('internetdisconnected')
@@ -277,7 +286,7 @@ async function formMedications(page) {
     serverCourses: (await courses()).length - countBefore,
   }
   await shot(page, 'medication-error-1440')
-  await page.unroute('**/api/v1/pets/*/health/medications')
+  await page.unroute(MEDICATIONS_URL)
   const retryFrom = posts.length
   await Promise.all([page.waitForURL(/\/health\/medications\?saved=added/), page.click('form.course-form button[type=submit]')])
   await page.waitForSelector('.courses-page .health-saved')
@@ -310,7 +319,7 @@ async function formMedications(page) {
   // ----- «Постоянно» sends no end; three presses make one request -----
   await open(page, `/pets/${murka.id}/health/new?type=medication`, 'form.course-form')
   await item(page, 0, 'name').fill('Витамины')
-  await page.route('**/api/v1/pets/*/health/medications', async (route) => {
+  await page.route(MEDICATIONS_URL, async (route) => {
     if (route.request().method() === 'POST') await new Promise((done) => setTimeout(done, 1500))
     await route.continue()
   })
@@ -320,7 +329,7 @@ async function formMedications(page) {
   await button.click({ force: true })
   await button.click({ force: true })
   await page.waitForURL(/\/health\/medications\?saved=added/)
-  await page.unroute('**/api/v1/pets/*/health/medications')
+  await page.unroute(MEDICATIONS_URL)
   summary.checks.pending = { requests: posts.length - pressFrom, vitamins: byName(await courses(), 'Витамины').length }
 
   // ----- MW-05.2: «Завершить курс» on the ongoing «Пробиотик» -----

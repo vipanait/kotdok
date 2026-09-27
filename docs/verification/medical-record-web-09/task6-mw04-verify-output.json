@@ -1,0 +1,800 @@
+{
+  "site": "http://localhost:3100",
+  "today": "2026-09-27",
+  "murka": "c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c",
+  "bobik": "bd94c400-cef1-4134-a366-337fa422ebad",
+  "checks": {
+    "recordDue": {
+      "rows": [
+        {
+          "title": "Блохи и клещи",
+          "status": "Просрочено на 14 дней · 13 сентября",
+          "tone": "overdue",
+          "icon": true,
+          "color": "rgb(31, 27, 21)",
+          "done": "Сделано: Блохи и клещи, просрочено на 14 дней · 13 сентября",
+          "href": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/229d8960-6d4a-4fca-95bc-f93686dab243/complete?item=6cc216a9-8e83-4984-a661-144f52c8680d&from=medical"
+        },
+        {
+          "title": "Осмотр",
+          "status": "Через 7 дней · 4 октября",
+          "tone": "soon",
+          "icon": true,
+          "color": "rgb(11, 107, 94)",
+          "done": "Состоялся: Осмотр, через 7 дней · 4 октября",
+          "href": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/7018ca42-5540-496b-b890-d11e153c7c6c/complete?from=medical"
+        },
+        {
+          "title": "Глисты",
+          "status": "Через 9 дней · 6 октября",
+          "tone": "soon",
+          "icon": true,
+          "color": "rgb(11, 107, 94)",
+          "done": "Сделано: Глисты, через 9 дней · 6 октября",
+          "href": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/eba92dfc-999c-49f3-b5be-682ce6a9cc44/complete?item=fd2767da-e14e-496a-baa9-82399efb9b9d&from=medical"
+        }
+      ],
+      "all": {
+        "text": "Все сроки · 5",
+        "href": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/due"
+      },
+      "urgencyBadgesInDue": 0
+    },
+    "duePage": {
+      "title": "Все сроки · 5",
+      "rows": [
+        {
+          "title": "Блохи и клещи",
+          "status": "Просрочено на 14 дней · 13 сентября",
+          "tone": "overdue",
+          "icon": true,
+          "color": "rgb(31, 27, 21)",
+          "done": "Сделано: Блохи и клещи, просрочено на 14 дней · 13 сентября",
+          "href": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/229d8960-6d4a-4fca-95bc-f93686dab243/complete?item=6cc216a9-8e83-4984-a661-144f52c8680d&from=due"
+        },
+        {
+          "title": "Осмотр",
+          "status": "Через 7 дней · 4 октября",
+          "tone": "soon",
+          "icon": true,
+          "color": "rgb(11, 107, 94)",
+          "done": "Состоялся: Осмотр, через 7 дней · 4 октября",
+          "href": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/7018ca42-5540-496b-b890-d11e153c7c6c/complete?from=due"
+        },
+        {
+          "title": "Глисты",
+          "status": "Через 9 дней · 6 октября",
+          "tone": "soon",
+          "icon": true,
+          "color": "rgb(11, 107, 94)",
+          "done": "Сделано: Глисты, через 9 дней · 6 октября",
+          "href": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/eba92dfc-999c-49f3-b5be-682ce6a9cc44/complete?item=fd2767da-e14e-496a-baa9-82399efb9b9d&from=due"
+        },
+        {
+          "title": "Комплексная прививка",
+          "status": "13 марта 2027",
+          "tone": "later",
+          "icon": false,
+          "color": "rgb(110, 103, 91)",
+          "done": "Сделано: Комплексная прививка, 13 марта 2027",
+          "href": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/c07b3af5-7477-4198-82a7-a122156834c0/complete?item=631aef46-4c56-4472-9620-d0bdf2d54e4f&from=due"
+        },
+        {
+          "title": "Бешенство",
+          "status": "13 марта 2027",
+          "tone": "later",
+          "icon": false,
+          "color": "rgb(110, 103, 91)",
+          "done": "Сделано: Бешенство, 13 марта 2027",
+          "href": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/c07b3af5-7477-4198-82a7-a122156834c0/complete?item=d5a9ceb9-676c-4237-9a73-7a634e2b61c5&from=due"
+        }
+      ],
+      "serverOrder": [
+        "2026-09-13 parasite Бравекто Спот-он",
+        "2026-10-04 visit ",
+        "2026-10-06 parasite Мильбемакс",
+        "2027-03-13 vaccination Нобивак Tricat Trio",
+        "2027-03-13 vaccination Нобивак Rabies"
+      ]
+    },
+    "parasitesPage": {
+      "title": "Паразиты",
+      "subtitle": "Мурка · Обработки и следующие сроки",
+      "planned": [
+        "13 сентября 2026Просрочено на 14 дней · 13 сентябряБравекто Спот-он · блохи, клещи",
+        "6 октября 2026Через 9 дней · 6 октябряМильбемакс · глисты"
+      ],
+      "done": [
+        "6 июля 2026Мильбемакс · глисты",
+        "21 июня 2026Бравекто Спот-он · блохи, клещи"
+      ],
+      "covers": [
+        {
+          "text": "Блохи и клещиПоследняя — 21 июняБравекто Спот-онПросрочено на 14 дней · 13 сентябряСделано",
+          "done": "Сделано: Блохи и клещи, просрочено на 14 дней · 13 сентября"
+        },
+        {
+          "text": "ГлистыПоследняя — 6 июляМильбемаксЧерез 9 дней · 6 октябряСделано",
+          "done": "Сделано: Глисты, через 9 дней · 6 октября"
+        }
+      ]
+    },
+    "parasitesEmpty": {
+      "empty": "Обработок пока нетДобавьте сделанные обработки или запланируйте следующие.Добавить обработку",
+      "cards": 0,
+      "covers": [
+        "Блохи и клещиОбработок не записаноСледующая не запланирована",
+        "ГлистыОбработок не записаноСледующая не запланирована"
+      ]
+    },
+    "fleaPlanRecord": {
+      "url": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/229d8960-6d4a-4fca-95bc-f93686dab243",
+      "badge": "Запланировано",
+      "day": "13 сентября 2026",
+      "items": [
+        "Бравекто Спот-онБлохи, клещи"
+      ],
+      "actions": [
+        "Сделано",
+        "Изменить",
+        "Отменить план"
+      ],
+      "notice": null
+    },
+    "chooser": {
+      "url": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/c07b3af5-7477-4198-82a7-a122156834c0/complete",
+      "title": "Какая прививка сделана?",
+      "focus": "h1 Какая прививка сделана?",
+      "choices": [
+        "Нобивак Tricat TrioПанлейкопения, калицивироз, ринотрахеит → /pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/c07b3af5-7477-4198-82a7-a122156834c0/complete?item=631aef46-4c56-4472-9620-d0bdf2d54e4f",
+        "Нобивак RabiesБешенство → /pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/c07b3af5-7477-4198-82a7-a122156834c0/complete?item=d5a9ceb9-676c-4237-9a73-7a634e2b61c5"
+      ]
+    },
+    "vaccineCompleteForm": {
+      "url": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/c07b3af5-7477-4198-82a7-a122156834c0/complete?item=d5a9ceb9-676c-4237-9a73-7a634e2b61c5",
+      "title": "Отметить сделанным",
+      "planDay": "Было запланировано на 13 марта 2027",
+      "doneOn": "2026-09-27",
+      "doneMax": "2026-09-27",
+      "item": [
+        "Нобивак Rabies",
+        "Бешенство"
+      ],
+      "next": "2027-09-27",
+      "nextMin": "2026-09-28",
+      "hint": "Предложено по интервалу препарата: 1 год. Можно изменить или очистить дату. Уточните срок у врача.",
+      "note": "Отметим только эту позицию: ещё 1 позиция останется в плане. Следующий срок — 27 сентября 2027.",
+      "warning": "После сохранения выполненную запись нельзя будет изменить. Проверьте даты, клинику и заметку.",
+      "banner": null
+    },
+    "vaccineCompleted": {
+      "url": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/c07b3af5-7477-4198-82a7-a122156834c0",
+      "badge": "Запланировано",
+      "day": "13 марта 2027",
+      "items": [
+        "Нобивак Tricat TrioПанлейкопения, калицивироз, ринотрахеит"
+      ],
+      "actions": [
+        "Сделано",
+        "Изменить",
+        "Отменить план"
+      ],
+      "notice": "Отмечено сделанным.Открыть запись"
+    },
+    "vaccinePlanAfter": {
+      "status": "planned",
+      "date": "2027-03-13",
+      "items": [
+        "Нобивак Tricat Trio"
+      ],
+      "doneRabiesToday": [
+        [
+          "Нобивак Rabies"
+        ]
+      ]
+    },
+    "criterion2": {
+      "defaults": {
+        "url": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/229d8960-6d4a-4fca-95bc-f93686dab243/complete?item=6cc216a9-8e83-4984-a661-144f52c8680d&from=due",
+        "title": "Отметить сделанным",
+        "planDay": "Было запланировано на 13 сентября 2026",
+        "doneOn": "2026-09-27",
+        "doneMax": "2026-09-27",
+        "item": [
+          "Бравекто Спот-он",
+          "Блохи, клещи"
+        ],
+        "next": "2026-12-20",
+        "nextMin": "2026-09-28",
+        "hint": "Предложено по интервалу препарата: 12 недель. Можно изменить или очистить дату. Уточните срок у врача.",
+        "note": "План станет выполненной записью. Следующий срок — 20 декабря.",
+        "warning": "После сохранения выполненную запись нельзя будет изменить. Проверьте даты, клинику и заметку.",
+        "banner": null
+      },
+      "doneOnEarlierDay": {
+        "url": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/229d8960-6d4a-4fca-95bc-f93686dab243/complete?item=6cc216a9-8e83-4984-a661-144f52c8680d&from=due",
+        "title": "Отметить сделанным",
+        "planDay": "Было запланировано на 13 сентября 2026",
+        "doneOn": "2026-09-25",
+        "doneMax": "2026-09-27",
+        "item": [
+          "Бравекто Спот-он",
+          "Блохи, клещи"
+        ],
+        "next": "2026-12-18",
+        "nextMin": "2026-09-27",
+        "hint": "Предложено по интервалу препарата: 12 недель. Можно изменить или очистить дату. Уточните срок у врача.",
+        "note": "План станет выполненной записью. Следующий срок — 18 декабря.",
+        "warning": "После сохранения выполненную запись нельзя будет изменить. Проверьте даты, клинику и заметку.",
+        "banner": null
+      }
+    },
+    "lostAnswer": {
+      "form": {
+        "url": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/229d8960-6d4a-4fca-95bc-f93686dab243/complete?item=6cc216a9-8e83-4984-a661-144f52c8680d&from=due",
+        "title": "Отметить сделанным",
+        "planDay": "Было запланировано на 13 сентября 2026",
+        "doneOn": "2026-09-25",
+        "doneMax": "2026-09-27",
+        "item": [
+          "Бравекто Спот-он",
+          "Блохи, клещи"
+        ],
+        "next": "2026-12-18",
+        "nextMin": "2026-09-27",
+        "hint": "Предложено по интервалу препарата: 12 недель. Можно изменить или очистить дату. Уточните срок у врача.",
+        "note": "План станет выполненной записью. Следующий срок — 18 декабря.",
+        "warning": "После сохранения выполненную запись нельзя будет изменить. Проверьте даты, клинику и заметку.",
+        "banner": "Нет связи с сервером. Введённые данные сохранены в форме — попробуйте ещё раз."
+      },
+      "focus": "button Сохранить",
+      "stillOnForm": true,
+      "notice": false,
+      "buttonUsable": true,
+      "savedOnServer": 1
+    },
+    "retry": {
+      "requests": [
+        {
+          "key": "f779005e-bb95-4e02-8ca5-4e1651fbe059",
+          "body": {
+            "done_on": "2026-09-25",
+            "next_on": "2026-12-18",
+            "clinic": "",
+            "notes": ""
+          }
+        },
+        {
+          "key": "f779005e-bb95-4e02-8ca5-4e1651fbe059",
+          "body": {
+            "done_on": "2026-09-25",
+            "next_on": "2026-12-18",
+            "clinic": "",
+            "notes": ""
+          }
+        }
+      ],
+      "doneRecordsOnEarlierDay": 1,
+      "planBecameDone": "done",
+      "nextPlan": [
+        [
+          "2026-12-18",
+          {
+            "value": 12,
+            "unit": "week"
+          }
+        ]
+      ],
+      "notice": "Отмечено сделанным.Открыть запись",
+      "rows": [
+        {
+          "title": "Осмотр",
+          "status": "Через 7 дней · 4 октября",
+          "tone": "soon",
+          "icon": true,
+          "color": "rgb(11, 107, 94)",
+          "done": "Состоялся: Осмотр, через 7 дней · 4 октября",
+          "href": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/7018ca42-5540-496b-b890-d11e153c7c6c/complete?from=due"
+        },
+        {
+          "title": "Глисты",
+          "status": "Через 9 дней · 6 октября",
+          "tone": "soon",
+          "icon": true,
+          "color": "rgb(11, 107, 94)",
+          "done": "Сделано: Глисты, через 9 дней · 6 октября",
+          "href": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/eba92dfc-999c-49f3-b5be-682ce6a9cc44/complete?item=fd2767da-e14e-496a-baa9-82399efb9b9d&from=due"
+        },
+        {
+          "title": "Блохи и клещи",
+          "status": "18 декабря",
+          "tone": "later",
+          "icon": false,
+          "color": "rgb(110, 103, 91)",
+          "done": "Сделано: Блохи и клещи, 18 декабря",
+          "href": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/358392c9-233f-432b-8743-295cda525d3c/complete?item=e6377432-3f20-42c9-9e64-cb5e5a39d816&from=due"
+        },
+        {
+          "title": "Комплексная прививка",
+          "status": "13 марта 2027",
+          "tone": "later",
+          "icon": false,
+          "color": "rgb(110, 103, 91)",
+          "done": "Сделано: Комплексная прививка, 13 марта 2027",
+          "href": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/c07b3af5-7477-4198-82a7-a122156834c0/complete?item=631aef46-4c56-4472-9620-d0bdf2d54e4f&from=due"
+        },
+        {
+          "title": "Бешенство",
+          "status": "27 сентября 2027",
+          "tone": "later",
+          "icon": false,
+          "color": "rgb(110, 103, 91)",
+          "done": "Сделано: Бешенство, 27 сентября 2027",
+          "href": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/3a333a40-17b8-48ad-931c-0e494e07930b/complete?item=1a9b1d1a-16fa-4ba2-a099-1d564d4ee8df&from=due"
+        }
+      ],
+      "sameKey": true
+    },
+    "otherDoneUnchanged": true,
+    "fleaDoneRecord": {
+      "url": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/229d8960-6d4a-4fca-95bc-f93686dab243",
+      "badge": "Сделано",
+      "day": "25 сентября 2026",
+      "items": [
+        "Бравекто Спот-онБлохи, клещиСледующая дата: 18 декабря 2026"
+      ],
+      "actions": [
+        "Удалить запись"
+      ],
+      "notice": null
+    },
+    "doneRecord_completeUrl": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/229d8960-6d4a-4fca-95bc-f93686dab243",
+    "doneRecord_editUrl": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/229d8960-6d4a-4fca-95bc-f93686dab243",
+    "donePatch": 409,
+    "newTreatmentTitle": "Добавить обработку",
+    "newTreatmentItems": [
+      {
+        "title": "Бравекто Спот-он",
+        "pressed": [
+          "Блохи",
+          "Клещи"
+        ],
+        "next": "2026-12-20"
+      },
+      {
+        "title": "Мильбемакс",
+        "pressed": [
+          "Глисты"
+        ],
+        "next": "2026-12-27"
+      }
+    ],
+    "criterion1": {
+      "saved": {
+        "url": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/74f7813a-0f87-4391-b117-3be59bfe5036",
+        "badge": "Сделано",
+        "day": "27 сентября 2026",
+        "items": [
+          "Бравекто Спот-онБлохи, клещиСледующая дата: 20 декабря 2026",
+          "МильбемаксГлистыСледующая дата: 27 декабря 2026"
+        ],
+        "actions": [
+          "Удалить запись"
+        ],
+        "notice": null
+      },
+      "plans": [
+        {
+          "id": "8886305f-e791-4510-8bca-30f38168d5a6",
+          "date": "2026-12-20",
+          "item": "Бравекто Спот-он"
+        },
+        {
+          "id": "9f154403-c300-4abf-9f9a-7d39aa4e856e",
+          "date": "2026-12-27",
+          "item": "Мильбемакс"
+        }
+      ],
+      "differentDates": true,
+      "dueBefore": [
+        {
+          "title": "Осмотр",
+          "status": "Через 7 дней · 4 октября",
+          "tone": "soon",
+          "icon": true,
+          "color": "rgb(11, 107, 94)",
+          "done": "Состоялся: Осмотр, через 7 дней · 4 октября",
+          "href": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/7018ca42-5540-496b-b890-d11e153c7c6c/complete?from=due"
+        },
+        {
+          "title": "Глисты",
+          "status": "Через 9 дней · 6 октября",
+          "tone": "soon",
+          "icon": true,
+          "color": "rgb(11, 107, 94)",
+          "done": "Сделано: Глисты, через 9 дней · 6 октября",
+          "href": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/eba92dfc-999c-49f3-b5be-682ce6a9cc44/complete?item=fd2767da-e14e-496a-baa9-82399efb9b9d&from=due"
+        },
+        {
+          "title": "Блохи и клещи",
+          "status": "18 декабря",
+          "tone": "later",
+          "icon": false,
+          "color": "rgb(110, 103, 91)",
+          "done": "Сделано: Блохи и клещи, 18 декабря",
+          "href": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/358392c9-233f-432b-8743-295cda525d3c/complete?item=e6377432-3f20-42c9-9e64-cb5e5a39d816&from=due"
+        },
+        {
+          "title": "Блохи и клещи",
+          "status": "20 декабря",
+          "tone": "later",
+          "icon": false,
+          "color": "rgb(110, 103, 91)",
+          "done": "Сделано: Блохи и клещи, 20 декабря",
+          "href": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/8886305f-e791-4510-8bca-30f38168d5a6/complete?item=72c1413e-bdd7-4b94-8265-588759176dc9&from=due"
+        },
+        {
+          "title": "Глисты",
+          "status": "27 декабря",
+          "tone": "later",
+          "icon": false,
+          "color": "rgb(110, 103, 91)",
+          "done": "Сделано: Глисты, 27 декабря",
+          "href": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/9f154403-c300-4abf-9f9a-7d39aa4e856e/complete?item=bd61a2b6-c6f6-45e4-bf3d-9074325ff54a&from=due"
+        },
+        {
+          "title": "Комплексная прививка",
+          "status": "13 марта 2027",
+          "tone": "later",
+          "icon": false,
+          "color": "rgb(110, 103, 91)",
+          "done": "Сделано: Комплексная прививка, 13 марта 2027",
+          "href": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/c07b3af5-7477-4198-82a7-a122156834c0/complete?item=631aef46-4c56-4472-9620-d0bdf2d54e4f&from=due"
+        },
+        {
+          "title": "Бешенство",
+          "status": "27 сентября 2027",
+          "tone": "later",
+          "icon": false,
+          "color": "rgb(110, 103, 91)",
+          "done": "Сделано: Бешенство, 27 сентября 2027",
+          "href": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/3a333a40-17b8-48ad-931c-0e494e07930b/complete?item=1a9b1d1a-16fa-4ba2-a099-1d564d4ee8df&from=due"
+        }
+      ],
+      "form": {
+        "url": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/8886305f-e791-4510-8bca-30f38168d5a6/complete?item=72c1413e-bdd7-4b94-8265-588759176dc9&from=due",
+        "title": "Отметить сделанным",
+        "planDay": "Было запланировано на 20 декабря 2026",
+        "doneOn": "2026-09-27",
+        "doneMax": "2026-09-27",
+        "item": [
+          "Бравекто Спот-он",
+          "Блохи, клещи"
+        ],
+        "next": "",
+        "nextMin": "2026-09-28",
+        "hint": "Интервал препарата — 12 недель. Можно изменить или очистить дату. Уточните срок у врача.",
+        "note": "План станет выполненной записью. Следующий срок не будет запланирован.",
+        "warning": "После сохранения выполненную запись нельзя будет изменить. Проверьте даты, клинику и заметку.",
+        "banner": null
+      },
+      "after": {
+        "rows": [
+          {
+            "title": "Осмотр",
+            "status": "Через 7 дней · 4 октября",
+            "tone": "soon",
+            "icon": true,
+            "color": "rgb(11, 107, 94)",
+            "done": "Состоялся: Осмотр, через 7 дней · 4 октября",
+            "href": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/7018ca42-5540-496b-b890-d11e153c7c6c/complete?from=due"
+          },
+          {
+            "title": "Глисты",
+            "status": "Через 9 дней · 6 октября",
+            "tone": "soon",
+            "icon": true,
+            "color": "rgb(11, 107, 94)",
+            "done": "Сделано: Глисты, через 9 дней · 6 октября",
+            "href": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/eba92dfc-999c-49f3-b5be-682ce6a9cc44/complete?item=fd2767da-e14e-496a-baa9-82399efb9b9d&from=due"
+          },
+          {
+            "title": "Блохи и клещи",
+            "status": "18 декабря",
+            "tone": "later",
+            "icon": false,
+            "color": "rgb(110, 103, 91)",
+            "done": "Сделано: Блохи и клещи, 18 декабря",
+            "href": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/358392c9-233f-432b-8743-295cda525d3c/complete?item=e6377432-3f20-42c9-9e64-cb5e5a39d816&from=due"
+          },
+          {
+            "title": "Глисты",
+            "status": "27 декабря",
+            "tone": "later",
+            "icon": false,
+            "color": "rgb(110, 103, 91)",
+            "done": "Сделано: Глисты, 27 декабря",
+            "href": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/9f154403-c300-4abf-9f9a-7d39aa4e856e/complete?item=bd61a2b6-c6f6-45e4-bf3d-9074325ff54a&from=due"
+          },
+          {
+            "title": "Комплексная прививка",
+            "status": "13 марта 2027",
+            "tone": "later",
+            "icon": false,
+            "color": "rgb(110, 103, 91)",
+            "done": "Сделано: Комплексная прививка, 13 марта 2027",
+            "href": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/c07b3af5-7477-4198-82a7-a122156834c0/complete?item=631aef46-4c56-4472-9620-d0bdf2d54e4f&from=due"
+          },
+          {
+            "title": "Бешенство",
+            "status": "27 сентября 2027",
+            "tone": "later",
+            "icon": false,
+            "color": "rgb(110, 103, 91)",
+            "done": "Сделано: Бешенство, 27 сентября 2027",
+            "href": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/3a333a40-17b8-48ad-931c-0e494e07930b/complete?item=1a9b1d1a-16fa-4ba2-a099-1d564d4ee8df&from=due"
+          }
+        ],
+        "spotOnPlanNow": "done",
+        "otherStillDue": true,
+        "firstRecordUnchanged": true
+      }
+    },
+    "pending": {
+      "label": "Сохраняем…",
+      "busy": "true",
+      "requests": 1
+    },
+    "fromSection": {
+      "url": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/eba92dfc-999c-49f3-b5be-682ce6a9cc44/complete?item=fd2767da-e14e-496a-baa9-82399efb9b9d&from=section",
+      "form": {
+        "url": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/eba92dfc-999c-49f3-b5be-682ce6a9cc44/complete?item=fd2767da-e14e-496a-baa9-82399efb9b9d&from=section",
+        "title": "Отметить сделанным",
+        "planDay": "Было запланировано на 6 октября 2026",
+        "doneOn": "2026-09-27",
+        "doneMax": "2026-09-27",
+        "item": [
+          "Мильбемакс",
+          "Глисты"
+        ],
+        "next": "2026-12-27",
+        "nextMin": "2026-09-28",
+        "hint": "Предложено по интервалу препарата: 3 месяца. Можно изменить или очистить дату. Уточните срок у врача.",
+        "note": "План станет выполненной записью. Следующий срок — 27 декабря.",
+        "warning": "После сохранения выполненную запись нельзя будет изменить. Проверьте даты, клинику и заметку.",
+        "banner": null
+      }
+    },
+    "serverError": {
+      "banner": "Не удалось сохранить. Попробуйте ещё раз.",
+      "stillOnForm": true,
+      "notice": false,
+      "unchanged": true
+    },
+    "goneMeanwhile": {
+      "banner": "Этой позиции плана больше нет — возможно, план отменили или отметили на другом устройстве.В раздел",
+      "stillOnForm": true,
+      "unchanged": true
+    },
+    "cancelDialog": {
+      "title": "Отменить план: обработка от паразитов, 27 декабря 2026?",
+      "body": "Срок исчезнет из медкарты. Сделанные записи не изменятся.",
+      "focus": "button Оставить план"
+    },
+    "cancelKept": {
+      "focus": "button Отменить план",
+      "dialog": false,
+      "stillThere": true
+    },
+    "cancelEscape": {
+      "focus": "button Отменить план",
+      "stillThere": true
+    },
+    "criterion3": {
+      "notice": "План отменён.",
+      "removedFromDue": [
+        "9f154403-c300-4abf-9f9a-7d39aa4e856e"
+      ],
+      "expected": [
+        "9f154403-c300-4abf-9f9a-7d39aa4e856e"
+      ],
+      "otherDueKept": true,
+      "doneHistoryUnchanged": true
+    },
+    "editedRepeat": {
+      "defaultsNextMin": {
+        "doneOn": "2026-09-27",
+        "nextMin": "2026-09-28"
+      },
+      "keys": [
+        [
+          "fbf5c7d8-7cc7-453c-be6d-d3550fec7902",
+          "2026-09-27"
+        ],
+        [
+          "fbf5c7d8-7cc7-453c-be6d-d3550fec7902",
+          "2026-09-26"
+        ]
+      ],
+      "form": {
+        "url": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/c07b3af5-7477-4198-82a7-a122156834c0/complete?item=631aef46-4c56-4472-9620-d0bdf2d54e4f",
+        "title": "Отметить сделанным",
+        "planDay": "Было запланировано на 13 марта 2027",
+        "doneOn": "2026-09-26",
+        "doneMax": "2026-09-27",
+        "item": [
+          "Нобивак Tricat Trio",
+          "Панлейкопения, калицивироз, ринотрахеит"
+        ],
+        "next": "2027-09-26",
+        "nextMin": "2026-09-27",
+        "hint": "Предложено по интервалу препарата: 1 год. Можно изменить или очистить дату. Уточните срок у врача.",
+        "note": "План станет выполненной записью. Следующий срок — 26 сентября 2027.",
+        "warning": "После сохранения выполненную запись нельзя будет изменить. Проверьте даты, клинику и заметку.",
+        "banner": "Эта отметка уже сохранена раньше, с прежними данными. Откройте раздел, чтобы проверить её.В раздел"
+      },
+      "stillOnForm": true,
+      "notice": false,
+      "recordLink": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/vaccinations",
+      "stored": {
+        "status": "done",
+        "date": "2026-09-27"
+      }
+    },
+    "notFoundRoutes": {
+      "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/00000000-0000-4000-8000-000000000000/complete": {
+        "h1": "Такой страницы нет",
+        "form": false
+      },
+      "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/visits": {
+        "h1": "Визиты",
+        "form": false
+      }
+    },
+    "dayBoundary": {
+      "zone": "Pacific/Gambier",
+      "midnightUtc": "2026-09-27T09:00:00.000Z",
+      "before": {
+        "local": "26.09.2026, 23:59:30",
+        "url": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/30b2f5d2-06ed-4f87-ab5c-17eae2b65752/complete?item=79866f19-60f9-46d8-bb11-a519990efd9c",
+        "title": "Отметить сделанным",
+        "planDay": "Было запланировано на 27 сентября 2027",
+        "doneOn": "2026-09-26",
+        "doneMax": "2026-09-26",
+        "item": [
+          "Нобивак Tricat Trio",
+          "Панлейкопения, калицивироз, ринотрахеит"
+        ],
+        "next": "2027-09-26",
+        "nextMin": "2026-09-27",
+        "hint": "Предложено по интервалу препарата: 1 год. Можно изменить или очистить дату. Уточните срок у врача.",
+        "note": "План станет выполненной записью. Следующий срок — 26 сентября 2027.",
+        "warning": "После сохранения выполненную запись нельзя будет изменить. Проверьте даты, клинику и заметку.",
+        "banner": null
+      },
+      "after": {
+        "local": "27.09.2026, 00:00:30",
+        "url": "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/30b2f5d2-06ed-4f87-ab5c-17eae2b65752/complete?item=79866f19-60f9-46d8-bb11-a519990efd9c",
+        "title": "Отметить сделанным",
+        "planDay": "Было запланировано на 27 сентября 2027",
+        "doneOn": "2026-09-27",
+        "doneMax": "2026-09-27",
+        "item": [
+          "Нобивак Tricat Trio",
+          "Панлейкопения, калицивироз, ринотрахеит"
+        ],
+        "next": "2027-09-27",
+        "nextMin": "2026-09-28",
+        "hint": "Предложено по интервалу препарата: 1 год. Можно изменить или очистить дату. Уточните срок у врача.",
+        "note": "План станет выполненной записью. Следующий срок — 27 сентября 2027.",
+        "warning": "После сохранения выполненную запись нельзя будет изменить. Проверьте даты, клинику и заметку.",
+        "banner": null
+      }
+    },
+    "zones": {
+      "moment": "2026-09-26T11:00:00.000Z",
+      "doneOnDefault": {
+        "Pacific/Kiritimati": "2026-09-27",
+        "America/Los_Angeles": "2026-09-26",
+        "Europe/Moscow": "2026-09-26"
+      }
+    },
+    "overflow390": {
+      "record": false,
+      "due": false,
+      "parasites": false,
+      "parasitesEmpty": false,
+      "plan": false,
+      "complete": false,
+      "newTreatment": false
+    },
+    "dueDoneSize390": [
+      44,
+      44,
+      44,
+      44
+    ],
+    "overflowByWidth": {
+      "due 1150": false,
+      "parasites 1150": false,
+      "complete 1150": false,
+      "record 1150": false,
+      "due 1024": false,
+      "parasites 1024": false,
+      "complete 1024": false,
+      "record 1024": false,
+      "due 900": false,
+      "parasites 900": false,
+      "complete 900": false,
+      "record 900": false,
+      "due 768": false,
+      "parasites 768": false,
+      "complete 768": false,
+      "record 768": false,
+      "due 760": false,
+      "parasites 760": false,
+      "complete 760": false,
+      "record 760": false,
+      "due 360": false,
+      "parasites 360": false,
+      "complete 360": false,
+      "record 360": false,
+      "due 320": false,
+      "parasites 320": false,
+      "complete 320": false,
+      "record 320": false
+    },
+    "foreignPages": {
+      "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/parasites": {
+        "status": 404,
+        "h1": "Такой страницы нет",
+        "shown": false,
+        "leaks": []
+      },
+      "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/due": {
+        "status": 404,
+        "h1": "Такой страницы нет",
+        "shown": false,
+        "leaks": []
+      },
+      "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/358392c9-233f-432b-8743-295cda525d3c": {
+        "status": 404,
+        "h1": "Такой страницы нет",
+        "shown": false,
+        "leaks": []
+      },
+      "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/358392c9-233f-432b-8743-295cda525d3c/complete?item=e6377432-3f20-42c9-9e64-cb5e5a39d816": {
+        "status": 404,
+        "h1": "Такой страницы нет",
+        "shown": false,
+        "leaks": []
+      },
+      "/pets/c1e8e359-3e0c-429d-8d78-d5fb8bd5b00c/health/new?type=parasite": {
+        "status": 404,
+        "h1": "Такой страницы нет",
+        "shown": false,
+        "leaks": []
+      }
+    },
+    "foreignApiRequests": [],
+    "foreignApi": {
+      "complete": 404,
+      "cancel": 404,
+      "dueHasA": false
+    },
+    "ownerARecordsUntouched": true
+  },
+  "consoleErrors": [
+    "owner-a@fixture.local: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "owner-a@fixture.local: Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+    "owner-a@fixture.local: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "owner-a@fixture.local: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "owner-a@fixture.local: Failed to load resource: the server responded with a status of 409 (Conflict)",
+    "owner-a@fixture.local: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "owner-b@fixture.local: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "owner-b@fixture.local: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "owner-b@fixture.local: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "owner-b@fixture.local: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "owner-b@fixture.local: Failed to load resource: the server responded with a status of 404 (Not Found)"
+  ]
+}

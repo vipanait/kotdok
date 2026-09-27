@@ -4,10 +4,17 @@
  *
  *   node crossplatform.mjs create   — owner A plans a rabies vaccination for
  *                                      the demo «Мурка» through the web form;
- *   node crossplatform.mjs check    — after the change on the phone, the web
- *                                      record view is reloaded and read.
+ *   node crossplatform.mjs check    — step 3: after the change on the phone,
+ *                                      the web record view is reloaded and read
+ *                                      (crossplatform-3-web-after-phone.png);
+ *   node crossplatform.mjs done     — step 4: the same after «Сделано» from two
+ *                                      devices (crossplatform-4-web-done-after-phone.png).
  *
- * Same needs and local-only guards as verify.mjs. Prints JSON.
+ * Each step writes its own screenshot, so a later step never replaces an
+ * earlier one's (MW-09: step 3's was lost that way in MW-08).
+ *
+ * Same needs and local-only guards as verify.mjs. Prints JSON. Screenshots go
+ * next to this file, or to OUT_DIR (a later run keeps this stage's evidence).
  */
 
 import { createRequire } from 'node:module'
@@ -17,6 +24,7 @@ import { fileURLToPath } from 'node:url'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const root = resolve(here, '../../..')
+const outDir = process.env.OUT_DIR ? resolve(process.env.OUT_DIR) : here
 const require = createRequire(import.meta.url)
 const { chromium } = require(process.env.PLAYWRIGHT ?? 'playwright')
 const SITE = process.env.SITE ?? 'http://localhost:3100'
@@ -47,7 +55,10 @@ const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Moscow' }).fo
 const plus = (days) => new Date(Date.parse(`${today}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10)
 const out = { murka: murka.id }
 
-if (process.argv[2] === 'create') {
+const step = process.argv[2]
+if (!['create', 'check', 'done'].includes(step)) throw new Error('Usage: node crossplatform.mjs create|check|done')
+
+if (step === 'create') {
   await page.goto(`${SITE}/pets/${murka.id}/health/new?type=vaccination`)
   await page.waitForSelector('[role=combobox]')
   await page.waitForLoadState('networkidle')
@@ -65,7 +76,7 @@ if (process.argv[2] === 'create') {
   await page.goto(`${SITE}/pets/${murka.id}/health/${plan.id}`)
   await page.waitForSelector('main h1')
   await page.waitForLoadState('networkidle')
-  await page.screenshot({ path: resolve(here, 'crossplatform-1-web-created.png'), fullPage: true })
+  await page.screenshot({ path: resolve(outDir, 'crossplatform-1-web-created.png'), fullPage: true })
 } else {
   const plan = (await api(`/pets/${murka.id}/health`)).events.find((event) => event.items.some((item) => item.name === 'Нобивак Rabies') && (event.clinic ?? '').includes('MW08'))
   out.api = { id: plan?.id, status: plan?.status, date: plan?.date, clinic: plan?.clinic }
@@ -74,7 +85,9 @@ if (process.argv[2] === 'create') {
   await page.waitForLoadState('networkidle')
   await page.waitForTimeout(500)
   out.webView = text(await page.textContent('main'))
-  await page.screenshot({ path: resolve(here, 'crossplatform-3-web-after-phone.png'), fullPage: true })
+  const shot = step === 'check' ? 'crossplatform-3-web-after-phone.png' : 'crossplatform-4-web-done-after-phone.png'
+  await page.screenshot({ path: resolve(outDir, shot), fullPage: true })
+  out.screenshot = shot
 }
 await browser.close()
 console.log(JSON.stringify(out, null, 2))

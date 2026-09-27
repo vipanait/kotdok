@@ -39,6 +39,10 @@ export async function listMedications(supabase: SupabaseService, petId: string):
     .is('deleted_at', null)
     .order('started_on', { ascending: false, nullsFirst: false })
     .order('created_at', { ascending: false })
+    // Courses saved together, begun the same day: in the order they were typed
+    // (MW-09 `batch_position`), not by a random id — the list, «Принимает
+    // сейчас» and the pet form's names keep one order on every read.
+    .order('batch_position', { ascending: true, nullsFirst: false })
     .order('id', { ascending: true })
     .limit(500)
   if (error) return { ok: false, reason: 'storage_error', message: error.message }

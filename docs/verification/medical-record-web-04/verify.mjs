@@ -71,17 +71,26 @@ const dueOf = async (petId = murka.id) => (await api('/pets/due', tokenA)).body.
 const doneSnapshot = async () =>
   JSON.stringify((await events()).filter((event) => event.status === 'done').sort((a, b) => a.id.localeCompare(b.id)))
 
+// The owner's day in the browser's zone (Europe/Moscow below), as the forms count it —
+// and as the demo seed counts its days (seed-medical-record-demo.mjs), so the
+// seeded record is found on any day it is seeded, not only on 26 September 2026.
+const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Moscow' }).format(new Date())
+const plusDays = (day, days) => new Date(Date.parse(`${day}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10)
+
+/**
+ * The day the flea treatment is marked done on in MW-04.2: two days ago, between the
+ * overdue plan (two weeks ago) and today — 24 September on the seed's first day.
+ */
+const DONE_ON = plusDays(today, -2)
+
 const seeded = await events()
-const fleaPlan = seeded.find((event) => event.kind === 'parasite' && event.status === 'planned' && event.date === '2026-09-12')
-const wormPlan = seeded.find((event) => event.kind === 'parasite' && event.status === 'planned' && event.date === '2026-10-05')
+const fleaPlan = seeded.find((event) => event.kind === 'parasite' && event.status === 'planned' && event.date === plusDays(today, -14))
+const wormPlan = seeded.find((event) => event.kind === 'parasite' && event.status === 'planned' && event.date === plusDays(today, 9))
 const vaccinePlan = seeded.find((event) => event.kind === 'vaccination' && event.status === 'planned')
 if (!fleaPlan || fleaPlan.items[0].interval?.unit !== 'week' || !wormPlan || !vaccinePlan) {
   throw new Error('The seeded plans are not as expected; seed again')
 }
 
-// The owner's day in the browser's zone (Europe/Moscow below), as the forms count it.
-const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Moscow' }).format(new Date())
-const plusDays = (day, days) => new Date(Date.parse(`${day}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10)
 
 const browser = await chromium.launch({ executablePath: process.env.CHROME, headless: true })
 const summary = { site: SITE, today, murka: murka.id, bobik: bobik.id, checks: {} }
@@ -280,8 +289,8 @@ const readRecord = (page) =>
   await page.waitForSelector('.complete-form')
   await settle(page)
   const criterion2 = { defaults: await completeForm(page) }
-  await page.fill('.complete-form input[id$="-done"]', '2026-09-24')
-  criterion2.doneOn24 = await completeForm(page)
+  await page.fill('.complete-form input[id$="-done"]', DONE_ON)
+  criterion2.doneOnEarlierDay = await completeForm(page)
   summary.checks.criterion2 = criterion2
   await page.click('body', { position: { x: 5, y: 5 } })
   await shot(page, 'parasite-complete-1440')
@@ -300,7 +309,7 @@ const readRecord = (page) =>
     stillOnForm: page.url().includes('/complete'),
     notice: !!(await page.$('.health-saved')),
     buttonUsable: await page.$eval('.complete-form button[type=submit]', (button) => !button.disabled && button.getAttribute('aria-disabled') !== 'true'),
-    savedOnServer: (await events()).filter((event) => event.kind === 'parasite' && event.status === 'done' && event.date === '2026-09-24').length,
+    savedOnServer: (await events()).filter((event) => event.kind === 'parasite' && event.status === 'done' && event.date === DONE_ON).length,
   }
   await shot(page, 'complete-error-1440')
   await page.unroute('**/api/v1/pets/*/health/items/*/complete')
@@ -310,7 +319,7 @@ const readRecord = (page) =>
   const afterFlea = await events()
   summary.checks.retry = {
     requests: completes.filter((request) => request.path.endsWith(`/items/${fleaPlan.items[0].id}/complete`)).map((request) => ({ key: request.key, body: request.body })),
-    doneRecordsOn24: afterFlea.filter((event) => event.kind === 'parasite' && event.status === 'done' && event.date === '2026-09-24').length,
+    doneRecordsOnEarlierDay: afterFlea.filter((event) => event.kind === 'parasite' && event.status === 'done' && event.date === DONE_ON).length,
     planBecameDone: afterFlea.find((event) => event.id === fleaPlan.id)?.status,
     nextPlan: afterFlea
       .filter((event) => event.status === 'planned' && event.items.some((item) => item.source_item_id === fleaPlan.items[0].id))
