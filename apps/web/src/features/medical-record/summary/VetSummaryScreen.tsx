@@ -11,6 +11,7 @@ import { RecordProblem, StaleNotice } from '../MedicalRecordScreen'
 import { medicalRecordHref } from '../stage'
 import WeightChart from '../WeightChart'
 import { vetSummaryPage, type SummaryPart, type VetSummaryPage } from './summary-view'
+import { usePrintsPageMargins } from './page-margins'
 import { useVetSummary } from './use-vet-summary'
 
 /**
@@ -33,6 +34,8 @@ export default function VetSummaryScreen({ petId }: { petId: string }) {
   const page = state.status === 'ready' ? vetSummaryPage(dict, locale, state.data, today) : null
 
   useFileTitle(page?.fileTitle ?? null)
+  // Where the page margins carry the footer, the closing copy is not printed as well (MW-09).
+  const pageMargins = usePrintsPageMargins()
 
   if (state.status !== 'ready' || !page) {
     return (
@@ -47,7 +50,7 @@ export default function VetSummaryScreen({ petId }: { petId: string }) {
   }
 
   return (
-    <div className="vet-summary">
+    <div className="vet-summary" data-page-margins={pageMargins ? '' : undefined}>
       <header className="pagehead vet-summary-head">
         <div>
           <h1>{page.title}</h1>
@@ -95,8 +98,8 @@ export default function VetSummaryScreen({ petId }: { petId: string }) {
           )}
         </section>
 
-        <PartCard id="vet-vaccinations" title={words.vaccinations} part={page.vaccinations} widths={['28%', '18%', '30%', '24%']} />
-        <PartCard id="vet-parasites" title={words.parasites} part={page.parasites} widths={['22%', '22%', '30%', '26%']} />
+        <PartCard id="vet-vaccinations" title={words.vaccinations} part={page.vaccinations} widths={['28%', '18%', '30%', '24%']} short />
+        <PartCard id="vet-parasites" title={words.parasites} part={page.parasites} widths={['22%', '22%', '30%', '26%']} short />
         <PartCard id="vet-visits" title={words.visits} part={page.visits} widths={['24%', '34%', '42%']} />
 
         <section className="card vet-card vet-keep vet-weight" aria-labelledby="vet-weight-title">
@@ -122,10 +125,16 @@ export default function VetSummaryScreen({ petId }: { petId: string }) {
   )
 }
 
-/** A table on a wide screen and on paper; on a phone each row is a record with its labels (web v1 «summary» 390). */
-function PartCard({ id, title, part, widths }: { id: string; title: string; part: SummaryPart; widths: string[] }) {
+/**
+ * A table on a wide screen and on paper; on a phone each row is a record with
+ * its labels (web v1 «summary» 390). A `short` table has a row a disease or a
+ * group — a few lines, never a page: Safari prints it whole, as a table; the
+ * visits run on for pages and print there as records (medical-record.css).
+ */
+function PartCard({ id, title, part, widths, short = false }: { id: string; title: string; part: SummaryPart; widths: string[]; short?: boolean }) {
+  const kind = part.kind === 'note' ? ' vet-keep' : short ? ' vet-card-short' : ' vet-card-long'
   return (
-    <section className={`card vet-card${part.kind === 'note' ? ' vet-keep' : ''}`} aria-labelledby={`${id}-title`}>
+    <section className={`card vet-card${kind}`} aria-labelledby={`${id}-title`}>
       <h2 id={`${id}-title`}>{title}</h2>
       {part.kind === 'note' ? (
         <p className="vet-note">{part.text}</p>
@@ -146,8 +155,14 @@ function PartCard({ id, title, part, widths }: { id: string; title: string; part
             </tr>
           </thead>
           <tbody>
-            {part.table.rows.map((row) => (
-              <tr key={row.key}>
+            {/*
+              The first row of a long table also carries the section's name:
+              Safari prints those rows as records and ignores «keep the heading
+              with what follows», so there the name is printed inside the first
+              record (MW-09).
+            */}
+            {part.table.rows.map((row, index) => (
+              <tr key={row.key} data-heading={index === 0 && !short ? title : undefined}>
                 {row.cells.map((cell, index) => (
                   <td key={index} data-label={cell.label}>
                     {cell.text}
@@ -173,10 +188,16 @@ function ChecksCard({ page, dict }: { page: VetSummaryPage; dict: Dictionary }) 
         <ul className="vet-checks">
           {page.checks.map((check) => (
             <li key={check.key} className="vet-check">
-              {/* The level in words: black-and-white paper keeps it (spec 7.18). */}
-              <UrgencyBadge urgency={check.urgency} dict={dict} />
-              <strong>{check.day}</strong>
-              <span>{check.text}</span>
+              {/*
+                The badge shows first on screen; on paper the check is one line,
+                «2 августа 2026 · Наблюдаем · Рвота…» (spec 7.17, web v1 «print»).
+                The level in words: black-and-white paper keeps it (spec 7.18).
+              */}
+              <strong className="vet-check-day">{check.day}</strong>
+              <UrgencyBadge urgency={check.urgency} dict={dict} className="vet-check-level" />
+              <span className="vet-check-text">
+                <Words text={check.text} />
+              </span>
             </li>
           ))}
         </ul>
@@ -186,11 +207,25 @@ function ChecksCard({ page, dict }: { page: VetSummaryPage; dict: Dictionary }) 
 }
 
 /**
+ * The check's text word by word. On paper the check is cut to one line with
+ * «…», and the browser may cut a run of text mid-word to make room for it
+ * (Safari on iOS printed «аппети…», MW-09) — but never inside a box that
+ * stays whole. So in print each word is one (medical-record.css), and the
+ * line ends on a whole word. On screen the words are plain text.
+ */
+function Words({ text }: { text: string }) {
+  return text.split(/(\s+)/).map((part, index) =>
+    index % 2 === 1 ? part : part && <span key={index} className="vet-check-word">{part}</span>,
+  )
+}
+
+/**
  * The printed page (spec 7.18): A4, and in its bottom margin the footer and
  * «Страница N из M» on every page. The text holds the owner's day and the
  * site's words, so the rule is written here, only while this page is open;
  * `cssString` keeps it a CSS string whatever it holds. A browser without
- * margin boxes still prints the footer once, at the end of the summary.
+ * margin boxes still prints the footer once, at the end of the summary; one
+ * with them (`usePrintsPageMargins`) prints only these.
  */
 function PageFooter({ footer, dict }: { footer: string; dict: Dictionary }) {
   const words = dict.medicalRecord.vetSummary
@@ -205,8 +240,8 @@ function PageFooter({ footer, dict }: { footer: string; dict: Dictionary }) {
 }
 
 /**
- * The page is titled by the file name of the spec (7.18), «Мурка — медкарта
- * — 26.09.2026», for as long as the summary is on screen: that is the name
+ * The page is titled by the file name (spec 7.18), «Мурка — медкарта —
+ * 26.09.2026», for as long as the summary is on screen: that is the name
  * «Сохранить как PDF» offers. Set while the page is open, not around the
  * print call — Safari on iOS names its PDF by the title it already knew
  * before `print()`, whatever the page sets in `beforeprint` or just before

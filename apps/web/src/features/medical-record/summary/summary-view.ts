@@ -52,7 +52,11 @@ export type VetSummaryPage = {
   subtitle: string
   /** The printed heading, «Медкарта: Мурка». */
   printTitle: string
-  /** The document's title while it prints: the name «Сохранить как PDF» offers. */
+  /**
+   * The document's title while the summary is open: the name «Сохранить как
+   * PDF» offers, «Мурка — медкарта — 27.09.2026» (spec 7.18). Never longer
+   * than `FILE_TITLE_MAX`: a long pet name is cut, the date never is.
+   */
   fileTitle: string
   pet: { name: string; meta: string; weight: string }
   /** Every line said, empty or not — or one «Не указано владельцем» when all three are empty. */
@@ -63,6 +67,25 @@ export type VetSummaryPage = {
   weight: SummaryWeight
   checks: SummaryCheck[] | { note: string }
   footer: string
+}
+
+/**
+ * Safari on iOS names the PDF by the first 80 characters of the title and
+ * drops the rest: with the 60-character name of the demo «Барон …» the file
+ * came out «… — медкарта — 26.09.» (MW-07; checked again in the iOS
+ * Simulator, MW-09, where a date without dots was cut the same way — it is
+ * the length, not the dots). So the name gives way and the date stays whole.
+ */
+export const FILE_TITLE_MAX = 80
+
+/** «Мурка — медкарта — 27.09.2026», the pet's name cut to what the date leaves of `FILE_TITLE_MAX`. */
+function fileTitle(template: string, name: string, day: string): string {
+  const around = fill(template, { name: '', day })
+  // By code points, so an emoji is never cut in half; counted in UTF-16, as the title's length is.
+  const letters = Array.from(name)
+  while (letters.length > 0 && around.length + letters.join('').length > FILE_TITLE_MAX) letters.pop()
+  // A cut name does not end on a space or a stray «,»/«.» before « — медкарта».
+  return fill(template, { name: letters.join('').replace(/[\s.,;:]+$/u, ''), day })
 }
 
 /** «12.03.2026»: tables give the full date, as the printed A4 of the design. */
@@ -253,7 +276,7 @@ export function vetSummaryPage(dict: Dictionary, locale: Locale, summary: VetSum
     title: words.title,
     subtitle: fill(words.subtitle, { name }),
     printTitle: fill(words.printTitle, { name }),
-    fileTitle: fill(words.fileName, { name: fileNameStem(name) || words.unnamed, day: numericDay(today) }),
+    fileTitle: fileTitle(words.fileName, fileNameStem(name) || words.unnamed, numericDay(today)),
     pet: { name, meta: meta.join(' · '), weight: fill(words.weightLine, { weight: weightValue }) },
     important,
     vaccinations,
