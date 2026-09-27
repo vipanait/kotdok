@@ -524,6 +524,3 @@ function CompleteItemForm({
     </div>
   )
 }
-
-
-
