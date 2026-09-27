@@ -2,62 +2,62 @@
   "checks": {
     "w1440": {
       "clean": {
-        "formPage": "/pets/f8ae1ae7-c87c-4838-b16d-8fc5d008e619/health/0c5b0031-b56d-4b67-a771-cd844a39c5b9/edit",
-        "planPage": "/pets/f8ae1ae7-c87c-4838-b16d-8fc5d008e619/health/0c5b0031-b56d-4b67-a771-cd844a39c5b9",
+        "formPage": "/pets/36d92997-6e53-44be-aa59-28e46f76d050/health/a5af63d3-0370-43ab-87cd-f8bf12941e67/edit",
+        "planPage": "/pets/36d92997-6e53-44be-aa59-28e46f76d050/health/a5af63d3-0370-43ab-87cd-f8bf12941e67",
         "afterTake": {
-          "url": "/pets/f8ae1ae7-c87c-4838-b16d-8fc5d008e619/health/0c5b0031-b56d-4b67-a771-cd844a39c5b9/edit",
+          "url": "/pets/36d92997-6e53-44be-aa59-28e46f76d050/health/a5af63d3-0370-43ab-87cd-f8bf12941e67/edit",
           "onForm": true,
           "dialog": false,
           "clinic": "Другое устройство 1440 clean"
         },
-        "afterBack": "/pets/f8ae1ae7-c87c-4838-b16d-8fc5d008e619/health/0c5b0031-b56d-4b67-a771-cd844a39c5b9",
+        "afterBack": "/pets/36d92997-6e53-44be-aa59-28e46f76d050/health/a5af63d3-0370-43ab-87cd-f8bf12941e67",
         "dialog": false
       },
       "typedAgain": {
-        "formPage": "/pets/f8ae1ae7-c87c-4838-b16d-8fc5d008e619/health/0c5b0031-b56d-4b67-a771-cd844a39c5b9/edit",
-        "planPage": "/pets/f8ae1ae7-c87c-4838-b16d-8fc5d008e619/health/0c5b0031-b56d-4b67-a771-cd844a39c5b9",
+        "formPage": "/pets/36d92997-6e53-44be-aa59-28e46f76d050/health/a5af63d3-0370-43ab-87cd-f8bf12941e67/edit",
+        "planPage": "/pets/36d92997-6e53-44be-aa59-28e46f76d050/health/a5af63d3-0370-43ab-87cd-f8bf12941e67",
         "afterTake": {
-          "url": "/pets/f8ae1ae7-c87c-4838-b16d-8fc5d008e619/health/0c5b0031-b56d-4b67-a771-cd844a39c5b9/edit",
+          "url": "/pets/36d92997-6e53-44be-aa59-28e46f76d050/health/a5af63d3-0370-43ab-87cd-f8bf12941e67/edit",
           "onForm": true,
           "dialog": false,
           "clinic": "Другое устройство 1440 typedAgain"
         },
         "asked": {
-          "url": "/pets/f8ae1ae7-c87c-4838-b16d-8fc5d008e619/health/0c5b0031-b56d-4b67-a771-cd844a39c5b9/edit",
+          "url": "/pets/36d92997-6e53-44be-aa59-28e46f76d050/health/a5af63d3-0370-43ab-87cd-f8bf12941e67/edit",
           "onForm": true,
           "title": "Уйти без сохранения?"
         },
-        "leftTo": "/pets/f8ae1ae7-c87c-4838-b16d-8fc5d008e619/health/0c5b0031-b56d-4b67-a771-cd844a39c5b9"
+        "leftTo": "/pets/36d92997-6e53-44be-aa59-28e46f76d050/health/a5af63d3-0370-43ab-87cd-f8bf12941e67"
       }
     },
     "w390": {
       "clean": {
-        "formPage": "/pets/f8ae1ae7-c87c-4838-b16d-8fc5d008e619/health/0c5b0031-b56d-4b67-a771-cd844a39c5b9/edit",
-        "planPage": "/pets/f8ae1ae7-c87c-4838-b16d-8fc5d008e619/health/0c5b0031-b56d-4b67-a771-cd844a39c5b9",
+        "formPage": "/pets/36d92997-6e53-44be-aa59-28e46f76d050/health/a5af63d3-0370-43ab-87cd-f8bf12941e67/edit",
+        "planPage": "/pets/36d92997-6e53-44be-aa59-28e46f76d050/health/a5af63d3-0370-43ab-87cd-f8bf12941e67",
         "afterTake": {
-          "url": "/pets/f8ae1ae7-c87c-4838-b16d-8fc5d008e619/health/0c5b0031-b56d-4b67-a771-cd844a39c5b9/edit",
+          "url": "/pets/36d92997-6e53-44be-aa59-28e46f76d050/health/a5af63d3-0370-43ab-87cd-f8bf12941e67/edit",
           "onForm": true,
           "dialog": false,
           "clinic": "Другое устройство 390 clean"
         },
-        "afterBack": "/pets/f8ae1ae7-c87c-4838-b16d-8fc5d008e619/health/0c5b0031-b56d-4b67-a771-cd844a39c5b9",
+        "afterBack": "/pets/36d92997-6e53-44be-aa59-28e46f76d050/health/a5af63d3-0370-43ab-87cd-f8bf12941e67",
         "dialog": false
       },
       "typedAgain": {
-        "formPage": "/pets/f8ae1ae7-c87c-4838-b16d-8fc5d008e619/health/0c5b0031-b56d-4b67-a771-cd844a39c5b9/edit",
-        "planPage": "/pets/f8ae1ae7-c87c-4838-b16d-8fc5d008e619/health/0c5b0031-b56d-4b67-a771-cd844a39c5b9",
+        "formPage": "/pets/36d92997-6e53-44be-aa59-28e46f76d050/health/a5af63d3-0370-43ab-87cd-f8bf12941e67/edit",
+        "planPage": "/pets/36d92997-6e53-44be-aa59-28e46f76d050/health/a5af63d3-0370-43ab-87cd-f8bf12941e67",
         "afterTake": {
-          "url": "/pets/f8ae1ae7-c87c-4838-b16d-8fc5d008e619/health/0c5b0031-b56d-4b67-a771-cd844a39c5b9/edit",
+          "url": "/pets/36d92997-6e53-44be-aa59-28e46f76d050/health/a5af63d3-0370-43ab-87cd-f8bf12941e67/edit",
           "onForm": true,
           "dialog": false,
           "clinic": "Другое устройство 390 typedAgain"
         },
         "asked": {
-          "url": "/pets/f8ae1ae7-c87c-4838-b16d-8fc5d008e619/health/0c5b0031-b56d-4b67-a771-cd844a39c5b9/edit",
+          "url": "/pets/36d92997-6e53-44be-aa59-28e46f76d050/health/a5af63d3-0370-43ab-87cd-f8bf12941e67/edit",
           "onForm": true,
           "title": "Уйти без сохранения?"
         },
-        "leftTo": "/pets/f8ae1ae7-c87c-4838-b16d-8fc5d008e619/health/0c5b0031-b56d-4b67-a771-cd844a39c5b9"
+        "leftTo": "/pets/36d92997-6e53-44be-aa59-28e46f76d050/health/a5af63d3-0370-43ab-87cd-f8bf12941e67"
       }
     }
   }

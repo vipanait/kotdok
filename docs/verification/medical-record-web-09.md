@@ -17,7 +17,7 @@
 | Task 4 — печать | `83268e5`, раунд 1 `7168570` | проверки одной строкой, Мурка на одном листе, дисклеймер, имя PDF и заголовки в Safari |
 | Task 5 — телефон | `8c5e38b` | начало курса, «сохранится завершённым», длины визита, `heldReadOnly`, заголовок и ссылка заблокированной записи |
 | Task 6 — код, тесты, инструменты | `c6a3f43`, `0ee67b1`, `e3dcba0`, `9ffc568`, `ccc1458` | флаги этапов убраны, дубли, компонентные тесты, пробелы тестов, `verify.mjs` от сегодняшнего дня, 200 % |
-| Task 7 — отчёт и приёмка | `e690a53` (код), коммит этого отчёта | фокус не прячется под закреплёнными панелями ≤760 px, мелкая чистка, повтор миграций с нуля, `next build`, отчёты, PR |
+| Task 7 — отчёт и приёмка | `e690a53` (код), `49c5d0b` (отчёты), раунд исправлений 1 (порядок выпуска, повторный прогон скриптов, `medical-record-web-08/verify.mjs`) | фокус не прячется под закреплёнными панелями ≤760 px, мелкая чистка, повтор миграций с нуля, `next build`, отчёты, PR |
 
 Отчёты исполнителей и ревью — `.superpowers/sdd/09/` (`task-N-report.md`, `progress.md`, вне git).
 
@@ -107,7 +107,7 @@
 
 | Пункт | Сделано | Доказательство |
 |---|---|---|
-| (решение по ревью Task 6) Фокус с клавиатуры не прячется под закреплёнными панелями ≤760 px | `html { scroll-padding-bottom }` при ≤760 px: навигация 66 px + 16 px; на медкарте с панелью «Добавить запись / Для врача» — 66 + 72 + 16 px (`e690a53`) | До правки: фокус под панелью на 18 из 22 страниц × окон, например 6 раз на медкарте. После: `focusHidden: []`, 358 остановок фокуса (`09/task6-zoom200-output.json`). 390 px: 24 остановки, ни одна не под панелями, нижняя — 16 px над панелью (`09/task7-screens-output.json`, `09/task7-record-focus-above-bars-390.png`). Снимки `09/zoom200-*-focus-low.png`. Оговорка про поле заметки — в разделе «Остающиеся ограничения» |
+| (решение по ревью Task 6) Фокус с клавиатуры не прячется под закреплёнными панелями ≤760 px (исключение — нижняя часть высокого многострочного поля, см. ограничения) | `html { scroll-padding-bottom }` при ≤760 px: навигация 66 px + 16 px; на медкарте с панелью «Добавить запись / Для врача» — 66 + 72 + 16 px (`e690a53`) | До правки скрипт находил фокус под панелями на медкарте, «Сроках», формах и странице визита: Chrome прокручивает к полю только до края окна. После: `focusHidden: []`, 358 остановок фокуса (`09/task6-zoom200-output.json`). 390 px: 24 остановки, ни одна не под панелями, нижняя — 16 px над панелью (`09/task7-screens-output.json`, `09/task7-record-focus-above-bars-390.png`). Снимки `09/zoom200-*-focus-low.png`. Оговорка про поле заметки — в разделе «Остающиеся ограничения» |
 | (то же) Мелкая чистка | Комментарий `EventDayProblem` на месте, у `EventTextField` свой; двойные пустые строки в четырёх экранах (`e690a53`) | diff коммита |
 | Миграции с нуля (решение контроллера) | Одноразовая база, все 46 файлов по порядку | Раздел «Повтор миграций с нуля» |
 | `next build` (решение контроллера) | Сборка при работающем dev-сервере: в Next 16 у них разные каталоги | Раздел «Тесты и сборка» |
@@ -122,43 +122,50 @@
 3. `supabase/migrations/20260927120000_medication_batch_position.sql` — `pet_medications.batch_position`, порядок повтора пакета.
 4. `supabase/migrations/20260927130000_weight_keys_and_dating.sql` — `pet_weight_requests`, ключ веса (`LPKEY`), «Уточнить».
 
-**Совместимость.** Новые параметры имеют значения по умолчанию, старые перегрузки удалены (`drop function if exists`), поэтому вызов по старому списку аргументов разрешается однозначно. Сервер production (`origin/main` `3a6bead`) после `db push` и до слияния работает как раньше: правки сделанных записей не превращаются в 500. Это проверяют тесты «an older server calling the functions as before still works» и «the production server (origin/main) still edits done records by its old argument list». Установленные сборки приложения новых полей не шлют и получают прежнее поведение. Единственное видимое изменение для них — повтор «Сделано» с тем же ключом и другими данными теперь 409 `conflict` вместо 200 со старой записью; ложного успеха нет.
+**Совместимость.** Новые параметры имеют значения по умолчанию, старые перегрузки удалены (`drop function if exists`), поэтому вызов по старому списку аргументов разрешается однозначно. Сервер production (`origin/main` `3a6bead`) после `db push` и до слияния работает как раньше: правки сделанных записей не превращаются в 500. Это проверяют тесты «an older server calling the functions as before still works» и «the production server (origin/main) still edits done records by its old argument list». Установленные сборки приложения новых полей не шлют и получают прежнее поведение, кроме двух изменений, которые SQL вносит сразу после `db push`, ещё со старым сервером:
+- повтор «Сделано» с тем же ключом и другими данными у плана из одной позиции — 409 `conflict` вместо 200 со старой записью (ложного успеха нет);
+- «Уточнить» по значению: у питомца без истории первое измерение с тем же значением, что в анкете, даёт одну строку (вес анкеты с датой), а не две — для любого клиента, в том числе установленных сборок.
 
-**Шаги владельца** (в папке, где выбрана ветка `feature/medical-record-web`; агент `db push` не выполняет):
+**Шаги владельца** (в папке, где выбрана ветка `feature/medical-record-web`; агент `db push` не выполняет). **Выполнять по одной строке и остановиться при любой ошибке** или если вывод не совпадает с комментарием: неверный `project-ref` или лишние файлы в `--dry-run` — стоп, ничего не пушить.
 
 ```bash
 cd /Users/skyeng/dev/petcheck/kotdok
-git branch --show-current                  # feature/medical-record-web
+git branch --show-current                  # должно быть feature/medical-record-web
 cat supabase/.temp/project-ref             # на 27.09 — rclnsbivyulqmvujiopv (staging); если production — перелинковать
 
 # 1. staging
 supabase link --project-ref rclnsbivyulqmvujiopv
-supabase db push --dry-run                 # ровно 4 файла 20260927100000…130000; что-то ещё — остановиться
+cat supabase/.temp/project-ref             # должно быть rclnsbivyulqmvujiopv — иначе стоп
+supabase db push --dry-run                 # ровно 4 файла 20260927100000…130000; что-то ещё — стоп
 supabase db push
 supabase migration list                    # у четырёх файлов заполнена колонка Remote
 # проверка только чтением (SQL Editor staging):
 #   select to_regclass('public.pet_weight_requests');                          -- не null
-#   select count(*) from information_schema.columns
-#     where table_name = 'pet_medications' and column_name = 'batch_position'; -- 1
+#   select column_name from information_schema.columns
+#     where table_schema = 'public' and (
+#       (table_name = 'pet_medications' and column_name = 'batch_position') or
+#       (table_name = 'pet_health_events' and column_name in ('complete_key', 'complete_hash')));
+#     -- три строки: batch_position, complete_key, complete_hash
 #   select proname, pg_get_function_identity_arguments(oid) from pg_proc
 #     where proname in ('update_health_event','update_visit','record_pet_weight','change_pet_weight','remember_weight_key');
 #     -- у update_health_event/update_visit есть p_refuse_done, у весов — p_key
 
 # 2. production — то же самое
 supabase link --project-ref bczseshsgpzulqynvukg
-supabase db push --dry-run                 # те же 4 файла
+cat supabase/.temp/project-ref             # должно быть bczseshsgpzulqynvukg — иначе стоп
+supabase db push --dry-run                 # те же 4 файла; что-то ещё — стоп
 supabase db push
 supabase migration list
 # та же проверка только чтением в SQL Editor production
 
 # 3. вернуть связь на staging
 supabase link --project-ref rclnsbivyulqmvujiopv
-cat supabase/.temp/project-ref             # rclnsbivyulqmvujiopv
+cat supabase/.temp/project-ref             # должно быть rclnsbivyulqmvujiopv
 ```
 
 Никогда не выполнять `supabase config push`: `config.toml` описывает локальный стенд. `supabase db reset` для этих шагов не нужен.
 
-**Порядок выпуска:** `db push` staging → проверка → `db push` production → проверка → слияние PR #53 (Vercel сразу выкладывает сайт и API в production) → проверка production → EAS Update в канал `production`. Подробно — в [итоговом отчёте](medical-record-web-final.md), «Чек-лист выпуска».
+**Порядок выпуска** (решение контроллера): `db push` staging → проверка → `db push` production → проверка → проверка fingerprint (`npx expo-updates fingerprint:generate --platform ios` в `apps/mobile` против `runtime.version` установленной сборки) → EAS Update в канал `production` → слияние PR #53 (Vercel сразу выкладывает сайт и API в production) → проверка production. EAS Update — до слияния: новый JS работает со старым сервером и мигрированной базой (`today` — query-параметр, старые маршруты его не читают; заголовок ключа веса игнорируется, `p_key` = `null`; старая схема «Сделано» пропускает `''`, и после `db push` это очищает поле, как задумано; старый сервер не присылает `record_done`, а новый JS и так скрывает «Изменить» у выполненных записей), а обновление применяется только после перезапуска, так что публикация до деплоя уменьшает число устройств, где старый JS встретит `record_done`. Подробно — в [итоговом отчёте](medical-record-web-final.md), «Чек-лист выпуска».
 
 ## Повтор миграций с нуля (решение контроллера)
 
@@ -207,7 +214,35 @@ PLAYWRIGHT=… CHROME=… node docs/verification/medical-record-web-09/task7-scr
                                                        медкарта 390 — 24 остановки фокуса, скрытых нет
 ```
 
-Прогон интеграционного набора пересоздаёт фикстурных пользователей, поэтому после него запущены `fixtures.test.ts` и сид демо. `verify.mjs` этапов, `http-status.mjs`, `task2/3/4-*.mjs` и прогоны в симуляторе в Task 7 не повторялись. Их выводы — из задач 2–6 на коммитах, указанных выше. Код, который они проверяют, после них менялся только CSS-правилом `scroll-padding-bottom` и чисткой без изменения поведения.
+Прогон интеграционного набора пересоздаёт фикстурных пользователей, поэтому после него запущены `fixtures.test.ts` и сид демо.
+
+### Повторный прогон браузерных и HTTP-скриптов на HEAD (раунд исправлений 1 Task 7)
+
+Task 6 изменил страницы, которые проверяют эти скрипты: убраны `notFound()` под флагами, перестроена `/health/new`. Поэтому скрипты задач 2–4 и MW-03, MW-08 прогнаны заново на `49c5d0b` (код тот же, что в `e690a53`). Перед каждым прогоном, который пишет в базу, и после последнего — сид демо. Выводы перезаписаны, снимки задач 2–4 пересняты. Снимки этапов MW-03 и MW-08 возвращены `git checkout`, чтобы не подменять доказательства тех этапов.
+
+Сравнивались с прежними выводами после замены id, дат и `request_id`:
+
+| Скрипт | Результат | Отличия от прежнего вывода |
+|---|---|---|
+| `09/http-status.mjs` → `09/http-status-output.json` | exit 0 | нет. Все 404, 200, 307 и `next=` согласия — как в таблице Task 2 |
+| `09/task2-screens.mjs` → `09/task2-screens-output.json` | exit 0 | нет |
+| `medical-record-web-03/verify.mjs` → `09/task3-mw03-verify-output.json` | exit 0 | нет |
+| `09/task3-screens.mjs` → `09/task3-screens-output.json` | exit 0 | нет |
+| `09/task3-fix1-screens.mjs` → `09/task3-fix1-output.json` | exit 0 | только `id` поля веса, созданный `useId` React (`_R_ppbn…` → `_R_2ppbn…`) — следствие перестройки `/health/new` |
+| `09/task3-fix2-screens.mjs` → `09/task3-fix2-output.json` | exit 0 | нет |
+| `09/task4-print.mjs` → `09/task4-print-output.json`, `09/chrome-*.pdf` | exit 0 | нет |
+| `09/task4-pdf-check.py` → `09/task4-pdf-check-output.json` | exit 0, `_assertions.failures: []` | нет. PDF Safari (`ios-safari-*.pdf`) — из Simulator в Task 4, не переснимались |
+| `medical-record-web-08/verify.mjs` → `09/task7-mw08-verify-output.json` | exit 0 после правки скрипта | только строка срока по §7.1: «Обработка от блох и клещей — просрочено» вместо «Блохи и клещи — просрочено» (Task 2) |
+
+**Правка `medical-record-web-08/verify.mjs`.** Первый прогон упал: `form.course-form` не найден.
+- Причина та же, что Task 6 нашёл в MW-05/06: с MW-09 сайт шлёт `?today=`, и глобы `**/api/v1/pets/*/health/medications` и `**/api/v1/pets/*/health` перестали перехватывать запросы. Сохранение курса «без сети» ушло на сервер и прошло.
+- Глобы заменены на RegExp с необязательным query (`MEDICATIONS_URL`, `healthUrl`).
+- Проверка «строка срока в одну строку» теперь смотрит на название (`.compact-pet-due-title`): с `e4e7ffe` многоточие у названия, а статус рядом не обрезается никогда. Высота строки по-прежнему < 24 px.
+
+**Не повторялись:**
+- `verify.mjs` MW-01, MW-02, MW-07. Их страницы в MW-09 проверены другими прогонами: медкарта, вес и формы — `task6-zoom200.mjs`, `task3-*.mjs`, `task7-screens.mjs`; сводка и печать — `task4-print.mjs`.
+- MW-04/05/06 и crossplatform — прогнаны Task 6 на `e3dcba0`, уже после снятия флагов (`c6a3f43`). После них менялись только телефон (`ccc1458`) и CSS `scroll-padding`.
+- Прогоны в iOS Simulator (Task 2, 4, 5, 6): изменения после них не касаются телефона и печати в Safari.
 
 ## Решения контроллера этапа и их цена
 
