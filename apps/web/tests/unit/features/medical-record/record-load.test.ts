@@ -8,13 +8,7 @@ import {
   type RecordData,
   type RecordState,
 } from '@/features/medical-record/record-load'
-import {
-  MEDICAL_RECORD_STAGE,
-  addableRecordTypes,
-  parseRecordType,
-  sectionOpen,
-  type MedicalRecordStage,
-} from '@/features/medical-record/stage'
+import { addableRecordTypes, parseRecordType, sectionOpen } from '@/features/medical-record/routes'
 import { murka } from './demo-overviews'
 
 const data: RecordData = { overview: murka, checks: { status: 'ready', items: [] } }
@@ -95,29 +89,8 @@ describe('fetching the record', () => {
   })
 })
 
-describe('stage flags', () => {
-  const none: MedicalRecordStage = {
-    weight: false,
-    vaccinations: false,
-    parasites: false,
-    due: false,
-    medications: false,
-    visits: false,
-    vetSummary: false,
-  }
-
-  it('offers nothing to add while no form is built', () => {
-    expect(addableRecordTypes(murka.writable, none)).toEqual([])
-  })
-
-  it('offers every record type and the summary for the vet once MW-07 is on', () => {
-    expect(MEDICAL_RECORD_STAGE.weight).toBe(true)
-    expect(MEDICAL_RECORD_STAGE.vaccinations).toBe(true)
-    expect(MEDICAL_RECORD_STAGE.parasites).toBe(true)
-    expect(MEDICAL_RECORD_STAGE.due).toBe(true)
-    expect(MEDICAL_RECORD_STAGE.medications).toBe(true)
-    expect(MEDICAL_RECORD_STAGE.visits).toBe(true)
-    expect(MEDICAL_RECORD_STAGE.vetSummary).toBe(true)
+describe('what the record offers to add', () => {
+  it('offers every record type the server stores, in the chooser order', () => {
     expect(addableRecordTypes(murka.writable)).toEqual(['vaccination', 'parasite', 'visit', 'medication', 'weight'])
   })
 
@@ -128,11 +101,10 @@ describe('stage flags', () => {
     expect(parseRecordType(undefined)).toBeNull()
   })
 
-  it('opens a section only when it is built and the server can store it', () => {
-    const weight = { ...none, weight: true }
-    expect(addableRecordTypes(['weight'], weight)).toEqual(['weight'])
-    expect(addableRecordTypes(['vaccinations'], weight)).toEqual([])
-    expect(sectionOpen('weight', ['vaccinations'], weight)).toBe(false)
-    expect(sectionOpen('weight', null, weight)).toBe(true)
+  it('opens a section only when the server can store it — an older server gets no form', () => {
+    expect(addableRecordTypes(['weight'])).toEqual(['weight'])
+    expect(addableRecordTypes([])).toEqual([])
+    expect(sectionOpen('weight', ['vaccinations'])).toBe(false)
+    expect(sectionOpen('weight', ['weight'])).toBe(true)
   })
 })

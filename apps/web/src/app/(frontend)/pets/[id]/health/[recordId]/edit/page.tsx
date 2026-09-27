@@ -1,7 +1,7 @@
 import { notFound, redirect } from 'next/navigation'
 import CabinetShell from '@/components/cabinet/CabinetShell'
 import { EditEventScreen } from '@/features/medical-record/events/EventFormScreen'
-import { MEDICAL_RECORD_STAGE, medicalRecordHref, recordKindOpen } from '@/features/medical-record/stage'
+import { medicalRecordHref } from '@/features/medical-record/routes'
 import { EditWeightScreen } from '@/features/medical-record/weight/WeightFormScreen'
 import { EditCourseScreen } from '@/features/medical-record/medications/CourseFormScreen'
 import { EditVisitScreen } from '@/features/medical-record/visits/VisitFormScreen'
@@ -31,7 +31,6 @@ export default async function EditHealthRecordPage({ params }: { params: Promise
   if (!record) notFound()
 
   if (record.kind === 'weight') {
-    if (!MEDICAL_RECORD_STAGE.weight) notFound()
     return (
       <CabinetShell cabinet={cabinet} active="pets" crumb={`${dict.medicalRecord.title} / ${dict.medicalRecord.weightPage.title}`}>
         <EditWeightScreen key={recordId} petId={id} petName={pet.name} weightId={recordId} />
@@ -40,7 +39,6 @@ export default async function EditHealthRecordPage({ params }: { params: Promise
   }
 
   if (record.kind === 'medication') {
-    if (!MEDICAL_RECORD_STAGE.medications) notFound()
     // Finished for every owner wherever they are: history, never a form. A
     // course finished only by the owner's own day is caught by the screen.
     if (record.status === 'finished') redirect(medicalRecordHref.recordView(id, recordId))
@@ -52,7 +50,6 @@ export default async function EditHealthRecordPage({ params }: { params: Promise
   }
 
   if (record.kind === 'visit') {
-    if (!MEDICAL_RECORD_STAGE.visits) notFound()
     // A visit that happened is history: its old edit address shows the visit.
     if (record.status === 'done') redirect(medicalRecordHref.recordView(id, recordId))
     return (
@@ -62,7 +59,6 @@ export default async function EditHealthRecordPage({ params }: { params: Promise
     )
   }
 
-  if (!recordKindOpen(record.kind)) notFound()
   if (record.status === 'done') redirect(medicalRecordHref.recordView(id, recordId))
 
   return (

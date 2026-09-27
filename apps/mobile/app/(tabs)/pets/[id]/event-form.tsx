@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
-import type { HealthEvent, PetSpecies } from '@lapka/contracts'
+import { HEALTH_EVENT_LIMITS, type HealthEvent, type PetSpecies } from '@lapka/contracts'
 import { ApiError, completionMismatch } from '@lapka/shared'
 import { withFreshSession } from '@/lib/api'
 import { describeFailure } from '@/lib/errors'
@@ -14,6 +14,7 @@ import { ProductSheet, type ProductChoice } from '@/features/medical-record/Prod
 import {
   blankDraft,
   blankItem,
+  canAddItem,
   draftChanged,
   draftFromEvent,
   itemInterval,
@@ -61,8 +62,11 @@ export default function EventForm() {
   const params = useLocalSearchParams<Params>()
   const petId = params.id
   const mode: FormMode = params.mode === 'edit' ? 'edit' : params.mode === 'complete' ? 'complete' : 'new'
-  // A new record says its kind; an existing one brings its own when it loads.
-  const [kind, setKind] = useState<HealthEvent['kind']>(params.kind === 'parasite' ? 'parasite' : 'vaccination')
+  // A new record says its kind; an existing one brings its own when it loads —
+  // until then the screen is not named after a kind it may not be (MW-09).
+  const [kind, setKind] = useState<HealthEvent['kind'] | null>(
+    params.kind === 'parasite' ? 'parasite' : params.kind === 'vaccination' || mode === 'new' ? 'vaccination' : null,
+  )
   const t = useText()
   const reminders = useReminders()
   const words = t.medicalRecord
@@ -95,8 +99,9 @@ export default function EventForm() {
 
       let start: EventDraft
       if (mode === 'new') {
-        start = blankDraft(params.status === 'planned' ? 'planned' : 'done', new Date(), kind)
-        start.items = [blankItem('new-0', kind)]
+        const newKind = kind ?? 'vaccination'
+        start = blankDraft(params.status === 'planned' ? 'planned' : 'done', new Date(), newKind)
+        start.items = [blankItem('new-0', newKind)]
       } else if (mode === 'edit') {
         const event = overview.events.find((e) => e.id === params.eventId)
         if (!event) throw new Error('not found')
@@ -273,7 +278,7 @@ export default function EventForm() {
   }
 
   const treatment = kind === 'parasite'
-  const title = treatment ? words.treatmentTitle : words.vaccinationTitle
+  const title = kind === null ? words.recordTitle : treatment ? words.treatmentTitle : words.vaccinationTitle
 
   if (!draft || !species || locked) {
     return (
@@ -512,20 +517,24 @@ export default function EventForm() {
 
       {errors.form ? <Banner text={errors.form} tone="error" style={styles.gapBottom} /> : null}
 
-      {mode !== 'complete' ? (
+      {mode === 'complete' ? null : canAddItem(draft) ? (
         <LinkButton
           title={treatment ? words.addProduct : words.addVaccine}
           align="left"
           onPress={() => {
             const key = `new-${nextKey.current++}`
-            change({ items: [...draft.items, blankItem(key, kind)] })
+            change({ items: [...draft.items, blankItem(key, draft.kind)] })
             setPicking(key)
           }}
         />
-      ) : null}
+      ) : (
+        <Text variant="caption" tone="muted" style={styles.gapBottom}>
+          {words.eventItemsFull(HEALTH_EVENT_LIMITS.items)}
+        </Text>
+      )}
 
-      <Field label={words.clinic} value={draft.clinic} onChangeText={(clinic) => change({ clinic })} />
-      <Field label={words.notes} value={draft.notes} onChangeText={(notes) => change({ notes })} multiline />
+      <Field label={words.clinic} value={draft.clinic} onChangeText={(clinic) => change({ clinic })} error={errors.clinic} />
+      <Field label={words.notes} value={draft.notes} onChangeText={(notes) => change({ notes })} multiline error={errors.notes} />
 
       {summary ? <Banner text={summary} tone="info" style={styles.gapBottom} /> : null}
       {warnsDoneIsFinal(mode, draft.status) ? (

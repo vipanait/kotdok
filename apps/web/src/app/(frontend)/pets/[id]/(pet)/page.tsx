@@ -3,7 +3,7 @@ import MedicalRecordScreen from '@/features/medical-record/MedicalRecordScreen'
 import { openPetPage } from '@/components/cabinet/open-pet-page'
 import { privatePageMetadata } from '@/server/i18n/page-metadata'
 import { parseRecordSaved } from '@/features/pets/pet-form-exit'
-import { parseRecordStepSaved, parseSavedRecord } from '@/features/medical-record/stage'
+import { parseRecordStepSaved, parseSavedRecord } from '@/features/medical-record/routes'
 
 export const generateMetadata = privatePageMetadata(d => d.medicalRecord.title)
 

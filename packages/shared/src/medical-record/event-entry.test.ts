@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import type { HealthEvent } from '@lapka/contracts'
+import { HEALTH_EVENT_LIMITS, type HealthEvent } from '@lapka/contracts'
 import {
+  eventTextProblems,
+  itemNameTooLong,
+  tooManyItems,
   completionMismatch,
   coreVaccinations,
   eventDayProblem,
@@ -31,6 +34,24 @@ function item(id: string, targets: string[], source_item_id: string | null = nul
 }
 
 const uuid = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`
+
+describe('the lengths a record keeps (HEALTH_EVENT_LIMITS, web and phone)', () => {
+  it('refuses a clinic or a note longer than the contract keeps, counted trimmed', () => {
+    const at = (n: number) => 'к'.repeat(n)
+    expect(eventTextProblems({ clinic: at(HEALTH_EVENT_LIMITS.clinic), notes: at(HEALTH_EVENT_LIMITS.notes) })).toEqual([])
+    expect(eventTextProblems({ clinic: at(HEALTH_EVENT_LIMITS.clinic + 1), notes: `  ${at(HEALTH_EVENT_LIMITS.notes)}  ` })).toEqual(['clinic'])
+    expect(eventTextProblems({ notes: at(HEALTH_EVENT_LIMITS.notes + 1) })).toEqual(['notes'])
+    expect(eventTextProblems({})).toEqual([])
+  })
+
+  it('refuses an item name over the limit and more items than a record holds', () => {
+    expect(itemNameTooLong('н'.repeat(HEALTH_EVENT_LIMITS.itemName))).toBe(false)
+    expect(itemNameTooLong(` ${'н'.repeat(HEALTH_EVENT_LIMITS.itemName)} `)).toBe(false)
+    expect(itemNameTooLong('н'.repeat(HEALTH_EVENT_LIMITS.itemName + 1))).toBe(true)
+    expect(tooManyItems(Array.from({ length: HEALTH_EVENT_LIMITS.items }))).toBe(false)
+    expect(tooManyItems(Array.from({ length: HEALTH_EVENT_LIMITS.items + 1 }))).toBe(true)
+  })
+})
 
 describe('vaccination targets', () => {
   it('lists a species’ own diseases, core first, and never another species’', () => {

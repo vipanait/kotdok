@@ -1,10 +1,10 @@
 import type { HealthEvent, HealthOverview, HealthSection, SymptomCheckRecord, Urgency } from '@lapka/contracts'
-import { doneEvents, localToday, plannedEvents, visitEditable, type DueTone } from '@lapka/shared'
+import { doneEvents, localToday, plannedEvents, prescriptionAddable, visitEditable, type DueTone } from '@lapka/shared'
 import type { Locale } from '@/shared/i18n/config'
 import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
 import { urgencyTitle } from '@/shared/utils/urgency'
 import { formatCount } from '@/shared/i18n/plural'
-import { MEDICAL_RECORD_STAGE, medicalRecordHref, sectionOpen, type MedicalRecordStage } from '../stage'
+import { medicalRecordHref, sectionOpen } from '../routes'
 import { dueStatusText, formatDay, recordDay } from '../view-model'
 
 /**
@@ -173,16 +173,15 @@ export function visitRecord(
   visit: HealthEvent,
   checks: readonly SymptomCheckRecord[],
   today: string,
-  writable: readonly HealthSection[] | null = null,
-  stage: MedicalRecordStage = MEDICAL_RECORD_STAGE,
+  writable: readonly HealthSection[],
   dayOf: (iso: string) => string = checkDayOf,
 ): VisitRecordView {
   if (visit.kind !== 'visit') throw new Error('not a visit')
   const words = dict.medicalRecord
   const view = words.visitRecord
   const planned = visit.status === 'planned'
-  const writes = sectionOpen('visits', writable, stage)
-  const medicines = sectionOpen('medications', writable, stage)
+  const writes = sectionOpen('visits', writable)
+  const medicines = sectionOpen('medications', writable)
   const editable = writes && visitEditable(visit)
   const day = formatDay(words, visit.date, true)
   const status = planned ? dueStatusText(dict, locale, visit.date, today) : null
@@ -191,7 +190,7 @@ export function visitRecord(
     name: item.name ?? '',
     instructions: item.instructions,
     courseHref: item.medication_id ? medicalRecordHref.recordView(petId, item.medication_id) : null,
-    addable: !planned && item.medication_id === null && item.name !== null && medicines,
+    addable: prescriptionAddable(visit, item) && medicines,
   }))
   return {
     status: visit.status,

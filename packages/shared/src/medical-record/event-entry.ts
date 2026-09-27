@@ -1,5 +1,6 @@
 import {
   CalendarDateSchema,
+  HEALTH_EVENT_LIMITS,
   PARASITE_TARGETS,
   VACCINE_TARGETS,
   type CompleteItemInput,
@@ -74,6 +75,27 @@ export function suggestNextDay(recordDay: string, interval: Interval | null, tod
 }
 
 /** Why a record's day cannot be saved, as the phone and the site both check it before sending. */
+export type EventTextField = 'clinic' | 'notes'
+
+/**
+ * The texts of a vaccination or treatment record that are longer than the
+ * contract keeps (`HEALTH_EVENT_LIMITS`), counted as sent — trimmed. A form
+ * refuses them where they are typed, not with a 400.
+ */
+export function eventTextProblems(texts: Partial<Record<EventTextField, string>>): EventTextField[] {
+  return (['clinic', 'notes'] as const).filter((field) => (texts[field] ?? '').trim().length > HEALTH_EVENT_LIMITS[field])
+}
+
+/** Whether an item's name as typed is longer than the contract keeps. */
+export function itemNameTooLong(name: string): boolean {
+  return name.trim().length > HEALTH_EVENT_LIMITS.itemName
+}
+
+/** Whether a record has more items than the contract keeps. */
+export function tooManyItems(items: readonly unknown[]): boolean {
+  return items.length > HEALTH_EVENT_LIMITS.items
+}
+
 export type EventDayProblem = 'empty' | 'invalid' | 'future' | 'past'
 
 /**

@@ -1,5 +1,16 @@
-import type { HealthEvent, HealthEventInput, HealthProduct, HealthTarget } from '@lapka/contracts'
-import { eventDayProblem, nextDayProblem, suggestNextDay, suggestionInterval, toggleParasiteGroup, type Interval } from '@lapka/shared'
+import { HEALTH_EVENT_LIMITS, type HealthEvent, type HealthEventInput, type HealthProduct, type HealthTarget } from '@lapka/contracts'
+import {
+  eventDayProblem,
+  eventTextProblems,
+  itemNameTooLong,
+  nextDayProblem,
+  suggestNextDay,
+  suggestionInterval,
+  toggleParasiteGroup,
+  tooManyItems,
+  type EventTextField,
+  type Interval,
+} from '@lapka/shared'
 import type { Dictionary } from '@/i18n'
 import { dayInput, localToday, parseDayText } from '@/lib/calendar-day'
 
@@ -140,6 +151,11 @@ export type DraftErrors = {
   form?: string
   items?: Record<string, string>
   next?: Record<string, string>
+} & Partial<Record<EventTextField, string>>
+
+/** Whether «+ Ещё вакцина / препарат» may add one more: a record keeps the contract's number of items. */
+export function canAddItem(draft: Pick<EventDraft, 'items'>): boolean {
+  return draft.items.length < HEALTH_EVENT_LIMITS.items
 }
 
 type ItemInput = {
@@ -206,6 +222,7 @@ export function readDraft(
 
   const treatment = draft.kind === 'parasite'
   if (draft.items.length === 0) errors.form = treatment ? words.productsRequired : words.itemsRequired
+  else if (tooManyItems(draft.items)) errors.form = words.eventItemsFull(HEALTH_EVENT_LIMITS.items)
 
   const itemErrors: Record<string, string> = {}
   const nextErrors: Record<string, string> = {}
@@ -214,6 +231,7 @@ export function readDraft(
   const items = draft.items.map((item) => {
     const name = item.name.trim()
     if (name === '' && item.targets.length === 0) itemErrors[item.key] = treatment ? words.itemEmptyTreatment : words.itemEmpty
+    else if (itemNameTooLong(name)) itemErrors[item.key] = words.tooLong(HEALTH_EVENT_LIMITS.itemName)
     let next_on: string | null = null
     if (withNext && date) {
       const next = nextDate(item, date, localToday(now))
@@ -231,6 +249,8 @@ export function readDraft(
 
   if (Object.keys(itemErrors).length > 0) errors.items = itemErrors
   if (Object.keys(nextErrors).length > 0) errors.next = nextErrors
+  // The clinic and the note by the contract's lengths, as the site checks them (shared `eventTextProblems`).
+  for (const field of eventTextProblems(draft)) errors[field] = words.tooLong(HEALTH_EVENT_LIMITS[field])
   if (Object.keys(errors).length > 0 || !date) return { ok: false, errors }
 
   return {

@@ -1,5 +1,5 @@
 import { recordCache } from '@/features/medical-record/record-load'
-import { medicalRecordHref } from '@/features/medical-record/stage'
+import { medicalRecordHref } from '@/features/medical-record/routes'
 import type { PetSavedKind } from '@/features/pets/pet-saved'
 
 /** The pets list: where a new pet's form starts from and returns to. */
@@ -24,9 +24,11 @@ export function petFormCancelHref(petId?: string): string {
  * weight and «Принимает сейчас» the record shows, and the record must not
  * draw the ones from before the save while it reloads.
  */
-export function petFormDoneHref(kind: PetSavedKind, petId?: string): string {
-  if (petId) recordCache.forget(petId)
-  if (kind === 'updated' && petId) return `${medicalRecordHref.record(petId)}?saved=${RECORD_FORM_SAVED}`
+export function petFormDoneHref(done: { kind: 'created' } | { kind: 'updated' | 'deleted'; petId: string }): string {
+  if (done.kind === 'created') return `${PETS_LIST_HREF}?petSaved=created`
+  recordCache.forget(done.petId)
+  if (done.kind === 'updated') return `${medicalRecordHref.record(done.petId)}?saved=${RECORD_FORM_SAVED}`
+  const kind: PetSavedKind = done.kind
   return `${PETS_LIST_HREF}?petSaved=${kind}`
 }
 

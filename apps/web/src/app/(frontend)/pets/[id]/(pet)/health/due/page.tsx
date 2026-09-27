@@ -1,7 +1,6 @@
-import { notFound } from 'next/navigation'
 import CabinetShell from '@/components/cabinet/CabinetShell'
 import DueScreen from '@/features/medical-record/DueScreen'
-import { MEDICAL_RECORD_STAGE, parseSavedRecord } from '@/features/medical-record/stage'
+import { parseSavedRecord } from '@/features/medical-record/routes'
 import { openPetPage } from '@/components/cabinet/open-pet-page'
 import { privatePageMetadata } from '@/server/i18n/page-metadata'
 
@@ -19,7 +18,6 @@ export default async function DuePage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
   const { id } = await params
-  if (!MEDICAL_RECORD_STAGE.due) notFound()
   const { cabinet, dict } = await openPetPage(id, `/pets/${id}/health/due`)
   const query = await searchParams
   const saved = query.saved === 'completed'

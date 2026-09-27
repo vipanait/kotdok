@@ -206,6 +206,7 @@ export const en: Dictionary = {
     addVaccination: 'Add a vaccination',
     vaccinatedInFormBanner: 'The form says vaccinated. Add the vaccinations with dates — we will remind you of the next ones',
     vaccinationTitle: 'Vaccination',
+    recordTitle: 'Record',
     statusDone: 'Done',
     statusPlanned: 'Plan',
     whenDone: 'When it was done',
@@ -356,9 +357,9 @@ export const en: Dictionary = {
     openRecord: 'Open the record',
     alreadySaved: 'This record was already saved earlier, without the latest changes. Go back to the medical record and edit it there.',
     earlierDone: (day: string) =>
-      `This item was already marked done earlier — ${day}. The new details were not saved: a done record cannot be changed. Open it in the medical record to check.`,
+      `This item was already marked done earlier — ${day}. The new details were not saved: a done record cannot be changed — check what it holds.`,
     earlierNext: (day: string) =>
-      `This item was already marked done earlier (${day}) with another next date. The new details were not saved: a done record cannot be changed. Open it in the medical record to check.`,
+      `This item was already marked done earlier (${day}) with another next date. The new details were not saved: a done record cannot be changed — check what it holds.`,
     nextCustom: 'Pick a date',
     nextNone: 'No reminder',
     nextDate: 'Next date',
@@ -375,6 +376,7 @@ export const en: Dictionary = {
         : `Only this item is marked. ${others === 1 ? 'One more stays' : `${others} more stay`} planned.`,
     itemsRequired: 'Add at least one vaccine',
     itemEmpty: 'Give a name or mark what the vaccine is against',
+    eventItemsFull: (max: number) => `No more than ${max} items in one record.`,
     itemEmptyTreatment: 'Give a product or mark what the treatment is against',
     productsRequired: 'Add at least one product',
     plannedDateInvalid: 'Date is DD.MM.YYYY, today or later',

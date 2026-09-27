@@ -1,6 +1,4 @@
-import { notFound } from 'next/navigation'
 import CabinetShell from '@/components/cabinet/CabinetShell'
-import { MEDICAL_RECORD_STAGE } from '@/features/medical-record/stage'
 import WeightScreen from '@/features/medical-record/weight/WeightScreen'
 import { parseWeightSaved } from '@/features/medical-record/weight/weight-view'
 import { openPetPage } from '@/components/cabinet/open-pet-page'
@@ -20,7 +18,6 @@ export default async function WeightPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
   const { id } = await params
-  if (!MEDICAL_RECORD_STAGE.weight) notFound()
   const { cabinet, dict } = await openPetPage(id, `/pets/${id}/health/weight`)
   const saved = parseWeightSaved((await searchParams).saved)
 

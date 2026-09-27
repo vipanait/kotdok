@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import CabinetShell from '@/components/cabinet/CabinetShell'
 import AddRecordChooser from '@/features/medical-record/AddRecordChooser'
-import { addableRecordTypes, parseRecordType } from '@/features/medical-record/stage'
+import { RECORD_TYPES, parseRecordType, type RecordType } from '@/features/medical-record/routes'
 import { NewEventScreen } from '@/features/medical-record/events/EventFormScreen'
 import { NewWeightScreen } from '@/features/medical-record/weight/WeightFormScreen'
 import { NewCourseScreen } from '@/features/medical-record/medications/CourseFormScreen'
@@ -15,6 +15,7 @@ import { getOwnerToday, getTimeZone } from '@/server/i18n/get-time-zone'
 import { dayInZone } from '@/shared/i18n/time-zone'
 import { urgencyTitle } from '@/shared/utils/urgency'
 import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
+import type { Pet } from '@/shared/types'
 import { privatePageMetadata } from '@/server/i18n/page-metadata'
 
 export const generateMetadata = privatePageMetadata(d => d.medicalRecord.addPage.title)
@@ -45,9 +46,10 @@ async function visitSource(userId: string, petId: string, checkId: string, dict:
 }
 
 /**
- * A new record: `?type=weight`, `?type=vaccination`, `?type=medication`, `?type=visit` (with `&check=` from a check result)… is that type's form; no type is «Что
- * добавить?». A type whose stage is not open, or an unknown one, is a 404 —
- * the site has no form for it yet.
+ * A new record: `?type=weight`, `?type=vaccination`, `?type=medication`,
+ * `?type=visit` (with `&check=` from a check result)… is that type's form; no
+ * type is «Что добавить?». An unknown type is a 404. The site and its API
+ * are one deploy, so every type the site draws a form for can be saved.
  */
 export default async function NewRecordPage({
   params,
@@ -65,11 +67,8 @@ export default async function NewRecordPage({
   }`
   const { cabinet, pet, dict } = await openPetPage(id, path)
 
-  // The site and its API are one deploy, so the stage alone says what can be saved.
-  const open = addableRecordTypes(null)
   const type = parseRecordType(rawType)
-  if (rawType !== undefined && (!type || !open.includes(type))) notFound()
-  if (!type && open.length === 0) notFound()
+  if (rawType !== undefined && !type) notFound()
 
   // A visit from a check result: that check, verified here; one that is not this pet's is not there.
   const fromCheck = type === 'visit' && rawCheck !== null ? await visitSource(cabinet.user.id, id, rawCheck, dict) : null
@@ -81,21 +80,41 @@ export default async function NewRecordPage({
   const crumb = `${dict.medicalRecord.title} / ${type ? dict.medicalRecord.addPage.types[type] : dict.medicalRecord.addPage.title}`
   return (
     <CabinetShell cabinet={cabinet} active="pets" crumb={crumb}>
-      {type === 'weight' ? (
-        // «Уточнить» on the pet form's weight with no history: that value, to be dated.
-        <NewWeightScreen key={id} petId={id} petName={pet.name} today={today} formWeight={query.from === 'form' ? pet.weight_kg : null} />
-      ) : type === 'vaccination' || type === 'parasite' ? (
-        // Keyed by pet: another pet's form starts clean, and its catalogue search with it.
-        <NewEventScreen key={`${id}-${type}`} petId={id} petName={pet.name} species={pet.species} kind={type} today={today} />
-      ) : type === 'visit' ? (
-        <NewVisitScreen key={`${id}-${fromCheck?.checkId ?? ''}`} petId={id} petName={pet.name} fromCheck={fromCheck} today={today} />
-      ) : type === 'medication' ? (
-        <NewCourseScreen key={id} petId={id} petName={pet.name} today={today} />
-      ) : type ? (
-        notFound()
+      {type ? (
+        <NewRecordForm type={type} petId={id} pet={pet} today={today} fromCheck={fromCheck} fromForm={query.from === 'form'} />
       ) : (
-        <AddRecordChooser petId={id} petName={pet.name} types={open} dict={dict} />
+        <AddRecordChooser petId={id} petName={pet.name} types={RECORD_TYPES} dict={dict} />
       )}
     </CabinetShell>
   )
+}
+
+/** The form of one record type. Keyed by pet: another pet's form starts clean, and its catalogue search with it. */
+function NewRecordForm({
+  type,
+  petId,
+  pet,
+  today,
+  fromCheck,
+  fromForm,
+}: {
+  type: RecordType
+  petId: string
+  pet: Pet
+  today: string
+  fromCheck: VisitFromCheck | null
+  /** «Уточнить» on the pet form's weight with no history: that value, to be dated. */
+  fromForm: boolean
+}) {
+  switch (type) {
+    case 'weight':
+      return <NewWeightScreen key={petId} petId={petId} petName={pet.name} today={today} formWeight={fromForm ? pet.weight_kg : null} />
+    case 'vaccination':
+    case 'parasite':
+      return <NewEventScreen key={`${petId}-${type}`} petId={petId} petName={pet.name} species={pet.species} kind={type} today={today} />
+    case 'visit':
+      return <NewVisitScreen key={`${petId}-${fromCheck?.checkId ?? ''}`} petId={petId} petName={pet.name} fromCheck={fromCheck} today={today} />
+    case 'medication':
+      return <NewCourseScreen key={petId} petId={petId} petName={pet.name} today={today} />
+  }
 }

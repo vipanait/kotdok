@@ -7,7 +7,7 @@ import { useTranslations } from '@/components/LocaleProvider'
 import MedicalRecordView, { RetryButton } from './MedicalRecordView'
 import type { RecordState } from './record-load'
 import SavedNotice from './SavedNotice'
-import { medicalRecordHref } from './stage'
+import { medicalRecordHref } from './routes'
 import { useMedicalRecord } from './use-medical-record'
 
 /**

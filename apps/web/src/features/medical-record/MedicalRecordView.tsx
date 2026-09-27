@@ -7,14 +7,13 @@ import PetAvatar from '@/components/PetAvatar'
 import Icon, { type IconName } from '@/components/ui/Icon'
 import UrgencyBadge from '@/components/ui/UrgencyBadge'
 import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
-import { formatCount } from '@/shared/i18n/plural'
 import type { ChecksPart } from './record-load'
-import { addableRecordTypes, medicalRecordHref, sectionOpen, MEDICAL_RECORD_STAGE } from './stage'
+import { addableRecordTypes, medicalRecordHref, sectionOpen } from './routes'
 import WeightChart from './WeightChart'
 import { checkDayOf } from './visits/visit-view'
 import {
   dueBlock,
-  formatDay,
+  recordDay,
   headFacts,
   importantFacts,
   sectionCards,
@@ -59,8 +58,6 @@ export default function MedicalRecordView({
   const due = dueBlock(dict, locale, overview, today)
   const facts = importantFacts(dict, overview, today)
   const addable = addableRecordTypes(overview.writable)
-  const vetSummary = MEDICAL_RECORD_STAGE.vetSummary
-  const hasActions = addable.length > 0 || vetSummary
 
   return (
     <div className="health-page">
@@ -91,7 +88,7 @@ export default function MedicalRecordView({
 
       {notice}
 
-      <div className={`health-grid${hasActions ? ' has-actions' : ''}`}>
+      <div className="health-grid has-actions">
         {due.rows.length > 0 && <DueCard petId={petId} due={due} dict={dict} />}
 
         {facts.length > 0 && (
@@ -128,21 +125,17 @@ export default function MedicalRecordView({
           <ChecksCard petId={petId} checks={checks} dict={dict} today={today} onRetry={onRetry} retrying={retrying} />
         </div>
 
-        {hasActions && (
-          <nav className="health-actions" aria-label={words.actions.label}>
-            {addable.length > 0 && (
-              <Link href={medicalRecordHref.add(petId)} className="btn primary">
-                {words.actions.addRecord}
-                <Icon name="plus" />
-              </Link>
-            )}
-            {vetSummary && (
-              <Link href={medicalRecordHref.vetSummary(petId)} className="btn secondary">
-                {words.actions.forVet}
-              </Link>
-            )}
-          </nav>
-        )}
+        <nav className="health-actions" aria-label={words.actions.label}>
+          {addable.length > 0 && (
+            <Link href={medicalRecordHref.add(petId)} className="btn primary">
+              {words.actions.addRecord}
+              <Icon name="plus" />
+            </Link>
+          )}
+          <Link href={medicalRecordHref.vetSummary(petId)} className="btn secondary">
+            {words.actions.forVet}
+          </Link>
+        </nav>
       </div>
     </div>
   )
@@ -177,19 +170,13 @@ function CardHead({
 
 function DueCard({ petId, due, dict }: { petId: string; due: DueBlock; dict: Dictionary }) {
   const words = dict.medicalRecord.due
-  const locale = useLocale()
-  const rest = due.total - due.rows.length
   return (
     <section className="card health-due" aria-labelledby="health-due-title">
       <h2 id="health-due-title">{words.title}</h2>
       <DueRows rows={due.rows} />
-      {MEDICAL_RECORD_STAGE.due ? (
-        <Link href={medicalRecordHref.due(petId)} className="link">
-          {words.all.replace('{n}', String(due.total))}
-        </Link>
-      ) : (
-        rest > 0 && <p className="health-due-more">{formatCount(words.more, rest, locale)}</p>
-      )}
+      <Link href={medicalRecordHref.due(petId)} className="link">
+        {words.all.replace('{n}', String(due.total))}
+      </Link>
     </section>
   )
 }
@@ -277,16 +264,6 @@ function WeightCardView({ card, href, dict }: { card: WeightCard; href: string |
   )
 }
 
-/**
- * A check's day on the owner's clock (the browser's own time zone), with the
- * year when it is not the year of the page's day — the page's today, which
- * moves on at midnight, not a second reading of the clock (MW-09).
- */
-function checkDay(dict: Dictionary, iso: string, today: string): string {
-  const day = checkDayOf(iso)
-  return formatDay(dict.medicalRecord, day, day.slice(0, 4) !== today.slice(0, 4))
-}
-
 function ChecksCard({
   petId,
   checks,
@@ -330,7 +307,7 @@ function ChecksCard({
           {checks.items.map((check: SymptomCheckRecord) => (
             <li key={check.id}>
               <Link href={`/check/${check.id}`} className="health-check">
-                <span className="health-check-day">{checkDay(dict, check.created_at, today)}</span>
+                <span className="health-check-day">{recordDay(dict.medicalRecord, checkDayOf(check.created_at), today)}</span>
                 <UrgencyBadge urgency={check.urgency} dict={dict} />
                 <span className="health-check-text">{check.symptoms_input}</span>
               </Link>

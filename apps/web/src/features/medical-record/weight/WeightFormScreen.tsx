@@ -1,13 +1,12 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
-import Link from 'next/link'
 import type { WeightMeasurement } from '@lapka/contracts'
 import { useTranslations } from '@/components/LocaleProvider'
 import { useToday } from '@/features/forms/use-today'
 import type { Fresh } from '../held-record'
+import { FormNotice, FormSkeleton } from '../form-parts'
 import { RecordProblem } from '../MedicalRecordScreen'
-import { medicalRecordHref } from '../stage'
+import { medicalRecordHref } from '../routes'
 import { DriftNotice, useHeldRecord } from '../use-held-record'
 import { useMedicalRecord } from '../use-medical-record'
 import WeightForm from './WeightForm'
@@ -55,7 +54,7 @@ export function EditWeightScreen({ petId, petName, weightId }: { petId: string; 
   const held = useHeldRecord(state.status === 'ready' ? freshWeight(state.data.overview.weights, weightId) : null)
 
   if (state.status !== 'ready') {
-    return <RecordProblem state={state} petId={petId} reload={reload} loading={<FormSkeleton title={form.editTitle} label={dict.medicalRecord.states.loading} />} />
+    return <RecordProblem state={state} petId={petId} reload={reload} loading={<FormSkeleton title={form.editTitle} label={dict.medicalRecord.states.loading} size="weight" />} />
   }
 
   const weight = held.record
@@ -82,29 +81,15 @@ export function EditWeightScreen({ petId, petName, weightId }: { petId: string; 
 }
 
 function WeightGone({ petId }: { petId: string }) {
-  const dict = useTranslations()
-  const form = dict.medicalRecord.weightForm
-  const ref = useRef<HTMLHeadingElement>(null)
-  useEffect(() => ref.current?.focus(), [])
+  const form = useTranslations().medicalRecord.weightForm
   return (
-    <section className="card health-problem" aria-labelledby="weight-gone-title">
-      <h1 id="weight-gone-title" ref={ref} tabIndex={-1}>{form.notFoundTitle}</h1>
-      <p>{form.notFoundBody}</p>
-      <Link href={medicalRecordHref.section(petId, 'weight')} className="btn primary">{form.backToHistory}</Link>
-    </section>
+    <FormNotice
+      id="weight-gone"
+      title={form.notFoundTitle}
+      body={form.notFoundBody}
+      href={medicalRecordHref.section(petId, 'weight')}
+      action={form.backToHistory}
+    />
   )
 }
 
-function FormSkeleton({ title, label }: { title: string; label: string }) {
-  return (
-    <div className="health-skeleton" role="status" aria-live="polite" aria-busy="true">
-      <span className="sr-only">{label}</span>
-      <div className="pagehead" aria-hidden>
-        <div>
-          <h1>{title}</h1>
-        </div>
-      </div>
-      <div className="skeleton-block record-form weight-skeleton-form" aria-hidden />
-    </div>
-  )
-}

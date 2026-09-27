@@ -1,12 +1,12 @@
 import {
   CompleteItemInputSchema,
-  HEALTH_EVENT_LIMITS,
   type CompleteItemInput,
   type HealthEvent,
   type HealthItem,
 } from '@lapka/contracts'
 import {
   eventDayProblem,
+  eventTextProblems,
   nextDayProblem,
   suggestNextDay,
   suggestionInterval,
@@ -116,8 +116,7 @@ export function readCompletion(draft: CompleteDraft, today: string): ReadComplet
     const next = nextDayProblem(draft.next, doneOn ? null : draft.doneOn, today)
     if (next) problems.next = next
   }
-  if (draft.clinic.trim().length > HEALTH_EVENT_LIMITS.clinic) problems.clinic = 'tooLong'
-  if (draft.notes.trim().length > HEALTH_EVENT_LIMITS.notes) problems.notes = 'tooLong'
+  for (const field of eventTextProblems(draft)) problems[field] = 'tooLong'
   if (Object.keys(problems).length > 0) return { ok: false, problems }
 
   const input = CompleteItemInputSchema.safeParse({

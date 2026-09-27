@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { hiddenBelowKeyboard } from './keyboard-reveal'
+import { REVEAL_GAP, hiddenAboveTop, hiddenBelowKeyboard } from './keyboard-reveal'
 
 /**
  * Stage 7/03: the field being typed into has to stay visible.
@@ -41,5 +41,17 @@ describe('how far a focused field has to travel', () => {
 
   it('works on a screen with no dock at all', () => {
     expect(hiddenBelowKeyboard({ top: 500, height: 40 }, KEYBOARD_TOP, 0)).toBe(43)
+  })
+})
+
+describe('a field focused above the scroller’s top (MW-09)', () => {
+  it('comes down by what is hidden, plus the gap', () => {
+    // Scroller from y=120; the field scrolled up to y=40 — 80 points above, plus the gap.
+    expect(hiddenAboveTop(40, 120)).toBe(80 + REVEAL_GAP)
+  })
+
+  it('stays where it is when its top is already in view', () => {
+    expect(hiddenAboveTop(120 + REVEAL_GAP, 120)).toBe(0)
+    expect(hiddenAboveTop(400, 120)).toBe(0)
   })
 })

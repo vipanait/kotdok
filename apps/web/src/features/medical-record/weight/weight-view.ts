@@ -2,7 +2,7 @@ import type { HealthOverview } from '@lapka/contracts'
 import { datedWeights, weightTrend, weightsInPeriod, type WeightPeriod } from '@lapka/shared'
 import type { Locale } from '@/shared/i18n/config'
 import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
-import { medicalRecordHref } from '../stage'
+import { medicalRecordHref } from '../routes'
 import { formatDay, formatDecimal, formatWeight, recordDay, trendText, type WeightPoint } from '../view-model'
 
 /**
@@ -148,7 +148,7 @@ function rows(dict: Dictionary, overview: HealthOverview, petId: string, editabl
 
 /**
  * Everything the weight page shows for one period. `editable` is whether
- * this site may change weights (the stage flag and the server's `writable`);
+ * the server stores weights (its `writable`);
  * without it the rows are read-only text.
  */
 export function weightPage(

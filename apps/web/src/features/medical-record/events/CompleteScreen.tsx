@@ -12,9 +12,10 @@ import { useLeaveGuard } from '@/features/forms/use-leave-guard'
 import { useSaveKey } from '@/features/forms/save-key'
 import ConfirmDialog from '@/features/pets/ConfirmDialog'
 import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
+import { FormNotice, FormSkeleton, useFocusOnMount } from '../form-parts'
 import { RecordProblem } from '../MedicalRecordScreen'
 import { recordCache } from '../record-load'
-import { medicalRecordHref, withSaved, type CompleteFrom } from '../stage'
+import { medicalRecordHref, withSaved, type CompleteFrom } from '../routes'
 import type { Fresh } from '../held-record'
 import { DriftNotice, useHeldRecord } from '../use-held-record'
 import { useMedicalRecord } from '../use-medical-record'
@@ -136,7 +137,8 @@ export default function CompleteScreen({
   if (!plan || plan.kind === 'visit') return <EventGone petId={petId} kind={kind} />
   if (plan.status === 'done') {
     return (
-      <Notice
+      <FormNotice
+        id="complete-notice"
         title={dict.medicalRecord.completeForm.doneTitle}
         body={dict.medicalRecord.completeForm.doneBody}
         href={medicalRecordHref.recordView(petId, plan.id)}
@@ -150,7 +152,8 @@ export default function CompleteScreen({
     return <ChooseItem petId={petId} plan={plan} items={target.items} from={from} petName={overview.pet.name} dict={dict} />
   }
   return (
-    <Notice
+    <FormNotice
+      id="complete-notice"
       title={dict.medicalRecord.completeForm.missingTitle}
       body={dict.medicalRecord.completeForm.missingBody}
       href={medicalRecordHref.recordView(petId, plan.id)}
@@ -522,28 +525,5 @@ function CompleteItemForm({
   )
 }
 
-function useFocusOnMount<T extends HTMLElement>() {
-  const ref = useRef<T>(null)
-  useEffect(() => ref.current?.focus(), [])
-  return ref
-}
 
-function Notice({ title, body, href, action }: { title: string; body: string; href: string; action: string }) {
-  const ref = useFocusOnMount<HTMLHeadingElement>()
-  return (
-    <section className="card health-problem" aria-labelledby="complete-notice-title">
-      <h1 id="complete-notice-title" ref={ref} tabIndex={-1}>{title}</h1>
-      <p>{body}</p>
-      <Link href={href} className="btn primary">{action}</Link>
-    </section>
-  )
-}
 
-function FormSkeleton({ label }: { label: string }) {
-  return (
-    <div className="health-skeleton" role="status" aria-live="polite" aria-busy="true">
-      <span className="sr-only">{label}</span>
-      <div className="skeleton-block record-form event-skeleton-form" aria-hidden />
-    </div>
-  )
-}

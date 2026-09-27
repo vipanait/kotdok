@@ -81,7 +81,7 @@ export default function EventView() {
 
   return (
     <Screen
-      title={event?.kind === 'parasite' ? words.treatmentTitle : words.vaccinationTitle}
+      title={!event ? words.recordTitle : event.kind === 'parasite' ? words.treatmentTitle : words.vaccinationTitle}
       onBack={() => router.back()}
       scroll
       dock={

@@ -4,7 +4,7 @@ import EventRecordScreen from '@/features/medical-record/events/EventRecordScree
 import CourseScreen from '@/features/medical-record/medications/CourseScreen'
 import { parseCourseSaved } from '@/features/medical-record/medications/course-view'
 import { parseEventSaved } from '@/features/medical-record/events/event-view'
-import { MEDICAL_RECORD_STAGE, medicalRecordHref, parseSavedRecord, recordKindOpen } from '@/features/medical-record/stage'
+import { medicalRecordHref, parseSavedRecord } from '@/features/medical-record/routes'
 import VisitRecordScreen from '@/features/medical-record/visits/VisitRecordScreen'
 import { parseVisitSaved } from '@/features/medical-record/visits/visit-view'
 import { openPetPage } from '@/components/cabinet/open-pet-page'
@@ -36,9 +36,8 @@ export default async function HealthRecordPage({
   const { cabinet, dict } = await openPetPage(id, `/pets/${id}/health/${recordId}`)
   const record = await findHealthRecord(createServiceClient(), cabinet.user.id, id, recordId)
 
-  if (record?.kind === 'weight' && MEDICAL_RECORD_STAGE.weight) redirect(medicalRecordHref.recordEdit(id, recordId))
+  if (record?.kind === 'weight') redirect(medicalRecordHref.recordEdit(id, recordId))
   if (record?.kind === 'medication') {
-    if (!MEDICAL_RECORD_STAGE.medications) notFound()
     return (
       <CabinetShell cabinet={cabinet} active="pets" crumb={`${dict.medicalRecord.title} / ${dict.medicalRecord.addPage.types.medication}`}>
         <CourseScreen key={recordId} petId={id} courseId={recordId} saved={parseCourseSaved((await searchParams).saved)} />
@@ -46,14 +45,13 @@ export default async function HealthRecordPage({
     )
   }
   if (record?.kind === 'visit') {
-    if (!MEDICAL_RECORD_STAGE.visits) notFound()
     return (
       <CabinetShell cabinet={cabinet} active="pets" crumb={`${dict.medicalRecord.title} / ${dict.medicalRecord.recordKinds.visit}`}>
         <VisitRecordScreen key={recordId} petId={id} visitId={recordId} saved={parseVisitSaved((await searchParams).saved)} />
       </CabinetShell>
     )
   }
-  if (!record || record.kind === 'weight' || !recordKindOpen(record.kind)) notFound()
+  if (!record) notFound()
 
   const query = await searchParams
   const saved = parseEventSaved(query.saved)

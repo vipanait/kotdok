@@ -272,7 +272,7 @@ describe('the visits page and one visit', () => {
   })
 
   it('a visit that happened is only read: no «Состоялся», no «Изменить», deletion and «Добавить в лекарства» stay', () => {
-    const view = visitRecord(ru, 'ru', petId, linkedHeld, checks, TODAY, murka.writable, undefined, utcDay)
+    const view = visitRecord(ru, 'ru', petId, linkedHeld, checks, TODAY, murka.writable, utcDay)
     expect([view.heldHref, view.editHref, view.removable]).toEqual([null, null, true])
     expect(view.actionsBody).toBe('Визит состоялся. Запись доступна только для просмотра.')
     expect(view.prescriptions).toEqual([

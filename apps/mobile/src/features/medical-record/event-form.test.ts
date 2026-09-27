@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import type { HealthEvent } from '@lapka/contracts'
+import { HEALTH_EVENT_LIMITS, type HealthEvent } from '@lapka/contracts'
 import { ru } from '@/i18n/ru'
-import { blankItem, draftFromEvent, draftChanged, nextDate, pickProduct, plannedItem, readDraft, renameItem, warnsDoneIsFinal, type EventDraft } from './event-form'
+import { blankItem, canAddItem, draftFromEvent, draftChanged, nextDate, pickProduct, plannedItem, readDraft, renameItem, warnsDoneIsFinal, type EventDraft } from './event-form'
 
 const NOW = new Date(2026, 8, 24, 12, 0) // 24 Sept 2026, local
 
@@ -73,6 +73,45 @@ describe('reading the vaccination form', () => {
   it('refuses a custom next date that is not after the record', () => {
     const read = readDraft(ru, draft({ items: [{ ...blankItem('a'), targets: ['rabies'], next: 'custom', nextText: '24.09.2026' }] }), 'new', NOW)
     expect(!read.ok && read.errors.next).toEqual({ a: 'Следующая — ДД.ММ.ГГГГ, позже даты записи' })
+  })
+})
+
+describe('the lengths the contract keeps, before anything is sent (MW-09)', () => {
+  const over = (n: number) => 'к'.repeat(n + 1)
+
+  it('refuses a clinic and a note over the limit, under their fields, with the contract’s numbers', () => {
+    const read = readDraft(ru, draft({ clinic: over(HEALTH_EVENT_LIMITS.clinic), notes: over(HEALTH_EVENT_LIMITS.notes) }), 'new', NOW)
+    expect(read.ok).toBe(false)
+    if (read.ok) return
+    expect(read.errors.clinic).toBe(ru.medicalRecord.tooLong(HEALTH_EVENT_LIMITS.clinic))
+    expect(read.errors.notes).toBe(ru.medicalRecord.tooLong(HEALTH_EVENT_LIMITS.notes))
+  })
+
+  it('takes them at the limit', () => {
+    const at = 'к'.repeat(HEALTH_EVENT_LIMITS.clinic)
+    expect(readDraft(ru, draft({ clinic: at, notes: 'н'.repeat(HEALTH_EVENT_LIMITS.notes) }), 'new', NOW).ok).toBe(true)
+  })
+
+  it('refuses an item name over the limit, under that item', () => {
+    const long = { ...blankItem('long'), name: over(HEALTH_EVENT_LIMITS.itemName), targets: ['rabies'], source: 'manual' as const }
+    const read = readDraft(ru, draft({ items: [{ ...blankItem('a'), name: 'Нобивак', targets: ['rabies'] }, long] }), 'new', NOW)
+    expect(read.ok).toBe(false)
+    if (!read.ok) expect(read.errors.items).toEqual({ long: ru.medicalRecord.tooLong(HEALTH_EVENT_LIMITS.itemName) })
+  })
+
+  it('offers one more item only while the record has room, and refuses more than it keeps', () => {
+    const items = (n: number) => Array.from({ length: n }, (_, i) => ({ ...blankItem(`i${i}`), name: 'Нобивак', targets: ['rabies'] }))
+    expect(canAddItem({ items: items(HEALTH_EVENT_LIMITS.items - 1) })).toBe(true)
+    expect(canAddItem({ items: items(HEALTH_EVENT_LIMITS.items) })).toBe(false)
+    const read = readDraft(ru, draft({ items: items(HEALTH_EVENT_LIMITS.items + 1) }), 'new', NOW)
+    expect(read.ok).toBe(false)
+    if (!read.ok) expect(read.errors.form).toBe(ru.medicalRecord.eventItemsFull(HEALTH_EVENT_LIMITS.items))
+  })
+
+  it('says «уже отмечено раньше» without sending the owner to look in the medical record — the button opens it', () => {
+    for (const text of [ru.medicalRecord.earlierDone('24 сентября 2026'), ru.medicalRecord.earlierNext('24 сентября 2026')]) {
+      expect(text).not.toMatch(/медкарт/)
+    }
   })
 })
 

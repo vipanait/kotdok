@@ -3,7 +3,7 @@ import { ApiError, localToday, type ApiClient } from '@lapka/shared'
 
 /**
  * Loading a medical record, as states a screen can draw. Kept apart from
- * React so the rules the stage cares most about are tested without a
+ * React so the rules that matter most are tested without a
  * browser: a failed request is never an empty, "healthy" record; data seen
  * before stays on screen with a retry; a pet that is not the caller's, or a
  * session that ended, leaves nothing of the record behind.

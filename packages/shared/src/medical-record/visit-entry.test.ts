@@ -1,7 +1,16 @@
 import { describe, expect, it } from 'vitest'
 import { VISIT_LIMITS } from '@lapka/contracts'
 import { eventDayProblem } from './event-entry'
-import { CHECK_LINK_DAYS, heldVisitDay, linkableChecks, prescriptionProblems, reasonFromCheck, visitEditable, visitTextProblems } from './visit-entry'
+import {
+  CHECK_LINK_DAYS,
+  heldVisitDay,
+  linkableChecks,
+  prescriptionAddable,
+  prescriptionProblems,
+  reasonFromCheck,
+  visitEditable,
+  visitTextProblems,
+} from './visit-entry'
 
 // MW-06: the visit rules the site and the phone share. A visit that happened
 // is only read; a plan is changed, moved or marked held. The checks a visit
@@ -22,6 +31,20 @@ describe('which visit can change', () => {
     expect(eventDayProblem('2026-09-25', 'planned', TODAY)).toBe('past')
     // An overdue plan corrected in another field keeps its own day.
     expect(eventDayProblem('2026-09-20', 'planned', TODAY, '2026-09-20')).toBeNull()
+  })
+})
+
+describe('which prescription can go to the medicines (web and phone)', () => {
+  const held = { status: 'done' as const }
+  const plan = { status: 'planned' as const }
+  it('one of a visit that happened, with a name, not in the medicines yet', () => {
+    expect(prescriptionAddable(held, { medication_id: null, name: 'Фортифлора' })).toBe(true)
+    expect(prescriptionAddable(held, { medication_id: '11111111-1111-4111-8111-111111111111', name: 'Фортифлора' })).toBe(false)
+    expect(prescriptionAddable(held, { medication_id: null, name: null })).toBe(false)
+  })
+
+  it('never one of a plan: it waits for the visit', () => {
+    expect(prescriptionAddable(plan, { medication_id: null, name: 'Фортифлора' })).toBe(false)
   })
 })
 

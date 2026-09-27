@@ -12,7 +12,7 @@ import { useLeaveGuard } from '@/features/forms/use-leave-guard'
 import { useSaveKey } from '@/features/forms/save-key'
 import ConfirmDialog from '@/features/pets/ConfirmDialog'
 import { recordCache } from '../record-load'
-import { medicalRecordHref, withSaved } from '../stage'
+import { medicalRecordHref, withSaved } from '../routes'
 import { eventSaveFailure, type EventSaveFailure } from '../events/event-form'
 import {
   blankCourse,
