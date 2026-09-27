@@ -72,6 +72,12 @@ const murka = pets.find((pet) => pet.name === 'Мурка' && pet.notes === DEMO
 const bobik = pets.find((pet) => pet.name === 'Бобик' && pet.notes === DEMO_NOTE)
 if (!murka || !bobik) throw new Error('Seed the demo pets first (apps/web/scripts/seed-medical-record-demo.mjs)')
 
+// The owner's day in the browser's zone (Europe/Moscow below), as the forms count it —
+// and as the demo seed counts its days (seed-medical-record-demo.mjs), so the
+// seeded record is found on any day it is seeded, not only on 26 September 2026.
+const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Moscow' }).format(new Date())
+const plusDays = (day, days) => new Date(Date.parse(`${day}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10)
+
 const record = async (petId = murka.id, bearer = tokenA) => (await api(`/pets/${petId}/health`, bearer)).body
 const visits = async () => (await record()).events.filter((event) => event.kind === 'visit')
 const courses = async () => (await record()).medications
@@ -79,12 +85,9 @@ const named = (list, name) => list.filter((entry) => entry.name === name)
 const seededVisits = await visits()
 const heldSeed = seededVisits.find((visit) => visit.status === 'done')
 const planSeed = seededVisits.find((visit) => visit.status === 'planned')
-if (seededVisits.length !== 2 || !heldSeed?.check_id || planSeed?.date !== '2026-10-03') throw new Error('The seeded visits are not as expected; seed again')
+if (seededVisits.length !== 2 || !heldSeed?.check_id || planSeed?.date !== plusDays(today, 7)) throw new Error('The seeded visits are not as expected; seed again')
 const CHECK = heldSeed.check_id
 
-// The owner's day in the browser's zone (Europe/Moscow below), as the forms count it.
-const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Moscow' }).format(new Date())
-const plusDays = (day, days) => new Date(Date.parse(`${day}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10)
 
 // Two more checks of «Мурка», as the analysis would have saved them: a recent one (the visit
 // form offers it) and a healthy one (its result offers no visit).
@@ -127,6 +130,13 @@ async function signedInPage(email, width = 1440) {
   await Promise.all([page.waitForURL((url) => !url.pathname.startsWith('/login')), page.press('input[type=password]', 'Enter')])
   return { context, page }
 }
+
+/**
+ * The visits endpoints, with or without their query: since MW-09 the site sends
+ * the owner's day (`?today=`), which a glob ending in «visits» misses.
+ */
+const VISITS_URL = /\/api\/v1\/pets\/[^/]+\/health\/visits(?:\?.*)?$/
+const VISIT_URL = /\/api\/v1\/pets\/[^/]+\/health\/visits\/[^/?]+(?:\?.*)?$/
 
 const text = (value) => (value ?? '').replace(/\s+/g, ' ').trim()
 
@@ -257,6 +267,9 @@ const prescription = (page, n, field) => page.locator(`.visit-prescription >> nt
   await Promise.all([page.waitForURL(/saved=added/), page.click('form.visit-form button[type=submit]')])
   await openSaved(page)
   await page.waitForSelector('.visit-check-link')
+  // The link names its check by day once the pet's checks have loaded (they load
+  // beside the record; opened from the notice, the page is read sooner than after a reload).
+  await page.waitForFunction(() => /\d/.test(document.querySelector('.visit-check-link')?.textContent ?? ''))
   await settle(page)
   const fromResultId = new URL(page.url()).pathname.split('/').pop()
   summary.checks.fromResultSaved = {
@@ -314,7 +327,7 @@ const prescription = (page, n, field) => page.locator(`.visit-prescription >> nt
 
   // ----- MW-06.3: the answer is lost after the server stored the visit; the retry stores nothing twice -----
   const visitsBefore = (await visits()).length
-  await page.route('**/api/v1/pets/*/health/visits', async (route) => {
+  await page.route(VISITS_URL, async (route) => {
     if (route.request().method() !== 'POST') return route.continue()
     await route.fetch()
     await route.abort('internetdisconnected')
@@ -328,7 +341,7 @@ const prescription = (page, n, field) => page.locator(`.visit-prescription >> nt
     buttonUsable: await page.$eval('form.visit-form button[type=submit]', (b) => !b.disabled && b.getAttribute('aria-disabled') !== 'true'),
   }
   await shot(page, 'visit-lost-answer-1440', false)
-  await page.unroute('**/api/v1/pets/*/health/visits')
+  await page.unroute(VISITS_URL)
   await Promise.all([page.waitForURL(/saved=added/), page.click('form.visit-form button[type=submit]')])
   await openSaved(page)
   await page.waitForSelector('.visit-prescriptions')
@@ -437,7 +450,7 @@ const prescription = (page, n, field) => page.locator(`.visit-prescription >> nt
   await page.click('.visit-prescriptions-form button.event-add-item')
   await prescription(page, 0, 'name').fill('Витамины для кошек')
   await page.locator('.visit-prescription >> nth=0').locator('input[type=checkbox]').check()
-  await page.route('**/api/v1/pets/*/health/visits/*', async (route) => {
+  await page.route(VISIT_URL, async (route) => {
     if (route.request().method() === 'PATCH') await new Promise((done) => setTimeout(done, 1500))
     await route.continue()
   })
@@ -447,7 +460,7 @@ const prescription = (page, n, field) => page.locator(`.visit-prescription >> nt
   await confirm.click({ force: true })
   await confirm.click({ force: true })
   await page.waitForURL(/saved=held/)
-  await page.unroute('**/api/v1/pets/*/health/visits/*')
+  await page.unroute(VISIT_URL)
   await page.waitForSelector('.visit-record-page .health-saved')
   await settle(page)
   const heldServer = (await visits()).find((visit) => visit.id === planSeed.id)

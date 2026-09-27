@@ -143,6 +143,22 @@ describe('criterion 1: a visit from a check result, and one made directly', () =
   })
 })
 
+describe('criterion 1: a plan’s check changed later (MW-09)', () => {
+  it('refuses a check of another owner, a deleted one and one of another pet with 400; the plan keeps its own', async () => {
+    const planned = await plan()
+    for (const checkId of [CHECK_IDS.bOnly, CHECK_IDS.bDeleted, CHECK_IDS.aSecond]) {
+      const keyed = await patchVisit(request(tokenA, 'PATCH', { check_id: checkId }, crypto.randomUUID()), eventParams(planned.id))
+      const plain = await patchVisit(request(tokenA, 'PATCH', { check_id: checkId }), eventParams(planned.id))
+      expect([keyed.status, plain.status]).toEqual([400, 400])
+    }
+    const { rows } = await db.query(`select check_id from public.pet_health_events where id = $1`, [planned.id])
+    expect(rows[0].check_id).toBeNull()
+    // Its own pet's check is taken.
+    const linked = await saved(await patchVisit(request(tokenA, 'PATCH', { check_id: CHECK_IDS.aFirst }, crypto.randomUUID()), eventParams(planned.id)))
+    expect(linked.check_id).toBe(CHECK_IDS.aFirst)
+  })
+})
+
 describe('criterion 2: two prescriptions; the chosen one is a course, once', () => {
   it('both prescriptions are there after a reload; only the ticked one is in the medicines, exactly once', async () => {
     const draft = {
@@ -245,6 +261,31 @@ describe('criterion 3: repeating never multiplies; a visit that happened is not 
     const changed = await patchVisit(request(tokenA, 'PATCH', { diagnosis: 'Гастрит' }, crypto.randomUUID()), eventParams(planned.id))
     expect(changed.status).toBe(409)
     expect((await changed.json()).error.code).toBe('record_done')
+  })
+
+  it('a plan change sent again with its key after «Состоялся» is record_done, not its old answer; «Состоялся»’s key with other data is conflict (MW-09)', async () => {
+    const planned = await plan(day(7))
+    const moveRead = readPlanChange(planned, { ...draftFromPlan(planned), date: day(9), clinic: 'Айболит' }, TODAY)
+    if (!moveRead.ok || !moveRead.value) throw new Error('the form refused the change')
+    const moveKey = crypto.randomUUID()
+    const moved = await saved(await patchVisit(request(tokenA, 'PATCH', moveRead.value, moveKey), eventParams(planned.id)))
+    expect([moved.date, moved.clinic]).toEqual([day(9), 'Айболит'])
+
+    const heldRead = readHeld(moved, { ...heldDraft(moved, TODAY), diagnosis: 'Здорова' }, TODAY)
+    if (!heldRead.ok) throw new Error('the form refused «Состоялся»')
+    const heldKey = crypto.randomUUID()
+    expect((await patchVisit(request(tokenA, 'PATCH', heldRead.value, heldKey), eventParams(planned.id))).status).toBe(200)
+    const heldRow = await db.query(`select * from public.pet_health_events where id = $1`, [planned.id])
+
+    // The move's lost answer retried after the visit happened: the visit is history now.
+    const retried = await patchVisit(request(tokenA, 'PATCH', moveRead.value, moveKey), eventParams(planned.id))
+    expect(retried.status).toBe(409)
+    expect((await retried.json()).error.code).toBe('record_done')
+    // «Состоялся»'s own key with other data: refused as another use of the key, not stored.
+    const reused = await patchVisit(request(tokenA, 'PATCH', { ...heldRead.value, diagnosis: 'Гастрит' }, heldKey), eventParams(planned.id))
+    expect(reused.status).toBe(409)
+    expect((await reused.json()).error.code).toBe('conflict')
+    expect((await db.query(`select * from public.pet_health_events where id = $1`, [planned.id])).rows).toEqual(heldRow.rows)
   })
 
   it('every change of a visit that happened is refused (409 record_done); it stays byte-equal; deleting stays possible', async () => {
