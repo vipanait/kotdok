@@ -1,6 +1,6 @@
 'use client'
 
-import { useId, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { VISIT_KINDS, VISIT_LIMITS, type HealthEvent, type SymptomCheckRecord } from '@lapka/contracts'
@@ -74,6 +74,8 @@ export default function VisitForm({
   backHref,
   doneHref,
   onStale,
+  onDirtyChange,
+  notice = null,
 }: {
   petId: string
   petName: string
@@ -87,6 +89,10 @@ export default function VisitForm({
   doneHref: (visitId: string, saved: 'added' | 'changed' | 'held') => string
   /** The plan changed under the form (done or gone): read the record again. */
   onStale: () => void
+  /** Whether the owner has typed (or is saving): a page refreshing the plan keeps the form as it is while so. */
+  onDirtyChange?: (dirty: boolean) => void
+  /** What became of the plan meanwhile, under the heading. */
+  notice?: React.ReactNode
 }) {
   const dict = useTranslations()
   const router = useRouter()
@@ -108,6 +114,7 @@ export default function VisitForm({
 
   const dirty = visitDraftChanged(initial, draft)
   const { leaveHref, leaveLinkRef, stay, leave } = useLeaveGuard(dirty && !saving)
+  useEffect(() => onDirtyChange?.(dirty || saving), [dirty, saving, onDirtyChange])
   const errors = visitErrorTexts(dict, problems)
   const done = draft.status === 'done'
   const full = draft.prescriptions.length >= VISIT_LIMITS.prescriptions
@@ -295,6 +302,8 @@ export default function VisitForm({
           {source ? form.toCheck : form.back}
         </Link>
       </div>
+
+      {notice}
 
       <form className="card record-form event-form visit-form" onSubmit={handleSubmit} noValidate aria-busy={saving || undefined}>
         {mode.kind === 'new' && (

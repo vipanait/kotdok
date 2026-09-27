@@ -1,10 +1,12 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import Link from 'next/link'
-import type { PetSpecies } from '@lapka/contracts'
-import { localToday } from '@lapka/shared'
+import type { HealthEvent, PetSpecies } from '@lapka/contracts'
 import { useTranslations } from '@/components/LocaleProvider'
+import { useToday } from '@/features/forms/use-today'
+import type { Fresh } from '../held-record'
+import { DriftNotice, useHeldRecord } from '../use-held-record'
 import { RecordProblem } from '../MedicalRecordScreen'
 import { medicalRecordHref } from '../stage'
 import { useMedicalRecord } from '../use-medical-record'
@@ -17,9 +19,18 @@ type PetFacts = { petId: string; petName: string; species: PetSpecies }
  * `/pets/[id]/health/new?type=vaccination`: a new record, «Сделано» today by
  * default. `today` is the owner's day from the page: the form is drawn on the
  * server, and a day read there from the browser's clock would be the server's.
+ * It moves on at midnight (MW-09).
  */
 export function NewEventScreen({ petId, petName, species, kind, today }: PetFacts & { kind: EventFormKind; today: string }) {
-  return <EventForm petId={petId} petName={petName} species={species} kind={kind} plan={null} today={today} />
+  const day = useToday(today)
+  return <EventForm petId={petId} petName={petName} species={species} kind={kind} plan={null} today={day} />
+}
+
+/** What the latest load says about the plan being edited. */
+function freshPlan(events: HealthEvent[], eventId: string): Fresh<HealthEvent> {
+  const event = events.find((entry) => entry.id === eventId)
+  if (!event || event.kind === 'visit') return { kind: 'gone' }
+  return event.status === 'done' ? { kind: 'closed' } : { kind: 'open', record: event }
 }
 
 /**
@@ -30,19 +41,44 @@ export function NewEventScreen({ petId, petName, species, kind, today }: PetFact
  */
 export function EditEventScreen({ petId, petName, species, eventId, kind }: PetFacts & { eventId: string; kind: EventFormKind }) {
   const dict = useTranslations()
-  const { state, reload } = useMedicalRecord(petId)
-  const [today] = useState(() => localToday())
+  const { state, reload, today } = useMedicalRecord(petId)
+  // The form keeps the plan it opened with while the owner types; a refresh underneath only tells (MW-09).
+  const held = useHeldRecord(state.status === 'ready' ? freshPlan(state.data.overview.events, eventId) : null)
 
   if (state.status !== 'ready') {
     return <RecordProblem state={state} petId={petId} reload={reload} loading={<FormSkeleton label={dict.medicalRecord.states.loading} />} />
   }
 
-  const event = state.data.overview.events.find((entry) => entry.id === eventId)
-  // Gone meanwhile: back to the section of the kind the page found it as.
-  if (!event || event.kind === 'visit') return <EventGone petId={petId} kind={kind} />
-  if (event.status === 'done') return <EventDone petId={petId} eventId={event.id} />
-  // Keyed by the plan: the fields start from its values once; a refresh underneath does not reset them.
-  return <EventForm key={event.id} petId={petId} petName={petName} species={species} kind={event.kind} plan={event} today={today} />
+  const event = held.record
+  const heldKind = event?.kind
+  if (event && heldKind && heldKind !== 'visit') {
+    // Keyed by the plan and the load it started from: fields start from its values once.
+    return (
+      <EventForm
+        key={`${event.id}-${held.version}`}
+        petId={petId}
+        petName={petName}
+        species={species}
+        kind={heldKind}
+        plan={event}
+        today={today}
+        onDirtyChange={held.setDirty}
+        notice={
+          <DriftNotice
+            drift={held.drift}
+            onTakeLatest={held.takeLatest}
+            sectionHref={medicalRecordHref.section(petId, EVENT_FORM_KINDS[heldKind].section)}
+            recordHref={medicalRecordHref.recordView(petId, event.id)}
+          />
+        }
+      />
+    )
+  }
+
+  const found = state.data.overview.events.find((entry) => entry.id === eventId)
+  // Done meanwhile: only read. Gone: back to the section of the kind the page found it as.
+  if (found && found.kind !== 'visit' && found.status === 'done') return <EventDone petId={petId} eventId={found.id} />
+  return <EventGone petId={petId} kind={kind} />
 }
 
 function useFocusOnMount<T extends HTMLElement>() {

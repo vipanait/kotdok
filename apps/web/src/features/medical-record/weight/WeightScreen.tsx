@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { localToday, type WeightPeriod } from '@lapka/shared'
+import { type WeightPeriod } from '@lapka/shared'
 import { useLocale, useTranslations } from '@/components/LocaleProvider'
 import Icon from '@/components/ui/Icon'
 import { RecordProblem, StaleNotice } from '../MedicalRecordScreen'
@@ -10,7 +10,7 @@ import { medicalRecordHref, sectionOpen } from '../stage'
 import { useMedicalRecord } from '../use-medical-record'
 import SavedNotice from '../SavedNotice'
 import WeightChart from '../WeightChart'
-import { WEIGHT_PERIODS, weightPage, type WeightSaved } from './weight-view'
+import { WEIGHT_PERIODS, periodAnnouncement, weightPage, type WeightSaved } from './weight-view'
 
 /**
  * `/pets/[id]/health/weight` (web v1, «weight», «weight-one»): the current
@@ -23,9 +23,10 @@ export default function WeightScreen({ petId, saved }: { petId: string; saved: W
   const locale = useLocale()
   const words = dict.medicalRecord
   const page = words.weightPage
-  const { state, reload } = useMedicalRecord(petId)
-  const [today] = useState(() => localToday())
+  const { state, reload, today } = useMedicalRecord(petId)
   const [period, setPeriod] = useState<WeightPeriod>('halfYear')
+  /** The owner changed the period: the live region says what it shows now. */
+  const [periodChosen, setPeriodChosen] = useState(false)
 
   if (state.status !== 'ready') {
     return <RecordProblem state={state} petId={petId} reload={reload} loading={<WeightSkeleton title={page.title} label={words.states.loading} />} />
@@ -64,11 +65,23 @@ export default function WeightScreen({ petId, saved }: { petId: string; saved: W
           <section className="card weight-summary" aria-labelledby="weight-current">
             <div className="segmented weight-periods" role="group" aria-label={page.periodLabel}>
               {WEIGHT_PERIODS.map((value) => (
-                <button key={value} type="button" aria-pressed={period === value} onClick={() => setPeriod(value)}>
+                <button
+                  key={value}
+                  type="button"
+                  aria-pressed={period === value}
+                  onClick={() => {
+                    setPeriod(value)
+                    setPeriodChosen(true)
+                  }}
+                >
                   {page.periods[value]}
                 </button>
               ))}
             </div>
+            {/* Always on the page, so a new period is announced (MW-09); empty until the owner picks one. */}
+            <p className="sr-only" aria-live="polite">
+              {periodChosen ? periodAnnouncement(dict, period, summary) : ''}
+            </p>
 
             {summary.kind === 'none' ? (
               <>
@@ -89,8 +102,8 @@ export default function WeightScreen({ petId, saved }: { petId: string; saved: W
                     </ul>
                   </>
                 ) : (
-                  // Fewer than two points in the period: no line, a sentence — announced when the period changes.
-                  <p aria-live="polite">{summary.text}</p>
+                  // Fewer than two points in the period: no line, a sentence (the live region above announces it).
+                  <p>{summary.text}</p>
                 )}
               </>
             )}

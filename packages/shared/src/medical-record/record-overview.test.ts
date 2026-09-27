@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { HealthEvent, Medication, WeightMeasurement } from '@lapka/contracts'
 import {
+  headAge,
   addMonths,
   daysBetween,
   dueEntries,
@@ -154,6 +155,15 @@ describe('courses', () => {
     )
     expect(current.map((c) => c.id)).toEqual(['food'])
     expect(past.map((c) => c.id)).toEqual(['flora', 'old'])
+  })
+})
+
+describe('the age in a pet’s head (MW-09)', () => {
+  it('shows zero like any other age, and nothing when none was given', () => {
+    expect(headAge(0)).toBe(0)
+    expect(headAge(3)).toBe(3)
+    expect(headAge(null)).toBeNull()
+    expect(headAge(undefined)).toBeNull()
   })
 })
 

@@ -12,8 +12,9 @@ import { weightTrend as trendOf } from '@lapka/shared'
  */
 
 // Reading the sheet's fields is shared with the site: the contract's bounds,
-// one decimal, a comma or a point.
-export { parseWeight, weightPatch } from '@lapka/shared'
+// one decimal, a comma or a point — and a stored value left as it opened is
+// kept exactly (a pet-form weight of 4,25 kg can be dated, MW-09).
+export { parseWeight, parseWeightKeeping, weightPatch } from '@lapka/shared'
 
 /**
  * «−0,3 кг за 6 месяцев»: the latest weight against the earliest one of the

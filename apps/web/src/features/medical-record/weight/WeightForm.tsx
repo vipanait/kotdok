@@ -1,6 +1,6 @@
 'use client'
 
-import { useId, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import type { WeightMeasurement } from '@lapka/contracts'
@@ -41,6 +41,8 @@ export default function WeightForm({
   editing,
   today,
   formWeight = null,
+  onDirtyChange,
+  notice = null,
 }: {
   petId: string
   petName: string
@@ -54,6 +56,10 @@ export default function WeightForm({
    * value, it is the one measurement, not a second one beside it.
    */
   formWeight?: number | null
+  /** Whether the owner has typed (or is saving): a page refreshing the measurement keeps the form as it is while so. */
+  onDirtyChange?: (dirty: boolean) => void
+  /** What became of the measurement meanwhile, under the heading. */
+  notice?: React.ReactNode
 }) {
   const dict = useTranslations()
   const router = useRouter()
@@ -63,7 +69,8 @@ export default function WeightForm({
   const historyHref = medicalRecordHref.section(petId, 'weight')
 
   const dating = editing === null && formWeight !== null
-  const initial = {
+  // Fixed when the form opens: a new day at midnight moves the limits, not what the form started from.
+  const [initial] = useState(() => ({
     weight: editing
       ? weightFieldText(editing.weight_kg, words.decimalSeparator)
       : formWeight !== null
@@ -71,7 +78,7 @@ export default function WeightForm({
         : '',
     // The form's undated weight opens with an empty day, not today's: its day is unknown.
     day: editing ? (editing.measured_on ?? '') : dating ? '' : today,
-  }
+  }))
   const [weightText, setWeightText] = useState(initial.weight)
   const [day, setDay] = useState(initial.day)
   const [errors, setErrors] = useState<FieldErrors>({})
@@ -89,6 +96,7 @@ export default function WeightForm({
 
   const dirty = weightText !== initial.weight || day !== initial.day
   const { leaveHref, leaveLinkRef, stay, leave } = useLeaveGuard(dirty && !saving && !deleting)
+  useEffect(() => onDirtyChange?.(dirty || saving || deleting), [dirty, saving, deleting, onDirtyChange])
 
   const undated = editing !== null && editing.measured_on === null
   // The measurement by name in the delete question: «4,2 кг, 12 сентября 2026».
@@ -108,7 +116,8 @@ export default function WeightForm({
     e.preventDefault()
     if (inFlight.current) return
 
-    const read = editing ? weightCorrection(editing, weightText, day, today) : newWeightInput(weightText, day, today)
+    // A stored value left as it opened is sent as it is — 4,25 from the pet form is not refused for its second decimal (MW-09).
+    const read = editing ? weightCorrection(editing, weightText, day, today) : newWeightInput(weightText, day, today, formWeight)
     if (!read.ok) {
       const next = fieldErrors(dict, read.problems)
       setErrors(next)
@@ -189,6 +198,8 @@ export default function WeightForm({
           {form.backToHistory}
         </Link>
       </div>
+
+      {notice}
 
       <form className="card record-form weight-form" onSubmit={handleSubmit} noValidate aria-busy={saving || undefined}>
         <div className="field">

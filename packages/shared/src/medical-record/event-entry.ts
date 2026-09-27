@@ -50,6 +50,17 @@ export function fallbackInterval(kind: HealthEvent['kind'], targets: readonly st
 }
 
 /**
+ * The interval an item's next date is suggested by, on the phone and on the
+ * site alike (MW-09): the item's own — the catalogue product's — or, for an
+ * item with none (the owner's own name, «Без препарата», a product without
+ * one), the fallback for its kind and diseases. Only a suggestion: the owner
+ * changes or clears the date.
+ */
+export function suggestionInterval(kind: HealthEvent['kind'], interval: Interval | null, targets: readonly string[]): Interval {
+  return interval ?? fallbackInterval(kind, targets)
+}
+
+/**
  * The next date an interval suggests after a record's day — a suggestion,
  * never a prescription. None when there is no interval, or when it lands
  * before today: «через год» from a vaccination two years ago would only

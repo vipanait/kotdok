@@ -1,6 +1,7 @@
 import type { Medication, VetSummary } from '@lapka/contracts'
 import {
   fileNameStem,
+  headAge,
   summaryCheckDay,
   summaryNext,
   summaryPetWeight,
@@ -111,8 +112,9 @@ export function vetSummaryPage(dict: Dictionary, locale: Locale, summary: VetSum
   // ---------- The pet ----------
   const meta = [record.animal[pet.species].unknown]
   if (pet.breed?.trim()) meta.push(pet.breed.trim())
-  // An age of 0 is an unfilled field, not a newborn (as in the record's head).
-  if (pet.age_years != null && pet.age_years > 0) meta.push(formatCount(dict.pets.age, pet.age_years, locale))
+  // Zero included, as in the record's head and on the phone (shared `headAge`, MW-09).
+  const age = headAge(pet.age_years)
+  if (age !== null) meta.push(formatCount(dict.pets.age, age, locale))
   if (pet.sex === 'female' || pet.sex === 'male') meta.push(words.sex[pet.sex])
   if (pet.neutered === true) meta.push(record.neutered[pet.sex ?? 'unknown'])
 

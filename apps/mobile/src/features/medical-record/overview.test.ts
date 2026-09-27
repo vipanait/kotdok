@@ -49,6 +49,11 @@ describe('medical record header', () => {
     expect(headerFacts(en, overview({ weight_kg: 4.2 }), TODAY).weight).toBe('4.2 kg')
   })
 
+  it('says an age of 0 as the site does (shared headAge, MW-09)', () => {
+    expect(headerFacts(ru, overview({ age_years: 0 }), TODAY).meta).toBe('Собака · 0 лет')
+    expect(headerFacts(ru, overview({ age_years: null }), TODAY).meta).toBe('Собака')
+  })
+
   it('leaves the weight out rather than showing zero when the form has none', () => {
     expect(headerFacts(ru, overview({ weight_kg: null }), TODAY).weight).toBeNull()
   })

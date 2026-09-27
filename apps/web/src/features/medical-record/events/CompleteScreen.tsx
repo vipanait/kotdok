@@ -3,8 +3,8 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { HEALTH_EVENT_LIMITS, type HealthEvent, type HealthItem } from '@lapka/contracts'
-import { completionMismatch, localToday, nextDayMin, type CompletionMismatch } from '@lapka/shared'
+import { HEALTH_EVENT_LIMITS, type CompleteItemInput, type HealthEvent, type HealthItem } from '@lapka/contracts'
+import { completionMismatch, nextDayMin, type CompletionMismatch } from '@lapka/shared'
 import { useLocale, useTranslations } from '@/components/LocaleProvider'
 import Icon from '@/components/ui/Icon'
 import { browserApi } from '@/features/api/browser-api'
@@ -14,7 +14,9 @@ import ConfirmDialog from '@/features/pets/ConfirmDialog'
 import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
 import { RecordProblem } from '../MedicalRecordScreen'
 import { recordCache } from '../record-load'
-import { medicalRecordHref, type CompleteFrom } from '../stage'
+import { medicalRecordHref, withSaved, type CompleteFrom } from '../stage'
+import type { Fresh } from '../held-record'
+import { DriftNotice, useHeldRecord } from '../use-held-record'
 import { useMedicalRecord } from '../use-medical-record'
 import { eventItemName } from '../view-model'
 import {
@@ -27,7 +29,7 @@ import {
   type CompleteDraft,
   type CompleteProblems,
 } from './complete-form'
-import { completeErrorTexts, completeFailureText, completionNote, earlierText, nextHint, planDayText } from './complete-form-text'
+import { completeErrorTexts, completeFailureText, completionNote, confirmTexts, earlierText, nextHint, planDayText } from './complete-form-text'
 import { eventSaveFailure, EVENT_FORM_KINDS, type EventFormKind, type EventSaveFailure } from './event-form'
 import { EventGone } from './EventFormScreen'
 import { targetsText } from './event-view'
@@ -50,13 +52,29 @@ function backHref(petId: string, eventId: string, kind: EventFormKind, from: Com
 }
 
 /**
- * After «Сделано»: the list it was pressed in, with the confirmation; from
- * the plan or the record page, the done record itself — read-only from now on.
+ * After «Сделано»: back where it was pressed — the list of due dates, the
+ * section, the record page, or the plan's own page while other items stay
+ * in it — with the confirmation and the done record one click away in it
+ * (implementation-handoff, «Поведение», MW-09). A plan of one item became
+ * the done record itself: its page is where it was pressed.
  */
-function savedHref(petId: string, savedId: string, kind: EventFormKind, from: CompleteFrom): string {
-  if (from === 'due') return `${medicalRecordHref.due(petId)}?saved=completed`
-  if (from === 'section') return `${medicalRecordHref.section(petId, EVENT_FORM_KINDS[kind].section)}?saved=completed`
-  return `${medicalRecordHref.recordView(petId, savedId)}?saved=completed`
+function savedHref(petId: string, plan: HealthEvent, savedId: string, kind: EventFormKind, from: CompleteFrom, others: number): string {
+  if (from === 'due') return withSaved(medicalRecordHref.due(petId), 'completed', savedId)
+  if (from === 'section') return withSaved(medicalRecordHref.section(petId, EVENT_FORM_KINDS[kind].section), 'completed', savedId)
+  if (from === 'medical') return withSaved(medicalRecordHref.record(petId), 'completed', savedId)
+  if (others > 0 && savedId !== plan.id) return withSaved(medicalRecordHref.recordView(petId, plan.id), 'completed', savedId)
+  return withSaved(medicalRecordHref.recordView(petId, savedId), 'completed')
+}
+
+/** What the latest load says about the item the form marks. */
+type Marked = { plan: HealthEvent; item: HealthItem }
+
+function freshMarked(events: HealthEvent[], eventId: string, itemId: string | null): Fresh<Marked> {
+  const plan = events.find((event) => event.id === eventId)
+  if (!plan || plan.kind === 'visit') return { kind: 'gone' }
+  if (plan.status === 'done') return { kind: 'closed' }
+  const target = completionTarget(plan, itemId)
+  return target.kind === 'item' ? { kind: 'open', record: { plan, item: target.item } } : { kind: 'closed' }
 }
 
 /**
@@ -79,14 +97,40 @@ export default function CompleteScreen({
   from: CompleteFrom
 }) {
   const dict = useTranslations()
-  const { state, reload } = useMedicalRecord(petId)
-  const [today] = useState(() => localToday())
+  const { state, reload, today } = useMedicalRecord(petId)
+  // The form keeps what it opened with while the owner types; a refresh underneath only tells (MW-09).
+  const held = useHeldRecord(state.status === 'ready' ? freshMarked(state.data.overview.events, eventId, itemId) : null)
 
   if (state.status !== 'ready') {
     return <RecordProblem state={state} petId={petId} reload={reload} loading={<FormSkeleton label={dict.medicalRecord.states.loading} />} />
   }
 
   const { overview } = state.data
+  if (held.record) {
+    const { plan, item } = held.record
+    // Keyed by the item and the load it started from: another item — or new data taken on purpose — starts over.
+    return (
+      <CompleteItemForm
+        key={`${item.id}-${held.version}`}
+        petId={petId}
+        petName={overview.pet.name}
+        plan={plan}
+        item={item}
+        from={from}
+        today={today}
+        onDirtyChange={held.setDirty}
+        notice={
+          <DriftNotice
+            drift={held.drift}
+            onTakeLatest={held.takeLatest}
+            sectionHref={medicalRecordHref.section(petId, EVENT_FORM_KINDS[kind].section)}
+            recordHref={medicalRecordHref.recordView(petId, plan.id)}
+          />
+        }
+      />
+    )
+  }
+
   const plan = overview.events.find((event) => event.id === eventId)
   if (!plan || plan.kind === 'visit') return <EventGone petId={petId} kind={kind} />
   if (plan.status === 'done') {
@@ -101,29 +145,15 @@ export default function CompleteScreen({
   }
 
   const target = completionTarget(plan, itemId)
-  if (target.kind === 'missing') {
-    return (
-      <Notice
-        title={dict.medicalRecord.completeForm.missingTitle}
-        body={dict.medicalRecord.completeForm.missingBody}
-        href={medicalRecordHref.recordView(petId, plan.id)}
-        action={dict.medicalRecord.eventRecord.openRecord}
-      />
-    )
-  }
   if (target.kind === 'choose') {
     return <ChooseItem petId={petId} plan={plan} items={target.items} from={from} petName={overview.pet.name} dict={dict} />
   }
-  // Keyed by the item: another item of the same plan starts from its own values.
   return (
-    <CompleteItemForm
-      key={target.item.id}
-      petId={petId}
-      petName={overview.pet.name}
-      plan={plan}
-      item={target.item}
-      from={from}
-      today={today}
+    <Notice
+      title={dict.medicalRecord.completeForm.missingTitle}
+      body={dict.medicalRecord.completeForm.missingBody}
+      href={medicalRecordHref.recordView(petId, plan.id)}
+      action={dict.medicalRecord.eventRecord.openRecord}
     />
   )
 }
@@ -182,6 +212,8 @@ function CompleteItemForm({
   item,
   from,
   today,
+  onDirtyChange,
+  notice,
 }: {
   petId: string
   petName: string
@@ -189,6 +221,10 @@ function CompleteItemForm({
   item: HealthItem
   from: CompleteFrom
   today: string
+  /** Whether the owner has typed (or is saving): the page keeps the form as it is while so. */
+  onDirtyChange: (dirty: boolean) => void
+  /** What became of the record meanwhile, under the heading. */
+  notice: React.ReactNode
 }) {
   const dict = useTranslations()
   const locale = useLocale()
@@ -204,11 +240,15 @@ function CompleteItemForm({
   const [problems, setProblems] = useState<CompleteProblems>({})
   const [banner, setBanner] = useState<Banner | null>(null)
   const [saving, setSaving] = useState(false)
+  /** The question before the save: the checked body waiting for «Отметить сделанным». */
+  const [confirming, setConfirming] = useState<CompleteItemInput | null>(null)
   const inFlight = useRef(false)
+  const submitRef = useRef<HTMLButtonElement>(null)
 
   const back = backHref(petId, plan.id, kind, from)
   const dirty = completionChanged(initial, draft)
   const { leaveHref, leaveLinkRef, stay, leave } = useLeaveGuard(dirty && !saving)
+  useEffect(() => onDirtyChange(dirty || saving), [dirty, saving, onDirtyChange])
   const errors = completeErrorTexts(dict, problems)
   const others = othersInPlan(plan, item)
   const name = eventItemName(dict, kind, item)
@@ -217,7 +257,8 @@ function CompleteItemForm({
     if (problems[field]) setProblems((current) => ({ ...current, [field]: undefined }))
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  /** «Сохранить»: the fields are checked first; only a form that can be sent is asked about. */
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (inFlight.current) return
 
@@ -235,22 +276,27 @@ function CompleteItemForm({
       document.getElementById(`${id}-${first}`)?.focus()
       return
     }
-
-    inFlight.current = true
-    setSaving(true)
     setProblems({})
     setBanner(null)
+    // A separate step (implementation-handoff, «Окончательное правило»): the day, a look at the fields, a confirmation.
+    setConfirming(read.input)
+  }
+
+  async function save(input: CompleteItemInput) {
+    if (inFlight.current) return
+    inFlight.current = true
+    setSaving(true)
     try {
       // One key for this «Сделано» however many times it is sent: a retry after
       // a lost answer finds the record the first try made.
       const api = browserApi()
-      const saved = await api.completeHealthItem(petId, item.id, read.input, saveKey.current())
+      const saved = await api.completeHealthItem(petId, item.id, input, saveKey.current())
       recordCache.forget(petId)
       // A 200 is not success by itself: an item already done is answered with
       // the record as first saved. Its next plan is checked when the record
       // can be read; if not, the day alone decides.
       const events = await api.getHealthOverview(petId, today).then((overview) => overview.events, () => null)
-      const mismatch = completionMismatch(read.input, saved, item.id, events)
+      const mismatch = completionMismatch(input, saved, item.id, events)
       if (mismatch) {
         inFlight.current = false
         setSaving(false)
@@ -258,7 +304,7 @@ function CompleteItemForm({
         return
       }
       saveKey.renew()
-      leave(savedHref(petId, saved.id, kind, from))
+      leave(savedHref(petId, plan, saved.id, kind, from, others))
     } catch (error) {
       inFlight.current = false
       setSaving(false)
@@ -273,6 +319,8 @@ function CompleteItemForm({
     }
   }
 
+  const question = confirming ? confirmTexts(dict, name, draft, today) : null
+
   return (
     <div className="health-page event-form-page complete-page">
       <Link href={back} className="link health-back">
@@ -285,6 +333,8 @@ function CompleteItemForm({
           <p>{petName}</p>
         </div>
       </div>
+
+      {notice}
 
       <form className="card record-form event-form complete-form" onSubmit={handleSubmit} noValidate aria-busy={saving || undefined}>
         <div className="complete-head">
@@ -362,7 +412,7 @@ function CompleteItemForm({
               )}
             </div>
             {errors.next && <span id={`${id}-next-error`} className="field-error" role="alert">{errors.next}</span>}
-            <span id={`${id}-next-hint`} className="field-hint">{nextHint(dict, locale, item)}</span>
+            <span id={`${id}-next-hint`} className="field-hint">{nextHint(dict, locale, kind, item, draft.doneOn, today)}</span>
           </div>
         </section>
 
@@ -414,7 +464,7 @@ function CompleteItemForm({
         </div>
 
         <p className="banner event-form-info complete-note">{completionNote(dict, locale, others, draft, today)}</p>
-        <p className="field-hint event-form-warning">{form.doneWarning}</p>
+        <p className="field-hint event-form-warning">{words.doneWarning}</p>
 
         {banner?.kind === 'failure' && (
           <div className="banner error record-form-error event-form-banner" role="alert">
@@ -433,11 +483,28 @@ function CompleteItemForm({
 
         <div className="form-actions">
           <Link href={back} className="link">{form.cancel}</Link>
-          <button type="submit" className="btn primary" aria-disabled={saving || undefined}>
+          <button ref={submitRef} type="submit" className="btn primary" aria-disabled={saving || undefined}>
             {saving ? form.saving : form.save}
           </button>
         </div>
       </form>
+
+      {confirming && question && (
+        // Focus starts on «Проверить ещё раз», Escape closes, and focus returns to «Сохранить».
+        <ConfirmDialog
+          title={question.title}
+          body={question.body}
+          cancelLabel={words.confirmCancel}
+          confirmLabel={words.confirmAction}
+          onCancel={() => setConfirming(null)}
+          onConfirm={() => {
+            const input = confirming
+            setConfirming(null)
+            void save(input)
+          }}
+          returnFocusRef={submitRef}
+        />
+      )}
 
       {leaveHref && (
         <ConfirmDialog

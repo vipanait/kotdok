@@ -199,6 +199,14 @@
 @layer components {
   .health-page .pagehead .btn { flex-shrink: 0; }
   .health-saved:focus { outline: 2px solid var(--green); outline-offset: 2px; }
+  /* The saved record, one click away (MW-09): a line of its own when the notice wraps. */
+  .health-saved { display: flex; flex-wrap: wrap; align-items: center; column-gap: 16px; row-gap: 4px; }
+  .health-saved-link { min-height: 44px; display: inline-flex; align-items: center; color: inherit; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+  /* A record changed or deleted elsewhere while its form was open (MW-09). */
+  .health-drift { display: grid; gap: 4px; max-width: 680px; margin: 0 auto 20px; }
+  .weight-form-page .health-drift { max-width: 460px; }
+  .health-drift p { color: inherit; }
+  .health-drift .link { justify-self: start; min-height: 44px; display: inline-flex; align-items: center; color: inherit; text-decoration: underline; text-underline-offset: 3px; }
 
   .section-layout {
     display: grid;
@@ -340,7 +348,8 @@
   .record-form.event-form { max-width: 680px; }
   .event-form-banner { display: grid; gap: 4px; margin: 20px 0 0; }
   .event-form-banner p { color: inherit; }
-  .event-form-banner .link { min-height: 32px; color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+  /* A link in the banner is a target of its own: 44px, like every control (MW-09). */
+  .event-form-banner .link { min-height: 44px; display: inline-flex; align-items: center; justify-self: start; color: inherit; text-decoration: underline; text-underline-offset: 3px; }
   .event-status { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; margin-bottom: 26px; border-radius: 14px; }
   .event-status button { min-height: 44px; border-radius: 10px; font-size: 14px; }
   .event-status button:hover:not([aria-pressed='true']) { color: var(--text); }

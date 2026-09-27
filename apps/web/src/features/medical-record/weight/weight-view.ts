@@ -174,3 +174,16 @@ export type WeightSaved = 'added' | 'changed' | 'deleted'
 export function parseWeightSaved(value: string | string[] | undefined): WeightSaved | null {
   return value === 'added' || value === 'changed' || value === 'deleted' ? value : null
 }
+
+/**
+ * What a screen reader hears when the period changes (MW-09): the period and
+ * what the page now shows for it — the chart's range and trend, or the
+ * sentence that stands in for it. Said through a live region that is always
+ * on the page, so the change is announced, not a region that appears.
+ */
+export function periodAnnouncement(dict: Dictionary, period: WeightPeriod, shown: WeightSummary): string {
+  const name = dict.medicalRecord.weightPage.periods[period]
+  if (shown.kind === 'chart') return [`${name}: ${shown.label}`, shown.trend].filter(Boolean).join('. ')
+  if (shown.kind === 'text') return `${name}: ${shown.text}`
+  return ''
+}

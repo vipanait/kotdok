@@ -1,5 +1,8 @@
-import { HEALTH_EVENT_LIMITS } from '@lapka/contracts'
+import { CalendarDateSchema, HEALTH_EVENT_LIMITS, type HealthEvent } from '@lapka/contracts'
+import { suggestNextDay, suggestionInterval, type Interval } from '@lapka/shared'
+import type { Locale } from '@/shared/i18n/config'
 import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
+import { formatCount } from '@/shared/i18n/plural'
 import type { EventFormKind, EventProblems, EventSaveFailure, ItemProblems } from './event-form'
 
 /**
@@ -66,4 +69,29 @@ export function eventErrorTexts(dict: Dictionary, kind: EventFormKind, problems:
 /** The banner above the form for a failed save. */
 export function eventFailureText(dict: Dictionary, failure: Exclude<EventSaveFailure, 'deleting'>): string {
   return dict.medicalRecord.eventForm.errors[failure]
+}
+
+/**
+ * Under an item's next date: what suggested it — the product's interval, in
+ * its own unit («12 недель», not «3 месяца»), or the usual one for the kind
+ * (shared `suggestionInterval`, the phone's rule) — and only when something
+ * was suggested. A suggestion that would already be past is said not to be
+ * one (MW-09: the hint never claims a date it did not put there). With no
+ * readable record day yet, only that the date can be changed.
+ */
+export function nextHintText(
+  dict: Dictionary,
+  locale: Locale,
+  kind: HealthEvent['kind'],
+  item: { interval: Interval | null; targets: readonly string[] },
+  recordDay: string,
+  today: string,
+): string {
+  const form = dict.medicalRecord.eventForm
+  if (!CalendarDateSchema.safeParse(recordDay).success) return form.nextHint
+  const interval = suggestionInterval(kind, item.interval, item.targets)
+  const spoken = formatCount(form.interval[interval.unit], interval.value, locale)
+  if (suggestNextDay(recordDay, interval, today) === null) return form.nextNotSuggested.replace('{interval}', spoken)
+  const why = (item.interval ? form.nextSuggested : form.nextSuggestedUsual).replace('{interval}', spoken)
+  return `${why} ${form.nextHint}`
 }

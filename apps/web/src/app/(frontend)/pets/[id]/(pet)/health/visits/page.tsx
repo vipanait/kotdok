@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import CabinetShell from '@/components/cabinet/CabinetShell'
-import { MEDICAL_RECORD_STAGE } from '@/features/medical-record/stage'
+import { MEDICAL_RECORD_STAGE, parseSavedRecord } from '@/features/medical-record/stage'
 import VisitsScreen from '@/features/medical-record/visits/VisitsScreen'
 import { parseVisitSaved } from '@/features/medical-record/visits/visit-view'
 import { openPetPage } from '@/components/cabinet/open-pet-page'
@@ -22,11 +22,14 @@ export default async function VisitsPage({
   const { id } = await params
   if (!MEDICAL_RECORD_STAGE.visits) notFound()
   const { cabinet, dict } = await openPetPage(id, `/pets/${id}/health/visits`)
-  const saved = parseVisitSaved((await searchParams).saved)
+  const query = await searchParams
+  const saved = parseVisitSaved(query.saved)
+  // The record a save made, opened from its notice (MW-09).
+  const savedRecord = parseSavedRecord(query.record)
 
   return (
     <CabinetShell cabinet={cabinet} active="pets" crumb={`${dict.medicalRecord.title} / ${dict.medicalRecord.visitsPage.title}`}>
-      <VisitsScreen key={id} petId={id} saved={saved} />
+      <VisitsScreen key={id} petId={id} saved={saved} savedRecord={savedRecord} />
     </CabinetShell>
   )
 }

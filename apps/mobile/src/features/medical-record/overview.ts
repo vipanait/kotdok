@@ -6,7 +6,7 @@ import {
   type Pet,
   type WeightMeasurement,
 } from '@lapka/contracts'
-import { isCurrentCourse, isTakenNow, lastDoneDate } from '@lapka/shared'
+import { headAge, isCurrentCourse, isTakenNow, lastDoneDate } from '@lapka/shared'
 import type { Dictionary } from '@/i18n'
 import { weightTrend } from './weight'
 import { visitSummary } from './visits'
@@ -55,7 +55,9 @@ export function headerFacts(t: Dictionary, overview: HealthOverview, today: stri
   const { pet, weights } = overview
   const parts = [speciesWord(t, pet)]
   if (pet.breed) parts.push(pet.breed)
-  if (pet.age_years !== null) parts.push(t.petAge(pet.age_years))
+  // The shared rule: zero is said too («0 лет»), as on the site (MW-09).
+  const age = headAge(pet.age_years)
+  if (age !== null) parts.push(t.petAge(age))
 
   const latest = latestDated(weights)
   const weightNote =

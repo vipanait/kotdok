@@ -1,8 +1,6 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
-import { localToday } from '@lapka/shared'
 import { useLocale, useTranslations } from '@/components/LocaleProvider'
 import Icon from '@/components/ui/Icon'
 import UrgencyBadge from '@/components/ui/UrgencyBadge'
@@ -20,14 +18,22 @@ import { visitsPage, type VisitCard, type VisitSaved } from './visit-view'
  * card that opens it. A visit that followed a check says which, with the
  * check's urgency.
  */
-export default function VisitsScreen({ petId, saved }: { petId: string; saved: VisitSaved | null }) {
+export default function VisitsScreen({
+  petId,
+  saved,
+  savedRecord = null,
+}: {
+  petId: string
+  saved: VisitSaved | null
+  /** The visit the save made: the notice opens it (MW-09). */
+  savedRecord?: string | null
+}) {
   const dict = useTranslations()
   const locale = useLocale()
   const words = dict.medicalRecord
   const page = words.visitsPage
-  const { state, reload } = useMedicalRecord(petId)
+  const { state, reload, today } = useMedicalRecord(petId)
   const checks = usePetChecks(petId)
-  const [today] = useState(() => localToday())
 
   if (state.status !== 'ready') {
     return <RecordProblem state={state} petId={petId} reload={reload} loading={<VisitsSkeleton title={page.title} label={words.states.loading} />} />
@@ -58,7 +64,7 @@ export default function VisitsScreen({ petId, saved }: { petId: string; saved: V
         )}
       </div>
 
-      {saved && <SavedNotice text={page.saved[saved]} />}
+      {saved && <SavedNotice text={page.saved[saved]} link={savedRecord ? { href: medicalRecordHref.recordView(petId, savedRecord), text: dict.medicalRecord.savedOpen } : null} />}
       <StaleNotice state={state} reload={reload} />
 
       {view.empty ? (

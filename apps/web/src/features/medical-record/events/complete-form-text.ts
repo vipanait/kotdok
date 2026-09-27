@@ -5,7 +5,8 @@ import { formatCount } from '@/shared/i18n/plural'
 import { formatDay, recordDay } from '../view-model'
 import type { CompletionMismatch } from '@lapka/shared'
 import type { CompleteDraft, CompleteProblems } from './complete-form'
-import type { EventSaveFailure } from './event-form'
+import type { EventFormKind, EventSaveFailure } from './event-form'
+import { nextHintText } from './event-form-text'
 
 /**
  * The words of «Сделано», apart from React so they are unit tested: what
@@ -53,11 +54,41 @@ export function completionNote(dict: Dictionary, locale: Locale, others: number,
   return `${scope} ${next}`
 }
 
-/** Under the next date: which interval suggested it, in its own unit («12 недель», not «3 месяца»). */
-export function nextHint(dict: Dictionary, locale: Locale, item: Pick<HealthItem, 'interval'>): string {
+/**
+ * Under the next date: which interval suggested it, in its own unit («12
+ * недель», not «3 месяца») — the item's own or the usual one for its kind —
+ * and nothing about a suggestion when none was made (MW-09).
+ */
+export function nextHint(
+  dict: Dictionary,
+  locale: Locale,
+  kind: EventFormKind,
+  item: Pick<HealthItem, 'interval' | 'targets'>,
+  doneOn: string,
+  today: string,
+): string {
+  return nextHintText(dict, locale, kind, item, doneOn, today)
+}
+
+/**
+ * The question before «Сделано» is saved (implementation-handoff, «Окончательное
+ * правило»: the real day, a check of what was filled in, a confirmation):
+ * names the item and the day it was done, and what comes next.
+ */
+export function confirmTexts(
+  dict: Dictionary,
+  name: string,
+  draft: CompleteDraft,
+  today: string,
+): { title: string; body: string } {
   const words = dict.medicalRecord.completeForm
-  if (!item.interval) return words.nextNoInterval
-  return words.nextSuggested.replace('{interval}', formatCount(words.interval[item.interval.unit], item.interval.value, locale))
+  const next = /^\d{4}-\d{2}-\d{2}$/.test(draft.next)
+    ? words.nextNote.replace('{day}', recordDay(dict.medicalRecord, draft.next, today))
+    : words.noNextNote
+  return {
+    title: words.confirmTitle.replace('{name}', name).replace('{day}', formatDay(dict.medicalRecord, draft.doneOn, true)),
+    body: words.confirmBody.replace('{next}', next),
+  }
 }
 
 /** «Было запланировано на 12 сентября 2026». */

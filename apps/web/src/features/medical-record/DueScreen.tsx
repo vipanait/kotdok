@@ -1,8 +1,6 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
-import { localToday } from '@lapka/shared'
 import { useLocale, useTranslations } from '@/components/LocaleProvider'
 import { RecordProblem, StaleNotice } from './MedicalRecordScreen'
 import { DueRows } from './MedicalRecordView'
@@ -17,12 +15,11 @@ import { allDue } from './view-model'
  * how far it is in words and with an icon, never by colour alone; overdue is
  * a calendar fact, not a medical alarm. «Сделано» marks that one item.
  */
-export default function DueScreen({ petId, saved }: { petId: string; saved: boolean }) {
+export default function DueScreen({ petId, saved, savedRecord = null }: { petId: string; saved: boolean; savedRecord?: string | null }) {
   const dict = useTranslations()
   const locale = useLocale()
   const words = dict.medicalRecord.due
-  const { state, reload } = useMedicalRecord(petId)
-  const [today] = useState(() => localToday())
+  const { state, reload, today } = useMedicalRecord(petId)
 
   if (state.status !== 'ready') {
     return <RecordProblem state={state} petId={petId} reload={reload} loading={<DueSkeleton title={words.pageTitle} label={dict.medicalRecord.states.loading} />} />
@@ -43,7 +40,7 @@ export default function DueScreen({ petId, saved }: { petId: string; saved: bool
         </Link>
       </div>
 
-      {saved && <SavedNotice text={words.saved} />}
+      {saved && <SavedNotice text={words.saved} link={savedRecord ? { href: medicalRecordHref.recordView(petId, savedRecord), text: dict.medicalRecord.savedOpen } : null} />}
       <StaleNotice state={state} reload={reload} />
 
       {due.rows.length === 0 ? (

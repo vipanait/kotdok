@@ -2,16 +2,22 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { createBackGuard, type BackGuard } from './back-guard'
+
+/** `leaveHref` when the owner pressed the browser's Back: «Уйти» goes back, not to an address. */
+export const LEAVE_BACK = 'lapka:back'
 
 /**
  * Unsaved changes in a form page: the browser asks on reload or closing the
  * tab; a link anywhere on the page (the back link, «Отмена», the cabinet
  * navigation) is held and `leaveHref` set, so the page can ask in its own
- * dialog first. Captured on window, before next/link acts.
+ * dialog first. Captured on window, before next/link acts. The browser's
+ * Back is held too (MW-09, `back-guard.ts`): the page stays and `leaveHref`
+ * is `LEAVE_BACK`.
  *
  * `leave(href)` is the way out once the form is done — saved, deleted or
  * abandoned on purpose: it stops asking and navigates, refreshing server
- * data the save may have changed.
+ * data the save may have changed. `leave(LEAVE_BACK)` goes back.
  */
 export function useLeaveGuard(dirty: boolean): {
   leaveHref: string | null
@@ -25,9 +31,27 @@ export function useLeaveGuard(dirty: boolean): {
   const leaveLinkRef = useRef<HTMLElement | null>(null)
   /** Set once the form is done — saved, deleted or abandoned on purpose. */
   const leavingRef = useRef(false)
+  const guardRef = useRef<BackGuard | null>(null)
+
+  function guard(): BackGuard {
+    guardRef.current ??= createBackGuard({
+      get state() {
+        return window.history.state
+      },
+      pushState: (data, unused) => window.history.pushState(data, unused),
+      back: () => window.history.back(),
+      go: (delta) => window.history.go(delta),
+      href: () => window.location.href,
+    })
+    return guardRef.current
+  }
 
   useEffect(() => {
-    if (!dirty) return
+    if (!dirty) {
+      // Clean again (or saving): Back is no longer held.
+      guardRef.current?.disarm()
+      return
+    }
 
     function onBeforeUnload(e: BeforeUnloadEvent) {
       if (leavingRef.current) return
@@ -51,6 +75,7 @@ export function useLeaveGuard(dirty: boolean): {
       setLeaveHref(url.pathname + url.search + url.hash)
     }
 
+    guard().arm()
     window.addEventListener('beforeunload', onBeforeUnload)
     window.addEventListener('click', onClick, true)
     return () => {
@@ -59,10 +84,50 @@ export function useLeaveGuard(dirty: boolean): {
     }
   }, [dirty])
 
+  useEffect(() => {
+    let rearm: number | undefined
+    function onPopState() {
+      if (leavingRef.current || !guardRef.current) return
+      const seen = guardRef.current.popped()
+      if (seen === 'skip') {
+        // The copy of a form that is clean again: the owner pressed Back once.
+        window.history.back()
+        return
+      }
+      if (seen !== 'ask') return
+      // Back onto the form's own entry: the page stays. The copy goes back on
+      // top once Next has settled this entry, and the form asks.
+      rearm = window.setTimeout(() => {
+        if (!leavingRef.current) guardRef.current?.arm()
+      }, 0)
+      leaveLinkRef.current = null
+      setLeaveHref(LEAVE_BACK)
+    }
+    window.addEventListener('popstate', onPopState)
+    return () => {
+      window.clearTimeout(rearm)
+      window.removeEventListener('popstate', onPopState)
+      // A form taken away while its copy is in history (re-keyed with new
+      // data, say) takes the copy back — unless the page has moved on.
+      const current = guardRef.current
+      if (!current?.armed || leavingRef.current) return
+      const here = window.location.href
+      window.setTimeout(() => {
+        if (window.location.href === here) current.drop()
+      }, 0)
+    }
+  }, [])
+
   const leave = useCallback(
     (href: string) => {
       leavingRef.current = true
-      router.push(href)
+      if (href === LEAVE_BACK) {
+        guard().goBack()
+        return
+      }
+      // The copy on top is replaced by the next page, not left behind for Back to find.
+      if (guard().leave() === 'replace') router.replace(href)
+      else router.push(href)
       router.refresh()
     },
     [router],

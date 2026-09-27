@@ -11,7 +11,7 @@ import {
   othersInPlan,
   readCompletion,
 } from '@/features/medical-record/events/complete-form'
-import { completeErrorTexts, completeFailureText, completionNote, earlierText, nextHint } from '@/features/medical-record/events/complete-form-text'
+import { completeErrorTexts, completeFailureText, completionNote, confirmTexts, earlierText, nextHint } from '@/features/medical-record/events/complete-form-text'
 import { eventSaveFailure } from '@/features/medical-record/events/event-form'
 import { eventRecord, eventsPage, parseEventSaved } from '@/features/medical-record/events/event-view'
 import {
@@ -19,6 +19,9 @@ import {
   completeOpen,
   medicalRecordHref,
   parseCompleteFrom,
+  parseRecordStepSaved,
+  parseSavedRecord,
+  withSaved,
   type MedicalRecordStage,
 } from '@/features/medical-record/stage'
 import { allDue, dueBlock } from '@/features/medical-record/view-model'
@@ -61,12 +64,20 @@ describe('the «Сделано» form (MW-04 criterion 2)', () => {
     expect(changeDoneDay(completeDraft(find(106), milbemax, TODAY), milbemax, '2026-09-24', TODAY).next).toBe('2026-12-24')
   })
 
-  it('leaves a next date the owner set or cleared, and suggests none without an interval', () => {
+  it('leaves a next date the owner set or cleared', () => {
     const set = { ...completeDraft(fleaPlan, bravecto, TODAY), next: '2027-01-10', nextTouched: true }
     expect(changeDoneDay(set, bravecto, '2026-09-24', TODAY).next).toBe('2027-01-10')
     const cleared = { ...set, next: '' }
     expect(changeDoneDay(cleared, bravecto, '2026-09-24', TODAY).next).toBe('')
-    expect(completeDraft(fleaPlan, fleaPlan.items[0], TODAY).next).toBe('')
+  })
+
+  it('suggests by the usual interval for an item without one, as the phone does (MW-09)', () => {
+    // A flea treatment with no interval: a month; worms alone: three months; a vaccine: a year.
+    const own = { ...fleaPlan.items[0], interval: null }
+    expect(own.targets).not.toEqual(['worms'])
+    expect(completeDraft(fleaPlan, own, TODAY).next).toBe('2026-10-26')
+    expect(completeDraft(fleaPlan, { ...own, targets: ['worms'] }, TODAY).next).toBe('2026-12-26')
+    expect(completeDraft(vaccinePlan, { ...vaccinePlan.items[0], interval: null }, TODAY).next).toBe('2027-09-26')
   })
 
   it('starts from the plan’s clinic and note', () => {
@@ -115,9 +126,34 @@ describe('the «Сделано» form (MW-04 criterion 2)', () => {
     expect(completionNote(ru, 'ru', 0, { ...draft, next: '' }, TODAY)).toBe(
       'План станет выполненной записью. Следующий срок не будет запланирован.',
     )
-    expect(nextHint(ru, 'ru', bravecto)).toContain('12 недель')
-    expect(nextHint(ru, 'ru', milbemax)).toContain('3 месяца')
-    expect(nextHint(en, 'en', bravecto)).toContain('12 weeks')
+    expect(nextHint(ru, 'ru', 'parasite', bravecto, TODAY, TODAY)).toBe(
+      'Предложено по интервалу препарата: 12 недель. Можно изменить или очистить дату. Уточните срок у врача.',
+    )
+    expect(nextHint(ru, 'ru', 'parasite', milbemax, TODAY, TODAY)).toContain('3 месяца')
+    expect(nextHint(en, 'en', 'parasite', bravecto, TODAY, TODAY)).toContain('12 weeks')
+  })
+
+  it('never speaks of a suggestion that was not made (MW-09)', () => {
+    // Done a year ago: 12 weeks from then is already past, so nothing was put in the field.
+    const hint = nextHint(ru, 'ru', 'parasite', bravecto, '2025-09-01', TODAY)
+    expect(hint).not.toContain('Предложено')
+    expect(hint).toContain('12 недель')
+    expect(hint).toContain('уже прошёл')
+    // No interval of its own: the usual one, said as such.
+    expect(nextHint(ru, 'ru', 'vaccination', { interval: null, targets: ['rabies'] }, TODAY, TODAY)).toContain('Предложено по обычному интервалу: 1 год.')
+    // No readable day yet: only that the date can be changed.
+    expect(nextHint(ru, 'ru', 'parasite', bravecto, '', TODAY)).toBe('Можно изменить или очистить дату. Уточните срок у врача.')
+  })
+
+  it('asks before saving, with the item and its day, and warns without «препараты» (MW-09)', () => {
+    const draft = changeDoneDay(completeDraft(fleaPlan, bravecto, TODAY), bravecto, '2026-09-24', TODAY)
+    expect(confirmTexts(ru, 'Бравекто', draft, TODAY)).toEqual({
+      title: 'Отметить сделанным «Бравекто» — 24 сентября 2026?',
+      body: 'Выполненную запись потом нельзя изменить — только удалить. Следующий срок — 17 декабря.',
+    })
+    expect(confirmTexts(en, 'Bravecto', { ...draft, next: '' }, TODAY).title).toBe('Mark «Bravecto» done on September 24, 2026?')
+    expect(ru.medicalRecord.completeForm.doneWarning).not.toContain('препарат')
+    expect(en.medicalRecord.completeForm.doneWarning).not.toContain('product')
   })
 
   it('says why a save failed and never claims success', () => {
@@ -207,6 +243,10 @@ describe('«Все сроки» and the record’s «Сроки»', () => {
     expect(rows[1].completeHref).toBe(`/pets/${petId}/health/${uuid(108)}/complete?from=due`)
     expect(rows[1].completeText).toBe('Состоялся')
     expect(rows[1].completeLabel).toBe('Состоялся: Осмотр, через 9 дней · 3 октября')
+    // English keeps the month's capital in the name (MW-09): only the first letter goes lower case.
+    const english = allDue(en, 'en', murka, DESIGN_TODAY).rows
+    expect(english[0].completeLabel).toBe('Done: Fleas and ticks, overdue by 12 days · September 12')
+    expect(english[3].completeLabel).toContain('March')
     // The two vaccines of one plan: two rows, two items, one plan.
     expect(rows[3].completeHref).toContain(`${uuid(102)}/complete?item=${uuid(203)}`)
     expect(rows[4].completeHref).toContain(`${uuid(102)}/complete?item=${uuid(204)}`)
@@ -257,5 +297,22 @@ describe('the parasites section (web v1 «parasites», «parasites-empty»)', ()
       ['Обработок не записано', 'Следующая не запланирована', null],
       ['Обработок не записано', 'Следующая не запланирована', null],
     ])
+  })
+})
+
+describe('after a save: back where the form was opened, the record in the notice (MW-09)', () => {
+  it('adds the confirmation and the saved record to the address', () => {
+    expect(withSaved(medicalRecordHref.section(petId, 'vaccinations'), 'added', uuid(301))).toBe(
+      `/pets/${petId}/health/vaccinations?saved=added&record=${uuid(301)}`,
+    )
+    expect(withSaved(`/pets/${petId}/health/new?type=visit`, 'added')).toBe(`/pets/${petId}/health/new?type=visit&saved=added`)
+  })
+
+  it('reads the saved record strictly: an id or nothing', () => {
+    expect(parseSavedRecord(uuid(301))).toBe(uuid(301))
+    expect(parseSavedRecord('vaccinations')).toBeNull()
+    expect(parseSavedRecord(['a', 'b'])).toBeNull()
+    expect(parseRecordStepSaved('completed')).toBe('completed')
+    expect(parseRecordStepSaved('form')).toBeNull()
   })
 })

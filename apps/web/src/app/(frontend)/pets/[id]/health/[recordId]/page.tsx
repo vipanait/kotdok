@@ -4,7 +4,7 @@ import EventRecordScreen from '@/features/medical-record/events/EventRecordScree
 import CourseScreen from '@/features/medical-record/medications/CourseScreen'
 import { parseCourseSaved } from '@/features/medical-record/medications/course-view'
 import { parseEventSaved } from '@/features/medical-record/events/event-view'
-import { MEDICAL_RECORD_STAGE, medicalRecordHref, recordKindOpen } from '@/features/medical-record/stage'
+import { MEDICAL_RECORD_STAGE, medicalRecordHref, parseSavedRecord, recordKindOpen } from '@/features/medical-record/stage'
 import VisitRecordScreen from '@/features/medical-record/visits/VisitRecordScreen'
 import { parseVisitSaved } from '@/features/medical-record/visits/visit-view'
 import { openPetPage } from '@/components/cabinet/open-pet-page'
@@ -55,10 +55,11 @@ export default async function HealthRecordPage({
   }
   if (!record || record.kind === 'weight' || !recordKindOpen(record.kind)) notFound()
 
-  const saved = parseEventSaved((await searchParams).saved)
+  const query = await searchParams
+  const saved = parseEventSaved(query.saved)
   return (
     <CabinetShell cabinet={cabinet} active="pets" crumb={`${dict.medicalRecord.title} / ${dict.medicalRecord.recordKinds[record.kind]}`}>
-      <EventRecordScreen key={recordId} petId={id} eventId={recordId} kind={record.kind} saved={saved} />
+      <EventRecordScreen key={recordId} petId={id} eventId={recordId} kind={record.kind} saved={saved} savedRecord={parseSavedRecord(query.record)} />
     </CabinetShell>
   )
 }

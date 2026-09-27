@@ -129,6 +129,12 @@ async function signedInPage(email, width = 1440) {
 }
 
 const text = (value) => (value ?? '').replace(/\s+/g, ' ').trim()
+
+// MW-09: a new record returns to its section; the notice opens the record.
+async function openSaved(page) {
+  await page.waitForSelector('.health-saved-link')
+  await Promise.all([page.waitForURL(/\/health\/[0-9a-f-]{36}$/), page.click('.health-saved-link')])
+}
 const settle = (page) => page.evaluate(() => document.fonts.ready)
 const overflow = (page) => page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1)
 const shot = (page, name, fullPage = true) => page.screenshot({ path: resolve(here, `${name}.png`), fullPage })
@@ -249,6 +255,7 @@ const prescription = (page, n, field) => page.locator(`.visit-prescription >> nt
   await shot(page, 'visit-from-result-1440')
   await page.fill('[id$="-diagnosis"]', 'Гастрит, ремиссия')
   await Promise.all([page.waitForURL(/saved=added/), page.click('form.visit-form button[type=submit]')])
+  await openSaved(page)
   await page.waitForSelector('.visit-check-link')
   await settle(page)
   const fromResultId = new URL(page.url()).pathname.split('/').pop()
@@ -323,6 +330,7 @@ const prescription = (page, n, field) => page.locator(`.visit-prescription >> nt
   await shot(page, 'visit-lost-answer-1440', false)
   await page.unroute('**/api/v1/pets/*/health/visits')
   await Promise.all([page.waitForURL(/saved=added/), page.click('form.visit-form button[type=submit]')])
+  await openSaved(page)
   await page.waitForSelector('.visit-prescriptions')
   await settle(page)
   const directId = new URL(page.url()).pathname.split('/').pop()
@@ -461,6 +469,7 @@ const prescription = (page, n, field) => page.locator(`.visit-prescription >> nt
   await page.fill('[id$="-reason"]', 'Повторный осмотр')
   await shot(page, 'visit-plan-1440')
   await Promise.all([page.waitForURL(/saved=added/), page.click('form.visit-form button[type=submit]')])
+  await openSaved(page)
   await page.waitForSelector('.visit-record-page')
   const newPlanId = new URL(page.url()).pathname.split('/').pop()
   summary.checks.newPlanDue = (await duePage()).filter((row) => row.includes('Состоялся'))

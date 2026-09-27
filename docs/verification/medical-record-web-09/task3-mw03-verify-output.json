@@ -1,0 +1,675 @@
+{
+  "site": "http://localhost:3100",
+  "today": "2026-09-27",
+  "murka": "4a29d16b-a41c-4831-9da5-a18a2171cd00",
+  "bobik": "818595af-d149-406d-bde8-68981750ba5e",
+  "checks": {
+    "recordEntryPoints": {
+      "vaccinationsLink": "Все: Прививки"
+    },
+    "chooser": [
+      "Прививка → /pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/new?type=vaccination",
+      "Обработка от паразитов → /pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/new?type=parasite",
+      "Визит к врачу → /pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/new?type=visit",
+      "Лекарство → /pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/new?type=medication",
+      "Вес → /pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/new?type=weight"
+    ],
+    "vaccinesPage": {
+      "planned": [
+        "13 марта 2027Нобивак Tricat Trio · Нобивак RabiesАйболит"
+      ],
+      "done": [
+        "13 марта 2026Нобивак Tricat Trio · Нобивак RabiesАйболит"
+      ],
+      "core": [
+        "ПанлейкопенияСледующая — 13 марта 2027",
+        "КалицивирозСледующая — 13 марта 2027",
+        "РинотрахеитСледующая — 13 марта 2027",
+        "БешенствоСледующая — 13 марта 2027"
+      ]
+    },
+    "vaccinesEmpty": {
+      "empty": "Даты пока не записаныВ анкете отмечено: привит(а). Добавьте сделанные прививки или запланируйте следующие.Добавить прививку",
+      "cards": 0,
+      "core": [
+        "Чума плотоядныхНет записей",
+        "Парвовирусный энтеритНет записей",
+        "АденовирозНет записей",
+        "БешенствоНет записей"
+      ]
+    },
+    "formDefaults": {
+      "status": "Сделано",
+      "date": "2026-09-27",
+      "items": 0
+    },
+    "keyboard": {
+      "beforeFocus": "false",
+      "onFocus": {
+        "expanded": "true",
+        "controls": true,
+        "label": "Найти препарат",
+        "active": null,
+        "activeSelected": null,
+        "status": "",
+        "options": [
+          "Нобивак Tricat Trio",
+          "Нобивак Rabies",
+          "Пуревакс RCP",
+          "Пуревакс RCPCh",
+          "Фелоцел CVR",
+          "Мультифел-4",
+          "Дефенсор 3",
+          "Пуревакс FeLV",
+          "Нет в списке — ввести название",
+          "Без препарата — только от чего"
+        ],
+        "note": [
+          "Популярные для кошек"
+        ]
+      },
+      "searched": {
+        "expanded": "true",
+        "controls": true,
+        "label": "Найти препарат",
+        "active": null,
+        "activeSelected": null,
+        "status": "Найдено препаратов: 2",
+        "options": [
+          "Нобивак Tricat Trio",
+          "Нобивак Rabies",
+          "Нет в списке — ввести название",
+          "Без препарата — только от чего"
+        ],
+        "note": []
+      },
+      "afterTwoDown": {
+        "expanded": "true",
+        "controls": true,
+        "label": "Найти препарат",
+        "active": "Нобивак RabiesMSD · Инъекция · бешенство",
+        "activeSelected": "true",
+        "status": "Найдено препаратов: 2",
+        "options": [
+          "Нобивак Tricat Trio",
+          "Нобивак Rabies",
+          "Нет в списке — ввести название",
+          "Без препарата — только от чего"
+        ],
+        "note": []
+      },
+      "afterUp": {
+        "expanded": "true",
+        "controls": true,
+        "label": "Найти препарат",
+        "active": "Нобивак Tricat TrioMSD · Инъекция · панлейкопения, калицивироз, ринотрахеит",
+        "activeSelected": "true",
+        "status": "Найдено препаратов: 2",
+        "options": [
+          "Нобивак Tricat Trio",
+          "Нобивак Rabies",
+          "Нет в списке — ввести название",
+          "Без препарата — только от чего"
+        ],
+        "note": []
+      },
+      "afterEscape": {
+        "expanded": "false",
+        "controls": true,
+        "label": "Найти препарат",
+        "active": null,
+        "activeSelected": null,
+        "status": "",
+        "options": [
+          "Нобивак Tricat Trio",
+          "Нобивак Rabies",
+          "Нет в списке — ввести название",
+          "Без препарата — только от чего"
+        ],
+        "note": [],
+        "focus": "input Найти препарат"
+      },
+      "reopened": {
+        "expanded": "true",
+        "controls": true,
+        "label": "Найти препарат",
+        "active": "Нобивак Tricat TrioMSD · Инъекция · панлейкопения, калицивироз, ринотрахеит",
+        "activeSelected": "true",
+        "status": "Найдено препаратов: 2",
+        "options": [
+          "Нобивак Tricat Trio",
+          "Нобивак Rabies",
+          "Нет в списке — ввести название",
+          "Без препарата — только от чего"
+        ],
+        "note": []
+      },
+      "afterEnter": {
+        "combobox": {
+          "expanded": "false",
+          "controls": true,
+          "label": "Найти препарат",
+          "active": null,
+          "activeSelected": null,
+          "status": "",
+          "options": [
+            "Нобивак Tricat Trio",
+            "Нобивак Rabies",
+            "Пуревакс RCP",
+            "Пуревакс RCPCh",
+            "Фелоцел CVR",
+            "Мультифел-4",
+            "Дефенсор 3",
+            "Пуревакс FeLV",
+            "Нет в списке — ввести название",
+            "Без препарата — только от чего"
+          ],
+          "note": [
+            "Популярные для кошек"
+          ]
+        },
+        "items": [
+          {
+            "title": "Нобивак Tricat Trio",
+            "pressed": [
+              "Панлейкопения",
+              "Калицивироз",
+              "Ринотрахеит"
+            ],
+            "next": "2027-09-27"
+          }
+        ],
+        "submittedForm": false
+      }
+    },
+    "twoItems": [
+      {
+        "title": "Нобивак Tricat Trio",
+        "pressed": [
+          "Панлейкопения",
+          "Калицивироз",
+          "Ринотрахеит"
+        ],
+        "next": "2027-09-27"
+      },
+      {
+        "title": "Нобивак Rabies",
+        "pressed": [
+          "Бешенство"
+        ],
+        "next": "2027-09-27"
+      }
+    ],
+    "suggestedNext": {
+      "expected": "2027-09-27",
+      "got": [
+        "2027-09-27",
+        "2027-09-27"
+      ]
+    },
+    "afterClear": [
+      {
+        "title": "Нобивак Tricat Trio",
+        "pressed": [
+          "Панлейкопения",
+          "Калицивироз",
+          "Ринотрахеит"
+        ],
+        "next": "2027-09-27"
+      },
+      {
+        "title": "Нобивак Rabies",
+        "pressed": [
+          "Бешенство"
+        ],
+        "next": ""
+      }
+    ],
+    "lostAnswer": {
+      "banner": "Нет связи с сервером. Введённые данные сохранены в форме — попробуйте ещё раз.",
+      "focus": "button Сохранить",
+      "itemsKept": [
+        {
+          "title": "Нобивак Tricat Trio",
+          "pressed": [
+            "Панлейкопения",
+            "Калицивироз",
+            "Ринотрахеит"
+          ],
+          "next": "2027-09-27"
+        },
+        {
+          "title": "Нобивак Rabies",
+          "pressed": [
+            "Бешенство"
+          ],
+          "next": ""
+        }
+      ],
+      "clinicKept": "Айболит",
+      "buttonUsable": true,
+      "savedOnServer": 1
+    },
+    "pending": {
+      "label": "Сохраняем…",
+      "busy": "true"
+    },
+    "retry": {
+      "requestsForRetry": 1,
+      "keys": [
+        "b57cf875-e4f9-4b9b-ba60-36c58041fa26",
+        "b57cf875-e4f9-4b9b-ba60-36c58041fa26"
+      ],
+      "sameKey": true,
+      "sentBody": {
+        "kind": "vaccination",
+        "status": "done",
+        "date": "2026-09-27",
+        "clinic": "Айболит",
+        "notes": null,
+        "items": [
+          {
+            "name": "Нобивак Tricat Trio",
+            "targets": [
+              "panleukopenia",
+              "calicivirus",
+              "rhinotracheitis"
+            ],
+            "product_id": "9eacb949-d7a6-4223-ad34-197a87f1c086",
+            "next_on": "2027-09-27"
+          },
+          {
+            "name": "Нобивак Rabies",
+            "targets": [
+              "rabies"
+            ],
+            "product_id": "1c9c79a8-c793-418b-b9cb-5a00d84309eb",
+            "next_on": null
+          }
+        ]
+      },
+      "doneRecordsToday": 1
+    },
+    "savedRecord": {
+      "url": "/pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/b442f857-6127-480e-a624-190ad8ff2186",
+      "title": "Прививка",
+      "badge": "Сделано",
+      "day": "27 сентября 2026",
+      "items": [
+        "Нобивак Tricat TrioПанлейкопения, калицивироз, ринотрахеитСледующая дата: 27 сентября 2027",
+        "Нобивак RabiesБешенство"
+      ],
+      "editLink": false,
+      "actions": "Действия с записьюПроцедура выполнена. Запись сохранена в истории и недоступна для редактирования.Удалить запись",
+      "form": false,
+      "notice": null
+    },
+    "savedRecordFocus": "body {\"@context\":\"https://schema.org\",\"@graph\":[{\"@type\":\"Organiz",
+    "savedAfterReload": {
+      "url": "/pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/b442f857-6127-480e-a624-190ad8ff2186",
+      "title": "Прививка",
+      "badge": "Сделано",
+      "day": "27 сентября 2026",
+      "items": [
+        "Нобивак Tricat TrioПанлейкопения, калицивироз, ринотрахеитСледующая дата: 27 сентября 2027",
+        "Нобивак RabiesБешенство"
+      ],
+      "editLink": false,
+      "actions": "Действия с записьюПроцедура выполнена. Запись сохранена в истории и недоступна для редактирования.Удалить запись",
+      "form": false,
+      "notice": null
+    },
+    "doneEditUrl": {
+      "url": "/pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/b442f857-6127-480e-a624-190ad8ff2186",
+      "title": "Прививка",
+      "badge": "Сделано",
+      "day": "27 сентября 2026",
+      "items": [
+        "Нобивак Tricat TrioПанлейкопения, калицивироз, ринотрахеитСледующая дата: 27 сентября 2027",
+        "Нобивак RabiesБешенство"
+      ],
+      "editLink": false,
+      "actions": "Действия с записьюПроцедура выполнена. Запись сохранена в истории и недоступна для редактирования.Удалить запись",
+      "form": false,
+      "notice": null
+    },
+    "seededDoneEditUrl": "/pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/b62c47e2-f47f-4472-bb27-41c58bf088f0",
+    "donePatch": {
+      "status": 409,
+      "body": {
+        "error": {
+          "code": "record_done",
+          "message": "A done record cannot be changed",
+          "request_id": "c27dfc49-9044-4b77-8fe3-fbb23c4a282b"
+        }
+      }
+    },
+    "deleteDialog": {
+      "title": "Удалить запись: прививка, 27 сентября 2026?",
+      "body": "Запись исчезнет из медкарты. Планы, созданные по ней, останутся. Отменить удаление будет нельзя.",
+      "focus": "button Не удалять"
+    },
+    "deleteCancelled": {
+      "focus": "button Удалить запись",
+      "stillThere": true,
+      "dialog": false
+    },
+    "deleteEscape": {
+      "focus": "button Удалить запись",
+      "stillThere": true
+    },
+    "afterDelete": {
+      "notice": "Запись удалена.",
+      "gone": true
+    },
+    "planRecord": {
+      "url": "/pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/64ca1d8e-257b-436f-a11d-90679e6071d9",
+      "title": "Прививка",
+      "badge": "Запланировано",
+      "day": "13 марта 2027",
+      "items": [
+        "Нобивак Tricat TrioПанлейкопения, калицивироз, ринотрахеит",
+        "Нобивак RabiesБешенство"
+      ],
+      "editLink": true,
+      "actions": "Действия с записьюИзмените план или отметьте процедуру сделанной. Ненужный план можно отменить.Отменить план",
+      "form": false,
+      "notice": null
+    },
+    "planForm": {
+      "title": "Изменить план прививки",
+      "status": false,
+      "date": "2027-03-13",
+      "items": [
+        {
+          "title": "Нобивак Tricat Trio",
+          "pressed": [
+            "Панлейкопения",
+            "Калицивироз",
+            "Ринотрахеит"
+          ],
+          "next": null
+        },
+        {
+          "title": "Нобивак Rabies",
+          "pressed": [
+            "Бешенство"
+          ],
+          "next": null
+        }
+      ],
+      "nextFields": 0
+    },
+    "planCancelBack": "/pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/64ca1d8e-257b-436f-a11d-90679e6071d9",
+    "planChanged": {
+      "record": {
+        "url": "/pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/64ca1d8e-257b-436f-a11d-90679e6071d9",
+        "title": "Прививка",
+        "badge": "Запланировано",
+        "day": "20 марта 2027",
+        "items": [
+          "Нобивак Tricat TrioПанлейкопения, калицивироз, ринотрахеит",
+          "Нобивак RabiesБешенство"
+        ],
+        "editLink": true,
+        "actions": "Действия с записьюИзмените план или отметьте процедуру сделанной. Ненужный план можно отменить.Отменить план",
+        "form": false,
+        "notice": "План изменён."
+      },
+      "sameId": true,
+      "date": "2027-03-20",
+      "sameItems": true
+    },
+    "switchToPlan": {
+      "date": "",
+      "items": [
+        {
+          "title": "Нобивак Rabies",
+          "pressed": [
+            "Бешенство"
+          ],
+          "next": null
+        }
+      ],
+      "label": "Когда сделать"
+    },
+    "leaveDialog": {
+      "title": "Уйти без сохранения?",
+      "focus": "button Остаться"
+    },
+    "leaveStay": {
+      "focus": "a Отмена",
+      "stillForm": true
+    },
+    "catalogError": {
+      "expanded": "true",
+      "controls": true,
+      "label": "Найти препарат",
+      "active": null,
+      "activeSelected": null,
+      "status": "Список препаратов не загрузился. Название можно ввести вручную.",
+      "options": [
+        "Нет в списке — ввести название",
+        "Без препарата — только от чего"
+      ],
+      "note": [
+        "Список препаратов не загрузился. Название можно ввести вручную."
+      ]
+    },
+    "manualActive": "Нет в списке — ввести название",
+    "manualItem": {
+      "items": [
+        {
+          "title": "Вакцина клиники",
+          "pressed": [],
+          "next": "2027-09-27"
+        }
+      ],
+      "focus": "input Название препарата"
+    },
+    "emptyTargets": {
+      "error": "Отметьте, от чего прививка",
+      "focus": "div ПанлейкопенияКалицивирозРинотрахеитБешенствоЛейкозХламидиоз",
+      "requests": 0
+    },
+    "manualSaved": {
+      "record": {
+        "url": "/pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/a156170d-ae6b-4ed7-a3ac-63cc64d29813",
+        "title": "Прививка",
+        "badge": "Сделано",
+        "day": "27 сентября 2026",
+        "items": [
+          "Вакцина клиникиБешенствоСледующая дата: 27 сентября 2027",
+          "Без препаратаРинотрахеитСледующая дата: 27 сентября 2027"
+        ],
+        "editLink": false,
+        "actions": "Действия с записьюПроцедура выполнена. Запись сохранена в истории и недоступна для редактирования.Удалить запись",
+        "form": false,
+        "notice": null
+      },
+      "body": {
+        "kind": "vaccination",
+        "status": "done",
+        "date": "2026-09-27",
+        "clinic": null,
+        "notes": null,
+        "items": [
+          {
+            "name": "Вакцина клиники",
+            "targets": [
+              "rabies"
+            ],
+            "product_id": null,
+            "next_on": "2027-09-27"
+          },
+          {
+            "name": null,
+            "targets": [
+              "rhinotracheitis"
+            ],
+            "product_id": null,
+            "next_on": "2027-09-27"
+          }
+        ]
+      }
+    },
+    "dogCatalog": {
+      "options": [
+        "Нобивак DHPPi",
+        "Нобивак Rabies",
+        "Нобивак L4",
+        "Эурикан DHPPi2-LR",
+        "Вангард Плюс 5 L4",
+        "Мультикан-8",
+        "Дефенсор 3",
+        "Нобивак KC",
+        "Нет в списке — ввести название",
+        "Без препарата — только от чего"
+      ],
+      "note": [
+        "Популярные для собак"
+      ],
+      "catProducts": []
+    },
+    "dogTricat": {
+      "options": [
+        "Нет в списке — ввести название",
+        "Без препарата — только от чего"
+      ],
+      "note": [
+        "По запросу «tricat» ничего не нашлось. Введите название вручную."
+      ],
+      "status": "По запросу «tricat» ничего не нашлось. Введите название вручную."
+    },
+    "staleQuery": {
+      "options": [
+        "Пуревакс RCP",
+        "Пуревакс RCPCh",
+        "Пуревакс FeLV",
+        "Нет в списке — ввести название",
+        "Без препарата — только от чего"
+      ],
+      "aborted": [
+        {
+          "url": "/api/v1/health/catalog?species=cat&kind=vaccine&q=нобив",
+          "error": "net::ERR_ABORTED"
+        }
+      ]
+    },
+    "petSwitch": {
+      "clientSideNavigation": true,
+      "aborted": [
+        {
+          "url": "/api/v1/health/catalog?species=cat&kind=vaccine&q=нобив",
+          "error": "net::ERR_ABORTED"
+        }
+      ],
+      "options": [
+        "Нобивак DHPPi",
+        "Нобивак Rabies",
+        "Нобивак L4",
+        "Эурикан DHPPi2-LR",
+        "Вангард Плюс 5 L4",
+        "Мультикан-8",
+        "Дефенсор 3",
+        "Нобивак KC",
+        "Нет в списке — ввести название",
+        "Без препарата — только от чего"
+      ],
+      "catProducts": []
+    },
+    "notFoundRoutes": {
+      "/pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/00000000-0000-4000-8000-000000000000": {
+        "h1": "Такой страницы нет",
+        "form": false
+      },
+      "/pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/new?type=parasite": {
+        "h1": "Добавить обработку",
+        "form": true
+      },
+      "/pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/parasites": {
+        "h1": "Паразиты",
+        "form": false
+      }
+    },
+    "overflow390": {
+      "vaccines": false,
+      "vaccinesEmpty": false,
+      "catalog": false,
+      "form": false,
+      "catalogError": false,
+      "recordDone": false,
+      "recordPlanned": false
+    },
+    "catalogInsideScreen390": true,
+    "overflowByWidth": {
+      "vaccines 1150": false,
+      "form 1150": false,
+      "record 1150": false,
+      "vaccines 1024": false,
+      "form 1024": false,
+      "record 1024": false,
+      "vaccines 900": false,
+      "form 900": false,
+      "record 900": false,
+      "vaccines 768": false,
+      "form 768": false,
+      "record 768": false,
+      "vaccines 760": false,
+      "form 760": false,
+      "record 760": false,
+      "vaccines 360": false,
+      "form 360": false,
+      "record 360": false,
+      "vaccines 320": false,
+      "form 320": false,
+      "record 320": false
+    },
+    "foreignPages": {
+      "/pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/vaccinations": {
+        "status": 404,
+        "h1": "Такой страницы нет",
+        "shown": false,
+        "leaks": []
+      },
+      "/pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/new?type=vaccination": {
+        "status": 404,
+        "h1": "Такой страницы нет",
+        "shown": false,
+        "leaks": []
+      },
+      "/pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/b62c47e2-f47f-4472-bb27-41c58bf088f0": {
+        "status": 404,
+        "h1": "Такой страницы нет",
+        "shown": false,
+        "leaks": []
+      },
+      "/pets/4a29d16b-a41c-4831-9da5-a18a2171cd00/health/64ca1d8e-257b-436f-a11d-90679e6071d9/edit": {
+        "status": 404,
+        "h1": "Такой страницы нет",
+        "shown": false,
+        "leaks": []
+      }
+    },
+    "foreignApiRequests": [],
+    "foreignApi": {
+      "read": 404,
+      "add": 404,
+      "changePlan": 404,
+      "deleteDone": 404
+    },
+    "ownerARecordsUntouched": true
+  },
+  "consoleErrors": [
+    "owner-a@fixture.local: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "owner-a@fixture.local: Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+    "owner-a@fixture.local: Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+    "owner-a@fixture.local: Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+    "owner-a@fixture.local: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "owner-a@fixture.local: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "owner-b@fixture.local: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "owner-b@fixture.local: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "owner-b@fixture.local: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "owner-b@fixture.local: Failed to load resource: the server responded with a status of 404 (Not Found)"
+  ]
+}

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useReducer, useRef } from 'react'
 import { browserApi } from '@/features/api/browser-api'
+import { useToday } from '@/features/forms/use-today'
 import {
   classifyFailure,
   fetchRecord,
@@ -14,15 +15,21 @@ import {
 /**
  * The medical record of one pet through the v1 API: loaded on open, again on
  * «Повторить». An answer to an older request never overwrites a newer one.
+ *
+ * `today` is the owner's day the page counts from; it moves on at midnight
+ * (MW-09, `useToday`), and the record is quietly loaded again for the new
+ * day — «Принимает сейчас» is the server's, counted from the day sent.
  */
-export function useMedicalRecord(petId: string): { state: RecordState; reload: () => void } {
+export function useMedicalRecord(petId: string): { state: RecordState; reload: () => void; today: string } {
   const [state, dispatch] = useReducer(recordReducer, petId, (id) => initialRecordState(recordCache.get(id)))
   const latest = useRef(0)
+  const today = useToday()
+  const todayRef = useRef(today)
 
   const run = useCallback(async () => {
     const request = ++latest.current
     try {
-      const data = await fetchRecord(browserApi(), petId)
+      const data = await fetchRecord(browserApi(), petId, todayRef.current)
       if (request !== latest.current) return
       recordCache.set(petId, data)
       dispatch({ type: 'loaded', data })
@@ -46,10 +53,17 @@ export function useMedicalRecord(petId: string): { state: RecordState; reload: (
     }
   }, [run])
 
+  // A new day: the record again, under what is on screen.
+  useEffect(() => {
+    if (todayRef.current === today) return
+    todayRef.current = today
+    void run()
+  }, [today, run])
+
   const reload = useCallback(() => {
     dispatch({ type: 'start' })
     void run()
   }, [run])
 
-  return { state, reload }
+  return { state, reload, today }
 }

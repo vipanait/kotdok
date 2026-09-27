@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { HealthOverview, WeightMeasurement } from '@lapka/contracts'
 import { ApiError, ApiTimeoutError } from '@lapka/shared'
 import ru from '@/shared/i18n/dictionaries/ru'
+import { periodAnnouncement } from '@/features/medical-record/weight/weight-view'
 import en from '@/shared/i18n/dictionaries/en'
 import { fieldErrors, saveFailure, saveFailureText } from '@/features/medical-record/weight/weight-form'
 import { parseWeightSaved, weightPage } from '@/features/medical-record/weight/weight-view'
@@ -148,5 +149,19 @@ describe('the weight form’s messages', () => {
     expect(saveFailure(new ApiTimeoutError('/pets/x/health/weights', 15000))).toBe('offline')
     expect(saveFailure(new Error('?'))).toBe('failed')
     expect(saveFailureText(ru, 'offline')).toBe('Нет связи с сервером. Введённое не потеряно — попробуйте ещё раз.')
+  })
+})
+
+describe('a new period is announced (MW-09)', () => {
+  it('says the period and what it shows: the chart’s range and trend, or the sentence', () => {
+    const half = weightPage(ru, 'ru', murka, 'halfYear', DESIGN_TODAY, true)
+    const said = periodAnnouncement(ru, 'halfYear', half.summary)
+    expect(said.startsWith('Полгода: ')).toBe(true)
+    if (half.summary.kind === 'chart') {
+      expect(said).toContain(half.summary.label)
+      if (half.summary.trend) expect(said).toContain(half.summary.trend)
+    }
+    expect(periodAnnouncement(ru, 'all', { kind: 'text', current: '4,2 кг', text: 'Одно измерение' })).toBe('Всё: Одно измерение')
+    expect(periodAnnouncement(ru, 'year', { kind: 'none', title: 't', body: 'b' })).toBe('')
   })
 })

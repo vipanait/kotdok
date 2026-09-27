@@ -20,6 +20,17 @@ import {
 const pad = (value: number) => String(value).padStart(2, '0')
 
 /**
+ * The age a pet's head shows, in years: whatever the owner gave, zero
+ * included — «0 лет» on the phone and on the site alike. The spec lists the
+ * age among the pet's facts (§7.17) and does not single out zero, and the pet
+ * form accepts it (a kitten under a year); the phone always said it, so the
+ * site says it too (MW-09). Null when the owner gave none: nothing is shown.
+ */
+export function headAge(ageYears: number | null | undefined): number | null {
+  return ageYears ?? null
+}
+
+/**
  * Today on the owner's calendar, from the device's own clock and zone: a
  * weighing at 01:00 in Moscow is not yesterday's.
  */
