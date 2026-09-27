@@ -1,13 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import { MEDICATION_LIMITS, type Medication } from '@lapka/contracts'
-import { ApiError } from '@lapka/shared'
+import { ApiError, endsByToday } from '@lapka/shared'
 import ru from '@/shared/i18n/dictionaries/ru'
 import en from '@/shared/i18n/dictionaries/en'
 import {
   blankCourse,
   coursesChanged,
   draftFromCourse,
-  endsByToday,
   readCourseChange,
   readNewCourses,
   type CourseDraft,

@@ -69,3 +69,22 @@ export function courseDayProblems(
   }
   return problems
 }
+
+/**
+ * Whether a course being corrected may keep its start empty: only one that
+ * has none on file — brought over from the pet form, whose start nobody
+ * knows (the contract's rule for `started_on` null). A new course always
+ * gets a start, today by default (spec §7.12); `null` is a new course.
+ */
+export function startMayStayEmpty(course: Pick<Medication, 'started_on'> | null): boolean {
+  return course !== null && course.started_on === null
+}
+
+/**
+ * Whether a course as typed ends today or earlier: saved like that it is
+ * finished, and from then on only read — the form says so before saving.
+ * `end` is `YYYY-MM-DD`, or '' when none is given; «Постоянно» has no end.
+ */
+export function endsByToday(course: { end: string; ongoing: boolean }, today: string): boolean {
+  return !course.ongoing && course.end !== '' && course.end <= today
+}

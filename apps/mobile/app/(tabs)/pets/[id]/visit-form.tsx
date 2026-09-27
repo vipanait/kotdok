@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
-import { HISTORY_PAGE_SIZE_MAX, VISIT_KINDS, type SymptomCheckRecord, type VisitKind } from '@lapka/contracts'
+import { HISTORY_PAGE_SIZE_MAX, VISIT_KINDS, VISIT_LIMITS, type SymptomCheckRecord, type VisitKind } from '@lapka/contracts'
 import { ApiError } from '@lapka/shared'
 import { withFreshSession } from '@/lib/api'
 import { describeFailure } from '@/lib/errors'
@@ -11,6 +11,7 @@ import { useText } from '@/i18n'
 import { urgencyText } from '@/features/checks/urgency'
 import {
   blankVisit,
+  canAddPrescription,
   readVisit,
   recentChecks,
   visitDraftFrom,
@@ -46,7 +47,8 @@ type Params = {
  * plan is changed or marked «Был»: a visit that happened is history (owner
  * rule of 26 September 2026) — its form does not open, and a `record_done`
  * answer locks the form. Saving a visit that happened warns first that it
- * cannot be changed afterwards.
+ * cannot be changed afterwards. Texts longer than the contract keeps are
+ * said at their fields before anything is sent.
  */
 export default function VisitForm() {
   const params = useLocalSearchParams<Params>()
@@ -211,18 +213,30 @@ export default function VisitForm() {
         keyboardType="numbers-and-punctuation"
         error={errors.date}
       />
-      <Field label={t.medicalRecord.clinic} value={draft.clinic} onChangeText={(clinic) => change({ clinic })} />
+      <Field
+        label={t.medicalRecord.clinic}
+        value={draft.clinic}
+        onChangeText={(clinic) => change({ clinic })}
+        error={errors.clinic}
+      />
       <Field
         label={words.reason}
         value={draft.reason}
         onChangeText={(reason) => change({ reason })}
         placeholder={words.reasonPlaceholder}
         multiline
+        error={errors.reason}
       />
 
       {done ? (
         <>
-          <Field label={words.diagnosis} value={draft.diagnosis} onChangeText={(diagnosis) => change({ diagnosis })} multiline />
+          <Field
+            label={words.diagnosis}
+            value={draft.diagnosis}
+            onChangeText={(diagnosis) => change({ diagnosis })}
+            multiline
+            error={errors.diagnosis}
+          />
           <Text variant="h3" style={styles.heading}>
             {words.prescriptions}
           </Text>
@@ -252,6 +266,7 @@ export default function VisitForm() {
                 onChangeText={(instructions) =>
                   change({ prescriptions: draft.prescriptions.map((p) => (p.key === item.key ? { ...p, instructions } : p)) })
                 }
+                error={errors.instructions?.[item.key]}
               />
               {item.inMedicines ? (
                 <Text variant="label" tone="muted">
@@ -277,15 +292,21 @@ export default function VisitForm() {
               ) : null}
             </Card>
           ))}
-          <LinkButton
-            title={words.addPrescription}
-            align="left"
-            onPress={() =>
-              change({
-                prescriptions: [...draft.prescriptions, { key: `new-${nextKey.current++}`, name: '', instructions: '', toMedicines: true }],
-              })
-            }
-          />
+          {canAddPrescription(draft) ? (
+            <LinkButton
+              title={words.addPrescription}
+              align="left"
+              onPress={() =>
+                change({
+                  prescriptions: [...draft.prescriptions, { key: `new-${nextKey.current++}`, name: '', instructions: '', toMedicines: true }],
+                })
+              }
+            />
+          ) : (
+            <Text variant="caption" tone="muted" style={styles.heading}>
+              {words.prescriptionsFull(VISIT_LIMITS.prescriptions)}
+            </Text>
+          )}
         </>
       ) : null}
 
@@ -298,7 +319,13 @@ export default function VisitForm() {
           noneLabel={words.noCheck}
         />
       ) : null}
-      <Field label={t.medicalRecord.notes} value={draft.notes} onChangeText={(notes) => change({ notes })} multiline />
+      <Field
+        label={t.medicalRecord.notes}
+        value={draft.notes}
+        onChangeText={(notes) => change({ notes })}
+        multiline
+        error={errors.notes}
+      />
 
       {warnsHeldIsFinal(mode, draft.status) ? (
         <Text variant="caption" tone="muted" style={styles.gap}>

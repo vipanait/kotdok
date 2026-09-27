@@ -77,9 +77,10 @@ export default function EventForm() {
   /**
    * Nothing to correct any more, only a way back, and why: an edit of a record
    * that was done (on opening, or refused as record_done on saving), or a
-   * «Сделано» answered with the record an earlier try saved.
+   * «Сделано» answered with the record an earlier try saved — then `record`
+   * is that record, which the screen offers to open.
    */
-  const [locked, setLocked] = useState<{ text: string; tone: 'info' | 'error' } | null>(null)
+  const [locked, setLocked] = useState<{ text: string; tone: 'info' | 'error'; record?: string } | null>(null)
   const [busy, setBusy] = useState(false)
   const requestKey = useRef(newRequestKey())
   const nextKey = useRef(1)
@@ -99,6 +100,8 @@ export default function EventForm() {
       } else if (mode === 'edit') {
         const event = overview.events.find((e) => e.id === params.eventId)
         if (!event) throw new Error('not found')
+        // The screen is named after the record itself, locked or not, whatever the address said.
+        setKind(event.kind)
         // Something done is history: read and deleted, never corrected (owner
         // rule of 26 September 2026; the server refuses it as record_done).
         if (event.status === 'done') {
@@ -106,7 +109,6 @@ export default function EventForm() {
           return
         }
         start = draftFromEvent(event)
-        setKind(event.kind)
         setKeptDate(event.date)
       } else {
         const event = overview.events.find((e) => e.items.some((item) => item.id === params.itemId))
@@ -246,7 +248,7 @@ export default function EventForm() {
           // The item is done as first saved: this form cannot change it, so it
           // is closed, and the way out asks nothing.
           const text = mismatch === 'doneOn' ? words.earlierDone(day) : words.earlierNext(day)
-          unsaved.leave(() => setLocked({ text, tone: 'error' }))
+          unsaved.leave(() => setLocked({ text, tone: 'error', record: saved.id }))
           return
         }
       }
@@ -285,6 +287,14 @@ export default function EventForm() {
         {locked ? (
           <>
             <Banner text={locked.text} tone={locked.tone} />
+            {locked.record ? (
+              // The record saved first, to check it: in place of this form, so Back does not return here.
+              <Button
+                title={words.openRecord}
+                onPress={() => router.replace(`/pets/${petId}/event/${locked.record}`)}
+                style={styles.lockAction}
+              />
+            ) : null}
             <Button title={t.common.back} kind="secondary" onPress={() => router.back()} />
           </>
         ) : null}
@@ -558,4 +568,5 @@ const styles = StyleSheet.create({
   fixed: { gap: 2 },
   pick: { minHeight: 44, justifyContent: 'center', gap: 2 },
   gapBottom: { marginBottom: space.block },
+  lockAction: { marginBottom: space.row },
 })

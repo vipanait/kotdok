@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import type { Medication } from '@lapka/contracts'
+import { MEDICATION_LIMITS, type Medication } from '@lapka/contracts'
 import { ru } from '@/i18n/ru'
 import { isCurrentCourse as isCurrent, splitCourses } from '@lapka/shared'
-import { blankCourse, courseDates, readCourses } from './medications'
+import { blankCourse, canAddCourse, courseDates, courseEndsByToday, readCourses } from './medications'
 
 const TODAY = '2026-09-24'
 const NOW = new Date(2026, 8, 24, 12, 0)
@@ -66,8 +66,42 @@ describe('the course form', () => {
     })
   })
 
-  it('leaves the start empty when the owner clears it', () => {
+  it('needs a start for a new course, as the site (spec §7.12)', () => {
     const read = readCourses(ru, [{ ...blankCourse('a', NOW), name: 'x', start: '' }])
+    expect(!read.ok && read.errors).toEqual({ a: { start: 'Укажите начало курса' } })
+  })
+
+  it('lets a course from the pet form with no start keep it empty', () => {
+    const read = readCourses(ru, [{ ...blankCourse('a', NOW), name: 'x', start: '' }], true)
     expect(read.ok && read.value[0].started_on).toBeNull()
+    // A start typed wrong is still wrong.
+    const wrong = readCourses(ru, [{ ...blankCourse('a', NOW), name: 'x', start: '31.02.2026' }], true)
+    expect(!wrong.ok && wrong.errors).toEqual({ a: { start: 'Дата — ДД.ММ.ГГГГ' } })
+  })
+
+  it('says the contract’s limits in its errors', () => {
+    const read = readCourses(ru, [
+      { ...blankCourse('a', NOW), name: 'Ф'.repeat(MEDICATION_LIMITS.name + 1), dosage: 'x'.repeat(MEDICATION_LIMITS.dosage + 1) },
+    ])
+    expect(!read.ok && read.errors).toEqual({
+      a: { name: `Не длиннее ${MEDICATION_LIMITS.name} символов`, dosage: `Не длиннее ${MEDICATION_LIMITS.dosage} символов` },
+    })
+    expect(readCourses(ru, [{ ...blankCourse('a', NOW), name: 'Ф'.repeat(MEDICATION_LIMITS.name) }]).ok).toBe(true)
+  })
+
+  it('warns that a course ending today or earlier is saved finished', () => {
+    expect(courseEndsByToday({ ...blankCourse('a', NOW), end: '24.09.2026' }, TODAY)).toBe(true)
+    expect(courseEndsByToday({ ...blankCourse('a', NOW), end: '01.09.2026' }, TODAY)).toBe(true)
+    expect(courseEndsByToday({ ...blankCourse('a', NOW), end: '25.09.2026' }, TODAY)).toBe(false)
+    expect(courseEndsByToday({ ...blankCourse('a', NOW), end: '' }, TODAY)).toBe(false)
+    // Not a day yet: nothing to warn about, the error comes on saving.
+    expect(courseEndsByToday({ ...blankCourse('a', NOW), end: '24.09' }, TODAY)).toBe(false)
+    expect(courseEndsByToday({ ...blankCourse('a', NOW), end: '24.09.2026', ongoing: true }, TODAY)).toBe(false)
+  })
+
+  it('adds courses up to what one save takes', () => {
+    const many = (n: number) => Array.from({ length: n }, (_, i) => blankCourse(`k${i}`, NOW))
+    expect(canAddCourse(many(MEDICATION_LIMITS.items - 1))).toBe(true)
+    expect(canAddCourse(many(MEDICATION_LIMITS.items))).toBe(false)
   })
 })
