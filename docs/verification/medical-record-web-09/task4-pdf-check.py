@@ -8,6 +8,10 @@ margins, how many table headings it repeats, and whether a section heading
 is the last thing on it (left alone at the foot of the page). The checks
 are listed as printed, one line each. Each page is saved as a PNG.
 
+Asserts (exit 1 otherwise): the disclaimer is printed at least once in
+every PDF, and on every page of Chrome's PDFs with page margins; no page
+is blank; no section heading is left alone at the foot of a page.
+
     pip install pymupdf
     python docs/verification/medical-record-web-09/task4-pdf-check.py
 
@@ -64,7 +68,13 @@ for path in sorted([*HERE.glob('chrome-*.pdf'), *HERE.glob('ios-safari-*.pdf')])
             start = lines.index('Последние проверки') + 1
             checks = [line for line in lines[start:] if re.match(r'^\d{1,2} [а-я]+ \d{4} ·', line)]
         page.get_pixmap(dpi=90).save(HERE / f'{path.stem}-p{index + 1}.png')
+    per_page = [p['disclaimers'] for p in pages]
+    # Chrome with its page margins prints the disclaimer in the margin of every page (and once more
+    # under the heading on the first); every PDF, whatever its browser or margins, has it at least once.
+    chrome_margins = path.name.startswith('chrome-') and 'no-margins' not in path.name
     report[path.name] = {
+        'disclaimer_at_least_once': sum(per_page) >= 1,
+        'disclaimer_on_every_page': all(count >= 1 for count in per_page) if chrome_margins else None,
         'pages': document.page_count,
         'blank_pages': [p['page'] for p in pages if p['blank']],
         'disclaimers_per_page': [p['disclaimers'] for p in pages],
@@ -73,4 +83,11 @@ for path in sorted([*HERE.glob('chrome-*.pdf'), *HERE.glob('ios-safari-*.pdf')])
         'detail': pages,
     }
 
+failures = [
+    name for name, item in report.items()
+    if not item['disclaimer_at_least_once'] or item['disclaimer_on_every_page'] is False or item['blank_pages'] or item['headings_alone_at_foot']
+]
+report['_assertions'] = {'failures': failures}
 print(json.dumps(report, ensure_ascii=False, indent=2))
+if failures:
+    raise SystemExit(f'failed: {failures}')

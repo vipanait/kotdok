@@ -733,6 +733,7 @@
   .vet-print-head { display: flex; flex-direction: column; align-items: flex-start; gap: 1mm; margin-bottom: 3mm; }
   .vet-print-logo { width: 22mm; height: auto; }
   .vet-print-title { margin: 0; font: 800 17pt/1.2 var(--font-display); color: #000; }
+  .vet-print-head .vet-print-note { margin: 0; font-size: 8.5pt; line-height: 1.35; color: #444; }
 
   .vet-summary-body { display: block; }
   .vet-summary .vet-card { margin: 0 0 4mm; padding: 0; border: 0; border-radius: 0; box-shadow: none; background: none; }
@@ -815,12 +816,13 @@
   }
 
   /*
-   * The margin boxes carry the footer on every page (VetSummaryScreen); this
-   * one ends the flow for a browser without them. It never starts a page of
-   * its own: an otherwise empty last page would be a blank sheet. Where the
-   * browser does print the margin boxes (`data-page-margins`, Chromium 131+),
-   * this copy would say it twice on the last page, and is left out (MW-09).
+   * The disclaimer on paper: in the page margins of every page (PageFooter)
+   * where the browser prints them, and always once in the flow, under the
+   * printed heading (.vet-print-note). The margins go with «Поля: нет» in
+   * the print dialog of Chrome, and Safari never prints them, so no page
+   * count or setting leaves the summary without it. The closing footer of
+   * the screen would only say it again on the last page, and is not printed
+   * (MW-09, fix round 1).
    */
-  .vet-summary .vet-summary-footer { margin-top: 5mm; padding-top: 2mm; border-top: 1px solid #999; font-size: 8.5pt; color: #444; break-before: avoid; page-break-before: avoid; }
-  .vet-summary[data-page-margins] .vet-summary-footer { display: none; }
+  .vet-summary .vet-summary-footer { display: none; }
 }

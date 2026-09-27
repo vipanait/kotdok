@@ -181,8 +181,15 @@ describe('a pet with the form only (web v1 «dog-summary»)', () => {
     // An emoji is never cut in half, and a cut name never ends on a space, a comma or a dot.
     const emoji = vetSummaryPage(ru, 'ru', summary({}, { name: `${'Ж'.repeat(55)}🐈 x` }), TODAY).fileTitle
     expect(emoji).toBe(`${'Ж'.repeat(55)} — медкарта — 26.09.2026`)
-    // A short name is left as it is.
+    // A flag is one letter to the reader: kept whole or left out, never half of it (MW-09 fix round 1).
+    const flag = vetSummaryPage(ru, 'ru', summary({}, { name: `${'Ж'.repeat(53)}🇷🇺` }), TODAY).fileTitle
+    expect(flag).toBe(`${'Ж'.repeat(53)} — медкарта — 26.09.2026`)
+    expect(vetSummaryPage(ru, 'ru', summary({}, { name: `${'Ж'.repeat(52)}🇷🇺` }), TODAY).fileTitle).toBe(`${'Ж'.repeat(52)}🇷🇺 — медкарта — 26.09.2026`)
+    // Cut at a hyphen, the name does not end on it.
+    expect(vetSummaryPage(ru, 'ru', summary({}, { name: `${'А'.repeat(55)}-Пушистиков` }), TODAY).fileTitle).toBe(`${'А'.repeat(55)} — медкарта — 26.09.2026`)
+    // A short name is left as it is, a hyphen at its end included.
     expect(vetSummaryPage(ru, 'ru', summary({}, { name: 'Мурка' }), TODAY).fileTitle).toBe('Мурка — медкарта — 26.09.2026')
+    expect(vetSummaryPage(ru, 'ru', summary({}, { name: 'Мурка-' }), TODAY).fileTitle).toBe('Мурка- — медкарта — 26.09.2026')
   })
 
   it('speaks English', () => {
