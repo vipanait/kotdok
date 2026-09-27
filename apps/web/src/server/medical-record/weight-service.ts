@@ -32,12 +32,23 @@ function toWeightContract(row: WeightRow): WeightMeasurement {
 }
 
 /**
- * The SQL functions answer "not yours" and "no such row" with no_data_found,
- * and a day that is already taken with unique_violation.
+ * A 409 of a weight that is not "the day is taken": the Idempotency-Key was
+ * used before for other data. The routes say which (weights/route.ts).
  */
-function failure(error: { code?: string; message: string }): { ok: false; reason: ServiceFailure; message: string } {
+export type KeyReused = { ok: false; reason: 'key_reused'; message: string }
+
+/**
+ * The SQL functions answer "not yours" and "no such row" with no_data_found,
+ * and a day that is already taken with unique_violation — as they do a key
+ * sent again with other data, told apart by its message
+ * (`pet_weight_by_key`).
+ */
+function failure(error: { code?: string; message: string }): { ok: false; reason: ServiceFailure; message: string } | KeyReused {
   if (error.code === 'P0002') return { ok: false, reason: 'not_found', message: error.message }
-  if (error.code === '23505') return { ok: false, reason: 'conflict', message: error.message }
+  if (error.code === '23505') {
+    if (error.message.includes('idempotency key reused')) return { ok: false, reason: 'key_reused', message: error.message }
+    return { ok: false, reason: 'conflict', message: error.message }
+  }
   return { ok: false, reason: 'storage_error', message: error.message }
 }
 
@@ -58,19 +69,26 @@ export async function listWeights(
   return { ok: true, data: (data as WeightRow[]).map(toWeightContract) }
 }
 
+/**
+ * `idempotencyKey`: the same key with the same weighing answers with the
+ * measurement it made — a retry after midnight does not add a second one —
+ * and with another weighing is `key_reused`. Null: no key, as before.
+ */
 export async function recordWeight(
   supabase: SupabaseService,
   userId: string,
   petId: string,
   input: WeightInput,
   source: 'record' | 'form' = 'record',
-): Promise<WeightResult<WeightMeasurement | null>> {
+  idempotencyKey: string | null = null,
+): Promise<WeightResult<WeightMeasurement | null> | KeyReused> {
   const { data, error } = await supabase.rpc('record_pet_weight', {
     p_user_id: userId,
     p_pet_id: petId,
     p_measured_on: input.measured_on,
     p_weight_kg: input.weight_kg,
     p_source: source,
+    p_key: idempotencyKey,
   })
 
   if (error) return failure(error)
@@ -85,13 +103,15 @@ export async function changeWeight(
   petId: string,
   weightId: string,
   patch: WeightPatch,
-): Promise<WeightResult<WeightMeasurement>> {
+  idempotencyKey: string | null = null,
+): Promise<WeightResult<WeightMeasurement> | KeyReused> {
   const { data, error } = await supabase.rpc('change_pet_weight', {
     p_user_id: userId,
     p_pet_id: petId,
     p_weight_id: weightId,
     p_measured_on: patch.measured_on ?? null,
     p_weight_kg: patch.weight_kg ?? null,
+    p_key: idempotencyKey,
   })
 
   if (error) return failure(error)
@@ -110,9 +130,23 @@ export async function deleteWeight(
     p_weight_id: weightId,
   })
 
-  if (error) return failure(error)
+  if (error) {
+    const failed = failure(error)
+    // Deleting takes no key: it never meets a reused one.
+    return failed.reason === 'key_reused' ? { ok: false, reason: 'conflict', message: failed.message } : failed
+  }
   return { ok: true, data: null }
 }
+
+/**
+ * The SQLSTATE the medical record's write functions refuse a change of a
+ * record that is history with (migration 20260927100000): a done
+ * vaccination or treatment, a visit that happened, a finished course. The
+ * refusal and the write are one decision under the pet's lock, so a
+ * «Сделано», «Состоялся» or «Завершить курс» from another device cannot
+ * slip between a service's check and the write. Answered as `record_done`.
+ */
+export const RECORD_DONE_SQLSTATE = 'LP409'
 
 /** Today as a calendar day in UTC: the fallback when a client did not say its own day. */
 export function utcToday(now: Date = new Date()): string {

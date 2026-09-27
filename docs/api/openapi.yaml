@@ -1040,11 +1040,13 @@ components:
               pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
             - type: "null"
         clinic:
+          description: Absent or null keeps the plan's clinic; an empty string clears it.
           anyOf:
             - type: string
               maxLength: 100
             - type: "null"
         notes:
+          description: Absent or null keeps the plan's note (a plan of one item); an empty string clears it.
           anyOf:
             - type: string
               maxLength: 300
@@ -2697,7 +2699,21 @@ paths:
       - *a1
     post:
       summary: Record a weighing; a second one for the same day replaces that day's value
-      description: The pet form's weight becomes the latest measurement. A day in the future is refused.
+      description: "The pet form's weight becomes the latest measurement. A day in the future is refused.
+        While the pet has no measurement yet, the form's earlier weight stays in the history as an
+        undated one — unless this weighing has that very value: then it is the form's weight given
+        its day, one row. The same Idempotency-Key with the same data returns the measurement it
+        made (a retry after midnight adds nothing); with other data, 409 conflict with
+        details.reason idempotency_key_reused."
+      parameters:
+        - &a2
+          name: Idempotency-Key
+          in: header
+          required: false
+          schema:
+            type: string
+            minLength: 8
+            maxLength: 200
       requestBody:
         required: true
         content:
@@ -2757,6 +2773,17 @@ paths:
                   code: not_found
                   message: No such resource for this user
                   request_id: 01J000000000000000000000
+        "409":
+          description: Same idempotency key with different data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: conflict
+                  message: Same idempotency key with different data
+                  request_id: 01J000000000000000000000
         "429":
           description: Too many requests
           content:
@@ -2790,6 +2817,11 @@ paths:
           format: uuid
     patch:
       summary: Correct a measurement
+      description: "409 conflict: the day already has a measurement, or — with details.reason
+        idempotency_key_reused — the Idempotency-Key was used for other data. The same key with the
+        same data returns the measurement."
+      parameters:
+        - *a2
       requestBody:
         required: true
         content:
@@ -3103,14 +3135,7 @@ paths:
       description: A done record cannot be in the future; a plan and a next date cannot be in the past.
         The same Idempotency-Key with the same data returns the first record; with other data, 409.
       parameters:
-        - &a2
-          name: Idempotency-Key
-          in: header
-          required: false
-          schema:
-            type: string
-            minLength: 8
-            maxLength: 200
+        - *a2
       requestBody:
         required: true
         content:
@@ -3384,6 +3409,9 @@ paths:
           format: uuid
     post:
       summary: Mark one planned item done; others planned for the same day stay planned
+      description: clinic and notes absent or null keep the plan's text; an empty string clears it. The
+        same Idempotency-Key with the same data returns the done record; with other data, 409
+        conflict. An item already done under another key returns its record as it was.
       parameters:
         - *a2
       requestBody:
@@ -3590,9 +3618,18 @@ paths:
           format: uuid
     patch:
       summary: Correct a course, or end it
-      description: "Only a current course changes: one that ended — its end is today or earlier in every
-        time zone — is history and answers 409 record_done (it can still be deleted). A change that
-        leaves a finished course as it is, such as «Завершить курс» sent again, answers 200."
+      description: "Only a current course changes: one that ended is history and answers 409 record_done
+        (it can still be deleted). Ended means its end is `today` or earlier when the owner's day is
+        given (taken only from the UTC day before the server's to the UTC day after), otherwise
+        today or earlier in every time zone. A change that leaves a finished course as it is, such
+        as «Завершить курс» sent again, answers 200."
+      parameters:
+        - name: today
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
       requestBody:
         required: true
         content:

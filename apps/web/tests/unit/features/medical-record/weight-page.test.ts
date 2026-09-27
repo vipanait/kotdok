@@ -85,7 +85,7 @@ describe('the weight page: every date and value readable without the chart', () 
         day: 'Дата не указана',
         note: 'из анкеты',
         value: '28 кг',
-        action: { href: `/pets/${bobik.pet.id}/health/new?type=weight`, label: 'Уточнить', ariaLabel: 'Уточнить вес 28 кг: дата не указана' },
+        action: { href: `/pets/${bobik.pet.id}/health/new?type=weight&from=form`, label: 'Уточнить', ariaLabel: 'Уточнить вес 28 кг: дата не указана' },
       },
     ])
   })
@@ -136,6 +136,9 @@ describe('the weight form’s messages', () => {
 
   it('sorts a failed request into what the owner can do', () => {
     expect(saveFailure(new ApiError('conflict', 409, 'taken'))).toBe('dayTaken')
+    // The save's own key used earlier with other values: that try was saved, the day is not the problem.
+    expect(saveFailure(new ApiError('conflict', 409, 'key', 'r', { reason: 'idempotency_key_reused' }))).toBe('alreadySaved')
+    expect(saveFailureText(ru, 'alreadySaved')).toContain('уже сохранено раньше')
     expect(saveFailure(new ApiError('bad_request', 400, 'no'))).toBe('rejected')
     expect(saveFailure(new ApiError('not_found', 404, 'gone'))).toBe('gone')
     expect(saveFailure(new ApiError('unauthorized', 401, 'no'))).toBe('signedOut')

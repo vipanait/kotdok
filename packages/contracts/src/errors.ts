@@ -74,3 +74,15 @@ export const ApiErrorEnvelopeSchema = z.strictObject({
 })
 
 export type ApiErrorEnvelope = z.infer<typeof ApiErrorEnvelopeSchema>
+
+/**
+ * `error.details.reason` of a 409 `conflict` that means "this Idempotency-Key
+ * was already used for other data", on routes where 409 `conflict` can also
+ * mean something else — a weight moved or added onto a day that already has
+ * a measurement. Where a route's only conflict is the key, it may be absent.
+ * Additive: an app that does not read `details` sees the conflict it always
+ * did, and apps that send no key never get it.
+ */
+export const IDEMPOTENCY_KEY_REUSED = 'idempotency_key_reused' as const
+
+export const KeyReusedDetailsSchema = z.object({ reason: z.literal(IDEMPOTENCY_KEY_REUSED) })

@@ -140,6 +140,7 @@ export const en: Dictionary = {
     weightInvalid: 'Weight is a number from 0.1 to 200, one decimal place',
     dateInvalid: 'Date is DD.MM.YYYY, no later than today',
     dayTaken: 'That day already has a measurement',
+    weightAlreadySaved: 'This measurement was already saved earlier, without the latest changes. Close this to check it.',
     saveWeightFailed: 'Could not save the weight',
     deleteWeight: 'Delete measurement',
     deleteWeightTitle: 'Delete this measurement?',

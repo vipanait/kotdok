@@ -21,10 +21,10 @@ import type { ContractRefusal } from './event-form'
  *   12 weeks from 24 September is 17 December, not 3 months later — by the
  *   shared calendar arithmetic (`suggestNextDay`); the owner changes or
  *   clears it; an item with no interval gets no suggestion;
- * - the clinic and the note start as the plan's own. The server keeps the
- *   plan's clinic — and, for a plan of one item, its note — when the field
- *   comes empty, so an empty field cannot clear them: the form says so
- *   beside the field (`keptFromPlan`) instead of pretending it will.
+ * - the clinic and the note start as the plan's own, and what the fields
+ *   hold is what the done record gets: a field the owner empties is sent
+ *   as '' and clears the plan's text (the contract tells "sent empty" from
+ *   "not sent", MW-09), so the record says exactly what the form showed.
  * - a 200 is not taken on trust: an item already done is answered with the
  *   record as it was (`completionMismatch`, packages/shared — the phone
  *   checks the same), which the owner is told.
@@ -87,7 +87,6 @@ export type ReadCompletion =
   | { ok: false; rejected?: false; problems: CompleteProblems }
   | ContractRefusal
 
-const orNull = (text: string) => (text.trim() === '' ? null : text.trim())
 
 /** The body of «Сделано», or what is wrong with the form. */
 export function readCompletion(draft: CompleteDraft, today: string): ReadCompletion {
@@ -105,8 +104,9 @@ export function readCompletion(draft: CompleteDraft, today: string): ReadComplet
   const input = CompleteItemInputSchema.safeParse({
     done_on: draft.doneOn,
     next_on: draft.next === '' ? null : draft.next,
-    clinic: orNull(draft.clinic),
-    notes: orNull(draft.notes),
+    // '' is "sent empty": the plan's text is cleared, not kept.
+    clinic: draft.clinic.trim(),
+    notes: draft.notes.trim(),
   })
   return input.success ? { ok: true, input: input.data } : { ok: false, rejected: true, problems: {} }
 }
@@ -119,24 +119,5 @@ export function completionChanged(before: CompleteDraft, after: CompleteDraft): 
 /** The other items of the plan: they stay planned, and the form says so. */
 export function othersInPlan(plan: HealthEvent, item: Pick<HealthItem, 'id'>): number {
   return plan.items.filter((candidate) => candidate.id !== item.id).length
-}
-
-/**
- * The plan's own text that stays although its field is left empty: the
- * server fills an empty clinic from the plan, and an empty note too when the
- * plan itself becomes the done record (one item). A plan of several gives the
- * item a record of its own, whose note is only what is sent. Null: an empty
- * field means empty.
- */
-export function keptFromPlan(
-  plan: Pick<HealthEvent, 'clinic' | 'notes' | 'items'>,
-  item: Pick<HealthItem, 'id'>,
-  draft: Pick<CompleteDraft, 'clinic' | 'notes'>,
-): { clinic: string | null; notes: string | null } {
-  const alone = plan.items.every((candidate) => candidate.id === item.id)
-  return {
-    clinic: draft.clinic.trim() === '' && plan.clinic?.trim() ? plan.clinic.trim() : null,
-    notes: alone && draft.notes.trim() === '' && plan.notes?.trim() ? plan.notes.trim() : null,
-  }
 }
 

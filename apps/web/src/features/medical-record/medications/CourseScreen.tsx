@@ -75,7 +75,8 @@ export default function CourseScreen({ petId, courseId, saved }: { petId: string
     setBusy(true)
     setDialogError(undefined)
     try {
-      await browserApi().changeMedication(petId, courseId, endCoursePatch(today))
+      // The owner's day goes along: the server counts «finished» by it, as this page does.
+      await browserApi().changeMedication(petId, courseId, endCoursePatch(today), today)
       inFlight.current = false
       setBusy(false)
       setAsking(null)

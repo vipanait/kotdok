@@ -18,6 +18,7 @@ import {
   HealthOverviewReadSchema,
   HealthSchema,
   IDEMPOTENCY_KEY_HEADER,
+  KeyReusedDetailsSchema,
   PetSchema,
   PublicProfileSchema,
   ReauthProofSchema,
@@ -70,6 +71,16 @@ export class ApiError extends Error {
     super(message)
     this.name = 'ApiError'
   }
+}
+
+/**
+ * Whether a failure is a 409 `conflict` for an Idempotency-Key already used
+ * with other data (`details.reason: idempotency_key_reused`): an earlier try
+ * of this save did reach the server, with the values it had then. Needed
+ * where 409 `conflict` can also mean something else (a weight's day taken).
+ */
+export function isKeyReused(error: unknown): boolean {
+  return error instanceof ApiError && error.code === 'conflict' && KeyReusedDetailsSchema.safeParse(error.details).success
 }
 
 /** The response did not match the contract. Never surfaced as product data. */
@@ -270,10 +281,24 @@ export function createApiClient(options: ApiClientOptions) {
     deletePet: (id: string) => call<void>(`/pets/${id}`, null, { method: 'DELETE' }),
 
     getHealthOverview: (petId: string) => call(`/pets/${petId}/health`, HealthOverviewReadSchema),
-    addWeight: (petId: string, body: WeightInput) =>
-      call(`/pets/${petId}/health/weights`, WeightMeasurementSchema, { method: 'POST', body }),
-    changeWeight: (petId: string, weightId: string, body: WeightPatch) =>
-      call(`/pets/${petId}/health/weights/${weightId}`, WeightMeasurementSchema, { method: 'PATCH', body }),
+    /**
+     * `idempotencyKey`: one per logical save, the same on every retry of it —
+     * a retry after midnight then adds nothing. A 409 `conflict` whose
+     * `details.reason` is `idempotency_key_reused` (`isKeyReused`) means an
+     * earlier try with this key did save, with other values.
+     */
+    addWeight: (petId: string, body: WeightInput, idempotencyKey?: string) =>
+      call(`/pets/${petId}/health/weights`, WeightMeasurementSchema, {
+        method: 'POST',
+        body,
+        ...(idempotencyKey ? { headers: { [IDEMPOTENCY_KEY_HEADER]: idempotencyKey } } : {}),
+      }),
+    changeWeight: (petId: string, weightId: string, body: WeightPatch, idempotencyKey?: string) =>
+      call(`/pets/${petId}/health/weights/${weightId}`, WeightMeasurementSchema, {
+        method: 'PATCH',
+        body,
+        ...(idempotencyKey ? { headers: { [IDEMPOTENCY_KEY_HEADER]: idempotencyKey } } : {}),
+      }),
     deleteWeight: (petId: string, weightId: string) =>
       call<void>(`/pets/${petId}/health/weights/${weightId}`, null, { method: 'DELETE' }),
 
@@ -318,8 +343,13 @@ export function createApiClient(options: ApiClientOptions) {
         body,
         headers: { [IDEMPOTENCY_KEY_HEADER]: idempotencyKey },
       }),
-    changeMedication: (petId: string, medicationId: string, body: MedicationPatch) =>
-      call(`/pets/${petId}/health/medications/${medicationId}`, MedicationSchema, { method: 'PATCH', body }),
+    /**
+     * `today`: the owner's calendar day (`localToday()`). The server then
+     * counts a course as finished by that day — the day the apps hide
+     * «Изменить» by — instead of waiting until it is over in every time zone.
+     */
+    changeMedication: (petId: string, medicationId: string, body: MedicationPatch, today?: string) =>
+      call(`/pets/${petId}/health/medications/${medicationId}`, MedicationSchema, { method: 'PATCH', body, query: { today } }),
     deleteMedication: (petId: string, medicationId: string) =>
       call<void>(`/pets/${petId}/health/medications/${medicationId}`, null, { method: 'DELETE' }),
     /** `signal`: a search the screen no longer shows (a newer query, another pet) is aborted. */

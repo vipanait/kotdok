@@ -99,8 +99,10 @@ function rows(dict: Dictionary, overview: HealthOverview, petId: string, editabl
   const { pet, weights } = overview
 
   // A form weight with no history behind it (a pet from before the record)
-  // is still the pet's weight: listed, and «Уточнить» adds the dated
-  // measurement — the form's value stays in the history as the server keeps it.
+  // is still the pet's weight: listed, and «Уточнить» opens a new weighing
+  // with that value, for the owner to give it a day. The server stores a
+  // first measurement with the form's own value as that value dated — one
+  // row, not a dated one beside an undated copy (MW-09).
   if (weights.length === 0) {
     if (pet.weight_kg === null) return []
     const value = formatWeight(words, pet.weight_kg)
@@ -112,7 +114,7 @@ function rows(dict: Dictionary, overview: HealthOverview, petId: string, editabl
         value,
         action: editable
           ? {
-              href: medicalRecordHref.newRecord(petId, 'weight'),
+              href: `${medicalRecordHref.newRecord(petId, 'weight')}&from=form`,
               label: page.clarify,
               ariaLabel: page.clarifyLabel.replace('{weight}', value),
             }

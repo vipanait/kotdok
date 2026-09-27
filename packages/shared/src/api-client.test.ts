@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { ApiError, ApiTimeoutError, createApiClient, type AbortSignalLike, type FetchLike } from './api-client'
+import { ApiError, ApiTimeoutError, createApiClient, isKeyReused, type AbortSignalLike, type FetchLike } from './api-client'
 
 const BASE = 'https://example.test'
 
@@ -202,5 +202,54 @@ describe('summary for the vet', () => {
     await api.getVetSummary(pet).catch(() => null)
 
     expect(seen).toEqual([`${BASE}/api/v1/pets/${pet}/health/summary?today=2026-09-27`, `${BASE}/api/v1/pets/${pet}/health/summary`])
+  })
+})
+
+describe('MW-09 additions', () => {
+  const pet = '11111111-1111-4111-8111-000000000001'
+  const course = '11111111-1111-4111-8111-000000000002'
+  const weight = '11111111-1111-4111-8111-000000000003'
+
+  it('sends a weight save’s key when given, and no header when not (an older caller)', async () => {
+    const seen: Array<Record<string, string>> = []
+    const fetch: FetchLike = async (_url, init) => {
+      seen.push({ ...(init?.headers as Record<string, string>) })
+      return ok({})
+    }
+    const api = createApiClient({ baseUrl: BASE, fetch })
+    const body = { measured_on: '2026-09-27', weight_kg: 4.2 }
+
+    await api.addWeight(pet, body, 'key-12345678').catch(() => null)
+    await api.addWeight(pet, body).catch(() => null)
+    await api.changeWeight(pet, weight, { weight_kg: 4.3 }, 'key-87654321').catch(() => null)
+
+    expect(seen[0]['Idempotency-Key']).toBe('key-12345678')
+    expect(seen[1]['Idempotency-Key']).toBeUndefined()
+    expect(seen[2]['Idempotency-Key']).toBe('key-87654321')
+  })
+
+  it('sends the owner’s day with a course change when given', async () => {
+    const seen: string[] = []
+    const fetch: FetchLike = async (url) => {
+      seen.push(String(url))
+      return ok({})
+    }
+    const api = createApiClient({ baseUrl: BASE, fetch })
+
+    await api.changeMedication(pet, course, { dosage: 'утром' }, '2026-09-27').catch(() => null)
+    await api.changeMedication(pet, course, { dosage: 'утром' }).catch(() => null)
+
+    expect(seen).toEqual([
+      `${BASE}/api/v1/pets/${pet}/health/medications/${course}?today=2026-09-27`,
+      `${BASE}/api/v1/pets/${pet}/health/medications/${course}`,
+    ])
+  })
+
+  it('tells a reused key from any other conflict', () => {
+    expect(isKeyReused(new ApiError('conflict', 409, 'x', 'r', { reason: 'idempotency_key_reused' }))).toBe(true)
+    // A weight's day already taken: the same code, no such reason.
+    expect(isKeyReused(new ApiError('conflict', 409, 'x', 'r'))).toBe(false)
+    expect(isKeyReused(new ApiError('record_done', 409, 'x', 'r', { reason: 'idempotency_key_reused' }))).toBe(false)
+    expect(isKeyReused(new Error('conflict'))).toBe(false)
   })
 })

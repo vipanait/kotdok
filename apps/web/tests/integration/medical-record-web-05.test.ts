@@ -254,20 +254,22 @@ describe('criterion 3: dates and all-or-none', () => {
     expect(names.map((row: { name: string }) => row.name)).toEqual(['Было'])
   })
 
-  it('a batch whose answer was lost, sent again with the same key, is stored once', async () => {
-    const drafts = [draft('a', { name: 'Первый', start: day(-1) }), draft('b', { name: 'Второй', start: day(-1), ongoing: true })]
+  it('a batch whose answer was lost, sent again with the same key, is stored once, in the order entered', async () => {
+    const names = ['Первый', 'Второй', 'Третий', 'Четвёртый', 'Пятый']
+    const drafts = names.map((name, index) => draft(String(index), { name, start: day(-1), ongoing: index === 1 }))
     const key = crypto.randomUUID()
     const first = await saveNew(drafts, key)
     const retry = await saveNew(drafts, key)
-    // The same courses, in any order: the replay reads them back by key, and the rows of one batch
-    // share their created_at (pet_medications has no position column; ordering them would take a migration).
-    expect(retry.map((c) => c.id).sort()).toEqual(first.map((c) => c.id).sort())
-    expect(await rows()).toBe(2)
+    // The same courses in the order they were entered: the rows of one batch share their
+    // created_at, and each keeps its place in the batch (pet_medications.batch_position, MW-09).
+    expect(first.map((c) => c.name)).toEqual(names)
+    expect(retry.map((c) => c.id)).toEqual(first.map((c) => c.id))
+    expect(await rows()).toBe(5)
     // The same key with other fields is not taken for a second save.
     const changed = readNewCourses([draft('a', { name: 'Первый', start: day(-1), dosage: 'иначе' })])
     if (!changed.ok) throw new Error('refused')
     expect((await addMedications(request(tokenA, 'POST', changed.value, key), params(pet))).status).toBe(409)
-    expect(await rows()).toBe(2)
+    expect(await rows()).toBe(5)
   })
 })
 

@@ -198,13 +198,33 @@ export const HealthEventPatchSchema = z
 
 export type HealthEventPatch = z.infer<typeof HealthEventPatchSchema>
 
-/** «Сделано» on one planned item. */
+/**
+ * «Сделано» on one planned item.
+ *
+ * `clinic` and `notes` tell "not sent" from "sent empty" (MW-09): absent or
+ * null keeps the plan's own text on the done record — what every app built
+ * before MW-09 sends for an empty field — and an empty string (after
+ * trimming) clears it. A plan of several items gives the item a record of
+ * its own, whose note is only what is sent; its clinic follows the same rule.
+ */
 export const CompleteItemInputSchema = z
   .strictObject({
     done_on: CalendarDateSchema,
     next_on: CalendarDateSchema.nullable().optional(),
-    clinic: z.string().trim().max(CLINIC_MAX).nullable().optional(),
-    notes: z.string().trim().max(NOTES_MAX).nullable().optional(),
+    clinic: z
+      .string()
+      .trim()
+      .max(CLINIC_MAX)
+      .nullable()
+      .optional()
+      .describe("Absent or null keeps the plan's clinic; an empty string clears it."),
+    notes: z
+      .string()
+      .trim()
+      .max(NOTES_MAX)
+      .nullable()
+      .optional()
+      .describe("Absent or null keeps the plan's note (a plan of one item); an empty string clears it."),
   })
   .refine((value) => !value.next_on || value.next_on > value.done_on, {
     message: 'next date must follow the day it was done',

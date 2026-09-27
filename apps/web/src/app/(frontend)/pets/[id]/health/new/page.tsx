@@ -82,7 +82,8 @@ export default async function NewRecordPage({
   return (
     <CabinetShell cabinet={cabinet} active="pets" crumb={crumb}>
       {type === 'weight' ? (
-        <NewWeightScreen key={id} petId={id} petName={pet.name} today={today} />
+        // «Уточнить» on the pet form's weight with no history: that value, to be dated.
+        <NewWeightScreen key={id} petId={id} petName={pet.name} today={today} formWeight={query.from === 'form' ? pet.weight_kg : null} />
       ) : type === 'vaccination' || type === 'parasite' ? (
         // Keyed by pet: another pet's form starts clean, and its catalogue search with it.
         <NewEventScreen key={`${id}-${type}`} petId={id} petName={pet.name} species={pet.species} kind={type} today={today} />

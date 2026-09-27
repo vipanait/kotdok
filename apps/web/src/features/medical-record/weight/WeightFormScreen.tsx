@@ -12,9 +12,22 @@ import WeightForm from './WeightForm'
 /**
  * `/pets/[id]/health/new?type=weight`: a new weighing, today's by default.
  * `today`: the owner's day from the page, the same on the server and in the browser.
+ * `formWeight` (`&from=form`, «Уточнить» on the pet form's weight with no
+ * history yet): the weighing starts from that value and no day, for the
+ * owner to date it.
  */
-export function NewWeightScreen({ petId, petName, today }: { petId: string; petName: string; today: string }) {
-  return <WeightForm petId={petId} petName={petName} editing={null} today={today} />
+export function NewWeightScreen({
+  petId,
+  petName,
+  today,
+  formWeight = null,
+}: {
+  petId: string
+  petName: string
+  today: string
+  formWeight?: number | null
+}) {
+  return <WeightForm petId={petId} petName={petName} editing={null} today={today} formWeight={formWeight} />
 }
 
 /**

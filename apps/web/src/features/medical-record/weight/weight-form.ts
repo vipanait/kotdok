@@ -1,5 +1,5 @@
 import { WEIGHT_MAX_KG } from '@lapka/contracts'
-import { ApiError, ApiTimeoutError, WEIGHT_MIN_KG, type WeightFormProblems } from '@lapka/shared'
+import { ApiError, ApiTimeoutError, WEIGHT_MIN_KG, isKeyReused, type WeightFormProblems } from '@lapka/shared'
 import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
 import { formatDecimal } from '../view-model'
 
@@ -38,6 +38,12 @@ export function fieldErrors(dict: Dictionary, problems: WeightFormProblems): Fie
 export type SaveFailure =
   /** The corrected day already has a measurement (409): the owner picks. */
   | 'dayTaken'
+  /**
+   * An earlier try of this save did reach the server, with the values it had
+   * then (409, the save's Idempotency-Key used for other data): nothing new
+   * was stored, and the history shows what was.
+   */
+  | 'alreadySaved'
   /** The server refused the values (400): the client check and the contract disagree. */
   | 'rejected'
   /** The measurement or the pet is no longer there (404). */
@@ -50,6 +56,7 @@ export type SaveFailure =
   | 'failed'
 
 export function saveFailure(error: unknown): SaveFailure {
+  if (isKeyReused(error)) return 'alreadySaved'
   if (error instanceof ApiError) {
     switch (error.code) {
       case 'conflict':
