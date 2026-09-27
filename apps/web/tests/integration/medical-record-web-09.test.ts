@@ -26,6 +26,7 @@ import { PATCH as patchWeight } from '@/app/(backend)/api/v1/pets/[id]/health/we
 import { completeDraft, readCompletion } from '@/features/medical-record/events/complete-form'
 import { weightPage } from '@/features/medical-record/weight/weight-view'
 import { changeMedication } from '@/server/medical-record/medication-service'
+import { deleteWeight } from '@/server/medical-record/weight-service'
 import { createServiceClient } from '@/server/supabase/server'
 import ru from '@/shared/i18n/dictionaries/ru'
 import { FIXTURE_PASSWORD, OWNER_A, PET_IDS, connect, seedFixtures, type SeededFixtures } from './fixtures'
@@ -152,8 +153,8 @@ beforeAll(async () => {
 beforeEach(async () => {
   await db.query(`delete from public.pet_medications where pet_id = $1`, [pet])
   await db.query(`delete from public.pet_health_events where pet_id = $1`, [pet])
-  await db.query(`delete from public.pet_weights where pet_id = $1`, [pet])
-  await db.query(`update public.pets set weight_kg = null, medications = '{}' where id = $1`, [pet])
+  await db.query(`delete from public.pet_weights where pet_id = any($1)`, [[pet, PET_IDS.aDog]])
+  await db.query(`update public.pets set weight_kg = null, medications = '{}' where id = any($1)`, [[pet, PET_IDS.aDog]])
 })
 
 afterAll(async () => {
@@ -236,7 +237,7 @@ describe('a done record is refused inside the write, not only before it', () => 
   })
 
   it('«Сделано» and a correction of the same plan sent at once: whichever wins, the done record is never changed after', async () => {
-    const outcomes = new Set<string>()
+    // Which order happens in a round is up to the database; each order must end consistently.
     for (let round = 0; round < 8; round += 1) {
       await db.query(`delete from public.pet_health_events where pet_id = $1`, [pet])
       const planned = await plan()
@@ -256,10 +257,7 @@ describe('a done record is refused inside the write, not only before it', () => 
         // The correction came first, while it was a plan; «Сделано» then kept its clinic.
         expect(stored.clinic).toBe('Другая')
       }
-      outcomes.add(String(patched.status))
     }
-    // Not asserted which order happened: only that each order ends consistently.
-    expect(outcomes.size).toBeGreaterThan(0)
   })
 
   it('an older server calling the functions as before still works (the deploy window)', async () => {
@@ -279,6 +277,47 @@ describe('a done record is refused inside the write, not only before it', () => 
       p_user_id: owners.ownerAId, p_pet_id: pet, p_weight_id: (weighed.data as { id: string }).id, p_measured_on: null, p_weight_kg: 4.3,
     })
     expect(weight.error).toBeNull()
+  })
+
+  it('the production server (origin/main) still edits done records by its old argument list; only this branch’s opts in', async () => {
+    const service = createServiceClient()
+    // What main's event-service and visit-service send: no p_refuse_done. Main has no
+    // done-is-history rule and installed phones offer «Изменить» there — this must not become a 500.
+    const doneEvent = HealthEventSchema.parse(
+      await (
+        await createEvent(
+          request('POST', { kind: 'parasite', status: 'done', date: day(-1), clinic: 'Айболит', items: [{ name: 'Спот-он', targets: ['fleas'] }] }, crypto.randomUUID()),
+          params(pet),
+        )
+      ).json(),
+    )
+    const mainEvent = await service.rpc('update_health_event', {
+      p_user_id: owners.ownerAId, p_pet_id: pet, p_event_id: doneEvent.id, p_date: null, p_clinic: 'Правка с main', p_notes: null, p_items: null,
+    })
+    expect(mainEvent.error).toBeNull()
+    expect((await storedEvent(doneEvent.id)).clinic).toBe('Правка с main')
+
+    const doneVisit = HealthEventSchema.parse(
+      await (await createVisit(request('POST', { status: 'done', date: day(-1), visit_kind: 'checkup', reason: 'Осмотр' }, crypto.randomUUID()), params(pet))).json(),
+    )
+    const mainVisit = await service.rpc('update_visit', {
+      p_user_id: owners.ownerAId, p_pet_id: pet, p_event_id: doneVisit.id, p_changes: { reason: 'Правка с main' }, p_items: null, p_today: TODAY, p_key: crypto.randomUUID(),
+    })
+    expect(mainVisit.error).toBeNull()
+    const { rows } = await db.query(`select reason from public.pet_health_events where id = $1`, [doneVisit.id])
+    expect(rows[0].reason).toBe('Правка с main')
+
+    // This branch's server passes p_refuse_done: the same calls are refused in SQL.
+    const branchEvent = await service.rpc('update_health_event', {
+      p_user_id: owners.ownerAId, p_pet_id: pet, p_event_id: doneEvent.id, p_date: null, p_clinic: 'Ещё', p_notes: null, p_items: null, p_refuse_done: true,
+    })
+    expect(branchEvent.error?.code).toBe('LP409')
+    const branchVisit = await service.rpc('update_visit', {
+      p_user_id: owners.ownerAId, p_pet_id: pet, p_event_id: doneVisit.id, p_changes: { reason: 'Ещё' }, p_items: null, p_today: TODAY, p_key: null, p_refuse_done: true,
+    })
+    expect(branchVisit.error?.code).toBe('LP409')
+    // And through this branch's routes: 409 record_done, not 500.
+    expect((await patchEvent(request('PATCH', { clinic: 'Ещё' }), eventParams(doneEvent.id))).status).toBe(409)
   })
 })
 
@@ -404,6 +443,52 @@ describe('a weight save with an Idempotency-Key', () => {
     expect((await taken.json()).error.details).toBeUndefined()
   })
 
+  it('the same key on another pet is a reused key, not a taken day — one after the other, or at the same moment', async () => {
+    const dogWeights = async () =>
+      (await db.query(`select count(*)::int as n from public.pet_weights where pet_id = $1 and deleted_at is null`, [PET_IDS.aDog])).rows[0].n
+    const key = crypto.randomUUID()
+    expect((await addWeight(request('POST', { measured_on: TODAY, weight_kg: 4.2 }, key), params(pet))).status).toBe(201)
+    const after = await addWeight(request('POST', { measured_on: TODAY, weight_kg: 4.2 }, key), params(PET_IDS.aDog))
+    expect(after.status).toBe(409)
+    expect((await after.json()).error.details).toEqual({ reason: IDEMPOTENCY_KEY_REUSED })
+    expect(await dogWeights()).toBe(0)
+
+    // At the same moment: a save for the cat holds the key, not yet committed, under the cat's
+    // lock; the dog's save holds the dog's lock, does not see the key, and meets it in
+    // pet_weight_requests. Before MW-09's fix round that was the primary key's unique_violation — «the day is taken».
+    const both = crypto.randomUUID()
+    const locker = await connect()
+    try {
+      await locker.query('begin')
+      await locker.query(`select public.record_pet_weight($1, $2, $3, 4.3, 'record', $4)`, [owners.ownerAId, pet, day(-1), both])
+      const pending = addWeight(request('POST', { measured_on: TODAY, weight_kg: 30 }, both), params(PET_IDS.aDog))
+      const deadline = Date.now() + 15_000
+      for (;;) {
+        const { rows } = await db.query(
+          `select count(*)::int as n from pg_stat_activity where wait_event_type = 'Lock' and query ilike '%record_pet_weight%'`,
+        )
+        if (rows[0].n > 0) break
+        if (Date.now() > deadline) throw new Error('the dog’s save never waited for the key')
+        await new Promise((resolve) => setTimeout(resolve, 25))
+      }
+      await locker.query('commit')
+      const response = await pending
+      expect(response.status).toBe(409)
+      expect((await response.json()).error).toMatchObject({ code: 'conflict', details: { reason: IDEMPOTENCY_KEY_REUSED } })
+    } finally {
+      await locker.query('rollback').catch(() => undefined)
+      await locker.end()
+    }
+    // The dog's measurement went back with its refused request.
+    expect(await dogWeights()).toBe(0)
+  })
+
+  it('deleting takes no key: a key refusal, were it ever to come back, is not reported as a conflict', async () => {
+    const refusing = { rpc: async () => ({ data: null, error: { code: 'LPKEY', message: 'idempotency key reused with different data' } }) }
+    const result = await deleteWeight(refusing as unknown as ReturnType<typeof createServiceClient>, owners.ownerAId, pet, crypto.randomUUID())
+    expect(result).toMatchObject({ ok: false, reason: 'storage_error' })
+  })
+
   it('refuses a key that is not one', async () => {
     const response = await addWeight(request('POST', { measured_on: TODAY, weight_kg: 4.2 }, 'short'), params(pet))
     expect(response.status).toBe(400)
@@ -461,6 +546,22 @@ describe('a course is finished by the owner’s day when the app sends it', () =
     const response = await patchMedication(request('PATCH', { dosage: 'вечером' }, undefined, `?today=${day(5)}`), medParams(current.id))
     expect(response.status).toBe(200)
     expect(MedicationSchema.parse(await response.json()).dosage).toBe('вечером')
+  })
+
+  it('a day behind the server’s window («yesterday», or an owner west of UTC) does not reopen a course it counts finished', async () => {
+    const ended = await course({ ended_on: TODAY })
+    // 18:00 UTC: the window already counts a course ending today finished (today in UTC−12 too).
+    const evening = new Date(`${TODAY}T18:00:00Z`)
+    const service = createServiceClient()
+    expect(await changeMedication(service, owners.ownerAId, pet, ended.id, { dosage: 'вечером' }, evening)).toEqual({ ok: false, reason: 'record_done' })
+    // ?today=yesterday is inside clientToday's window, but only tightens: still refused.
+    expect(await changeMedication(service, owners.ownerAId, pet, ended.id, { dosage: 'вечером' }, evening, day(-1))).toEqual({ ok: false, reason: 'record_done' })
+    // The SQL guard gets the same day: called as the service would with that clock, it refuses too.
+    const sql = await service.rpc('change_pet_medication', {
+      p_user_id: owners.ownerAId, p_pet_id: pet, p_medication_id: ended.id, p_changes: { dosage: 'вечером' }, p_today: TODAY,
+      p_over_by: TODAY,
+    })
+    expect(sql.error?.code).toBe('LP409')
   })
 
   it('without the owner’s day, the old window: ended today is still open early in the UTC day', async () => {

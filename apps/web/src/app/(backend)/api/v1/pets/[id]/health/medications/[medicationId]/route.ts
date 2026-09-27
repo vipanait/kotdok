@@ -21,10 +21,12 @@ async function readIds(params: Params): Promise<{ petId: string; medicationId: s
  * 26 September 2026) and any change of it is `record_done`, 409.
  *
  * `?today=` is the owner's calendar day: with it, a course that ended on
- * that day or earlier is finished — exactly the day the apps hide «Изменить»
- * by. Taken only inside `clientToday`'s window (the UTC day before the
- * server's to the one after); absent or outside it, the server's own window
- * decides (`courseOverEverywhere`), as for apps older than the parameter.
+ * that day or earlier is finished — the day the apps hide «Изменить» by.
+ * Taken only inside `clientToday`'s window (the UTC day before the server's
+ * to the one after), and only to tighten: the server's own window
+ * (`courseOverEverywhere`) still refuses what it would refuse without it.
+ * Absent or outside the window, that window alone decides, as for apps
+ * older than the parameter.
  */
 export const PATCH = withApiAuth(async (request: NextRequest, context: ApiContext, params: Params) => {
   const ids = await readIds(params)

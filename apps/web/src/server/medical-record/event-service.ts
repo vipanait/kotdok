@@ -277,6 +277,9 @@ export async function updateEvent(
     p_clinic: patch.clinic === undefined ? null : (patch.clinic ?? ''),
     p_notes: patch.notes === undefined ? null : (patch.notes ?? ''),
     p_items: patch.items ?? null,
+    // The function refuses a done record itself, under the pet's lock (opt-in:
+    // the previous server, which calls it without this, keeps its behaviour).
+    p_refuse_done: true,
   })
 
   if (error) return changeFailure(error)

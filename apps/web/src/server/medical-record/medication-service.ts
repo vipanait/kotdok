@@ -84,8 +84,10 @@ export async function addMedications(
  * `ownerToday`: the owner's calendar day as the app sent it (`?today=`,
  * already checked by `clientToday`'s window), or null. With it, a course
  * whose end is that day or earlier is finished and refused — the owner's own
- * day, exactly as the apps hide «Изменить». Without it (older apps), the
- * server's window: finished in every time zone (`courseOverEverywhere`).
+ * day, as the apps hide «Изменить» — unless the server's window already
+ * counts a later end finished: the later of the two decides, so the owner's
+ * day only tightens the guard. Without it (older apps), the server's window:
+ * finished in every time zone (`courseOverEverywhere`).
  */
 export async function changeMedication(
   supabase: SupabaseService,
@@ -195,12 +197,16 @@ export function courseOverEverywhere(course: Pick<Medication, 'ended_on'>, now: 
 }
 
 /**
- * The last day a course may end on and count as finished: the owner's
- * today when the app said it, otherwise the UTC day of twelve hours ago —
- * today in the westernmost zone (`courseOverEverywhere`).
+ * The last day a course may end on and count as finished: the UTC day of
+ * twelve hours ago — today in the westernmost zone (`courseOverEverywhere`)
+ * — or the owner's today when the app said it and it is later.
  */
 export function courseOverBy(now: Date, ownerToday: string | null): string {
-  return ownerToday ?? utcToday(new Date(now.getTime() - 12 * 60 * 60 * 1000))
+  const everywhere = utcToday(new Date(now.getTime() - 12 * 60 * 60 * 1000))
+  // The later of the two: the owner's day only ever tightens the guard. A day
+  // behind the fallback (an owner west of UTC, or a client that says
+  // «yesterday») must not reopen a course the server already counts finished.
+  return ownerToday !== null && ownerToday > everywhere ? ownerToday : everywhere
 }
 
 /** Whether a course ended on `overBy` or earlier: history, not to be changed. */

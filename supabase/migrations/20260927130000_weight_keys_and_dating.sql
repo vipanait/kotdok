@@ -4,7 +4,9 @@
 --    — the answer lost, the form's day recomputed — could add a second
 --    measurement. POST and PATCH now take an optional key, as the other
 --    records do: the same key with the same data answers with the
---    measurement it made, with other data it is unique_violation (409).
+--    measurement it made, with other data it is SQLSTATE LPKEY (409
+--    conflict, details.reason idempotency_key_reused) — its own code, since
+--    unique_violation here already means "that day has a measurement".
 --    Keys live in a table of their own, not on the measurement: a day's row
 --    is overwritten by the next save for that day, and a late retry must not
 --    find the newer save's key there and write its old value over it.
@@ -42,8 +44,8 @@ create trigger refuse_late_writes
 
 /**
  * The measurement an earlier request with this key made or corrected, if
- * any. The same key with other data is refused with unique_violation; a
- * measurement deleted since is no_data_found.
+ * any. The same key with other data is refused with LPKEY; a measurement
+ * deleted since is no_data_found.
  */
 create or replace function public.pet_weight_by_key(p_user_id uuid, p_key text, p_hash text)
 returns public.pet_weights
@@ -63,13 +65,41 @@ begin
     return null;
   end if;
   if v_request.request_hash is distinct from p_hash then
-    raise exception 'idempotency key reused with different data' using errcode = 'unique_violation';
+    raise exception 'idempotency key reused with different data' using errcode = 'LPKEY';
   end if;
   select * into v_row from public.pet_weights where id = v_request.weight_id and deleted_at is null;
   if not found then
     raise exception 'weight not found' using errcode = 'no_data_found';
   end if;
   return v_row;
+end;
+$$;
+
+/**
+ * Remembers which measurement a keyed request made. The same key taken
+ * meanwhile by a request for another pet — which holds another pet's lock,
+ * so it was not seen above — is the same refusal, LPKEY, not the primary
+ * key's unique_violation (that would read as "the day is taken"); this whole
+ * request, its measurement included, is then undone.
+ */
+create or replace function public.remember_weight_key(
+  p_user_id uuid, p_key text, p_hash text, p_pet_id uuid, p_weight_id uuid
+)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if p_key is null then
+    return;
+  end if;
+  insert into public.pet_weight_requests (user_id, idempotency_key, request_hash, pet_id, weight_id)
+  values (p_user_id, p_key, p_hash, p_pet_id, p_weight_id)
+  on conflict (user_id, idempotency_key) do nothing;
+  if not found then
+    raise exception 'idempotency key reused with different data' using errcode = 'LPKEY';
+  end if;
 end;
 $$;
 
@@ -138,10 +168,7 @@ begin
                 updated_at = now()
   returning * into v_row;
 
-  if p_key is not null then
-    insert into public.pet_weight_requests (user_id, idempotency_key, request_hash, pet_id, weight_id)
-    values (p_user_id, p_key, v_hash, p_pet_id, v_row.id);
-  end if;
+  perform public.remember_weight_key(p_user_id, p_key, v_hash, p_pet_id, v_row.id);
 
   perform public.sync_pet_weight(p_pet_id);
   return v_row;
@@ -191,10 +218,7 @@ begin
     raise exception 'weight not found' using errcode = 'no_data_found';
   end if;
 
-  if p_key is not null then
-    insert into public.pet_weight_requests (user_id, idempotency_key, request_hash, pet_id, weight_id)
-    values (p_user_id, p_key, v_hash, p_pet_id, v_row.id);
-  end if;
+  perform public.remember_weight_key(p_user_id, p_key, v_hash, p_pet_id, v_row.id);
 
   perform public.sync_pet_weight(p_pet_id);
   return v_row;
@@ -202,6 +226,7 @@ end;
 $$;
 
 revoke all on function public.pet_weight_by_key(uuid, text, text) from public, anon, authenticated;
+revoke all on function public.remember_weight_key(uuid, text, text, uuid, uuid) from public, anon, authenticated;
 revoke all on function public.record_pet_weight(uuid, uuid, date, double precision, text, text) from public, anon, authenticated;
 revoke all on function public.change_pet_weight(uuid, uuid, uuid, date, double precision, text) from public, anon, authenticated;
 

@@ -141,8 +141,10 @@ export async function updateVisit(
     p_items: items === undefined ? null : prescriptions(items),
     p_today: today,
     p_key: idempotencyKey,
+    // A visit marked «Состоялся» meanwhile is refused by update_visit itself
+    // (opt-in: the previous server calls it without this and keeps its behaviour).
+    p_refuse_done: true,
   })
-  // A visit marked «Состоялся» meanwhile is refused by update_visit itself.
   if (error) return changeFailure(error)
   return readEvent(supabase, userId, petId, eventId)
 }

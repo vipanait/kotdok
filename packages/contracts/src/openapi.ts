@@ -467,7 +467,9 @@ export function buildOpenApiDocument(): Record<string, unknown> {
         post: {
           summary: 'Mark one planned item done; others planned for the same day stay planned',
           description:
-            'clinic and notes absent or null keep the plan\'s text; an empty string clears it. ' +
+            'clinic absent or null keeps the plan\'s clinic. notes absent or null keep the plan\'s note when the plan ' +
+            'has one item (the plan becomes the done record); an item of a plan of several gets a done record of its ' +
+            'own, with no note. An empty string clears either. ' +
             'The same Idempotency-Key with the same data returns the done record; with other data, 409 conflict. ' +
             'An item already done under another key returns its record as it was.',
           parameters: [idempotencyParam],
@@ -499,10 +501,10 @@ export function buildOpenApiDocument(): Record<string, unknown> {
           summary: 'Correct a course, or end it',
           description:
             'Only a current course changes: one that ended is history and answers 409 record_done ' +
-            '(it can still be deleted). Ended means its end is `today` or earlier when the owner\'s day is given ' +
-            '(taken only from the UTC day before the server\'s to the UTC day after), otherwise today or earlier ' +
-            'in every time zone. A change that leaves a finished course as it is, such as «Завершить курс» sent ' +
-            'again, answers 200.',
+            '(it can still be deleted). Ended means its end is today or earlier in every time zone, or — when the ' +
+            'owner\'s day `today` is given (taken only from the UTC day before the server\'s to the UTC day after) ' +
+            'and is later — `today` or earlier: the owner\'s day only tightens the rule. A change that leaves a ' +
+            'finished course as it is, such as «Завершить курс» sent again, answers 200.',
           parameters: [{ name: 'today', in: 'query', required: false, schema: { type: 'string', format: 'date' } }],
           requestBody: body('MedicationPatch'),
           responses: { '200': json('Medication', 'The course'), ...commonErrors('bad_request', 'not_found', 'record_done') },
