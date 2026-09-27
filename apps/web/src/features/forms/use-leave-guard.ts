@@ -22,6 +22,16 @@ function focusAfterBack(): HTMLElement | null {
 
 const COPY_MEMO_KEY = 'lapka-leave-guard-copy'
 
+/** Module state lives as long as the document: a reload starts it over. */
+let documentMountClaimed = false
+
+/** True for the first form guard mounted in this document, false for every later one (MW-09 fix round 2). */
+function documentFirstMount(): boolean {
+  if (documentMountClaimed) return false
+  documentMountClaimed = true
+  return true
+}
+
 /** The key of the current history entry, where the browser has the Navigation API; it survives a reload. */
 function entryKey(): string | null {
   const navigation = (window as { navigation?: { currentEntry?: { key?: string } | null } }).navigation
@@ -109,6 +119,7 @@ export function useLeaveGuard(dirty: boolean): {
       },
       (run) => void window.setTimeout(run, 0),
       copyMemo,
+      documentFirstMount,
     )
     return guardRef.current
   }, [])

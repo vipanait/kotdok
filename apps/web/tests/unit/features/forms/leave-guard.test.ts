@@ -23,7 +23,11 @@ function tab(start: string[]) {
   }
   let cursor = entries.length - 1
   const pending: Array<() => void> = []
-  let page: LeaveGuard | null = null
+  /** The guards on the page — their popstate listeners are the window's. */
+  const onPage = new Set<LeaveGuard>()
+  /** The document's first form mount (`documentFirstMount`): a reload starts it over. */
+  let claimed = false
+  const firstOnDocument = () => (claimed ? false : (claimed = true))
 
   const port: HistoryPort = {
     get state() {
@@ -39,8 +43,8 @@ function tab(start: string[]) {
     },
     go(delta) {
       cursor = Math.max(0, cursor + delta)
-      // The popstate reaches the form while it is on the page.
-      if (page && entries[cursor].href === formHref) popped.push(page.popped())
+      // The popstate reaches every form guard on the page.
+      if (entries[cursor].href === formHref) for (const guard of [...onPage]) popped.push(guard.popped())
     },
     href: () => entries[cursor].href,
   }
@@ -49,12 +53,12 @@ function tab(start: string[]) {
       entries.splice(cursor + 1)
       entries.push(entry(href))
       cursor += 1
-      page = null
+      onPage.clear()
     },
     replace(href: string) {
       // A replace keeps the slot (and its Navigation API key).
       entries[cursor] = { ...entries[cursor], href, state: { __NA: true } }
-      page = null
+      onPage.clear()
     },
     refresh() {},
   }
@@ -63,9 +67,10 @@ function tab(start: string[]) {
 
   function open() {
     formHref = entries[cursor].href
-    page = createLeaveGuard(port, router, (run) => pending.push(run), memo)
-    page.mounted()
-    return page
+    const guard = createLeaveGuard(port, router, (run) => pending.push(run), memo, firstOnDocument)
+    onPage.add(guard)
+    guard.mounted()
+    return guard
   }
 
   return {
@@ -73,6 +78,17 @@ function tab(start: string[]) {
     /** The form's page is loaded again, on whatever entry is current — and Next rewrites its state, as it does. */
     reload() {
       entries[cursor] = { ...entries[cursor], state: { __NA: true } }
+      onPage.clear()
+      claimed = false
+      return open()
+    },
+    /**
+     * The page stays and the form is re-keyed (new data taken): React runs
+     * the old form's cleanup, then the new form's effects, in one commit.
+     */
+    rekey(old: LeaveGuard) {
+      onPage.delete(old)
+      old.unmounted()
       return open()
     },
     back: () => port.back(),
@@ -185,5 +201,51 @@ describe('the leave guard over a whole visit to a form (MW-09 fix round 1)', () 
     t.back()
     expect(t.popped).toEqual(['ask', 'ask'])
     expect(t.here()).toBe('/form')
+  })
+})
+
+describe('a form re-keyed while its copy is in history (MW-09 fix round 2)', () => {
+  it('clean but armed, re-keyed with new data: the owner stays on the form, and Back leaves it once', () => {
+    const t = tab(['/section', '/form'])
+    const old = t.open()
+    old.setDirty(true)
+    old.setDirty(false)
+    const fresh = t.rekey(old)
+    t.settle()
+    expect(t.here()).toBe('/form')
+    expect(t.popped).not.toContain('ask')
+    t.back()
+    expect(t.here()).toBe('/section')
+    expect(fresh.leaving).toBe(false)
+  })
+
+  it('«Загрузить новые данные» over typed changes: the owner stays on the form, nothing asks', () => {
+    const t = tab(['/section', '/form'])
+    const old = t.open()
+    old.setDirty(true)
+    // takeLatest: the edits are dropped, the form starts over from the new data.
+    const fresh = t.rekey(old)
+    fresh.setDirty(false)
+    t.settle()
+    expect(t.here()).toBe('/form')
+    expect(t.popped).toEqual(['none'])
+    // The new form is clean: one Back leaves.
+    t.back()
+    expect(t.here()).toBe('/section')
+  })
+
+  it('the new form typed in after the re-key holds Back, and «Уйти» goes to the page before the form', () => {
+    const t = tab(['/section', '/form'])
+    const old = t.open()
+    old.setDirty(true)
+    const fresh = t.rekey(old)
+    t.settle()
+    fresh.setDirty(true)
+    expect(t.addresses()).toEqual(['/section', '/form', '/form'])
+    t.back()
+    expect(t.popped.at(-1)).toBe('ask')
+    t.settle()
+    fresh.leave(LEAVE_BACK)
+    expect(t.here()).toBe('/section')
   })
 })
