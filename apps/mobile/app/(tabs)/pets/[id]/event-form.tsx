@@ -1,19 +1,20 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
-import { VACCINE_TARGETS, type HealthEvent, type HealthTarget, type PetSpecies } from '@lapka/contracts'
-import { ApiError } from '@lapka/shared'
+import { HEALTH_EVENT_LIMITS, type HealthEvent, type PetSpecies } from '@lapka/contracts'
+import { ApiError, completionMismatch } from '@lapka/shared'
 import { withFreshSession } from '@/lib/api'
 import { describeFailure } from '@/lib/errors'
 import { dayInput, localToday, parseDayInput } from '@/lib/calendar-day'
 import { newRequestKey } from '@/lib/request-key'
 import { useText } from '@/i18n'
-import { addInterval } from '@lapka/shared'
-import { itemName, parasiteGroups, saveSummary, targetList } from '@/features/medical-record/due'
+import { addInterval, parasiteGroups, vaccineTargetsFor } from '@lapka/shared'
+import { itemName, saveSummary, targetList } from '@/features/medical-record/due'
 import { ProductSheet, type ProductChoice } from '@/features/medical-record/ProductSheet'
 import {
   blankDraft,
   blankItem,
+  canAddItem,
   draftChanged,
   draftFromEvent,
   itemInterval,
@@ -23,6 +24,7 @@ import {
   renameItem,
   toggleGroup,
   readDraft,
+  warnsDoneIsFinal,
   type DraftErrors,
   type EventDraft,
   type FormMode,
@@ -50,12 +52,6 @@ type Params = {
   itemId?: string
 }
 
-function targetsFor(species: PetSpecies): HealthTarget[] {
-  return VACCINE_TARGETS.filter((target) => (target.species as readonly string[]).includes(species)).map(
-    (target) => target.code,
-  )
-}
-
 /**
  * The record form (M6, M14, M16): a new vaccination or treatment with several items and a
  * next date for each, a correction of one, or «Сделано» on one planned item
@@ -66,8 +62,11 @@ export default function EventForm() {
   const params = useLocalSearchParams<Params>()
   const petId = params.id
   const mode: FormMode = params.mode === 'edit' ? 'edit' : params.mode === 'complete' ? 'complete' : 'new'
-  // A new record says its kind; an existing one brings its own when it loads.
-  const [kind, setKind] = useState<HealthEvent['kind']>(params.kind === 'parasite' ? 'parasite' : 'vaccination')
+  // A new record says its kind; an existing one brings its own when it loads —
+  // until then the screen is not named after a kind it may not be (MW-09).
+  const [kind, setKind] = useState<HealthEvent['kind'] | null>(
+    params.kind === 'parasite' ? 'parasite' : params.kind === 'vaccination' || mode === 'new' ? 'vaccination' : null,
+  )
   const t = useText()
   const reminders = useReminders()
   const words = t.medicalRecord
@@ -79,6 +78,13 @@ export default function EventForm() {
   const [keptDate, setKeptDate] = useState<string | undefined>(undefined)
   const [errors, setErrors] = useState<DraftErrors>({})
   const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
+  /**
+   * Nothing to correct any more, only a way back, and why: an edit of a record
+   * that was done (on opening, or refused as record_done on saving), or a
+   * «Сделано» answered with the record an earlier try saved — then `record`
+   * is that record, which the screen offers to open.
+   */
+  const [locked, setLocked] = useState<{ text: string; tone: 'info' | 'error'; record?: string } | null>(null)
   const [busy, setBusy] = useState(false)
   const requestKey = useRef(newRequestKey())
   const nextKey = useRef(1)
@@ -88,18 +94,26 @@ export default function EventForm() {
   const load = useCallback(async () => {
     setError(null)
     try {
-      const overview = await withFreshSession((api) => api.getHealthOverview(petId))
+      const overview = await withFreshSession((api) => api.getHealthOverview(petId, localToday()))
       setSpecies(overview.pet.species)
 
       let start: EventDraft
       if (mode === 'new') {
-        start = blankDraft(params.status === 'planned' ? 'planned' : 'done', new Date(), kind)
-        start.items = [blankItem('new-0', kind)]
+        const newKind = kind ?? 'vaccination'
+        start = blankDraft(params.status === 'planned' ? 'planned' : 'done', new Date(), newKind)
+        start.items = [blankItem('new-0', newKind)]
       } else if (mode === 'edit') {
         const event = overview.events.find((e) => e.id === params.eventId)
         if (!event) throw new Error('not found')
-        start = draftFromEvent(event)
+        // The screen is named after the record itself, locked or not, whatever the address said.
         setKind(event.kind)
+        // Something done is history: read and deleted, never corrected (owner
+        // rule of 26 September 2026; the server refuses it as record_done).
+        if (event.status === 'done') {
+          setLocked({ text: t.errors.recordDone, tone: 'info' })
+          return
+        }
+        start = draftFromEvent(event)
         setKeptDate(event.date)
       } else {
         const event = overview.events.find((e) => e.items.some((item) => item.id === params.itemId))
@@ -112,8 +126,10 @@ export default function EventForm() {
           status: 'done',
           date: dayInput(localToday()),
           items: [{ ...draftFromEvent({ ...event, items: [item] }).items[0], next: 'year' }],
+          // Both start as the plan's own: what the fields hold is what the done
+          // record gets, and a field emptied here clears the plan's text.
           clinic: event.clinic ?? '',
-          notes: '',
+          notes: event.notes ?? '',
         }
       }
       setInitial(start)
@@ -186,7 +202,21 @@ export default function EventForm() {
     setError(null)
     try {
       const value = read.value
-      await withFreshSession((api) => {
+      const completion =
+        mode === 'complete' && params.itemId
+          ? {
+              itemId: params.itemId,
+              input: {
+                done_on: value.date,
+                next_on: value.items[0]?.next_on ?? null,
+                // '' is "sent empty" and clears the plan's text; null would keep
+                // it (the contract's rule since MW-09, CompleteItemInputSchema).
+                clinic: value.clinic ?? '',
+                notes: value.notes ?? '',
+              },
+            }
+          : null
+      const saved = await withFreshSession((api) => {
         if (mode === 'edit' && params.eventId) {
           return api.changeHealthEvent(petId, params.eventId, {
             // Only a new day: an overdue plan's own day would be refused as past.
@@ -196,13 +226,8 @@ export default function EventForm() {
             items: value.items.map(({ id, name, targets, product_id }) => ({ ...(id ? { id } : {}), name, targets, product_id })),
           })
         }
-        if (mode === 'complete' && params.itemId) {
-          return api.completeHealthItem(
-            petId,
-            params.itemId,
-            { done_on: value.date, next_on: value.items[0]?.next_on ?? null, clinic: value.clinic, notes: value.notes },
-            requestKey.current,
-          )
+        if (completion) {
+          return api.completeHealthItem(petId, completion.itemId, completion.input, requestKey.current)
         }
         return api.createHealthEvent(
           petId,
@@ -211,6 +236,27 @@ export default function EventForm() {
           requestKey.current,
         )
       })
+      if (completion) {
+        // A 200 is not success by itself: an item already done — a retry after
+        // a lost answer, another device — is answered with the record as it
+        // was first saved. The same check as the site's (completionMismatch,
+        // packages/shared); the next plan is compared when the record can be
+        // read again, otherwise the day alone decides.
+        const events = await withFreshSession((api) => api.getHealthOverview(petId, localToday())).then(
+          (overview) => overview.events,
+          () => null,
+        )
+        const mismatch = completionMismatch(completion.input, saved, completion.itemId, events)
+        if (mismatch) {
+          reminders.refresh()
+          const day = t.day(saved.date, true)
+          // The item is done as first saved: this form cannot change it, so it
+          // is closed, and the way out asks nothing.
+          const text = mismatch === 'doneOn' ? words.earlierDone(day) : words.earlierNext(day)
+          unsaved.leave(() => setLocked({ text, tone: 'error', record: saved.id }))
+          return
+        }
+      }
       const plan = mode === 'edit' ? null : plannedItem(value)
       if (plan) reminders.planSaved(plan)
       else reminders.refresh()
@@ -220,6 +266,9 @@ export default function EventForm() {
       // since is not. Say so rather than let the person think it went in.
       if (cause instanceof ApiError && cause.code === 'conflict') {
         setError({ text: words.alreadySaved, offline: false })
+      } else if (cause instanceof ApiError && cause.code === 'record_done') {
+        // Done meanwhile (another device): history now, nothing to save or to ask about.
+        unsaved.leave(() => setLocked({ text: t.errors.recordDone, tone: 'info' }))
       } else {
         setError(describeFailure(t, cause, words.saveEventFailed))
       }
@@ -229,22 +278,36 @@ export default function EventForm() {
   }
 
   const treatment = kind === 'parasite'
-  const title = treatment ? words.treatmentTitle : words.vaccinationTitle
+  const title = kind === null ? words.recordTitle : treatment ? words.treatmentTitle : words.vaccinationTitle
 
-  if (!draft || !species) {
+  if (!draft || !species || locked) {
     return (
       <Screen title={title} onBack={() => router.back()}>
-        {error ? (
+        {error && !locked ? (
           <>
             <Banner text={error.text} tone="error" icon={error.offline ? 'wifi' : 'alert'} />
             <Button title={t.common.retry} kind="secondary" onPress={() => void load()} />
+          </>
+        ) : null}
+        {locked ? (
+          <>
+            <Banner text={locked.text} tone={locked.tone} />
+            {locked.record ? (
+              // The record saved first, to check it: in place of this form, so Back does not return here.
+              <Button
+                title={words.openRecord}
+                onPress={() => router.replace(`/pets/${petId}/event/${locked.record}`)}
+                style={styles.lockAction}
+              />
+            ) : null}
+            <Button title={t.common.back} kind="secondary" onPress={() => router.back()} />
           </>
         ) : null}
       </Screen>
     )
   }
 
-  const choices = targetsFor(species).map((code) => ({
+  const choices = vaccineTargetsFor(species).map((code) => ({
     value: code,
     label: (words.targets as Record<string, string>)[code] ?? code,
   }))
@@ -383,7 +446,7 @@ export default function EventForm() {
                   label={words.parasiteFrom}
                   options={groupChoices}
                   values={groupChoices
-                    .filter(({ value }) => parasiteGroups(item.targets).has(value))
+                    .filter(({ value }) => parasiteGroups(item.targets).includes(value))
                     .map(({ value }) => value)}
                   onToggle={(group) =>
                     setDraft((current) =>
@@ -454,22 +517,31 @@ export default function EventForm() {
 
       {errors.form ? <Banner text={errors.form} tone="error" style={styles.gapBottom} /> : null}
 
-      {mode !== 'complete' ? (
+      {mode === 'complete' ? null : canAddItem(draft) ? (
         <LinkButton
           title={treatment ? words.addProduct : words.addVaccine}
           align="left"
           onPress={() => {
             const key = `new-${nextKey.current++}`
-            change({ items: [...draft.items, blankItem(key, kind)] })
+            change({ items: [...draft.items, blankItem(key, draft.kind)] })
             setPicking(key)
           }}
         />
-      ) : null}
+      ) : (
+        <Text variant="caption" tone="muted" style={styles.gapBottom}>
+          {words.eventItemsFull(HEALTH_EVENT_LIMITS.items)}
+        </Text>
+      )}
 
-      <Field label={words.clinic} value={draft.clinic} onChangeText={(clinic) => change({ clinic })} />
-      <Field label={words.notes} value={draft.notes} onChangeText={(notes) => change({ notes })} multiline />
+      <Field label={words.clinic} value={draft.clinic} onChangeText={(clinic) => change({ clinic })} error={errors.clinic} />
+      <Field label={words.notes} value={draft.notes} onChangeText={(notes) => change({ notes })} multiline error={errors.notes} />
 
       {summary ? <Banner text={summary} tone="info" style={styles.gapBottom} /> : null}
+      {warnsDoneIsFinal(mode, draft.status) ? (
+        <Text variant="caption" tone="muted" style={styles.gapBottom}>
+          {words.doneWarning}
+        </Text>
+      ) : null}
       {error ? (
         <Banner text={error.text} tone="error" icon={error.offline ? 'wifi' : 'alert'} style={styles.gapBottom} />
       ) : null}
@@ -505,4 +577,5 @@ const styles = StyleSheet.create({
   fixed: { gap: 2 },
   pick: { minHeight: 44, justifyContent: 'center', gap: 2 },
   gapBottom: { marginBottom: space.block },
+  lockAction: { marginBottom: space.row },
 })

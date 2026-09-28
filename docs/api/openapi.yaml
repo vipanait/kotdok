@@ -39,6 +39,7 @@ components:
                 - account_deleting
                 - consent_required
                 - reauth_required
+                - record_done
                 - dependency_unavailable
                 - internal_error
             message:
@@ -1039,11 +1040,14 @@ components:
               pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
             - type: "null"
         clinic:
+          description: Absent or null keeps the plan's clinic; an empty string clears it.
           anyOf:
             - type: string
               maxLength: 100
             - type: "null"
         notes:
+          description: "An empty string clears it. Absent or null: a plan of one item keeps its note; an item
+            of a plan of several gets a record with no note."
           anyOf:
             - type: string
               maxLength: 300
@@ -1084,6 +1088,16 @@ components:
           type: array
           items:
             type: string
+        visit_kind:
+          anyOf:
+            - type: string
+              enum:
+                - checkup
+                - illness
+                - surgery
+                - tests
+                - other
+            - type: "null"
       required:
         - pet_id
         - event_id
@@ -1639,6 +1653,7 @@ components:
                 - account_deleting
                 - consent_required
                 - reauth_required
+                - record_done
                 - dependency_unavailable
                 - internal_error
             - type: "null"
@@ -1890,16 +1905,26 @@ paths:
                   message: Request body or query is invalid
                   request_id: 01J000000000000000000000
         "401":
-          description: Missing, malformed, expired or foreign access token
+          description: "One of (error.code tells which): unauthorized — Missing, malformed, expired or foreign
+            access token; reauth_required — Signed in, but the last authentication is too old for
+            this operation"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
-              example:
-                error:
-                  code: unauthorized
-                  message: Missing, malformed, expired or foreign access token
-                  request_id: 01J000000000000000000000
+              examples:
+                unauthorized:
+                  value:
+                    error:
+                      code: unauthorized
+                      message: Missing, malformed, expired or foreign access token
+                      request_id: 01J000000000000000000000
+                reauth_required:
+                  value:
+                    error:
+                      code: reauth_required
+                      message: Signed in, but the last authentication is too old for this operation
+                      request_id: 01J000000000000000000000
         "403":
           description: Account is being deleted, or consent to personal data processing is required
             (error.code tells which)
@@ -2325,7 +2350,7 @@ paths:
         name: id
         in: path
         required: true
-        schema: &a3
+        schema: &a4
           type: string
           format: uuid
     get:
@@ -2544,6 +2569,19 @@ paths:
       - *a1
     get:
       summary: "The pet's medical record: the pet form and the sections that accept records"
+      description: "pet.medications is the pet form's list as the courses have it: the courses current on
+        `today` (the owner's day), when the pet has any courses."
+      parameters:
+        - &a3
+          name: today
+          in: query
+          required: false
+          description: "The owner's calendar day: the pet form's list of current medicines is counted from it.
+            Used only from the UTC day before the server's to the UTC day after; otherwise, or
+            without it, the server's UTC day."
+          schema:
+            type: string
+            format: date
       responses:
         "200":
           description: The medical record
@@ -2613,9 +2651,19 @@ paths:
       - *a1
     get:
       summary: Everything to show a vet, the source of the «Для врача» screen and PDF
-      description: Core vaccinations of the species are listed even with no record; null means not
+      description: "Core vaccinations of the species are listed even with no record; null means not
         recorded, never «none». Visits of the last year, the five latest dated weights, current
-        courses, the three latest checks.
+        courses, the three latest checks. `today` is the owner's calendar day: it decides which
+        courses are taken now and which visits fall in the last year. It is used only from the UTC
+        day before the server's to the UTC day after (a margin around every time zone's today);
+        otherwise, or without it, the server's UTC day is used."
+      parameters:
+        - name: today
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
       responses:
         "200":
           description: The summary
@@ -2685,7 +2733,21 @@ paths:
       - *a1
     post:
       summary: Record a weighing; a second one for the same day replaces that day's value
-      description: The pet form's weight becomes the latest measurement. A day in the future is refused.
+      description: "The pet form's weight becomes the latest measurement. A day in the future is refused.
+        While the pet has no measurement yet, the form's earlier weight stays in the history as an
+        undated one — unless this weighing has that very value: then it is the form's weight given
+        its day, one row. The same Idempotency-Key with the same data returns the measurement it
+        made (a retry after midnight adds nothing); with other data, 409 conflict with
+        details.reason idempotency_key_reused."
+      parameters:
+        - &a2
+          name: Idempotency-Key
+          in: header
+          required: false
+          schema:
+            type: string
+            minLength: 8
+            maxLength: 200
       requestBody:
         required: true
         content:
@@ -2745,6 +2807,17 @@ paths:
                   code: not_found
                   message: No such resource for this user
                   request_id: 01J000000000000000000000
+        "409":
+          description: Same idempotency key with different data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: conflict
+                  message: Same idempotency key with different data
+                  request_id: 01J000000000000000000000
         "429":
           description: Too many requests
           content:
@@ -2778,6 +2851,11 @@ paths:
           format: uuid
     patch:
       summary: Correct a measurement
+      description: "409 conflict: the day already has a measurement, or — with details.reason
+        idempotency_key_reused — the Idempotency-Key was used for other data. The same key with the
+        same data returns the measurement."
+      parameters:
+        - *a2
       requestBody:
         required: true
         content:
@@ -3091,14 +3169,7 @@ paths:
       description: A done record cannot be in the future; a plan and a next date cannot be in the past.
         The same Idempotency-Key with the same data returns the first record; with other data, 409.
       parameters:
-        - &a2
-          name: Idempotency-Key
-          in: header
-          required: false
-          schema:
-            type: string
-            minLength: 8
-            maxLength: 200
+        - *a2
       requestBody:
         required: true
         content:
@@ -3201,7 +3272,10 @@ paths:
           type: string
           format: uuid
     patch:
-      summary: Correct a record, or move a plan
+      summary: Correct or move a plan
+      description: "Only a planned record changes: a done one is history and answers 409 record_done (it
+        can still be deleted). A plan keeps its id and its items; «Сделано» is POST
+        /pets/{id}/health/items/{item_id}/complete."
       requestBody:
         required: true
         content:
@@ -3210,7 +3284,7 @@ paths:
               $ref: "#/components/schemas/HealthEventPatch"
       responses:
         "200":
-          description: The record
+          description: The plan
           content:
             application/json:
               schema:
@@ -3260,6 +3334,19 @@ paths:
                 error:
                   code: not_found
                   message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "409":
+          description: "The record is a done procedure, a visit that happened or a finished course: it can be
+            read and deleted, not changed"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: record_done
+                  message: "The record is a done procedure, a visit that happened or a finished course: it can be read
+                    and deleted, not changed"
                   request_id: 01J000000000000000000000
         "429":
           description: Too many requests
@@ -3356,6 +3443,11 @@ paths:
           format: uuid
     post:
       summary: Mark one planned item done; others planned for the same day stay planned
+      description: clinic absent or null keeps the plan's clinic. notes absent or null keep the plan's
+        note when the plan has one item (the plan becomes the done record); an item of a plan of
+        several gets a done record of its own, with no note. An empty string clears either. The same
+        Idempotency-Key with the same data returns the done record; with other data, 409 conflict.
+        An item already done under another key returns its record as it was.
       parameters:
         - *a2
       requestBody:
@@ -3457,6 +3549,7 @@ paths:
       summary: Add medication courses; the pet form's medicines list follows
       parameters:
         - *a2
+        - *a3
       requestBody:
         required: true
         content:
@@ -3562,6 +3655,23 @@ paths:
           format: uuid
     patch:
       summary: Correct a course, or end it
+      description: "Only a current course changes: one that ended is history and answers 409 record_done
+        (it can still be deleted). Ended means its end is today or earlier in every time zone, or —
+        when the owner's day `today` is given (taken only from the UTC day before the server's to
+        the UTC day after) and is later — `today` or earlier: the owner's day only tightens the
+        rule. A change that leaves a finished course as it is, such as «Завершить курс» sent again,
+        answers 200. The pet form's list of current medicines is then counted from `today`."
+      parameters:
+        - name: today
+          in: query
+          required: false
+          description: The owner's calendar day, used only from the UTC day before the server's to the UTC day
+            after; otherwise, or without it, the server's UTC day. A course that ended on it or
+            earlier is finished and refused (409 record_done) — the owner's day only tightens the
+            server's own rule — and the pet form's list of current medicines is counted from it.
+          schema:
+            type: string
+            format: date
       requestBody:
         required: true
         content:
@@ -3621,6 +3731,19 @@ paths:
                   code: not_found
                   message: No such resource for this user
                   request_id: 01J000000000000000000000
+        "409":
+          description: "The record is a done procedure, a visit that happened or a finished course: it can be
+            read and deleted, not changed"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: record_done
+                  message: "The record is a done procedure, a visit that happened or a finished course: it can be read
+                    and deleted, not changed"
+                  request_id: 01J000000000000000000000
         "429":
           description: Too many requests
           content:
@@ -3644,7 +3767,9 @@ paths:
                   message: Unexpected server error
                   request_id: 01J000000000000000000000
     delete:
-      summary: Delete a course
+      summary: Delete a course; the pet form's medicines list follows
+      parameters:
+        - *a3
       responses:
         "204":
           description: Deleted
@@ -3714,6 +3839,7 @@ paths:
         visit takes no diagnosis or prescriptions. The check must be of this pet.
       parameters:
         - *a2
+        - *a3
       requestBody:
         required: true
         content:
@@ -3816,11 +3942,15 @@ paths:
           type: string
           format: uuid
     patch:
-      summary: Correct a visit, or mark a planned one as having happened
-      description: Removing a prescription keeps the course it started, without the link. The same key
-        sent again with the same body changes nothing; with another body it is a conflict.
+      summary: Change a planned visit, or mark it as having happened
+      description: "Only a planned visit changes: one that happened is history and answers 409 record_done
+        (it can still be deleted, and a prescription of it still added to the medicines). Marking a
+        plan done with status done may carry the diagnosis and prescriptions. The same key sent
+        again with the same body changes nothing and answers 200, even once the visit is done; with
+        another body it is a conflict."
       parameters:
         - *a2
+        - *a3
       requestBody:
         required: true
         content:
@@ -3881,16 +4011,27 @@ paths:
                   message: No such resource for this user
                   request_id: 01J000000000000000000000
         "409":
-          description: Same idempotency key with different data
+          description: "One of (error.code tells which): conflict — Same idempotency key with different data;
+            record_done — The record is a done procedure, a visit that happened or a finished
+            course: it can be read and deleted, not changed"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
-              example:
-                error:
-                  code: conflict
-                  message: Same idempotency key with different data
-                  request_id: 01J000000000000000000000
+              examples:
+                conflict:
+                  value:
+                    error:
+                      code: conflict
+                      message: Same idempotency key with different data
+                      request_id: 01J000000000000000000000
+                record_done:
+                  value:
+                    error:
+                      code: record_done
+                      message: "The record is a done procedure, a visit that happened or a finished course: it can be read
+                        and deleted, not changed"
+                      request_id: 01J000000000000000000000
         "429":
           description: Too many requests
           content:
@@ -3924,6 +4065,8 @@ paths:
           format: uuid
     post:
       summary: Start a course from a prescription; once
+      parameters:
+        - *a3
       responses:
         "201":
           description: The course
@@ -4171,7 +4314,9 @@ paths:
     post:
       summary: Queue an analysis
       description: Returns a job, not a result. Repeating the request with the same idempotency key and
-        the same data returns the original job; changing the data returns 409.
+        the same data returns the original job; changing the data returns 409. `today`, the owner's
+        calendar day, is what the pet's medical record is read on for the analysis (current courses,
+        overdue dates) — a query parameter, since the body is strict.
       parameters:
         - name: Idempotency-Key
           in: header
@@ -4180,6 +4325,14 @@ paths:
             type: string
             minLength: 8
             maxLength: 200
+        - name: today
+          in: query
+          required: false
+          description: The owner's calendar day. Used only from the UTC day before the server's to the UTC day
+            after; otherwise, or without it, the server's UTC day.
+          schema:
+            type: string
+            format: date
       requestBody:
         required: true
         content:
@@ -4459,7 +4612,7 @@ paths:
       - name: job_id
         in: path
         required: true
-        schema: *a3
+        schema: *a4
     get:
       summary: Job state, and the check id once it succeeded
       responses:
@@ -4760,27 +4913,48 @@ paths:
                   message: Request body or query is invalid
                   request_id: 01J000000000000000000000
         "401":
-          description: Missing, malformed, expired or foreign access token
+          description: "One of (error.code tells which): unauthorized — Missing, malformed, expired or foreign
+            access token; reauth_required — Signed in, but the last authentication is too old for
+            this operation"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
-              example:
-                error:
-                  code: unauthorized
-                  message: Missing, malformed, expired or foreign access token
-                  request_id: 01J000000000000000000000
+              examples:
+                unauthorized:
+                  value:
+                    error:
+                      code: unauthorized
+                      message: Missing, malformed, expired or foreign access token
+                      request_id: 01J000000000000000000000
+                reauth_required:
+                  value:
+                    error:
+                      code: reauth_required
+                      message: Signed in, but the last authentication is too old for this operation
+                      request_id: 01J000000000000000000000
         "403":
-          description: Authenticated but not allowed to perform this operation
+          description: "One of (error.code tells which): account_deleting — Account is being deleted, or
+            consent to personal data processing is required (error.code tells which); forbidden —
+            Authenticated but not allowed to perform this operation"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
-              example:
-                error:
-                  code: forbidden
-                  message: Authenticated but not allowed to perform this operation
-                  request_id: 01J000000000000000000000
+              examples:
+                account_deleting:
+                  value:
+                    error:
+                      code: account_deleting
+                      message: Account is being deleted, or consent to personal data processing is required (error.code
+                        tells which)
+                      request_id: 01J000000000000000000000
+                forbidden:
+                  value:
+                    error:
+                      code: forbidden
+                      message: Authenticated but not allowed to perform this operation
+                      request_id: 01J000000000000000000000
         "404":
           description: No such resource for this user
           content:

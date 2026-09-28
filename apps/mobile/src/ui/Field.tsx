@@ -22,6 +22,9 @@ function Label({ children, hint }: { children: string; hint?: string }) {
   )
 }
 
+/** What a form holds of a field to move to it (`fieldRef`). */
+export type FieldHandle = { focus: () => void }
+
 export function Field({
   label,
   labelHidden = false,
@@ -37,6 +40,7 @@ export function Field({
   autoComplete,
   autoCorrect,
   style,
+  fieldRef,
 }: {
   label: string
   /** Draw the name or not; either way the field answers to it out loud. */
@@ -58,6 +62,12 @@ export function Field({
    */
   autoCorrect?: boolean
   style?: ViewStyle
+  /**
+   * For a form that moves to its first error: `focus()` brings the field into
+   * view and puts the caret in it — also when it already had the focus, where
+   * the text input itself would do nothing.
+   */
+  fieldRef?: (field: FieldHandle | null) => void
 }) {
   const t = useText()
   const [focused, setFocused] = useState(false)
@@ -86,7 +96,22 @@ export function Field({
           style={[styles.text, multiline ? styles.textMultiline : null]}
           value={value}
           onChangeText={onChangeText}
-          ref={input}
+          ref={(node) => {
+            input.current = node
+            fieldRef?.(
+              node
+                ? {
+                    focus: () => {
+                      // A field gaining the focus is brought into view by `hold` (onFocus);
+                      // one that already had it raises no event, so it asks here.
+                      const had = node.isFocused()
+                      node.focus()
+                      if (had) revealing?.show(node)
+                    },
+                  }
+                : null,
+            )
+          }}
           onFocus={() => {
             setFocused(true)
             revealing?.hold(input.current)
@@ -150,6 +175,7 @@ export function Segment<Value extends string>({
   value,
   onChange,
   clearable = true,
+  note,
 }: {
   label: string
   /** A switch whose options name themselves — «Полгода / Год / Всё» — needs no heading. */
@@ -158,6 +184,8 @@ export function Segment<Value extends string>({
   value: Value | null
   onChange: (value: Value | null) => void
   clearable?: boolean
+  /** A standing note under the switch, like a field's hint. */
+  note?: string
 }) {
   const t = useText()
 
@@ -184,6 +212,11 @@ export function Segment<Value extends string>({
           )
         })}
       </View>
+      {note ? (
+        <Text variant="caption" tone="faint" style={styles.errorText}>
+          {note}
+        </Text>
+      ) : null}
     </View>
   )
 }

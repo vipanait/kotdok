@@ -1,0 +1,295 @@
+{
+  "site": "http://localhost:3100",
+  "today": "2026-09-27",
+  "checks": {
+    "screen": {
+      "murka 1440": {
+        "title": "Мурка — медкарта — 27.09.2026",
+        "footerShown": true,
+        "checks": [
+          {
+            "text": "Рвота два дня, отказ от еды",
+            "order": [
+              "vet-check-day",
+              "badge monitor vet-check-level",
+              "vet-check-text"
+            ],
+            "clamp": "none",
+            "lines": 4,
+            "cut": false,
+            "lastWordShown": null,
+            "wordsShown": 0,
+            "wordsTotal": 6
+          }
+        ]
+      },
+      "baron 1440": {
+        "title": "Барон Мурлыкенштейн фон Длиннохвостов-Пушистиков Третий — медкарта — 27.09.2026",
+        "footerShown": true,
+        "checks": [
+          {
+            "text": "Чихает второй день, выделения из носа прозрачные",
+            "order": [
+              "vet-check-day",
+              "badge home_care vet-check-level",
+              "vet-check-text"
+            ],
+            "clamp": "none",
+            "lines": 4,
+            "cut": false,
+            "lastWordShown": null,
+            "wordsShown": 0,
+            "wordsTotal": 7
+          },
+          {
+            "text": "Рвота трижды за сутки, отказ от еды со вчерашнего вечера, вялый",
+            "order": [
+              "vet-check-day",
+              "badge urgent vet-check-level",
+              "vet-check-text"
+            ],
+            "clamp": "none",
+            "lines": 4,
+            "cut": false,
+            "lastWordShown": null,
+            "wordsShown": 0,
+            "wordsTotal": 11
+          },
+          {
+            "text": "Стал больше пить и чаще ходить в лоток, аппетит сохранён, вес немного снизился за последний месяц",
+            "order": [
+              "vet-check-day",
+              "badge monitor vet-check-level",
+              "vet-check-text"
+            ],
+            "clamp": "none",
+            "lines": 4,
+            "cut": false,
+            "lastWordShown": null,
+            "wordsShown": 0,
+            "wordsTotal": 16
+          }
+        ]
+      },
+      "murka 390": {
+        "title": "Мурка — медкарта — 27.09.2026",
+        "footerShown": true,
+        "checks": [
+          {
+            "text": "Рвота два дня, отказ от еды",
+            "order": [
+              "vet-check-day",
+              "badge monitor vet-check-level",
+              "vet-check-text"
+            ],
+            "clamp": "none",
+            "lines": 4,
+            "cut": false,
+            "lastWordShown": null,
+            "wordsShown": 0,
+            "wordsTotal": 6
+          }
+        ]
+      },
+      "baron 390": {
+        "title": "Барон Мурлыкенштейн фон Длиннохвостов-Пушистиков Третий — медкарта — 27.09.2026",
+        "footerShown": true,
+        "checks": [
+          {
+            "text": "Чихает второй день, выделения из носа прозрачные",
+            "order": [
+              "vet-check-day",
+              "badge home_care vet-check-level",
+              "vet-check-text"
+            ],
+            "clamp": "none",
+            "lines": 5,
+            "cut": false,
+            "lastWordShown": null,
+            "wordsShown": 0,
+            "wordsTotal": 7
+          },
+          {
+            "text": "Рвота трижды за сутки, отказ от еды со вчерашнего вечера, вялый",
+            "order": [
+              "vet-check-day",
+              "badge urgent vet-check-level",
+              "vet-check-text"
+            ],
+            "clamp": "none",
+            "lines": 5,
+            "cut": false,
+            "lastWordShown": null,
+            "wordsShown": 0,
+            "wordsTotal": 11
+          },
+          {
+            "text": "Стал больше пить и чаще ходить в лоток, аппетит сохранён, вес немного снизился за последний месяц",
+            "order": [
+              "vet-check-day",
+              "badge monitor vet-check-level",
+              "vet-check-text"
+            ],
+            "clamp": "none",
+            "lines": 6,
+            "cut": false,
+            "lastWordShown": null,
+            "wordsShown": 0,
+            "wordsTotal": 16
+          }
+        ]
+      }
+    },
+    "print": {
+      "murka": {
+        "closingFooterPrinted": false,
+        "printNote": "Составлено владельцем в «Лапке» 27 сентября 2026. Не является ветеринарным документом.",
+        "theadRepeats": true,
+        "checks": [
+          {
+            "text": "Рвота два дня, отказ от еды",
+            "order": [
+              "vet-check-day",
+              "badge monitor vet-check-level",
+              "vet-check-text"
+            ],
+            "clamp": "1",
+            "lines": 1,
+            "cut": false,
+            "lastWordShown": "еды",
+            "wordsShown": 6,
+            "wordsTotal": 6
+          }
+        ],
+        "checksAtA4Width": [
+          {
+            "text": "Рвота два дня, отказ от еды",
+            "order": [
+              "vet-check-day",
+              "badge monitor vet-check-level",
+              "vet-check-text"
+            ],
+            "clamp": "1",
+            "lines": 1,
+            "cut": false,
+            "lastWordShown": "еды",
+            "wordsShown": 6,
+            "wordsTotal": 6
+          }
+        ]
+      },
+      "bobik": {
+        "closingFooterPrinted": false,
+        "printNote": "Составлено владельцем в «Лапке» 27 сентября 2026. Не является ветеринарным документом.",
+        "theadRepeats": true,
+        "checks": []
+      },
+      "baron": {
+        "closingFooterPrinted": false,
+        "printNote": "Составлено владельцем в «Лапке» 27 сентября 2026. Не является ветеринарным документом.",
+        "theadRepeats": true,
+        "checks": [
+          {
+            "text": "Чихает второй день, выделения из носа прозрачные",
+            "order": [
+              "vet-check-day",
+              "badge home_care vet-check-level",
+              "vet-check-text"
+            ],
+            "clamp": "1",
+            "lines": 1,
+            "cut": false,
+            "lastWordShown": "прозрачные",
+            "wordsShown": 7,
+            "wordsTotal": 7
+          },
+          {
+            "text": "Рвота трижды за сутки, отказ от еды со вчерашнего вечера, вялый",
+            "order": [
+              "vet-check-day",
+              "badge urgent vet-check-level",
+              "vet-check-text"
+            ],
+            "clamp": "1",
+            "lines": 1,
+            "cut": false,
+            "lastWordShown": "вялый",
+            "wordsShown": 11,
+            "wordsTotal": 11
+          },
+          {
+            "text": "Стал больше пить и чаще ходить в лоток, аппетит сохранён, вес немного снизился за последний месяц",
+            "order": [
+              "vet-check-day",
+              "badge monitor vet-check-level",
+              "vet-check-text"
+            ],
+            "clamp": "1",
+            "lines": 1,
+            "cut": false,
+            "lastWordShown": "месяц",
+            "wordsShown": 16,
+            "wordsTotal": 16
+          }
+        ],
+        "checksAtA4Width": [
+          {
+            "text": "Чихает второй день, выделения из носа прозрачные",
+            "order": [
+              "vet-check-day",
+              "badge home_care vet-check-level",
+              "vet-check-text"
+            ],
+            "clamp": "1",
+            "lines": 1,
+            "cut": false,
+            "lastWordShown": "прозрачные",
+            "wordsShown": 7,
+            "wordsTotal": 7
+          },
+          {
+            "text": "Рвота трижды за сутки, отказ от еды со вчерашнего вечера, вялый",
+            "order": [
+              "vet-check-day",
+              "badge urgent vet-check-level",
+              "vet-check-text"
+            ],
+            "clamp": "1",
+            "lines": 1,
+            "cut": false,
+            "lastWordShown": "вялый",
+            "wordsShown": 11,
+            "wordsTotal": 11
+          },
+          {
+            "text": "Стал больше пить и чаще ходить в лоток, аппетит сохранён, вес немного снизился за последний месяц",
+            "order": [
+              "vet-check-day",
+              "badge monitor vet-check-level",
+              "vet-check-text"
+            ],
+            "clamp": "1",
+            "lines": 1,
+            "cut": true,
+            "lastWordShown": "вес",
+            "wordsShown": 11,
+            "wordsTotal": 16
+          }
+        ]
+      }
+    },
+    "fileTitle": {
+      "murka 1440": {
+        "title": "Мурка — медкарта — 27.09.2026",
+        "length": 29,
+        "endsWithDate": true
+      },
+      "baron 1440": {
+        "title": "Барон Мурлыкенштейн фон Длиннохвостов-Пушистиков Третий — медкарта — 27.09.2026",
+        "length": 79,
+        "endsWithDate": true
+      }
+    }
+  },
+  "consoleErrors": []
+}

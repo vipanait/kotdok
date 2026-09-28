@@ -2,7 +2,7 @@ import {
   API_VERSION,
   AccountDeletionAcceptedSchema,
   AccountDeletionStatusSchema,
-  ApiErrorEnvelopeSchema,
+  ApiErrorEnvelopeReadSchema,
   CheckHistoryPageSchema,
   CheckJobAcceptedSchema,
   CheckJobStatusSchema,
@@ -18,6 +18,7 @@ import {
   HealthOverviewReadSchema,
   HealthSchema,
   IDEMPOTENCY_KEY_HEADER,
+  KeyReusedDetailsSchema,
   PetSchema,
   PublicProfileSchema,
   ReauthProofSchema,
@@ -59,9 +60,18 @@ import { z } from 'zod'
  * Nothing here touches the DOM, React Native or Next.js.
  */
 
+/**
+ * The code of an error as the server sent it: one of `ErrorCode`, or one a
+ * later server added (the list only grows within v1). A `switch` over the
+ * known codes keeps working — a new one falls to its `default` — and
+ * `isKnownErrorCode` (contracts) tells the two apart where a code indexes a
+ * table of texts.
+ */
+export type ApiErrorCode = ErrorCode | (string & {})
+
 export class ApiError extends Error {
   constructor(
-    readonly code: ErrorCode,
+    readonly code: ApiErrorCode,
     readonly status: number,
     message: string,
     readonly requestId: string | null = null,
@@ -70,6 +80,16 @@ export class ApiError extends Error {
     super(message)
     this.name = 'ApiError'
   }
+}
+
+/**
+ * Whether a failure is a 409 `conflict` for an Idempotency-Key already used
+ * with other data (`details.reason: idempotency_key_reused`): an earlier try
+ * of this save did reach the server, with the values it had then. Needed
+ * where 409 `conflict` can also mean something else (a weight's day taken).
+ */
+export function isKeyReused(error: unknown): boolean {
+  return error instanceof ApiError && error.code === 'conflict' && KeyReusedDetailsSchema.safeParse(error.details).success
 }
 
 /** The response did not match the contract. Never surfaced as product data. */
@@ -152,6 +172,18 @@ type RequestOptions = {
   headers?: Record<string, string>
   /** Routes authenticated by something other than the session token. */
   anonymous?: boolean
+  /** The caller no longer wants the answer: the request is aborted. */
+  signal?: AbortSignalLike
+}
+
+/**
+ * The part of an AbortSignal this client uses, declared structurally for the
+ * same reason as {@link FetchLike}: no DOM or Node types in this package.
+ */
+export type AbortSignalLike = {
+  readonly aborted: boolean
+  addEventListener(type: 'abort', listener: () => void): void
+  removeEventListener(type: 'abort', listener: () => void): void
 }
 
 function buildUrl(baseUrl: string, path: string, query?: RequestOptions['query']): string {
@@ -192,6 +224,12 @@ export function createApiClient(options: ApiClientOptions) {
           }, timeoutMs)
         : null
 
+    // The caller's own abort ends the request the way the timeout does, and
+    // surfaces as whatever the platform throws for an aborted fetch.
+    const callerAbort = () => controller?.abort()
+    if (request.signal?.aborted) callerAbort()
+    request.signal?.addEventListener('abort', callerAbort)
+
     let response: HttpResponse
     let payload: unknown
     try {
@@ -214,15 +252,19 @@ export function createApiClient(options: ApiClientOptions) {
       throw cause
     } finally {
       if (timer !== null) platform.clearTimeout?.(timer)
+      request.signal?.removeEventListener('abort', callerAbort)
     }
 
     if (!response.ok) {
-      const envelope = ApiErrorEnvelopeSchema.safeParse(payload)
+      // Read leniently (MW-09): a code or a field a later server added keeps
+      // its status and message instead of turning into internal_error. Only
+      // a body that is no envelope at all is unrecognised.
+      const envelope = ApiErrorEnvelopeReadSchema.safeParse(payload)
       if (!envelope.success) {
         throw new ApiError('internal_error', response.status, `Unrecognised error from ${path}`)
       }
       const { code, message, request_id, details } = envelope.data.error
-      throw new ApiError(code, response.status, message, request_id, details)
+      throw new ApiError(code, response.status, message || `Error ${response.status} (${code}) from ${path}`, request_id ?? null, details)
     }
 
     if (!schema) return undefined as T
@@ -250,11 +292,31 @@ export function createApiClient(options: ApiClientOptions) {
       call(`/pets/${id}`, PetSchema, { method: 'PATCH', body }),
     deletePet: (id: string) => call<void>(`/pets/${id}`, null, { method: 'DELETE' }),
 
-    getHealthOverview: (petId: string) => call(`/pets/${petId}/health`, HealthOverviewReadSchema),
-    addWeight: (petId: string, body: WeightInput) =>
-      call(`/pets/${petId}/health/weights`, WeightMeasurementSchema, { method: 'POST', body }),
-    changeWeight: (petId: string, weightId: string, body: WeightPatch) =>
-      call(`/pets/${petId}/health/weights/${weightId}`, WeightMeasurementSchema, { method: 'PATCH', body }),
+    /**
+     * `today`: the owner's calendar day (`localToday()`) — the pet form's list
+     * of medicines (`pet.medications`) is the courses current on it. The same
+     * `today` on the writes below that refresh that list.
+     */
+    getHealthOverview: (petId: string, today?: string) =>
+      call(`/pets/${petId}/health`, HealthOverviewReadSchema, { query: { today } }),
+    /**
+     * `idempotencyKey`: one per logical save, the same on every retry of it —
+     * a retry after midnight then adds nothing. A 409 `conflict` whose
+     * `details.reason` is `idempotency_key_reused` (`isKeyReused`) means an
+     * earlier try with this key did save, with other values.
+     */
+    addWeight: (petId: string, body: WeightInput, idempotencyKey?: string) =>
+      call(`/pets/${petId}/health/weights`, WeightMeasurementSchema, {
+        method: 'POST',
+        body,
+        ...(idempotencyKey ? { headers: { [IDEMPOTENCY_KEY_HEADER]: idempotencyKey } } : {}),
+      }),
+    changeWeight: (petId: string, weightId: string, body: WeightPatch, idempotencyKey?: string) =>
+      call(`/pets/${petId}/health/weights/${weightId}`, WeightMeasurementSchema, {
+        method: 'PATCH',
+        body,
+        ...(idempotencyKey ? { headers: { [IDEMPOTENCY_KEY_HEADER]: idempotencyKey } } : {}),
+      }),
     deleteWeight: (petId: string, weightId: string) =>
       call<void>(`/pets/${petId}/health/weights/${weightId}`, null, { method: 'DELETE' }),
 
@@ -275,36 +337,51 @@ export function createApiClient(options: ApiClientOptions) {
         headers: { [IDEMPOTENCY_KEY_HEADER]: idempotencyKey },
       }),
     listDue: () => call('/pets/due', DueListReadSchema),
-    getVetSummary: (petId: string) => call(`/pets/${petId}/health/summary`, VetSummaryReadSchema),
-    createVisit: (petId: string, body: VisitInput, idempotencyKey: string) =>
+    /** `today`: the owner's calendar day (`localToday()`), so «принимает сейчас» and the year of visits are counted from it. */
+    getVetSummary: (petId: string, today?: string) =>
+      call(`/pets/${petId}/health/summary`, VetSummaryReadSchema, { query: { today } }),
+    createVisit: (petId: string, body: VisitInput, idempotencyKey: string, today?: string) =>
       call(`/pets/${petId}/health/visits`, HealthEventSchema, {
         method: 'POST',
         body,
+        query: { today },
         headers: { [IDEMPOTENCY_KEY_HEADER]: idempotencyKey },
       }),
     /** The key makes a retried save harmless: new prescriptions are added once. */
-    changeVisit: (petId: string, eventId: string, body: VisitPatch, idempotencyKey?: string) =>
+    changeVisit: (petId: string, eventId: string, body: VisitPatch, idempotencyKey?: string, today?: string) =>
       call(`/pets/${petId}/health/visits/${eventId}`, HealthEventSchema, {
         method: 'PATCH',
         body,
+        query: { today },
         ...(idempotencyKey ? { headers: { [IDEMPOTENCY_KEY_HEADER]: idempotencyKey } } : {}),
       }),
-    prescriptionToMedication: (petId: string, itemId: string) =>
-      call(`/pets/${petId}/health/items/${itemId}/medication`, z.object({ medication_id: z.string() }), { method: 'POST' }),
-    addMedications: (petId: string, body: MedicationsInput, idempotencyKey: string) =>
+    prescriptionToMedication: (petId: string, itemId: string, today?: string) =>
+      call(`/pets/${petId}/health/items/${itemId}/medication`, z.object({ medication_id: z.string() }), {
+        method: 'POST',
+        query: { today },
+      }),
+    addMedications: (petId: string, body: MedicationsInput, idempotencyKey: string, today?: string) =>
       call(`/pets/${petId}/health/medications`, z.array(MedicationSchema), {
         method: 'POST',
         body,
+        query: { today },
         headers: { [IDEMPOTENCY_KEY_HEADER]: idempotencyKey },
       }),
-    changeMedication: (petId: string, medicationId: string, body: MedicationPatch) =>
-      call(`/pets/${petId}/health/medications/${medicationId}`, MedicationSchema, { method: 'PATCH', body }),
-    deleteMedication: (petId: string, medicationId: string) =>
-      call<void>(`/pets/${petId}/health/medications/${medicationId}`, null, { method: 'DELETE' }),
-    getCatalog: (species: PetSpecies, kind: ProductKind, query = '') =>
+    /**
+     * `today`: the owner's calendar day (`localToday()`). The server then
+     * counts a course as finished by that day — the day the apps hide
+     * «Изменить» by — instead of waiting until it is over in every time zone.
+     */
+    changeMedication: (petId: string, medicationId: string, body: MedicationPatch, today?: string) =>
+      call(`/pets/${petId}/health/medications/${medicationId}`, MedicationSchema, { method: 'PATCH', body, query: { today } }),
+    deleteMedication: (petId: string, medicationId: string, today?: string) =>
+      call<void>(`/pets/${petId}/health/medications/${medicationId}`, null, { method: 'DELETE', query: { today } }),
+    /** `signal`: a search the screen no longer shows (a newer query, another pet) is aborted. */
+    getCatalog: (species: PetSpecies, kind: ProductKind, query = '', options: { signal?: AbortSignalLike } = {}) =>
       call(
         `/health/catalog?species=${species}&kind=${kind}&q=${encodeURIComponent(query)}`,
         z.array(HealthProductSchema),
+        { signal: options.signal },
       ),
 
     requestUploads: (body: UploadRequest) =>
@@ -318,12 +395,15 @@ export function createApiClient(options: ApiClientOptions) {
 
     /**
      * The key must be generated and stored before sending, so a lost response
-     * can be recovered by repeating the very same request.
+     * can be recovered by repeating the very same request. `today`: the
+     * owner's calendar day (`localToday()`) the pet's medical record is read
+     * on for the analysis.
      */
-    createCheck: (idempotencyKey: string, body: CheckCreateInput) =>
+    createCheck: (idempotencyKey: string, body: CheckCreateInput, today?: string) =>
       call('/checks', CheckJobAcceptedSchema, {
         method: 'POST',
         body,
+        query: { today },
         headers: { [IDEMPOTENCY_KEY_HEADER]: idempotencyKey },
       }),
     getCheckJob: (jobId: string) => call(`/check-jobs/${jobId}`, CheckJobStatusSchema),

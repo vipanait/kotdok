@@ -415,6 +415,18 @@ describe('reading records of a kind this app does not know yet', () => {
     const row = { pet_id: pet.id, event_id: vaccination.id, item_id: vaccination.items[0].id, kind: 'vaccination', date: '2027-03-12', name: null, targets: ['rabies'] }
     expect(DueListReadSchema.parse([row, { ...row, kind: 'grooming' }])).toHaveLength(1)
   })
+
+  it('reads a planned visit’s kind, keeps a visit of a kind it does not know as a visit with none, and takes rows without it (MW-09)', () => {
+    const row = { pet_id: pet.id, event_id: vaccination.id, item_id: vaccination.id, kind: 'visit', date: '2027-03-12', name: null, targets: [] }
+    const [checkup, unknown, older] = DueListReadSchema.parse([
+      { ...row, visit_kind: 'checkup' },
+      { ...row, visit_kind: 'teleconsultation' },
+      row,
+    ])
+    expect(checkup.visit_kind).toBe('checkup')
+    expect(unknown.visit_kind).toBeNull()
+    expect(older.visit_kind).toBeUndefined()
+  })
 })
 
 describe('medication courses (MR-06.4)', () => {

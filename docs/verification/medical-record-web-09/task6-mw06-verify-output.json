@@ -1,0 +1,573 @@
+{
+  "site": "http://localhost:3100",
+  "today": "2026-09-27",
+  "murka": "c9304078-a6c5-4b7a-8067-a8282615758d",
+  "bobik": "4df2137d-3e44-44ca-9de7-7fe083965dd2",
+  "checks": {
+    "result": {
+      "button": "Записать визит к врачу",
+      "href": "/pets/c9304078-a6c5-4b7a-8067-a8282615758d/health/new?type=visit&check=faa8c273-5200-42ce-98b3-560f2430fbbf",
+      "healthyHasButton": false
+    },
+    "fromResultForm": {
+      "title": "Визит к врачу",
+      "back": "/check/faa8c273-5200-42ce-98b3-560f2430fbbf",
+      "segment": [
+        "Был*",
+        "Запланировать"
+      ],
+      "kind": "illness",
+      "date": "2026-09-27",
+      "dateMax": "2026-09-27",
+      "clinic": "",
+      "reason": "Рвота два дня, отказ от еды",
+      "diagnosis": "",
+      "notes": "",
+      "prescriptions": 0,
+      "checkBanner": "НаблюдаемПо проверке 2 августа",
+      "checkChoices": null,
+      "checkValue": null,
+      "warning": "После сохранения состоявшийся визит нельзя будет изменить. Проверьте дату, диагноз и назначения.",
+      "submit": "Сохранить"
+    },
+    "fromResultSaved": {
+      "page": {
+        "url": "/pets/c9304078-a6c5-4b7a-8067-a8282615758d/health/f07484ba-00c8-44e4-a111-702b7cef49c1",
+        "badge": "Сделано",
+        "day": "27 сентября 2026",
+        "facts": [
+          "ПричинаРвота два дня, отказ от еды",
+          "ДиагнозГастрит, ремиссия"
+        ],
+        "prescriptions": [],
+        "check": "ПроверкаНаблюдаемПо проверке 2 августа",
+        "checkHref": "/check/faa8c273-5200-42ce-98b3-560f2430fbbf",
+        "actions": [
+          "Удалить запись"
+        ],
+        "actionsBody": "Визит состоялся. Запись доступна только для просмотра.",
+        "notice": null
+      },
+      "server": {
+        "id": "f07484ba-00c8-44e4-a111-702b7cef49c1",
+        "kind": "visit",
+        "status": "done",
+        "date": "2026-09-27",
+        "clinic": null,
+        "notes": null,
+        "items": [],
+        "visit_kind": "illness",
+        "reason": "Рвота два дня, отказ от еды",
+        "diagnosis": "Гастрит, ремиссия",
+        "check_id": "faa8c273-5200-42ce-98b3-560f2430fbbf"
+      },
+      "backToCheck": "/check/faa8c273-5200-42ce-98b3-560f2430fbbf"
+    },
+    "directForm": {
+      "title": "Визит к врачу",
+      "back": "/pets/c9304078-a6c5-4b7a-8067-a8282615758d/health/visits",
+      "segment": [
+        "Был*",
+        "Запланировать"
+      ],
+      "kind": "checkup",
+      "date": "2026-09-27",
+      "dateMax": "2026-09-27",
+      "clinic": "",
+      "reason": "",
+      "diagnosis": "",
+      "notes": "",
+      "prescriptions": 0,
+      "checkBanner": null,
+      "checkChoices": [
+        "none: Не связывать",
+        "check: 26 сентября · Всё в порядке · Плановый вопрос о питании",
+        "check: 24 сентября · Срочно · Хромает на левую лапу"
+      ],
+      "checkValue": "",
+      "warning": "После сохранения состоявшийся визит нельзя будет изменить. Проверьте дату, диагноз и назначения.",
+      "submit": "Сохранить"
+    },
+    "addPrescription": {
+      "afterOneClick": 1,
+      "focus": "input Название",
+      "tickedByDefault": true
+    },
+    "removeOwn": {
+      "left": [
+        "Смекта",
+        "Энтерофурил"
+      ],
+      "focus": "button Добавить назначение"
+    },
+    "spacing": {
+      "diagnosisToHeading": 32,
+      "headingToFirstCard": 16,
+      "betweenCards": 16,
+      "sectionToNext": 32,
+      "nextIs": "Проверканеобязательно",
+      "beforeActions": 32,
+      "actionsBorderTop": "0px",
+      "headingsInSection": 1,
+      "cardTitles": [
+        null,
+        null
+      ],
+      "removeButtons": [
+        1,
+        1
+      ],
+      "emptyNewNames": [
+        "Смекта",
+        "Энтерофурил"
+      ],
+      "ticked": [
+        false,
+        true
+      ]
+    },
+    "namelessPrescription": {
+      "error": "Введите название",
+      "focus": "input Название",
+      "requests": 0
+    },
+    "lostAnswer": {
+      "banner": "Нет связи с сервером. Введённые данные сохранены в форме — попробуйте ещё раз.",
+      "stillOnForm": true,
+      "serverVisits": 1,
+      "buttonUsable": true
+    },
+    "retry": {
+      "posts": 3,
+      "keys": 1,
+      "serverVisits": 1,
+      "body": {
+        "status": "done",
+        "date": "2026-09-27",
+        "clinic": null,
+        "notes": null,
+        "visit_kind": "checkup",
+        "reason": null,
+        "diagnosis": "Пищевое отравление",
+        "check_id": null,
+        "prescriptions": [
+          {
+            "name": "Смекта",
+            "instructions": "при поносе",
+            "add_to_medications": false
+          },
+          {
+            "name": "Энтерофурил",
+            "instructions": "2 капсулы 2 раза в день",
+            "add_to_medications": true
+          }
+        ]
+      },
+      "courses": {
+        "enterofuril": 1,
+        "smecta": 0
+      }
+    },
+    "afterReload": {
+      "url": "/pets/c9304078-a6c5-4b7a-8067-a8282615758d/health/21d8f55d-1396-4e75-bd55-223253003725",
+      "badge": "Сделано",
+      "day": "27 сентября 2026",
+      "facts": [
+        "ДиагнозПищевое отравление"
+      ],
+      "prescriptions": [
+        "Смектапри поносеДобавить в лекарства",
+        "Энтерофурил2 капсулы 2 раза в деньВ лекарствах"
+      ],
+      "check": null,
+      "checkHref": null,
+      "actions": [
+        "Удалить запись"
+      ],
+      "actionsBody": "Визит состоялся. Запись доступна только для просмотра.",
+      "notice": null,
+      "server": {
+        "id": "21d8f55d-1396-4e75-bd55-223253003725",
+        "kind": "visit",
+        "status": "done",
+        "date": "2026-09-27",
+        "clinic": null,
+        "notes": null,
+        "items": [
+          {
+            "id": "c9f26e6a-0ae4-4fd1-bfb7-1e67c2f878d0",
+            "name": "Смекта",
+            "targets": [],
+            "source_item_id": null,
+            "product_id": null,
+            "interval": null,
+            "instructions": "при поносе",
+            "medication_id": null
+          },
+          {
+            "id": "4603b4eb-7676-4f26-8e0c-fa88b43be2ad",
+            "name": "Энтерофурил",
+            "targets": [],
+            "source_item_id": null,
+            "product_id": null,
+            "interval": null,
+            "instructions": "2 капсулы 2 раза в день",
+            "medication_id": "99b5f665-551f-457e-9b14-e8d0424aa1a4"
+          }
+        ],
+        "visit_kind": "checkup",
+        "reason": null,
+        "diagnosis": "Пищевое отравление",
+        "check_id": null
+      }
+    },
+    "toMedicines": {
+      "requests": 1,
+      "notice": "Назначение добавлено в лекарства.",
+      "apiAgain": {
+        "status": 201,
+        "sameCourse": true
+      },
+      "smectaCourses": 1,
+      "enterofurilCourses": 1
+    },
+    "heldReadOnly": {
+      "actions": [
+        "Удалить запись"
+      ],
+      "editUrl": "/pets/c9304078-a6c5-4b7a-8067-a8282615758d/health/21d8f55d-1396-4e75-bd55-223253003725",
+      "completeUrl": "/pets/c9304078-a6c5-4b7a-8067-a8282615758d/health/21d8f55d-1396-4e75-bd55-223253003725",
+      "forms": false,
+      "patch": {
+        "status": 409,
+        "code": "record_done"
+      },
+      "patchSeeded": {
+        "status": 409,
+        "code": "record_done"
+      },
+      "unchanged": true
+    },
+    "takingNow": "Смекта, Энтерофурил, Лечебный корм · постоянно",
+    "recordVisitsCard": {
+      "lines": [
+        "Контрольный осмотрЗапланирован · 4 октября",
+        "Пищевое отравление27 сентября"
+      ],
+      "all": "/pets/c9304078-a6c5-4b7a-8067-a8282615758d/health/visits"
+    },
+    "dueOnRecord": [
+      {
+        "text": "Блохи и клещиПросрочено на 14 дней · 13 сентября",
+        "button": "Сделано",
+        "href": "/pets/c9304078-a6c5-4b7a-8067-a8282615758d/health/4dd5ae0e-dad1-4a4b-953c-748c38682277/complete?item=0fecfe02-ad53-44c1-902e-b59a03beb4d1&from=medical"
+      },
+      {
+        "text": "ОсмотрЧерез 7 дней · 4 октября",
+        "button": "Состоялся",
+        "href": "/pets/c9304078-a6c5-4b7a-8067-a8282615758d/health/36b4ff2f-a31f-45fc-af41-7cceda3e81f8/complete?from=medical"
+      },
+      {
+        "text": "ГлистыЧерез 9 дней · 6 октября",
+        "button": "Сделано",
+        "href": "/pets/c9304078-a6c5-4b7a-8067-a8282615758d/health/8ae5458c-732f-438e-b938-5773b3e688cf/complete?item=ebb4fc94-0653-4fd5-8c27-10a6bbc47407&from=medical"
+      }
+    ],
+    "checksAll": {
+      "href": "/checks?pet=c9304078-a6c5-4b7a-8067-a8282615758d",
+      "label": "Все проверки питомца"
+    },
+    "medicinesPage": [
+      "Смекта",
+      "Энтерофурил",
+      "Лечебный корм",
+      "Фортифлора"
+    ],
+    "planView": {
+      "url": "/pets/c9304078-a6c5-4b7a-8067-a8282615758d/health/36b4ff2f-a31f-45fc-af41-7cceda3e81f8",
+      "badge": "Запланировано",
+      "day": "4 октября 2026",
+      "facts": [
+        "ПричинаКонтрольный осмотр"
+      ],
+      "prescriptions": [],
+      "check": null,
+      "checkHref": null,
+      "actions": [
+        "Состоялся",
+        "Изменить",
+        "Отменить план"
+      ],
+      "actionsBody": "Измените или перенесите план, отметьте визит состоявшимся. Ненужный план можно отменить.",
+      "notice": null
+    },
+    "planEditForm": {
+      "title": "Изменить план визита",
+      "back": "/pets/c9304078-a6c5-4b7a-8067-a8282615758d/health/36b4ff2f-a31f-45fc-af41-7cceda3e81f8",
+      "segment": [],
+      "kind": "checkup",
+      "date": "2026-10-04",
+      "dateMax": null,
+      "clinic": "",
+      "reason": "Контрольный осмотр",
+      "diagnosis": null,
+      "notes": "",
+      "prescriptions": 0,
+      "checkBanner": null,
+      "checkChoices": null,
+      "checkValue": null,
+      "warning": null,
+      "submit": "Сохранить"
+    },
+    "moved": {
+      "patch": {
+        "date": "2026-10-07",
+        "clinic": "Айболит"
+      },
+      "server": {
+        "id": "36b4ff2f-a31f-45fc-af41-7cceda3e81f8",
+        "date": "2026-10-07",
+        "status": "planned",
+        "clinic": "Айболит"
+      },
+      "due": [
+        "Блохи и клещиПросрочено на 14 дней · 13 сентябряСделано",
+        "ГлистыЧерез 9 дней · 6 октябряСделано",
+        "ОсмотрЧерез 10 дней · 7 октябряСостоялся",
+        "Комплексная прививка13 марта 2027Сделано",
+        "Бешенство13 марта 2027Сделано"
+      ]
+    },
+    "heldForm": {
+      "title": "Отметить визит состоявшимся",
+      "back": "/pets/c9304078-a6c5-4b7a-8067-a8282615758d/health/36b4ff2f-a31f-45fc-af41-7cceda3e81f8",
+      "segment": [],
+      "kind": "checkup",
+      "date": "2026-09-27",
+      "dateMax": "2026-09-27",
+      "clinic": "Айболит",
+      "reason": "Контрольный осмотр",
+      "diagnosis": "",
+      "notes": "",
+      "prescriptions": 0,
+      "checkBanner": null,
+      "checkChoices": null,
+      "checkValue": null,
+      "warning": "После сохранения состоявшийся визит нельзя будет изменить. Проверьте дату, диагноз и назначения.",
+      "submit": "Подтвердить визит"
+    },
+    "held": {
+      "requests": 1,
+      "page": {
+        "url": "/pets/c9304078-a6c5-4b7a-8067-a8282615758d/health/36b4ff2f-a31f-45fc-af41-7cceda3e81f8",
+        "badge": "Сделано",
+        "day": "27 сентября 2026",
+        "facts": [
+          "КлиникаАйболит",
+          "ПричинаКонтрольный осмотр",
+          "ДиагнозЗдорова"
+        ],
+        "prescriptions": [
+          "Витамины для кошекВ лекарствах"
+        ],
+        "check": null,
+        "checkHref": null,
+        "actions": [
+          "Удалить запись"
+        ],
+        "actionsBody": "Визит состоялся. Запись доступна только для просмотра.",
+        "notice": "Визит отмечен состоявшимся."
+      },
+      "server": {
+        "status": "done",
+        "date": "2026-09-27",
+        "diagnosis": "Здорова",
+        "items": [
+          [
+            "Витамины для кошек",
+            true
+          ]
+        ]
+      },
+      "vitaminCourses": 1,
+      "due": [
+        "Блохи и клещиПросрочено на 14 дней · 13 сентябряСделано",
+        "ГлистыЧерез 9 дней · 6 октябряСделано",
+        "Комплексная прививка13 марта 2027Сделано",
+        "Бешенство13 марта 2027Сделано"
+      ]
+    },
+    "newPlanForm": {
+      "title": "Визит к врачу",
+      "back": "/pets/c9304078-a6c5-4b7a-8067-a8282615758d/health/visits",
+      "segment": [
+        "Был",
+        "Запланировать*"
+      ],
+      "kind": "checkup",
+      "date": "",
+      "dateMax": null,
+      "clinic": "",
+      "reason": "",
+      "diagnosis": null,
+      "notes": "",
+      "prescriptions": 0,
+      "checkBanner": null,
+      "checkChoices": null,
+      "checkValue": null,
+      "warning": null,
+      "submit": "Сохранить"
+    },
+    "newPlanDue": [
+      "ОсмотрЧерез 4 дня · 1 октябряСостоялся"
+    ],
+    "cancelled": {
+      "dialog": {
+        "title": "Отменить план: визит 1 октября 2026?",
+        "body": "Срок исчезнет из медкарты.",
+        "focus": "Оставить план",
+        "focusAfterEscape": "button Отменить план"
+      },
+      "notice": "План отменён.",
+      "gone": true,
+      "due": []
+    },
+    "sectionPlan": "fc2c1a7e-438c-439b-bf8b-8a2734c36677",
+    "section": {
+      "subtitle": "Мурка · Диагнозы и назначения врача",
+      "planned": [
+        "4 октября 2026Осмотр · АйболитКонтрольный осмотрЧерез 7 дней · 4 октября"
+      ],
+      "done": [
+        "27 сентября 2026ОсмотрПищевое отравление",
+        "27 сентября 2026БолезньГастрит, ремиссияНаблюдаемПо проверке 2 августа",
+        "27 сентября 2026Осмотр · АйболитЗдорова",
+        "3 августа 2026Болезнь · АйболитОбострение гастритаНаблюдаемПо проверке 2 августа"
+      ]
+    },
+    "empty": {
+      "title": "Визитов пока нет",
+      "body": "Запишите диагноз и назначения после приёма."
+    },
+    "petHistory": {
+      "subtitle": "Мурка · Результаты проверок питомца",
+      "back": "/pets/c9304078-a6c5-4b7a-8067-a8282615758d",
+      "rows": [
+        "/check/5efaa59d-e461-4718-828a-0dda3bb1a858",
+        "/check/c8d9cad1-623c-491c-9eec-8deb8b6e14de",
+        "/check/faa8c273-5200-42ce-98b3-560f2430fbbf"
+      ]
+    },
+    "foreignCheckParam": {
+      "status": 404,
+      "form": false,
+      "h1": "Такой страницы нет"
+    },
+    "recentChoice": {
+      "recent": "c8d9cad1-623c-491c-9eec-8deb8b6e14de",
+      "healthy": "5efaa59d-e461-4718-828a-0dda3bb1a858"
+    },
+    "overflow390": {
+      "visits": false,
+      "visits-empty": false,
+      "visit-record": false,
+      "visit-planned": false,
+      "visit-complete": false,
+      "visit-prescriptions": false,
+      "visit-from-result": false,
+      "result": false,
+      "pet-history": false
+    },
+    "tap390": [
+      44,
+      44,
+      48
+    ],
+    "overflowByWidth": {
+      "section 1150": false,
+      "visit 1150": false,
+      "form 1150": false,
+      "section 1024": false,
+      "visit 1024": false,
+      "form 1024": false,
+      "section 900": false,
+      "visit 900": false,
+      "form 900": false,
+      "section 768": false,
+      "visit 768": false,
+      "form 768": false,
+      "section 760": false,
+      "visit 760": false,
+      "form 760": false,
+      "section 360": false,
+      "visit 360": false,
+      "form 360": false,
+      "section 320": false,
+      "visit 320": false,
+      "form 320": false
+    },
+    "foreignPages": {
+      "/pets/c9304078-a6c5-4b7a-8067-a8282615758d/health/visits": {
+        "status": 404,
+        "h1": "Такой страницы нет",
+        "shown": false,
+        "leaks": []
+      },
+      "/pets/c9304078-a6c5-4b7a-8067-a8282615758d/health/21d8f55d-1396-4e75-bd55-223253003725": {
+        "status": 404,
+        "h1": "Такой страницы нет",
+        "shown": false,
+        "leaks": []
+      },
+      "/pets/c9304078-a6c5-4b7a-8067-a8282615758d/health/36b4ff2f-a31f-45fc-af41-7cceda3e81f8/edit": {
+        "status": 404,
+        "h1": "Такой страницы нет",
+        "shown": false,
+        "leaks": []
+      },
+      "/pets/c9304078-a6c5-4b7a-8067-a8282615758d/health/36b4ff2f-a31f-45fc-af41-7cceda3e81f8/complete": {
+        "status": 404,
+        "h1": "Такой страницы нет",
+        "shown": false,
+        "leaks": []
+      },
+      "/pets/c9304078-a6c5-4b7a-8067-a8282615758d/health/new?type=visit&check=faa8c273-5200-42ce-98b3-560f2430fbbf": {
+        "status": 404,
+        "h1": "Такой страницы нет",
+        "shown": false,
+        "leaks": []
+      },
+      "/check/faa8c273-5200-42ce-98b3-560f2430fbbf": {
+        "status": 200,
+        "h1": "Такой страницы нет",
+        "shown": false,
+        "leaks": []
+      },
+      "/checks?pet=c9304078-a6c5-4b7a-8067-a8282615758d": {
+        "status": 404,
+        "h1": "Такой страницы нет",
+        "shown": false,
+        "leaks": []
+      }
+    },
+    "foreignApiRequests": [],
+    "foreignApi": {
+      "read": 404,
+      "create": 404,
+      "change": 404,
+      "toMedicines": 404,
+      "delete": 404
+    },
+    "ownerAVisitsUntouched": true
+  },
+  "consoleErrors": [
+    "owner-a@fixture.local: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "owner-a@fixture.local: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "owner-b@fixture.local: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "owner-b@fixture.local: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "owner-b@fixture.local: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "owner-b@fixture.local: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "owner-b@fixture.local: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "owner-b@fixture.local: Failed to load resource: the server responded with a status of 404 (Not Found)"
+  ]
+}

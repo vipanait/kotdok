@@ -147,12 +147,14 @@ export const ru = {
     weightInvalid: 'Вес — число от 0,1 до 200, один знак после запятой',
     dateInvalid: 'Дата — ДД.ММ.ГГГГ, не позже сегодняшней',
     dayTaken: 'На этот день уже есть измерение',
+    weightAlreadySaved: 'Это измерение уже сохранено раньше, без последних изменений. Закройте окно, чтобы проверить его.',
     saveWeightFailed: 'Не удалось сохранить вес',
     deleteWeight: 'Удалить измерение',
     deleteWeightTitle: 'Удалить измерение?',
     deleteWeightBody: 'Оно исчезнет из медкарты. Отменить это будет нельзя.',
     deleteWeightFailed: 'Не удалось удалить измерение',
     chartLabel: (from: string, to: string) => `График веса, от ${from} до ${to}`,
+    vaccinationsHint: (n: number) => `В медкарте ${n} ${plural(n, 'прививка', 'прививки', 'прививок')}`,
     weightHistoryHint: 'История веса — в медкарте',
     targets: {
       panleukopenia: 'Панлейкопения',
@@ -179,9 +181,10 @@ export const ru = {
       tomorrow: 'Завтра',
       inDays: (count: number) => `Через ${count} ${plural(count, 'день', 'дня', 'дней')}`,
     },
+    /** The status after the name; drawn apart, so a narrow row cuts the name, never this (MW-09). */
     listDue: {
-      overdue: (title: string) => `${title} — просрочено`,
-      soon: (title: string, when: string) => `${title} — ${when}`,
+      overdue: '— просрочено',
+      soon: (when: string) => `— ${when}`,
     },
     dueTitle: 'Сроки',
     allDue: (count: number) => `Все сроки · ${count}`,
@@ -211,6 +214,8 @@ export const ru = {
     addVaccination: 'Добавить прививку',
     vaccinatedInFormBanner: 'В анкете отмечено: привит(а). Добавьте прививки с датами — напомним о следующих',
     vaccinationTitle: 'Прививка',
+    /** The title of a record's screen while its kind is still being read. */
+    recordTitle: 'Запись',
     statusDone: 'Сделано',
     statusPlanned: 'Запланировать',
     whenDone: 'Когда сделали',
@@ -272,10 +277,14 @@ export const ru = {
       fromForm: 'Из анкеты — добавьте дозировку и даты',
       noDates: 'Даты не указаны',
       nameRequired: 'Введите название',
-      tooLong: 'Не длиннее 150 символов',
+      startRequired: 'Укажите начало курса',
+      startUnknownHint: 'Начало курса из анкеты неизвестно — можно оставить пустым.',
       dateInvalid: 'Дата — ДД.ММ.ГГГГ',
       endBeforeStart: 'Окончание — не раньше начала',
+      endsNow: 'Окончание — не позже сегодняшнего дня: курс сохранится завершённым, и изменить его будет нельзя.',
+      itemsFull: (max: number) => `За одно сохранение — не больше ${max} препаратов.`,
       end_: 'Завершить курс',
+      finishedReadOnly: 'Курс завершён. Он хранится в истории, изменить его нельзя — только удалить, если он ошибочный.',
       edit: 'Изменить',
       delete: 'Удалить курс',
       deleteTitle: 'Удалить курс?',
@@ -320,9 +329,12 @@ export const ru = {
       lastDay: (day: string) => `Последний — ${day}`,
       dueTitle: 'Визит к врачу',
       nameRequired: 'Введите название',
-      nameTooLong: 'Не длиннее 100 символов',
-      instructionsTooLong: 'Не длиннее 150 символов',
       fromResult: 'Записать визит к врачу',
+      heldReadOnly: 'Визит состоялся. Запись хранится в истории, изменить её нельзя — только удалить, если она ошибочная.',
+      heldReadOnlyAdd: 'Визит состоялся. Запись хранится в истории, изменить её нельзя — только удалить, если она ошибочная. Назначение можно добавить в лекарства.',
+      prescriptionsFull: (max: number) => `В одном визите — не больше ${max} назначений.`,
+      heldWarning: 'После сохранения состоявшийся визит нельзя будет изменить. Проверьте дату, диагноз и назначения.',
+      heldLocked: 'Визит уже состоялся: запись хранится в истории, изменить её нельзя. Ошибочную запись можно удалить.',
       deleteBody: 'Он исчезнет из медкарты и сводки для врача. Лекарства из назначений останутся. Отменить это будет нельзя.',
     },
     catalog: {
@@ -350,7 +362,15 @@ export const ru = {
       },
     },
     nextPassed: 'Срок уже прошёл — не напоминать',
+    /** Under a field whose text is longer than the contract keeps; the limit is the contract's. */
+    tooLong: (max: number) => `Не длиннее ${max} символов`,
+    openRecord: 'Открыть запись',
     alreadySaved: 'Эта запись уже сохранена раньше, без последних изменений. Вернитесь в медкарту и измените её там.',
+    /** «Сделано» answered with the record another try saved first (completionMismatch). */
+    earlierDone: (day: string) =>
+      `Эта позиция уже была отмечена сделанной раньше — ${day}. Новые данные не сохранены: выполненную запись изменить нельзя — проверьте, что в ней сохранено.`,
+    earlierNext: (day: string) =>
+      `Эта позиция уже была отмечена сделанной раньше (${day}) с другой следующей датой. Новые данные не сохранены: выполненную запись изменить нельзя — проверьте, что в ней сохранено.`,
     nextCustom: 'Своя дата',
     nextNone: 'Не напоминать',
     nextDate: 'Дата следующей',
@@ -367,6 +387,8 @@ export const ru = {
         : `Отмечается только эта позиция. ${others === 1 ? 'Ещё одна останется' : `Ещё ${others} останутся`} в плане.`,
     itemsRequired: 'Добавьте хотя бы одну вакцину',
     itemEmpty: 'Укажите название или отметьте, от чего прививка',
+    /** In place of «+ Ещё вакцина / препарат» once a record holds the contract's number of items. */
+    eventItemsFull: (max: number) => `В одной записи — не больше ${max} позиций.`,
     itemEmptyTreatment: 'Укажите препарат или отметьте, от кого обработка',
     productsRequired: 'Добавьте хотя бы один препарат',
     plannedDateInvalid: 'Дата — ДД.ММ.ГГГГ, сегодня или позже',
@@ -374,8 +396,9 @@ export const ru = {
     saveEventFailed: 'Не удалось сохранить запись',
     plannedBadge: 'Запланировано',
     doneBadge: 'Сделано',
-    edit: 'Изменить',
     deleteEvent: 'Удалить запись',
+    doneReadOnly: 'Процедура выполнена. Запись хранится в истории, изменить её нельзя — только удалить, если она ошибочная.',
+    doneWarning: 'После сохранения выполненную запись нельзя будет изменить. Проверьте дату и препараты.',
     reschedule: 'Перенести',
     cancelPlan: 'Отменить',
     deleteEventTitle: 'Удалить запись?',
@@ -585,6 +608,14 @@ export const ru = {
     namedTreatment: (name: string) => `обработка «${name}»`,
     plainTreatment: 'обработка от паразитов',
     visit: 'визит к врачу',
+    /** A planned visit by its kind (`/pets/due` since MW-09): the pet list's due line. */
+    visitKinds: {
+      checkup: 'визит к врачу: осмотр',
+      illness: 'визит к врачу: болезнь',
+      surgery: 'визит к врачу: операция',
+      tests: 'визит к врачу: анализы',
+      other: 'визит к врачу',
+    },
     count: (kind: 'vaccination' | 'parasite' | 'visit' | 'mixed', count: number) =>
       `${count} ${
         {
@@ -701,6 +732,7 @@ export const ru = {
     forbidden: 'Нет доступа',
     notFound: 'Не найдено',
     conflict: 'Это уже было сделано',
+    recordDone: 'Сделанную процедуру нельзя изменить: запись хранится в истории. Ошибочную запись можно удалить.',
     insufficientCredits: 'Не хватает проверок на балансе',
     payloadTooLarge: 'Слишком много данных',
     unsupportedMedia: 'Неподдерживаемый формат',

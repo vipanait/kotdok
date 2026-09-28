@@ -151,13 +151,46 @@ function commonErrors(...extra: ErrorCode[]): Record<string, unknown> {
     account_deleting:
       'Account is being deleted, or consent to personal data processing is required (error.code tells which)',
     consent_required: 'Consent to personal data processing is required first',
+    record_done: 'The record is a done procedure, a visit that happened or a finished course: it can be read and deleted, not changed',
     dependency_unavailable: 'A dependency is temporarily unavailable',
     internal_error: 'Unexpected server error',
   }
 
+  // A response map holds one entry per status. Codes that share a status —
+  // 409 conflict and record_done on a visit's change, 403 forbidden and
+  // account_deleting — get one entry naming each of them, instead of the last
+  // one silently replacing the others.
+  const byStatus = new Map<string, ErrorCode[]>()
+  for (const code of codes) {
+    const status = String(ERROR_STATUS[code])
+    const shared = byStatus.get(status) ?? []
+    if (!shared.includes(code)) shared.push(code)
+    byStatus.set(status, shared)
+  }
   return Object.fromEntries(
-    codes.map((code) => [String(ERROR_STATUS[code]), errorResponse(code, descriptions[code])]),
+    [...byStatus].map(([status, shared]) => [
+      status,
+      shared.length === 1 ? errorResponse(shared[0], descriptions[shared[0]]) : sharedErrorResponse(shared, descriptions),
+    ]),
   )
+}
+
+/** One status, several codes: every code named in the description, an example of each. */
+function sharedErrorResponse(codes: ErrorCode[], descriptions: Record<ErrorCode, string>) {
+  return {
+    description: `One of (error.code tells which): ${codes.map((code) => `${code} — ${descriptions[code]}`).join('; ')}`,
+    content: {
+      'application/json': {
+        schema: ref('ApiError'),
+        examples: Object.fromEntries(
+          codes.map((code) => [
+            code,
+            { value: { error: { code, message: descriptions[code], request_id: '01J000000000000000000000' } } },
+          ]),
+        ),
+      },
+    },
+  }
 }
 
 function json(name: string, description: string) {
@@ -176,6 +209,39 @@ const idempotencyParam = {
   in: 'header',
   required: false,
   schema: { type: 'string', minLength: 8, maxLength: 200 },
+}
+
+/**
+ * `?today=`: the owner's calendar day (MW-09), where the server counts
+ * something from it — here, the pet form's list of current medicines.
+ * Optional and additive: without it, or outside the UTC days around the
+ * server's, the server's UTC day, as for apps older than the parameter.
+ */
+const listDayParam = {
+  name: 'today',
+  in: 'query',
+  required: false,
+  description:
+    'The owner\'s calendar day: the pet form\'s list of current medicines is counted from it. Used only from the UTC day ' +
+    'before the server\'s to the UTC day after; otherwise, or without it, the server\'s UTC day.',
+  schema: { type: 'string', format: 'date' },
+}
+
+/**
+ * `?today=` of a course change (MW-09): the owner's day decides, besides the
+ * pet form's list, whether the course is already finished — it only
+ * tightens the server's own rule.
+ */
+const courseDayParam = {
+  name: 'today',
+  in: 'query',
+  required: false,
+  description:
+    'The owner\'s calendar day, used only from the UTC day before the server\'s to the UTC day after; otherwise, ' +
+    'or without it, the server\'s UTC day. A course that ended on it or earlier is finished and refused ' +
+    '(409 record_done) — the owner\'s day only tightens the server\'s own rule — and the pet form\'s list of ' +
+    'current medicines is counted from it.',
+  schema: { type: 'string', format: 'date' },
 }
 
 const idParam = {
@@ -230,8 +296,7 @@ export function buildOpenApiDocument(): Record<string, unknown> {
           requestBody: body('ReauthRequest'),
           responses: {
             '200': json('ReauthProof', 'A proof, good once and not for long'),
-            '401': errorResponse('reauth_required', 'The last authentication is too old'),
-            ...commonErrors('bad_request'),
+            ...commonErrors('bad_request', 'reauth_required'),
           },
         },
       },
@@ -305,6 +370,10 @@ export function buildOpenApiDocument(): Record<string, unknown> {
         parameters: [idParam],
         get: {
           summary: 'The pet\'s medical record: the pet form and the sections that accept records',
+          description:
+            'pet.medications is the pet form\'s list as the courses have it: the courses current on `today` ' +
+            '(the owner\'s day), when the pet has any courses.',
+          parameters: [listDayParam],
           responses: { '200': json('HealthOverview', 'The medical record'), ...commonErrors('not_found') },
         },
       },
@@ -314,7 +383,13 @@ export function buildOpenApiDocument(): Record<string, unknown> {
           summary: 'Everything to show a vet, the source of the «Для врача» screen and PDF',
           description:
             'Core vaccinations of the species are listed even with no record; null means not recorded, never «none». ' +
-            'Visits of the last year, the five latest dated weights, current courses, the three latest checks.',
+            'Visits of the last year, the five latest dated weights, current courses, the three latest checks. ' +
+            '`today` is the owner\'s calendar day: it decides which courses are taken now and which visits fall in the last year. ' +
+            'It is used only from the UTC day before the server\'s to the UTC day after (a margin around every time zone\'s today); ' +
+            'otherwise, or without it, the server\'s UTC day is used.',
+          parameters: [
+            { name: 'today', in: 'query', required: false, schema: { type: 'string', format: 'date' } },
+          ],
           responses: { '200': json('VetSummary', 'The summary'), ...commonErrors('not_found') },
         },
       },
@@ -322,11 +397,17 @@ export function buildOpenApiDocument(): Record<string, unknown> {
         parameters: [idParam],
         post: {
           summary: 'Record a weighing; a second one for the same day replaces that day\'s value',
-          description: 'The pet form\'s weight becomes the latest measurement. A day in the future is refused.',
+          description:
+            'The pet form\'s weight becomes the latest measurement. A day in the future is refused. ' +
+            'While the pet has no measurement yet, the form\'s earlier weight stays in the history as an ' +
+            'undated one — unless this weighing has that very value: then it is the form\'s weight given its day, one row. ' +
+            'The same Idempotency-Key with the same data returns the measurement it made (a retry after midnight ' +
+            'adds nothing); with other data, 409 conflict with details.reason idempotency_key_reused.',
+          parameters: [idempotencyParam],
           requestBody: body('WeightInput'),
           responses: {
             '201': json('WeightMeasurement', 'The day\'s measurement'),
-            ...commonErrors('bad_request', 'not_found'),
+            ...commonErrors('bad_request', 'not_found', 'conflict'),
           },
         },
       },
@@ -337,6 +418,10 @@ export function buildOpenApiDocument(): Record<string, unknown> {
         ],
         patch: {
           summary: 'Correct a measurement',
+          description:
+            '409 conflict: the day already has a measurement, or — with details.reason idempotency_key_reused — ' +
+            'the Idempotency-Key was used for other data. The same key with the same data returns the measurement.',
+          parameters: [idempotencyParam],
           requestBody: body('WeightPatch'),
           responses: {
             '200': json('WeightMeasurement', 'The corrected measurement'),
@@ -397,9 +482,16 @@ export function buildOpenApiDocument(): Record<string, unknown> {
       '/pets/{id}/health/events/{event_id}': {
         parameters: [idParam, { name: 'event_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
         patch: {
-          summary: 'Correct a record, or move a plan',
+          summary: 'Correct or move a plan',
+          description:
+            'Only a planned record changes: a done one is history and answers 409 record_done ' +
+            '(it can still be deleted). A plan keeps its id and its items; «Сделано» is ' +
+            'POST /pets/{id}/health/items/{item_id}/complete.',
           requestBody: body('HealthEventPatch'),
-          responses: { '200': json('HealthEvent', 'The record'), ...commonErrors('bad_request', 'not_found') },
+          responses: {
+            '200': json('HealthEvent', 'The plan'),
+            ...commonErrors('bad_request', 'not_found', 'record_done'),
+          },
         },
         delete: {
           summary: 'Delete a record or cancel a plan; plans made from it stay',
@@ -410,6 +502,12 @@ export function buildOpenApiDocument(): Record<string, unknown> {
         parameters: [idParam, { name: 'item_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
         post: {
           summary: 'Mark one planned item done; others planned for the same day stay planned',
+          description:
+            'clinic absent or null keeps the plan\'s clinic. notes absent or null keep the plan\'s note when the plan ' +
+            'has one item (the plan becomes the done record); an item of a plan of several gets a done record of its ' +
+            'own, with no note. An empty string clears either. ' +
+            'The same Idempotency-Key with the same data returns the done record; with other data, 409 conflict. ' +
+            'An item already done under another key returns its record as it was.',
           parameters: [idempotencyParam],
           requestBody: body('CompleteItemInput'),
           responses: {
@@ -422,7 +520,7 @@ export function buildOpenApiDocument(): Record<string, unknown> {
         parameters: [idParam],
         post: {
           summary: 'Add medication courses; the pet form\'s medicines list follows',
-          parameters: [idempotencyParam],
+          parameters: [idempotencyParam, listDayParam],
           requestBody: body('MedicationsInput'),
           responses: {
             '201': {
@@ -437,11 +535,20 @@ export function buildOpenApiDocument(): Record<string, unknown> {
         parameters: [idParam, { name: 'medication_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
         patch: {
           summary: 'Correct a course, or end it',
+          description:
+            'Only a current course changes: one that ended is history and answers 409 record_done ' +
+            '(it can still be deleted). Ended means its end is today or earlier in every time zone, or — when the ' +
+            'owner\'s day `today` is given (taken only from the UTC day before the server\'s to the UTC day after) ' +
+            'and is later — `today` or earlier: the owner\'s day only tightens the rule. A change that leaves a ' +
+            'finished course as it is, such as «Завершить курс» sent again, answers 200. ' +
+            'The pet form\'s list of current medicines is then counted from `today`.',
+          parameters: [courseDayParam],
           requestBody: body('MedicationPatch'),
-          responses: { '200': json('Medication', 'The course'), ...commonErrors('bad_request', 'not_found') },
+          responses: { '200': json('Medication', 'The course'), ...commonErrors('bad_request', 'not_found', 'record_done') },
         },
         delete: {
-          summary: 'Delete a course',
+          summary: 'Delete a course; the pet form\'s medicines list follows',
+          parameters: [listDayParam],
           responses: { '204': { description: 'Deleted' }, ...commonErrors('not_found') },
         },
       },
@@ -452,7 +559,7 @@ export function buildOpenApiDocument(): Record<string, unknown> {
           description:
             'A prescription with add_to_medications starts a course from the visit\'s day. ' +
             'A planned visit takes no diagnosis or prescriptions. The check must be of this pet.',
-          parameters: [idempotencyParam],
+          parameters: [idempotencyParam, listDayParam],
           requestBody: body('VisitInput'),
           responses: { '201': json('HealthEvent', 'The visit'), ...commonErrors('bad_request', 'not_found', 'conflict') },
         },
@@ -460,19 +567,26 @@ export function buildOpenApiDocument(): Record<string, unknown> {
       '/pets/{id}/health/visits/{event_id}': {
         parameters: [idParam, { name: 'event_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
         patch: {
-          summary: 'Correct a visit, or mark a planned one as having happened',
+          summary: 'Change a planned visit, or mark it as having happened',
           description:
-            'Removing a prescription keeps the course it started, without the link. ' +
-            'The same key sent again with the same body changes nothing; with another body it is a conflict.',
-          parameters: [idempotencyParam],
+            'Only a planned visit changes: one that happened is history and answers 409 record_done ' +
+            '(it can still be deleted, and a prescription of it still added to the medicines). ' +
+            'Marking a plan done with status done may carry the diagnosis and prescriptions. ' +
+            'The same key sent again with the same body changes nothing and answers 200, even once the visit is done; ' +
+            'with another body it is a conflict.',
+          parameters: [idempotencyParam, listDayParam],
           requestBody: body('VisitPatch'),
-          responses: { '200': json('HealthEvent', 'The visit'), ...commonErrors('bad_request', 'not_found', 'conflict') },
+          responses: {
+            '200': json('HealthEvent', 'The visit'),
+            ...commonErrors('bad_request', 'not_found', 'conflict', 'record_done'),
+          },
         },
       },
       '/pets/{id}/health/items/{item_id}/medication': {
         parameters: [idParam, { name: 'item_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
         post: {
           summary: 'Start a course from a prescription; once',
+          parameters: [listDayParam],
           responses: {
             '201': {
               description: 'The course',
@@ -528,13 +642,23 @@ export function buildOpenApiDocument(): Record<string, unknown> {
           description:
             'Returns a job, not a result. Repeating the request with the same ' +
             'idempotency key and the same data returns the original job; changing ' +
-            'the data returns 409.',
+            'the data returns 409. `today`, the owner\'s calendar day, is what the pet\'s medical record is read ' +
+            'on for the analysis (current courses, overdue dates) — a query parameter, since the body is strict.',
           parameters: [
             {
               name: IDEMPOTENCY_KEY_HEADER,
               in: 'header',
               required: true,
               schema: { type: 'string', minLength: 8, maxLength: 200 },
+            },
+            {
+              name: 'today',
+              in: 'query',
+              required: false,
+              description:
+                'The owner\'s calendar day. Used only from the UTC day before the server\'s to the UTC day after; ' +
+                'otherwise, or without it, the server\'s UTC day.',
+              schema: { type: 'string', format: 'date' },
             },
           ],
           requestBody: body('CheckCreateInput'),
@@ -619,8 +743,7 @@ export function buildOpenApiDocument(): Record<string, unknown> {
           requestBody: body('AccountDeletionRequest'),
           responses: {
             '202': json('AccountDeletionAccepted', 'Request accepted'),
-            '401': errorResponse('reauth_required', 'No valid proof of fresh authentication'),
-            ...commonErrors('bad_request', 'forbidden', 'not_found'),
+            ...commonErrors('bad_request', 'forbidden', 'not_found', 'reauth_required'),
           },
         },
       },

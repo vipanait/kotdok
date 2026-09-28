@@ -1,7 +1,18 @@
-import { PARASITE_TARGETS, type HealthEvent, type HealthEventInput, type HealthProduct, type HealthTarget } from '@lapka/contracts'
-import { addInterval, type Interval } from '@lapka/shared'
+import { HEALTH_EVENT_LIMITS, type HealthEvent, type HealthEventInput, type HealthProduct, type HealthTarget } from '@lapka/contracts'
+import {
+  eventDayProblem,
+  eventTextProblems,
+  itemNameTooLong,
+  nextDayProblem,
+  suggestNextDay,
+  suggestionInterval,
+  toggleParasiteGroup,
+  tooManyItems,
+  type EventTextField,
+  type Interval,
+} from '@lapka/shared'
 import type { Dictionary } from '@/i18n'
-import { dayInput, localToday, parseDayInput, parseDayText, parseFutureDayInput } from '@/lib/calendar-day'
+import { dayInput, localToday, parseDayText } from '@/lib/calendar-day'
 
 /**
  * The record form — vaccinations and treatments — as text fields, and turning it into a request. No
@@ -54,14 +65,7 @@ export function blankItem(key: string, kind: HealthEvent['kind'] = 'vaccination'
  * turning it on adds the group's own code.
  */
 export function toggleGroup(item: ItemDraft, group: 'fleas' | 'ticks' | 'worms'): ItemDraft {
-  const inGroup = PARASITE_TARGETS.filter((target) => target.group === group).map((target) => target.code as string)
-  const has = item.targets.some((target) => inGroup.includes(target))
-  return {
-    ...item,
-    targets: has
-      ? item.targets.filter((target) => !inGroup.includes(target))
-      : [...item.targets, group as HealthTarget],
-  }
+  return { ...item, targets: toggleParasiteGroup(item.targets, group) }
 }
 
 /**
@@ -89,13 +93,13 @@ export function renameItem(item: ItemDraft, name: string): ItemDraft {
   return { ...item, name, productId: null, source: 'manual' }
 }
 
-/** The interval «suggested» next dates use: the product's, else a year for a vaccine, a month or three for a treatment. */
+/**
+ * The interval «suggested» next dates use: the product's, else a year for a
+ * vaccine, a month or three for a treatment — the rule the site uses too
+ * (shared `suggestionInterval`, MW-09).
+ */
 export function itemInterval(item: ItemDraft): Interval {
-  if (item.interval) return item.interval
-  if (item.kind === 'vaccination') return { value: 1, unit: 'year' }
-  // Against worms alone every three months; fleas and ticks, monthly.
-  const wormsOnly = item.targets.length > 0 && item.targets.every((target) => target === 'worms' || target === 'heartworm')
-  return wormsOnly ? { value: 3, unit: 'month' } : { value: 1, unit: 'month' }
+  return suggestionInterval(item.kind, item.interval, item.targets)
 }
 
 export function blankDraft(
@@ -128,6 +132,16 @@ export function draftFromEvent(event: HealthEvent): EventDraft {
   }
 }
 
+/**
+ * Whether the form says that a done record cannot be changed afterwards: a
+ * new done record, and «Сделано» on a plan — the first save of something
+ * done (implementation-handoff, «Окончательное правило»). A plan being moved
+ * stays a plan, so it does not.
+ */
+export function warnsDoneIsFinal(mode: FormMode, status: EventDraft['status']): boolean {
+  return mode === 'complete' || (mode === 'new' && status === 'done')
+}
+
 export function draftChanged(before: EventDraft, after: EventDraft): boolean {
   return JSON.stringify(before) !== JSON.stringify(after)
 }
@@ -137,6 +151,11 @@ export type DraftErrors = {
   form?: string
   items?: Record<string, string>
   next?: Record<string, string>
+} & Partial<Record<EventTextField, string>>
+
+/** Whether «+ Ещё вакцина / препарат» may add one more: a record keeps the contract's number of items. */
+export function canAddItem(draft: Pick<EventDraft, 'items'>): boolean {
+  return draft.items.length < HEALTH_EVENT_LIMITS.items
 }
 
 type ItemInput = {
@@ -173,12 +192,10 @@ export type ReadDraft =
  */
 export function nextDate(item: ItemDraft, recordDay: string, today: string = localToday()): string | null | undefined {
   if (item.next === 'none') return null
-  if (item.next === 'year') {
-    const next = addInterval(recordDay, itemInterval(item))
-    return next >= today ? next : null
-  }
+  if (item.next === 'year') return suggestNextDay(recordDay, itemInterval(item), today)
   const day = parseDayText(item.nextText)
-  return day !== null && day > recordDay && day >= today ? day : undefined
+  // The rule is shared with the site: after the record's day, not in the past.
+  return day !== null && nextDayProblem(day, recordDay, today) === null ? day : undefined
 }
 
 /**
@@ -196,16 +213,16 @@ export function readDraft(
   const words = t.medicalRecord
   const errors: DraftErrors = {}
 
-  const unchanged = keptDate !== undefined && parseDayText(draft.date) === keptDate
-  const date = unchanged
-    ? keptDate
-    : draft.status === 'done'
-      ? parseDayInput(draft.date, now)
-      : parseFutureDayInput(draft.date, now)
+  // The day rules are shared with the site (@lapka/shared `eventDayProblem`): done not after
+  // today, a plan not before it, an overdue plan may keep its own day.
+  const typed = parseDayText(draft.date)
+  const date =
+    typed !== null && eventDayProblem(typed, draft.status, localToday(now), keptDate ?? null) === null ? typed : null
   if (!date) errors.date = draft.status === 'done' ? words.dateInvalid : words.plannedDateInvalid
 
   const treatment = draft.kind === 'parasite'
   if (draft.items.length === 0) errors.form = treatment ? words.productsRequired : words.itemsRequired
+  else if (tooManyItems(draft.items)) errors.form = words.eventItemsFull(HEALTH_EVENT_LIMITS.items)
 
   const itemErrors: Record<string, string> = {}
   const nextErrors: Record<string, string> = {}
@@ -214,6 +231,7 @@ export function readDraft(
   const items = draft.items.map((item) => {
     const name = item.name.trim()
     if (name === '' && item.targets.length === 0) itemErrors[item.key] = treatment ? words.itemEmptyTreatment : words.itemEmpty
+    else if (itemNameTooLong(name)) itemErrors[item.key] = words.tooLong(HEALTH_EVENT_LIMITS.itemName)
     let next_on: string | null = null
     if (withNext && date) {
       const next = nextDate(item, date, localToday(now))
@@ -231,6 +249,8 @@ export function readDraft(
 
   if (Object.keys(itemErrors).length > 0) errors.items = itemErrors
   if (Object.keys(nextErrors).length > 0) errors.next = nextErrors
+  // The clinic and the note by the contract's lengths, as the site checks them (shared `eventTextProblems`).
+  for (const field of eventTextProblems(draft)) errors[field] = words.tooLong(HEALTH_EVENT_LIMITS[field])
   if (Object.keys(errors).length > 0 || !date) return { ok: false, errors }
 
   return {

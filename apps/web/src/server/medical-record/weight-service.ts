@@ -1,6 +1,7 @@
 import 'server-only'
 
 import {
+  CalendarDateSchema,
   WeightMeasurementSchema,
   type WeightInput,
   type WeightMeasurement,
@@ -31,11 +32,27 @@ function toWeightContract(row: WeightRow): WeightMeasurement {
 }
 
 /**
- * The SQL functions answer "not yours" and "no such row" with no_data_found,
- * and a day that is already taken with unique_violation.
+ * A 409 of a weight that is not "the day is taken": the Idempotency-Key was
+ * used before for other data. The routes say which (weights/route.ts).
  */
-function failure(error: { code?: string; message: string }): { ok: false; reason: ServiceFailure; message: string } {
+export type KeyReused = { ok: false; reason: 'key_reused'; message: string }
+
+/**
+ * The SQLSTATE of a weight's Idempotency-Key sent again with other data —
+ * or taken meanwhile by a save for another pet (`pet_weight_by_key`,
+ * `remember_weight_key`, migration 20260927130000). Its own code: a
+ * unique_violation of a weight already means "that day has a measurement".
+ */
+export const WEIGHT_KEY_REUSED_SQLSTATE = 'LPKEY'
+
+/**
+ * The SQL functions answer "not yours" and "no such row" with no_data_found,
+ * a day that is already taken with unique_violation, and a reused key with
+ * `WEIGHT_KEY_REUSED_SQLSTATE`.
+ */
+function failure(error: { code?: string; message: string }): { ok: false; reason: ServiceFailure; message: string } | KeyReused {
   if (error.code === 'P0002') return { ok: false, reason: 'not_found', message: error.message }
+  if (error.code === WEIGHT_KEY_REUSED_SQLSTATE) return { ok: false, reason: 'key_reused', message: error.message }
   if (error.code === '23505') return { ok: false, reason: 'conflict', message: error.message }
   return { ok: false, reason: 'storage_error', message: error.message }
 }
@@ -57,19 +74,44 @@ export async function listWeights(
   return { ok: true, data: (data as WeightRow[]).map(toWeightContract) }
 }
 
+/**
+ * Whether the pet has any live measurement, the form's undated one too.
+ * «Уточнить» on the pet form's weight (`&from=form`) is offered only with
+ * none: once there is a history, the pet's weight is its latest measurement,
+ * not a value from the form to be dated (MW-09 final review).
+ */
+export async function hasWeightHistory(supabase: SupabaseService, userId: string, petId: string): Promise<boolean> {
+  const { data, error } = await supabase
+    .from('pet_weights')
+    .select('id')
+    .eq('pet_id', petId)
+    .eq('user_id', userId)
+    .is('deleted_at', null)
+    .limit(1)
+  if (error) throw new Error(`Could not read the weights: ${error.message}`)
+  return (data ?? []).length > 0
+}
+
+/**
+ * `idempotencyKey`: the same key with the same weighing answers with the
+ * measurement it made — a retry after midnight does not add a second one —
+ * and with another weighing is `key_reused`. Null: no key, as before.
+ */
 export async function recordWeight(
   supabase: SupabaseService,
   userId: string,
   petId: string,
   input: WeightInput,
   source: 'record' | 'form' = 'record',
-): Promise<WeightResult<WeightMeasurement | null>> {
+  idempotencyKey: string | null = null,
+): Promise<WeightResult<WeightMeasurement | null> | KeyReused> {
   const { data, error } = await supabase.rpc('record_pet_weight', {
     p_user_id: userId,
     p_pet_id: petId,
     p_measured_on: input.measured_on,
     p_weight_kg: input.weight_kg,
     p_source: source,
+    p_key: idempotencyKey,
   })
 
   if (error) return failure(error)
@@ -84,13 +126,15 @@ export async function changeWeight(
   petId: string,
   weightId: string,
   patch: WeightPatch,
-): Promise<WeightResult<WeightMeasurement>> {
+  idempotencyKey: string | null = null,
+): Promise<WeightResult<WeightMeasurement> | KeyReused> {
   const { data, error } = await supabase.rpc('change_pet_weight', {
     p_user_id: userId,
     p_pet_id: petId,
     p_weight_id: weightId,
     p_measured_on: patch.measured_on ?? null,
     p_weight_kg: patch.weight_kg ?? null,
+    p_key: idempotencyKey,
   })
 
   if (error) return failure(error)
@@ -109,9 +153,25 @@ export async function deleteWeight(
     p_weight_id: weightId,
   })
 
-  if (error) return failure(error)
+  if (error) {
+    const failed = failure(error)
+    // Deleting takes no key, so a reused one is not its answer to give: were
+    // the code ever to come back, it is a storage failure, not a conflict the
+    // route would have to explain.
+    return failed.reason === 'key_reused' ? { ok: false, reason: 'storage_error', message: failed.message } : failed
+  }
   return { ok: true, data: null }
 }
+
+/**
+ * The SQLSTATE the medical record's write functions refuse a change of a
+ * record that is history with (migration 20260927100000): a done
+ * vaccination or treatment, a visit that happened, a finished course. The
+ * refusal and the write are one decision under the pet's lock, so a
+ * «Сделано», «Состоялся» or «Завершить курс» from another device cannot
+ * slip between a service's check and the write. Answered as `record_done`.
+ */
+export const RECORD_DONE_SQLSTATE = 'LP409'
 
 /** Today as a calendar day in UTC: the fallback when a client did not say its own day. */
 export function utcToday(now: Date = new Date()): string {
@@ -119,8 +179,10 @@ export function utcToday(now: Date = new Date()): string {
 }
 
 /**
- * Whether a day is later than any time zone's today. A weighing cannot be in
- * the future; a day ahead of UTC is still "today" somewhere east of it.
+ * Whether a day is after the UTC day that follows the server's: then it is
+ * later than any time zone's today. A weighing cannot be in the future; a day
+ * ahead of UTC is still "today" somewhere east of it. The margin is a whole
+ * UTC day, not the exact UTC+14 edge.
  */
 export function isFutureDay(day: string, now: Date = new Date()): boolean {
   const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000)
@@ -128,12 +190,40 @@ export function isFutureDay(day: string, now: Date = new Date()): boolean {
 }
 
 /**
- * Whether a day is earlier than any time zone's today: a plan cannot be made
- * for it. A day behind UTC is still "today" somewhere west of it.
+ * Whether a day is before the UTC day that precedes the server's: then it is
+ * earlier than any time zone's today, and a plan cannot be made for it. A day
+ * behind UTC is still "today" somewhere west of it. The margin is a whole UTC
+ * day, not the exact UTC−12 edge.
  */
 export function isPastDay(day: string, now: Date = new Date()): boolean {
   const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000)
   return day < utcToday(yesterday)
+}
+
+/**
+ * The owner's today as a client said it (`?today=` of the summary), trusted
+ * only from the UTC day before the server's to the UTC day after
+ * (`isPastDay`, `isFutureDay`): every zone's today, UTC−12…UTC+14, lies in
+ * that window, which is a little wider than the exact edges. Anything else,
+ * and nothing at all (an app older than the field), is the server's UTC day,
+ * as it always was.
+ */
+export function clientToday(given: unknown, now: Date = new Date()): string {
+  return typeof given === 'string' && CalendarDateSchema.safeParse(given).success && !isPastDay(given, now) && !isFutureDay(given, now)
+    ? given
+    : utcToday(now)
+}
+
+/**
+ * The owner's today of a request that says it in `?today=` (MW-09): what
+ * the pet form's list of current medicines is counted from — `GET /health`,
+ * the list a write of courses or visits refreshes, the record an analysis
+ * reads. Only a list follows this day, never a guard, so the whole
+ * `clientToday` window is taken as it is; absent or outside it, the
+ * server's UTC day, as for apps older than the parameter.
+ */
+export function requestToday(url: { searchParams: URLSearchParams }, now: Date = new Date()): string {
+  return clientToday(url.searchParams.get('today') ?? undefined, now)
 }
 
 /**

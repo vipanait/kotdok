@@ -7,6 +7,7 @@ import { createServiceClient } from '@/server/supabase/server'
 import { getAuthUser } from '@/server/auth/get-auth-user'
 import { owesConsent } from '@/server/consent/consent-service'
 import { sanitizePainSigns } from '@/shared/utils/check-params'
+import { clientToday } from '@/server/medical-record/weight-service'
 import {
   analyzeSymptomCheck,
   type AnalyzeSymptomCheckInput,
@@ -78,6 +79,9 @@ async function parseRequest(request: NextRequest): Promise<ParsedRequest> {
       stool: narrow(stool, VALID_STOOL),
       pain_signs: sanitizePainSigns(painSignsRaw),
       photos: [],
+      // The owner's day the pet's record is read on; the server's UTC day
+      // when it is missing or outside the days around the server's.
+      today: clientToday(body.today),
     },
   }
 }

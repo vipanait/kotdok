@@ -1,0 +1,291 @@
+{
+  "today": "2026-09-27",
+  "murka": "aceed142-9d61-44c7-9da7-844c38e101f6",
+  "bobik": "51139217-092b-4eec-820c-46ce9826d8b6",
+  "checks": {
+    "complete1440": {
+      "dueLabel": "Сделано: Блохи и клещи, просрочено на 14 дней · 13 сентября",
+      "hint": "Предложено по интервалу препарата: 12 недель. Можно изменить или очистить дату. Уточните срок у врача.",
+      "warning": "После сохранения выполненную запись нельзя будет изменить. Проверьте даты, клинику и заметку.",
+      "dialog": {
+        "title": "Отметить сделанным «Бравекто Спот-он» — 27 сентября 2026?",
+        "body": "Выполненную запись потом нельзя изменить — только удалить. Следующий срок — 20 декабря.",
+        "focus": {
+          "tag": "button",
+          "text": "Проверить ещё раз",
+          "id": "",
+          "label": ""
+        }
+      },
+      "afterEscape": {
+        "dialogGone": true,
+        "focus": {
+          "tag": "button",
+          "text": "Сохранить",
+          "id": "",
+          "label": ""
+        },
+        "url": "/pets/aceed142-9d61-44c7-9da7-844c38e101f6/health/0ca1e355-1277-4df5-bfab-d2d0a68a0dea/complete"
+      },
+      "landedOn": "/pets/aceed142-9d61-44c7-9da7-844c38e101f6/health/due?saved=completed&record=0ca1e355-1277-4df5-bfab-d2d0a68a0dea",
+      "recordParam": "0ca1e355-1277-4df5-bfab-d2d0a68a0dea",
+      "notice": {
+        "text": "Отмечено сделанным.Открыть запись",
+        "link": "/pets/aceed142-9d61-44c7-9da7-844c38e101f6/health/0ca1e355-1277-4df5-bfab-d2d0a68a0dea",
+        "focus": {
+          "tag": "div",
+          "text": "Отмечено сделанным.Открыть запись",
+          "id": "",
+          "label": ""
+        },
+        "urlAfter": ""
+      },
+      "openedRecord": {
+        "path": "/pets/aceed142-9d61-44c7-9da7-844c38e101f6/health/0ca1e355-1277-4df5-bfab-d2d0a68a0dea",
+        "heading": "Обработка от паразитов"
+      }
+    },
+    "complete390": {
+      "landedOn": "/pets/aceed142-9d61-44c7-9da7-844c38e101f6/health/7d319ad2-5302-4e92-a012-7846219e9bd6?saved=completed&record=9f6d2a34-ad29-4bd5-a380-af7d6ecf3cf4",
+      "samePlan": true,
+      "notice": "Отмечено сделанным.Открыть запись",
+      "link": "/pets/aceed142-9d61-44c7-9da7-844c38e101f6/health/9f6d2a34-ad29-4bd5-a380-af7d6ecf3cf4",
+      "linkHeight": 44,
+      "scrollsSideways": false
+    },
+    "ownName1440": {
+      "items": [
+        {
+          "name": "Своя вакцина",
+          "next": "2027-09-27",
+          "hint": "Предложено по обычному интервалу: 1 год. Можно изменить или очистить дату. Уточните срок у врача."
+        },
+        {
+          "name": "Вторая своя",
+          "next": "2027-09-27",
+          "hint": "Предложено по обычному интервалу: 1 год. Можно изменить или очистить дату. Уточните срок у врача."
+        }
+      ],
+      "afterRemove": {
+        "focus": {
+          "tag": "section",
+          "text": "Название препаратаОт чегоПанлейкопенияКалицивирозРинотрахеитБешенствоЛейкозХлами",
+          "id": "_r_0_-new-1-item",
+          "label": "Вторая своя"
+        },
+        "comboboxExpanded": "false",
+        "items": 1
+      },
+      "afterLast": {
+        "focus": {
+          "tag": "fieldset",
+          "text": "ВакциныНайти препаратИщем препараты…Нет в списке — ввести названиеБез препарата ",
+          "id": "",
+          "label": ""
+        },
+        "comboboxExpanded": "false"
+      },
+      "landedOn": "/pets/aceed142-9d61-44c7-9da7-844c38e101f6/health/vaccinations?saved=added&record=18ae2bfc-b4f1-4b17-9271-c79d57a0c87c",
+      "notice": {
+        "text": "Запись сохранена.Открыть запись",
+        "link": "/pets/aceed142-9d61-44c7-9da7-844c38e101f6/health/18ae2bfc-b4f1-4b17-9271-c79d57a0c87c"
+      },
+      "openedRecord": {
+        "heading": "Прививка",
+        "next": "Следующая дата: 27 сентября 2027Действия с записьюПроцедура выполне"
+      }
+    },
+    "ownName390": {
+      "items": [
+        {
+          "name": "Своя вакцина",
+          "next": "2027-09-27",
+          "hint": "Предложено по обычному интервалу: 1 год. Можно изменить или очистить дату. Уточните срок у врача."
+        },
+        {
+          "name": "Вторая своя",
+          "next": "2027-09-27",
+          "hint": "Предложено по обычному интервалу: 1 год. Можно изменить или очистить дату. Уточните срок у врача."
+        }
+      ],
+      "afterRemove": {
+        "focus": {
+          "tag": "section",
+          "text": "Название препаратаОт чегоПанлейкопенияКалицивирозРинотрахеитБешенствоЛейкозХлами",
+          "id": "_r_0_-new-1-item",
+          "label": "Вторая своя"
+        },
+        "comboboxExpanded": "false",
+        "items": 1
+      },
+      "afterLast": {
+        "focus": {
+          "tag": "fieldset",
+          "text": "ВакциныНайти препаратИщем препараты…Нет в списке — ввести названиеБез препарата ",
+          "id": "",
+          "label": ""
+        },
+        "comboboxExpanded": "false"
+      },
+      "landedOn": "/pets/aceed142-9d61-44c7-9da7-844c38e101f6/health/vaccinations?saved=added&record=714c64d5-2ec1-4235-b9f1-9c9f6b8344f0",
+      "notice": {
+        "text": "Запись сохранена.Открыть запись",
+        "link": "/pets/aceed142-9d61-44c7-9da7-844c38e101f6/health/714c64d5-2ec1-4235-b9f1-9c9f6b8344f0"
+      },
+      "openedRecord": {
+        "heading": "Прививка",
+        "next": "Следующая дата: 27 сентября 2027Действия с записьюПроцедура выполне"
+      }
+    },
+    "back1440": {
+      "startLength": 3,
+      "asked": {
+        "url": true,
+        "title": "Уйти без сохранения?",
+        "focus": {
+          "tag": "button",
+          "text": "Остаться",
+          "id": "",
+          "label": ""
+        },
+        "weight": "29"
+      },
+      "stayed": {
+        "url": true,
+        "weight": "29"
+      },
+      "askedAgain": true,
+      "left": "/pets/51139217-092b-4eec-820c-46ce9826d8b6/health/weight",
+      "afterSaveBackTrail": [
+        "/pets/51139217-092b-4eec-820c-46ce9826d8b6/health/weight",
+        "/pets/51139217-092b-4eec-820c-46ce9826d8b6/health/new?type=weight",
+        "/pets/51139217-092b-4eec-820c-46ce9826d8b6/health/weight"
+      ],
+      "cleanBack": {
+        "path": "/pets/51139217-092b-4eec-820c-46ce9826d8b6/health/weight",
+        "dialog": false
+      }
+    },
+    "back390": {
+      "startLength": 3,
+      "asked": {
+        "url": true,
+        "title": "Уйти без сохранения?",
+        "focus": {
+          "tag": "button",
+          "text": "Остаться",
+          "id": "",
+          "label": ""
+        },
+        "weight": "29"
+      },
+      "stayed": {
+        "url": true,
+        "weight": "29"
+      },
+      "askedAgain": true,
+      "left": "/pets/51139217-092b-4eec-820c-46ce9826d8b6/health/weight",
+      "afterSaveBackTrail": [
+        "/pets/51139217-092b-4eec-820c-46ce9826d8b6/health/weight",
+        "/pets/51139217-092b-4eec-820c-46ce9826d8b6/health/new?type=weight",
+        "/pets/51139217-092b-4eec-820c-46ce9826d8b6/health/weight"
+      ],
+      "cleanBack": {
+        "path": "/pets/51139217-092b-4eec-820c-46ce9826d8b6/health/weight",
+        "dialog": false
+      }
+    },
+    "midnight1440": {
+      "before": {
+        "max": "2026-09-27",
+        "day": "2026-09-27"
+      },
+      "after": {
+        "max": "2026-09-28",
+        "day": "2026-09-27",
+        "weight": "31,5"
+      },
+      "expectedMax": "2026-09-28",
+      "dueBefore": [
+        "ОсмотрЧерез 6 дней · 4 октябряСостоялся",
+        "ГлистыЧерез 8 дней · 6 октябряСделано",
+        "Блохи и клещи20 декабряСделано"
+      ],
+      "dueAfter": [
+        "ОсмотрЧерез 5 дней · 4 октябряСостоялся",
+        "ГлистыЧерез 7 дней · 6 октябряСделано",
+        "Блохи и клещи20 декабряСделано"
+      ]
+    },
+    "midnight390": {
+      "before": {
+        "max": "2026-09-27",
+        "day": "2026-09-27"
+      },
+      "after": {
+        "max": "2026-09-28",
+        "day": "2026-09-27",
+        "weight": "31,5"
+      },
+      "expectedMax": "2026-09-28",
+      "dueBefore": [
+        "ОсмотрЧерез 6 дней · 4 октябряСостоялся",
+        "ГлистыЧерез 8 дней · 6 октябряСделано",
+        "Блохи и клещи20 декабряСделано"
+      ],
+      "dueAfter": [
+        "ОсмотрЧерез 5 дней · 4 октябряСостоялся",
+        "ГлистыЧерез 7 дней · 6 октябряСделано",
+        "Блохи и клещи20 декабряСделано"
+      ]
+    },
+    "drift1440": {
+      "drift": {
+        "text": "Эту запись изменили на другом устройстве, пока форма была открыта. В форме — данные на момент открытия и ваши правки.Загрузить новые данные (правки пропадут)",
+        "notes": "Правка владельца",
+        "clinic": ""
+      },
+      "taken": {
+        "notes": "",
+        "clinic": "Клиника с другого устройства 1440"
+      }
+    },
+    "drift390": {
+      "drift": {
+        "text": "Эту запись изменили на другом устройстве, пока форма была открыта. В форме — данные на момент открытия и ваши правки.Загрузить новые данные (правки пропадут)",
+        "notes": "Правка владельца",
+        "clinic": "Клиника с другого устройства 1440"
+      },
+      "taken": {
+        "notes": "",
+        "clinic": "Клиника с другого устройства 390"
+      }
+    },
+    "weightAndHistory1440": {
+      "liveRegionBefore": "",
+      "liveRegionAfter": "Год: График веса за год: от 4,5 до 4,2 кг. −0,3 кг за 6 месяцев",
+      "history": {
+        "heading": "История проверок",
+        "subtitle": "Мурка · Результаты проверок питомца",
+        "back": "/pets/aceed142-9d61-44c7-9da7-844c38e101f6",
+        "cards": 1
+      }
+    },
+    "bannerLink1440": {
+      "height": 44
+    },
+    "weightAndHistory390": {
+      "liveRegionBefore": "",
+      "liveRegionAfter": "Год: График веса за год: от 4,5 до 4,2 кг. −0,3 кг за 6 месяцев",
+      "history": {
+        "heading": "История проверок",
+        "subtitle": "Мурка · Результаты проверок питомца",
+        "back": "/pets/aceed142-9d61-44c7-9da7-844c38e101f6",
+        "cards": 1
+      }
+    },
+    "bannerLink390": {
+      "height": 44
+    }
+  }
+}

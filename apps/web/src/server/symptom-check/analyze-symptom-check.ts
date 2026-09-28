@@ -164,6 +164,12 @@ export type AnalyzeSymptomCheckInput = QuickAssessment & {
   symptoms: string
   petId: string | null
   photos: AnalysisPhoto[]
+  /**
+   * The owner's calendar day, already checked by `clientToday`, which the
+   * medical record of the analysis is read on (current courses, overdue
+   * dates). Absent: the server's UTC day, as for apps older than it.
+   */
+  today?: string
 }
 
 export type AnalyzeSymptomCheckSuccess = {
@@ -308,7 +314,7 @@ export async function analyzeSymptomCheck(
       verifiedPetId = pet.id
       species = sanitizeSpecies(pet.species)
       // The record of this pet only (MR-10): if it cannot be read, the form alone.
-      const record = await loadAnalysisContext(supabase, input.userId, pet.id)
+      const record = await loadAnalysisContext(supabase, input.userId, pet.id, input.today)
       medicalRecord = record.status
       const profile = record.medications ? { ...pet, medications: record.medications } : pet
       petContext = `\n\nPET PROFILE: ${describePetProfile(profile, species)}${record.text ? `\n\n${record.text}` : ''}`

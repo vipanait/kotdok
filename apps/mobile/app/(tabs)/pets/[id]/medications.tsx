@@ -6,7 +6,8 @@ import { withFreshSession } from '@/lib/api'
 import { describeFailure } from '@/lib/errors'
 import { localToday } from '@/lib/calendar-day'
 import { useText } from '@/i18n'
-import { courseDates, splitCourses } from '@/features/medical-record/medications'
+import { splitCourses } from '@lapka/shared'
+import { courseDates } from '@/features/medical-record/medications'
 import { Button } from '@/ui/Button'
 import { Banner, Card } from '@/ui/Card'
 import { Icon } from '@/ui/Icon'
@@ -25,7 +26,7 @@ export default function Medications() {
   const load = useCallback(async () => {
     setError(null)
     try {
-      setOverview(await withFreshSession((api) => api.getHealthOverview(id)))
+      setOverview(await withFreshSession((api) => api.getHealthOverview(id, localToday())))
     } catch (cause) {
       setError(describeFailure(t, cause, t.errors.loadHealthFailed))
     }

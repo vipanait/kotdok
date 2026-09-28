@@ -49,6 +49,11 @@ describe('medical record header', () => {
     expect(headerFacts(en, overview({ weight_kg: 4.2 }), TODAY).weight).toBe('4.2 kg')
   })
 
+  it('says an age of 0 as the site does (shared headAge, MW-09)', () => {
+    expect(headerFacts(ru, overview({ age_years: 0 }), TODAY).meta).toBe('Собака · 0 лет')
+    expect(headerFacts(ru, overview({ age_years: null }), TODAY).meta).toBe('Собака')
+  })
+
   it('leaves the weight out rather than showing zero when the form has none', () => {
     expect(headerFacts(ru, overview({ weight_kg: null }), TODAY).weight).toBeNull()
   })
@@ -165,6 +170,14 @@ describe('medicines in «Важно знать»', () => {
     const facts = importantFacts(ru, pet({ medications: ['Лечебный корм'] }), [
       { id: 'a', name: 'Лечебный корм', dosage: null, started_on: '2026-08-02', ended_on: null, ongoing: true, source: 'record' },
       { id: 'b', name: 'Фортифлора', dosage: null, started_on: '2026-08-02', ended_on: '2026-08-15', ongoing: false, source: 'record' },
+    ], TODAY)
+    expect(facts).toEqual([{ label: 'Принимает сейчас', value: 'Лечебный корм (постоянно)' }])
+  })
+
+  it('leaves out a course that starts later, as the summary for the vet does (MW-07)', () => {
+    const facts = importantFacts(ru, pet({ medications: ['Лечебный корм', 'Витамины'] }), [
+      { id: 'a', name: 'Лечебный корм', dosage: null, started_on: '2026-08-02', ended_on: null, ongoing: true, source: 'record' },
+      { id: 'c', name: 'Витамины', dosage: null, started_on: '2026-10-01', ended_on: null, ongoing: false, source: 'record' },
     ], TODAY)
     expect(facts).toEqual([{ label: 'Принимает сейчас', value: 'Лечебный корм (постоянно)' }])
   })

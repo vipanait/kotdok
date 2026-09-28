@@ -1,0 +1,94 @@
+{
+  "checks": {
+    "w1440": {
+      "typeClearCancelBack": {
+        "trail": [
+          "/pets/3bfbb023-f9e3-4556-8390-1a1e0bb3ca87/health/weight",
+          "/pets/3bfbb023-f9e3-4556-8390-1a1e0bb3ca87/health/new?type=weight",
+          "/pets/3bfbb023-f9e3-4556-8390-1a1e0bb3ca87/health/weight"
+        ],
+        "dialog": false
+      },
+      "typeReloadTypeBackLeave": {
+        "formWas": "/pets/3bfbb023-f9e3-4556-8390-1a1e0bb3ca87/health/new?type=weight",
+        "lengthOnForm": 4,
+        "afterReload": {
+          "url": "/pets/3bfbb023-f9e3-4556-8390-1a1e0bb3ca87/health/new?type=weight",
+          "copyRemembered": true,
+          "historyLength": 5
+        },
+        "asked": {
+          "url": "/pets/3bfbb023-f9e3-4556-8390-1a1e0bb3ca87/health/new?type=weight",
+          "title": "Уйти без сохранения?"
+        },
+        "afterStay": {
+          "focus": {
+            "tag": "input",
+            "id": "_R_2ppbn5ritqbn5ritmlb_-weight",
+            "inForm": true,
+            "text": ""
+          },
+          "weight": "30"
+        },
+        "leftTo": "/pets/3bfbb023-f9e3-4556-8390-1a1e0bb3ca87/health/weight",
+        "lengthAfterLeave": 5,
+        "backAgain": "/dashboard"
+      },
+      "driftLiveRegion": {
+        "regionBefore": {
+          "live": "polite",
+          "text": ""
+        },
+        "regionAfter": {
+          "live": "polite",
+          "text": "Эту запись изменили на другом устройстве, пока форма была открыта. В форме — данные на момент открытия и ваши правки.Загрузить новые данные (правки пропадут)"
+        }
+      }
+    },
+    "w390": {
+      "typeClearCancelBack": {
+        "trail": [
+          "/pets/3bfbb023-f9e3-4556-8390-1a1e0bb3ca87/health/weight",
+          "/pets/3bfbb023-f9e3-4556-8390-1a1e0bb3ca87/health/new?type=weight",
+          "/pets/3bfbb023-f9e3-4556-8390-1a1e0bb3ca87/health/weight"
+        ],
+        "dialog": false
+      },
+      "typeReloadTypeBackLeave": {
+        "formWas": "/pets/3bfbb023-f9e3-4556-8390-1a1e0bb3ca87/health/new?type=weight",
+        "lengthOnForm": 4,
+        "afterReload": {
+          "url": "/pets/3bfbb023-f9e3-4556-8390-1a1e0bb3ca87/health/new?type=weight",
+          "copyRemembered": true,
+          "historyLength": 5
+        },
+        "asked": {
+          "url": "/pets/3bfbb023-f9e3-4556-8390-1a1e0bb3ca87/health/new?type=weight",
+          "title": "Уйти без сохранения?"
+        },
+        "afterStay": {
+          "focus": {
+            "tag": "input",
+            "id": "_R_2ppbn5ritqbn5ritmlb_-weight",
+            "inForm": true,
+            "text": ""
+          },
+          "weight": "30"
+        },
+        "leftTo": "/pets/3bfbb023-f9e3-4556-8390-1a1e0bb3ca87/health/weight",
+        "lengthAfterLeave": 5,
+        "backAgain": "/dashboard"
+      },
+      "driftLiveRegion": {
+        "regionBefore": {
+          "live": "polite",
+          "text": ""
+        },
+        "regionAfter": {
+          "live": "polite",
+          "text": "Эту запись изменили на другом устройстве, пока форма была открыта. В форме — данные на момент открытия и ваши правки.Загрузить новые данные (правки пропадут)"
+        }
+      }
+    }
+  }
+}

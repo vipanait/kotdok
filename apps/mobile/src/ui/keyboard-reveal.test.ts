@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { hiddenBelowKeyboard } from './keyboard-reveal'
+import { LABEL_ROOM, hiddenAboveTop, hiddenBelowKeyboard } from './keyboard-reveal'
 
 /**
  * Stage 7/03: the field being typed into has to stay visible.
@@ -41,5 +41,17 @@ describe('how far a focused field has to travel', () => {
 
   it('works on a screen with no dock at all', () => {
     expect(hiddenBelowKeyboard({ top: 500, height: 40 }, KEYBOARD_TOP, 0)).toBe(43)
+  })
+})
+
+describe('a field focused above the scroller’s top (MW-09)', () => {
+  it('comes down by what is hidden, with room for its name above it', () => {
+    // Scroller from y=135 (measured on an iPhone 17e); the clinic field scrolled up to y=23.
+    expect(hiddenAboveTop(23, 135)).toBe(112 + LABEL_ROOM)
+  })
+
+  it('stays where it is when its name is already in view', () => {
+    expect(hiddenAboveTop(120 + LABEL_ROOM, 120)).toBe(0)
+    expect(hiddenAboveTop(400, 120)).toBe(0)
   })
 })

@@ -71,6 +71,18 @@ const NOTES_MAX = 300
 const ITEMS_MAX = 10
 
 /**
+ * The length and count limits of a vaccination or treatment record, as the
+ * schemas below check them: forms show them and check them before sending,
+ * so a field is refused where it is typed, not by a 400.
+ */
+export const HEALTH_EVENT_LIMITS = {
+  itemName: ITEM_NAME_MAX,
+  clinic: CLINIC_MAX,
+  notes: NOTES_MAX,
+  items: ITEMS_MAX,
+} as const
+
+/**
  * One vaccine in a record. `name` null is «Без препарата»; `source_item_id`
  * is the done item a plan was made from.
  */
@@ -186,13 +198,36 @@ export const HealthEventPatchSchema = z
 
 export type HealthEventPatch = z.infer<typeof HealthEventPatchSchema>
 
-/** «Сделано» on one planned item. */
+/**
+ * «Сделано» on one planned item.
+ *
+ * `clinic` and `notes` tell "not sent" from "sent empty" (MW-09): an empty
+ * string (after trimming) clears the field; absent or null — what every app
+ * built before MW-09 sends for an empty field — keeps the plan's clinic, and
+ * keeps the plan's note when the plan has one item (it becomes the done
+ * record). An item of a plan of several gets a done record of its own, whose
+ * note is only what is sent: absent or null there is no note.
+ */
 export const CompleteItemInputSchema = z
   .strictObject({
     done_on: CalendarDateSchema,
     next_on: CalendarDateSchema.nullable().optional(),
-    clinic: z.string().trim().max(CLINIC_MAX).nullable().optional(),
-    notes: z.string().trim().max(NOTES_MAX).nullable().optional(),
+    clinic: z
+      .string()
+      .trim()
+      .max(CLINIC_MAX)
+      .nullable()
+      .optional()
+      .describe("Absent or null keeps the plan's clinic; an empty string clears it."),
+    notes: z
+      .string()
+      .trim()
+      .max(NOTES_MAX)
+      .nullable()
+      .optional()
+      .describe(
+        "An empty string clears it. Absent or null: a plan of one item keeps its note; an item of a plan of several gets a record with no note.",
+      ),
   })
   .refine((value) => !value.next_on || value.next_on > value.done_on, {
     message: 'next date must follow the day it was done',
@@ -203,6 +238,21 @@ export type CompleteItemInput = z.infer<typeof CompleteItemInputSchema>
 
 const VISIT_TEXT_MAX = 500
 const MEDICATION_TEXT_MAX_FOR_VISITS = 150
+
+/**
+ * The limits of a vet visit, as the schemas below check them: the forms of
+ * both apps show and check them before sending. A prescription is an item
+ * of the record, so its name is no longer than any item's.
+ */
+export const VISIT_LIMITS = {
+  reason: VISIT_TEXT_MAX,
+  diagnosis: VISIT_TEXT_MAX,
+  clinic: CLINIC_MAX,
+  notes: NOTES_MAX,
+  prescriptionName: ITEM_NAME_MAX,
+  instructions: MEDICATION_TEXT_MAX_FOR_VISITS,
+  prescriptions: ITEMS_MAX,
+} as const
 
 const PrescriptionInputSchema = z.strictObject({
   /** Set for a prescription the visit already has. */
@@ -223,7 +273,7 @@ const visitFields = {
   diagnosis: z.string().trim().max(VISIT_TEXT_MAX).nullable().optional(),
   /** The symptom check it followed; of the same pet and owner. */
   check_id: UuidSchema.nullable().optional(),
-  prescriptions: z.array(PrescriptionInputSchema).max(10).optional(),
+  prescriptions: z.array(PrescriptionInputSchema).max(ITEMS_MAX).optional(),
 }
 
 /** A plan has not happened: no diagnosis, no prescriptions (MR-07.3). */
@@ -279,6 +329,18 @@ export const HealthProductSchema = z.object({
 export type HealthProduct = z.infer<typeof HealthProductSchema>
 
 const MEDICATION_TEXT_MAX = 150
+const MEDICATIONS_MAX = 10
+
+/**
+ * The course form's bounds — the name and «Как давать» up to 150 characters,
+ * up to 10 courses in one save — the same numbers the schemas below check,
+ * so a form refuses a field where it is typed, not by a 400.
+ */
+export const MEDICATION_LIMITS = {
+  name: MEDICATION_TEXT_MAX,
+  dosage: MEDICATION_TEXT_MAX,
+  items: MEDICATIONS_MAX,
+} as const
 
 /**
  * A medication course. `started_on` null only for one brought over from the
@@ -318,7 +380,7 @@ function courseRange(value: { started_on?: string | null; ended_on?: string | nu
 export const MedicationInputSchema = z.strictObject(medicationFields).superRefine(courseRange)
 
 /** Several courses at once, as the form adds them. */
-export const MedicationsInputSchema = z.strictObject({ items: z.array(MedicationInputSchema).min(1).max(10) })
+export const MedicationsInputSchema = z.strictObject({ items: z.array(MedicationInputSchema).min(1).max(MEDICATIONS_MAX) })
 
 export type MedicationsInput = z.infer<typeof MedicationsInputSchema>
 
@@ -340,6 +402,13 @@ export const DueItemSchema = z.object({
   date: CalendarDateSchema,
   name: z.string().nullable(),
   targets: z.array(z.string()),
+  /**
+   * A planned visit's kind, so the pet list can name it (spec §7.1); null
+   * for other kinds. Added in MW-09 and always sent since: an app older than
+   * it drops the key, and a newer app reading an older server finds none —
+   * «Визит к врачу», as before.
+   */
+  visit_kind: VisitKindSchema.nullable().optional(),
 })
 
 export type DueItem = z.infer<typeof DueItemSchema>
@@ -431,5 +500,18 @@ export const HealthOverviewReadSchema = z.preprocess((value) => {
   return { ...overview, events: readableEvents(overview.events), weights: readableWeights(overview.weights) }
 }, HealthOverviewSchema)
 
-/** The due list as a client reads it: due dates of an unknown kind are left out. */
-export const DueListReadSchema = z.preprocess(knownKinds, z.array(DueItemSchema))
+/**
+ * The due list as a client reads it: due dates of an unknown kind are left
+ * out; a visit of a kind this app does not know stays, named as a visit
+ * with no kind.
+ */
+export const DueListReadSchema = z.preprocess((value) => {
+  const known = knownKinds(value)
+  if (!Array.isArray(known)) return known
+  return known.map((entry) => {
+    const visitKind = (entry as { visit_kind?: unknown } | null)?.visit_kind
+    return visitKind !== undefined && visitKind !== null && !(VISIT_KINDS as readonly unknown[]).includes(visitKind)
+      ? { ...(entry as object), visit_kind: null }
+      : entry
+  })
+}, z.array(DueItemSchema))
