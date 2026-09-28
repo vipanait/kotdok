@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { StyleSheet } from 'react-native'
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
 import type { Medication } from '@lapka/contracts'
@@ -6,7 +6,8 @@ import { withFreshSession } from '@/lib/api'
 import { describeFailure } from '@/lib/errors'
 import { localToday } from '@/lib/calendar-day'
 import { useText } from '@/i18n'
-import { courseDates, isCurrent } from '@/features/medical-record/medications'
+import { canEndCourse, courseEditable } from '@lapka/shared'
+import { courseDates, endCourse } from '@/features/medical-record/medications'
 import { Button, LinkButton } from '@/ui/Button'
 import { Banner, Card } from '@/ui/Card'
 import { ConfirmDialog } from '@/ui/Dialog'
@@ -14,7 +15,11 @@ import { Screen } from '@/ui/Screen'
 import { Text } from '@/ui/Text'
 import { space } from '@/ui/theme'
 
-/** One course (X-course): its details, «Изменить», «Завершить курс» while current, delete. */
+/**
+ * One course (X-course): its details; while it goes on, «Изменить» and
+ * «Завершить курс»; delete always. A finished course is only read (owner rule
+ * of 26 September 2026) — the server refuses its change (`record_done`).
+ */
 export default function MedicationView() {
   const { id, medicationId } = useLocalSearchParams<{ id: string; medicationId: string }>()
   const t = useText()
@@ -23,11 +28,13 @@ export default function MedicationView() {
   const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
   const [busy, setBusy] = useState(false)
   const [asking, setAsking] = useState(false)
+  /** The day «Завершить курс» first sent, until the server answers it (`endCourse`). */
+  const ending = useRef<{ day: string | null }>({ day: null })
 
   const load = useCallback(async () => {
     setError(null)
     try {
-      const overview = await withFreshSession((api) => api.getHealthOverview(id))
+      const overview = await withFreshSession((api) => api.getHealthOverview(id, localToday()))
       const found = overview.medications.find((m) => m.id === medicationId)
       if (!found) {
         router.back()
@@ -51,7 +58,15 @@ export default function MedicationView() {
     setBusy(true)
     setError(null)
     try {
-      setCourse(await withFreshSession((api) => api.changeMedication(id, medicationId, { ended_on: today, ongoing: false })))
+      const ended = await endCourse(
+        (patch, day) => withFreshSession((api) => api.changeMedication(id, medicationId, patch, day)),
+        ending.current,
+        today,
+      )
+      // Finished meanwhile, on another device: show it as it is now — read
+      // only, which the screen then says in place of «Изменить».
+      if (ended.kind === 'ended') setCourse(ended.course)
+      else void load()
     } catch (cause) {
       setError(describeFailure(t, cause, words.saveFailed))
     } finally {
@@ -62,7 +77,7 @@ export default function MedicationView() {
   async function remove() {
     setBusy(true)
     try {
-      await withFreshSession((api) => api.deleteMedication(id, medicationId))
+      await withFreshSession((api) => api.deleteMedication(id, medicationId, localToday()))
       setAsking(false)
       router.back()
     } catch (cause) {
@@ -80,7 +95,7 @@ export default function MedicationView() {
       scroll
       // A course that has not started yet is corrected or deleted, not ended.
       dock={
-        course && isCurrent(course, today) && (course.started_on === null || course.started_on <= today) ? (
+        course && canEndCourse(course, today) ? (
           <Button title={words.end_} onPress={() => void end()} busy={busy} />
         ) : null
       }
@@ -93,7 +108,11 @@ export default function MedicationView() {
             {course.dosage ? <Text tone="muted">{course.dosage}</Text> : null}
             <Text tone="muted">{courseDates(t, course, today)}</Text>
           </Card>
-          <LinkButton title={words.edit} align="left" onPress={() => router.push(`/pets/${id}/medication-form?medicationId=${course.id}`)} />
+          {courseEditable(course, today) ? (
+            <LinkButton title={words.edit} align="left" onPress={() => router.push(`/pets/${id}/medication-form?medicationId=${course.id}`)} />
+          ) : (
+            <Text tone="muted">{words.finishedReadOnly}</Text>
+          )}
           <LinkButton title={words.delete} align="left" onPress={() => setAsking(true)} />
         </>
       ) : null}

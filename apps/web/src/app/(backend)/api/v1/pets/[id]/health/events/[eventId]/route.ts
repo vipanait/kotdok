@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server'
 import { HealthEventPatchSchema, UuidSchema } from '@lapka/contracts'
 import { createServiceClient } from '@/server/supabase/server'
 import { deleteEvent, eventStatus, updateEvent } from '@/server/medical-record/event-service'
-import { isFutureDay, isPastDay } from '@/server/medical-record/weight-service'
+import { isPastDay } from '@/server/medical-record/weight-service'
 import { apiError, apiNoContent, apiSuccess } from '@/server/api/response'
 import { serviceFailureResponse } from '@/server/api/failure-response'
 import { withApiAuth, type ApiContext } from '@/server/api/with-api-auth'
@@ -15,7 +15,11 @@ async function readIds(params: Params): Promise<{ petId: string; eventId: string
   return { petId: id, eventId }
 }
 
-/** A correction, or «Перенести» on a plan: a plan moves forward, a done record stays in the past. */
+/**
+ * A correction of a plan, or «Перенести»: a plan moves only forward. A done
+ * record is history (owner rule of 26 September 2026): any change of it is
+ * `record_done`, 409 — `refuseDoneChange` in the event service decides.
+ */
 export const PATCH = withApiAuth(async (request: NextRequest, context: ApiContext, params: Params) => {
   const ids = await readIds(params)
   if (!ids) return apiError(context.requestId, 'not_found', 'No such resource')
@@ -36,13 +40,17 @@ export const PATCH = withApiAuth(async (request: NextRequest, context: ApiContex
   if (parsed.data.date) {
     const current = await eventStatus(supabase, userId, ids.petId, ids.eventId)
     if (!current.ok) return serviceFailureResponse(context.requestId, current.reason)
-    const wrongDay =
-      current.data.status === 'done' ? isFutureDay(parsed.data.date) : isPastDay(parsed.data.date)
-    if (wrongDay) return apiError(context.requestId, 'bad_request', 'Body does not match the contract')
+    // A done record's day is not checked here: the service refuses the whole change.
+    if (current.data.status === 'planned' && isPastDay(parsed.data.date)) {
+      return apiError(context.requestId, 'bad_request', 'Body does not match the contract')
+    }
   }
 
   const result = await updateEvent(supabase, userId, ids.petId, ids.eventId, parsed.data)
   if (!result.ok) {
+    if (result.reason === 'record_done') {
+      return apiError(context.requestId, 'record_done', 'A done record cannot be changed')
+    }
     if (result.reason === 'bad_product') {
       return apiError(context.requestId, 'bad_request', 'A product does not fit this pet')
     }

@@ -2,10 +2,12 @@ import type { Locale } from '@/shared/i18n/config'
 import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
 import { formatCount } from '@/shared/i18n/plural'
 import type { Pet } from '@/shared/types'
+import { headAge } from '@lapka/shared'
 
 /**
  * "Сибирская · 3 года": whatever of breed and age the profile has, or an
- * empty string. An age of 0 is an unfilled field, not a newborn, so it is left out.
+ * empty string. The age follows the one rule of the phone and the record's
+ * head (shared `headAge`, MW-09): zero is said too, «0 лет».
  */
 export function petSummary(
   pet: Pick<Pet, 'breed' | 'age_years'>,
@@ -16,7 +18,8 @@ export function petSummary(
   const parts: string[] = []
   const breed = pet.breed?.trim()
   if (breed) parts.push(breed)
-  if (pet.age_years != null && pet.age_years > 0) parts.push(formatCount(dict.pets.age, pet.age_years, locale))
+  const age = headAge(pet.age_years)
+  if (age !== null) parts.push(formatCount(dict.pets.age, age, locale))
   return parts.join(separator)
 }
 
@@ -30,7 +33,9 @@ export function petHealthFacts(
   dict: Dictionary,
   locale: Locale,
 ): { age: string | null; chronic: string | null } {
-  const age = pet.age_years != null && pet.age_years > 0 ? formatCount(dict.pets.age, pet.age_years, locale) : null
+  // The same rule as everywhere (shared `headAge`): zero is said.
+  const years = headAge(pet.age_years)
+  const age = years !== null ? formatCount(dict.pets.age, years, locale) : null
   const conditions = (pet.chronic_conditions ?? []).map(c => c.trim()).filter(Boolean)
   const chronic = conditions.length ? dict.check.petChronic.replace('{list}', () => conditions.join(', ')) : null
   return { age, chronic }

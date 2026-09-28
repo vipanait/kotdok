@@ -4,9 +4,10 @@ import type { HealthOverview, HealthSection } from '@lapka/contracts'
 import type { createServiceClient } from '@/server/supabase/server'
 import { getPet, type PetResult } from '@/server/pets/pet-service'
 import { toPetContract } from '@/server/pets/pet-contract'
-import { listWeights } from './weight-service'
+import { isCurrentCourse } from '@lapka/shared'
+import { listWeights, utcToday } from './weight-service'
 import { listEvents } from './event-service'
-import { isCurrentCourse, listMedications } from './medication-service'
+import { listMedications } from './medication-service'
 
 type SupabaseService = ReturnType<typeof createServiceClient>
 
@@ -27,6 +28,7 @@ export async function getHealthOverview(
   supabase: SupabaseService,
   userId: string,
   petId: string,
+  today: string = utcToday(),
 ): Promise<PetResult<HealthOverview>> {
   const pet = await getPet(supabase, userId, petId)
   if (!pet.ok) return pet
@@ -41,9 +43,13 @@ export async function getHealthOverview(
   if (!medications.ok) return { ok: false, reason: 'storage_error', message: medications.message }
 
   // The stored list is refreshed on writes; a course that ran out since is
-  // left out here, when there are courses to go by.
+  // left out here, when there are courses to go by. By the shared rule
+  // (`isCurrentCourse`, the apps' own), counted on `today`: the owner's day
+  // when the caller said it (`?today=` of GET /health, the page's day, the
+  // summary's), the server's UTC day otherwise (apps older than it). The
+  // apps sort the courses themselves by their own day — this list is the form's.
   const form = toPetContract(pet.data)
-  const current = medications.data.filter((course) => isCurrentCourse(course))
+  const current = medications.data.filter((course) => isCurrentCourse(course, today))
   const names = [...new Map(current.map((course) => [course.name.trim().toLowerCase(), course.name.trim()])).values()]
 
   return {

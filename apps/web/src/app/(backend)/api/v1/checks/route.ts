@@ -8,6 +8,7 @@ import {
 import { createServiceClient } from '@/server/supabase/server'
 import { listChecks } from '@/server/checks/check-history-service'
 import { createCheckJob } from '@/server/checks/check-job-service'
+import { requestToday } from '@/server/medical-record/weight-service'
 import { apiError, apiSuccess } from '@/server/api/response'
 import { serviceFailureResponse } from '@/server/api/failure-response'
 import { withApiAuth, type ApiContext } from '@/server/api/with-api-auth'
@@ -50,6 +51,11 @@ export const GET = withApiAuth(async (request: NextRequest, context: ApiContext)
  * work happens inside this request for now — the background worker arrives with
  * photographs at the end of the queue — but a client written against this will
  * not have to change when it moves.
+ *
+ * `?today=` is the owner's calendar day the pet's medical record is read on
+ * for the analysis (`requestToday`): a query parameter, not a body field —
+ * the body is strict, and a newer app must still be accepted by an older
+ * server.
  */
 export const POST = withApiAuth(async (request: NextRequest, context: ApiContext) => {
   const supabase = createServiceClient()
@@ -80,6 +86,7 @@ export const POST = withApiAuth(async (request: NextRequest, context: ApiContext
     ...parsed.data,
     userId: context.account.userId,
     idempotencyKey,
+    today: requestToday(request.nextUrl),
   })
 
   if (!outcome.ok) return apiError(context.requestId, outcome.code, outcome.message)

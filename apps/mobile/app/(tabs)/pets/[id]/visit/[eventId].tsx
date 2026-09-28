@@ -2,12 +2,14 @@ import { useCallback, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
 import type { HealthEvent } from '@lapka/contracts'
+import { prescriptionAddable } from '@lapka/shared'
 import { withFreshSession } from '@/lib/api'
 import { describeFailure } from '@/lib/errors'
 import { localToday } from '@/lib/calendar-day'
 import { useText } from '@/i18n'
 import { useReminders } from '@/features/medical-record/reminders/ReminderProvider'
 import { dueLine, dueStatus } from '@/features/medical-record/due'
+import { heldNote } from '@/features/medical-record/visits'
 import { Button, LinkButton } from '@/ui/Button'
 import { Banner, Card, SettingRow } from '@/ui/Card'
 import { ConfirmDialog } from '@/ui/Dialog'
@@ -17,8 +19,10 @@ import { colour, space } from '@/ui/theme'
 
 /**
  * One visit (X-visit-record, X-visit-plan). A plan is marked «Был», moved or
- * cancelled; a visit that happened is corrected or deleted. A prescription not
- * yet in the medicines can be added from here.
+ * cancelled; a visit that happened is only read — no «Изменить» (owner rule of
+ * 26 September 2026, the server refuses the change with `record_done`) — and
+ * deleted if it is wrong. A prescription not yet in the medicines can still be
+ * added from here: that starts a course, it does not change the visit.
  */
 export default function VisitView() {
   const { id, eventId } = useLocalSearchParams<{ id: string; eventId: string }>()
@@ -33,7 +37,7 @@ export default function VisitView() {
   const load = useCallback(async () => {
     setError(null)
     try {
-      const overview = await withFreshSession((api) => api.getHealthOverview(id))
+      const overview = await withFreshSession((api) => api.getHealthOverview(id, localToday()))
       const found = overview.events.find((event) => event.id === eventId && event.kind === 'visit')
       if (!found) {
         router.back()
@@ -55,7 +59,7 @@ export default function VisitView() {
     if (busy) return
     setBusy(true)
     try {
-      await withFreshSession((api) => api.prescriptionToMedication(id, itemId))
+      await withFreshSession((api) => api.prescriptionToMedication(id, itemId, localToday()))
       await load()
     } catch (cause) {
       setError(describeFailure(t, cause, t.medicalRecord.saveEventFailed))
@@ -80,6 +84,7 @@ export default function VisitView() {
   }
 
   const planned = visit?.status === 'planned'
+  const note = visit ? heldNote(t, visit) : null
   const status = visit && planned ? dueStatus(t, visit.date, localToday()) : null
   const edit = (mode: 'edit' | 'done') => router.push(`/pets/${id}/visit-form?mode=${mode}&eventId=${eventId}`)
 
@@ -95,9 +100,7 @@ export default function VisitView() {
               <Button title={words.markDone} onPress={() => edit('done')} />
               <LinkButton title={t.medicalRecord.reschedule} onPress={() => edit('edit')} />
             </>
-          ) : (
-            <Button title={t.medicalRecord.edit} onPress={() => edit('edit')} />
-          )
+          ) : null
         ) : null
       }
     >
@@ -113,6 +116,12 @@ export default function VisitView() {
               </Text>
             ) : null}
           </Card>
+
+          {note ? (
+            <Text tone="muted" style={styles.gap}>
+              {note}
+            </Text>
+          ) : null}
 
           {visit.reason || visit.diagnosis || visit.items.length > 0 ? (
             <Card outlined style={styles.card}>
@@ -138,7 +147,8 @@ export default function VisitView() {
                         <Text variant="label" tone="faint">
                           {words.inMedicines}
                         </Text>
-                      ) : (
+                      ) : prescriptionAddable(visit, item) ? (
+                        // The site's rule (shared): a prescription of a visit that happened, with a name.
                         <LinkButton
                           title={words.toMedicines}
                           accessibilityLabel={`${words.toMedicines}: ${item.name}`}
@@ -146,7 +156,7 @@ export default function VisitView() {
                           disabled={busy}
                           onPress={() => void toMedicines(item.id)}
                         />
-                      )}
+                      ) : null}
                     </View>
                   ))}
                 </View>

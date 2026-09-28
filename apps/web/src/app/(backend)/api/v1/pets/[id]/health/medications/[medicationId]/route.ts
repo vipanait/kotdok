@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { MedicationPatchSchema, UuidSchema } from '@lapka/contracts'
 import { createServiceClient } from '@/server/supabase/server'
 import { changeMedication, deleteMedication } from '@/server/medical-record/medication-service'
+import { clientToday, requestToday } from '@/server/medical-record/weight-service'
 import { apiError, apiNoContent, apiSuccess } from '@/server/api/response'
 import { serviceFailureResponse } from '@/server/api/failure-response'
 import { withApiAuth, type ApiContext } from '@/server/api/with-api-auth'
@@ -14,7 +15,19 @@ async function readIds(params: Params): Promise<{ petId: string; medicationId: s
   return { petId: id, medicationId }
 }
 
-/** A correction, or «Завершить курс»: `{ ended_on: today, ongoing: false }`. */
+/**
+ * A correction, or «Завершить курс»: `{ ended_on: today, ongoing: false }`.
+ * Only a current course changes: a finished one is history (owner rule of
+ * 26 September 2026) and any change of it is `record_done`, 409.
+ *
+ * `?today=` is the owner's calendar day: with it, a course that ended on
+ * that day or earlier is finished — the day the apps hide «Изменить» by.
+ * Taken only inside `clientToday`'s window (the UTC day before the server's
+ * to the one after), and only to tighten: the server's own window
+ * (`courseOverEverywhere`) still refuses what it would refuse without it.
+ * Absent or outside the window, that window alone decides, as for apps
+ * older than the parameter.
+ */
 export const PATCH = withApiAuth(async (request: NextRequest, context: ApiContext, params: Params) => {
   const ids = await readIds(params)
   if (!ids) return apiError(context.requestId, 'not_found', 'No such resource')
@@ -29,19 +42,25 @@ export const PATCH = withApiAuth(async (request: NextRequest, context: ApiContex
   const parsed = MedicationPatchSchema.safeParse(body)
   if (!parsed.success) return apiError(context.requestId, 'bad_request', 'Body does not match the contract')
 
-  const result = await changeMedication(createServiceClient(), context.account.userId, ids.petId, ids.medicationId, parsed.data)
+  const given = request.nextUrl.searchParams.get('today')
+  const now = new Date()
+  const ownerToday = given !== null && clientToday(given, now) === given ? given : null
+
+  const result = await changeMedication(createServiceClient(), context.account.userId, ids.petId, ids.medicationId, parsed.data, now, ownerToday)
   if (!result.ok) {
     if (result.reason === 'bad_range') return apiError(context.requestId, 'bad_request', 'The end is before the start')
+    if (result.reason === 'record_done') return apiError(context.requestId, 'record_done', 'A finished course cannot be changed')
     return serviceFailureResponse(context.requestId, result.reason)
   }
   return apiSuccess(context.requestId, result.data)
 })
 
-export const DELETE = withApiAuth(async (_request, context: ApiContext, params: Params) => {
+/** The pet form's list follows, counted from the owner's `?today=` (`requestToday`). */
+export const DELETE = withApiAuth(async (request: NextRequest, context: ApiContext, params: Params) => {
   const ids = await readIds(params)
   if (!ids) return apiError(context.requestId, 'not_found', 'No such resource')
 
-  const result = await deleteMedication(createServiceClient(), context.account.userId, ids.petId, ids.medicationId)
+  const result = await deleteMedication(createServiceClient(), context.account.userId, ids.petId, ids.medicationId, requestToday(request.nextUrl))
   if (!result.ok) {
     if (result.reason === 'bad_range') return apiError(context.requestId, 'bad_request', 'The end is before the start')
     return serviceFailureResponse(context.requestId, result.reason)

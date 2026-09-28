@@ -1,0 +1,55 @@
+{
+  "site": "http://localhost:3100",
+  "dating": {
+    "390": {
+      "formWeight": 28,
+      "refineHref": "/pets/e3bf7700-ecd8-450b-98ae-8075e0ac4e79/health/new?type=weight&from=form",
+      "url": "/pets/e3bf7700-ecd8-450b-98ae-8075e0ac4e79/health/new?type=weight&from=form",
+      "values": [
+        {
+          "type": "text",
+          "value": "28"
+        },
+        {
+          "type": "date",
+          "value": ""
+        }
+      ],
+      "datingHint": true,
+      "horizontalScroll": false
+    },
+    "1440": {
+      "formWeight": 28,
+      "refineHref": "/pets/e3bf7700-ecd8-450b-98ae-8075e0ac4e79/health/new?type=weight&from=form",
+      "url": "/pets/e3bf7700-ecd8-450b-98ae-8075e0ac4e79/health/new?type=weight&from=form",
+      "values": [
+        {
+          "type": "text",
+          "value": "28"
+        },
+        {
+          "type": "date",
+          "value": ""
+        }
+      ],
+      "datingHint": true,
+      "horizontalScroll": false
+    }
+  },
+  "focus": {
+    "390": {
+      "focused": 24,
+      "hidden": [],
+      "lowest": {
+        "key": "A|/pets/70d5d40c-1cd9-4d71-be0b-eb2041695b99/health/parasites|Все",
+        "name": "a «Все: Паразиты»",
+        "onBar": false,
+        "covered": [],
+        "outside": false,
+        "bottom": 690,
+        "barsTop": 706,
+        "viewport": 844
+      }
+    }
+  }
+}

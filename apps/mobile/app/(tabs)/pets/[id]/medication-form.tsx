@@ -1,12 +1,22 @@
 import { useEffect, useRef, useState } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
-import { ApiError } from '@lapka/shared'
+import { MEDICATION_LIMITS } from '@lapka/contracts'
+import { ApiError, courseEditable, startMayStayEmpty } from '@lapka/shared'
 import { withFreshSession } from '@/lib/api'
 import { describeFailure } from '@/lib/errors'
+import { localToday } from '@/lib/calendar-day'
 import { newRequestKey } from '@/lib/request-key'
 import { useText } from '@/i18n'
-import { blankCourse, courseDraft, readCourses, type CourseDraft, type CourseErrors } from '@/features/medical-record/medications'
+import {
+  blankCourse,
+  canAddCourse,
+  courseDraft,
+  courseEndsByToday,
+  readCourses,
+  type CourseDraft,
+  type CourseErrors,
+} from '@/features/medical-record/medications'
 import { useUnsavedChanges } from '@/features/unsaved/useUnsavedChanges'
 import { Button, IconButton, LinkButton } from '@/ui/Button'
 import { Banner, Card } from '@/ui/Card'
@@ -19,7 +29,11 @@ import { TAP_TARGET, colour, space } from '@/ui/theme'
 /**
  * Medicines (M19): several courses at once for a new entry, one for a
  * correction (`?medicationId=`). Free text with no catalogue: the dose is
- * the vet's (spec §7.12).
+ * the vet's (spec §7.12). A course needs a start, today by default; only one
+ * from the pet form whose start nobody knows may keep it empty. An end of
+ * today or earlier is said before saving: the course will be finished. A
+ * finished course is not corrected (owner rule of 26 September 2026): opened
+ * here, it shows why and no save.
  */
 export default function MedicationForm() {
   const { id: petId, medicationId } = useLocalSearchParams<{ id: string; medicationId?: string }>()
@@ -31,6 +45,10 @@ export default function MedicationForm() {
   const [errors, setErrors] = useState<CourseErrors>({})
   const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
   const [busy, setBusy] = useState(false)
+  /** The course being corrected has finished: history, read only. */
+  const [locked, setLocked] = useState(false)
+  /** The course being corrected has no start on file and may keep it so (shared `startMayStayEmpty`). */
+  const [startOptional, setStartOptional] = useState(false)
   const requestKey = useRef(newRequestKey())
   const nextKey = useRef(1)
 
@@ -41,10 +59,15 @@ export default function MedicationForm() {
       setDrafts(start)
       return
     }
-    withFreshSession((api) => api.getHealthOverview(petId))
+    withFreshSession((api) => api.getHealthOverview(petId, localToday()))
       .then((overview) => {
         const course = overview.medications.find((m) => m.id === medicationId)
         if (!course) throw new Error('not found')
+        if (!courseEditable(course, localToday())) {
+          setLocked(true)
+          return
+        }
+        setStartOptional(startMayStayEmpty(course))
         setInitial([courseDraft(course)])
         setDrafts([courseDraft(course)])
       })
@@ -59,7 +82,7 @@ export default function MedicationForm() {
 
   async function save(then: () => void = () => router.back()) {
     if (!drafts) return
-    const read = readCourses(t, drafts)
+    const read = readCourses(t, drafts, startOptional)
     if (!read.ok) {
       setErrors(read.errors)
       return
@@ -70,13 +93,18 @@ export default function MedicationForm() {
     try {
       await withFreshSession<unknown>((api) =>
         editing
-          ? api.changeMedication(petId, medicationId!, read.value[0])
-          : api.addMedications(petId, { items: read.value }, requestKey.current),
+          ? // With the owner's day: the server counts a finished course by it, as this form does.
+            api.changeMedication(petId, medicationId!, read.value[0], localToday())
+          : api.addMedications(petId, { items: read.value }, requestKey.current, localToday()),
       )
       unsaved.leave(then)
     } catch (cause) {
       if (cause instanceof ApiError && cause.code === 'conflict') {
         setError({ text: t.medicalRecord.alreadySaved, offline: false })
+      } else if (cause instanceof ApiError && cause.code === 'record_done') {
+        // Finished meanwhile (or on another device): nothing to save here any
+        // more, so nothing to ask about on the way out either.
+        unsaved.leave(() => setLocked(true))
       } else {
         setError(describeFailure(t, cause, words.saveFailed))
       }
@@ -90,9 +118,15 @@ export default function MedicationForm() {
       title={words.courseTitle}
       onBack={() => router.back()}
       scroll
-      dock={drafts ? <Button title={t.common.save} onPress={() => void save()} busy={busy} /> : null}
+      dock={drafts && !locked ? <Button title={t.common.save} onPress={() => void save()} busy={busy} /> : null}
     >
-      {drafts?.map((draft) => (
+      {locked ? (
+        <>
+          <Banner text={words.finishedReadOnly} tone="info" style={styles.note} />
+          <Button title={t.common.back} kind="secondary" onPress={() => unsaved.leave(() => router.back())} />
+        </>
+      ) : null}
+      {!locked && drafts?.map((draft) => (
         <Card key={draft.key} outlined style={styles.card}>
           <View style={styles.head}>
             <View style={styles.fill}>
@@ -127,6 +161,7 @@ export default function MedicationForm() {
             placeholder={t.medicalRecord.datePlaceholder}
             keyboardType="numbers-and-punctuation"
             error={errors[draft.key]?.start}
+            hint={startOptional ? words.startUnknownHint : undefined}
           />
           <Pressable
             accessibilityRole="checkbox"
@@ -148,17 +183,24 @@ export default function MedicationForm() {
               placeholder={t.medicalRecord.datePlaceholder}
               keyboardType="numbers-and-punctuation"
               error={errors[draft.key]?.end}
+              hint={courseEndsByToday(draft) ? words.endsNow : undefined}
             />
           ) : null}
         </Card>
       ))}
 
-      {drafts && !editing ? (
-        <LinkButton
-          title={words.addAnother}
-          align="left"
-          onPress={() => setDrafts([...drafts, blankCourse(`new-${nextKey.current++}`)])}
-        />
+      {drafts && !editing && !locked ? (
+        canAddCourse(drafts) ? (
+          <LinkButton
+            title={words.addAnother}
+            align="left"
+            onPress={() => setDrafts([...drafts, blankCourse(`new-${nextKey.current++}`)])}
+          />
+        ) : (
+          <Text variant="caption" tone="muted">
+            {words.itemsFull(MEDICATION_LIMITS.items)}
+          </Text>
+        )
       ) : null}
 
       <Text variant="caption" tone="faint" style={styles.note}>

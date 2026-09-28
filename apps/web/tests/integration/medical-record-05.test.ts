@@ -124,9 +124,9 @@ describe('parasite treatments', () => {
     expect(vaccine.status).toBe(400)
   })
 
-  it('refuses parasites on a vaccination when a record is corrected', async () => {
+  it('refuses parasites on a vaccination when a plan is corrected', async () => {
     const done = HealthEventSchema.parse(
-      await (await createEvent(request('POST', { kind: 'vaccination', status: 'done', date: day(-1), items: [{ targets: ['rabies'] }] }), params(cat))).json(),
+      await (await createEvent(request('POST', { kind: 'vaccination', status: 'planned', date: day(30), items: [{ targets: ['rabies'] }] }), params(cat))).json(),
     )
     const response = await patchEvent(
       request('PATCH', { items: [{ id: done.items[0].id, targets: ['fleas'] }] }),
@@ -137,7 +137,7 @@ describe('parasite treatments', () => {
 
   it('refuses vaccine targets on a treatment and a treatment product on a vaccination (review 7)', async () => {
     const treatment = HealthEventSchema.parse(
-      await (await createEvent(request('POST', { kind: 'parasite', status: 'done', date: day(-1), items: [{ targets: ['worms'] }] }), params(cat))).json(),
+      await (await createEvent(request('POST', { kind: 'parasite', status: 'planned', date: day(30), items: [{ targets: ['worms'] }] }), params(cat))).json(),
     )
     const wrongTargets = await patchEvent(
       request('PATCH', { items: [{ id: treatment.items[0].id, targets: ['rabies'] }] }),

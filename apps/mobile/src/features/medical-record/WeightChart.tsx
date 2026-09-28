@@ -3,7 +3,7 @@ import { StyleSheet, View, type LayoutChangeEvent } from 'react-native'
 import Svg, { Circle, Line, Polyline, Text as SvgText } from 'react-native-svg'
 import { useText } from '@/i18n'
 import { colour, font } from '@/ui/theme'
-import { chartLayout, type DatedWeight } from './weight'
+import { chartLayout, chartTicks, type DatedWeight } from '@lapka/shared'
 
 const HEIGHT = 170
 /** Room for the value above a point and the dates below the axis. */
@@ -37,7 +37,8 @@ export function WeightChart({ points }: { points: readonly DatedWeight[] }) {
 
   const onLayout = (event: LayoutChangeEvent) => setWidth(event.nativeEvent.layout.width)
 
-  const ticks = layout ? [layout.max, (layout.max + layout.min) / 2, layout.min] : []
+  // Round weights, drawn where their labels say (not the axis ends labelled rounded).
+  const ticks = layout ? chartTicks(layout.min, layout.max) : []
   const yOf = (value: number) =>
     layout ? TOP + plotHeight - ((value - layout.min) / (layout.max - layout.min)) * plotHeight : 0
 
@@ -65,7 +66,7 @@ export function WeightChart({ points }: { points: readonly DatedWeight[] }) {
               fontFamily={font.body}
               fill={colour.faint}
             >
-              {t.decimal(Math.round(tick * 10) / 10)}
+              {t.decimal(tick)}
             </SvgText>
           ))}
           <Polyline

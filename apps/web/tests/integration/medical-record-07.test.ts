@@ -152,16 +152,18 @@ describe('visits', () => {
     expect((await createVisit(request('POST', { status: 'planned', date: day(-5), visit_kind: 'checkup' }), params(cat))).status).toBe(400)
   })
 
-  it('keeps courses and the owner’s changes to them when the visit is corrected or deleted (MR-07.4)', async () => {
+  it('keeps courses and the owner’s changes to them when the visit is deleted; a visit that happened is not corrected (MR-07.4, owner rule 26.09)', async () => {
     const visit = HealthEventSchema.parse(await (await createVisit(request('POST', doneVisit), params(cat))).json())
     const fortiflora = (await overview()).medications.find((m) => m.name === 'Фортифлора')!
     await patchMedication(request('PATCH', { dosage: '2 пакетика в день' }), { params: Promise.resolve({ id: cat, medicationId: fortiflora.id }) })
 
+    // A visit that happened is history: its prescriptions are not rewritten, the courses stay as they are.
     const kept = visit.items.filter((i) => i.name !== 'Фортифлора').map((i) => ({ id: i.id, name: i.name!, instructions: 'иначе' }))
-    expect((await patchVisit(request('PATCH', { prescriptions: kept }), eventParams(visit.id))).status).toBe(200)
+    const refused = await patchVisit(request('PATCH', { prescriptions: kept }), eventParams(visit.id))
+    expect(refused.status).toBe(409)
+    expect((await refused.json()).error.code).toBe('record_done')
     let course = (await overview()).medications.find((m) => m.id === fortiflora.id)!
     expect(course.dosage).toBe('2 пакетика в день')
-    // A kept prescription's new instructions do not rewrite its course either.
     expect((await overview()).medications.find((m) => m.name === 'Лечебный корм')!.dosage).toBe('Постоянно')
 
     expect((await deleteEvent(request('DELETE'), eventParams(visit.id))).status).toBe(204)

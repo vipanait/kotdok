@@ -1,4 +1,4 @@
-import type { DueItem } from '@lapka/contracts'
+import { UuidSchema, type DueItem } from '@lapka/contracts'
 import type { Dictionary } from '@/i18n'
 import { planReminders, type PlannedReminder, type ReminderSettings } from './schedule'
 
@@ -87,8 +87,6 @@ export function createReminderSync(deps: {
 
 export type ReminderSync = ReturnType<typeof createReminderSync>
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-
 /**
  * Where a tapped reminder opens: the pet's medical record, for its own owner
  * and a pet that is still there. Anything else — another account signed in
@@ -96,7 +94,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
  */
 export function openTarget(data: unknown, userId: string, pets: readonly { id: string }[]): string {
   const value = (data ?? {}) as { petId?: unknown; userId?: unknown }
-  if (typeof value.petId !== 'string' || !UUID.test(value.petId)) return '/pets'
+  if (typeof value.petId !== 'string' || !UuidSchema.safeParse(value.petId).success) return '/pets'
   if (value.userId !== userId) return '/pets'
   if (!pets.some((pet) => pet.id === value.petId)) return '/pets'
   return `/pets/${value.petId}`

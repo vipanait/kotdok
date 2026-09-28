@@ -1,0 +1,200 @@
+{
+  "checks": {
+    "390": {
+      "firstEntry_weight": {
+        "opened": {
+          "url": "/pets/e0b3ddb6-fe1b-49ea-a777-6e2780c61137/health/new?type=weight",
+          "historyLength": 1
+        },
+        "typed": {
+          "historyLength": 2
+        },
+        "asked": {
+          "url": "/pets/e0b3ddb6-fe1b-49ea-a777-6e2780c61137/health/new?type=weight",
+          "onForm": true,
+          "title": "Уйти без сохранения?"
+        },
+        "left": {
+          "url": "/pets/e0b3ddb6-fe1b-49ea-a777-6e2780c61137/health/weight",
+          "ms": 351,
+          "dialog": false,
+          "historyLength": 2,
+          "guardEntries": false
+        },
+        "backAgain": {
+          "url": "/pets/e0b3ddb6-fe1b-49ea-a777-6e2780c61137/health/new?type=weight",
+          "dialog": false
+        }
+      },
+      "firstEntry_vaccination": {
+        "opened": {
+          "url": "/pets/73b47171-8ffa-4277-9c35-c83bb8a0d972/health/new?type=vaccination",
+          "historyLength": 1
+        },
+        "typed": {
+          "historyLength": 2
+        },
+        "asked": {
+          "url": "/pets/73b47171-8ffa-4277-9c35-c83bb8a0d972/health/new?type=vaccination",
+          "onForm": true,
+          "title": "Уйти без сохранения?"
+        },
+        "left": {
+          "url": "/pets/73b47171-8ffa-4277-9c35-c83bb8a0d972/health/vaccinations",
+          "ms": 230,
+          "dialog": false,
+          "historyLength": 2,
+          "guardEntries": false
+        },
+        "backAgain": {
+          "url": "/pets/73b47171-8ffa-4277-9c35-c83bb8a0d972/health/new?type=vaccination",
+          "dialog": false
+        }
+      },
+      "skipLink_afterTyping": {
+        "skipped": {
+          "url": "/pets/e0b3ddb6-fe1b-49ea-a777-6e2780c61137/health/new?type=weight",
+          "noHash": true,
+          "historyLengthUnchanged": true,
+          "focus": "main"
+        },
+        "asked": {
+          "url": "/pets/e0b3ddb6-fe1b-49ea-a777-6e2780c61137/health/new?type=weight",
+          "onForm": true
+        },
+        "left": {
+          "url": "/pets/e0b3ddb6-fe1b-49ea-a777-6e2780c61137/health/weight",
+          "toPageBefore": true,
+          "dialog": false
+        }
+      },
+      "skipLink_beforeTyping": {
+        "skipped": {
+          "url": "/pets/e0b3ddb6-fe1b-49ea-a777-6e2780c61137/health/new?type=weight",
+          "noHash": true,
+          "historyLengthUnchanged": true,
+          "focus": "_r_0_-weight"
+        },
+        "asked": {
+          "url": "/pets/e0b3ddb6-fe1b-49ea-a777-6e2780c61137/health/new?type=weight",
+          "onForm": true
+        },
+        "left": {
+          "url": "/pets/e0b3ddb6-fe1b-49ea-a777-6e2780c61137/health/weight",
+          "toPageBefore": true,
+          "dialog": false
+        }
+      },
+      "fromFormWithHistory": {
+        "weights": 3,
+        "weightField": "",
+        "dayField": "2026-09-28",
+        "datingHint": false
+      },
+      "dueHeld": {
+        "notice": "Визит отмечен состоявшимся.Открыть запись"
+      },
+      "dueCompleted": {
+        "notice": "Отмечено сделанным."
+      }
+    },
+    "1440": {
+      "firstEntry_weight": {
+        "opened": {
+          "url": "/pets/e0b3ddb6-fe1b-49ea-a777-6e2780c61137/health/new?type=weight",
+          "historyLength": 1
+        },
+        "typed": {
+          "historyLength": 2
+        },
+        "asked": {
+          "url": "/pets/e0b3ddb6-fe1b-49ea-a777-6e2780c61137/health/new?type=weight",
+          "onForm": true,
+          "title": "Уйти без сохранения?"
+        },
+        "left": {
+          "url": "/pets/e0b3ddb6-fe1b-49ea-a777-6e2780c61137/health/weight",
+          "ms": 230,
+          "dialog": false,
+          "historyLength": 2,
+          "guardEntries": false
+        },
+        "backAgain": {
+          "url": "/pets/e0b3ddb6-fe1b-49ea-a777-6e2780c61137/health/new?type=weight",
+          "dialog": false
+        }
+      },
+      "firstEntry_vaccination": {
+        "opened": {
+          "url": "/pets/73b47171-8ffa-4277-9c35-c83bb8a0d972/health/new?type=vaccination",
+          "historyLength": 1
+        },
+        "typed": {
+          "historyLength": 2
+        },
+        "asked": {
+          "url": "/pets/73b47171-8ffa-4277-9c35-c83bb8a0d972/health/new?type=vaccination",
+          "onForm": true,
+          "title": "Уйти без сохранения?"
+        },
+        "left": {
+          "url": "/pets/73b47171-8ffa-4277-9c35-c83bb8a0d972/health/vaccinations",
+          "ms": 552,
+          "dialog": false,
+          "historyLength": 2,
+          "guardEntries": false
+        },
+        "backAgain": {
+          "url": "/pets/73b47171-8ffa-4277-9c35-c83bb8a0d972/health/new?type=vaccination",
+          "dialog": false
+        }
+      },
+      "skipLink_afterTyping": {
+        "skipped": {
+          "url": "/pets/e0b3ddb6-fe1b-49ea-a777-6e2780c61137/health/new?type=weight",
+          "noHash": true,
+          "historyLengthUnchanged": true,
+          "focus": "main"
+        },
+        "asked": {
+          "url": "/pets/e0b3ddb6-fe1b-49ea-a777-6e2780c61137/health/new?type=weight",
+          "onForm": true
+        },
+        "left": {
+          "url": "/pets/e0b3ddb6-fe1b-49ea-a777-6e2780c61137/health/weight",
+          "toPageBefore": true,
+          "dialog": false
+        }
+      },
+      "skipLink_beforeTyping": {
+        "skipped": {
+          "url": "/pets/e0b3ddb6-fe1b-49ea-a777-6e2780c61137/health/new?type=weight",
+          "noHash": true,
+          "historyLengthUnchanged": true,
+          "focus": "_r_0_-weight"
+        },
+        "asked": {
+          "url": "/pets/e0b3ddb6-fe1b-49ea-a777-6e2780c61137/health/new?type=weight",
+          "onForm": true
+        },
+        "left": {
+          "url": "/pets/e0b3ddb6-fe1b-49ea-a777-6e2780c61137/health/weight",
+          "toPageBefore": true,
+          "dialog": false
+        }
+      },
+      "fromFormWithHistory": {
+        "weights": 3,
+        "weightField": "",
+        "dayField": "2026-09-28",
+        "datingHint": false
+      },
+      "dueHeld": {
+        "notice": "Визит отмечен состоявшимся.Открыть запись"
+      },
+      "dueCompleted": {
+        "notice": "Отмечено сделанным."
+      }
+    }
+  }
+}

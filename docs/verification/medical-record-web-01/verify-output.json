@@ -1,0 +1,179 @@
+{
+  "site": "http://localhost:3100",
+  "murka": "909b87e0-b4e5-4023-9e7f-64596e5ddaa4",
+  "bobik": "1d2ec33b-c297-49a6-92b7-07f699c857b8",
+  "checks": {
+    "petListLinks": [
+      "Мурка → /pets/11111111-1111-4111-8111-000000000001",
+      "Рекс → /pets/11111111-1111-4111-8111-000000000002",
+      "Мурка → /pets/909b87e0-b4e5-4023-9e7f-64596e5ddaa4",
+      "Бобик → /pets/1d2ec33b-c297-49a6-92b7-07f699c857b8"
+    ],
+    "murkaDirect": "Мурка",
+    "murkaOverflow1440": false,
+    "murkaAfterReload": "Мурка",
+    "murkaDue": [
+      "Блохи и клещиПросрочено на 14 дней · 12 сентября",
+      "ОсмотрЧерез 7 дней · 3 октября",
+      "ГлистыЧерез 9 дней · 5 октября"
+    ],
+    "murkaSections": [
+      "ПрививкиНобивак Tricat Trio12 марта 2026 · АйболитНобивак Rabies12 марта 2026 · Айболит",
+      "ПаразитыМильбемакс5 июля · глистыБравекто Спот-он20 июня · блохи и клещи",
+      "ВизитыКонтрольный осмотрЗапланирован · 3 октябряОбострение гастрита2 августа · Айболит",
+      "ЛекарстваЛечебный кормСейчас · постоянноФортифлораЗавершён · 2–15 августа",
+      "Вес3,8 кг4 кг4,2 кг4,4 кг4,54,44,212 марта20 июня12 сентября12 марта: 4,5 кг20 июня: 4,4 кг12 сентября: 4,2 кг",
+      "История проверок1 августаНаблюдаемРвота два дня, отказ от еды"
+    ],
+    "murkaHead": "МуркаКошка · Сибирская · 3 года · стерилизована4,2 кг−0,3 кг за 6 месяцевАнкета",
+    "hiddenActions": {
+      "addRecord": false,
+      "vetSummary": false,
+      "sectionAll": 0,
+      "markDone": false
+    },
+    "tabOrder1440": [
+      "a[#main] Перейти к содержимому",
+      "a[/] Лапка — на главную",
+      "a[/dashboard] Обзор",
+      "a[/pets] Питомцы",
+      "a[/check] Проверка симптомов",
+      "a[/checks] История",
+      "a[/credits] Подробнее",
+      "a[/account-deletion] Удаление аккаунта",
+      "button Выйти",
+      "a[/legal] Условия сервиса",
+      "summary Управление аккаунтом",
+      "a[/pets] Все питомцы",
+      "a[/pets/909b87e0-b4e5-4023-9e7f-64596e5ddaa4/edit] Анкета",
+      "a[/pets/909b87e0-b4e5-4023-9e7f-64596e5ddaa4/edit] Изменить в анкете",
+      "a[/check/15af625c-bdb8-453a-9f38-228ce42570ca] 1 августаНаблюдаемРвота два дня, отказ от еды",
+      "nextjs-portal  (hidden)",
+      "a[#main] Перейти к содержимому",
+      "a[/] Лапка — на главную",
+      "a[/dashboard] Обзор",
+      "a[/pets] Питомцы",
+      "a[/check] Проверка симптомов",
+      "a[/checks] История",
+      "a[/credits] Подробнее",
+      "a[/account-deletion] Удаление аккаунта",
+      "button Выйти",
+      "a[/legal] Условия сервиса",
+      "summary Управление аккаунтом",
+      "a[/pets] Все питомцы",
+      "a[/pets/909b87e0-b4e5-4023-9e7f-64596e5ddaa4/edit] Анкета",
+      "a[/pets/909b87e0-b4e5-4023-9e7f-64596e5ddaa4/edit] Изменить в анкете",
+      "a[/check/15af625c-bdb8-453a-9f38-228ce42570ca] 1 августаНаблюдаемРвота два дня, отказ от еды",
+      "nextjs-portal  (hidden)",
+      "a[#main] Перейти к содержимому",
+      "a[/] Лапка — на главную",
+      "a[/dashboard] Обзор",
+      "a[/pets] Питомцы",
+      "a[/check] Проверка симптомов",
+      "a[/checks] История",
+      "a[/credits] Подробнее"
+    ],
+    "bobikHead": "БобикСобака · 5 лет28 кгИз анкеты, дата не указанаАнкета",
+    "bobikSections": [
+      "ПрививкиВ анкете: привит(а)Даты и препараты не указаны",
+      "ПаразитыПока нет записейОбработки сохранятся здесь",
+      "ВизитыПока нет записейДиагнозы и назначения рядом",
+      "ЛекарстваНе указано владельцемКурсы из анкеты появятся здесь",
+      "Вес28 кгИз анкеты, дата не указанаГрафик появится, когда будет два измерения с датой.",
+      "История проверокПока нет проверокИстория появится после первой проверки"
+    ],
+    "bobikHasDue": false,
+    "bobikOverflow1440": false,
+    "failedFirstLoad": {
+      "text": "Не удалось загрузить медкартуПроверьте соединение и попробуйте ещё раз. Данные питомца не изменились.Повторить",
+      "recordShown": false,
+      "focused": "health-problem-title"
+    },
+    "retryRecovers": "Мурка",
+    "staleBanner": {
+      "text": "Не удалось обновить медкарту. Показаны ранее загруженные данные.Повторить",
+      "recordStillShown": true
+    },
+    "staleRetryClears": true,
+    "apiOwnerA": 200,
+    "afterSignOut": {
+      "url": "http://localhost:3100/login?next=%2Fpets%2F909b87e0-b4e5-4023-9e7f-64596e5ddaa4",
+      "recordShown": false
+    },
+    "afterSignOutApi": 401,
+    "murkaOverflow390": false,
+    "tabOrder390": [
+      "a[#main] Перейти к содержимому",
+      "a[/dashboard] Личный кабинет",
+      "a[/credits] 5 проверок",
+      "summary Управление аккаунтом",
+      "a[/pets] Все питомцы",
+      "a[/pets/909b87e0-b4e5-4023-9e7f-64596e5ddaa4/edit] Анкета",
+      "a[/pets/909b87e0-b4e5-4023-9e7f-64596e5ddaa4/edit] Изменить в анкете",
+      "a[/check/15af625c-bdb8-453a-9f38-228ce42570ca] 1 августаНаблюдаемРвота два дня, отказ от еды",
+      "a[/dashboard] Обзор",
+      "a[/pets] Питомцы",
+      "a[/check] Проверка симптомов",
+      "a[/checks] История"
+    ],
+    "bobikOverflow390": false,
+    "loadError390Overflow": false,
+    "overflowByWidth": {
+      "Мурка 1150": false,
+      "Бобик 1150": false,
+      "Мурка 1024": false,
+      "Бобик 1024": false,
+      "Мурка 900": false,
+      "Бобик 900": false,
+      "Мурка 768": false,
+      "Бобик 768": false,
+      "Мурка 760": false,
+      "Бобик 760": false,
+      "Мурка 360": false,
+      "Бобик 360": false,
+      "Мурка 320": false,
+      "Бобик 320": false
+    },
+    "foreignPage": {
+      "status": 200,
+      "recordShown": false,
+      "leaksRecord": [],
+      "apiRequests": []
+    },
+    "api": {
+      "ownerB": {
+        "status": 404,
+        "body": {
+          "error": {
+            "code": "not_found",
+            "message": "No such resource",
+            "request_id": "2d3cbc22-c445-421a-b4a3-19cd26f67b9c"
+          }
+        }
+      },
+      "noToken": {
+        "status": 401,
+        "body": {
+          "error": {
+            "code": "unauthorized",
+            "message": "Access token is missing or not valid",
+            "request_id": "181f8ebf-38d5-4ec3-8011-5bff572d37d7"
+          }
+        }
+      },
+      "ownerBChecks": {
+        "items": [],
+        "next_cursor": null
+      }
+    }
+  },
+  "consoleErrors": [
+    "owner-a@fixture.local: Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "owner-a@fixture.local: Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "owner-a@fixture.local: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "owner-a@fixture.local: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "owner-a@fixture.local: Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+    "owner-a@fixture.local: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "owner-a@fixture.local: Failed to load resource: net::ERR_INTERNET_DISCONNECTED"
+  ]
+}

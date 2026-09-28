@@ -12,7 +12,7 @@ import {
   type HealthEventPatch,
 } from '@lapka/contracts'
 import type { createServiceClient } from '@/server/supabase/server'
-import type { WeightResult } from './weight-service'
+import { RECORD_DONE_SQLSTATE, type WeightResult } from './weight-service'
 import { productsFitPet } from './catalog-service'
 import { getPet } from '@/server/pets/pet-service'
 
@@ -85,6 +85,12 @@ function failure(error: { code?: string; message: string }): { ok: false; reason
   if (error.code === 'P0002') return { ok: false, reason: 'not_found', message: error.message }
   if (error.code === '23505') return { ok: false, reason: 'conflict', message: error.message }
   return { ok: false, reason: 'storage_error', message: error.message }
+}
+
+/** `failure`, with the database's own refusal of a done record as `record_done`. */
+export function changeFailure(error: { code?: string; message: string }): ReturnType<typeof failure> | DoneRecord {
+  if (error.code === RECORD_DONE_SQLSTATE) return { ok: false, reason: 'record_done' }
+  return failure(error)
 }
 
 /** A pet's live records with their live items, newest day first. */
@@ -194,20 +200,57 @@ export async function createEvent(
   return readEvent(supabase, userId, petId, data as string)
 }
 
+/** Why a record may not be changed; the route answers it with `record_done` (409). */
+export type DoneRecord = { ok: false; reason: 'record_done' }
+
+/**
+ * The owner's rule of 26 September 2026: a procedure that was done — a
+ * vaccination, a treatment, and a visit that happened — is history. It can
+ * be read and deleted, never changed. A plan changes freely, keeps its id and
+ * items, and becomes done only through its own step: «Сделано»
+ * (`complete_health_item`) for an item, «Состоялся» for a visit (a PATCH
+ * with `status: 'done'` that starts from a plan, so it passes here).
+ *
+ * The one check every change of a record goes through: `updateEvent` here
+ * and `updateVisit` (visit-service.ts). Deleting does not ask it, nor does
+ * adding a visit's prescription to the medicines. Weights and the pet form
+ * are not procedures and never do.
+ *
+ * `sameSave`: the request is the very save that made the record done, sent
+ * again with its Idempotency-Key after its answer was lost (the visit's
+ * «Состоялся»). It changes nothing — the database answers it from the key —
+ * so it is not refused: the retry gets the saved visit, not an error.
+ *
+ * This read answers the ordinary case clearly before any work is done. The
+ * last word is the SQL function's own: `update_health_event` and
+ * `update_visit` refuse a done record under the pet's lock (SQLSTATE
+ * `LP409`, `changeFailure`), so a «Сделано» landing between this read and
+ * the write is refused too (MW-09).
+ */
+export function refuseDoneChange(current: Pick<HealthEvent, 'status'>, sameSave = false): DoneRecord | null {
+  return current.status === 'done' && !sameSave ? { ok: false, reason: 'record_done' } : null
+}
+
+/**
+ * A correction of a plan: its day («Перенести»), clinic, note and items. A
+ * done record is refused before anything else is looked at.
+ */
 export async function updateEvent(
   supabase: SupabaseService,
   userId: string,
   petId: string,
   eventId: string,
   patch: HealthEventPatch,
-): Promise<Result<HealthEvent> | { ok: false; reason: 'bad_product' | 'bad_target' }> {
+): Promise<Result<HealthEvent> | DoneRecord | { ok: false; reason: 'bad_product' | 'bad_target' }> {
   // Only a product newly given to an item is checked: one the item already
-  // had may have left the catalogue since, and correcting the note of an old
-  // record must not fail for it.
+  // had may have left the catalogue since, and correcting the note of a plan
+  // must not fail for it.
   // Visits are corrected through /visits, which knows their fields.
   const current = await readEvent(supabase, userId, petId, eventId)
   if (!current.ok) return current
   if (current.data.kind === 'visit') return { ok: false, reason: 'not_found' }
+  const done = refuseDoneChange(current.data)
+  if (done) return done
 
   if (patch.items) {
 
@@ -234,9 +277,12 @@ export async function updateEvent(
     p_clinic: patch.clinic === undefined ? null : (patch.clinic ?? ''),
     p_notes: patch.notes === undefined ? null : (patch.notes ?? ''),
     p_items: patch.items ?? null,
+    // The function refuses a done record itself, under the pet's lock (opt-in:
+    // the previous server, which calls it without this, keeps its behaviour).
+    p_refuse_done: true,
   })
 
-  if (error) return failure(error)
+  if (error) return changeFailure(error)
   return readEvent(supabase, userId, petId, eventId)
 }
 
@@ -269,6 +315,9 @@ export async function completeItem(
     p_item_id: itemId,
     p_done_on: input.done_on,
     p_next_on: input.next_on ?? null,
+    // Absent or null keeps the plan's clinic, and its note only when the plan
+    // of one item becomes the done record; '' (sent empty) clears it — the
+    // contract's rule, which the function applies (CompleteItemInputSchema).
     p_clinic: input.clinic ?? null,
     p_notes: input.notes ?? null,
     p_key: idempotencyKey,
@@ -283,20 +332,30 @@ type DueRow = {
   pet_id: string
   kind: DueItem['kind']
   event_date: string
+  visit_kind: DueItem['visit_kind']
   pet_health_items: ItemRow[]
   pets: { deleted_at: string | null } | null
 }
 
-/** Every planned item of the caller's live pets: the pet list shows the earliest per pet. */
+/**
+ * Every planned item of the caller's live pets, overdue first, then the
+ * soonest: the pet list shows the earliest per pet. The same order as
+ * `dueEntries` (packages/shared) gives the record and «Все сроки».
+ */
 export async function listDue(supabase: SupabaseService, userId: string): Promise<Result<DueItem[]>> {
   const { data, error } = await supabase
     .from('pet_health_events')
-    .select('id, pet_id, kind, event_date, pet_health_items(id, name, targets, source_item_id, product_id, interval_value, interval_unit, position, deleted_at), pets!inner(deleted_at)')
+    .select('id, pet_id, kind, event_date, visit_kind, pet_health_items(id, name, targets, source_item_id, product_id, interval_value, interval_unit, position, deleted_at), pets!inner(deleted_at)')
     .eq('user_id', userId)
     .eq('status', 'planned')
     .is('deleted_at', null)
     .is('pets.deleted_at', null)
     .order('event_date', { ascending: true })
+    // Plans of one day in the overview's order (newest first), so the pet list,
+    // the record and «Все сроки» list the same day's dates the same way
+    // (the shared `dueEntries` keeps the overview's order on a tie).
+    .order('created_at', { ascending: false })
+    .order('id', { ascending: true })
     .limit(500)
 
   if (error) return { ok: false, reason: 'storage_error', message: error.message }
@@ -305,7 +364,19 @@ export async function listDue(supabase: SupabaseService, userId: string): Promis
     data: (data as unknown as DueRow[]).flatMap((event) =>
       // A planned visit is one due date of its own, with no items: its id stands for the item.
       event.kind === 'visit'
-        ? [DueItemSchema.parse({ pet_id: event.pet_id, event_id: event.id, item_id: event.id, kind: 'visit', date: event.event_date, name: null, targets: [] })]
+        ? [
+            DueItemSchema.parse({
+              pet_id: event.pet_id,
+              event_id: event.id,
+              item_id: event.id,
+              kind: 'visit',
+              date: event.event_date,
+              name: null,
+              targets: [],
+              // Its kind names it on the pet list (spec §7.1).
+              visit_kind: event.visit_kind,
+            }),
+          ]
         : event.pet_health_items
         .filter((item) => item.deleted_at === null)
         .sort((a, b) => a.position - b.position)
@@ -318,6 +389,7 @@ export async function listDue(supabase: SupabaseService, userId: string): Promis
             date: event.event_date,
             name: item.name,
             targets: item.targets ?? [],
+            visit_kind: null,
           }),
         ),
     ),

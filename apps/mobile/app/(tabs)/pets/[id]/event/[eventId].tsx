@@ -17,7 +17,9 @@ import { colour, radius, space } from '@/ui/theme'
 
 /**
  * One record (M21 for a plan, X-record for a done one). A plan is marked done,
- * moved or cancelled; a done record is corrected or deleted. The two
+ * moved or cancelled; a done record is only read or deleted — something done
+ * is history and is not corrected (owner rule of 26 September 2026; the
+ * server refuses it with record_done). The two
  * confirmations say different things: cancelling a plan loses a reminder,
  * deleting a record loses history (spec §7.14).
  */
@@ -34,7 +36,7 @@ export default function EventView() {
   const load = useCallback(async () => {
     setError(null)
     try {
-      const overview = await withFreshSession((api) => api.getHealthOverview(id))
+      const overview = await withFreshSession((api) => api.getHealthOverview(id, localToday()))
       const found = overview.events.find((e) => e.id === eventId)
       // A record deleted elsewhere, or gone since the list was read: nothing
       // left to show here, so back to the list.
@@ -79,7 +81,7 @@ export default function EventView() {
 
   return (
     <Screen
-      title={event?.kind === 'parasite' ? words.treatmentTitle : words.vaccinationTitle}
+      title={!event ? words.recordTitle : event.kind === 'parasite' ? words.treatmentTitle : words.vaccinationTitle}
       onBack={() => router.back()}
       scroll
       dock={
@@ -89,9 +91,7 @@ export default function EventView() {
               {single ? <Button title={words.markDone} onPress={() => complete(event.items[0].id)} /> : null}
               <LinkButton title={words.reschedule} onPress={edit} />
             </>
-          ) : (
-            <Button title={words.edit} kind="secondary" onPress={edit} />
-          )
+          ) : null
         ) : null
       }
     >
@@ -133,6 +133,8 @@ export default function EventView() {
               ) : null}
             </Card>
           ))}
+
+          {!planned ? <Text tone="muted">{words.doneReadOnly}</Text> : null}
 
           {event.notes ? (
             <View style={styles.notes}>

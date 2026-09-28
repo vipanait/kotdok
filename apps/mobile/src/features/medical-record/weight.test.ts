@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest'
 import type { WeightMeasurement } from '@lapka/contracts'
 import { en } from '@/i18n/en'
 import { ru } from '@/i18n/ru'
-import { chartLayout, parseWeight, pointsInPeriod, weightPatch, weightTrend, type DatedWeight } from './weight'
+import { chartLayout, weightsInPeriod as pointsInPeriod, type DatedWeight } from '@lapka/shared'
+import { ApiError } from '@lapka/shared'
+import { parseWeight, weightPatch, weightSaveFailure, weightTrend } from './weight'
 
 function d(measured_on: string, weight_kg: number): DatedWeight {
   return { id: `${measured_on}-${weight_kg}`, measured_on, weight_kg, source: 'record' }
@@ -104,5 +106,17 @@ describe('a chart of points on one day', () => {
   it('spreads them evenly rather than dividing by a zero span', () => {
     const layout = chartLayout([d('2026-09-12', 4), { ...d('2026-09-12', 5), id: 'b' }], 300, 160)!
     expect(layout.points.map((p) => p.x)).toEqual([0, 300])
+  })
+})
+
+describe('a weight save refused (MW-09 final review)', () => {
+  it('a reused key is an earlier try that landed: the list is stale, closing the sheet reloads it', () => {
+    expect(weightSaveFailure(new ApiError('conflict', 409, 'key', 'r', { reason: 'idempotency_key_reused' }))).toBe('landed')
+  })
+
+  it('a plain conflict is the day taken; anything else is a failure to say', () => {
+    expect(weightSaveFailure(new ApiError('conflict', 409, 'day'))).toBe('dayTaken')
+    expect(weightSaveFailure(new ApiError('bad_request', 400, 'x'))).toBe('failed')
+    expect(weightSaveFailure(new TypeError('Network request failed'))).toBe('failed')
   })
 })

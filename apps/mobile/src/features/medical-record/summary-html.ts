@@ -1,3 +1,4 @@
+import { cssString } from '@lapka/shared'
 import type { Dictionary } from '@/i18n'
 import { LAPKA_LOGO_SVG } from '@/ui/lapka-logo'
 import type { SummaryView } from './summary-view'
@@ -39,11 +40,6 @@ function chart(points: SummaryView['chart']): string {
     )
     .join('')
   return `<svg class="chart" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg"><polyline points="${line}" fill="none" stroke="#000" stroke-width="1.5"/>${dots}</svg>`
-}
-
-/** Text as a CSS string: quotes, backslashes, line breaks and «<» cannot end it or the style block. */
-export function cssString(text: string): string {
-  return `"${text.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/[\n\r]/g, ' ').replace(/</g, '\\3C ')}"`
 }
 
 function heading(title: string): string {

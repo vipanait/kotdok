@@ -4,6 +4,7 @@ import { useEffect, useId, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { SYMPTOMS_MAX, SYMPTOMS_MIN, type SymptomCheckView } from '@lapka/contracts'
+import { localToday } from '@lapka/shared'
 import { useLocale, useTranslations } from '@/components/LocaleProvider'
 import PetAvatar from '@/components/PetAvatar'
 import Icon from '@/components/ui/Icon'
@@ -99,6 +100,8 @@ export default function CheckForm({ pets, initialPetId, credits: initialCredits 
           duration: duration || undefined,
           stool: stool || undefined,
           pain_signs: painSigns.length ? painSigns : undefined,
+          // The owner's day the pet's medical record is read on for the analysis.
+          today: localToday(),
         }),
       })
     } catch {

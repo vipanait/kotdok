@@ -1,0 +1,253 @@
+{
+  "site": "http://localhost:3100",
+  "murka": "3b3a46b1-f354-48be-881c-aa813ec86429",
+  "pages": {
+    "missingRecord": {
+      "path": "/pets/3b3a46b1-f354-48be-881c-aa813ec86429/health/00000000-0000-4000-8000-000000000000",
+      "status": 404,
+      "location": null,
+      "noindex": true
+    },
+    "missingRecordEdit": {
+      "path": "/pets/3b3a46b1-f354-48be-881c-aa813ec86429/health/00000000-0000-4000-8000-000000000000/edit",
+      "status": 404,
+      "location": null,
+      "noindex": true
+    },
+    "missingRecordComplete": {
+      "path": "/pets/3b3a46b1-f354-48be-881c-aa813ec86429/health/00000000-0000-4000-8000-000000000000/complete",
+      "status": 404,
+      "location": null,
+      "noindex": true
+    },
+    "malformedRecord": {
+      "path": "/pets/3b3a46b1-f354-48be-881c-aa813ec86429/health/not-a-record",
+      "status": 404,
+      "location": null,
+      "noindex": true
+    },
+    "otherPetsRecord": {
+      "path": "/pets/22222222-2222-4222-8222-000000000001/health/4ab91908-ab55-4684-9409-8e6509a17267",
+      "status": 404,
+      "location": null,
+      "noindex": true
+    },
+    "ownRecord": {
+      "path": "/pets/3b3a46b1-f354-48be-881c-aa813ec86429/health/4ab91908-ab55-4684-9409-8e6509a17267",
+      "status": 200,
+      "location": null,
+      "noindex": false
+    },
+    "ownCourse": {
+      "path": "/pets/3b3a46b1-f354-48be-881c-aa813ec86429/health/bcbeee97-3ec0-42dc-a4d3-64008ee9b6d2",
+      "status": 200,
+      "location": null,
+      "noindex": false
+    },
+    "ownPlanComplete": {
+      "path": "/pets/3b3a46b1-f354-48be-881c-aa813ec86429/health/4ab91908-ab55-4684-9409-8e6509a17267/complete",
+      "status": 200,
+      "location": null,
+      "noindex": false
+    },
+    "doneRecordEdit": {
+      "path": "/pets/3b3a46b1-f354-48be-881c-aa813ec86429/health/3c6cec74-e395-402c-9a23-92453bee68b3/edit",
+      "status": 307,
+      "location": "/pets/3b3a46b1-f354-48be-881c-aa813ec86429/health/3c6cec74-e395-402c-9a23-92453bee68b3",
+      "noindex": false
+    },
+    "visitFromForeignCheck": {
+      "path": "/pets/3b3a46b1-f354-48be-881c-aa813ec86429/health/new?type=visit&check=22222222-2222-4222-8222-000000000101",
+      "status": 404,
+      "location": null,
+      "noindex": true
+    },
+    "visitFromMissingCheck": {
+      "path": "/pets/3b3a46b1-f354-48be-881c-aa813ec86429/health/new?type=visit&check=00000000-0000-4000-8000-000000000000",
+      "status": 404,
+      "location": null,
+      "noindex": true
+    },
+    "visitFromOwnCheck": {
+      "path": "/pets/3b3a46b1-f354-48be-881c-aa813ec86429/health/new?type=visit&check=2d242b7f-eca7-4ccb-88a2-94ec20ee49c9",
+      "status": 200,
+      "location": null,
+      "noindex": false
+    },
+    "newRecordUnknownType": {
+      "path": "/pets/3b3a46b1-f354-48be-881c-aa813ec86429/health/new?type=unknown",
+      "status": 404,
+      "location": null,
+      "noindex": true
+    },
+    "newVaccination": {
+      "path": "/pets/3b3a46b1-f354-48be-881c-aa813ec86429/health/new?type=vaccination",
+      "status": 200,
+      "location": null,
+      "noindex": false
+    },
+    "checksForeignPet": {
+      "path": "/checks?pet=22222222-2222-4222-8222-000000000001",
+      "status": 404,
+      "location": null,
+      "noindex": true
+    },
+    "checksMissingPet": {
+      "path": "/checks?pet=00000000-0000-4000-8000-000000000000",
+      "status": 404,
+      "location": null,
+      "noindex": true
+    },
+    "checksMalformedPet": {
+      "path": "/checks?pet=not-a-pet",
+      "status": 404,
+      "location": null,
+      "noindex": true
+    },
+    "checksOwnPet": {
+      "path": "/checks?pet=3b3a46b1-f354-48be-881c-aa813ec86429",
+      "status": 200,
+      "location": null,
+      "noindex": false
+    },
+    "checksAll": {
+      "path": "/checks",
+      "status": 200,
+      "location": null,
+      "noindex": false
+    },
+    "own/": {
+      "path": "/pets/3b3a46b1-f354-48be-881c-aa813ec86429",
+      "status": 200,
+      "location": null,
+      "noindex": false
+    },
+    "foreign/": {
+      "path": "/pets/3b3a46b1-f354-48be-881c-aa813ec86429",
+      "status": 404,
+      "location": null,
+      "noindex": true
+    },
+    "own/edit": {
+      "path": "/pets/3b3a46b1-f354-48be-881c-aa813ec86429/edit",
+      "status": 200,
+      "location": null,
+      "noindex": false
+    },
+    "foreign/edit": {
+      "path": "/pets/3b3a46b1-f354-48be-881c-aa813ec86429/edit",
+      "status": 404,
+      "location": null,
+      "noindex": true
+    },
+    "own/vet-summary": {
+      "path": "/pets/3b3a46b1-f354-48be-881c-aa813ec86429/vet-summary",
+      "status": 200,
+      "location": null,
+      "noindex": false
+    },
+    "foreign/vet-summary": {
+      "path": "/pets/3b3a46b1-f354-48be-881c-aa813ec86429/vet-summary",
+      "status": 404,
+      "location": null,
+      "noindex": true
+    },
+    "own/health/due": {
+      "path": "/pets/3b3a46b1-f354-48be-881c-aa813ec86429/health/due",
+      "status": 200,
+      "location": null,
+      "noindex": false
+    },
+    "foreign/health/due": {
+      "path": "/pets/3b3a46b1-f354-48be-881c-aa813ec86429/health/due",
+      "status": 404,
+      "location": null,
+      "noindex": true
+    },
+    "own/health/vaccinations": {
+      "path": "/pets/3b3a46b1-f354-48be-881c-aa813ec86429/health/vaccinations",
+      "status": 200,
+      "location": null,
+      "noindex": false
+    },
+    "foreign/health/vaccinations": {
+      "path": "/pets/3b3a46b1-f354-48be-881c-aa813ec86429/health/vaccinations",
+      "status": 404,
+      "location": null,
+      "noindex": true
+    },
+    "own/health/parasites": {
+      "path": "/pets/3b3a46b1-f354-48be-881c-aa813ec86429/health/parasites",
+      "status": 200,
+      "location": null,
+      "noindex": false
+    },
+    "foreign/health/parasites": {
+      "path": "/pets/3b3a46b1-f354-48be-881c-aa813ec86429/health/parasites",
+      "status": 404,
+      "location": null,
+      "noindex": true
+    },
+    "own/health/visits": {
+      "path": "/pets/3b3a46b1-f354-48be-881c-aa813ec86429/health/visits",
+      "status": 200,
+      "location": null,
+      "noindex": false
+    },
+    "foreign/health/visits": {
+      "path": "/pets/3b3a46b1-f354-48be-881c-aa813ec86429/health/visits",
+      "status": 404,
+      "location": null,
+      "noindex": true
+    },
+    "own/health/medications": {
+      "path": "/pets/3b3a46b1-f354-48be-881c-aa813ec86429/health/medications",
+      "status": 200,
+      "location": null,
+      "noindex": false
+    },
+    "foreign/health/medications": {
+      "path": "/pets/3b3a46b1-f354-48be-881c-aa813ec86429/health/medications",
+      "status": 404,
+      "location": null,
+      "noindex": true
+    },
+    "own/health/weight": {
+      "path": "/pets/3b3a46b1-f354-48be-881c-aa813ec86429/health/weight",
+      "status": 200,
+      "location": null,
+      "noindex": false
+    },
+    "foreign/health/weight": {
+      "path": "/pets/3b3a46b1-f354-48be-881c-aa813ec86429/health/weight",
+      "status": 404,
+      "location": null,
+      "noindex": true
+    }
+  },
+  "consent": {
+    "/edit": {
+      "status": 307,
+      "location": "/consent?next=%2Fpets%2F3b3a46b1-f354-48be-881c-aa813ec86429%2Fedit"
+    },
+    "/vet-summary": {
+      "status": 307,
+      "location": "/consent?next=%2Fpets%2F3b3a46b1-f354-48be-881c-aa813ec86429%2Fvet-summary"
+    },
+    "/health/4ab91908-ab55-4684-9409-8e6509a17267": {
+      "status": 307,
+      "location": "/consent?next=%2Fpets%2F3b3a46b1-f354-48be-881c-aa813ec86429%2Fhealth%2F4ab91908-ab55-4684-9409-8e6509a17267"
+    },
+    "/health/new?type=weight&from=form": {
+      "status": 307,
+      "location": "/consent?next=%2Fpets%2F3b3a46b1-f354-48be-881c-aa813ec86429%2Fhealth%2Fnew%3Ftype%3Dweight%26from%3Dform"
+    },
+    "/": {
+      "status": 307,
+      "location": "/consent?next=%2Fpets%2F3b3a46b1-f354-48be-881c-aa813ec86429"
+    },
+    "spoofedHeader": "/consent?next=%2Fpets%2F3b3a46b1-f354-48be-881c-aa813ec86429%2Fedit",
+    "spoofedOtherPet": "/consent?next=%2Fpets%2F3b3a46b1-f354-48be-881c-aa813ec86429%2Fedit",
+    "spoofedSamePet": "/consent?next=%2Fpets%2F3b3a46b1-f354-48be-881c-aa813ec86429"
+  }
+}

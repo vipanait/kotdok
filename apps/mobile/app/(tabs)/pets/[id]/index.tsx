@@ -129,7 +129,7 @@ export default function MedicalRecord() {
   const load = useCallback(async () => {
     setError(null)
     try {
-      setOverview(await withFreshSession((api) => api.getHealthOverview(id)))
+      setOverview(await withFreshSession((api) => api.getHealthOverview(id, localToday())))
     } catch (cause) {
       // What was on screen stays there under the banner.
       setError(describeFailure(t, cause, t.errors.loadHealthFailed))

@@ -1,0 +1,125 @@
+{
+  "murka": "b8aef10e-5031-455e-915f-07eb91d58eed",
+  "bobik": "77206193-b4b5-4772-99c3-31a28b76f8cd",
+  "checks": {
+    "consent": {
+      "consentPage": "/consent?next=%2Fpets%2Fb8aef10e-5031-455e-915f-07eb91d58eed%2Fedit",
+      "landedOn": "/pets/b8aef10e-5031-455e-915f-07eb91d58eed/edit",
+      "heading": "Мурка"
+    },
+    "pets320": {
+      "dueLines": {
+        "pets": [
+          {
+            "pet": "Мурка",
+            "text": "Обработка от блох и клещей — просрочено",
+            "status": "— просрочено",
+            "statusWhole": true,
+            "titleCut": true
+          },
+          {
+            "pet": "Бобик",
+            "text": "Визит к врачу: осмотр — через 2 дня",
+            "status": "— через 2 дня",
+            "statusWhole": true,
+            "titleCut": true
+          }
+        ],
+        "dashboard": [
+          {
+            "pet": "Мурка",
+            "text": "Обработка от блох и клещей — просрочено",
+            "status": "— просрочено",
+            "statusWhole": true,
+            "titleCut": true
+          }
+        ]
+      },
+      "recordRequests": [
+        "?today=2026-09-27",
+        "?today=2026-09-27"
+      ],
+      "scrollsSideways": false
+    },
+    "missingRecord320": {
+      "status": 404,
+      "heading": "Такой страницы нет"
+    },
+    "pets390": {
+      "dueLines": {
+        "pets": [
+          {
+            "pet": "Мурка",
+            "text": "Обработка от блох и клещей — просрочено",
+            "status": "— просрочено",
+            "statusWhole": true,
+            "titleCut": true
+          },
+          {
+            "pet": "Бобик",
+            "text": "Визит к врачу: осмотр — через 2 дня",
+            "status": "— через 2 дня",
+            "statusWhole": true,
+            "titleCut": false
+          }
+        ],
+        "dashboard": [
+          {
+            "pet": "Мурка",
+            "text": "Обработка от блох и клещей — просрочено",
+            "status": "— просрочено",
+            "statusWhole": true,
+            "titleCut": true
+          }
+        ]
+      },
+      "recordRequests": [
+        "?today=2026-09-27",
+        "?today=2026-09-27"
+      ],
+      "scrollsSideways": false
+    },
+    "missingRecord390": {
+      "status": 404,
+      "heading": "Такой страницы нет"
+    },
+    "pets1440": {
+      "dueLines": {
+        "pets": [
+          {
+            "pet": "Мурка",
+            "text": "Обработка от блох и клещей — просрочено",
+            "status": "— просрочено",
+            "statusWhole": true,
+            "titleCut": false
+          },
+          {
+            "pet": "Бобик",
+            "text": "Визит к врачу: осмотр — через 2 дня",
+            "status": "— через 2 дня",
+            "statusWhole": true,
+            "titleCut": false
+          }
+        ],
+        "dashboard": [
+          {
+            "pet": "Мурка",
+            "text": "Обработка от блох и клещей — просрочено",
+            "status": "— просрочено",
+            "statusWhole": true,
+            "titleCut": false
+          }
+        ]
+      },
+      "recordRequests": [
+        "?today=2026-09-27",
+        "?today=2026-09-27"
+      ],
+      "scrollsSideways": false
+    },
+    "missingRecord1440": {
+      "status": 404,
+      "heading": "Такой страницы нет"
+    }
+  }
+}

@@ -12,7 +12,7 @@ import { Keyboard, KeyboardAvoidingView, ScrollView, StyleSheet, View } from 're
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useText } from '@/i18n'
 import { IconButton, LinkButton } from './Button'
-import { hiddenBelowKeyboard } from './keyboard-reveal'
+import { hiddenAboveTop, hiddenBelowKeyboard } from './keyboard-reveal'
 import { CONTROL_FONT_LIMIT, Text } from './Text'
 import type { IconName } from './Icon'
 import { colour, space } from './theme'
@@ -49,6 +49,8 @@ type Locatable = {
 const RevealContext = createContext<{
   hold: (field: Locatable | null) => void
   release: (field: Locatable | null) => void
+  /** Brings a field into view that is above the scroller's top — even one that already has the focus. */
+  show: (field: Locatable | null) => void
 } | null>(null)
 
 /**
@@ -116,6 +118,28 @@ export function Screen({
     }, REVEAL_SETTLE_MS)
   }, [])
 
+  /**
+   * A field focused while it is above the scroller's top — the form was
+   * scrolled past it, and the focus came from below (the first field with an
+   * error after «Сохранить» in the dock) — is brought down into view. The
+   * keyboard's own reveal only ever scrolls the other way.
+   */
+  const showTop = useCallback((field: Locatable | null) => {
+    const view = scroller.current?.getNativeScrollRef()
+    if (!field || !view) return
+    view.measureInWindow((_x, scrollerTop) => {
+      field.measureInWindow((_fx, fieldTop) => {
+        const above = hiddenAboveTop(fieldTop, scrollerTop)
+        if (above === 0) return
+        const target = Math.max(0, scrolled.current - above)
+        // Where the scroller is going, not where its last scroll event left it:
+        // a second measurement mid-animation must not add to the first.
+        scrolled.current = target
+        scroller.current?.scrollTo({ y: target, animated: true })
+      })
+    })
+  }, [])
+
   useEffect(() => {
     // `DidShow` for the keyboard arriving, `DidChangeFrame` for it growing —
     // switching to an emoji keyboard or a taller predictive bar moves the line
@@ -132,6 +156,7 @@ export function Screen({
     () => ({
       hold: (field: Locatable | null) => {
         focusedField.current = field
+        showTop(field)
         // Moving between fields with the keyboard already up raises no event of
         // its own, so the focus itself has to ask.
         reveal()
@@ -139,8 +164,9 @@ export function Screen({
       release: (field: Locatable | null) => {
         if (focusedField.current === field) focusedField.current = null
       },
+      show: showTop,
     }),
-    [reveal],
+    [reveal, showTop],
   )
 
   const heading = title ? (

@@ -17,6 +17,8 @@ interface Props {
   cabinet: CabinetUser
   data: DashboardData
   petSaved: PetSavedKind | null
+  /** The owner's calendar day, for the pets' due lines. */
+  today: string
 }
 
 /**
@@ -25,12 +27,12 @@ interface Props {
  * link away. With no checks left the next step is getting one, not a symptom
  * form the owner cannot send.
  */
-export default async function DashboardContent({ cabinet, data, petSaved }: Props) {
+export default async function DashboardContent({ cabinet, data, petSaved, today }: Props) {
   const [locale, timeZone] = await Promise.all([getLocale(), getTimeZone()])
   const dict = await getDictionary(locale)
   const t = dict.dashboard
 
-  const { pets, checks, latestChecksByPet, latestRequestStatus } = data
+  const { pets, checks, latestChecksByPet, dueByPet, latestRequestStatus } = data
   const state = creditsState(cabinet.credits, latestRequestStatus)
 
   const recentChecks = (
@@ -110,6 +112,8 @@ export default async function DashboardContent({ cabinet, data, petSaved }: Prop
             <MyPetsSection
               pets={pets}
               latestChecksByPet={latestChecksByPet}
+              dueByPet={dueByPet}
+              today={today}
               dict={dict}
               locale={locale}
             />

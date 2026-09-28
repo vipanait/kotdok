@@ -34,7 +34,8 @@ export default function VetSummaryScreen() {
   const load = useCallback(async () => {
     setError(null)
     try {
-      setSummary(await withFreshSession((api) => api.getVetSummary(id)))
+      // The owner's day: the server counts «принимает сейчас» and the year of visits from it.
+      setSummary(await withFreshSession((api) => api.getVetSummary(id, localToday())))
     } catch (cause) {
       setError(describeFailure(t, cause, words.loadFailed))
     }
