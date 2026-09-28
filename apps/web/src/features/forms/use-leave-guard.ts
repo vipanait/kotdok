@@ -82,10 +82,15 @@ const copyMemo: CopyMemo = {
  * `leave-guard.ts`; this hook feeds it the page's events.
  *
  * `leave(href)` is the way out once the form is done — saved, deleted or
- * abandoned on purpose: it stops asking and navigates, refreshing server
- * data the save may have changed. `leave(LEAVE_BACK)` goes back.
+ * abandoned on purpose: it stops asking, closes the question and navigates,
+ * refreshing server data the save may have changed. `leave(LEAVE_BACK)`
+ * goes back — or, when the form is the tab's first entry, to `backHref`,
+ * the form's own back link.
  */
-export function useLeaveGuard(dirty: boolean): {
+export function useLeaveGuard(
+  dirty: boolean,
+  backHref: string,
+): {
   leaveHref: string | null
   /** The link that was held, for focus to return to when the owner stays. */
   leaveLinkRef: React.RefObject<HTMLElement | null>
@@ -97,9 +102,11 @@ export function useLeaveGuard(dirty: boolean): {
   const leaveLinkRef = useRef<HTMLElement | null>(null)
   const guardRef = useRef<LeaveGuard | null>(null)
   const routerRef = useRef(router)
+  const backHrefRef = useRef(backHref)
   useEffect(() => {
     routerRef.current = router
-  }, [router])
+    backHrefRef.current = backHref
+  }, [router, backHref])
 
   const guard = useCallback((): LeaveGuard => {
     guardRef.current ??= createLeaveGuard(
@@ -111,6 +118,7 @@ export function useLeaveGuard(dirty: boolean): {
         back: () => window.history.back(),
         go: (delta) => window.history.go(delta),
         href: () => window.location.href,
+        length: () => window.history.length,
       },
       {
         push: (href) => routerRef.current.push(href),
@@ -118,6 +126,7 @@ export function useLeaveGuard(dirty: boolean): {
         refresh: () => routerRef.current.refresh(),
       },
       (run) => void window.setTimeout(run, 0),
+      () => backHrefRef.current,
       copyMemo,
       documentFirstMount,
     )
@@ -178,7 +187,14 @@ export function useLeaveGuard(dirty: boolean): {
     }
   }, [guard])
 
-  const leave = useCallback((href: string) => guard().leave(href), [guard])
+  const leave = useCallback(
+    (href: string) => {
+      guard().leave(href)
+      // The question is answered: it does not stay open over a page that is going.
+      setLeaveHref(null)
+    },
+    [guard],
+  )
   const stay = useCallback(() => setLeaveHref(null), [])
 
   return { leaveHref, leaveLinkRef, stay, leave }

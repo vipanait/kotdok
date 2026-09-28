@@ -11,6 +11,8 @@ import { openPetPage } from '@/components/cabinet/open-pet-page'
 import { UuidSchema } from '@lapka/contracts'
 import { reasonFromCheck } from '@lapka/shared'
 import { loadCheckResult } from '@/server/checks/load-check-pages'
+import { hasWeightHistory } from '@/server/medical-record/weight-service'
+import { createServiceClient } from '@/server/supabase/server'
 import { getOwnerToday, getTimeZone } from '@/server/i18n/get-time-zone'
 import { dayInZone } from '@/shared/i18n/time-zone'
 import { urgencyTitle } from '@/shared/utils/urgency'
@@ -74,6 +76,14 @@ export default async function NewRecordPage({
   const fromCheck = type === 'visit' && rawCheck !== null ? await visitSource(cabinet.user.id, id, rawCheck, dict) : null
   if (type === 'visit' && rawCheck !== null && !fromCheck) notFound()
 
+  // `&from=form` («Уточнить» on the pet form's weight) only while the pet has no
+  // weight history: with one, the pet's weight is its latest measurement, and a
+  // new weighing starts empty instead of from it under «Вес из анкеты».
+  const formWeight =
+    type === 'weight' && query.from === 'form' && pet.weight_kg !== null && !(await hasWeightHistory(createServiceClient(), cabinet.user.id, id))
+      ? pet.weight_kg
+      : null
+
   // The owner's day, worked out here as the overview does: the form is drawn on
   // the server, and its date limits must not be the server's UTC day.
   const today = await getOwnerToday()
@@ -81,7 +91,7 @@ export default async function NewRecordPage({
   return (
     <CabinetShell cabinet={cabinet} active="pets" crumb={crumb}>
       {type ? (
-        <NewRecordForm type={type} petId={id} pet={pet} today={today} fromCheck={fromCheck} fromForm={query.from === 'form'} />
+        <NewRecordForm type={type} petId={id} pet={pet} today={today} fromCheck={fromCheck} formWeight={formWeight} />
       ) : (
         <AddRecordChooser petId={id} petName={pet.name} types={RECORD_TYPES} dict={dict} />
       )}
@@ -96,7 +106,7 @@ function NewRecordForm({
   pet,
   today,
   fromCheck,
-  fromForm,
+  formWeight,
 }: {
   type: RecordType
   petId: string
@@ -104,11 +114,11 @@ function NewRecordForm({
   today: string
   fromCheck: VisitFromCheck | null
   /** «Уточнить» on the pet form's weight with no history: that value, to be dated. */
-  fromForm: boolean
+  formWeight: number | null
 }) {
   switch (type) {
     case 'weight':
-      return <NewWeightScreen key={petId} petId={petId} petName={pet.name} today={today} formWeight={fromForm ? pet.weight_kg : null} />
+      return <NewWeightScreen key={petId} petId={petId} petName={pet.name} today={today} formWeight={formWeight} />
     case 'vaccination':
     case 'parasite':
       return <NewEventScreen key={`${petId}-${type}`} petId={petId} petName={pet.name} species={pet.species} kind={type} today={today} />

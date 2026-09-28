@@ -112,7 +112,7 @@ export default function PetForm({ pet, hints = {} }: Props) {
 
   // Unsaved changes: the browser asks on reload or closing the tab; a link
   // anywhere on the page opens our own dialog first.
-  const { leaveHref, leaveLinkRef, stay, leave } = useLeaveGuard(dirty)
+  const { leaveHref, leaveLinkRef, stay, leave } = useLeaveGuard(dirty, petFormCancelHref(pet?.id))
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()

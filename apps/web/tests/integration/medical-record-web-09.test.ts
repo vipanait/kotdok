@@ -26,7 +26,7 @@ import { PATCH as patchWeight } from '@/app/(backend)/api/v1/pets/[id]/health/we
 import { completeDraft, readCompletion } from '@/features/medical-record/events/complete-form'
 import { weightPage } from '@/features/medical-record/weight/weight-view'
 import { changeMedication } from '@/server/medical-record/medication-service'
-import { deleteWeight } from '@/server/medical-record/weight-service'
+import { deleteWeight, hasWeightHistory } from '@/server/medical-record/weight-service'
 import { createServiceClient } from '@/server/supabase/server'
 import ru from '@/shared/i18n/dictionaries/ru'
 import { FIXTURE_PASSWORD, OWNER_A, PET_IDS, connect, seedFixtures, type SeededFixtures } from './fixtures'
@@ -510,6 +510,21 @@ describe('«Уточнить» on the form’s weight with no history', () => {
     expect(record.pet.weight_kg).toBe(4.2)
   })
 
+  it('«Уточнить» is the form’s value only with no history: the new-weight page asks whether there is one (final review)', async () => {
+    await db.query(`update public.pets set weight_kg = 4.2 where id = $1`, [pet])
+    const supabase = createServiceClient()
+    // No measurement at all: `&from=form` starts the form from 4.2 to be dated.
+    expect(await hasWeightHistory(supabase, owners.ownerAId, pet)).toBe(false)
+    await addWeight(request('POST', { measured_on: day(-3), weight_kg: 4.5 }), params(pet))
+    // A history: the pet's weight is its latest measurement, not the form's to date — the form starts empty.
+    expect(await hasWeightHistory(supabase, owners.ownerAId, pet)).toBe(true)
+    expect(weightPage(ru, 'ru', await overview(), 'all', TODAY, true).rows.some((row) => row.action?.href.includes('from=form'))).toBe(false)
+    // Only this owner's live rows count.
+    expect(await hasWeightHistory(supabase, owners.ownerBId, pet)).toBe(false)
+    await db.query(`update public.pet_weights set deleted_at = now() where pet_id = $1`, [pet])
+    expect(await hasWeightHistory(supabase, owners.ownerAId, pet)).toBe(false)
+  })
+
   it('a first weighing with another value still keeps the form’s old one, undated', async () => {
     await db.query(`update public.pets set weight_kg = 4.2 where id = $1`, [pet])
     await addWeight(request('POST', { measured_on: TODAY, weight_kg: 4.5 }), params(pet))
@@ -524,6 +539,22 @@ describe('a course is finished by the owner’s day when the app sends it', () =
     const saved = await addMedications(request('POST', { items: [{ name: 'Курс', started_on: day(-10), ...fields }] }, crypto.randomUUID()), params(pet))
     return MedicationSchema.array().parse(await saved.json())[0]
   }
+
+  it('«Завершить курс» whose answer was lost before midnight, sent again after it with the first try’s end: 200 and the course (final review)', async () => {
+    const current = await course({})
+    const yesterday = day(-1)
+    // The first try, on the owner's yesterday: it lands, its answer is lost.
+    const first = await patchMedication(request('PATCH', endCoursePatch(yesterday), undefined, `?today=${yesterday}`), medParams(current.id))
+    expect(first.status).toBe(200)
+    // The retry past midnight keeps the first try's end (the phone's `endCourse`): nothing to change, the course.
+    const retry = await patchMedication(request('PATCH', endCoursePatch(yesterday), undefined, `?today=${TODAY}`), medParams(current.id))
+    expect(retry.status).toBe(200)
+    expect(MedicationSchema.parse(await retry.json())).toMatchObject({ id: current.id, ended_on: yesterday, ongoing: false })
+    // What the phone sent before the fix — today's end — is a change of a finished course.
+    const moved = await patchMedication(request('PATCH', endCoursePatch(TODAY), undefined, `?today=${TODAY}`), medParams(current.id))
+    expect(moved.status).toBe(409)
+    expect((await moved.json()).error.code).toBe('record_done')
+  })
 
   it('ending today on the owner’s day: refused at once, whatever the hour in UTC', async () => {
     const ended = await course({ ended_on: TODAY })

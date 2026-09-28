@@ -227,6 +227,23 @@ const listDayParam = {
   schema: { type: 'string', format: 'date' },
 }
 
+/**
+ * `?today=` of a course change (MW-09): the owner's day decides, besides the
+ * pet form's list, whether the course is already finished — it only
+ * tightens the server's own rule.
+ */
+const courseDayParam = {
+  name: 'today',
+  in: 'query',
+  required: false,
+  description:
+    'The owner\'s calendar day, used only from the UTC day before the server\'s to the UTC day after; otherwise, ' +
+    'or without it, the server\'s UTC day. A course that ended on it or earlier is finished and refused ' +
+    '(409 record_done) — the owner\'s day only tightens the server\'s own rule — and the pet form\'s list of ' +
+    'current medicines is counted from it.',
+  schema: { type: 'string', format: 'date' },
+}
+
 const idParam = {
   name: 'id',
   in: 'path',
@@ -525,7 +542,7 @@ export function buildOpenApiDocument(): Record<string, unknown> {
             'and is later — `today` or earlier: the owner\'s day only tightens the rule. A change that leaves a ' +
             'finished course as it is, such as «Завершить курс» sent again, answers 200. ' +
             'The pet form\'s list of current medicines is then counted from `today`.',
-          parameters: [{ name: 'today', in: 'query', required: false, schema: { type: 'string', format: 'date' } }],
+          parameters: [courseDayParam],
           requestBody: body('MedicationPatch'),
           responses: { '200': json('Medication', 'The course'), ...commonErrors('bad_request', 'not_found', 'record_done') },
         },

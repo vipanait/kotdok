@@ -42,11 +42,15 @@ function tab(start: string[]) {
       this.go(-1)
     },
     go(delta) {
-      cursor = Math.max(0, cursor + delta)
+      // Out of range, the browser does nothing at all — no move, no popstate.
+      const to = cursor + delta
+      if (to < 0 || to >= entries.length) return
+      cursor = to
       // The popstate reaches every form guard on the page.
       if (entries[cursor].href === formHref) for (const guard of [...onPage]) popped.push(guard.popped())
     },
     href: () => entries[cursor].href,
+    length: () => entries.length,
   }
   const router = {
     push(href: string) {
@@ -67,7 +71,7 @@ function tab(start: string[]) {
 
   function open() {
     formHref = entries[cursor].href
-    const guard = createLeaveGuard(port, router, (run) => pending.push(run), memo, firstOnDocument)
+    const guard = createLeaveGuard(port, router, (run) => pending.push(run), () => '/section', memo, firstOnDocument)
     onPage.add(guard)
     guard.mounted()
     return guard
@@ -247,5 +251,55 @@ describe('a form re-keyed while its copy is in history (MW-09 fix round 2)', () 
     t.settle()
     fresh.leave(LEAVE_BACK)
     expect(t.here()).toBe('/section')
+  })
+})
+
+describe('a form that is the tab’s first entry: opened in a new tab, from a bookmark, a restored tab (MW-09 final review)', () => {
+  it('type, Back, «Уйти»: the form’s back link, replacing the copy — never a button that does nothing', () => {
+    const t = tab(['/form'])
+    const form = t.open()
+    form.setDirty(true)
+    expect(t.addresses()).toEqual(['/form', '/form'])
+    t.back()
+    expect(t.popped).toEqual(['ask'])
+    t.settle()
+    form.leave(LEAVE_BACK)
+    expect(t.here()).toBe('/section')
+    // The copy is gone: Back from the section is the form, once.
+    expect(t.addresses()).toEqual(['/form', '/section'])
+    expect(t.copies()).toBe(0)
+  })
+
+  it('«Уйти» pressed before the copy is back on top: the back link all the same', () => {
+    const t = tab(['/form'])
+    const form = t.open()
+    form.setDirty(true)
+    t.back()
+    form.leave(LEAVE_BACK)
+    expect(t.here()).toBe('/section')
+    t.settle()
+    expect(t.here()).toBe('/section')
+  })
+
+  it('type, reload on the copy, type, Back, «Уйти»: the back link', () => {
+    const t = tab(['/form'])
+    t.open().setDirty(true)
+    const reloaded = t.reload()
+    reloaded.setDirty(true)
+    t.back()
+    expect(t.popped).toEqual(['ask'])
+    t.settle()
+    reloaded.leave(LEAVE_BACK)
+    expect(t.here()).toBe('/section')
+  })
+
+  it('with a page before it, «Уйти» still goes back, not to the back link', () => {
+    const t = tab(['/elsewhere', '/form'])
+    const form = t.open()
+    form.setDirty(true)
+    t.back()
+    t.settle()
+    form.leave(LEAVE_BACK)
+    expect(t.here()).toBe('/elsewhere')
   })
 })

@@ -6,6 +6,7 @@ import en from '@/shared/i18n/dictionaries/en'
 import {
   changeDoneDay,
   completeDraft,
+  completeHolds,
   completionChanged,
   completionTarget,
   othersInPlan,
@@ -20,6 +21,7 @@ import {
   parseCompleteFrom,
   parseRecordStepSaved,
   parseSavedRecord,
+  visitPlanDoneHref,
   withSaved,
 } from '@/features/medical-record/routes'
 import { allDue, dueBlock } from '@/features/medical-record/view-model'
@@ -313,5 +315,27 @@ describe('after a save: back where the form was opened, the record in the notice
     expect(parseSavedRecord(['a', 'b'])).toBeNull()
     expect(parseRecordStepSaved('completed')).toBe('completed')
     expect(parseRecordStepSaved('form')).toBeNull()
+  })
+})
+
+describe('«Состоялся» pressed in «Все сроки» (MW-09 final review)', () => {
+  it('comes back with the visit’s own words (`held`), not «Сделано»; the page reads both', () => {
+    expect(visitPlanDoneHref(petId, 'held', 'due', uuid(401), 'held')).toBe(`/pets/${petId}/health/due?saved=held&record=${uuid(401)}`)
+    expect(parseRecordStepSaved('held')).toBe('held')
+    expect(ru.medicalRecord.visitsPage.saved.held).not.toBe(ru.medicalRecord.due.saved)
+    // The other places it is pressed are as they were.
+    expect(visitPlanDoneHref(petId, 'held', 'section', uuid(401), 'held')).toBe(`/pets/${petId}/health/visits?saved=held&record=${uuid(401)}`)
+    expect(visitPlanDoneHref(petId, 'held', 'medical', uuid(401), 'held')).toBe(`/pets/${petId}?saved=held&record=${uuid(401)}`)
+    expect(visitPlanDoneHref(petId, 'edit', 'record', uuid(401), 'changed')).toBe(`/pets/${petId}/health/${uuid(401)}?saved=changed`)
+  })
+})
+
+describe('the «Сделано» form holds its plan while the question is open (MW-09 final review)', () => {
+  it('a form nothing was changed in, asking «Отметить сделанным?», is held: new data does not re-key it and close the question', () => {
+    expect(completeHolds({ changed: false, saving: false, asking: true })).toBe(true)
+    expect(completeHolds({ changed: true, saving: false, asking: false })).toBe(true)
+    expect(completeHolds({ changed: false, saving: true, asking: false })).toBe(true)
+    // Nothing typed, nothing asked, nothing sent: new data is taken silently.
+    expect(completeHolds({ changed: false, saving: false, asking: false })).toBe(false)
   })
 })

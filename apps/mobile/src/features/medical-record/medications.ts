@@ -1,5 +1,5 @@
-import { MEDICATION_LIMITS, type Medication, type MedicationsInput } from '@lapka/contracts'
-import { courseDayProblems, endsByToday } from '@lapka/shared'
+import { MEDICATION_LIMITS, type Medication, type MedicationPatch, type MedicationsInput } from '@lapka/contracts'
+import { ApiError, courseDayProblems, endCoursePatch, endsByToday } from '@lapka/shared'
 import type { Dictionary } from '@/i18n'
 import { dayInput, dayParts, localToday, parseDayText } from '@/lib/calendar-day'
 
@@ -127,4 +127,35 @@ export function courseEndsByToday(draft: CourseDraft, today: string = localToday
 /** Whether «+ Ещё препарат» may add one more: one save takes the contract's number of courses. */
 export function canAddCourse(drafts: readonly CourseDraft[]): boolean {
   return drafts.length < MEDICATION_LIMITS.items
+}
+
+/**
+ * One «Завершить курс» on the course screen, however many times it is sent:
+ * the day of its first try is kept (`attempt.day`) until the server answers,
+ * so a retry after a lost answer — after midnight too — sends the same end
+ * and the server, finding the course already so, answers with it (200)
+ * rather than refusing a new end of a finished course (MW-09 final review).
+ * `today` goes as the owner's day of the request all the same.
+ *
+ * `reread`: the server says the course is finished (`record_done`) — ended
+ * on another device, or on this one on another day: the screen reads it
+ * again and shows it as it is. Anything else is thrown for the screen to say.
+ */
+export async function endCourse(
+  send: (patch: MedicationPatch, today: string) => Promise<Medication>,
+  attempt: { day: string | null },
+  today: string,
+): Promise<{ kind: 'ended'; course: Medication } | { kind: 'reread' }> {
+  const day = attempt.day ?? today
+  attempt.day = day
+  try {
+    const course = await send(endCoursePatch(day), today)
+    attempt.day = null
+    return { kind: 'ended', course }
+  } catch (cause) {
+    // The server answered: nothing of this try is in doubt any more.
+    if (cause instanceof ApiError) attempt.day = null
+    if (cause instanceof ApiError && cause.code === 'record_done') return { kind: 'reread' }
+    throw cause
+  }
 }

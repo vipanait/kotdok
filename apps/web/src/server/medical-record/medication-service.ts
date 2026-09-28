@@ -1,6 +1,7 @@
 import 'server-only'
 
 import { MedicationSchema, type Medication, type MedicationPatch, type MedicationsInput } from '@lapka/contracts'
+import { isCurrentCourse } from '@lapka/shared'
 import type { createServiceClient } from '@/server/supabase/server'
 import { RECORD_DONE_SQLSTATE, isFutureDay, utcToday, type WeightResult } from './weight-service'
 
@@ -216,9 +217,12 @@ export function courseOverBy(now: Date, ownerToday: string | null): string {
   return ownerToday !== null && ownerToday > everywhere ? ownerToday : everywhere
 }
 
-/** Whether a course ended on `overBy` or earlier: history, not to be changed. */
+/**
+ * Whether a course ended on `overBy` or earlier: history, not to be changed.
+ * The shared rule of a current course (`isCurrentCourse`), read on `overBy`.
+ */
 export function courseFinished(course: Pick<Medication, 'ended_on'>, overBy: string): boolean {
-  return course.ended_on !== null && course.ended_on <= overBy
+  return !isCurrentCourse(course, overBy)
 }
 
 /** Whether a patch would change anything of the course as stored (texts as the database keeps them). */

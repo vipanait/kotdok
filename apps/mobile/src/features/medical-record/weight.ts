@@ -1,6 +1,6 @@
 import type { WeightMeasurement } from '@lapka/contracts'
 import type { Dictionary } from '@/i18n'
-import { weightTrend as trendOf } from '@lapka/shared'
+import { ApiError, isKeyReused, weightTrend as trendOf } from '@lapka/shared'
 
 /**
  * Weight history, worked out for the screen: reading what was typed and the
@@ -29,4 +29,17 @@ export function weightTrend(t: Dictionary, weights: readonly WeightMeasurement[]
   if (trend.change === 0) return t.medicalRecord.noChange(span)
 
   return t.medicalRecord.trend(`${trend.change < 0 ? '−' : '+'}${t.decimal(Math.abs(trend.change))}`, span)
+}
+
+/**
+ * What a failed weight save means for the sheet. `landed`: the server says
+ * this save's key was used — an earlier try did reach it, with the values it
+ * had then, so the list behind the sheet is out of date and closing the sheet
+ * reloads it (MW-09 final review). `dayTaken`: that day has a measurement.
+ * `failed`: anything else, said by `describeFailure`.
+ */
+export function weightSaveFailure(cause: unknown): 'landed' | 'dayTaken' | 'failed' {
+  if (isKeyReused(cause)) return 'landed'
+  if (cause instanceof ApiError && cause.code === 'conflict') return 'dayTaken'
+  return 'failed'
 }

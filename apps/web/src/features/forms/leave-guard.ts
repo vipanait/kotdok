@@ -28,7 +28,11 @@ export type LeaveGuard = {
   linkClicked(href: string): 'hold' | 'follow' | 'pass'
   /** A popstate. `ask`: Back was pressed over the form's changes — the page stays and asks. */
   popped(): 'ask' | 'none'
-  /** The way out once the form is done; `LEAVE_BACK` goes back past the form. */
+  /**
+   * The way out once the form is done; `LEAVE_BACK` goes back past the form,
+   * or — when the form is the tab's first entry and nothing is before it —
+   * to the form's own back link (`backHref`).
+   */
   leave(href: string): void
   /** The form is on the page (after a reload too). */
   mounted(): void
@@ -40,6 +44,12 @@ export function createLeaveGuard(
   port: HistoryPort,
   router: LeaveRouter,
   later: (run: () => void) => void,
+  /**
+   * Where «Уйти» after Back leads when there is no page before the form to
+   * go back to: the form's back link — its section, or the record it came
+   * from (MW-09 final review).
+   */
+  backHref: () => string,
   memo?: CopyMemo,
   /**
    * True once per loaded document, for the first form guard that asks
@@ -91,11 +101,14 @@ export function createLeaveGuard(
       })
       return 'ask'
     },
-    leave(href) {
+    leave(to) {
       leaving = true
+      let href = to
       if (href === LEAVE_BACK) {
-        back.goBack()
-        return
+        if (back.goBack()) return
+        // Nothing before the form (a new tab, a bookmark): Back cannot take the
+        // owner away, so its back link does — replacing the copy, as a link would.
+        href = backHref()
       }
       // The copy on top is replaced by the next page, not left behind for Back to find.
       if (back.leave() === 'replace') router.replace(href)

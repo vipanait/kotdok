@@ -9,10 +9,12 @@
 --
 -- 2. An empty clinic or note used to fall back to the plan's: the owner could
 --    not clear them. The request now tells "not sent" from "sent empty":
---    null (or absent) keeps the plan's text, as every installed app sends for
---    an empty field; an empty string clears it. The apps from MW-09 on start
---    both fields from the plan's text and send '' for a field the owner
---    emptied.
+--    null (or absent), as every installed app sends for an empty field,
+--    keeps the plan's clinic — and its note when the plan of one item
+--    becomes the done record; the done record of one item out of several
+--    starts without a note (the plan keeps its own). An empty string clears
+--    the field. The apps from MW-09 on start both fields from the plan's
+--    text and send '' for a field the owner emptied.
 
 alter table public.pet_health_events add column if not exists complete_key text;
 alter table public.pet_health_events add column if not exists complete_hash text;
@@ -66,7 +68,9 @@ $$;
  * the done record; the same key with other data is unique_violation. An item
  * already done under another key returns its record as it was.
  *
- * `p_clinic` / `p_notes`: null keeps the plan's text, '' clears it.
+ * `p_clinic`: null keeps the plan's clinic, '' clears it. `p_notes`: null
+ * keeps the plan's note when the plan of one item becomes the done record,
+ * and gives the done record of one item out of several no note; '' clears.
  */
 create or replace function public.complete_health_item(
   p_user_id uuid,

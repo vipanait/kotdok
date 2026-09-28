@@ -95,7 +95,7 @@ export default function WeightForm({
   const deleteRef = useRef<HTMLButtonElement>(null)
 
   const dirty = weightText !== initial.weight || day !== initial.day
-  const { leaveHref, leaveLinkRef, stay, leave } = useLeaveGuard(dirty && !saving && !deleting)
+  const { leaveHref, leaveLinkRef, stay, leave } = useLeaveGuard(dirty && !saving && !deleting, historyHref)
   useEffect(() => onDirtyChange?.(dirty || saving || deleting), [dirty, saving, deleting, onDirtyChange])
 
   const undated = editing !== null && editing.measured_on === null

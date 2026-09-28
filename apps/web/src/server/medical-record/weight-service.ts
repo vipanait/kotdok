@@ -75,6 +75,24 @@ export async function listWeights(
 }
 
 /**
+ * Whether the pet has any live measurement, the form's undated one too.
+ * «Уточнить» on the pet form's weight (`&from=form`) is offered only with
+ * none: once there is a history, the pet's weight is its latest measurement,
+ * not a value from the form to be dated (MW-09 final review).
+ */
+export async function hasWeightHistory(supabase: SupabaseService, userId: string, petId: string): Promise<boolean> {
+  const { data, error } = await supabase
+    .from('pet_weights')
+    .select('id')
+    .eq('pet_id', petId)
+    .eq('user_id', userId)
+    .is('deleted_at', null)
+    .limit(1)
+  if (error) throw new Error(`Could not read the weights: ${error.message}`)
+  return (data ?? []).length > 0
+}
+
+/**
  * `idempotencyKey`: the same key with the same weighing answers with the
  * measurement it made — a retry after midnight does not add a second one —
  * and with another weighing is `key_reused`. Null: no key, as before.

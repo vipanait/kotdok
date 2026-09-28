@@ -3665,6 +3665,10 @@ paths:
         - name: today
           in: query
           required: false
+          description: The owner's calendar day, used only from the UTC day before the server's to the UTC day
+            after; otherwise, or without it, the server's UTC day. A course that ended on it or
+            earlier is finished and refused (409 record_done) — the owner's day only tightens the
+            server's own rule — and the pet form's list of current medicines is counted from it.
           schema:
             type: string
             format: date

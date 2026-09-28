@@ -1,6 +1,6 @@
 import CabinetShell from '@/components/cabinet/CabinetShell'
 import DueScreen from '@/features/medical-record/DueScreen'
-import { parseSavedRecord } from '@/features/medical-record/routes'
+import { parseRecordStepSaved, parseSavedRecord } from '@/features/medical-record/routes'
 import { openPetPage } from '@/components/cabinet/open-pet-page'
 import { privatePageMetadata } from '@/server/i18n/page-metadata'
 
@@ -20,8 +20,9 @@ export default async function DuePage({
   const { id } = await params
   const { cabinet, dict } = await openPetPage(id, `/pets/${id}/health/due`)
   const query = await searchParams
-  const saved = query.saved === 'completed'
-  // The record «Сделано» made, opened from its notice (MW-09).
+  // «Сделано» (`completed`) or «Состоялся» (`held`) pressed here.
+  const saved = parseRecordStepSaved(query.saved)
+  // The record it made, opened from its notice (MW-09).
   const savedRecord = parseSavedRecord(query.record)
 
   return (
