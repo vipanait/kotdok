@@ -113,7 +113,7 @@ export default function VisitForm({
   const addRef = useRef<HTMLButtonElement>(null)
 
   const dirty = visitDraftChanged(initial, draft)
-  const { leaveHref, leaveLinkRef, stay, leave } = useLeaveGuard(dirty && !saving)
+  const { leaveHref, leaveLinkRef, stay, leave } = useLeaveGuard(dirty && !saving, backHref)
   useEffect(() => onDirtyChange?.(dirty || saving), [dirty, saving, onDirtyChange])
   const errors = visitErrorTexts(dict, problems)
   const done = draft.status === 'done'

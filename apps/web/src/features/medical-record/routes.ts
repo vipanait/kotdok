@@ -87,7 +87,20 @@ export function parseSavedRecord(value: string | string[] | undefined): string |
   return typeof value === 'string' && UuidSchema.safeParse(value).success ? value : null
 }
 
-/** `?saved=` of the record page (`/pets/[id]`) after «Сделано» or «Состоялся» pressed on it. */
+/** `?saved=` of the record page (`/pets/[id]`) and of «Все сроки» after «Сделано» or «Состоялся» pressed there. */
 export function parseRecordStepSaved(value: string | string[] | undefined): 'completed' | 'held' | null {
   return value === 'completed' || value === 'held' ? value : null
+}
+
+/**
+ * Where a saved plan leads: back where the form was opened, the visit in the
+ * notice (MW-09). «Изменить» and «Состоялся» on the visit's own page return
+ * to it; the plan became the visit itself.
+ */
+export function visitPlanDoneHref(petId: string, kind: 'edit' | 'held', from: CompleteFrom, visitId: string, saved: 'added' | 'changed' | 'held'): string {
+  // «Все сроки» says it in the visit's words, «Визит отмечен состоявшимся», not «Сделано».
+  if (kind === 'held' && from === 'due') return withSaved(medicalRecordHref.due(petId), 'held', visitId)
+  if (kind === 'held' && from === 'section') return withSaved(medicalRecordHref.section(petId, 'visits'), 'held', visitId)
+  if (kind === 'held' && from === 'medical') return withSaved(medicalRecordHref.record(petId), 'held', visitId)
+  return withSaved(medicalRecordHref.recordView(petId, visitId), saved)
 }

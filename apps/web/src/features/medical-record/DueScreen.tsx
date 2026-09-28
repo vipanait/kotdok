@@ -15,7 +15,16 @@ import { allDue } from './view-model'
  * how far it is in words and with an icon, never by colour alone; overdue is
  * a calendar fact, not a medical alarm. «Сделано» marks that one item.
  */
-export default function DueScreen({ petId, saved, savedRecord = null }: { petId: string; saved: boolean; savedRecord?: string | null }) {
+export default function DueScreen({
+  petId,
+  saved,
+  savedRecord = null,
+}: {
+  petId: string
+  /** Back from «Сделано» (`completed`) or a visit's «Состоялся» (`held`) pressed here: said in that record's words. */
+  saved: 'completed' | 'held' | null
+  savedRecord?: string | null
+}) {
   const dict = useTranslations()
   const locale = useLocale()
   const words = dict.medicalRecord.due
@@ -40,7 +49,7 @@ export default function DueScreen({ petId, saved, savedRecord = null }: { petId:
         </Link>
       </div>
 
-      {saved && <SavedNotice text={words.saved} link={savedRecord ? { href: medicalRecordHref.recordView(petId, savedRecord), text: dict.medicalRecord.savedOpen } : null} />}
+      {saved && <SavedNotice text={saved === 'held' ? dict.medicalRecord.visitsPage.saved.held : words.saved} link={savedRecord ? { href: medicalRecordHref.recordView(petId, savedRecord), text: dict.medicalRecord.savedOpen } : null} />}
       <StaleNotice state={state} reload={reload} />
 
       {due.rows.length === 0 ? (

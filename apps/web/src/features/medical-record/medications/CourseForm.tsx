@@ -79,7 +79,7 @@ export default function CourseForm({
   const sectionHref = medicalRecordHref.section(petId, 'medications')
   const backHref = course ? medicalRecordHref.recordView(petId, course.id) : sectionHref
   const dirty = coursesChanged(initial, drafts)
-  const { leaveHref, leaveLinkRef, stay, leave } = useLeaveGuard(dirty && !saving)
+  const { leaveHref, leaveLinkRef, stay, leave } = useLeaveGuard(dirty && !saving, backHref)
   useEffect(() => onDirtyChange?.(dirty || saving), [dirty, saving, onDirtyChange])
   const errors = courseErrorTexts(dict, problems)
   const full = drafts.length >= MEDICATION_LIMITS.items

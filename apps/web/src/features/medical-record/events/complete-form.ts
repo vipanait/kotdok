@@ -134,6 +134,17 @@ export function completionChanged(before: CompleteDraft, after: CompleteDraft): 
   return shape(before) !== shape(after)
 }
 
+/**
+ * Whether the «Сделано» form holds the plan it opened with against new data
+ * loaded underneath (`useHeldRecord`): while something is typed, while it
+ * saves — and while the question before the save is open, even over a form
+ * nothing was changed in: taking the new data re-keys the form, which would
+ * close the question the owner is answering (MW-09 final review).
+ */
+export function completeHolds(state: { changed: boolean; saving: boolean; asking: boolean }): boolean {
+  return state.changed || state.saving || state.asking
+}
+
 /** The other items of the plan: they stay planned, and the form says so. */
 export function othersInPlan(plan: HealthEvent, item: Pick<HealthItem, 'id'>): number {
   return plan.items.filter((candidate) => candidate.id !== item.id).length

@@ -6,7 +6,7 @@ import { useToday } from '@/features/forms/use-today'
 import type { Fresh } from '../held-record'
 import { FormNotice, FormSkeleton } from '../form-parts'
 import { RecordProblem } from '../MedicalRecordScreen'
-import { medicalRecordHref, withSaved, type CompleteFrom } from '../routes'
+import { medicalRecordHref, visitPlanDoneHref, withSaved, type CompleteFrom } from '../routes'
 import { DriftNotice, useHeldRecord } from '../use-held-record'
 import { useMedicalRecord } from '../use-medical-record'
 import { usePetChecks } from './use-pet-checks'
@@ -70,18 +70,6 @@ function heldBack(petId: string, visitId: string, from: CompleteFrom): string {
   return medicalRecordHref.recordView(petId, visitId)
 }
 
-/**
- * Where a saved plan leads: back where the form was opened, the visit in the
- * notice (MW-09). «Изменить» and «Состоялся» on the visit's own page return
- * to it; the plan became the visit itself.
- */
-function planDoneHref(petId: string, kind: 'edit' | 'held', from: CompleteFrom, visitId: string, saved: 'added' | 'changed' | 'held'): string {
-  if (kind === 'held' && from === 'due') return withSaved(medicalRecordHref.due(petId), 'completed', visitId)
-  if (kind === 'held' && from === 'section') return withSaved(medicalRecordHref.section(petId, 'visits'), 'held', visitId)
-  if (kind === 'held' && from === 'medical') return withSaved(medicalRecordHref.record(petId), 'held', visitId)
-  return withSaved(medicalRecordHref.recordView(petId, visitId), saved)
-}
-
 /** What the latest load says about the planned visit. */
 function freshVisit(events: HealthEvent[], visitId: string): Fresh<HealthEvent> {
   const visit = events.find((entry) => entry.id === visitId)
@@ -124,7 +112,7 @@ function PlanScreen({
       checks={checks.items}
       today={today}
       backHref={back}
-      doneHref={(savedId, saved) => planDoneHref(petId, kind, from, savedId, saved)}
+      doneHref={(savedId, saved) => visitPlanDoneHref(petId, kind, from, savedId, saved)}
       onStale={() => {
         // The owner's own save found it done or gone: the page shows what it is now.
         held.release()

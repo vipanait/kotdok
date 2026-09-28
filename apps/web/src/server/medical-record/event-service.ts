@@ -315,7 +315,8 @@ export async function completeItem(
     p_item_id: itemId,
     p_done_on: input.done_on,
     p_next_on: input.next_on ?? null,
-    // Absent or null keeps the plan's text; '' (sent empty) clears it — the
+    // Absent or null keeps the plan's clinic, and its note only when the plan
+    // of one item becomes the done record; '' (sent empty) clears it — the
     // contract's rule, which the function applies (CompleteItemInputSchema).
     p_clinic: input.clinic ?? null,
     p_notes: input.notes ?? null,

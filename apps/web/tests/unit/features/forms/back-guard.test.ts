@@ -4,7 +4,8 @@ import { GUARD_KEY, createBackGuard, type HistoryPort } from '@/features/forms/b
 /**
  * A browser history in miniature: entries with an address and a state, and
  * a cursor. `back`/`go` move the cursor the way the browser does and call
- * `onPop` like a popstate would; `push` drops what was ahead of the cursor.
+ * `onPop` like a popstate would — and, like the browser, do nothing at all
+ * when the step is out of range; `push` drops what was ahead of the cursor.
  */
 function fakeHistory(start: string[]) {
   const entries = start.map((href) => ({ href, state: { __NA: true, href } as Record<string, unknown> }))
@@ -23,10 +24,13 @@ function fakeHistory(start: string[]) {
       this.go(-1)
     },
     go(delta) {
-      cursor = Math.max(0, cursor + delta)
+      const to = cursor + delta
+      if (to < 0 || to >= entries.length) return
+      cursor = to
       onPop()
     },
     href: () => entries[cursor].href,
+    length: () => entries.length,
   }
   return {
     port,
@@ -42,6 +46,13 @@ function fakeHistory(start: string[]) {
       } else {
         entries[cursor] = { href, state: { __NA: true, href } }
       }
+    },
+    /** A jump within the page (`<a href="#main">`): a new entry, no state — the browser's, not Next's. */
+    jump(hash: string) {
+      entries.splice(cursor + 1)
+      entries.push({ href: `${entries[cursor].href.split('#')[0]}${hash}`, state: null as unknown as Record<string, unknown> })
+      cursor += 1
+      onPop()
     },
     addresses: () => entries.map((entry) => entry.href),
     here: () => entries[cursor].href,
@@ -151,5 +162,71 @@ describe('the browser Back button over a form with changes (MW-09)', () => {
     guard.arm()
     history.navigate('/elsewhere', 'push')
     expect(guard.popped()).toBe('pass')
+  })
+})
+
+describe('a form that is the tab’s first entry (MW-09 final review)', () => {
+  it('opened in a new tab: «Уйти» after Back cannot go back — the guard says so and leaves history alone', () => {
+    const history = fakeHistory(['/form'])
+    const guard = createBackGuard(history.port)
+    const seen: string[] = []
+    history.listen(() => seen.push(guard.popped()))
+    guard.arm()
+    history.port.back()
+    expect(seen).toEqual(['ask'])
+    guard.arm()
+    expect(history.addresses()).toEqual(['/form', '/form'])
+    // go(-2) would be ignored by the browser: nothing is done, the caller leaves by address.
+    expect(guard.goBack()).toBe(false)
+    expect(history.addresses()).toEqual(['/form', '/form'])
+    expect(history.cursorAt()).toBe(1)
+    // Still the form's guard: leaving by a link replaces the copy.
+    expect(guard.leave()).toBe('replace')
+  })
+
+  it('a page of another site before the form counts: «Уйти» goes back to it', () => {
+    const history = fakeHistory(['https://search.example/?q=lapka', '/form'])
+    const guard = createBackGuard(history.port)
+    history.listen(() => guard.popped())
+    guard.arm()
+    history.port.back()
+    guard.arm()
+    expect(guard.goBack()).toBe(true)
+    expect(history.here()).toBe('https://search.example/?q=lapka')
+  })
+
+  it('reached with pages ahead of it (Back to the form, then typed): the push drops them, the count is right', () => {
+    const history = fakeHistory(['/form', '/elsewhere'])
+    history.port.back()
+    const guard = createBackGuard(history.port)
+    history.listen(() => guard.popped())
+    guard.arm()
+    expect(history.addresses()).toEqual(['/form', '/form'])
+    history.port.back()
+    guard.arm()
+    expect(guard.goBack()).toBe(false)
+  })
+})
+
+describe('a jump within the page over the copy (MW-09 final review)', () => {
+  it('the skip link on top of the copy, then Back: still the copy — nothing asks, no second copy, «Уйти» leaves', () => {
+    const history = fakeHistory(['/a', '/form'])
+    const guard = createBackGuard(history.port)
+    const seen: string[] = []
+    history.listen(() => seen.push(guard.popped()))
+    guard.arm()
+    history.jump('#main')
+    history.port.back()
+    // Back from '#main' lands on the copy: not the form's own entry.
+    expect(seen).toEqual(['pass', 'pass'])
+    expect(guard.armed).toBe(true)
+    guard.arm()
+    expect(history.addresses()).toEqual(['/a', '/form', '/form', '/form#main'])
+    // The next Back is the form's own entry: it asks, and «Уйти» goes past both.
+    history.port.back()
+    expect(seen.at(-1)).toBe('ask')
+    guard.arm()
+    expect(guard.goBack()).toBe(true)
+    expect(history.here()).toBe('/a')
   })
 })

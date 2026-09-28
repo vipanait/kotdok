@@ -16,7 +16,13 @@
  *   page recognises its copy (`adopt`) and counts it once. Next rewrites
  *   `history.state` on a reload, so the copy is also remembered for the tab
  *   (`CopyMemo`: the Navigation API's entry key where there is one);
- * - «Уйти» after Back goes back past both entries of the form.
+ * - «Уйти» after Back goes back past both entries of the form — when there
+ *   is a page before it. A form that is the tab's first entry (opened in a
+ *   new tab, from a bookmark, a restored tab) has nothing to go back to:
+ *   `history.go(-2)` would be ignored and «Уйти» do nothing (MW-09 final
+ *   review), so `goBack` says so and the form leaves to its own back link;
+ * - a jump within the page (a `#fragment`) on top of the copy is not the
+ *   form's own entry: Back from it lands on the copy, which is left alone.
  */
 
 /** The part of `window.history` and `location` the guard uses. */
@@ -26,6 +32,8 @@ export type HistoryPort = {
   back(): void
   go(delta: number): void
   href(): string
+  /** `history.length`: every entry of the tab, those of other sites too. */
+  length(): number
 }
 
 /**
@@ -64,8 +72,12 @@ export type BackGuard = {
   popped(): 'ask' | 'skip' | 'pass'
   /** Leaving on purpose to another page: `replace` the copy when it is on top, so it is not left behind. */
   leave(): 'replace' | 'push'
-  /** «Уйти» after Back: past the form's entries, to the page before it. */
-  goBack(): void
+  /**
+   * «Уйти» after Back: past the form's entries, to the page before it. False
+   * when there is none (the form is the tab's first entry) — nothing is done
+   * then, and the caller leaves by address instead.
+   */
+  goBack(): boolean
   /** The form is gone while the page stayed: take the copy back off. */
   drop(): void
   /**
@@ -86,6 +98,15 @@ export function createBackGuard(port: HistoryPort, memo: CopyMemo = NO_MEMO): Ba
   let armedAt: string | null = null
   let held = false
   let leaving = false
+  /**
+   * Whether an entry precedes the form's own — of this site or another.
+   * Read right after the copy is pushed, when nothing is ahead of it (a push
+   * drops the forward entries): the form's entry and the copy are the last
+   * two, so anything more is before them. `navigation.canGoBack` is not
+   * used: it counts only this site's entries, and a form reached from a
+   * search result would lose its way back.
+   */
+  let before = true
   return {
     get armed() {
       return armedAt !== null
@@ -97,6 +118,7 @@ export function createBackGuard(port: HistoryPort, memo: CopyMemo = NO_MEMO): Ba
       const state = typeof port.state === 'object' && port.state !== null ? port.state : {}
       port.pushState({ ...state, [GUARD_KEY]: true }, '')
       armedAt = port.href()
+      before = port.length() > 2
       memo.remember()
     },
     disarm() {
@@ -104,6 +126,9 @@ export function createBackGuard(port: HistoryPort, memo: CopyMemo = NO_MEMO): Ba
     },
     popped() {
       if (leaving || armedAt === null || port.href() !== armedAt) return 'pass'
+      // Still on the copy — Back from a `#fragment` jump made on top of it
+      // (the skip link, a typed hash): not the form's own entry.
+      if (isGuardEntry(port.state)) return 'pass'
       armedAt = null
       memo.forget()
       return held ? 'ask' : 'skip'
@@ -116,10 +141,12 @@ export function createBackGuard(port: HistoryPort, memo: CopyMemo = NO_MEMO): Ba
       return how
     },
     goBack() {
+      if (!before) return false
       leaving = true
       port.go(armedAt !== null ? -2 : -1)
       armedAt = null
       memo.forget()
+      return true
     },
     drop() {
       if (armedAt === null || leaving) return
@@ -133,6 +160,8 @@ export function createBackGuard(port: HistoryPort, memo: CopyMemo = NO_MEMO): Ba
       if (armedAt !== null || leaving) return
       if (!isGuardEntry(port.state) && !memo.isCopy()) return
       armedAt = port.href()
+      // Reloaded on the copy, which is on top: the same count as after a push.
+      before = port.length() > 2
       held = false
     },
   }

@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import AccountMenu from '@/components/cabinet/AccountMenu'
 import LapkaLogo from '@/components/LapkaLogo'
+import SkipLink from '@/components/cabinet/SkipLink'
 import LocaleSwitch from '@/components/site/LocaleSwitch'
 import Icon, { type IconName } from '@/components/ui/Icon'
 import SignOutForm from '@/features/auth/SignOutForm'
@@ -45,7 +46,7 @@ export default async function CabinetShell({ cabinet, active, crumb, children }:
 
   return (
     <>
-      <a href="#main" className="skip-link">{t.skipToContent}</a>
+      <SkipLink target="main">{t.skipToContent}</SkipLink>
 
       <aside className="sidebar">
         <Link href="/" aria-label={dict.site.homeAria}>

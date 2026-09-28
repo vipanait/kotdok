@@ -103,7 +103,7 @@ export default function EventForm({
   const sectionHref = medicalRecordHref.section(petId, EVENT_FORM_KINDS[kind].section)
   const backHref = plan ? medicalRecordHref.recordView(petId, plan.id) : sectionHref
   const dirty = draftChanged(initial, draft)
-  const { leaveHref, leaveLinkRef, stay, leave } = useLeaveGuard(dirty && !saving)
+  const { leaveHref, leaveLinkRef, stay, leave } = useLeaveGuard(dirty && !saving, backHref)
   useEffect(() => onDirtyChange?.(dirty || saving), [dirty, saving, onDirtyChange])
 
   const errors = eventErrorTexts(dict, kind, problems)

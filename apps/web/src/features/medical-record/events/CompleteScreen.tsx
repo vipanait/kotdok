@@ -23,6 +23,7 @@ import { eventItemName } from '../view-model'
 import {
   changeDoneDay,
   completeDraft,
+  completeHolds,
   completionChanged,
   completionTarget,
   othersInPlan,
@@ -251,8 +252,10 @@ function CompleteItemForm({
 
   const back = backHref(petId, plan.id, kind, from)
   const dirty = completionChanged(initial, draft)
-  const { leaveHref, leaveLinkRef, stay, leave } = useLeaveGuard(dirty && !saving)
-  useEffect(() => onDirtyChange(dirty || saving), [dirty, saving, onDirtyChange])
+  const { leaveHref, leaveLinkRef, stay, leave } = useLeaveGuard(dirty && !saving, back)
+  // The question before the save holds the form too (`completeHolds`).
+  const holds = completeHolds({ changed: dirty, saving, asking: confirming !== null })
+  useEffect(() => onDirtyChange(holds), [holds, onDirtyChange])
   const errors = completeErrorTexts(dict, problems)
   const others = othersInPlan(plan, item)
   const name = eventItemName(dict, kind, item)

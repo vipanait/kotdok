@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { StyleSheet } from 'react-native'
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
 import type { Medication } from '@lapka/contracts'
@@ -6,8 +6,8 @@ import { withFreshSession } from '@/lib/api'
 import { describeFailure } from '@/lib/errors'
 import { localToday } from '@/lib/calendar-day'
 import { useText } from '@/i18n'
-import { ApiError, canEndCourse, courseEditable, endCoursePatch } from '@lapka/shared'
-import { courseDates } from '@/features/medical-record/medications'
+import { canEndCourse, courseEditable } from '@lapka/shared'
+import { courseDates, endCourse } from '@/features/medical-record/medications'
 import { Button, LinkButton } from '@/ui/Button'
 import { Banner, Card } from '@/ui/Card'
 import { ConfirmDialog } from '@/ui/Dialog'
@@ -28,6 +28,8 @@ export default function MedicationView() {
   const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
   const [busy, setBusy] = useState(false)
   const [asking, setAsking] = useState(false)
+  /** The day «Завершить курс» first sent, until the server answers it (`endCourse`). */
+  const ending = useRef<{ day: string | null }>({ day: null })
 
   const load = useCallback(async () => {
     setError(null)
@@ -56,15 +58,17 @@ export default function MedicationView() {
     setBusy(true)
     setError(null)
     try {
-      setCourse(await withFreshSession((api) => api.changeMedication(id, medicationId, endCoursePatch(today), today)))
-    } catch (cause) {
+      const ended = await endCourse(
+        (patch, day) => withFreshSession((api) => api.changeMedication(id, medicationId, patch, day)),
+        ending.current,
+        today,
+      )
       // Finished meanwhile, on another device: show it as it is now — read
       // only, which the screen then says in place of «Изменить».
-      if (cause instanceof ApiError && cause.code === 'record_done') {
-        void load()
-      } else {
-        setError(describeFailure(t, cause, words.saveFailed))
-      }
+      if (ended.kind === 'ended') setCourse(ended.course)
+      else void load()
+    } catch (cause) {
+      setError(describeFailure(t, cause, words.saveFailed))
     } finally {
       setBusy(false)
     }
