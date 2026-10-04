@@ -7,7 +7,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native'
-import { router, useFocusEffect } from 'expo-router'
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
 import * as ImagePicker from 'expo-image-picker'
 import {
   ACTIVITY_VALUES,
@@ -212,6 +212,18 @@ export default function NewCheck() {
       void loadPets()
     }, [loadPets]),
   )
+
+  /**
+   * A pet named by the screen that opened the form — one pet's empty history —
+   * is the one chosen, once the list confirms it is still there. The parameter
+   * is then dropped, so it does not win over a later choice in the form.
+   */
+  const { petId: askedPet } = useLocalSearchParams<{ petId?: string }>()
+  useEffect(() => {
+    if (!askedPet || !pets?.some((pet) => pet.id === askedPet)) return
+    setForm((current) => ({ ...current, petId: askedPet }))
+    router.setParams({ petId: undefined })
+  }, [askedPet, pets])
 
   function change(patch: Partial<CheckForm>) {
     setForm((current) => ({ ...current, ...patch }))
