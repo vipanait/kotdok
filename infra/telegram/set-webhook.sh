@@ -23,9 +23,14 @@ set -a
 source "$env_file"
 set +a
 
-if [[ -z "${TELEGRAM_BOT_TOKEN:-}" || -z "${TELEGRAM_WEBHOOK_SECRET:-}" ]]; then
-  echo "TELEGRAM_BOT_TOKEN or TELEGRAM_WEBHOOK_SECRET came back empty from Vercel (a sensitive variable cannot be pulled)." >&2
-  echo "Run the curl from README.md by hand with the values from the Vercel dashboard." >&2
+# A variable marked Sensitive in Vercel never leaves it: `env pull` writes a
+# placeholder instead, the same for every such variable. Telegram allows only
+# A-Z, a-z, 0-9, _ and - in a secret, so anything else is not the real one.
+if [[ -z "${TELEGRAM_BOT_TOKEN:-}" || -z "${TELEGRAM_WEBHOOK_SECRET:-}" ||
+      ! "$TELEGRAM_WEBHOOK_SECRET" =~ ^[A-Za-z0-9_-]+$ ||
+      "$TELEGRAM_BOT_TOKEN" == "$TELEGRAM_WEBHOOK_SECRET" ]]; then
+  echo "Vercel did not hand over TELEGRAM_BOT_TOKEN / TELEGRAM_WEBHOOK_SECRET (they are Sensitive)." >&2
+  echo "Set a new secret instead: docs/architecture/ru-proxy.md, «Мимо прокси»." >&2
   exit 1
 fi
 

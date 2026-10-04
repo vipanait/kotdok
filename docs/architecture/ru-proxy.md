@@ -110,7 +110,15 @@ ssh lapka@<IP> 'bash -s' < infra/ru-proxy/issue-cert.sh
 
 Почему: после переключения DNS вебхук остался на `lapka.my` и стал ходить через машину в Yandex Cloud. Заявка от 3 октября 2026 так и не подтвердилась: нажатие до приложения не дошло, а в `getWebhookInfo` ошибки не было. Логи машины тогда не смотрели, поэтому точная причина не установлена.
 
-Переставить вебхук: `infra/telegram/set-webhook.sh`. Скрипт берёт токен бота и секрет из переменных production в Vercel (`vercel env pull`), проверяет, что деплой принимает этот секрет, и только потом вызывает `setWebhook`. Если Vercel не отдаёт переменную (помечена как sensitive), выполнить `curl` из README вручную.
+Переставить вебхук: `infra/telegram/set-webhook.sh`. Скрипт берёт токен бота и секрет из переменных production в Vercel (`vercel env pull`), проверяет, что деплой принимает этот секрет, и только потом вызывает `setWebhook`.
+
+На 4 октября 2026 переменные `TELEGRAM_*` в Vercel помечены как Sensitive: их значение не отдаёт ни `env pull`, ни панель, и скрипт останавливается. Секрет в `apps/web/.env.staging.local` с продовым не совпадает (деплой отвечает на него `403`). В этом случае секрет задаётся заново:
+
+1. Придумать секрет из `A-Z a-z 0-9 _ -` (например, `openssl rand -hex 32`).
+2. В Vercel → Settings → Environment Variables заменить `TELEGRAM_WEBHOOK_SECRET` для Production.
+3. Передеплоить production: переменные подхватываются только новым деплоем.
+4. Вызвать `setWebhook` из README с новым секретом и `url` на `kotdok.vercel.app`.
+5. Нажать кнопку на висящей заявке ещё раз и проверить `getWebhookInfo`: `last_error_message` пустой.
 
 ## Откат
 
