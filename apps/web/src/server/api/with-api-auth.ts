@@ -1,7 +1,7 @@
 import 'server-only'
 
 import type { NextRequest, NextResponse } from 'next/server'
-import type { AccountContext } from '@/server/auth/account-state'
+import { withVerifiedAccount, type AccountContext } from '@/server/auth/account-state'
 import { authenticateBearer, type AuthFailure } from '@/server/api/bearer-auth'
 import { apiError, newRequestId } from '@/server/api/response'
 
@@ -58,7 +58,11 @@ export function withApiAuth<T = unknown>(handler: ApiHandler<T>, options: ApiAut
     }
 
     try {
-      return await handler(request, { requestId, account: auth.account }, params)
+      // Services re-check the account; within this request they reuse the one
+      // just verified instead of reading the profile a second time.
+      return await withVerifiedAccount(auth.account, () =>
+        handler(request, { requestId, account: auth.account }, params),
+      )
     } catch (error) {
       // Never let a stack or a driver message reach the client.
       console.error(`[${requestId}] unhandled API error:`, error)
