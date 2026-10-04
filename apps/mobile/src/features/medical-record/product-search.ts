@@ -3,8 +3,8 @@ import { matchesCatalog } from '@lapka/shared'
 
 /** Typed characters before the catalogue is searched: fewer match half of it. */
 export const SEARCH_FROM = 3
-/** Rows under the field; more push the rest of the form off a phone screen. */
-export const SUGGESTIONS_MAX = 6
+/** Rows under the field: as many as fit between it and the keyboard on a small phone. */
+export const SUGGESTIONS_MAX = 3
 
 export type Suggestions =
   /** Nothing typed yet: the popular ones, as the sheet used to open with. */
