@@ -18,6 +18,7 @@ import {
   type ProviderOutcome,
 } from '@/lib/provider-sign-in'
 import { createAppleSignIn, usesNativeAppleSignIn } from '@/lib/apple-sign-in'
+import { forgetCache } from '@/lib/query-client'
 
 /**
  * The provider sign-in with its real browser and real client.
@@ -139,6 +140,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // The half-written check goes with the session: the next person to sign in
       // on this phone must not find someone else's notes about their animal.
       await draftStorage.clearAll()
+      // And what the screens cached: the pets, records and checks of this account.
+      await forgetCache().catch(() => {})
       // And a summary PDF still waiting for an Android receiver: it is this account's pet's record.
       try {
         nativeShare.sweep()

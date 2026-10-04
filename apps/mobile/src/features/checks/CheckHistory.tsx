@@ -1,8 +1,9 @@
-import { useCallback, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ActivityIndicator, FlatList, Image, StyleSheet, View } from 'react-native'
-import { router, useFocusEffect } from 'expo-router'
+import { router } from 'expo-router'
 import type { SymptomCheckRecord } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
+import { useCached, useSeedCache } from '@/lib/query-cache'
 import { describeFailure } from '@/lib/errors'
 import { dictionary, useLocale, useText } from '@/i18n'
 import { urgencyText } from '@/features/checks/urgency'
@@ -55,29 +56,34 @@ export function CheckHistory({
     return named.length > 0 ? named.join(' · ') : ui.check.noPet
   }
 
-  const [items, setItems] = useState<SymptomCheckRecord[] | null>(null)
-  const [cursor, setCursor] = useState<string | null>(null)
-  const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
+  // The first page through the cache, so the history opens on what it showed
+  // last time; refreshed on every focus (a check made a moment ago has to be
+  // here on return). Further pages are this screen's own.
+  const first = useCached(['checks', petId ?? 'all'], () => withFreshSession((api) => api.listChecks({ pet_id: petId })))
+  const [more, setMore] = useState<{ items: SymptomCheckRecord[]; cursor: string | null } | null>(null)
+  const [moreError, setMoreError] = useState<{ text: string; offline: boolean } | null>(null)
   const [loadingMore, setLoadingMore] = useState(false)
 
-  const loadFirst = useCallback(async () => {
-    setError(null)
-    try {
-      const page = await withFreshSession((api) => api.listChecks({ pet_id: petId }))
-      setItems(page.items)
-      setCursor(page.next_cursor)
-    } catch (cause) {
-      setItems([])
-      setError(describeFailure(ui, cause, ui.errors.loadHistoryFailed))
-    }
-  }, [petId, ui])
+  // A fresh first page starts the list over: what was appended belonged to the old one.
+  useEffect(() => {
+    setMore(null)
+    setMoreError(null)
+  }, [first.data])
 
-  // Reloading on focus: a check made a moment ago has to be here on return.
-  useFocusEffect(
-    useCallback(() => {
-      void loadFirst()
-    }, [loadFirst]),
-  )
+  // Each row is the whole check: opening it needs no second request.
+  const seed = useSeedCache()
+  useEffect(() => {
+    seed([...(first.data?.items ?? []), ...(more?.items ?? [])].map((check) => [['check', check.id], check] as const))
+  }, [first.data, more, seed])
+
+  const items: SymptomCheckRecord[] | null = first.data
+    ? [...first.data.items, ...(more?.items ?? [])]
+    : first.error
+      ? []
+      : null
+  const cursor = more ? more.cursor : (first.data?.next_cursor ?? null)
+  const error = moreError ?? (first.error ? describeFailure(ui, first.error, ui.errors.loadHistoryFailed) : null)
+  const loadFirst = first.reload
 
   async function loadMore() {
     if (!cursor || loadingMore) return
@@ -87,10 +93,9 @@ export function CheckHistory({
       const page = await withFreshSession((api) => api.listChecks({ pet_id: petId, cursor }))
       // Appending rather than replacing: the cursor walks (created_at, id), so
       // pages never overlap and never repeat a row.
-      setItems((current) => [...(current ?? []), ...page.items])
-      setCursor(page.next_cursor)
+      setMore((current) => ({ items: [...(current?.items ?? []), ...page.items], cursor: page.next_cursor }))
     } catch (cause) {
-      setError(describeFailure(ui, cause, ui.errors.loadHistoryFailed))
+      setMoreError(describeFailure(ui, cause, ui.errors.loadHistoryFailed))
     } finally {
       setLoadingMore(false)
     }

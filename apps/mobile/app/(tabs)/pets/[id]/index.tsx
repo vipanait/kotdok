@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
-import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
+import { router, useLocalSearchParams } from 'expo-router'
 import * as SecureStore from 'expo-secure-store'
-import type { HealthOverview } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
+import { useCached } from '@/lib/query-cache'
 import { localToday } from '@/lib/calendar-day'
 import { describeFailure } from '@/lib/errors'
 import { useText } from '@/i18n'
@@ -107,8 +107,6 @@ function Section({ row, onPress }: { row: SectionRow; onPress: () => void }) {
 export default function MedicalRecord() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const t = useText()
-  const [overview, setOverview] = useState<HealthOverview | null>(null)
-  const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
 
   const [hintHidden, setHintHidden] = useState(true)
   const [adding, setAdding] = useState(false)
@@ -126,22 +124,12 @@ export default function MedicalRecord() {
     SecureStore.setItemAsync(hintKey(id), '1').catch(() => {})
   }
 
-  const load = useCallback(async () => {
-    setError(null)
-    try {
-      setOverview(await withFreshSession((api) => api.getHealthOverview(id, localToday())))
-    } catch (cause) {
-      // What was on screen stays there under the banner.
-      setError(describeFailure(t, cause, t.errors.loadHealthFailed))
-    }
-  }, [id, t])
-
-  // On focus, not on mount: coming back from «Анкета» has to show what was saved.
-  useFocusEffect(
-    useCallback(() => {
-      void load()
-    }, [load]),
-  )
+  // The pet's record through the cache, shared by every screen of this pet:
+  // the last one at once, a fresh one each time the screen comes into view.
+  const record = useCached(['overview', id], () => withFreshSession((api) => api.getHealthOverview(id, localToday())))
+  const overview = record.data
+  const error = record.error ? describeFailure(t, record.error, t.errors.loadHealthFailed) : null
+  const load = record.reload
 
   // Only ever this pet's record: a screen reused for another id never shows the previous one.
   const shown = overview?.pet.id === id ? overview : null
