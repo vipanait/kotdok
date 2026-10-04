@@ -25,9 +25,11 @@ import { useReminders } from '@/features/medical-record/reminders/ReminderProvid
 import { useUnsavedChanges } from '@/features/unsaved/useUnsavedChanges'
 import { Button, IconButton, LinkButton } from '@/ui/Button'
 import { Banner, Card } from '@/ui/Card'
+import { DateField } from '@/ui/DateField'
 import { SaveChangesDialog } from '@/ui/Dialog'
 import { Field, Segment, Select, type FieldHandle } from '@/ui/Field'
 import { Screen } from '@/ui/Screen'
+import { FormSkeleton } from '@/ui/Skeleton'
 import { Text } from '@/ui/Text'
 import { TAP_TARGET, colour, space } from '@/ui/theme'
 
@@ -162,6 +164,7 @@ export default function VisitForm() {
     return (
       <Screen title={words.visitTitle} onBack={() => router.back()}>
         {error && !locked ? <Banner text={error.text} tone="error" icon={error.offline ? 'wifi' : 'alert'} /> : null}
+        {!error && !locked ? <FormSkeleton fields={5} /> : null}
         {locked ? (
           <>
             <Banner text={words.heldLocked} tone="info" />
@@ -215,12 +218,12 @@ export default function VisitForm() {
         onChange={(visitKind) => visitKind && change({ visitKind })}
         allowNone={false}
       />
-      <Field
+      <DateField
         label={words.date}
         value={draft.date}
         onChangeText={(date) => change({ date })}
         placeholder={t.medicalRecord.datePlaceholder}
-        keyboardType="numbers-and-punctuation"
+        {...(draft.status === 'done' ? { max: localToday() } : { min: localToday() })}
         error={errors.date}
         fieldRef={input('date')}
       />

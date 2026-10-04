@@ -5,7 +5,7 @@ import { errorMessage } from '@/lib/errors'
 import { useText } from '@/i18n'
 import { AuthShell, authFieldSpacing } from '@/features/auth/AuthShell'
 import { PASSWORD_MIN, credentialsProblem } from '@/features/auth/credentials'
-import { Button } from '@/ui/Button'
+import { Button, LinkButton } from '@/ui/Button'
 import { Banner } from '@/ui/Card'
 import { Field } from '@/ui/Field'
 
@@ -54,6 +54,9 @@ export default function ResetPassword() {
       {error ? <Banner text={error} tone="error" /> : null}
 
       <Button title={t.common.save} onPress={submit} busy={busy} />
+      {/* The link has already signed this phone in, often into an account that
+          was open anyway; changing the password is not the only way on. */}
+      <LinkButton title={t.common.cancel} onPress={() => router.replace('/pets')} />
     </AuthShell>
   )
 }

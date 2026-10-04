@@ -7,7 +7,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native'
-import { router, useFocusEffect } from 'expo-router'
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
 import * as ImagePicker from 'expo-image-picker'
 import {
   ACTIVITY_VALUES,
@@ -56,6 +56,7 @@ import { Chips, Field, Segment, Select } from '@/ui/Field'
 import { PhotoStrip } from '@/ui/PhotoStrip'
 import { Screen } from '@/ui/Screen'
 import { Steps, SummaryCard } from '@/ui/Section'
+import { FormSkeleton } from '@/ui/Skeleton'
 import { Text } from '@/ui/Text'
 import { colour, space } from '@/ui/theme'
 
@@ -211,6 +212,18 @@ export default function NewCheck() {
       void loadPets()
     }, [loadPets]),
   )
+
+  /**
+   * A pet named by the screen that opened the form — one pet's empty history —
+   * is the one chosen, once the list confirms it is still there. The parameter
+   * is then dropped, so it does not win over a later choice in the form.
+   */
+  const { petId: askedPet } = useLocalSearchParams<{ petId?: string }>()
+  useEffect(() => {
+    if (!askedPet || !pets?.some((pet) => pet.id === askedPet)) return
+    setForm((current) => ({ ...current, petId: askedPet }))
+    router.setParams({ petId: undefined })
+  }, [askedPet, pets])
 
   function change(patch: Partial<CheckForm>) {
     setForm((current) => ({ ...current, ...patch }))
@@ -454,7 +467,7 @@ export default function NewCheck() {
   if (pets === null) {
     return (
       <Screen title={t.check.title}>
-        <ActivityIndicator color={colour.accent} />
+        <FormSkeleton fields={3} />
       </Screen>
     )
   }
@@ -483,7 +496,7 @@ export default function NewCheck() {
         <Text tone="muted" center style={styles.emptyCopy}>
           {t.check.needPetBody}
         </Text>
-        <Button title={t.pets.add} onPress={() => router.push('/pets/new')} />
+        <Button title={t.pets.add} onPress={() => router.push('/check/new-pet')} />
       </Screen>
     )
   }
@@ -633,9 +646,9 @@ function Waiting({
 }) {
   const recovery =
     failure?.kind === 'insufficient_credits'
-      ? { title: t.check.requestCheck, onPress: () => router.push('/profile/extra-check') }
+      ? { title: t.check.requestCheck, onPress: () => router.push('/check/extra-check') }
       : failure?.kind === 'still_running'
-        ? { title: t.check.openHistory, onPress: () => router.replace('/profile/checks') }
+        ? { title: t.check.openHistory, onPress: () => router.push('/check/history') }
         : { title: t.check.tryAgain, onPress: onRetry }
 
   return (
@@ -654,7 +667,7 @@ function Waiting({
         {t.check.waitingTitle}
       </Text>
       <Image
-        source={require('../../../assets/art/paw.png')}
+        source={require('../../../assets/art/pets-together.png')}
         style={styles.waitingArt}
         resizeMode="contain"
         accessible={false}

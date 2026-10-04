@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { ActivityIndicator, StyleSheet, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
 import type { VetSummary } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
@@ -14,8 +14,9 @@ import { WeightChart } from '@/features/medical-record/WeightChart'
 import { Button, LinkButton } from '@/ui/Button'
 import { Banner, Card, UrgencyBadge } from '@/ui/Card'
 import { Screen } from '@/ui/Screen'
+import { DetailSkeleton } from '@/ui/Skeleton'
 import { Text } from '@/ui/Text'
-import { colour, space } from '@/ui/theme'
+import { space } from '@/ui/theme'
 
 /**
  * «Для врача» (M11, spec §7.17): made to be turned towards the vet — nothing
@@ -103,7 +104,7 @@ export default function VetSummaryScreen() {
           <LinkButton title={words.retry} align="left" onPress={() => void load()} />
         </>
       ) : !shown ? (
-        <ActivityIndicator color={colour.accent} style={styles.loading} />
+        <DetailSkeleton facts={4} />
       ) : null}
       {view && shown ? (
         <>
@@ -192,5 +193,4 @@ const styles = StyleSheet.create({
   footer: { marginTop: space.block, marginBottom: space.block },
   dock: { gap: space.row },
   center: { textAlign: 'center' },
-  loading: { marginTop: space.section },
 })

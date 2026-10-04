@@ -9,6 +9,7 @@ import { Button } from '@/ui/Button'
 import { Banner } from '@/ui/Card'
 import { Select } from '@/ui/Field'
 import { Screen } from '@/ui/Screen'
+import { FormSkeleton } from '@/ui/Skeleton'
 import { Text } from '@/ui/Text'
 import { colour, space } from '@/ui/theme'
 
@@ -96,7 +97,9 @@ export default function RemindersSettings() {
             onChange={(value) => value && void change({ ...settings, hour: Number(value) })}
           />
         </>
-      ) : null}
+      ) : (
+        <FormSkeleton fields={2} />
+      )}
 
       <Text variant="label" tone="muted" style={styles.caption}>
         {words.thisPhone}

@@ -51,3 +51,32 @@ export function dayParts(day: string): { year: number; month: number; date: numb
   const [year, month, date] = day.split('-').map(Number)
   return { year, month, date }
 }
+
+/** A month on its own, as the calendar sheet pages through them. */
+export type CalendarMonth = { year: number; month: number }
+
+/** The month `by` months from this one: December plus one is next January. */
+export function shiftMonth({ year, month }: CalendarMonth, by: number): CalendarMonth {
+  const index = year * 12 + (month - 1) + by
+  return { year: Math.floor(index / 12), month: (index % 12) + 1 }
+}
+
+/** The month a day falls in. */
+export function monthOf(day: string): CalendarMonth {
+  const { year, month } = dayParts(day)
+  return { year, month }
+}
+
+/**
+ * One month laid out as weeks of seven, `null` where a cell belongs to the
+ * month before or after. `firstWeekday` is 1 for a week that starts on Monday
+ * (Russian), 0 for Sunday (English).
+ */
+export function monthGrid({ year, month }: CalendarMonth, firstWeekday: 0 | 1): Array<Array<string | null>> {
+  const length = new Date(Date.UTC(year, month, 0)).getUTCDate()
+  const lead = (new Date(Date.UTC(year, month - 1, 1)).getUTCDay() - firstWeekday + 7) % 7
+  const cells: Array<string | null> = Array.from({ length: lead }, () => null)
+  for (let date = 1; date <= length; date++) cells.push(`${year}-${pad(month)}-${pad(date)}`)
+  while (cells.length % 7 !== 0) cells.push(null)
+  return Array.from({ length: cells.length / 7 }, (_, week) => cells.slice(week * 7, week * 7 + 7))
+}

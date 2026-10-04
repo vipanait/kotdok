@@ -15,6 +15,7 @@ import { Banner, Card } from '@/ui/Card'
 import { Segment } from '@/ui/Field'
 import { Icon } from '@/ui/Icon'
 import { Screen } from '@/ui/Screen'
+import { ChartSkeleton } from '@/ui/Skeleton'
 import { Text } from '@/ui/Text'
 import { colour, space } from '@/ui/theme'
 
@@ -92,6 +93,8 @@ export default function Weight() {
           <Button title={t.common.retry} kind="secondary" onPress={() => void load()} />
           <View style={styles.gap} />
         </>
+      ) : !shown ? (
+        <ChartSkeleton />
       ) : null}
 
       {shown ? (

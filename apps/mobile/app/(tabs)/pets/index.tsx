@@ -13,8 +13,9 @@ import { Avatar, Card } from '@/ui/Card'
 import { Banner } from '@/ui/Card'
 import { Icon } from '@/ui/Icon'
 import { Screen } from '@/ui/Screen'
+import { ListSkeleton } from '@/ui/Skeleton'
 import { Text } from '@/ui/Text'
-import { colour, radius, shadow, space } from '@/ui/theme'
+import { colour, space } from '@/ui/theme'
 
 /** "Кот · Сибирская · 3 года" — only the parts this pet actually has. */
 function describe(t: Dictionary, pet: Pet): string {
@@ -44,23 +45,6 @@ function DueLine({ t, due }: { t: Dictionary; due: DueItem | undefined }) {
       <Text variant="caption" numberOfLines={1} style={[styles.petDue, styles.petDueStatus, colourStyle]}>
         {line.status}
       </Text>
-    </View>
-  )
-}
-
-/** Three card-shaped blanks while the first page is on its way. */
-function Skeletons() {
-  return (
-    <View>
-      {[0, 1, 2].map((row) => (
-        <View key={row} style={styles.skeletonRow}>
-          <View style={styles.skeletonCircle} />
-          <View style={styles.skeletonCopy}>
-            <View style={styles.skeletonLine} />
-            <View style={[styles.skeletonLine, styles.skeletonShort]} />
-          </View>
-        </View>
-      ))}
     </View>
   )
 }
@@ -139,7 +123,7 @@ export default function Pets() {
       ) : null}
 
       {pets === null || settling ? (
-        <Skeletons />
+        <ListSkeleton rows={3} avatar />
       ) : empty ? (
         <View>
           <Image
@@ -169,7 +153,10 @@ export default function Pets() {
             >
               <Avatar species={item.species} />
               <View style={styles.petCopy}>
-                <Text variant="h2">{item.name}</Text>
+                {/* One line: the card is a row in a list, the full name is on the pet's own screen. */}
+                <Text variant="h2" numberOfLines={1}>
+                  {item.name}
+                </Text>
                 <Text variant="caption" tone="faint" style={styles.petMeta}>
                   {describe(t, item)}
                 </Text>
@@ -196,24 +183,4 @@ const styles = StyleSheet.create({
   emptyArt: { width: 228, height: 228, alignSelf: 'center', marginBottom: 8 },
   emptyTitle: { marginBottom: space.row },
   emptyCopy: { marginBottom: 24, alignSelf: 'center', maxWidth: 310 },
-
-  skeletonRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-    padding: 16,
-    marginBottom: space.row,
-    backgroundColor: colour.surface,
-    borderRadius: radius.card,
-    ...shadow.card,
-  },
-  skeletonCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: radius.pill,
-    backgroundColor: colour.soft,
-  },
-  skeletonCopy: { flex: 1 },
-  skeletonLine: { height: 16, borderRadius: 8, backgroundColor: colour.soft, marginBottom: 8 },
-  skeletonShort: { width: '60%', marginBottom: 0 },
 })

@@ -35,9 +35,11 @@ import { useReminders } from '@/features/medical-record/reminders/ReminderProvid
 import { useUnsavedChanges } from '@/features/unsaved/useUnsavedChanges'
 import { Button, IconButton, LinkButton } from '@/ui/Button'
 import { Banner, Card } from '@/ui/Card'
+import { DateField } from '@/ui/DateField'
 import { SaveChangesDialog } from '@/ui/Dialog'
 import { Chips, Field, Segment, Select } from '@/ui/Field'
 import { Screen } from '@/ui/Screen'
+import { FormSkeleton } from '@/ui/Skeleton'
 import { Text } from '@/ui/Text'
 import { space } from '@/ui/theme'
 
@@ -288,6 +290,8 @@ export default function EventForm() {
             <Banner text={error.text} tone="error" icon={error.offline ? 'wifi' : 'alert'} />
             <Button title={t.common.retry} kind="secondary" onPress={() => void load()} />
           </>
+        ) : !locked ? (
+          <FormSkeleton fields={4} />
         ) : null}
         {locked ? (
           <>
@@ -362,12 +366,12 @@ export default function EventForm() {
         />
       ) : null}
 
-      <Field
+      <DateField
         label={draft.status === 'done' ? words.whenDone : words.whenPlanned}
         value={draft.date}
         onChangeText={(date) => change({ date })}
         placeholder={words.datePlaceholder}
-        keyboardType="numbers-and-punctuation"
+        {...(draft.status === 'done' ? { max: localToday() } : { min: localToday() })}
         error={errors.date}
       />
 
@@ -492,12 +496,12 @@ export default function EventForm() {
                 allowNone={false}
               />
               {item.next === 'custom' ? (
-                <Field
+                <DateField
                   label={words.nextDate}
                   value={item.nextText}
                   onChangeText={(nextText) => changeItem(item.key, { nextText })}
                   placeholder={words.datePlaceholder}
-                  keyboardType="numbers-and-punctuation"
+                  min={recordDay ?? undefined}
                   error={errors.next?.[item.key]}
                 />
               ) : errors.next?.[item.key] ? (

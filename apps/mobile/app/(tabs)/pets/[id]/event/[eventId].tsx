@@ -12,6 +12,7 @@ import { Button, LinkButton } from '@/ui/Button'
 import { Banner, Card } from '@/ui/Card'
 import { ConfirmDialog } from '@/ui/Dialog'
 import { Screen } from '@/ui/Screen'
+import { DetailSkeleton } from '@/ui/Skeleton'
 import { Text } from '@/ui/Text'
 import { colour, radius, space } from '@/ui/theme'
 
@@ -100,6 +101,8 @@ export default function EventView() {
           <Banner text={error.text} tone="error" icon={error.offline ? 'wifi' : 'alert'} />
           <Button title={t.common.retry} kind="secondary" onPress={() => void load()} />
         </>
+      ) : !event ? (
+        <DetailSkeleton />
       ) : null}
 
       {event ? (

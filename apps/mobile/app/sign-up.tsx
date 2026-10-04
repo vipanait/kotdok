@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Redirect, router } from 'expo-router'
 import { useAuth } from '@/providers/AuthProvider'
 import {
@@ -58,8 +58,13 @@ export default function SignUp() {
     }
   }
 
-  // Registration signed us in: nothing left to do on this screen.
-  if (session) return <Redirect href="/pets" />
+  // Registration signed us in: nothing left to do on this screen. Back down to
+  // sign-in, which opens the pets in its place — a Redirect from here left
+  // sign-in under the tabs, and Android's back on the pet list went to it.
+  useEffect(() => {
+    if (session && router.canDismiss()) router.dismissAll()
+  }, [session])
+  if (session && !router.canDismiss()) return <Redirect href="/pets" />
 
   return (
     <AuthShell title={t.auth.signUpTitle}>
@@ -110,7 +115,11 @@ export default function SignUp() {
       {error ? <Banner text={error} tone="error" /> : null}
 
       <Button title={t.auth.signUp} onPress={submit} busy={busy} />
-      <LinkButton title={t.auth.haveAccount} onPress={() => router.replace('/sign-in')} />
+      {/* Opened from sign-in, so back to it rather than a second one on top. */}
+      <LinkButton
+        title={t.auth.haveAccount}
+        onPress={() => (router.canGoBack() ? router.back() : router.replace('/sign-in'))}
+      />
 
       {providerNotice ? (
         <Banner text={providerNotice.text} tone={providerNotice.tone} />

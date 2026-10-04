@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ActivityIndicator, StyleSheet, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import { router } from 'expo-router'
 import type { AccountDeletionStatus } from '@lapka/contracts'
 import { api } from '@/lib/api'
@@ -9,8 +9,9 @@ import { useText } from '@/i18n'
 import { Button, LinkButton } from '@/ui/Button'
 import { Banner } from '@/ui/Card'
 import { Screen } from '@/ui/Screen'
+import { DetailSkeleton } from '@/ui/Skeleton'
 import { Text } from '@/ui/Text'
-import { colour, space } from '@/ui/theme'
+import { space } from '@/ui/theme'
 
 type Status = AccountDeletionStatus['status'] | 'missing'
 
@@ -52,7 +53,7 @@ export default function DeletionStatus() {
   if (status === null) {
     return (
       <Screen title={t.deletion.statusTitle}>
-        <ActivityIndicator color={colour.accent} />
+        <DetailSkeleton facts={1} />
       </Screen>
     )
   }
@@ -98,7 +99,8 @@ export default function DeletionStatus() {
       ) : null}
 
       <View style={styles.gap} />
-      <LinkButton title={t.common.toPets} onPress={() => router.replace('/sign-in')} />
+      {/* The account and its pets are gone; the way out is sign-in, and it says so. */}
+      <LinkButton title={t.auth.backToSignIn} onPress={() => router.replace('/sign-in')} />
     </Screen>
   )
 }
