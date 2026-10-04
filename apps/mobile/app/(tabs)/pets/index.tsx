@@ -1,9 +1,10 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { FlatList, Image, StyleSheet, View } from 'react-native'
-import { router, useFocusEffect } from 'expo-router'
+import { router } from 'expo-router'
 import type { DueItem, Pet } from '@lapka/contracts'
 import { headAge, nearestDueByPet } from '@lapka/shared'
 import { withFreshSession } from '@/lib/api'
+import { useCached } from '@/lib/query-cache'
 import { localToday } from '@/lib/calendar-day'
 import { describeFailure } from '@/lib/errors'
 import { useText, type Dictionary } from '@/i18n'
@@ -55,38 +56,19 @@ function DueLine({ t, due }: { t: Dictionary; due: DueItem | undefined }) {
  */
 export default function Pets() {
   const t = useText()
-  const [pets, setPets] = useState<Pet[] | null>(null)
-  const [due, setDue] = useState<DueItem[]>([])
-  const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
-  const [loading, setLoading] = useState(false)
+  // Through the cache: the pets seen last time at once, refreshed each time the
+  // list comes back into view (adding or editing a pet has to show it).
+  const list = useCached(['pets'], () => withFreshSession((api) => api.listPets()))
+  // A missing due line is not worth an error over the whole list.
+  const dueList = useCached(['due'], () => withFreshSession((api) => api.listDue()))
+  // The list that is already on screen stays there on a failed refresh: a lost
+  // connection is not a reason to forget the pets we last saw.
+  const pets: Pet[] | null = list.data ?? (list.error ? [] : null)
+  const due: DueItem[] = dueList.data ?? []
+  const error = list.error ? describeFailure(t, list.error, t.common.offline) : null
+  const loading = list.fetching
+  const load = list.reload
   const dueByPet = useMemo(() => nearestDueByPet(due, localToday()), [due])
-
-  const load = useCallback(async () => {
-    setError(null)
-    setLoading(true)
-    try {
-      setPets(await withFreshSession((api) => api.listPets()))
-      // A missing due line is not worth an error over the whole list.
-      withFreshSession((api) => api.listDue())
-        .then(setDue)
-        .catch(() => setDue([]))
-    } catch (cause) {
-      // The list that is already on screen stays there: a lost connection is
-      // not a reason to forget the pets we last saw.
-      setPets((current) => current ?? [])
-      setError(describeFailure(t, cause, t.common.offline))
-    } finally {
-      setLoading(false)
-    }
-  }, [t])
-
-  // Reloading on focus rather than on mount: coming back from adding or editing
-  // a pet has to show it, and the list is one small request.
-  useFocusEffect(
-    useCallback(() => {
-      void load()
-    }, [load]),
-  )
 
   /**
    * "Nobody yet" only once the server has said so this time.

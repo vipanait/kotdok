@@ -1,8 +1,9 @@
-import { useCallback, useState } from 'react'
+import { useState } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
-import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
-import type { HealthOverview, WeightMeasurement } from '@lapka/contracts'
+import { router, useLocalSearchParams } from 'expo-router'
+import type { WeightMeasurement } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
+import { useCached } from '@/lib/query-cache'
 import { describeFailure } from '@/lib/errors'
 import { localToday } from '@/lib/calendar-day'
 import { useText, type Dictionary } from '@/i18n'
@@ -37,8 +38,6 @@ export default function Weight() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const t = useText()
   const words = t.medicalRecord
-  const [overview, setOverview] = useState<HealthOverview | null>(null)
-  const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
   const [period, setPeriod] = useState<WeightPeriod>('halfYear')
   // Open and what it edits are kept apart, so a closing sheet keeps its title
   // and values while it slides away instead of flipping to «Добавить вес».
@@ -49,20 +48,12 @@ export default function Weight() {
     setSheetOpen(true)
   }
 
-  const load = useCallback(async () => {
-    setError(null)
-    try {
-      setOverview(await withFreshSession((api) => api.getHealthOverview(id, localToday())))
-    } catch (cause) {
-      setError(describeFailure(t, cause, t.errors.loadHealthFailed))
-    }
-  }, [id, t])
-
-  useFocusEffect(
-    useCallback(() => {
-      void load()
-    }, [load]),
-  )
+  // The pet's record through the cache, shared by every screen of this pet:
+  // the last one at once, a fresh one each time the screen comes into view.
+  const record = useCached(['overview', id], () => withFreshSession((api) => api.getHealthOverview(id, localToday())))
+  const overview = record.data
+  const error = record.error ? describeFailure(t, record.error, t.errors.loadHealthFailed) : null
+  const load = record.reload
 
   const shown = overview?.pet.id === id ? overview : null
   const today = localToday()

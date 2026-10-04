@@ -3,12 +3,12 @@ import { AppState, StyleSheet, View } from 'react-native'
 import { router, useFocusEffect } from 'expo-router'
 import Constants from 'expo-constants'
 import * as Updates from 'expo-updates'
-import type { PublicProfile } from '@lapka/contracts'
 import { SUPPORTED_LOCALES } from '@lapka/shared'
 import { runningUpdate } from '@/features/updates/update-state'
 import { reminderStore, useReminders } from '@/features/medical-record/reminders/ReminderProvider'
 import { permissionState } from '@/features/medical-record/reminders/notifications'
 import { withFreshSession } from '@/lib/api'
+import { useCached, useSeedCache } from '@/lib/query-cache'
 import { describeFailure } from '@/lib/errors'
 import { useAuth } from '@/providers/AuthProvider'
 import { dictionary, useLocale, useSetLocale, useText } from '@/i18n'
@@ -34,22 +34,25 @@ export default function Profile() {
   const { currentlyRunning } = Updates.useUpdates()
   const update = runningUpdate(currentlyRunning)
   const { signOut } = useAuth()
-  const [profile, setProfile] = useState<PublicProfile | null>(null)
+  // The profile through the cache: shown at once, refreshed on every focus.
+  const me = useCached(['me'], async () => {
+    const value = await withFreshSession((api) => api.getMe())
+    // The account's own choice governs the interface from here on.
+    setLocale(value.locale)
+    return value
+  })
+  const seed = useSeedCache()
+  const profile = me.data
   const [notice, setNotice] = useState<string | null>(null)
-  const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
+  /** A failed action on this screen; a failed load comes from the cache's own error. */
+  const [actionError, setError] = useState<{ text: string; offline: boolean } | null>(null)
+  const error = actionError ?? (me.error ? describeFailure(t, me.error, t.errors.loadProfileFailed) : null)
   const [pickingLocale, setPickingLocale] = useState(false)
 
-  const load = useCallback(async () => {
+  const load = () => {
     setError(null)
-    try {
-      const me = await withFreshSession((api) => api.getMe())
-      setProfile(me)
-      // The account's own choice governs the interface from here on.
-      setLocale(me.locale)
-    } catch (cause) {
-      setError(describeFailure(t, cause, t.errors.loadProfileFailed))
-    }
-  }, [t, setLocale])
+    return me.reload()
+  }
 
   const [remindersOn, setRemindersOn] = useState<boolean | null>(null)
 
@@ -65,14 +68,13 @@ export default function Profile() {
       const subscription = AppState.addEventListener('change', (state) => {
         if (state === 'active') readReminders()
       })
-      void load()
       // A confirmation belongs to the moment it confirms. Coming back to the
       // profile later, it would announce a change nobody just made.
       return () => {
         subscription.remove()
         setNotice(null)
       }
-    }, [load]),
+    }, []),
   )
 
   /**
@@ -90,7 +92,7 @@ export default function Profile() {
   async function changeLocale(locale: (typeof SUPPORTED_LOCALES)[number]) {
     setError(null)
     try {
-      setProfile(await withFreshSession((api) => api.updateMe({ locale })))
+      seed([[['me'], await withFreshSession((api) => api.updateMe({ locale }))]])
       setLocale(locale)
       // Reminder texts are written in the account's language.
       reminders.refresh()

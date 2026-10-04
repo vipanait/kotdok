@@ -1,8 +1,9 @@
-import { useCallback, useState } from 'react'
+import { useMemo } from 'react'
 import { StyleSheet, View } from 'react-native'
-import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
-import { HISTORY_PAGE_SIZE_MAX, type HealthEvent, type HealthOverview, type SymptomCheckRecord } from '@lapka/contracts'
+import { router, useLocalSearchParams } from 'expo-router'
+import { HISTORY_PAGE_SIZE_MAX, type HealthEvent, type SymptomCheckRecord } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
+import { useCached } from '@/lib/query-cache'
 import { describeFailure } from '@/lib/errors'
 import { localToday } from '@/lib/calendar-day'
 import { useText } from '@/i18n'
@@ -21,27 +22,19 @@ export default function Visits() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const t = useText()
   const words = t.medicalRecord.visits
-  const [overview, setOverview] = useState<HealthOverview | null>(null)
-  const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
-  const [checks, setChecks] = useState<ReadonlyMap<string, SymptomCheckRecord>>(new Map())
-
-  const load = useCallback(async () => {
-    setError(null)
-    // The checks visits follow, for their badge; a visit still shows without them.
-    withFreshSession((api) => api.listChecks({ pet_id: id, limit: HISTORY_PAGE_SIZE_MAX }))
-      .then((page) => setChecks(new Map(page.items.map((check) => [check.id, check]))))
-      .catch(() => setChecks(new Map()))
-    try {
-      setOverview(await withFreshSession((api) => api.getHealthOverview(id, localToday())))
-    } catch (cause) {
-      setError(describeFailure(t, cause, t.errors.loadHealthFailed))
-    }
-  }, [id, t])
-
-  useFocusEffect(
-    useCallback(() => {
-      void load()
-    }, [load]),
+  // The pet's record through the cache, shared by every screen of this pet:
+  // the last one at once, a fresh one each time the screen comes into view.
+  const record = useCached(['overview', id], () => withFreshSession((api) => api.getHealthOverview(id, localToday())))
+  const overview = record.data
+  const error = record.error ? describeFailure(t, record.error, t.errors.loadHealthFailed) : null
+  const load = record.reload
+  // The checks visits follow, for their badge; a visit still shows without them.
+  const linked = useCached(['checks', id, HISTORY_PAGE_SIZE_MAX], () =>
+    withFreshSession((api) => api.listChecks({ pet_id: id, limit: HISTORY_PAGE_SIZE_MAX })),
+  )
+  const checks = useMemo<ReadonlyMap<string, SymptomCheckRecord>>(
+    () => new Map((linked.data?.items ?? []).map((check) => [check.id, check])),
+    [linked.data],
   )
 
   const shown = overview?.pet.id === id ? overview : null

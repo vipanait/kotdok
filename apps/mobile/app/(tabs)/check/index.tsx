@@ -21,6 +21,7 @@ import {
 import { summaryRecords } from '@lapka/shared'
 import { localToday } from '@/lib/calendar-day'
 import { withFreshSession } from '@/lib/api'
+import { useCached } from '@/lib/query-cache'
 import { AppError, describeFailure, errorMessage, submitCheckMessage } from '@/lib/errors'
 import { preparePhoto, putPhoto } from '@/lib/photo-io'
 import { useText, type Dictionary } from '@/i18n'
@@ -74,10 +75,8 @@ export default function NewCheck() {
   // Not part of the draft: picked photos are cache files that may not survive
   // a restart, and the draft lives in the keychain, which is for small values.
   const [photos, setPhotos] = useState<PickedPhoto[]>([])
-  const [pets, setPets] = useState<Pet[] | null>(null)
   // «Учтём медкарту» only when this pet's record has something in it; unknown is no.
   const [withRecord, setWithRecord] = useState<string | null>(null)
-  const [petsError, setPetsError] = useState<{ text: string; offline: boolean } | null>(null)
   const [step, setStep] = useState<1 | 2>(1)
   const [symptomsError, setSymptomsError] = useState<string | null>(null)
   const [failure, setFailure] = useState<{ text: string; kind: AppError['kind'] | null } | null>(
@@ -182,36 +181,29 @@ export default function NewCheck() {
     [],
   )
 
-  const loadPets = useCallback(async () => {
-    setPetsError(null)
-    try {
-      const list = await withFreshSession((api) => api.listPets())
-      setPets(list)
-      // The check is about one animal; starting on the first one saves a tap
-      // for the many people who own exactly one.
-      setForm((current) => {
-        // A draft can name a pet that has since been deleted, on this phone or
-        // another. Falling back to the first keeps the form usable instead of
-        // failing at the very end on a pet the server no longer knows.
-        const stillThere = list.some((pet) => pet.id === current.petId)
-        if (stillThere || list.length === 0) return current
-        return { ...current, petId: list[0].id }
-      })
-    } catch (cause) {
-      // Deliberately not an empty list: "add a pet first" would be a lie when
-      // the pets exist and the network does not.
-      setPetsError(describeFailure(t, cause, t.errors.loadPetsFailed))
-    }
-  }, [t])
+  // The pets through the cache shared with the pet list, refreshed on every
+  // focus: the tab keeps this screen alive, so a person who adds their first
+  // pet and comes back here must not still be told to add one.
+  const petList = useCached(['pets'], () => withFreshSession((api) => api.listPets()))
+  const pets: Pet[] | null = petList.data
+  // Deliberately not an empty list on failure: "add a pet first" would be a
+  // lie when the pets exist and the network does not. With pets already in
+  // hand, a failed refresh keeps the form.
+  const petsError = petList.error && !pets ? describeFailure(t, petList.error, t.errors.loadPetsFailed) : null
+  const loadPets = petList.reload
 
-  // On focus rather than on mount. The tab keeps this screen alive, so a person
-  // who adds their first pet and comes back here would otherwise still be told
-  // to add one — and a failed load would stay failed until the app restarted.
-  useFocusEffect(
-    useCallback(() => {
-      void loadPets()
-    }, [loadPets]),
-  )
+  // The check is about one animal; starting on the first one saves a tap for
+  // the many people who own exactly one. A draft can name a pet that has since
+  // been deleted, on this phone or another: falling back to the first keeps
+  // the form usable instead of failing at the very end.
+  useEffect(() => {
+    if (!pets) return
+    setForm((current) => {
+      const stillThere = pets.some((pet) => pet.id === current.petId)
+      if (stillThere || pets.length === 0) return current
+      return { ...current, petId: pets[0].id }
+    })
+  }, [pets])
 
   /**
    * A pet named by the screen that opened the form — one pet's empty history —
