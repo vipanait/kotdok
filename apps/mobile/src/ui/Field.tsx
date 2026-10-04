@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import { Modal, Pressable, StyleSheet, TextInput, View, type ViewStyle } from 'react-native'
 import { useText } from '@/i18n'
 import { IconButton } from './Button'
-import { Icon } from './Icon'
+import { Icon, type IconName } from './Icon'
 import { useRevealOnFocus } from './Screen'
 import { Text } from './Text'
 import { CONTROL_HEIGHT, TAP_TARGET, colour, radius, space } from './theme'
@@ -41,6 +41,7 @@ export function Field({
   autoCorrect,
   style,
   fieldRef,
+  action,
 }: {
   label: string
   /** Draw the name or not; either way the field answers to it out loud. */
@@ -68,6 +69,8 @@ export function Field({
    * the text input itself would do nothing.
    */
   fieldRef?: (field: FieldHandle | null) => void
+  /** A button inside the field, after the text: the calendar of a date field. */
+  action?: { icon: IconName; label: string; onPress: () => void }
 }) {
   const t = useText()
   const [focused, setFocused] = useState(false)
@@ -87,7 +90,7 @@ export function Field({
         style={[
           styles.control,
           multiline ? styles.controlMultiline : null,
-          secureTextEntry ? styles.controlWithButton : null,
+          secureTextEntry || action ? styles.controlWithButton : null,
           focused ? styles.focused : null,
           error ? styles.errored : null,
         ]}
@@ -139,6 +142,7 @@ export function Field({
             onPress={() => setRevealed((was) => !was)}
           />
         ) : null}
+        {action ? <IconButton icon={action.icon} label={action.label} onPress={action.onPress} /> : null}
       </View>
       {error ? (
         <Text variant="caption" tone="danger" style={styles.errorText}>

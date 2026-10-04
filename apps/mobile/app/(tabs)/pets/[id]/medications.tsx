@@ -12,6 +12,7 @@ import { Button } from '@/ui/Button'
 import { Banner, Card } from '@/ui/Card'
 import { Icon } from '@/ui/Icon'
 import { Screen } from '@/ui/Screen'
+import { ListSkeleton } from '@/ui/Skeleton'
 import { Text } from '@/ui/Text'
 import { colour, space } from '@/ui/theme'
 
@@ -74,6 +75,8 @@ export default function Medications() {
           <Button title={t.common.retry} kind="secondary" onPress={() => void load()} />
           <View style={styles.gap} />
         </>
+      ) : !shown ? (
+        <ListSkeleton rows={3} />
       ) : null}
 
       {shown && current.length + past.length === 0 ? (

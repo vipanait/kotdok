@@ -15,6 +15,7 @@ import { PAIN_SIGNS, PET_DIETS, PET_LIFESTYLES, PET_SIZE_CLASSES, PET_WALK_ACTIV
 const decimal = (value: number) => String(value).replace('.', ',')
 
 const MONTHS = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря']
+const MONTH_NAMES = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
 const MONTHS_SHORT = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек']
 
 /** «12 сентября», «12 сентября 2025». */
@@ -38,6 +39,19 @@ export const ru = {
     toList: 'К списку',
     notStated: 'Не указано',
     offline: 'Нет связи с сервером',
+    loading: 'Загрузка',
+  },
+
+  /** The sheet behind the calendar button of a date field. */
+  calendar: {
+    open: 'Выбрать в календаре',
+    previous: 'Предыдущий месяц',
+    next: 'Следующий месяц',
+    today: 'Сегодня',
+    /** «Сентябрь 2026». */
+    month: (year: number, month: number) => `${MONTH_NAMES[month - 1]} ${year}`,
+    weekdays: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
+    weekStartsOn: 'monday' as 'monday' | 'sunday',
   },
 
   auth: {

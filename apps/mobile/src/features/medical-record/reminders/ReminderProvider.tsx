@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { AppState, Linking, Modal, Pressable, StyleSheet, View } from 'react-native'
-import { router } from 'expo-router'
+import { router, useSegments } from 'expo-router'
 import * as Notifications from 'expo-notifications'
 import type { DueItem } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
@@ -8,6 +8,7 @@ import { deviceStorage } from '@/lib/supabase'
 import { useText } from '@/i18n'
 import { useAuth } from '@/providers/AuthProvider'
 import { consentSettled } from '@/features/consent/consent-gate'
+import { guardTabSwitch } from '@/features/unsaved/tab-guard'
 import { Button } from '@/ui/Button'
 import { Text } from '@/ui/Text'
 import { colour, radius, space } from '@/ui/theme'
@@ -90,6 +91,31 @@ export function ReminderProvider({ children }: { children: ReactNode }) {
     return () => subscription.remove()
   }, [loading, userId, refresh, sync])
 
+  // Where the person is when a reminder is tapped: ['(tabs)', 'pets', …].
+  const segments = useSegments() as string[]
+  const tabNow = useRef<string | undefined>(undefined)
+  tabNow.current = segments[1]
+
+  /**
+   * Open the pets tab at its list, then the pet on top of it.
+   *
+   * Through the same question as the tab bar: a form with unsaved changes
+   * somewhere asks first, instead of being thrown away in a tab that is not on
+   * screen. `navigate('/pets')` from deep inside the pets tab used to put a
+   * second list on top; the tab is emptied back to its list instead.
+   */
+  const openFromReminder = useCallback((target: string) => {
+    const go = () => {
+      if (tabNow.current === 'pets') {
+        if (router.canDismiss()) router.dismissAll()
+      } else {
+        router.navigate('/pets')
+      }
+      if (target !== '/pets') router.push(target as never)
+    }
+    if (!guardTabSwitch(go)) go()
+  }, [])
+
   // A tap on a reminder, including the one that launched the app.
   const response = Notifications.useLastNotificationResponse()
   const handled = useRef<string | null>(null)
@@ -100,10 +126,9 @@ export function ReminderProvider({ children }: { children: ReactNode }) {
     handled.current = key
     const data = response.notification.request.content.data
     void withFreshSession((api) => api.listPets())
-      // navigate, not push: the list is usually on screen already after sign-in.
-      .then((pets) => router.navigate(openTarget(data, userId, pets) as never))
-      .catch(() => router.navigate('/pets'))
-  }, [response, loading, userId, ready])
+      .then((pets) => openFromReminder(openTarget(data, userId, pets)))
+      .catch(() => openFromReminder('/pets'))
+  }, [response, loading, userId, ready, openFromReminder])
 
   const [asking, setAsking] = useState<{ about: string; denied: boolean } | null>(null)
   const [days, setDays] = useState(3)

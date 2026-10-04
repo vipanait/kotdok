@@ -90,7 +90,8 @@ export function PhotoStrip({
 }
 
 const styles = StyleSheet.create({
-  block: { gap: space.row / 2 },
+  // Spaced like a field, which it sits among.
+  block: { gap: space.row / 2, marginBottom: space.block },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: space.row, paddingTop: space.row / 2 },
   tile: { width: TILE, height: TILE, borderRadius: 12 },
   preview: { width: TILE, height: TILE, borderRadius: 12, backgroundColor: colour.soft },

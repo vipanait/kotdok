@@ -12,6 +12,7 @@ import { parseAuthLink } from '@/lib/auth-links'
 import { redeemAuthLink, type LinkAuth } from '@/features/auth/redeem-link'
 import { deviceLocale } from '@/lib/device-locale'
 import { supabase } from '@/lib/supabase'
+import { stackOptions } from '@/ui/stack'
 import { colour } from '@/ui/theme'
 
 /** The real client behind the rules in `redeemAuthLink`. */
@@ -41,7 +42,12 @@ function useAuthLinks() {
       if (!raw) return
 
       const link = parseAuthLink(raw)
-      if (!link) return
+      // Ours, but nothing to act on: off the blank auth screen to where the
+      // app would have opened anyway.
+      if (!link) {
+        if (/^lapka:\/\/auth\/(callback|confirm|recover)\b/.test(raw)) router.replace('/')
+        return
+      }
 
       if (link.kind === 'error') {
         // The app's own sentence, not the sender's: whatever a link puts in
@@ -58,7 +64,7 @@ function useAuthLinks() {
       // recovery link still has somewhere useful to go: the screen it asks for
       // changes the password of the account already open here.
       if (outcome === 'already-signed-in') {
-        if (link.kind === 'recover') router.replace('/reset-password')
+        router.replace(link.kind === 'recover' ? '/reset-password' : '/pets')
         return
       }
 
@@ -100,12 +106,7 @@ export default function RootLayout() {
       <AuthProvider>
         <ReminderProvider>
           <StatusBar style="dark" />
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: { backgroundColor: colour.canvas },
-            }}
-          />
+          <Stack screenOptions={stackOptions} />
           <UpdatePrompt />
         </ReminderProvider>
       </AuthProvider>
