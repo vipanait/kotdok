@@ -1,5 +1,6 @@
 import 'server-only'
 
+import { AsyncLocalStorage } from 'node:async_hooks'
 import { PD_CONSENT_VERSION, type AccountStatus, type Locale, type UserRole } from '@lapka/contracts'
 import type { createServiceClient } from '@/server/supabase/server'
 
@@ -33,6 +34,21 @@ export type AccountLookupFailure =
 export type AccountLookup = { ok: true; account: AccountContext } | AccountLookupFailure
 
 /**
+ * The account a v1 request was authenticated as, for the rest of that request.
+ *
+ * The bearer check reads the profile, and then every service read it again to
+ * guard itself — one more sequential trip to the database on every call, and
+ * the database is an ocean away from the functions. Inside a request that has
+ * already verified this user, `loadAccount` answers from here instead.
+ * Nothing outlives the request: the store is scoped to the handler's call.
+ */
+const verifiedAccount = new AsyncLocalStorage<AccountContext>()
+
+export function withVerifiedAccount<T>(account: AccountContext, run: () => T): T {
+  return verifiedAccount.run(account, run)
+}
+
+/**
  * The one place that decides whether an account may act. Every service goes
  * through it, so a new operation cannot forget the deletion check.
  *
@@ -43,6 +59,9 @@ export async function loadAccount(
   supabase: SupabaseService,
   userId: string,
 ): Promise<AccountLookup> {
+  const known = verifiedAccount.getStore()
+  if (known && known.userId === userId) return { ok: true, account: known }
+
   const { data, error } = await supabase
     .from('profiles')
     .select('id, status, role, locale, credits, pd_consent_required')
