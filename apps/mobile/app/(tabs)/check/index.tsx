@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   ActivityIndicator,
   AppState,
+  BackHandler,
   Image,
   StyleSheet,
   useWindowDimensions,
@@ -29,7 +30,6 @@ import { useAuth } from '@/providers/AuthProvider'
 import { draftStorage } from '@/lib/supabase'
 import {
   DRAFT_KEY,
-  isWorthKeeping,
   shouldKeepDraft,
   parseDraft,
   serialiseDraft,
@@ -54,11 +54,11 @@ import { addPhotos, type PickedPhoto } from '@/features/checks/photos'
 import { uploadPhotos } from '@/features/checks/photo-upload'
 import { Button, LinkButton } from '@/ui/Button'
 import { Banner } from '@/ui/Card'
-import { ConfirmDialog } from '@/ui/Dialog'
 import { Chips, Field, Segment, Select } from '@/ui/Field'
 import { PhotoStrip } from '@/ui/PhotoStrip'
 import { Screen } from '@/ui/Screen'
 import { Steps, SummaryCard } from '@/ui/Section'
+import { StepSlide } from '@/ui/StepSlide'
 import { FormSkeleton } from '@/ui/Skeleton'
 import { Text } from '@/ui/Text'
 import { colour, space } from '@/ui/theme'
@@ -324,20 +324,25 @@ export default function NewCheck() {
     }, [keepDraft, startFresh, userId, watch]),
   )
 
-  /**
-   * Start over, and mean it.
-   *
-   * There is no «Отмена»: this is a tab, and the tab bar is the way out. Leaving
-   * keeps the draft — describing symptoms is work, and losing it to a mistyped
-   * tap is not forgiven — so this is the one place somebody says this question
-   * is not worth keeping. It asks first, and leaves an empty form here.
-   */
-  const [startingOver, setStartingOver] = useState(false)
-  function startOver() {
-    setStartingOver(false)
-    void forgetDraft()
-    startFresh()
+  /** Which side the step now on screen came in from; null when it simply appeared. */
+  const enteredFrom = useRef<'left' | 'right' | null>(null)
+  function goTo(next: 1 | 2) {
+    enteredFrom.current = next === 2 ? 'right' : 'left'
+    setStep(next)
   }
+
+  // Android's back on the second step returns to the first, like the arrow,
+  // instead of leaving the tab.
+  useFocusEffect(
+    useCallback(() => {
+      if (step !== 2) return
+      const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+        goTo(1)
+        return true
+      })
+      return () => subscription.remove()
+    }, [step]),
+  )
 
   function next() {
     const input = formToCheckInput(t, form)
@@ -346,7 +351,7 @@ export default function NewCheck() {
       return
     }
     setSymptomsError(null)
-    setStep(2)
+    goTo(2)
   }
 
   async function pickPhotos(source: 'camera' | 'library') {
@@ -382,7 +387,7 @@ export default function NewCheck() {
     const checked = formToCheckInput(t, form)
     if (!checked.ok) {
       setSymptomsError(checked.message)
-      setStep(1)
+      goTo(1)
       return
     }
 
@@ -507,70 +512,56 @@ export default function NewCheck() {
       <Screen
         title={t.check.title}
         scroll
-        dock={
-          <>
-            <Button title={t.common.next} onPress={next} />
-            {/* Only when there is something to lose. */}
-            {isWorthKeeping(form) || photos.length > 0 ? (
-              <LinkButton title={t.check.startOver} onPress={() => setStartingOver(true)} />
-            ) : null}
-          </>
-        }
+        // Only the way on. This is a tab: the tab bar is the way out, and leaving
+        // keeps the draft.
+        dock={<Button title={t.common.next} onPress={next} />}
       >
-        <Steps current={1} of={2} label={t.check.step} />
+        <StepSlide key="step-1" from={enteredFrom.current}>
+          <Steps current={1} of={2} label={t.check.step} />
 
-        {/* With several animals, a sheet rather than a row of names, which
-            stops fitting as soon as somebody has a few. With one there is
-            nothing to choose, so it is named instead. */}
-        {pets.length > 1 ? (
-          <Select
-            label={t.check.pet}
-            allowNone={false}
-            options={pets.map((pet) => ({ value: pet.id, label: pet.name }))}
-            value={form.petId}
-            onChange={(petId) => change({ petId })}
-          />
-        ) : (
-          <View style={styles.onlyPet}>
-            <Text variant="label" tone="muted">
-              {t.check.pet}
+          {/* With several animals, a sheet rather than a row of names, which
+              stops fitting as soon as somebody has a few. With one there is
+              nothing to choose, so it is named instead. */}
+          {pets.length > 1 ? (
+            <Select
+              label={t.check.pet}
+              allowNone={false}
+              options={pets.map((pet) => ({ value: pet.id, label: pet.name }))}
+              value={form.petId}
+              onChange={(petId) => change({ petId })}
+            />
+          ) : (
+            <View style={styles.onlyPet}>
+              <Text variant="label" tone="muted">
+                {t.check.pet}
+              </Text>
+              <Text variant="h3">{chosen?.name ?? pets[0].name}</Text>
+            </View>
+          )}
+          {withRecord !== null && withRecord === form.petId ? (
+            <Text variant="caption" tone="muted" style={styles.recordCaption}>
+              {t.check.recordCaption}
             </Text>
-            <Text variant="h3">{chosen?.name ?? pets[0].name}</Text>
-          </View>
-        )}
-        {withRecord !== null && withRecord === form.petId ? (
-          <Text variant="caption" tone="muted" style={styles.recordCaption}>
-            {t.check.recordCaption}
-          </Text>
-        ) : null}
+          ) : null}
 
-        <Field
-          label={t.check.symptoms}
-          value={form.symptoms}
-          onChangeText={(symptoms) => change({ symptoms })}
-          placeholder={t.check.symptomsPlaceholder}
-          error={symptomsError}
-          multiline
-        />
+          <Field
+            label={t.check.symptoms}
+            value={form.symptoms}
+            onChangeText={(symptoms) => change({ symptoms })}
+            placeholder={t.check.symptomsPlaceholder}
+            error={symptomsError}
+            multiline
+          />
 
-        <PhotoStrip
-          t={t}
-          photos={photos}
-          onAdd={(source) => void pickPhotos(source)}
-          onRemove={(index) => setPhotos((current) => current.filter((_, i) => i !== index))}
-        />
+          <PhotoStrip
+            t={t}
+            photos={photos}
+            onAdd={(source) => void pickPhotos(source)}
+            onRemove={(index) => setPhotos((current) => current.filter((_, i) => i !== index))}
+          />
 
-        <Banner text={t.check.symptomsHint} />
-
-        <ConfirmDialog
-          visible={startingOver}
-          title={t.check.startOverTitle}
-          message={t.check.startOverBody}
-          confirmTitle={t.check.startOverConfirm}
-          cancelTitle={t.unsaved.keepEditing}
-          onConfirm={startOver}
-          onCancel={() => setStartingOver(false)}
-        />
+          <Banner text={t.check.symptomsHint} />
+        </StepSlide>
       </Screen>
     )
   }
@@ -578,63 +569,63 @@ export default function NewCheck() {
   return (
     <Screen
       title={t.check.title}
+      // Back to the description in the header, as on every other screen: the
+      // dock keeps one action and the form gets the room.
+      onBack={() => goTo(1)}
       scroll
-      dock={
-        <>
-          <Button title={t.check.submit} onPress={() => void submit()} />
-          <LinkButton title={t.common.back} onPress={() => setStep(1)} />
-        </>
-      }
+      dock={<Button title={t.check.submit} onPress={() => void submit()} />}
     >
-      <Steps current={2} of={2} label={t.check.step} />
+      <StepSlide key="step-2" from={enteredFrom.current}>
+        <Steps current={2} of={2} label={t.check.step} />
 
-      <SummaryCard>
-        <View style={styles.summaryCopy}>
-          <Text variant="h3">{chosen?.name ?? t.check.noPet}</Text>
-          <Text variant="label" tone="muted" numberOfLines={1}>
-            {form.symptoms}
-          </Text>
-          {photos.length > 0 ? (
-            <Text variant="caption" tone="faint">
-              {t.check.photoCount(photos.length)}
+        <SummaryCard>
+          <View style={styles.summaryCopy}>
+            <Text variant="h3">{chosen?.name ?? t.check.noPet}</Text>
+            <Text variant="label" tone="muted" numberOfLines={1}>
+              {form.symptoms}
             </Text>
-          ) : null}
-        </View>
-        <LinkButton title={t.check.change} onPress={() => setStep(1)} />
-      </SummaryCard>
+            {photos.length > 0 ? (
+              <Text variant="caption" tone="faint">
+                {t.check.photoCount(photos.length)}
+              </Text>
+            ) : null}
+          </View>
+          <LinkButton title={t.check.change} onPress={() => goTo(1)} />
+        </SummaryCard>
 
-      <Banner text={t.check.optionalHint} />
+        <Banner text={t.check.optionalHint} />
 
-      <Segment
-        label={t.check.appetite}
-        options={APPETITE_VALUES.map((value) => ({ value, label: t.appetite[value] }))}
-        value={form.appetite}
-        onChange={(appetite) => change({ appetite })}
-      />
-      <Segment
-        label={t.check.activity}
-        options={ACTIVITY_VALUES.map((value) => ({ value, label: t.activity[value] }))}
-        value={form.activity}
-        onChange={(activity) => change({ activity })}
-      />
-      <Segment
-        label={t.check.duration}
-        options={DURATION_VALUES.map((value) => ({ value, label: t.duration[value] }))}
-        value={form.duration}
-        onChange={(duration) => change({ duration })}
-      />
-      <Select
-        label={t.check.stool}
-        options={STOOL_VALUES.map((value) => ({ value, label: t.stool[value] }))}
-        value={form.stool}
-        onChange={(stool) => change({ stool })}
-      />
-      <Chips
-        label={t.check.painSigns}
-        options={PAIN_SIGNS.map((value) => ({ value, label: t.pain[value] }))}
-        values={form.painSigns}
-        onToggle={(sign) => change({ painSigns: toggleSign(form.painSigns, sign) })}
-      />
+        <Segment
+          label={t.check.appetite}
+          options={APPETITE_VALUES.map((value) => ({ value, label: t.appetite[value] }))}
+          value={form.appetite}
+          onChange={(appetite) => change({ appetite })}
+        />
+        <Segment
+          label={t.check.activity}
+          options={ACTIVITY_VALUES.map((value) => ({ value, label: t.activity[value] }))}
+          value={form.activity}
+          onChange={(activity) => change({ activity })}
+        />
+        <Segment
+          label={t.check.duration}
+          options={DURATION_VALUES.map((value) => ({ value, label: t.duration[value] }))}
+          value={form.duration}
+          onChange={(duration) => change({ duration })}
+        />
+        <Select
+          label={t.check.stool}
+          options={STOOL_VALUES.map((value) => ({ value, label: t.stool[value] }))}
+          value={form.stool}
+          onChange={(stool) => change({ stool })}
+        />
+        <Chips
+          label={t.check.painSigns}
+          options={PAIN_SIGNS.map((value) => ({ value, label: t.pain[value] }))}
+          values={form.painSigns}
+          onToggle={(sign) => change({ painSigns: toggleSign(form.painSigns, sign) })}
+        />
+      </StepSlide>
     </Screen>
   )
 }

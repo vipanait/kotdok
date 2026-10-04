@@ -5,6 +5,7 @@ import { withFreshSession } from '@/lib/api'
 import { useText } from '@/i18n'
 import { LinkButton } from '@/ui/Button'
 import { Field } from '@/ui/Field'
+import { useRevealOnFocus } from '@/ui/Screen'
 import { Blank } from '@/ui/Skeleton'
 import { Text } from '@/ui/Text'
 import { CONTROL_HEIGHT, colour, radius, space } from '@/ui/theme'
@@ -67,9 +68,15 @@ export function ProductInput({
    * as typing it put «ноб» back in place of «Нобивак Rabies».
    */
   const typedAtPick = useRef<string | null>(null)
+  /** The field and its suggestions, lifted to the top of the screen together on focus. */
+  const block = useRef<View>(null)
+  const revealing = useRevealOnFocus()
 
   function focus() {
     setOpen(true)
+    // Only when there is a list to show: an empty catalogue (as in production
+    // until a vet has checked it) leaves a plain field that need not jump.
+    if (products === null || products.length > 0) revealing?.pinTop(block.current)
     if (products) return
     setFailed(false)
     loadCatalogue(species, kind)
@@ -86,9 +93,16 @@ export function ProductInput({
 
   const typed = item.source === 'none' ? '' : item.name
   const shown = products ? suggestProducts(products, typed) : null
+  // Nothing to say is said with no panel at all: not while the catalogue is
+  // empty, and not under a «Популярные» heading with nothing popular.
+  const panel =
+    open &&
+    (failed ||
+      shown === null ||
+      ((products?.length ?? 0) > 0 && !(shown.kind === 'popular' && shown.products.length === 0)))
 
   return (
-    <View>
+    <View ref={block} collapsable={false}>
       <Field
         label={kind === 'vaccine' ? words.vaccineTitle : words.productTitle}
         value={typed}
@@ -103,10 +117,10 @@ export function ProductInput({
         hint={item.source === 'none' && !open ? words.noneChosen : undefined}
         onFocus={focus}
         onBlur={() => setOpen(false)}
-        style={open ? styles.fieldOpen : undefined}
+        style={panel ? styles.fieldOpen : undefined}
       />
 
-      {open ? (
+      {panel ? (
         <View style={styles.panel} accessibilityLiveRegion="polite">
           {failed ? (
             <Text tone="muted" style={styles.note}>
@@ -150,7 +164,7 @@ export function ProductInput({
                   >
                     <Text>{product.name}</Text>
                     {detail ? (
-                      <Text variant="caption" tone="faint">
+                      <Text variant="caption" tone="faint" numberOfLines={1}>
                         {detail}
                       </Text>
                     ) : null}
