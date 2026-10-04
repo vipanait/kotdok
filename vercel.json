@@ -4,6 +4,7 @@
   "installCommand": "npm ci --workspace @lapka/web --include-workspace-root",
   "buildCommand": "npm run build --workspace @lapka/web",
   "outputDirectory": "apps/web/.next",
+  "regions": ["hnd1"],
   "crons": [
     { "path": "/api/cron/deletion-jobs", "schedule": "0 3 * * *" },
     { "path": "/api/cron/photo-uploads", "schedule": "30 3 * * *" }
