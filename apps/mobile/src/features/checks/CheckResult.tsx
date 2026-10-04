@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { router, useSegments } from 'expo-router'
 import * as Clipboard from 'expo-clipboard'
-import type { SymptomCheckRecord } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
+import { useCached } from '@/lib/query-cache'
 import { describeFailure } from '@/lib/errors'
 import { dictionary, useText } from '@/i18n'
 import { urgencyText } from '@/features/checks/urgency'
@@ -28,22 +28,13 @@ export function CheckResult({ id }: { id: string }) {
   const ui = useText()
   // ['(tabs)', 'check' | 'profile' | 'pets', ...]: the tab this result was opened in.
   const tab = (useSegments() as string[])[1]
-  const [check, setCheck] = useState<SymptomCheckRecord | null>(null)
-  const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
+  // A finished check does not change, so the cached one is shown at once;
+  // the history has usually put it there already (see CheckHistory).
+  const result = useCached(['check', id], () => withFreshSession((api) => api.getCheck(id)))
+  const check = result.data
+  const error = result.error ? describeFailure(ui, result.error, ui.common.offline) : null
+  const load = result.reload
   const [copied, setCopied] = useState(false)
-
-  const load = useCallback(async () => {
-    setError(null)
-    try {
-      setCheck(await withFreshSession((api) => api.getCheck(id)))
-    } catch (cause) {
-      setError(describeFailure(ui, cause, ui.common.offline))
-    }
-  }, [id, ui])
-
-  useEffect(() => {
-    void load()
-  }, [load])
 
   async function copyQuestions() {
     if (!check) return
