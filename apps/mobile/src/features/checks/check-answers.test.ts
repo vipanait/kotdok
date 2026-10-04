@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { en } from '@/i18n/en'
 import { ru } from '@/i18n/ru'
-import { checkAnswers, formatCheckedAt, offersVisit, photoObservations, visitFormHref, visitReason } from './check-answers'
+import { checkAnswers, formatCheckedAt, offersVisit, photoObservations, visitFormHref, visitReason, clinicSearchUrl, offersClinicSearch } from './check-answers'
 
 describe('reading back what was answered on the second step', () => {
   it('names every answer in the order the form asks', () => {
@@ -98,5 +98,20 @@ describe('opening the visit form from a result', () => {
   it("uses the pet's own route in the pets tab", () => {
     expect(visitFormHref('pets', check)).toMatch(/^\/pets\/p1\/visit-form\?checkId=c1&reason=/)
     expect(visitFormHref(undefined, check)).toMatch(/^\/pets\/p1\/visit-form\?/)
+  })
+})
+
+describe('the nearest clinic', () => {
+  it('is offered when the owner should be on the way to a vet, as on the site', () => {
+    expect(offersClinicSearch('emergency')).toBe(true)
+    expect(offersClinicSearch('urgent')).toBe(true)
+    expect(offersClinicSearch('monitor')).toBe(false)
+    expect(offersClinicSearch('home_care')).toBe(false)
+  })
+
+  it('is a Google Maps search around the person', () => {
+    expect(clinicSearchUrl('ветеринарная клиника')).toBe(
+      'https://www.google.com/maps/search/?api=1&query=%D0%B2%D0%B5%D1%82%D0%B5%D1%80%D0%B8%D0%BD%D0%B0%D1%80%D0%BD%D0%B0%D1%8F%20%D0%BA%D0%BB%D0%B8%D0%BD%D0%B8%D0%BA%D0%B0',
+    )
   })
 })

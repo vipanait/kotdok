@@ -453,6 +453,10 @@ export const en: Dictionary = {
   },
 
   check: {
+    startOver: 'Start over',
+    startOverTitle: 'Start this check over?',
+    startOverBody: 'The description, photos and answers of this check will be lost.',
+    startOverConfirm: 'Start over',
     recordCaption: 'We take the medical record into account: vaccinations, medicines, weight',
     title: 'Symptom check',
     step: (current: number, of: number) => `Step ${current} of ${of}`,
@@ -488,6 +492,8 @@ export const en: Dictionary = {
   },
 
   result: {
+    findClinic: 'Find a clinic nearby',
+    clinicSearchQuery: 'veterinary clinic',
     fallbackTitle: 'Check',
     causes: 'Possible causes',
     photoObservations: "What's visible in the photos",
