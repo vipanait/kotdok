@@ -122,7 +122,11 @@ export function CheckHistory({
             <Text tone="muted" center style={styles.emptyCopy}>
               {ui.history.emptyBody}
             </Text>
-            <Button title={ui.pets.checkSymptoms} onPress={() => router.push('/check')} />
+            <Button
+              title={ui.pets.checkSymptoms}
+              // From one pet's history, the form opens with that pet chosen.
+              onPress={() => router.navigate(petId ? { pathname: '/check', params: { petId } } : '/check')}
+            />
           </>
         )}
       </View>

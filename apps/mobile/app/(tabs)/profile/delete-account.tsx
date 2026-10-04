@@ -43,7 +43,12 @@ export default function DeleteAccount() {
     const outcome = await deleteAccount({
       api,
       keepReceipt: (secret) => receiptStorage.setItem(RECEIPT_KEY, secret),
-      forgetAccount: () => signOut(),
+      // The status screen first: signing out while the tabs are still up sent
+      // them to sign-in for a moment before the status replaced it.
+      forgetAccount: async () => {
+        router.replace('/deletion-status')
+        await signOut()
+      },
       // The platform's own CSPRNG. `Math.random` would be wrong here in a way
       // that never shows up in testing: the receipt is a bearer credential, and
       // a guessable one lets somebody else read a stranger's deletion status.
@@ -54,10 +59,8 @@ export default function DeleteAccount() {
     setAsking(false)
     setBusy(false)
 
-    if (outcome.kind === 'accepted') {
-      router.replace('/deletion-status')
-      return
-    }
+    // Accepted: already on the status screen (see forgetAccount).
+    if (outcome.kind === 'accepted') return
     if (outcome.kind === 'reauth_required') {
       setNeedsReauth(true)
       return

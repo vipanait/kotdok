@@ -42,7 +42,12 @@ function useAuthLinks() {
       if (!raw) return
 
       const link = parseAuthLink(raw)
-      if (!link) return
+      // Ours, but nothing to act on: off the blank auth screen to where the
+      // app would have opened anyway.
+      if (!link) {
+        if (/^lapka:\/\/auth\/(callback|confirm|recover)\b/.test(raw)) router.replace('/')
+        return
+      }
 
       if (link.kind === 'error') {
         // The app's own sentence, not the sender's: whatever a link puts in
@@ -59,7 +64,7 @@ function useAuthLinks() {
       // recovery link still has somewhere useful to go: the screen it asks for
       // changes the password of the account already open here.
       if (outcome === 'already-signed-in') {
-        if (link.kind === 'recover') router.replace('/reset-password')
+        router.replace(link.kind === 'recover' ? '/reset-password' : '/pets')
         return
       }
 
