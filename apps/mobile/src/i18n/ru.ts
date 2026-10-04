@@ -468,10 +468,6 @@ export const ru = {
   },
 
   check: {
-    startOver: 'Начать заново',
-    startOverTitle: 'Начать проверку заново?',
-    startOverBody: 'Описание, фото и ответы этой проверки пропадут.',
-    startOverConfirm: 'Начать заново',
     recordCaption: 'Учтём медкарту: прививки, лекарства, вес',
     title: 'Проверка симптомов',
     step: (current: number, of: number) => `Шаг ${current} из ${of}`,

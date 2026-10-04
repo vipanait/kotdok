@@ -51,6 +51,11 @@ const RevealContext = createContext<{
   release: (field: Locatable | null) => void
   /** Brings a field into view that is above the scroller's top — even one that already has the focus. */
   show: (field: Locatable | null) => void
+  /**
+   * Scrolls a block up to the top of the screen: for a field that opens
+   * suggestions under itself, which the keyboard would otherwise cover.
+   */
+  pinTop: (block: Locatable | null) => void
 } | null>(null)
 
 /**
@@ -140,6 +145,22 @@ export function Screen({
     })
   }, [])
 
+  const pinTop = useCallback((block: Locatable | null) => {
+    // After the block has grown (the suggestions open with the focus) and the
+    // keyboard's own reveal has had its turn.
+    setTimeout(() => {
+      const view = scroller.current?.getNativeScrollRef()
+      if (!block || !view) return
+      view.measureInWindow((_x, scrollerTop) => {
+        block.measureInWindow((_bx, blockTop) => {
+          const target = Math.max(0, scrolled.current + blockTop - scrollerTop - space.row)
+          scrolled.current = target
+          scroller.current?.scrollTo({ y: target, animated: true })
+        })
+      })
+    }, REVEAL_SETTLE_MS * 2)
+  }, [])
+
   useEffect(() => {
     // `DidShow` for the keyboard arriving, `DidChangeFrame` for it growing —
     // switching to an emoji keyboard or a taller predictive bar moves the line
@@ -165,8 +186,9 @@ export function Screen({
         if (focusedField.current === field) focusedField.current = null
       },
       show: showTop,
+      pinTop,
     }),
-    [reveal, showTop],
+    [reveal, showTop, pinTop],
   )
 
   const heading = title ? (
