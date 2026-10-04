@@ -14,6 +14,7 @@ import { Button, LinkButton } from '@/ui/Button'
 import { Banner, Card, SettingRow } from '@/ui/Card'
 import { ConfirmDialog } from '@/ui/Dialog'
 import { Screen } from '@/ui/Screen'
+import { DetailSkeleton } from '@/ui/Skeleton'
 import { Text } from '@/ui/Text'
 import { colour, space } from '@/ui/theme'
 
@@ -104,7 +105,11 @@ export default function VisitView() {
         ) : null
       }
     >
-      {error ? <Banner text={error.text} tone="error" icon={error.offline ? 'wifi' : 'alert'} style={styles.gap} /> : null}
+      {error ? (
+        <Banner text={error.text} tone="error" icon={error.offline ? 'wifi' : 'alert'} style={styles.gap} />
+      ) : !visit ? (
+        <DetailSkeleton />
+      ) : null}
       {visit ? (
         <>
           <Card outlined style={styles.card}>

@@ -13,6 +13,7 @@ import {
   DURATION_VALUES,
   PAIN_SIGNS,
   STOOL_VALUES,
+  type SymptomCheckRecord,
 } from '@lapka/contracts'
 import type { Dictionary } from '@/i18n'
 
@@ -104,4 +105,20 @@ export function offersVisit(check: { urgency: string; pet_id: string | null }): 
 /** The first line of what the owner described: the visit's reason. */
 export function visitReason(symptoms: string): string {
   return (symptoms.split('\n').find((line) => line.trim() !== '') ?? '').trim().slice(0, 500)
+}
+
+/**
+ * Where «Записать визит» opens: the visit form in the tab the result is in.
+ *
+ * The form lives in the pet's stack, and pushing it there from the check or
+ * profile tab switched tabs — back then went to the pet list rather than to
+ * the result. Those two tabs carry their own copy of the route.
+ */
+export function visitFormHref(
+  tab: string | undefined,
+  check: Pick<SymptomCheckRecord, 'id' | 'pet_id' | 'symptoms_input'>,
+): string {
+  const query = `checkId=${check.id}&reason=${encodeURIComponent(visitReason(check.symptoms_input))}`
+  if (tab === 'check' || tab === 'profile') return `/${tab}/visit-form?id=${check.pet_id}&${query}`
+  return `/pets/${check.pet_id}/visit-form?${query}`
 }

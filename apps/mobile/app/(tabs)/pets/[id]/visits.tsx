@@ -12,6 +12,7 @@ import { Button } from '@/ui/Button'
 import { Banner, Card, UrgencyBadge } from '@/ui/Card'
 import { Icon } from '@/ui/Icon'
 import { Screen } from '@/ui/Screen'
+import { ListSkeleton } from '@/ui/Skeleton'
 import { Text } from '@/ui/Text'
 import { colour, radius, space } from '@/ui/theme'
 
@@ -111,6 +112,8 @@ export default function Visits() {
           <Banner text={error.text} tone="error" icon={error.offline ? 'wifi' : 'alert'} />
           <Button title={t.common.retry} kind="secondary" onPress={() => void load()} />
         </>
+      ) : !shown ? (
+        <ListSkeleton rows={3} />
       ) : null}
 
       {shown && visits.length === 0 ? (

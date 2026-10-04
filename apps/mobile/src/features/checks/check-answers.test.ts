@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { en } from '@/i18n/en'
 import { ru } from '@/i18n/ru'
-import { checkAnswers, formatCheckedAt, offersVisit, photoObservations, visitReason } from './check-answers'
+import { checkAnswers, formatCheckedAt, offersVisit, photoObservations, visitFormHref, visitReason } from './check-answers'
 
 describe('reading back what was answered on the second step', () => {
   it('names every answer in the order the form asks', () => {
@@ -82,5 +82,21 @@ describe('a visit from a result (MR-07.5)', () => {
 
   it('skips blank lines before the description', () => {
     expect(visitReason('\n  \nРвота два дня\nне ест')).toBe('Рвота два дня')
+  })
+})
+
+describe('opening the visit form from a result', () => {
+  const check = { id: 'c1', pet_id: 'p1', symptoms_input: 'Рвота два дня\nне ест' }
+
+  it('stays in the check and profile tabs, so back returns to the result', () => {
+    expect(visitFormHref('check', check)).toBe(
+      '/check/visit-form?id=p1&checkId=c1&reason=%D0%A0%D0%B2%D0%BE%D1%82%D0%B0%20%D0%B4%D0%B2%D0%B0%20%D0%B4%D0%BD%D1%8F',
+    )
+    expect(visitFormHref('profile', check)).toMatch(/^\/profile\/visit-form\?id=p1&checkId=c1&reason=/)
+  })
+
+  it("uses the pet's own route in the pets tab", () => {
+    expect(visitFormHref('pets', check)).toMatch(/^\/pets\/p1\/visit-form\?checkId=c1&reason=/)
+    expect(visitFormHref(undefined, check)).toMatch(/^\/pets\/p1\/visit-form\?/)
   })
 })

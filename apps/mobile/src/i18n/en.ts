@@ -31,6 +31,17 @@ export const en: Dictionary = {
     toList: 'To the list',
     notStated: 'Not stated',
     offline: 'No connection to the server',
+    loading: 'Loading',
+  },
+
+  calendar: {
+    open: 'Choose on the calendar',
+    previous: 'Previous month',
+    next: 'Next month',
+    today: 'Today',
+    month: (year: number, month: number) => `${MONTHS[month - 1]} ${year}`,
+    weekdays: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+    weekStartsOn: 'sunday',
   },
 
   auth: {

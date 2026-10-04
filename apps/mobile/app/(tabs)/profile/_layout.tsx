@@ -1,5 +1,5 @@
 import { Stack } from 'expo-router'
-import { colour } from '@/ui/theme'
+import { stackOptions } from '@/ui/stack'
 
 /**
  * One stack per tab, so pushing a pet or a result keeps the tab bar and the
@@ -7,8 +7,6 @@ import { colour } from '@/ui/theme'
  */
 export default function TabStack() {
   return (
-    <Stack
-      screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colour.canvas } }}
-    />
+    <Stack screenOptions={stackOptions} />
   )
 }
