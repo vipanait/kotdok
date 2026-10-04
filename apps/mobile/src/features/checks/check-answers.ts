@@ -122,3 +122,17 @@ export function visitFormHref(
   if (tab === 'check' || tab === 'profile') return `/${tab}/visit-form?id=${check.pet_id}&${query}`
   return `/pets/${check.pet_id}/visit-form?${query}`
 }
+
+/** Levels where the owner should be on the way to a vet: the result offers the nearest clinic, as the site does. */
+export function offersClinicSearch(urgency: string): boolean {
+  return urgency === 'emergency' || urgency === 'urgent'
+}
+
+/**
+ * A map search around the person, not a clinic we chose for them. Google Maps
+ * opens in its app when installed and in the browser otherwise; the search
+ * itself takes the phone's location from there, so the app asks for none.
+ */
+export function clinicSearchUrl(query: string): string {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`
+}
