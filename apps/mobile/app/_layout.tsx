@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { Stack, useRouter } from 'expo-router'
 import { useFonts } from 'expo-font'
 import * as Linking from 'expo-linking'
@@ -11,6 +12,7 @@ import { LocaleProvider, dictionary } from '@/i18n'
 import { parseAuthLink } from '@/lib/auth-links'
 import { redeemAuthLink, type LinkAuth } from '@/features/auth/redeem-link'
 import { deviceLocale } from '@/lib/device-locale'
+import { persistOptions, queryClient } from '@/lib/query-client'
 import { supabase } from '@/lib/supabase'
 import { stackOptions } from '@/ui/stack'
 import { colour } from '@/ui/theme'
@@ -102,14 +104,16 @@ export default function RootLayout() {
   if (!fontsReady) return <View style={{ flex: 1, backgroundColor: colour.canvas }} />
 
   return (
-    <LocaleProvider>
-      <AuthProvider>
-        <ReminderProvider>
-          <StatusBar style="dark" />
-          <Stack screenOptions={stackOptions} />
-          <UpdatePrompt />
-        </ReminderProvider>
-      </AuthProvider>
-    </LocaleProvider>
+    <PersistQueryClientProvider client={queryClient} persistOptions={persistOptions}>
+      <LocaleProvider>
+        <AuthProvider>
+          <ReminderProvider>
+            <StatusBar style="dark" />
+            <Stack screenOptions={stackOptions} />
+            <UpdatePrompt />
+          </ReminderProvider>
+        </AuthProvider>
+      </LocaleProvider>
+    </PersistQueryClientProvider>
   )
 }
