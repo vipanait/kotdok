@@ -65,7 +65,27 @@ export function blankItem(key: string, kind: HealthEvent['kind'] = 'vaccination'
  * turning it on adds the group's own code.
  */
 export function toggleGroup(item: ItemDraft, group: 'fleas' | 'ticks' | 'worms'): ItemDraft {
-  return { ...item, targets: toggleParasiteGroup(item.targets, group) }
+  return withTargets(item, toggleParasiteGroup(item.targets, group))
+}
+
+/** A vaccine chip turned on or off. */
+export function toggleTarget(item: ItemDraft, code: HealthTarget): ItemDraft {
+  return withTargets(
+    item,
+    item.targets.includes(code) ? item.targets.filter((other) => other !== code) : [...item.targets, code],
+  )
+}
+
+/**
+ * New «от чего» for an item. A product picked from the catalogue has a fixed
+ * composition: once the diseases or parasites no longer match it, it is not
+ * that product any more, so it is let go — the chips stay as set, and the
+ * field is empty for another product or none. A name typed by hand is the
+ * owner's own and stays.
+ */
+function withTargets(item: ItemDraft, targets: HealthTarget[]): ItemDraft {
+  if (item.source !== 'catalog') return { ...item, targets }
+  return { ...item, targets, name: '', productId: null, interval: null, source: 'unset' }
 }
 
 /**

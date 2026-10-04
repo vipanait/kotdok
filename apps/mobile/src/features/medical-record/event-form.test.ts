@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { HEALTH_EVENT_LIMITS, type HealthEvent } from '@lapka/contracts'
 import { ru } from '@/i18n/ru'
-import { blankItem, canAddItem, draftFromEvent, draftChanged, nextDate, pickProduct, plannedItem, readDraft, renameItem, warnsDoneIsFinal, type EventDraft, type ItemDraft } from './event-form'
+import { blankItem, canAddItem, draftFromEvent, draftChanged, nextDate, pickProduct, plannedItem, readDraft, renameItem, toggleGroup, toggleTarget, warnsDoneIsFinal, type EventDraft, type ItemDraft } from './event-form'
 
 const NOW = new Date(2026, 8, 24, 12, 0) // 24 Sept 2026, local
 
@@ -205,6 +205,25 @@ describe('picking from the catalogue (MR-04.3)', () => {
     const item = pickProduct(pickProduct(blankItem('a'), rabies12w), tricat)
     expect(item).toMatchObject({ name: 'Нобивак Tricat Trio', targets: ['panleukopenia', 'calicivirus'], productId: tricat.id })
     expect(nextDate(item, '2026-09-24', '2026-09-24')).toBe('2027-09-24')
+  })
+
+  it('lets go of a picked vaccine when what it is against changes, keeping the chips', () => {
+    const picked = pickProduct(blankItem('a'), tricat)
+    const fewer = toggleTarget(picked, 'calicivirus')
+    expect(fewer).toMatchObject({ name: '', productId: null, interval: null, source: 'unset', targets: ['panleukopenia'] })
+    const more = toggleTarget(picked, 'rabies')
+    expect(more).toMatchObject({ name: '', productId: null, targets: ['panleukopenia', 'calicivirus', 'rabies'] })
+  })
+
+  it('keeps a name typed by hand whatever the chips say', () => {
+    const typed = renameItem(blankItem('a'), 'Вакцина из клиники')
+    expect(toggleTarget(typed, 'rabies')).toMatchObject({ name: 'Вакцина из клиники', source: 'manual', targets: ['rabies'] })
+  })
+
+  it('lets go of a picked treatment when a parasite group changes', () => {
+    const bravecto = { ...rabies12w, kind: 'antiparasitic' as const, name: 'Бравекто', targets: ['fleas', 'ticks'] }
+    const picked = pickProduct({ ...blankItem('b', 'parasite') }, bravecto)
+    expect(toggleGroup(picked, 'worms')).toMatchObject({ name: '', productId: null, source: 'unset', targets: ['fleas', 'ticks', 'worms'] })
   })
 
   it('stops pointing at the product once its name is changed by hand, keeping what was typed', () => {
