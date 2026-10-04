@@ -29,6 +29,7 @@ import { useAuth } from '@/providers/AuthProvider'
 import { draftStorage } from '@/lib/supabase'
 import {
   DRAFT_KEY,
+  isWorthKeeping,
   shouldKeepDraft,
   parseDraft,
   serialiseDraft,
@@ -53,6 +54,7 @@ import { addPhotos, type PickedPhoto } from '@/features/checks/photos'
 import { uploadPhotos } from '@/features/checks/photo-upload'
 import { Button, LinkButton } from '@/ui/Button'
 import { Banner } from '@/ui/Card'
+import { ConfirmDialog } from '@/ui/Dialog'
 import { Chips, Field, Segment, Select } from '@/ui/Field'
 import { PhotoStrip } from '@/ui/PhotoStrip'
 import { Screen } from '@/ui/Screen'
@@ -196,6 +198,9 @@ export default function NewCheck() {
   // the many people who own exactly one. A draft can name a pet that has since
   // been deleted, on this phone or another: falling back to the first keeps
   // the form usable instead of failing at the very end.
+  // Also whenever the form loses its pet: an emptied form (after a finished
+  // check or «Начать заново») gets the first one again, even when the cached
+  // list it is chosen from has not changed.
   useEffect(() => {
     if (!pets) return
     setForm((current) => {
@@ -203,7 +208,7 @@ export default function NewCheck() {
       if (stillThere || pets.length === 0) return current
       return { ...current, petId: pets[0].id }
     })
-  }, [pets])
+  }, [pets, form.petId])
 
   /**
    * A pet named by the screen that opened the form — one pet's empty history —
@@ -320,16 +325,18 @@ export default function NewCheck() {
   )
 
   /**
-   * Cancel, and mean it.
+   * Start over, and mean it.
    *
-   * The one place somebody says this question is not worth keeping. Leaving any
-   * other way keeps the draft, which is why this cannot simply navigate: the
-   * screen saves what is in the fields on its way out.
+   * There is no «Отмена»: this is a tab, and the tab bar is the way out. Leaving
+   * keeps the draft — describing symptoms is work, and losing it to a mistyped
+   * tap is not forgiven — so this is the one place somebody says this question
+   * is not worth keeping. It asks first, and leaves an empty form here.
    */
-  function abandon() {
-    finished.current = true
+  const [startingOver, setStartingOver] = useState(false)
+  function startOver() {
+    setStartingOver(false)
     void forgetDraft()
-    router.replace('/pets')
+    startFresh()
   }
 
   function next() {
@@ -503,7 +510,10 @@ export default function NewCheck() {
         dock={
           <>
             <Button title={t.common.next} onPress={next} />
-            <LinkButton title={t.common.cancel} onPress={abandon} />
+            {/* Only when there is something to lose. */}
+            {isWorthKeeping(form) || photos.length > 0 ? (
+              <LinkButton title={t.check.startOver} onPress={() => setStartingOver(true)} />
+            ) : null}
           </>
         }
       >
@@ -551,6 +561,16 @@ export default function NewCheck() {
         />
 
         <Banner text={t.check.symptomsHint} />
+
+        <ConfirmDialog
+          visible={startingOver}
+          title={t.check.startOverTitle}
+          message={t.check.startOverBody}
+          confirmTitle={t.check.startOverConfirm}
+          cancelTitle={t.unsaved.keepEditing}
+          onConfirm={startOver}
+          onCancel={() => setStartingOver(false)}
+        />
       </Screen>
     )
   }
