@@ -198,6 +198,9 @@ export default function NewCheck() {
   // the many people who own exactly one. A draft can name a pet that has since
   // been deleted, on this phone or another: falling back to the first keeps
   // the form usable instead of failing at the very end.
+  // Also whenever the form loses its pet: an emptied form (after a finished
+  // check or «Начать заново») gets the first one again, even when the cached
+  // list it is chosen from has not changed.
   useEffect(() => {
     if (!pets) return
     setForm((current) => {
@@ -205,7 +208,7 @@ export default function NewCheck() {
       if (stillThere || pets.length === 0) return current
       return { ...current, petId: pets[0].id }
     })
-  }, [pets])
+  }, [pets, form.petId])
 
   /**
    * A pet named by the screen that opened the form — one pet's empty history —
