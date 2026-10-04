@@ -26,6 +26,6 @@
     "test:integration": "npm run test:integration --workspace @lapka/web",
     "build": "npm run build --workspace @lapka/web",
     "dev": "npm run dev --workspace @lapka/web",
-    "test:ci-routing": "node --test .github/scripts/changed-groups.test.mjs"
+    "test:ci-routing": "node --test .github/scripts/changed-groups.test.mjs .github/scripts/audit.test.mjs"
   }
 }
