@@ -23,6 +23,7 @@ import {
   plannedItem,
   renameItem,
   toggleGroup,
+  toggleTarget,
   readDraft,
   warnsDoneIsFinal,
   type DraftErrors,
@@ -417,13 +418,8 @@ export default function EventForm() {
                   label={words.diseases}
                   options={choices}
                   values={item.targets}
-                  onToggle={(code) =>
-                    changeItem(item.key, {
-                      targets: item.targets.includes(code)
-                        ? item.targets.filter((other) => other !== code)
-                        : [...item.targets, code],
-                    })
-                  }
+                  // Changing what it was against lets go of a picked vaccine (toggleTarget).
+                  onToggle={(code) => updateItem(item.key, (current) => toggleTarget(current, code))}
                 />
               )}
             </>
