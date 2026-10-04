@@ -42,6 +42,8 @@ export function Field({
   style,
   fieldRef,
   action,
+  onFocus,
+  onBlur,
 }: {
   label: string
   /** Draw the name or not; either way the field answers to it out loud. */
@@ -71,6 +73,9 @@ export function Field({
   fieldRef?: (field: FieldHandle | null) => void
   /** A button inside the field, after the text: the calendar of a date field. */
   action?: { icon: IconName; label: string; onPress: () => void }
+  /** For a field that shows something of its own while it is being typed in, such as suggestions. */
+  onFocus?: () => void
+  onBlur?: () => void
 }) {
   const t = useText()
   const [focused, setFocused] = useState(false)
@@ -118,10 +123,12 @@ export function Field({
           onFocus={() => {
             setFocused(true)
             revealing?.hold(input.current)
+            onFocus?.()
           }}
           onBlur={() => {
             setFocused(false)
             revealing?.release(input.current)
+            onBlur?.()
           }}
           placeholder={placeholder}
           placeholderTextColor={colour.faint}
