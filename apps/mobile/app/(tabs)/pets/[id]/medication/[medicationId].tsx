@@ -12,6 +12,7 @@ import { Button, LinkButton } from '@/ui/Button'
 import { Banner, Card } from '@/ui/Card'
 import { ConfirmDialog } from '@/ui/Dialog'
 import { Screen } from '@/ui/Screen'
+import { DetailSkeleton } from '@/ui/Skeleton'
 import { Text } from '@/ui/Text'
 import { space } from '@/ui/theme'
 
@@ -100,7 +101,11 @@ export default function MedicationView() {
         ) : null
       }
     >
-      {error ? <Banner text={error.text} tone="error" icon={error.offline ? 'wifi' : 'alert'} style={styles.gap} /> : null}
+      {error ? (
+        <Banner text={error.text} tone="error" icon={error.offline ? 'wifi' : 'alert'} style={styles.gap} />
+      ) : !course ? (
+        <DetailSkeleton />
+      ) : null}
       {course ? (
         <>
           <Card outlined style={styles.card}>

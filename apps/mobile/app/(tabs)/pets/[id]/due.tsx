@@ -11,6 +11,7 @@ import { doneRoute, dueItems, dueStatus } from '@/features/medical-record/due'
 import { Button } from '@/ui/Button'
 import { Banner, Card } from '@/ui/Card'
 import { Screen } from '@/ui/Screen'
+import { ListSkeleton } from '@/ui/Skeleton'
 import { colour } from '@/ui/theme'
 
 /** Every due date of the pet (X-dates): overdue first, then the soonest. */
@@ -45,6 +46,8 @@ export default function AllDue() {
           <Banner text={error.text} tone="error" icon={error.offline ? 'wifi' : 'alert'} />
           <Button title={t.common.retry} kind="secondary" onPress={() => void load()} />
         </>
+      ) : overview?.pet.id !== id ? (
+        <ListSkeleton rows={4} />
       ) : null}
       {all.length > 0 ? (
         <Card outlined style={styles.card}>

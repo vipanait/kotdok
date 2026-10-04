@@ -8,6 +8,7 @@ import { dayInput, localToday, parseDayInput } from '@/lib/calendar-day'
 import { useText } from '@/i18n'
 import { Button, IconButton } from '@/ui/Button'
 import { Banner } from '@/ui/Card'
+import { DateField } from '@/ui/DateField'
 import { Field } from '@/ui/Field'
 import { Text } from '@/ui/Text'
 import { colour, radius, space } from '@/ui/theme'
@@ -168,12 +169,12 @@ export function WeightSheet({
                   keyboardType="decimal-pad"
                   error={invalid.weight}
                 />
-                <Field
+                <DateField
                   label={words.dateField}
                   value={day}
                   onChangeText={setDay}
                   placeholder={words.datePlaceholder}
-                  keyboardType="numbers-and-punctuation"
+                  max={localToday()}
                   error={invalid.day}
                 />
 

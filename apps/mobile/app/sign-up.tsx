@@ -110,7 +110,11 @@ export default function SignUp() {
       {error ? <Banner text={error} tone="error" /> : null}
 
       <Button title={t.auth.signUp} onPress={submit} busy={busy} />
-      <LinkButton title={t.auth.haveAccount} onPress={() => router.replace('/sign-in')} />
+      {/* Opened from sign-in, so back to it rather than a second one on top. */}
+      <LinkButton
+        title={t.auth.haveAccount}
+        onPress={() => (router.canGoBack() ? router.back() : router.replace('/sign-in'))}
+      />
 
       {providerNotice ? (
         <Banner text={providerNotice.text} tone={providerNotice.tone} />

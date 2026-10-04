@@ -8,6 +8,7 @@ import { dictionary, useLocale, useText } from '@/i18n'
 import { urgencyText } from '@/features/checks/urgency'
 import { Button } from '@/ui/Button'
 import { Banner, Card, UrgencyBadge } from '@/ui/Card'
+import { ListSkeleton } from '@/ui/Skeleton'
 import { Text } from '@/ui/Text'
 import { colour, space } from '@/ui/theme'
 
@@ -96,7 +97,7 @@ export function CheckHistory({
   }
 
   if (items === null) {
-    return <ActivityIndicator color={colour.accent} />
+    return <ListSkeleton rows={4} />
   }
 
   if (items.length === 0) {
@@ -151,9 +152,17 @@ export function CheckHistory({
               accessibilityLabel={`${heading(item)}, ${level.label}, ${formatDate(item.created_at, locale)}`}
             >
               <UrgencyBadge level={item.urgency} label={level.label} />
-              <Text variant="h3" style={styles.cardTitle}>
-                {heading(item)}
-              </Text>
+              {/* A long name gives way, the species does not: «Барон Мурлыкенш… · Кот». */}
+              <View style={styles.cardTitle}>
+                <Text variant="h3" numberOfLines={1} style={styles.cardName}>
+                  {item.pet_name ?? (item.pet_species ? ui.species[item.pet_species] : ui.check.noPet)}
+                </Text>
+                {item.pet_name && item.pet_species ? (
+                  <Text variant="h3" style={styles.cardSpecies}>
+                    {` · ${ui.species[item.pet_species]}`}
+                  </Text>
+                ) : null}
+              </View>
               <Text tone="muted" numberOfLines={1}>
                 {item.symptoms_input}
               </Text>
@@ -169,7 +178,9 @@ export function CheckHistory({
 }
 
 const styles = StyleSheet.create({
-  cardTitle: { marginTop: space.row, marginBottom: 4 },
+  cardTitle: { flexDirection: 'row', marginTop: space.row, marginBottom: 4 },
+  cardName: { flexShrink: 1 },
+  cardSpecies: { flexShrink: 0 },
   cardDate: { marginTop: space.row, textAlign: 'right' },
   empty: { flex: 1, justifyContent: 'center' },
   emptyArt: { width: 228, height: 228, alignSelf: 'center', marginBottom: 8 },

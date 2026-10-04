@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { router } from 'expo-router'
+import { router, useSegments } from 'expo-router'
 import { withFreshSession } from '@/lib/api'
 import { localToday } from '@/lib/calendar-day'
 import { errorMessage } from '@/lib/errors'
@@ -21,6 +21,8 @@ import { Screen } from '@/ui/Screen'
 
 export default function NewPet() {
   const t = useText()
+  // Also mounted in the check tab (check/new-pet), where saving returns to the check.
+  const tab = (useSegments() as string[])[1]
   const [form, setForm] = useState<PetForm>(emptyPetForm())
   const [error, setError] = useState<string | null>(null)
   const [invalid, setInvalid] = useState<FieldError | null>(null)
@@ -64,7 +66,9 @@ export default function NewPet() {
       const pet = await withFreshSession((api) =>
         api.createPet({ ...input.value, weight_measured_on: localToday() }),
       )
-      unsaved.leave(then ?? (() => router.replace(`/pets/${pet.id}`)))
+      // From the check tab, back to the check the pet was added for; the form
+      // reloads the pets on the way in and now has one to offer.
+      unsaved.leave(then ?? (() => (tab === 'check' ? router.back() : router.replace(`/pets/${pet.id}`))))
     } catch (cause) {
       setError(errorMessage(t, cause, t.errors.savePetFailed))
     } finally {

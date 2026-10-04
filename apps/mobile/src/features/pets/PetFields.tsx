@@ -1,7 +1,10 @@
+import { StyleSheet, View } from 'react-native'
 import { PET_DIETS, PET_LIFESTYLES, PET_SIZE_CLASSES, PET_WALK_ACTIVITIES } from '@lapka/contracts'
 import { useText } from '@/i18n'
 import { Field, Segment, Select } from '@/ui/Field'
 import { Accordion } from '@/ui/Section'
+import { Text } from '@/ui/Text'
+import { space } from '@/ui/theme'
 import { AGE_MAX, WEIGHT_MAX, type FieldError, type PetForm } from './pet-form'
 
 /** Yes / no / not stated, which a switch cannot express. */
@@ -60,6 +63,7 @@ export function PetFields({
   onChange,
   invalid = null,
   notes = {},
+  speciesFixed = false,
 }: {
   form: PetForm
   onChange: (patch: Partial<PetForm>) => void
@@ -69,6 +73,12 @@ export function PetFields({
    * веса — в медкарте». Only where the record has something (spec §4).
    */
   notes?: { weight?: string; vaccinated?: string; medications?: string }
+  /**
+   * An existing pet: the species is named, not offered. A cat does not become
+   * a dog, and switching it would re-ask the form and the record in the other
+   * animal's terms while its checks stay a cat's.
+   */
+  speciesFixed?: boolean
 }) {
   const t = useText()
   const errorFor = (field: keyof PetForm) => (invalid?.field === field ? invalid.message : null)
@@ -82,16 +92,25 @@ export function PetFields({
 
   return (
     <>
-      <Segment
-        label={t.petForm.species}
-        clearable={false}
-        options={[
-          { value: 'cat' as const, label: t.species.cat },
-          { value: 'dog' as const, label: t.species.dog },
-        ]}
-        value={form.species}
-        onChange={(species) => onChange({ species: species ?? 'cat' })}
-      />
+      {speciesFixed ? (
+        <View style={styles.fixed}>
+          <Text variant="label" tone="muted">
+            {t.petForm.species}
+          </Text>
+          <Text variant="h3">{t.species[form.species]}</Text>
+        </View>
+      ) : (
+        <Segment
+          label={t.petForm.species}
+          clearable={false}
+          options={[
+            { value: 'cat' as const, label: t.species.cat },
+            { value: 'dog' as const, label: t.species.dog },
+          ]}
+          value={form.species}
+          onChange={(species) => onChange({ species: species ?? 'cat' })}
+        />
+      )}
 
       <Field
         label={t.petForm.name}
@@ -228,3 +247,8 @@ export function PetFields({
     </>
   )
 }
+
+const styles = StyleSheet.create({
+  // As the check form names its only pet: a label over the value, spaced like a field.
+  fixed: { marginBottom: space.block, gap: 6 },
+})

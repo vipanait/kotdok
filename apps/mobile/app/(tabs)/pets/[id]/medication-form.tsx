@@ -20,9 +20,11 @@ import {
 import { useUnsavedChanges } from '@/features/unsaved/useUnsavedChanges'
 import { Button, IconButton, LinkButton } from '@/ui/Button'
 import { Banner, Card } from '@/ui/Card'
+import { DateField } from '@/ui/DateField'
 import { SaveChangesDialog } from '@/ui/Dialog'
 import { Field } from '@/ui/Field'
 import { Screen } from '@/ui/Screen'
+import { FormSkeleton } from '@/ui/Skeleton'
 import { Text } from '@/ui/Text'
 import { TAP_TARGET, colour, space } from '@/ui/theme'
 
@@ -126,6 +128,7 @@ export default function MedicationForm() {
           <Button title={t.common.back} kind="secondary" onPress={() => unsaved.leave(() => router.back())} />
         </>
       ) : null}
+      {!locked && !drafts && !error ? <FormSkeleton fields={4} /> : null}
       {!locked && drafts?.map((draft) => (
         <Card key={draft.key} outlined style={styles.card}>
           <View style={styles.head}>
@@ -154,12 +157,11 @@ export default function MedicationForm() {
             placeholder={words.dosagePlaceholder}
             error={errors[draft.key]?.dosage}
           />
-          <Field
+          <DateField
             label={words.start}
             value={draft.start}
             onChangeText={(start) => change(draft.key, { start })}
             placeholder={t.medicalRecord.datePlaceholder}
-            keyboardType="numbers-and-punctuation"
             error={errors[draft.key]?.start}
             hint={startOptional ? words.startUnknownHint : undefined}
           />
@@ -176,12 +178,11 @@ export default function MedicationForm() {
             </View>
           </Pressable>
           {!draft.ongoing ? (
-            <Field
+            <DateField
               label={words.end}
               value={draft.end}
               onChangeText={(end) => change(draft.key, { end })}
               placeholder={t.medicalRecord.datePlaceholder}
-              keyboardType="numbers-and-punctuation"
               error={errors[draft.key]?.end}
               hint={courseEndsByToday(draft) ? words.endsNow : undefined}
             />

@@ -1,20 +1,21 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ActivityIndicator, StyleSheet, View } from 'react-native'
-import { router } from 'expo-router'
+import { StyleSheet, View } from 'react-native'
+import { router, useSegments } from 'expo-router'
 import * as Clipboard from 'expo-clipboard'
 import type { SymptomCheckRecord } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
 import { describeFailure } from '@/lib/errors'
 import { dictionary, useText } from '@/i18n'
 import { urgencyText } from '@/features/checks/urgency'
-import { checkAnswers, formatCheckedAt, offersVisit, photoObservations, visitReason } from '@/features/checks/check-answers'
+import { checkAnswers, formatCheckedAt, offersVisit, photoObservations, visitFormHref } from '@/features/checks/check-answers'
 import { ResultFeedback } from '@/features/checks/ResultFeedback'
 import { Button, LinkButton } from '@/ui/Button'
 import { Banner, UrgencyCard } from '@/ui/Card'
 import { Screen } from '@/ui/Screen'
 import { Accordion, Bullets } from '@/ui/Section'
+import { ResultSkeleton } from '@/ui/Skeleton'
 import { Text } from '@/ui/Text'
-import { colour, space } from '@/ui/theme'
+import { space } from '@/ui/theme'
 
 /**
  * One finished check, read back.
@@ -25,6 +26,8 @@ import { colour, space } from '@/ui/theme'
  */
 export function CheckResult({ id }: { id: string }) {
   const ui = useText()
+  // ['(tabs)', 'check' | 'profile' | 'pets', ...]: the tab this result was opened in.
+  const tab = (useSegments() as string[])[1]
   const [check, setCheck] = useState<SymptomCheckRecord | null>(null)
   const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
   const [copied, setCopied] = useState(false)
@@ -58,10 +61,14 @@ export function CheckResult({ id }: { id: string }) {
           <>
             <Banner text={error.text} tone="error" icon={error.offline ? 'wifi' : 'alert'} />
             <Button title={ui.common.retry} kind="secondary" onPress={() => void load()} />
-            <LinkButton title={ui.common.toPets} onPress={() => router.replace('/pets')} />
+            {/* In the pets tab the list is under this screen: back down to it, not a second list on top. */}
+            <LinkButton
+              title={ui.common.toPets}
+              onPress={() => (tab === 'pets' ? router.dismissTo('/pets') : router.replace('/pets'))}
+            />
           </>
         ) : (
-          <ActivityIndicator color={colour.accent} />
+          <ResultSkeleton />
         )}
       </Screen>
     )
@@ -130,11 +137,7 @@ export function CheckResult({ id }: { id: string }) {
           <Button
             title={ui.medicalRecord.visits.fromResult}
             kind="secondary"
-            onPress={() =>
-              router.push(
-                `/pets/${check.pet_id}/visit-form?checkId=${check.id}&reason=${encodeURIComponent(visitReason(check.symptoms_input))}`,
-              )
-            }
+            onPress={() => router.push(visitFormHref(tab, check))}
           />
         </View>
       ) : null}
@@ -142,20 +145,23 @@ export function CheckResult({ id }: { id: string }) {
       <ResultFeedback checkId={check.id} />
 
       {/* At the end rather than docked: the answer is the thing to read, and a
-          fixed button would take a line of it on every screen. `navigate`, not
-          `push`, so from a history in another tab it opens the check tab's own
-          form instead of stacking a second one here. */}
+          fixed button would take a line of it on every screen. From another
+          tab, `navigate` opens the check tab's own form. In the check tab the
+          form is already under this result, so it is gone back to: `navigate`
+          stacked a second form on top, and every round added one more. */}
       <Button
         title={ui.result.newCheck}
         kind="secondary"
-        onPress={() => router.navigate('/check')}
+        onPress={() => (tab === 'check' ? router.dismissTo('/check') : router.navigate('/check'))}
       />
     </Screen>
   )
 }
 
 const styles = StyleSheet.create({
-  visit: { marginTop: space.row },
+  // A button carries no margin of its own; the feedback block under it would
+  // otherwise sit flush against its border.
+  visit: { marginBottom: space.block },
   checkedAt: { marginBottom: space.row },
   answer: { marginTop: space.row, gap: 2 },
 })

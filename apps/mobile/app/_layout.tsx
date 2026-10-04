@@ -12,6 +12,7 @@ import { parseAuthLink } from '@/lib/auth-links'
 import { redeemAuthLink, type LinkAuth } from '@/features/auth/redeem-link'
 import { deviceLocale } from '@/lib/device-locale'
 import { supabase } from '@/lib/supabase'
+import { stackOptions } from '@/ui/stack'
 import { colour } from '@/ui/theme'
 
 /** The real client behind the rules in `redeemAuthLink`. */
@@ -100,12 +101,7 @@ export default function RootLayout() {
       <AuthProvider>
         <ReminderProvider>
           <StatusBar style="dark" />
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: { backgroundColor: colour.canvas },
-            }}
-          />
+          <Stack screenOptions={stackOptions} />
           <UpdatePrompt />
         </ReminderProvider>
       </AuthProvider>

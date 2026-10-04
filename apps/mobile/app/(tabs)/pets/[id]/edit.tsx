@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ActivityIndicator, StyleSheet, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import { petFormHints, type PetFormHints } from '@lapka/shared'
 import { withFreshSession } from '@/lib/api'
@@ -21,7 +21,8 @@ import { Banner } from '@/ui/Card'
 import { useUnsavedChanges } from '@/features/unsaved/useUnsavedChanges'
 import { ConfirmDialog, SaveChangesDialog } from '@/ui/Dialog'
 import { Screen } from '@/ui/Screen'
-import { colour, space } from '@/ui/theme'
+import { FormSkeleton } from '@/ui/Skeleton'
+import { space } from '@/ui/theme'
 
 /** The pet form, as it was before the medical record: opened by «Анкета». */
 export default function EditPet() {
@@ -133,7 +134,7 @@ export default function EditPet() {
         ) : (
           // Until this arrives the screen has nothing but a title, and a blank
           // page reads as a broken one rather than as a slow one.
-          <ActivityIndicator color={colour.accent} />
+          <FormSkeleton fields={6} />
         )}
       </Screen>
     )
@@ -150,6 +151,7 @@ export default function EditPet() {
         form={form}
         onChange={change}
         invalid={invalid}
+        speciesFixed
         notes={{
           weight: hints.weight ? t.medicalRecord.weightHistoryHint : undefined,
           vaccinated: hints.vaccinations > 0 ? t.medicalRecord.vaccinationsHint(hints.vaccinations) : undefined,

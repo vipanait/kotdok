@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ActivityIndicator, AppState, StyleSheet, View } from 'react-native'
+import { AppState, StyleSheet, View } from 'react-native'
 import { router, useFocusEffect } from 'expo-router'
 import Constants from 'expo-constants'
 import * as Updates from 'expo-updates'
@@ -16,6 +16,7 @@ import { Button } from '@/ui/Button'
 import { Banner, SettingRow } from '@/ui/Card'
 import { OptionSheet } from '@/ui/Field'
 import { Screen } from '@/ui/Screen'
+import { DetailSkeleton } from '@/ui/Skeleton'
 import { Text } from '@/ui/Text'
 import { colour, radius, shadow, space } from '@/ui/theme'
 
@@ -110,7 +111,7 @@ export default function Profile() {
             <Button title={t.common.retry} kind="secondary" onPress={() => void load()} />
           </>
         ) : (
-          <ActivityIndicator color={colour.accent} />
+          <DetailSkeleton facts={4} />
         )}
       </Screen>
     )
