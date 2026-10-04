@@ -13,8 +13,8 @@
     "react-native": "0.86.3",
     "@babel/core@7": "^7.29.7",
     "@humanfs/node": "^0.16.8",
-    "brace-expansion@1": "1.1.18",
-    "brace-expansion@5": "^5.0.9",
+    "brace-expansion@1": "1.1.21",
+    "brace-expansion@5": "^5.0.12",
     "js-yaml@4": "^4.3.2",
     "vite@8": "^8.2.2",
     "ws@8": "^8.21.3"
