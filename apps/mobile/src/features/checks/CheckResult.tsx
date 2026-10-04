@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { Linking, StyleSheet, View } from 'react-native'
 import { router, useSegments } from 'expo-router'
 import * as Clipboard from 'expo-clipboard'
 import { withFreshSession } from '@/lib/api'
@@ -7,7 +7,7 @@ import { useCached } from '@/lib/query-cache'
 import { describeFailure } from '@/lib/errors'
 import { dictionary, useText } from '@/i18n'
 import { urgencyText } from '@/features/checks/urgency'
-import { checkAnswers, formatCheckedAt, offersVisit, photoObservations, visitFormHref } from '@/features/checks/check-answers'
+import { checkAnswers, formatCheckedAt, offersVisit, photoObservations, visitFormHref, clinicSearchUrl, offersClinicSearch } from '@/features/checks/check-answers'
 import { ResultFeedback } from '@/features/checks/ResultFeedback'
 import { Button, LinkButton } from '@/ui/Button'
 import { Banner, UrgencyCard } from '@/ui/Card'
@@ -91,6 +91,16 @@ export function CheckResult({ id }: { id: string }) {
         reason={check.urgency_reason}
       />
 
+      {/* On the way to a vet: where the nearest one is, before anything else to read. */}
+      {offersClinicSearch(check.urgency) ? (
+        <View style={styles.clinic}>
+          <Button
+            title={ui.result.findClinic}
+            onPress={() => void Linking.openURL(clinicSearchUrl(ui.result.clinicSearchQuery))}
+          />
+        </View>
+      ) : null}
+
       {check.species_specific_warning ? (
         <Banner text={check.species_specific_warning} tone="note" />
       ) : null}
@@ -154,5 +164,6 @@ const styles = StyleSheet.create({
   // otherwise sit flush against its border.
   visit: { marginBottom: space.block },
   checkedAt: { marginBottom: space.row },
+  clinic: { marginTop: -space.row, marginBottom: space.block },
   answer: { marginTop: space.row, gap: 2 },
 })
