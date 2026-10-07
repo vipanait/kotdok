@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { MEDICATION_LIMITS, type Medication } from '@lapka/contracts'
+import { en } from '@/i18n/en'
 import { ru } from '@/i18n/ru'
 import { ApiError, isCurrentCourse as isCurrent, splitCourses } from '@lapka/shared'
 import { blankCourse, canAddCourse, courseDates, courseEndsByToday, endCourse, readCourses } from './medications'
@@ -38,6 +39,12 @@ describe('the dates of a course (MR-06.4)', () => {
     expect(courseDates(ru, course({ source: 'form' }), TODAY)).toBe('Из анкеты — добавьте дозировку и даты')
     // Ended on the day it started (MW-05: «Завершить курс» on a course begun today).
     expect(courseDates(ru, course({ started_on: TODAY, ended_on: TODAY }), TODAY)).toBe('24 сентября')
+  })
+
+  it('puts the month where English puts it', () => {
+    // Was «2–August 15»: the Russian order with English words.
+    expect(courseDates(en, course({ started_on: '2026-08-02', ended_on: '2026-08-15' }), TODAY)).toBe('August 2–15')
+    expect(courseDates(en, course({ started_on: '2026-07-28', ended_on: '2026-08-15' }), TODAY)).toBe('July 28 – August 15')
   })
 })
 

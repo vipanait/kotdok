@@ -1,6 +1,6 @@
 import { dayParts } from '@/lib/calendar-day'
 import { listWords } from '@/lib/list-words'
-import type { Dictionary } from './ru'
+import type { Dictionary, MonthDay } from './ru'
 
 /**
  * English.
@@ -276,6 +276,8 @@ export const en: Dictionary = {
       sinceOngoing: (day: string) => `from ${day} · ongoing`,
       ongoingOnly: 'ongoing',
       range: (from: string, to: string) => `${from} – ${to}`,
+      /** «August 2–15»: the month once, before the first number. */
+      rangeInMonth: (first: MonthDay, last: MonthDay) => `${first.day}–${last.date}`,
       fromForm: 'From the form — add the dose and dates',
       noDates: 'No dates given',
       nameRequired: 'Enter a name',
@@ -476,6 +478,7 @@ export const en: Dictionary = {
     waitingBody:
       'This takes up to a minute. You can leave this screen — the result will open here when you come back, and it will be in the history.',
     requestCheck: 'Request a check',
+    noChecksLeft: 'No checks left. Request an extra one — we usually answer within a day.',
     openHistory: 'Open the history',
     tryAgain: 'Try again',
     photos: 'Photos — optional',

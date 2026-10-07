@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { addMonths, dayInput, localToday, monthGrid, monthOf, monthsBetween, parseDayInput, shiftMonth } from './calendar-day'
+import { addMonths, dayInput, localToday, monthGrid, monthOf, monthsBetween, parseDayInput, parseDayText, shiftMonth, typedDay } from './calendar-day'
 import { en } from '@/i18n/en'
 import { ru } from '@/i18n/ru'
 
@@ -20,6 +20,31 @@ describe('the day of a weighing', () => {
     expect(parseDayInput('30.02.2026', now)).toBeNull()
     expect(parseDayInput('26.09.2026', now)).toBeNull()
     expect(parseDayInput('24.09', now)).toBeNull()
+  })
+})
+
+describe('typing a day on a keyboard with no dot', () => {
+  it('puts the dots in as the digits arrive', () => {
+    // Was: «15112027» typed on Android, refused as not a date.
+    expect(typedDay('15112027')).toBe('15.11.2027')
+    expect(parseDayText(typedDay('15112027'))).toBe('2027-11-15')
+    expect(typedDay('1')).toBe('1')
+    expect(typedDay('15')).toBe('15')
+    expect(typedDay('151')).toBe('15.1')
+    expect(typedDay('1511')).toBe('15.11')
+    expect(typedDay('15112')).toBe('15.11.2')
+  })
+
+  it('lets a digit go back without a dot left behind', () => {
+    // Backspace on «15.1» leaves «15.», which reads as «15».
+    expect(typedDay('15.')).toBe('15')
+    expect(typedDay('15.11.')).toBe('15.11')
+  })
+
+  it('keeps a day already written, and stops at eight digits', () => {
+    expect(typedDay('07.10.2026')).toBe('07.10.2026')
+    expect(typedDay('07.10.20261')).toBe('07.10.2026')
+    expect(typedDay('')).toBe('')
   })
 })
 

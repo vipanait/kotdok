@@ -13,6 +13,14 @@ describe('russian plurals', () => {
     expect(checksOf(101)).toBe('проверка')
   })
 
+  it('makes the verb agree with the noun', () => {
+    // Was «1 проверка осталось».
+    expect(ru.profile.checksLeft(1)).toBe('проверка осталась')
+    expect(ru.profile.checksLeft(21)).toBe('проверка осталась')
+    expect(ru.profile.checksLeft(3)).toBe('проверки осталось')
+    expect(ru.profile.checksLeft(0)).toBe('проверок осталось')
+  })
+
   it('uses the few form for two to four', () => {
     expect(checksOf(2)).toBe('проверки')
     expect(checksOf(3)).toBe('проверки')

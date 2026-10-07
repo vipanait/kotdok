@@ -8,30 +8,20 @@ import {
   useState,
   type ReactNode,
 } from 'react'
-import { Keyboard, KeyboardAvoidingView, ScrollView, StyleSheet, View } from 'react-native'
+import { Keyboard, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useText } from '@/i18n'
 import { IconButton, LinkButton } from './Button'
 import { hiddenAboveTop, hiddenBelowKeyboard } from './keyboard-reveal'
 import { CONTROL_FONT_LIMIT, Text } from './Text'
 import type { IconName } from './Icon'
-import { colour, space } from './theme'
+import { COLUMN_MAX_WIDTH, colour, space } from './theme'
 
 /**
  * The heading's action. A glyph when there is one («плюс»); a word when the
  * action has no good glyph — the medical record's «Анкета».
  */
 export type ScreenAction = { icon?: IconName; label: string; onPress: () => void }
-
-/**
- * How wide the content column is allowed to get.
- *
- * The concept is drawn at 390 points and every measurement in it — the 20 pt
- * gutter, the 52 pt controls, the line length — assumes a phone held in one
- * hand. Left unbounded on a tablet the same layout puts a name field across a
- * forearm of glass. The column stops here and centres instead.
- */
-const COLUMN_MAX_WIDTH = 480
 
 /**
  * How long to let iOS finish its own scrolling before measuring.
@@ -161,6 +151,27 @@ export function Screen({
     }, REVEAL_SETTLE_MS * 2)
   }, [])
 
+  /**
+   * Room under the form for the keyboard, on Android.
+   *
+   * iOS insets the scroller by the keyboard itself (`automaticallyAdjustKeyboardInsets`).
+   * Android has no such thing, and the window does not shrink either — the
+   * app draws behind the system bars — so the form simply ended where it
+   * always did, under the keyboard. `reveal` asked to scroll the notes box up
+   * and got nowhere: there was nothing further to scroll to (Xiaomi Pad 6,
+   * New pet → Notes, 7 October).
+   */
+  const [keyboardRoom, setKeyboardRoom] = useState(0)
+  useEffect(() => {
+    if (Platform.OS !== 'android') return
+    const shown = Keyboard.addListener('keyboardDidShow', (event) => setKeyboardRoom(event.endCoordinates.height))
+    const hidden = Keyboard.addListener('keyboardDidHide', () => setKeyboardRoom(0))
+    return () => {
+      shown.remove()
+      hidden.remove()
+    }
+  }, [])
+
   useEffect(() => {
     // `DidShow` for the keyboard arriving, `DidChangeFrame` for it growing —
     // switching to an emoji keyboard or a taller predictive bar moves the line
@@ -249,7 +260,7 @@ export function Screen({
               styles.body,
               styles.column,
               centered ? styles.centered : null,
-              { paddingBottom: styles.body.paddingBottom + dockHeight },
+              { paddingBottom: styles.body.paddingBottom + dockHeight + keyboardRoom },
             ]}
             keyboardShouldPersistTaps="handled"
             // `interactive`, not `on-drag`: the field worth scrolling to is the

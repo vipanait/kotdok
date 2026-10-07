@@ -22,6 +22,19 @@ export function dayInput(day: string): string {
   return `${date}.${month}.${year}`
 }
 
+/**
+ * What a date field shows while digits are typed into it: «24092026» reads
+ * «24.09.2026». For a keyboard with no dot on it — Android's digit pad —
+ * where the separators would otherwise have to come from a second layout.
+ *
+ * A dot appears once the group after it has started, never on its own: «24»
+ * stays «24», so taking a digit back never leaves a dot to delete as well.
+ */
+export function typedDay(text: string): string {
+  const digits = text.replace(/\D/g, '').slice(0, 8)
+  return [digits.slice(0, 2), digits.slice(2, 4), digits.slice(4)].filter(Boolean).join('.')
+}
+
 /** «24.09.2026» (or with / or -) → `2026-09-24`; null for a day that does not exist. */
 export function parseDayText(text: string): string | null {
   const match = /^\s*(\d{1,2})[./-](\d{1,2})[./-](\d{4})\s*$/.exec(text)

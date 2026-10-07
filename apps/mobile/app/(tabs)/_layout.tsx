@@ -2,6 +2,7 @@ import { Redirect, router } from 'expo-router'
 import { Tabs } from 'expo-router/tabs'
 import { useEffect } from 'react'
 import { Platform } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { PD_CONSENT_VERSION } from '@lapka/contracts'
 import { consentSettled, consentSource, settleConsent } from '@/features/consent/consent-gate'
 import { guardTabSwitch } from '@/features/unsaved/tab-guard'
@@ -10,6 +11,11 @@ import { useAuth } from '@/providers/AuthProvider'
 import { useSetLocale, useText } from '@/i18n'
 import { Icon } from '@/ui/Icon'
 import { colour, type } from '@/ui/theme'
+
+/** The tab bar's own height, the one the navigator uses (`TABBAR_HEIGHT_UIKIT`). */
+const TAB_BAR_HEIGHT = 49
+/** Air between the bar's top rule and the icons. */
+const TAB_BAR_TOP = 8
 
 /**
  * The three places the app goes: the pets, a check, and the account.
@@ -24,6 +30,7 @@ export default function TabsLayout() {
   const userId = session?.user.id ?? null
   const t = useText()
   const setLocale = useSetLocale()
+  const insets = useSafeAreaInsets()
 
   /**
    * The account's language, asked for once on the way in.
@@ -123,7 +130,12 @@ export default function TabsLayout() {
           backgroundColor: colour.surface,
           borderTopWidth: 1,
           borderTopColor: colour.line,
-          paddingTop: 8,
+          paddingTop: TAB_BAR_TOP,
+          // The navigator's own height is its 49 plus the system bar, and knows
+          // nothing of the padding above: those 8 points came out of the room
+          // over the bar. An iPhone's 34-point home indicator swallowed them;
+          // Android's gesture handle is thinner, and ran through the labels.
+          height: TAB_BAR_HEIGHT + TAB_BAR_TOP + insets.bottom,
         },
         tabBarLabelStyle: type.tab,
       }}
