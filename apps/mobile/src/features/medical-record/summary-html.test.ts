@@ -92,6 +92,13 @@ describe('printing without the page script (Android) or with a row taller than a
     expect(html).toContain('replaceChild(backup, flow)')
   })
 
+  it('leaves the footer to the margin boxes where they are all there is (Android)', () => {
+    expect(summaryHtml(ru, view())).toContain('class="flow-only flow-footer"')
+    const android = summaryHtml(ru, view(), { footerInFlow: false })
+    expect(android).not.toContain('class="flow-only flow-footer"')
+    expect(android).toContain('@bottom-left { content: "Составлено владельцем')
+  })
+
   it('writes text into CSS so it cannot end the string or the style block', () => {
     expect(cssString('a"b\\c\n</style>')).toBe('"a\\"b\\\\c \\3C /style>"')
   })

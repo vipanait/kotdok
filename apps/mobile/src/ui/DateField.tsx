@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Modal, Pressable, StyleSheet, View, type ViewStyle } from 'react-native'
+import { Platform, Pressable, StyleSheet, View, type ViewStyle } from 'react-native'
 import { useText } from '@/i18n'
 import {
   dayInput,
@@ -8,12 +8,16 @@ import {
   monthOf,
   parseDayText,
   shiftMonth,
+  typedDay,
   type CalendarMonth,
 } from '@/lib/calendar-day'
 import { IconButton, LinkButton } from './Button'
 import { Field, type FieldHandle } from './Field'
+import { Sheet } from './Sheet'
 import { Text } from './Text'
 import { TAP_TARGET, colour, radius, space } from './theme'
+
+const DIGITS_ONLY = Platform.OS === 'android'
 
 /**
  * A day, typed as ДД.ММ.ГГГГ or picked on a calendar.
@@ -54,9 +58,13 @@ export function DateField({
       <Field
         label={label}
         value={value}
-        onChangeText={onChangeText}
+        // iOS has a keyboard with digits and a dot. Android does not: its
+        // `numbers-and-punctuation` is the letter keyboard, digits a layer
+        // away, and «15112027» typed there was refused. So Android gets the
+        // digit pad and the dots are put in for it.
+        onChangeText={DIGITS_ONLY ? (text) => onChangeText(typedDay(text)) : onChangeText}
         placeholder={placeholder}
-        keyboardType="numbers-and-punctuation"
+        keyboardType={DIGITS_ONLY ? 'numeric' : 'numbers-and-punctuation'}
         error={error}
         hint={hint}
         style={style}
@@ -114,103 +122,78 @@ function CalendarSheet({
   const canGoOn = !max || firstOf(shiftMonth(shown, 1)) <= max
 
   return (
-    <Modal
+    <Sheet
       visible={visible}
-      transparent
-      animationType="slide"
-      onRequestClose={onClose}
+      onClose={onClose}
       // Opens on the day in the field each time, not on the month left last time.
       onShow={() => setShown(startMonth(chosen, min, max))}
     >
-      <Pressable style={styles.backdrop} onPress={onClose} accessible={false}>
-        <Pressable style={styles.sheet} onPress={() => {}} accessible={false}>
-          <View style={styles.handle} />
-          <View style={styles.head}>
-            <Text variant="h3" style={styles.title}>
-              {title}
-            </Text>
-            <IconButton icon="close" label={t.common.cancel} onPress={onClose} />
-          </View>
+      <View style={styles.head}>
+        <Text variant="h3" style={styles.title}>
+          {title}
+        </Text>
+        <IconButton icon="close" label={t.common.cancel} onPress={onClose} />
+      </View>
 
-          <View style={styles.monthRow}>
-            <View style={canGoBack ? null : styles.hidden} pointerEvents={canGoBack ? 'auto' : 'none'}>
-              <IconButton icon="back" label={t.calendar.previous} onPress={() => setShown((m) => shiftMonth(m, -1))} />
-            </View>
-            <Text variant="bodyStrong" accessibilityRole="header" accessibilityLiveRegion="polite">
-              {t.calendar.month(shown.year, shown.month)}
-            </Text>
-            <View style={canGoOn ? null : styles.hidden} pointerEvents={canGoOn ? 'auto' : 'none'}>
-              <IconButton icon="chevron" label={t.calendar.next} onPress={() => setShown((m) => shiftMonth(m, 1))} />
-            </View>
-          </View>
+      <View style={styles.monthRow}>
+        <View style={canGoBack ? null : styles.hidden} pointerEvents={canGoBack ? 'auto' : 'none'}>
+          <IconButton icon="back" label={t.calendar.previous} onPress={() => setShown((m) => shiftMonth(m, -1))} />
+        </View>
+        <Text variant="bodyStrong" accessibilityRole="header" accessibilityLiveRegion="polite">
+          {t.calendar.month(shown.year, shown.month)}
+        </Text>
+        <View style={canGoOn ? null : styles.hidden} pointerEvents={canGoOn ? 'auto' : 'none'}>
+          <IconButton icon="chevron" label={t.calendar.next} onPress={() => setShown((m) => shiftMonth(m, 1))} />
+        </View>
+      </View>
 
-          <View style={styles.week}>
-            {t.calendar.weekdays.map((name) => (
-              <Text key={name} variant="caption" tone="faint" center style={styles.cell}>
-                {name}
-              </Text>
-            ))}
-          </View>
+      <View style={styles.week}>
+        {t.calendar.weekdays.map((name) => (
+          <Text key={name} variant="caption" tone="faint" center style={styles.cell}>
+            {name}
+          </Text>
+        ))}
+      </View>
 
-          {monthGrid(shown, t.calendar.weekStartsOn === 'monday' ? 1 : 0).map((week, row) => (
-            <View key={row} style={styles.week}>
-              {week.map((day, column) => {
-                if (!day) return <View key={column} style={styles.cell} />
-                const enabled = allowed(day)
-                const selected = day === chosen
-                return (
-                  <Pressable
-                    key={day}
-                    accessibilityRole="button"
-                    accessibilityLabel={t.day(day, true)}
-                    accessibilityState={{ selected, disabled: !enabled }}
-                    disabled={!enabled}
-                    onPress={() => onChoose(day)}
-                    style={({ pressed }) => [
-                      styles.cell,
-                      styles.day,
-                      day === today ? styles.today : null,
-                      selected ? styles.selected : null,
-                      { opacity: pressed ? 0.6 : 1 },
-                    ]}
-                  >
-                    <Text tone={selected ? 'inverse' : enabled ? 'default' : 'faint'} style={enabled ? null : styles.off}>
-                      {Number(day.slice(8))}
-                    </Text>
-                  </Pressable>
-                )
-              })}
-            </View>
-          ))}
+      {monthGrid(shown, t.calendar.weekStartsOn === 'monday' ? 1 : 0).map((week, row) => (
+        <View key={row} style={styles.week}>
+          {week.map((day, column) => {
+            if (!day) return <View key={column} style={styles.cell} />
+            const enabled = allowed(day)
+            const selected = day === chosen
+            return (
+              <Pressable
+                key={day}
+                accessibilityRole="button"
+                accessibilityLabel={t.day(day, true)}
+                accessibilityState={{ selected, disabled: !enabled }}
+                disabled={!enabled}
+                onPress={() => onChoose(day)}
+                style={({ pressed }) => [
+                  styles.cell,
+                  styles.day,
+                  day === today ? styles.today : null,
+                  selected ? styles.selected : null,
+                  { opacity: pressed ? 0.6 : 1 },
+                ]}
+              >
+                <Text tone={selected ? 'inverse' : enabled ? 'default' : 'faint'} style={enabled ? null : styles.off}>
+                  {Number(day.slice(8))}
+                </Text>
+              </Pressable>
+            )
+          })}
+        </View>
+      ))}
 
-          {allowed(today) ? (
-            <LinkButton title={t.calendar.today} align="left" onPress={() => onChoose(today)} />
-          ) : null}
-        </Pressable>
-      </Pressable>
-    </Modal>
+      {allowed(today) ? (
+        <LinkButton title={t.calendar.today} align="left" onPress={() => onChoose(today)} />
+      ) : null}
+    </Sheet>
   )
 }
 
 const styles = StyleSheet.create({
-  // The same sheet as a select's: see OptionSheet in Field.
-  backdrop: { flex: 1, backgroundColor: 'rgba(31,27,21,0.45)', justifyContent: 'flex-end' },
-  sheet: {
-    backgroundColor: colour.surface,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    paddingHorizontal: space.gutter,
-    paddingTop: 12,
-    paddingBottom: 34,
-  },
-  handle: {
-    width: 36,
-    height: 4,
-    backgroundColor: colour.line,
-    borderRadius: radius.pill,
-    alignSelf: 'center',
-    marginBottom: space.row,
-  },
   head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 },
   title: { flex: 1 },
   monthRow: {

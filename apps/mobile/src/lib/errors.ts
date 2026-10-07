@@ -31,6 +31,18 @@ export class AppError extends Error {
 }
 
 /**
+ * Which failure this was, for a screen that offers a different way out for
+ * each. An empty balance is the same answer whether the job said so later or
+ * the server refused the check outright (402): the second used to fall
+ * through to «Попробовать ещё раз», which can only be refused again.
+ */
+export function failureKind(cause: unknown): AppError['kind'] | null {
+  if (cause instanceof AppError) return cause.kind
+  if (cause instanceof ApiError && cause.code === 'insufficient_credits') return 'insufficient_credits'
+  return null
+}
+
+/**
  * Supabase auth error codes.
  * https://supabase.com/docs/guides/auth/debugging/error-codes
  */

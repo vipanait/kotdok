@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { AppState, Linking, Modal, Pressable, StyleSheet, View } from 'react-native'
+import { AppState, Linking, StyleSheet } from 'react-native'
 import { router, useSegments } from 'expo-router'
 import * as Notifications from 'expo-notifications'
 import type { DueItem } from '@lapka/contracts'
@@ -10,8 +10,9 @@ import { useAuth } from '@/providers/AuthProvider'
 import { consentSettled } from '@/features/consent/consent-gate'
 import { guardTabSwitch } from '@/features/unsaved/tab-guard'
 import { Button } from '@/ui/Button'
+import { Sheet } from '@/ui/Sheet'
 import { Text } from '@/ui/Text'
-import { colour, radius, space } from '@/ui/theme'
+import { space } from '@/ui/theme'
 import { createReminderStore, shouldAsk } from './device-store'
 import { askPermission, notifier, permissionState, prepareChannel } from './notifications'
 import { reminderAbout } from './schedule'
@@ -166,41 +167,19 @@ export function ReminderProvider({ children }: { children: ReactNode }) {
   return (
     <RemindersContext.Provider value={value}>
       {children}
-      <Modal visible={asking !== null} transparent animationType="slide" onRequestClose={notNow}>
-        <Pressable style={styles.backdrop} onPress={notNow} accessible={false}>
-          <Pressable style={styles.sheet} onPress={() => {}} accessible={false} accessibilityViewIsModal>
-            <View style={styles.handle} />
-            <Text variant="h2">{asking ? words.askTitle(asking.about) : ''}</Text>
-            <Text tone="muted" style={styles.body}>
-              {asking?.denied ? words.deniedBody : words.askBody(days)}
-            </Text>
-            <Button title={asking?.denied ? words.openSettings : words.remind} onPress={() => void remind()} />
-            <Button title={words.notNow} kind="secondary" onPress={notNow} style={styles.second} />
-          </Pressable>
-        </Pressable>
-      </Modal>
+      <Sheet visible={asking !== null} onClose={notNow}>
+        <Text variant="h2">{asking ? words.askTitle(asking.about) : ''}</Text>
+        <Text tone="muted" style={styles.body}>
+          {asking?.denied ? words.deniedBody : words.askBody(days)}
+        </Text>
+        <Button title={asking?.denied ? words.openSettings : words.remind} onPress={() => void remind()} />
+        <Button title={words.notNow} kind="secondary" onPress={notNow} style={styles.second} />
+      </Sheet>
     </RemindersContext.Provider>
   )
 }
 
 const styles = StyleSheet.create({
-  backdrop: { flex: 1, backgroundColor: 'rgba(31,27,21,0.45)', justifyContent: 'flex-end' },
-  sheet: {
-    backgroundColor: colour.surface,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    paddingHorizontal: space.gutter,
-    paddingTop: 12,
-    paddingBottom: 34,
-  },
-  handle: {
-    width: 36,
-    height: 4,
-    backgroundColor: colour.line,
-    borderRadius: radius.pill,
-    alignSelf: 'center',
-    marginBottom: space.row,
-  },
   body: { marginTop: 8, marginBottom: space.section },
   second: { marginTop: space.row },
 })

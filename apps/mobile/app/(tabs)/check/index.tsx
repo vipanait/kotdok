@@ -23,7 +23,7 @@ import { summaryRecords } from '@lapka/shared'
 import { localToday } from '@/lib/calendar-day'
 import { withFreshSession } from '@/lib/api'
 import { useCached } from '@/lib/query-cache'
-import { AppError, describeFailure, errorMessage, submitCheckMessage } from '@/lib/errors'
+import { AppError, describeFailure, errorMessage, failureKind, submitCheckMessage } from '@/lib/errors'
 import { preparePhoto, putPhoto } from '@/lib/photo-io'
 import { useText, type Dictionary } from '@/i18n'
 import { useAuth } from '@/providers/AuthProvider'
@@ -193,6 +193,9 @@ export default function NewCheck() {
   // hand, a failed refresh keeps the form.
   const petsError = petList.error && !pets ? describeFailure(t, petList.error, t.errors.loadPetsFailed) : null
   const loadPets = petList.reload
+  // The balance, through the profile's cache: an empty one is said on the first
+  // step, before the form is filled in for a check that cannot be sent.
+  const balance = useCached(['me'], () => withFreshSession((api) => api.getMe())).data
 
   // The check is about one animal; starting on the first one saves a tap for
   // the many people who own exactly one. A draft can name a pet that has since
@@ -201,13 +204,16 @@ export default function NewCheck() {
   // Also whenever the form loses its pet: an emptied form (after a finished
   // check or «Начать заново») gets the first one again, even when the cached
   // list it is chosen from has not changed.
+  // A draft whose animal is gone goes back to the first step: its description
+  // was written about someone else, and the second step showed it only as a
+  // line under the new name (a check refused for the balance, Tom deleted, Rex
+  // added — Rex opened on step 2 with Tom's symptoms).
   useEffect(() => {
     if (!pets) return
-    setForm((current) => {
-      const stillThere = pets.some((pet) => pet.id === current.petId)
-      if (stillThere || pets.length === 0) return current
-      return { ...current, petId: pets[0].id }
-    })
+    const stillThere = pets.some((pet) => pet.id === form.petId)
+    if (stillThere || pets.length === 0) return
+    if (form.petId !== null) setStep(1)
+    setForm((current) => ({ ...current, petId: pets[0].id }))
   }, [pets, form.petId])
 
   /**
@@ -293,7 +299,7 @@ export default function NewCheck() {
         if (!onScreen.current) return
         setFailure({
           text: errorMessage(t, cause, t.errors.submitCheckFailed),
-          kind: cause instanceof AppError ? cause.kind : null,
+          kind: failureKind(cause),
         })
         setWaiting(false)
       }
@@ -421,7 +427,7 @@ export default function NewCheck() {
       if (!onScreen.current) return
       setFailure({
         text: submitCheckMessage(t, cause, photos.length > 0),
-        kind: cause instanceof AppError ? cause.kind : null,
+        kind: failureKind(cause),
       })
       setWaiting(false)
       return
@@ -518,6 +524,18 @@ export default function NewCheck() {
       >
         <StepSlide key="step-1" from={enteredFrom.current}>
           <Steps current={1} of={2} label={t.check.step} />
+
+          {/* Said before the form is filled in, not after: with nothing on the
+              balance both steps ended in «Не хватает проверок». The form stays
+              usable — a request granted while it is open is a check to send. */}
+          {balance?.credits === 0 ? (
+            <View style={styles.noChecks}>
+              <Banner text={t.check.noChecksLeft} tone="note" />
+              {balance.capabilities.extra_check_request ? (
+                <LinkButton title={t.profile.extraRequest} align="left" onPress={() => router.push('/check/extra-check')} />
+              ) : null}
+            </View>
+          ) : null}
 
           {/* With several animals, a sheet rather than a row of names, which
               stops fitting as soon as somebody has a few. With one there is
@@ -690,6 +708,7 @@ const styles = StyleSheet.create({
   recordCaption: { marginTop: -8, marginBottom: 16 },
   summaryCopy: { flex: 1, minWidth: 0 },
   onlyPet: { marginBottom: space.block, gap: 6 },
+  noChecks: { marginBottom: space.block },
   // The pair stands rather than sits, so it needs the height; a narrow phone
   // gets the smaller one, which leaves the button above the fold.
   emptyArt: { width: 228, height: 228, alignSelf: 'center', marginBottom: 8 },
