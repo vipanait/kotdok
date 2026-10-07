@@ -13,11 +13,17 @@ TELEGRAM_APPROVAL_CHAT_ID=-1001234567890
 TELEGRAM_WEBHOOK_SECRET=your-random-secret
 ```
 
-Webhook endpoint in this app:
+Webhook endpoint in this app. Use the Vercel domain, not `lapka.my`: Telegram's
+servers cannot connect to the Russia proxy in Yandex Cloud (`Connection timed
+out`), so the approve button never reached the app through it
+(`docs/architecture/ru-proxy.md`, «Мимо прокси»).
 
 ```bash
-https://<your-domain>/api/telegram/webhook
+https://kotdok.vercel.app/api/telegram/webhook
 ```
+
+Production's `TELEGRAM_*` values are Sensitive in Vercel and cannot be read
+back; to re-point the webhook there, set a new secret first (same doc section).
 
 Set Telegram webhook:
 
@@ -25,7 +31,7 @@ Set Telegram webhook:
 curl -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/setWebhook" \
   -H "Content-Type: application/json" \
   -d '{
-    "url": "https://<your-domain>/api/telegram/webhook",
+    "url": "https://kotdok.vercel.app/api/telegram/webhook",
     "secret_token": "'"${TELEGRAM_WEBHOOK_SECRET}"'"
   }'
 ```
