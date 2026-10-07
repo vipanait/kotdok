@@ -104,6 +104,29 @@ ssh lapka@<IP> 'bash -s' < infra/ru-proxy/issue-cert.sh
 - Утром — логи Vercel: `/api/cron/deletion-jobs` (03:00 UTC) и `/api/cron/photo-uploads` (03:30 UTC) отработали.
 - В Vercel на странице доменов `lapka.my`, вероятно, будет помечен как настроенный неправильно: DNS больше не указывает на Vercel. Это ожидаемо, домен из проекта не удалять.
 
+## Мимо прокси: вебхук Телеграма
+
+Кнопки «Подтвердить» и «Отклонить» в канале заявок вызывают вебхук бота, и вызывает его сервер Телеграма, а не человек из России. Прокси ему не нужен: вебхук указывает прямо на Vercel, `https://kotdok.vercel.app/api/telegram/webhook`, а не на `lapka.my`.
+
+Почему: после переключения DNS вебхук остался на `lapka.my`, а серверы Телеграма до машины в Yandex Cloud не достучались. 7 октября 2026 после нажатия кнопки `getWebhookInfo` показал `last_error_message: Connection timed out` и одно событие в очереди, в логах Vercel запроса не было. С обычных адресов `lapka.my` при этом отвечал, поэтому со стороны казалось, что всё работает. Заявка от 3 октября висела в `pending`, пока вебхук не переставили на Vercel.
+
+Переменные `TELEGRAM_*` в Vercel помечены как Sensitive: их значение не отдаёт ни `env pull`, ни панель. Поэтому, чтобы переставить вебхук, секрет задаётся заново. Команды из корня репозитория, секрет лежит в файле и на экран не выводится:
+
+```bash
+umask 077; openssl rand -hex 32 | tr -d '\n' > ~/.lapka-tg-secret
+vercel env update TELEGRAM_WEBHOOK_SECRET production --sensitive --yes < ~/.lapka-tg-secret
+vercel redeploy kotdok.vercel.app --target production
+# ждём 200, а не 403
+curl -s -o /dev/null -w '%{http_code}\n' -X POST https://kotdok.vercel.app/api/telegram/webhook \
+  -H 'Content-Type: application/json' -H "X-Telegram-Bot-Api-Secret-Token: $(cat ~/.lapka-tg-secret)" -d '{}'
+curl -s -X POST "https://api.telegram.org/bot$(grep '^TELEGRAM_BOT_TOKEN=' apps/web/.env.staging.local | cut -d= -f2-)/setWebhook" \
+  -d url=https://kotdok.vercel.app/api/telegram/webhook -d secret_token="$(cat ~/.lapka-tg-secret)"
+```
+
+Токен в `apps/web/.env.staging.local` — продового бота: стейджинг шлёт заявки тем же ботом в тот же канал, а вебхук у бота один и смотрит на прод. Поэтому кнопки на заявках со стейджинга ничего не делают.
+
+После этого нажать кнопку на висящей заявке ещё раз и проверить `getWebhookInfo`: `url` на `kotdok.vercel.app`, `last_error_message` пустой.
+
 ## Откат
 
 Вернуть записи из таблицы выше («Было»), обе **DNS only**. Через несколько минут трафик снова идёт напрямую в Vercel. Машину можно не трогать.
