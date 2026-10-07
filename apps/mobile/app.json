@@ -49,7 +49,17 @@
           "cameraPermission": "Lapka uses the camera to photograph your pet's symptom for the check. Photos are deleted right after the analysis.",
           "microphonePermission": false
         }
-      ]
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "enableMinifyInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true
+          }
+        }
+      ],
+      "./plugins/android-orientation"
     ],
     "extra": {
       "router": {},
