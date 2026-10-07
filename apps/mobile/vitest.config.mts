@@ -9,7 +9,7 @@ export default defineConfig({
     environment: 'node',
     globals: false,
     restoreMocks: true,
-    include: ['src/**/*.test.ts'],
+    include: ['src/**/*.test.ts', 'plugins/**/*.test.ts'],
   },
   resolve: {
     alias: {
