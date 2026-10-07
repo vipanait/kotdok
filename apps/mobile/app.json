@@ -24,7 +24,17 @@
       }
     },
     "android": {
-      "package": "my.lapka.app"
+      "package": "my.lapka.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/brand/android-icon-foreground.png",
+        "monochromeImage": "./assets/brand/android-icon-foreground.png",
+        "backgroundColor": "#EB8124"
+      },
+      "blockedPermissions": [
+        "android.permission.SYSTEM_ALERT_WINDOW",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ]
     },
     "plugins": [
       "expo-router",
