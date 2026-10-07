@@ -1,0 +1,95 @@
+# What `eas build` uploads. EAS reads this file INSTEAD of every .gitignore
+# and never reads .git/info/exclude, so it repeats the root .gitignore, the
+# rules of supabase/.gitignore and the local-only paths of this checkout.
+# Without it, files hidden only by .git/info/exclude (local credentials,
+# scratch output) went to Expo with every build.
+
+# --- root .gitignore, verbatim ---
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+node_modules/
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+coverage/
+
+# next.js
+.next/
+out/
+
+# production
+build/
+dist/
+
+# expo / react native
+.expo/
+.expo-shared/
+apps/mobile/android/
+apps/mobile/ios/
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+!.env.test
+
+# Public staging values for `dev:staging`; the service key lives in
+# .env.staging.local, which stays ignored by the rule above.
+!.env.staging
+# Local Supabase stack only: fixed public CLI keys, no secrets.
+!.env.integration
+# Expo client configuration: EXPO_PUBLIC_* values ship in the bundle anyway.
+!apps/mobile/.env
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# IDE
+.idea/
+
+.orch/
+
+# The design concept's delivery archive: the same six PNGs and two SVGs that
+# already sit in docs/design/mobile-concept-v1/assets/, zipped for hand-off.
+# 11 MB of exact duplicates is not worth carrying in history.
+docs/design/**/lapka-transparent-assets.zip
+
+# --- supabase/.gitignore ---
+supabase/.branches
+supabase/.temp
+supabase/.env.keys
+supabase/.env.local
+supabase/.env.*.local
+
+# --- local-only paths (kept out of git via .git/info/exclude) ---
+.claude/
+.superpowers/
+/output/
+/tmp/
+/.review-accounts.local.md
+
+# --- tracked, but not needed to build the app ---
+# Plans, reports, design files and verification screenshots: about half of
+# the archive. Nothing under docs/ is imported by apps/mobile or packages/.
+/docs/
+/infra/
+/supabase/
