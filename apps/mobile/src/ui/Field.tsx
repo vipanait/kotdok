@@ -1,9 +1,10 @@
 import { useRef, useState } from 'react'
-import { Modal, Pressable, StyleSheet, TextInput, View, type ViewStyle } from 'react-native'
+import { Pressable, StyleSheet, TextInput, View, type ViewStyle } from 'react-native'
 import { useText } from '@/i18n'
 import { IconButton } from './Button'
 import { Icon, type IconName } from './Icon'
 import { useRevealOnFocus } from './Screen'
+import { Sheet } from './Sheet'
 import { Text } from './Text'
 import { CONTROL_HEIGHT, TAP_TARGET, colour, radius, space } from './theme'
 
@@ -318,50 +319,45 @@ export function OptionSheet<Value extends string>({
   const t = useText()
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <Pressable style={styles.backdrop} onPress={onClose} accessible={false}>
-        <Pressable style={styles.sheet} onPress={() => {}} accessible={false}>
-          <View style={styles.handle} />
-          <Text variant="h3" style={styles.sheetTitle}>
-            {title}
-          </Text>
+    <Sheet visible={visible} onClose={onClose}>
+      <Text variant="h3" style={styles.sheetTitle}>
+        {title}
+      </Text>
 
-          {allowNone ? (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityState={{ selected: value === null }}
-              style={styles.option}
-              onPress={() => {
-                onChange(null)
-                onClose()
-              }}
-            >
-              <Text tone="faint">{noneLabel ?? t.common.notStated}</Text>
-              {value === null ? <Text tone="accent">✓</Text> : null}
-            </Pressable>
-          ) : null}
-
-          {options.map((option) => {
-            const selected = option.value === value
-            return (
-              <Pressable
-                key={option.value}
-                accessibilityRole="button"
-                accessibilityState={{ selected }}
-                style={styles.option}
-                onPress={() => {
-                  onChange(option.value)
-                  onClose()
-                }}
-              >
-                <Text variant={selected ? 'bodyStrong' : 'body'}>{option.label}</Text>
-                {selected ? <Text tone="accent">✓</Text> : null}
-              </Pressable>
-            )
-          })}
+      {allowNone ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityState={{ selected: value === null }}
+          style={styles.option}
+          onPress={() => {
+            onChange(null)
+            onClose()
+          }}
+        >
+          <Text tone="faint">{noneLabel ?? t.common.notStated}</Text>
+          {value === null ? <Text tone="accent">✓</Text> : null}
         </Pressable>
-      </Pressable>
-    </Modal>
+      ) : null}
+
+      {options.map((option) => {
+        const selected = option.value === value
+        return (
+          <Pressable
+            key={option.value}
+            accessibilityRole="button"
+            accessibilityState={{ selected }}
+            style={styles.option}
+            onPress={() => {
+              onChange(option.value)
+              onClose()
+            }}
+          >
+            <Text variant={selected ? 'bodyStrong' : 'body'}>{option.label}</Text>
+            {selected ? <Text tone="accent">✓</Text> : null}
+          </Pressable>
+        )
+      })}
+    </Sheet>
   )
 }
 
@@ -450,24 +446,7 @@ const styles = StyleSheet.create({
   },
   segmentChosen: { backgroundColor: colour.surface },
 
-  backdrop: { flex: 1, backgroundColor: 'rgba(31,27,21,0.45)', justifyContent: 'flex-end' },
-  sheet: {
-    backgroundColor: colour.surface,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    paddingHorizontal: space.gutter,
-    paddingTop: 12,
-    paddingBottom: 34,
-  },
-  handle: {
-    width: 36,
-    height: 4,
-    backgroundColor: colour.line,
-    borderRadius: radius.pill,
-    alignSelf: 'center',
-    marginBottom: space.block,
-  },
-  sheetTitle: { marginBottom: space.block },
+  sheetTitle: { marginTop: space.block - space.row, marginBottom: space.block },
   option: {
     flexDirection: 'row',
     alignItems: 'center',

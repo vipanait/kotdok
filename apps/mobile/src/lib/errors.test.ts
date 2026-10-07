@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { ApiContractError, ApiError, ApiTimeoutError } from '@lapka/shared'
 import { ru } from '@/i18n/ru'
 import { PhotoUploadError } from '@/features/checks/photo-upload'
-import { AppError, describeFailure, errorMessage, submitCheckMessage } from './errors'
+import { AppError, describeFailure, errorMessage, failureKind, submitCheckMessage } from './errors'
 
 describe('error messages', () => {
   it('translates a Supabase auth code', () => {
@@ -69,6 +69,20 @@ describe('error messages', () => {
     const cause = new ApiError('record_locked', 423, 'Locked by the clinic')
     expect(errorMessage(ru, cause, ru.medicalRecord.saveEventFailed)).toBe(ru.medicalRecord.saveEventFailed)
     expect(describeFailure(ru, cause, 'x').offline).toBe(false)
+  })
+})
+
+describe('which way out a failed check offers', () => {
+  it('knows an empty balance however it was said', () => {
+    // A refusal on sending (402) offered «Попробовать ещё раз», which can only be refused again.
+    expect(failureKind(new ApiError('insufficient_credits', 402, 'not enough credits'))).toBe('insufficient_credits')
+    expect(failureKind(new AppError('Не хватает проверок', 'insufficient_credits'))).toBe('insufficient_credits')
+  })
+
+  it('has nothing special to offer for anything else', () => {
+    expect(failureKind(new AppError('Долго', 'still_running'))).toBe('still_running')
+    expect(failureKind(new ApiError('bad_request', 400, 'x'))).toBeNull()
+    expect(failureKind(new Error('offline'))).toBeNull()
   })
 })
 

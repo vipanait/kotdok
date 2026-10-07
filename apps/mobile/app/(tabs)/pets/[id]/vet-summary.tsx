@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { Platform, StyleSheet, View } from 'react-native'
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
 import type { VetSummary } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
@@ -57,7 +57,11 @@ export default function VetSummaryScreen() {
     setPreparing(true)
     setPdfFailed(false)
     try {
-      await sharePdf(summaryHtml(t, view), summaryFileName(t, view.petName, today), nativeShare)
+      await sharePdf(
+        summaryHtml(t, view, { footerInFlow: Platform.OS !== 'android' }),
+        summaryFileName(t, view.petName, today),
+        nativeShare,
+      )
     } catch {
       setPdfFailed(true)
     } finally {

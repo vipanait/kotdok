@@ -4,6 +4,9 @@ import { listWords } from '@/lib/list-words'
 import { nameCase } from '@/lib/russian-name'
 import { PAIN_SIGNS, PET_DIETS, PET_LIFESTYLES, PET_SIZE_CLASSES, PET_WALK_ACTIVITIES } from '@lapka/contracts'
 
+/** One end of a range inside a month: its number, and the whole day as `t.day` writes it. */
+export type MonthDay = { date: number; day: string }
+
 /**
  * Russian, and the shape every other language must match.
  *
@@ -288,6 +291,8 @@ export const ru = {
       sinceOngoing: (day: string) => `с ${day} · постоянно`,
       ongoingOnly: 'постоянно',
       range: (from: string, to: string) => `${from} – ${to}`,
+      /** «2–15 августа»: the month once, after the second number. */
+      rangeInMonth: (first: MonthDay, last: MonthDay) => `${first.date}–${last.day}`,
       fromForm: 'Из анкеты — добавьте дозировку и даты',
       noDates: 'Даты не указаны',
       nameRequired: 'Введите название',
@@ -491,6 +496,7 @@ export const ru = {
     waitingBody:
       'Это занимает до минуты. Можно уйти с экрана — результат откроется здесь, когда вы вернётесь, и появится в истории.',
     requestCheck: 'Запросить проверку',
+    noChecksLeft: 'Проверки закончились. Запросите дополнительную — обычно отвечаем в течение дня.',
     openHistory: 'Открыть историю',
     tryAgain: 'Попробовать ещё раз',
     photos: 'Фото — необязательно',
@@ -669,7 +675,9 @@ export const ru = {
 
   profile: {
     title: 'Профиль',
-    checksLeft: (count: number) => `${plural(count, 'проверка', 'проверки', 'проверок')} осталось`,
+    // The verb agrees too: «1 проверка осталась», «21 проверка осталась».
+    checksLeft: (count: number) =>
+      plural(count, 'проверка осталась', 'проверки осталось', 'проверок осталось'),
     language: 'Язык',
     history: 'История проверок',
     signOut: 'Выйти',

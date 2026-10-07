@@ -35,8 +35,11 @@ export function courseDates(t: Dictionary, course: Medication, today: string): s
   const end = dayParts(course.ended_on!)
   const withYear = start.year !== end.year || String(end.year) !== year
   if (start.year === end.year && start.month === end.month && !withYear) {
-    // «2–15 августа»: the month once.
-    return `${start.date}–${t.day(course.ended_on!, false)}`
+    // «2–15 августа», «August 2–15»: the month once, where the language puts it.
+    return words.rangeInMonth(
+      { date: start.date, day: t.day(course.started_on!, false) },
+      { date: end.date, day: t.day(course.ended_on!, false) },
+    )
   }
   return words.range(t.day(course.started_on!, withYear), t.day(course.ended_on!, withYear))
 }

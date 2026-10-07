@@ -33,7 +33,14 @@ const signInWithProvider = createProviderSignIn({
       // `skipBrowserRedirect` leaves the opening to us, which is how a closed
       // browser becomes knowable. Supabase still stores the PKCE verifier here,
       // so the exchange later has something to prove the code is ours.
-      options: { redirectTo: redirectUrl, skipBrowserRedirect: true },
+      options: {
+        redirectTo: redirectUrl,
+        skipBrowserRedirect: true,
+        // Google signs in as whoever the browser is signed in as, without a
+        // word: a tablet whose Chrome held one account could never be used
+        // with another (Xiaomi Pad 6, 7 October). Asking costs one tap.
+        ...(provider === 'google' ? { queryParams: { prompt: 'select_account' } } : {}),
+      },
     })
     return { url: data?.url ?? null, error }
   },

@@ -6,7 +6,7 @@ import type { ProviderId, ProviderOutcome } from '@/lib/provider-sign-in'
 import { useText } from '@/i18n'
 import { Text } from '@/ui/Text'
 import { YANDEX_ID_SVG } from '@/ui/yandex-id'
-import { TAP_TARGET, colour, font, provider, radius, type } from '@/ui/theme'
+import { TAP_TARGET, colour, provider, radius, type } from '@/ui/theme'
 import { APPLE_MARK_ASPECT, APPLE_MARK_SVG } from '@/ui/apple-logo'
 import { providerOrder } from './provider-order'
 
@@ -23,8 +23,10 @@ const APPLE_MARK_HEIGHT = 20
  * a password rather than a way in.
  *
  * The marks and the buttons around them belong to the providers: white ground,
- * their border, their wording, their icon at its own size, and Google's own
- * face on Google's own label. None of it is nudged towards Lapka's palette.
+ * their border, their wording, their icon at its own size. None of it is
+ * nudged towards Lapka's palette. The labels share one face: Google's own
+ * Google Sans read as bold beside the other two, and the owner chose three
+ * alike over Google's guideline (7 October 2026).
  * Apple's button is the one exception to "their own button": it is drawn like
  * its neighbours, by the owner's decision of 15 September 2026 — see
  * `ui/apple-logo.ts`.
@@ -119,7 +121,6 @@ export function ProviderButtons({
                   key={id}
                   label={t.auth.google}
                   colours={provider.google}
-                  face={font.google}
                   icon={
                     <Image
                       source={require('../../../assets/art/google-g.png')}
@@ -144,7 +145,6 @@ function ProviderButton({
   label,
   colours,
   icon,
-  face,
   loading,
   disabled,
   onPress,
@@ -152,7 +152,6 @@ function ProviderButton({
   label: string
   colours: { background: string; border: string; text: string }
   icon: React.ReactNode
-  face?: string
   loading: boolean
   disabled: boolean
   onPress: () => void
@@ -172,7 +171,7 @@ function ProviderButton({
     >
       {/* The spinner takes the mark's place, so the label does not shift. */}
       {loading ? <ActivityIndicator color={colours.text} /> : icon}
-      <Text style={[type.provider, { color: colours.text }, face ? { fontFamily: face } : null]}>
+      <Text style={[type.provider, { color: colours.text }]}>
         {label}
       </Text>
     </Pressable>

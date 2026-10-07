@@ -52,12 +52,6 @@ export const font = {
   /** Headings. Softer than the body face, which is the point. */
   display: 'Nunito',
   body: 'Manrope',
-  /**
-   * Google's own face, used on Google's own button and nowhere else. Their
-   * branding guidelines ask for it; the concept records that as a deliberate
-   * exception to the two faces above.
-   */
-  google: 'GoogleSans',
 } as const
 
 export const type = {
@@ -111,6 +105,17 @@ export const space = {
  */
 export const TAP_TARGET = 44
 export const CONTROL_HEIGHT = 52
+
+/**
+ * How wide the content column is allowed to get.
+ *
+ * The concept is drawn at 390 points and every measurement in it — the 20 pt
+ * gutter, the 52 pt controls, the line length — assumes a phone held in one
+ * hand. Left unbounded on a tablet the same layout puts a name field across a
+ * forearm of glass. The column stops here and centres instead; so do the
+ * sheets that rise over it.
+ */
+export const COLUMN_MAX_WIDTH = 480
 
 export const shadow = {
   card: {

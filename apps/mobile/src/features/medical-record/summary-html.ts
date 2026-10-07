@@ -159,7 +159,21 @@ const PAGINATE = `(function () {
  * white loses nothing. Long text wraps instead of shrinking; the pages are
  * as many as it takes.
  */
-export function summaryHtml(t: Dictionary, view: SummaryView): string {
+export function summaryHtml(
+  t: Dictionary,
+  view: SummaryView,
+  {
+    footerInFlow = true,
+  }: {
+    /**
+     * The footer once more at the end of the flowing layout, for a print view
+     * that has no margin boxes to put it on every page. Android's has them and
+     * runs no script, so there the last page said it twice — in the margin and
+     * under the last table (Xiaomi Pad 6, 7 October).
+     */
+    footerInFlow?: boolean
+  } = {},
+): string {
   const words = t.vetSummary
   const important = view.important
     .map((fact) => `<tr><th class="label">${escapeHtml(fact.label)}</th><td>${escapeHtml(fact.value)}</td></tr>`)
@@ -181,7 +195,7 @@ export function summaryHtml(t: Dictionary, view: SummaryView): string {
     ...(view.weights.length > 0 ? [chart(view.chart), table(words.weightColumns, view.weights, ['50%', '50%'])] : [empty(words.noWeights)]),
     heading(words.checks),
     view.checks.length > 0 ? table(words.checkColumns, view.checks, ['18%', '22%', '60%']) : empty(words.noChecks),
-    `<p class="flow-only flow-footer">${escapeHtml(view.footer)}</p>`,
+    footerInFlow ? `<p class="flow-only flow-footer">${escapeHtml(view.footer)}</p>` : '',
   ].filter((block) => block !== '')
 
   return `<!DOCTYPE html>
