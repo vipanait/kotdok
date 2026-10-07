@@ -18,12 +18,14 @@ import {
   eventTextProblems,
   itemNameTooLong,
   nextDayProblem,
+  productName,
   suggestNextDay,
   suggestionInterval,
   tooManyItems,
   type EventDayProblem,
   type Interval,
   type NextDayProblem,
+  type SupportedLocale,
 } from '@lapka/shared'
 import type { RecordType } from '../routes'
 
@@ -112,13 +114,23 @@ export function draftFromPlan(event: HealthEvent): EventDraft {
   }
 }
 
-/** A product picked from the catalogue: its name, diseases and interval; the next date follows it. */
-export function productItem(key: string, product: HealthProduct, draft: EventDraft, today: string): ItemDraft {
+/**
+ * A product picked from the catalogue: its name — the one the reader was
+ * shown, English to an English reader — its diseases and interval; the next
+ * date follows it.
+ */
+export function productItem(
+  key: string,
+  product: HealthProduct,
+  draft: EventDraft,
+  today: string,
+  locale: SupportedLocale,
+): ItemDraft {
   const fits = draft.kind === 'vaccination' ? VaccineTargetSchema : ParasiteTargetSchema
   const item: ItemDraft = {
     key,
     source: 'catalog',
-    name: product.name,
+    name: productName(product, locale),
     manufacturer: product.manufacturer,
     productId: product.id,
     targets: product.targets.filter((code) => fits.safeParse(code).success) as HealthTarget[],

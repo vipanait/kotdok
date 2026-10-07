@@ -2,7 +2,8 @@
 
 import { useEffect, useId, useRef, useState } from 'react'
 import type { HealthProduct, PetSpecies, ProductKind } from '@lapka/contracts'
-import { useTranslations } from '@/components/LocaleProvider'
+import { productName } from '@lapka/shared'
+import { useLocale, useTranslations } from '@/components/LocaleProvider'
 import { browserApi } from '@/features/api/browser-api'
 import { comboboxKey, searchKey as keyOf, startSearch, type CatalogAnswer, type SearchDeps } from './catalog-combobox'
 import { catalogOptions, productDetail, type CatalogOption } from './catalog-view'
@@ -52,6 +53,7 @@ export default function CatalogCombobox({
   inputRef?: React.RefObject<HTMLInputElement | null>
 }) {
   const dict = useTranslations()
+  const locale = useLocale()
   const words = dict.medicalRecord.catalog
   const id = useId()
   const listId = `${id}-list`
@@ -173,7 +175,7 @@ export default function CatalogCombobox({
             >
               {option.type === 'product' ? (
                 <>
-                  <strong>{option.product.name}</strong>
+                  <strong>{productName(option.product, locale)}</strong>
                   <span>{productDetail(dict, option.product)}</span>
                 </>
               ) : option.type === 'manual' ? (

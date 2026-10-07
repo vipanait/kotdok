@@ -11,6 +11,7 @@ type ProductRow = {
   id: string
   kind: HealthProduct['kind']
   name: string
+  name_en: string | null
   manufacturer: string | null
   aliases: string[] | null
   species: HealthProduct['species']
@@ -37,6 +38,7 @@ function toProductContract(row: ProductRow): HealthProduct {
     id: row.id,
     kind: row.kind,
     name: row.name,
+    name_en: row.name_en,
     manufacturer: row.manufacturer,
     aliases: row.aliases ?? [],
     species: row.species,
@@ -59,7 +61,7 @@ export async function listCatalog(
 ): Promise<WeightResult<HealthProduct[]>> {
   let request = supabase
     .from('health_products')
-    .select('id, kind, name, manufacturer, aliases, species, form, targets, interval_value, interval_unit, popularity')
+    .select('id, kind, name, name_en, manufacturer, aliases, species, form, targets, interval_value, interval_unit, popularity')
     .eq('kind', kind)
     .eq('active', true)
     .contains('species', [species])
@@ -74,7 +76,9 @@ export async function listCatalog(
   return {
     ok: true,
     data: (data as ProductRow[])
-      .filter((row) => matchesCatalog({ name: row.name, manufacturer: row.manufacturer, aliases: row.aliases ?? [] }, query))
+      .filter((row) =>
+        matchesCatalog({ name: row.name, name_en: row.name_en, manufacturer: row.manufacturer, aliases: row.aliases ?? [] }, query),
+      )
       .map(toProductContract),
   }
 }

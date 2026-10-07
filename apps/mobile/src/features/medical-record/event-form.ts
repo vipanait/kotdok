@@ -4,12 +4,14 @@ import {
   eventTextProblems,
   itemNameTooLong,
   nextDayProblem,
+  productName,
   suggestNextDay,
   suggestionInterval,
   toggleParasiteGroup,
   tooManyItems,
   type EventTextField,
   type Interval,
+  type SupportedLocale,
 } from '@lapka/shared'
 import type { Dictionary } from '@/i18n'
 import { dayInput, localToday, parseDayText } from '@/lib/calendar-day'
@@ -91,11 +93,12 @@ function withTargets(item: ItemDraft, targets: HealthTarget[]): ItemDraft {
 /**
  * A product picked from the catalogue replaces everything the item said —
  * name, diseases, interval — and the next date follows its interval again.
+ * The name is the one the reader was shown: «Nobivac Tricat Trio» in English.
  */
-export function pickProduct(item: ItemDraft, product: HealthProduct): ItemDraft {
+export function pickProduct(item: ItemDraft, product: HealthProduct, locale: SupportedLocale): ItemDraft {
   return {
     ...item,
-    name: product.name,
+    name: productName(product, locale),
     targets: product.targets as HealthTarget[],
     productId: product.id,
     interval: product.interval,

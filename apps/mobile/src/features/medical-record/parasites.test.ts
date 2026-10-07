@@ -18,6 +18,7 @@ const bravecto = {
   id: '11111111-1111-4111-8111-0000000000c1',
   kind: 'antiparasitic' as const,
   name: 'Бравекто',
+  name_en: 'Bravecto',
   manufacturer: 'MSD',
   aliases: [],
   species: ['dog' as const],
@@ -29,9 +30,9 @@ const bravecto = {
 
 describe('next dates of treatments (MR-05.1)', () => {
   it('Бравекто every 12 weeks from 24.09.2026 is 17.12.2026; every 3 months is 24.12.2026', () => {
-    const twelveWeeks = pickProduct({ ...blankItem('a'), kind: 'parasite' }, bravecto)
+    const twelveWeeks = pickProduct({ ...blankItem('a'), kind: 'parasite' }, bravecto, 'ru')
     expect(nextDate(twelveWeeks, '2026-09-24', TODAY)).toBe('2026-12-17')
-    const threeMonths = pickProduct({ ...blankItem('b'), kind: 'parasite' }, { ...bravecto, interval: { value: 3, unit: 'month' } })
+    const threeMonths = pickProduct({ ...blankItem('b'), kind: 'parasite' }, { ...bravecto, interval: { value: 3, unit: 'month' } }, 'ru')
     expect(nextDate(threeMonths, '2026-09-24', TODAY)).toBe('2026-12-24')
   })
 

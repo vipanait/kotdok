@@ -89,7 +89,7 @@ function twoTreatments(date: string): EventDraft {
   const draft = { ...blankEventDraft('parasite', 'done', TODAY), date }
   return {
     ...draft,
-    items: [productItem('spot-on', products.spotOn, draft, TODAY), productItem('tablet', products.tablet, draft, TODAY)],
+    items: [productItem('spot-on', products.spotOn, draft, TODAY, 'ru'), productItem('tablet', products.tablet, draft, TODAY, 'ru')],
     clinic: 'Айболит',
   }
 }
@@ -127,6 +127,7 @@ beforeAll(async () => {
     id: row.id,
     kind: 'antiparasitic',
     name: row.name,
+    name_en: null,
     manufacturer: row.manufacturer,
     aliases: [],
     species: row.species,

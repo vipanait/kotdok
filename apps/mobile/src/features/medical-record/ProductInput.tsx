@@ -1,8 +1,9 @@
 import { useRef, useState } from 'react'
 import { Keyboard, Pressable, StyleSheet, View } from 'react-native'
 import type { HealthProduct, PetSpecies, ProductKind } from '@lapka/contracts'
+import { productName } from '@lapka/shared'
 import { withFreshSession } from '@/lib/api'
-import { useText } from '@/i18n'
+import { useLocale, useText } from '@/i18n'
 import { LinkButton } from '@/ui/Button'
 import { Field } from '@/ui/Field'
 import { useRevealOnFocus } from '@/ui/Screen'
@@ -58,6 +59,7 @@ export function ProductInput({
   onNoProduct: () => void
 }) {
   const t = useText()
+  const locale = useLocale()
   const words = t.medicalRecord.catalog
   const [open, setOpen] = useState(false)
   const [products, setProducts] = useState<HealthProduct[] | null>(null)
@@ -148,6 +150,7 @@ export function ProductInput({
                 {shown.kind === 'popular' ? words.popular[species] : words.results}
               </Text>
               {shown.products.map((product) => {
+                const name = productName(product, locale)
                 const detail = [
                   product.form ? (words.forms as Record<string, string>)[product.form] ?? product.form : null,
                   targetList(t, product.targets),
@@ -158,11 +161,11 @@ export function ProductInput({
                   <Pressable
                     key={product.id}
                     accessibilityRole="button"
-                    accessibilityLabel={detail ? `${product.name}, ${detail}` : product.name}
+                    accessibilityLabel={detail ? `${name}, ${detail}` : name}
                     onPress={() => pick(product)}
                     style={({ pressed }) => [styles.row, { opacity: pressed ? 0.6 : 1 }]}
                   >
-                    <Text>{product.name}</Text>
+                    <Text>{name}</Text>
                     {detail ? (
                       <Text variant="caption" tone="faint" numberOfLines={1}>
                         {detail}
