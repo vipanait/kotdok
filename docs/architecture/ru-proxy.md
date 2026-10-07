@@ -108,17 +108,24 @@ ssh lapka@<IP> 'bash -s' < infra/ru-proxy/issue-cert.sh
 
 Кнопки «Подтвердить» и «Отклонить» в канале заявок вызывают вебхук бота, и вызывает его сервер Телеграма, а не человек из России. Прокси ему не нужен: вебхук указывает прямо на Vercel, `https://kotdok.vercel.app/api/telegram/webhook`, а не на `lapka.my`.
 
-Почему: после переключения DNS вебхук остался на `lapka.my` и стал ходить через машину в Yandex Cloud. Заявка от 3 октября 2026 так и не подтвердилась: нажатие до приложения не дошло, а в `getWebhookInfo` ошибки не было. Логи машины тогда не смотрели, поэтому точная причина не установлена.
+Почему: после переключения DNS вебхук остался на `lapka.my`, а серверы Телеграма до машины в Yandex Cloud не достучались. 7 октября 2026 после нажатия кнопки `getWebhookInfo` показал `last_error_message: Connection timed out` и одно событие в очереди, в логах Vercel запроса не было. С обычных адресов `lapka.my` при этом отвечал, поэтому со стороны казалось, что всё работает. Заявка от 3 октября висела в `pending`, пока вебхук не переставили на Vercel.
 
-Переставить вебхук: `infra/telegram/set-webhook.sh`. Скрипт берёт токен бота и секрет из переменных production в Vercel (`vercel env pull`), проверяет, что деплой принимает этот секрет, и только потом вызывает `setWebhook`.
+Переменные `TELEGRAM_*` в Vercel помечены как Sensitive: их значение не отдаёт ни `env pull`, ни панель. Поэтому, чтобы переставить вебхук, секрет задаётся заново. Команды из корня репозитория, секрет лежит в файле и на экран не выводится:
 
-На 4 октября 2026 переменные `TELEGRAM_*` в Vercel помечены как Sensitive: их значение не отдаёт ни `env pull`, ни панель, и скрипт останавливается. Секрет в `apps/web/.env.staging.local` с продовым не совпадает (деплой отвечает на него `403`). В этом случае секрет задаётся заново:
+```bash
+umask 077; openssl rand -hex 32 | tr -d '\n' > ~/.lapka-tg-secret
+vercel env update TELEGRAM_WEBHOOK_SECRET production --sensitive --yes < ~/.lapka-tg-secret
+vercel redeploy kotdok.vercel.app --target production
+# ждём 200, а не 403
+curl -s -o /dev/null -w '%{http_code}\n' -X POST https://kotdok.vercel.app/api/telegram/webhook \
+  -H 'Content-Type: application/json' -H "X-Telegram-Bot-Api-Secret-Token: $(cat ~/.lapka-tg-secret)" -d '{}'
+curl -s -X POST "https://api.telegram.org/bot$(grep '^TELEGRAM_BOT_TOKEN=' apps/web/.env.staging.local | cut -d= -f2-)/setWebhook" \
+  -d url=https://kotdok.vercel.app/api/telegram/webhook -d secret_token="$(cat ~/.lapka-tg-secret)"
+```
 
-1. Придумать секрет из `A-Z a-z 0-9 _ -` (например, `openssl rand -hex 32`).
-2. В Vercel → Settings → Environment Variables заменить `TELEGRAM_WEBHOOK_SECRET` для Production.
-3. Передеплоить production: переменные подхватываются только новым деплоем.
-4. Вызвать `setWebhook` из README с новым секретом и `url` на `kotdok.vercel.app`.
-5. Нажать кнопку на висящей заявке ещё раз и проверить `getWebhookInfo`: `last_error_message` пустой.
+Токен в `apps/web/.env.staging.local` — продового бота: стейджинг шлёт заявки тем же ботом в тот же канал, а вебхук у бота один и смотрит на прод. Поэтому кнопки на заявках со стейджинга ничего не делают.
+
+После этого нажать кнопку на висящей заявке ещё раз и проверить `getWebhookInfo`: `url` на `kotdok.vercel.app`, `last_error_message` пустой.
 
 ## Откат
 
