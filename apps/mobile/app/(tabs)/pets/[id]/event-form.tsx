@@ -7,7 +7,7 @@ import { withFreshSession } from '@/lib/api'
 import { describeFailure } from '@/lib/errors'
 import { dayInput, localToday, parseDayInput } from '@/lib/calendar-day'
 import { newRequestKey } from '@/lib/request-key'
-import { useText } from '@/i18n'
+import { useLocale, useText } from '@/i18n'
 import { addInterval, parasiteGroups, vaccineTargetsFor } from '@lapka/shared'
 import { itemName, saveSummary, targetList } from '@/features/medical-record/due'
 import { ProductInput } from '@/features/medical-record/ProductInput'
@@ -71,6 +71,7 @@ export default function EventForm() {
     params.kind === 'parasite' ? 'parasite' : params.kind === 'vaccination' || mode === 'new' ? 'vaccination' : null,
   )
   const t = useText()
+  const locale = useLocale()
   const reminders = useReminders()
   const words = t.medicalRecord
 
@@ -381,7 +382,7 @@ export default function EventForm() {
                     kind={treatment ? 'antiparasitic' : 'vaccine'}
                     // Typing over a picked product makes the name the owner's own.
                     onType={(name) => updateItem(item.key, (current) => ({ ...renameItem(current, name), interval: null }))}
-                    onPick={(product) => updateItem(item.key, (current) => pickProduct(current, product))}
+                    onPick={(product) => updateItem(item.key, (current) => pickProduct(current, product, locale))}
                     onNoProduct={() =>
                       updateItem(item.key, (current) => ({ ...current, name: '', productId: null, interval: null, source: 'none' }))
                     }

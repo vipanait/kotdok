@@ -22,6 +22,7 @@ const product = (id: number, name: string): HealthProduct => ({
   id: `11111111-1111-4111-8111-${String(id).padStart(12, '0')}`,
   kind: 'vaccine',
   name,
+  name_en: null,
   manufacturer: 'MSD',
   aliases: [],
   species: ['cat'],

@@ -1121,6 +1121,11 @@ components:
             - antiparasitic
         name:
           type: string
+        name_en:
+          default: null
+          anyOf:
+            - type: string
+            - type: "null"
         manufacturer:
           anyOf:
             - type: string
@@ -1170,6 +1175,7 @@ components:
         - id
         - kind
         - name
+        - name_en
         - manufacturer
         - aliases
         - species

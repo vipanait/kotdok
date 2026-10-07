@@ -315,7 +315,13 @@ export type ProductKind = z.infer<typeof ProductKindSchema>
 export const HealthProductSchema = z.object({
   id: UuidSchema,
   kind: ProductKindSchema,
+  /** The Russian trade name, as on the box and in the vet passport. */
   name: z.string(),
+  /**
+   * The name for an English reader; null when the Russian one is all there is.
+   * Defaults to null so an app reading an older server still parses the list.
+   */
+  name_en: z.string().nullable().default(null),
   manufacturer: z.string().nullable(),
   aliases: z.array(z.string()),
   species: z.array(z.enum(['cat', 'dog'])),

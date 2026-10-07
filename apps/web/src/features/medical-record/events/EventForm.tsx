@@ -301,7 +301,7 @@ export default function EventForm({
               label={words.catalog.label}
               inputRef={comboboxRef}
               disabled={saving}
-              onPick={(product) => addItem(productItem(newKey(), product, draft, today))}
+              onPick={(product) => addItem(productItem(newKey(), product, draft, today, locale))}
               onManual={(typed) => {
                 const key = newKey()
                 addItem(manualItem(key, typed), `${id}-${key}-name`)

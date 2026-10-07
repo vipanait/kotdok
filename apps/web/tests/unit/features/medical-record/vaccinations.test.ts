@@ -32,6 +32,7 @@ function product(n: number, fields: Partial<HealthProduct> = {}): HealthProduct 
     id: id(900 + n),
     kind: 'vaccine',
     name: `Препарат ${n}`,
+    name_en: null,
     manufacturer: 'MSD',
     aliases: [],
     species: ['cat'],
@@ -50,7 +51,7 @@ describe('the form: «Сделано» and «Запланировать» (MW-03
   it('starts a done record today and a plan with no day; switching keeps the items', () => {
     const draft = blankEventDraft('vaccination', 'done', TODAY)
     expect(draft.date).toBe(TODAY)
-    const withItem = { ...draft, items: [productItem('a', product(1), draft, TODAY)] }
+    const withItem = { ...draft, items: [productItem('a', product(1), draft, TODAY, 'ru')] }
     const planned = switchStatus(withItem, 'planned', TODAY)
     expect(planned.date).toBe('')
     expect(planned.items.map((item) => item.name)).toEqual(['Препарат 1'])
@@ -60,7 +61,7 @@ describe('the form: «Сделано» and «Запланировать» (MW-03
 
   it('suggests the next date from the catalogue interval only, follows the day, and keeps the owner’s own choice', () => {
     const draft = blankEventDraft('vaccination', 'done', TODAY)
-    const picked = productItem('a', product(1, { interval: { value: 12, unit: 'week' } }), draft, TODAY)
+    const picked = productItem('a', product(1, { interval: { value: 12, unit: 'week' } }), draft, TODAY, 'ru')
     expect(picked.next).toBe('2026-12-17')
     const own = manualItem('b', 'Своя вакцина')
     expect(own.next).toBe('')
@@ -70,7 +71,10 @@ describe('the form: «Сделано» and «Запланировать» (MW-03
 
   it('keeps only the pet’s kind of diseases from a product', () => {
     const draft = blankEventDraft('vaccination', 'done', TODAY)
-    expect(productItem('a', product(1, { targets: ['rabies', 'fleas'] }), draft, TODAY).targets).toEqual(['rabies'])
+    expect(productItem('a', product(1, { targets: ['rabies', 'fleas'] }), draft, TODAY, 'ru').targets).toEqual(['rabies'])
+    // The name the reader was shown goes into the record: English to an English reader.
+    expect(productItem('a', product(1, { name_en: 'Product 1' }), draft, TODAY, 'en').name).toBe('Product 1')
+    expect(productItem('a', product(1, { name_en: 'Product 1' }), draft, TODAY, 'ru').name).toBe('Препарат 1')
   })
 })
 
@@ -112,7 +116,7 @@ describe('the form: reading it (MW-03.1, MW-03.3)', () => {
       {
         ...draft,
         clinic: '  Айболит ',
-        items: [productItem('a', product(1), draft, TODAY), toggleTarget(manualItem('b', 'Своя'), 'panleukopenia')],
+        items: [productItem('a', product(1), draft, TODAY, 'ru'), toggleTarget(manualItem('b', 'Своя'), 'panleukopenia')],
       },
       TODAY,
     )
