@@ -1,3 +1,4 @@
+import type { SupportedLocale } from '../locale'
 import { addMonths } from './record-overview'
 
 /**
@@ -22,14 +23,30 @@ export function normaliseQuery(text: string): string {
   return text.toLowerCase().replace(/ё/g, 'е').replace(/\s+/g, ' ').trim()
 }
 
-export type Searchable = { name: string; manufacturer: string | null; aliases?: readonly string[] }
+export type Searchable = {
+  name: string
+  name_en?: string | null
+  manufacturer: string | null
+  aliases?: readonly string[]
+}
+
+/**
+ * The name a product is shown under: the English one for an English reader
+ * when there is one, the Russian trade name otherwise. Picking a product
+ * writes this name into the record, so the record reads as it was chosen.
+ */
+export function productName(product: { name: string; name_en?: string | null }, locale: SupportedLocale): string {
+  return locale === 'en' && product.name_en ? product.name_en : product.name
+}
 
 /** Whether a catalogue entry answers a query, as typed or as typed on the other layout. */
 export function matchesCatalog(entry: Searchable, query: string): boolean {
   const typed = normaliseQuery(query)
   if (typed === '') return true
 
-  const haystack = normaliseQuery([entry.name, entry.manufacturer ?? '', ...(entry.aliases ?? [])].join(' '))
+  const haystack = normaliseQuery(
+    [entry.name, entry.name_en ?? '', entry.manufacturer ?? '', ...(entry.aliases ?? [])].join(' '),
+  )
   const lowered = query.toLowerCase().trim()
   const variants = [typed, normaliseQuery(retype(lowered, EN_TO_RU)), normaliseQuery(retype(lowered, RU_TO_EN))]
   return variants.some((variant) => variant !== '' && haystack.includes(variant))

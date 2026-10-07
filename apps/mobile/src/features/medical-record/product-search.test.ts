@@ -7,6 +7,7 @@ function product(name: string, popular = false, aliases: string[] = []): HealthP
     id: `00000000-0000-4000-8000-${String(name.length).padStart(12, '0')}`,
     kind: 'vaccine',
     name,
+    name_en: null,
     manufacturer: null,
     aliases,
     species: ['cat'],

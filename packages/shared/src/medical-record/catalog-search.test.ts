@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { addInterval, matchesCatalog, normaliseQuery } from './catalog-search'
+import { addInterval, matchesCatalog, normaliseQuery, productName } from './catalog-search'
 
 const nobivac = { name: 'Нобивак Tricat Trio', manufacturer: 'MSD', aliases: ['Nobivac Tricat Trio'] }
 const purevax = { name: 'Пуревакс RCP', manufacturer: 'Boehringer Ingelheim', aliases: ['Purevax RCP'] }
@@ -29,6 +29,20 @@ describe('catalogue search (MR-04.2)', () => {
 
   it('matches everything for an empty query', () => {
     expect(matchesCatalog(nobivac, '  ')).toBe(true)
+  })
+})
+
+describe('a product in English', () => {
+  const bars = { name: 'Барс капли', name_en: 'Bars drops', manufacturer: 'АВЗ', aliases: ['Bars'] }
+
+  it('is shown under its English name to an English reader, and its trade name otherwise', () => {
+    expect(productName(bars, 'en')).toBe('Bars drops')
+    expect(productName(bars, 'ru')).toBe('Барс капли')
+    expect(productName({ name: 'MaxiDrops', name_en: null }, 'en')).toBe('MaxiDrops')
+  })
+
+  it('is found by its English name', () => {
+    expect(matchesCatalog(bars, 'bars dro')).toBe(true)
   })
 })
 
