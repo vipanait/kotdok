@@ -4,6 +4,7 @@ import { Redirect, router } from 'expo-router'
 import * as WebBrowser from 'expo-web-browser'
 import { PD_CONSENT_VERSION } from '@lapka/contracts'
 import { consentScreenDone, withFreshSession } from '@/lib/api'
+import { consentMemory } from '@/lib/supabase'
 import { useAuth } from '@/providers/AuthProvider'
 import { useText } from '@/i18n'
 import { LegalNote } from '@/features/auth/LegalNote'
@@ -48,6 +49,8 @@ export default function Consent() {
       await withFreshSession((api) =>
         api.giveConsent({ version: PD_CONSENT_VERSION, source: consentSource(Platform.OS) }),
       )
+      // Given just now, so the next launch need not ask before opening.
+      if (session) await consentMemory.remember(session.user.id)
       consentScreenDone()
       router.replace('/pets')
     } catch {

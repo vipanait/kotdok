@@ -4,7 +4,6 @@ import { Stack, useRouter } from 'expo-router'
 import { useFonts } from 'expo-font'
 import * as Linking from 'expo-linking'
 import { StatusBar } from 'expo-status-bar'
-import { View } from 'react-native'
 import { AuthProvider } from '@/providers/AuthProvider'
 import { UpdatePrompt } from '@/features/updates/UpdatePrompt'
 import { ReminderProvider } from '@/features/medical-record/reminders/ReminderProvider'
@@ -14,8 +13,8 @@ import { redeemAuthLink, type LinkAuth } from '@/features/auth/redeem-link'
 import { deviceLocale } from '@/lib/device-locale'
 import { persistOptions, queryClient } from '@/lib/query-client'
 import { supabase } from '@/lib/supabase'
-import { stackOptions } from '@/ui/stack'
-import { colour } from '@/ui/theme'
+import { arrivalOptions, linkPendingOptions, stackOptions } from '@/ui/stack'
+import { BootScreen } from '@/ui/BootScreen'
 
 /** The real client behind the rules in `redeemAuthLink`. */
 const linkAuth: LinkAuth = {
@@ -92,13 +91,14 @@ export default function RootLayout() {
 
   // The two faces the design is drawn in. Holding the first frame until they
   // land avoids the flash where every heading is the system font and then
-  // jumps — jarring on a screen someone is reading for reassurance.
+  // jumps — jarring on a screen someone is reading for reassurance. The frame
+  // held is the splash's own, so the wait does not show as a blank page.
   const [fontsReady] = useFonts({
     Nunito: require('../assets/fonts/Nunito.ttf'),
     Manrope: require('../assets/fonts/Manrope.ttf'),
   })
 
-  if (!fontsReady) return <View style={{ flex: 1, backgroundColor: colour.canvas }} />
+  if (!fontsReady) return <BootScreen />
 
   return (
     <PersistQueryClientProvider client={queryClient} persistOptions={persistOptions}>
@@ -106,7 +106,16 @@ export default function RootLayout() {
         <AuthProvider>
           <ReminderProvider>
             <StatusBar style="dark" />
-            <Stack screenOptions={stackOptions} />
+            <Stack screenOptions={stackOptions}>
+              <Stack.Screen name="index" options={arrivalOptions} />
+              <Stack.Screen name="sign-in" options={arrivalOptions} />
+              <Stack.Screen name="(tabs)" options={arrivalOptions} />
+              <Stack.Screen name="consent" options={arrivalOptions} />
+              <Stack.Screen name="auth/callback" options={linkPendingOptions} />
+              <Stack.Screen name="auth/confirm" options={linkPendingOptions} />
+              <Stack.Screen name="auth/recover" options={linkPendingOptions} />
+              <Stack.Screen name="auth/provider" options={arrivalOptions} />
+            </Stack>
             <UpdatePrompt />
           </ReminderProvider>
         </AuthProvider>

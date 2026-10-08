@@ -7,6 +7,8 @@ import { PD_CONSENT_VERSION } from '@lapka/contracts'
 import { consentSettled, consentSource, settleConsent } from '@/features/consent/consent-gate'
 import { guardTabSwitch } from '@/features/unsaved/tab-guard'
 import { openConsentScreen, setConsentRequiredHandler, withFreshSession } from '@/lib/api'
+import { consentMemory } from '@/lib/supabase'
+import { ArrivalSkeleton } from '@/features/auth/ArrivalSkeleton'
 import { useAuth } from '@/providers/AuthProvider'
 import { useSetLocale, useText } from '@/i18n'
 import { Icon } from '@/ui/Icon'
@@ -52,7 +54,8 @@ export default function TabsLayout() {
    * the tabs appear (stage 12): the consent ticked on registration is handed
    * over first, then a new account that still owes one goes to the consent
    * screen. Keyed on the user, not the session object, which a token refresh
-   * replaces.
+   * replaces. An account this phone has seen confirmed is let in first and
+   * asked after (see `consent-memory.ts`).
    */
   useEffect(() => {
     setConsentRequiredHandler(() => router.replace('/consent'))
@@ -61,21 +64,41 @@ export default function TabsLayout() {
   useEffect(() => {
     if (!userId) return
     let active = true
-    void settleConsent({
-      pending: consentPending,
-      give: () =>
-        withFreshSession((api) =>
-          api.giveConsent({ version: PD_CONSENT_VERSION, source: consentSource(Platform.OS) }),
-        ),
-      status: () => withFreshSession((api) => api.getConsentStatus()),
-    }).then((result) => {
+    const pending = consentPending
+
+    void (async () => {
+      // Someone the server has confirmed before goes straight in, and the
+      // question below runs behind the tabs: a launch no longer waits a round
+      // trip on a blank page. A hand-over still owed is the exception — calls
+      // made before it lands would be refused.
+      if (!pending && (await consentMemory.knows(userId))) {
+        if (!active) return
+        setConsentSettledFor(userId)
+      }
+
+      const result = await settleConsent({
+        pending,
+        give: () =>
+          withFreshSession((api) =>
+            api.giveConsent({ version: PD_CONSENT_VERSION, source: consentSource(Platform.OS) }),
+          ),
+        status: async () => {
+          const status = await withFreshSession((api) => api.getConsentStatus())
+          // Remembered only when the server said so; an unreadable status lets
+          // the person in this time without vouching for the next.
+          if (status.required) await consentMemory.forget()
+          else await consentMemory.remember(userId)
+          return status
+        },
+      })
       if (!active) return
       setConsentPending(false)
       // Through the same guard as a refused call, so a refusal arriving at the
       // same moment does not open the screen a second time.
       if (result === 'consent') openConsentScreen()
       else setConsentSettledFor(userId)
-    })
+    })()
+
     return () => {
       active = false
     }
@@ -83,9 +106,11 @@ export default function TabsLayout() {
     // it belong to the next sign-in, so it is deliberately not a dependency.
   }, [userId])
 
-  if (loading) return null
+  if (loading) return <ArrivalSkeleton />
   if (!session) return <Redirect href="/sign-in" />
-  if (!consentSettled(userId, consentSettledFor)) return null
+  // A fresh sign-in, or a phone that has not seen this account's consent: the
+  // list's outline while the server is asked, not an empty page.
+  if (!consentSettled(userId, consentSettledFor)) return <ArrivalSkeleton />
 
   return (
     <Tabs

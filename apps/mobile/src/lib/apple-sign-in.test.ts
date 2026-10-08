@@ -36,6 +36,29 @@ describe('signing in with Apple on the device', () => {
     expect(d.signInWithIdToken).toHaveBeenCalledWith(TOKEN, 'nonce-1')
   })
 
+  it('says when the sheet is back with a token, before Supabase is asked', async () => {
+    const calls: string[] = []
+    const d = deps({
+      signInWithIdToken: vi.fn(async () => {
+        calls.push('supabase')
+        return { error: null }
+      }),
+    })
+
+    await createAppleSignIn(d)(messages, () => calls.push('returned'))
+
+    expect(calls).toEqual(['returned', 'supabase'])
+  })
+
+  it('does not say it is back when the sheet was closed', async () => {
+    const returned = vi.fn()
+    const d = deps({ requestCredential: vi.fn(async () => Promise.reject(nativeError('ERR_REQUEST_CANCELED'))) })
+
+    await createAppleSignIn(d)(messages, returned)
+
+    expect(returned).not.toHaveBeenCalled()
+  })
+
   it('gives Apple the hash of the nonce, never the nonce itself', async () => {
     const d = deps()
 
