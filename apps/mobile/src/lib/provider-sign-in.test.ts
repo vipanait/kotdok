@@ -24,6 +24,36 @@ describe('signing in with a provider', () => {
     expect(d.exchangeCode).toHaveBeenCalledWith('abc')
   })
 
+  it('says when it is back with a code, before the exchange starts', async () => {
+    const calls: string[] = []
+    const d = deps({
+      exchangeCode: vi.fn(async () => {
+        calls.push('exchange')
+        return { error: null }
+      }),
+    })
+
+    await createProviderSignIn(d)('google', messages, () => calls.push('returned'))
+
+    expect(calls).toEqual(['returned', 'exchange'])
+  })
+
+  it('does not say it is back when there is nothing to exchange', async () => {
+    const returned = vi.fn()
+    const closed = deps({ openBrowser: vi.fn(async () => ({ type: 'cancel' })) })
+    const refused = deps({
+      openBrowser: vi.fn(async () => ({
+        type: 'success',
+        url: `${PROVIDER_RETURN_URL}?error=access_denied`,
+      })),
+    })
+
+    await createProviderSignIn(closed)('google', messages, returned)
+    await createProviderSignIn(refused)('google', messages, returned)
+
+    expect(returned).not.toHaveBeenCalled()
+  })
+
   it('treats a closed browser as a cancellation, not a failure', async () => {
     const d = deps({ openBrowser: vi.fn(async () => ({ type: 'cancel' })) })
 

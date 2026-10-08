@@ -42,9 +42,16 @@ const APPLE_MARK_HEIGHT = 20
  */
 export function ProviderButtons({
   onOutcome,
+  onReturn,
   canStart,
 }: {
   onOutcome: (outcome: ProviderOutcome) => void
+  /**
+   * The browser or Apple's sheet closed with an answer, and the session is
+   * being made from it. The screen can stop showing its form: what comes next
+   * is either the way in or a banner, and `onOutcome` says which.
+   */
+  onReturn?: () => void
   /**
    * Asked before a provider opens; `false` stops it. Registration uses it to
    * require the consent box, which covers the providers as it covers email.
@@ -65,7 +72,7 @@ export function ProviderButtons({
     running.current = true
     setBusy(provider)
     try {
-      onOutcome(await signInWithProvider(provider))
+      onOutcome(await signInWithProvider(provider, onReturn))
     } finally {
       running.current = false
       setBusy(null)

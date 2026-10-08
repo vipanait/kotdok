@@ -9,6 +9,7 @@ import { errorMessage } from '@/lib/errors'
 import { useText } from '@/i18n'
 import { AuthShell, authFieldSpacing, authSubmitSpacing } from '@/features/auth/AuthShell'
 import { ProviderButtons } from '@/features/auth/ProviderButtons'
+import { ArrivalSkeleton } from '@/features/auth/ArrivalSkeleton'
 import { LegalNote } from '@/features/auth/LegalNote'
 import { credentialsProblem } from '@/features/auth/credentials'
 import { Button, LinkButton, LinkRow } from '@/ui/Button'
@@ -23,9 +24,20 @@ export default function SignIn() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [providerNotice, setProviderNotice] = useState<ProviderNotice | null>(null)
+  // Back from a provider with an answer: the form is done with, whatever the
+  // outcome turns out to be, until a failure brings it back with its banner.
+  const [entering, setEntering] = useState(false)
   const [busy, setBusy] = useState(false)
 
-  if (session) return <Redirect href="/pets" />
+  // The list's outline under the redirect, not an empty frame: this screen is
+  // what shows while registration slides away on top of it.
+  if (session)
+    return (
+      <>
+        <ArrivalSkeleton />
+        <Redirect href="/pets" />
+      </>
+    )
 
   async function submit() {
     dismissNotice()
@@ -49,6 +61,8 @@ export default function SignIn() {
   }
 
   const message = notice ?? params.notice
+
+  if (entering) return <ArrivalSkeleton />
 
   return (
     <AuthShell title={t.auth.signInTitle}>
@@ -95,7 +109,15 @@ export default function SignIn() {
         <Banner text={providerNotice.text} tone={providerNotice.tone} />
       ) : null}
 
-      <ProviderButtons onOutcome={(outcome) => setProviderNotice(providerNoticeFor(outcome))} />
+      <ProviderButtons
+        onReturn={() => setEntering(true)}
+        onOutcome={(outcome) => {
+          // A session leaves through the redirect above; showing the form again
+          // first would be the flash this state exists to hide.
+          if (outcome.kind !== 'session') setEntering(false)
+          setProviderNotice(providerNoticeFor(outcome))
+        }}
+      />
       <LegalNote />
     </AuthShell>
   )

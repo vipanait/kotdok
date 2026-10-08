@@ -64,6 +64,11 @@ export function createProviderSignIn(deps: ProviderSignInDeps) {
   return async function signInWithProvider(
     provider: ProviderId,
     messages: ProviderMessages,
+    /**
+     * The browser is gone and a code is about to be exchanged: the screen
+     * underneath is visible again, and should not look like a fresh start.
+     */
+    onReturn?: () => void,
   ): Promise<ProviderOutcome> {
     const started = await deps.authorize(provider, PROVIDER_RETURN_URL)
     if (started.error || !started.url) return { kind: 'failed', message: messages.failedToStart }
@@ -80,6 +85,7 @@ export function createProviderSignIn(deps: ProviderSignInDeps) {
       return { kind: 'failed', message: messages.refused }
     }
 
+    onReturn?.()
     const exchanged = await deps.exchangeCode(parsed.code)
     if (exchanged.error) return { kind: 'failed', message: messages.failedToFinish }
 
