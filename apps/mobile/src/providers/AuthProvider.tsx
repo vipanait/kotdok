@@ -5,7 +5,13 @@ import { Platform } from 'react-native'
 import * as WebBrowser from 'expo-web-browser'
 import * as AppleAuthentication from 'expo-apple-authentication'
 import * as Crypto from 'expo-crypto'
-import { draftStorage, sessionStorage, setSessionWriteFailureHandler, supabase } from '@/lib/supabase'
+import {
+  consentMemory,
+  draftStorage,
+  sessionStorage,
+  setSessionWriteFailureHandler,
+  supabase,
+} from '@/lib/supabase'
 import { nativeShare } from '@/features/medical-record/share-summary'
 import { setSessionLostHandler } from '@/lib/api'
 import { authRedirectUrl } from '@/lib/auth-links'
@@ -91,8 +97,10 @@ type AuthState = {
    * everything else through the system browser; the screen does not need to
    * know which. Returns what happened, so the screen can tell a cancellation
    * apart from a failure instead of guessing from the absence of a session.
+   * `onReturn` fires when the browser or the sheet has closed with an answer
+   * that is now being turned into a session.
    */
-  signInWithProvider(provider: ProviderId): Promise<ProviderOutcome>
+  signInWithProvider(provider: ProviderId, onReturn?: () => void): Promise<ProviderOutcome>
   /**
    * Registers the address. Whether a session comes back is the project's
    * decision, not the app's: with confirmation required Supabase withholds it
@@ -144,6 +152,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (reason: string | null) => {
       await supabase.auth.signOut().catch(() => {})
       await sessionStorage.clearAll()
+      // Whose consent was confirmed here: only the user id, but it belongs to the session.
+      await consentMemory.forget()
       // The half-written check goes with the session: the next person to sign in
       // on this phone must not find someone else's notes about their animal.
       await draftStorage.clearAll()
@@ -211,10 +221,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // The words come from here, where the interface's language is known;
       // the module that runs the exchange has no dictionary of its own.
-      signInWithProvider: (provider) =>
+      signInWithProvider: (provider, onReturn) =>
         provider === 'apple' && usesNativeAppleSignIn(Platform.OS)
-          ? signInWithApple(t.provider)
-          : signInWithProvider(provider, t.provider),
+          ? signInWithApple(t.provider, onReturn)
+          : signInWithProvider(provider, t.provider, onReturn),
 
       async signUp(email, password) {
         const { data, error } = await supabase.auth.signUp({

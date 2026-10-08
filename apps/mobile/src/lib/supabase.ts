@@ -3,7 +3,9 @@ import 'react-native-url-polyfill/auto'
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import * as Crypto from 'expo-crypto'
 import * as SecureStore from 'expo-secure-store'
+import { PD_CONSENT_VERSION } from '@lapka/contracts'
 import { DRAFT_KEY } from '@/features/checks/check-draft'
+import { createConsentMemory } from '@/features/consent/consent-memory'
 import { env } from '@/lib/env'
 import { createSessionStorage, type SessionStorage } from '@/lib/session-storage'
 import { installWebCrypto } from '@/lib/webcrypto'
@@ -50,6 +52,12 @@ const keychain = {
 
 /** Plain keychain access for small settings that belong to this phone, not a session. */
 export const deviceStorage = keychain
+
+/**
+ * Which account's consent the server has already confirmed on this phone, so
+ * the tabs need not wait for it again. Cleared on sign-out with the session.
+ */
+export const consentMemory = createConsentMemory(keychain, PD_CONSENT_VERSION)
 
 export const sessionStorage: SessionStorage = createSessionStorage({
   storage: keychain,

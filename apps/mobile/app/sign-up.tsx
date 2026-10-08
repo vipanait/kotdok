@@ -9,6 +9,7 @@ import { errorMessage } from '@/lib/errors'
 import { useText } from '@/i18n'
 import { AuthShell, authFieldSpacing, authSubmitSpacing } from '@/features/auth/AuthShell'
 import { ProviderButtons } from '@/features/auth/ProviderButtons'
+import { ArrivalSkeleton } from '@/features/auth/ArrivalSkeleton'
 import { LegalNote } from '@/features/auth/LegalNote'
 import { ConsentCheckbox } from '@/features/consent/ConsentCheckbox'
 import { PASSWORD_MIN, credentialsProblem } from '@/features/auth/credentials'
@@ -23,6 +24,9 @@ export default function SignUp() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [providerNotice, setProviderNotice] = useState<ProviderNotice | null>(null)
+  // Back from a provider with an answer: the form is done with, whatever the
+  // outcome turns out to be, until a failure brings it back with its banner.
+  const [entering, setEntering] = useState(false)
   const [sent, setSent] = useState(false)
   const [busy, setBusy] = useState(false)
   const [consented, setConsented] = useState(false)
@@ -65,6 +69,7 @@ export default function SignUp() {
     if (session && router.canDismiss()) router.dismissAll()
   }, [session])
   if (session && !router.canDismiss()) return <Redirect href="/pets" />
+  if (entering || session) return <ArrivalSkeleton />
 
   return (
     <AuthShell title={t.auth.signUpTitle}>
@@ -133,8 +138,12 @@ export default function SignUp() {
           setConsentPending(true)
           return true
         }}
+        onReturn={() => setEntering(true)}
         onOutcome={(outcome) => {
-          if (outcome.kind !== 'session') setConsentPending(false)
+          if (outcome.kind !== 'session') {
+            setConsentPending(false)
+            setEntering(false)
+          }
           setProviderNotice(providerNoticeFor(outcome))
         }}
       />

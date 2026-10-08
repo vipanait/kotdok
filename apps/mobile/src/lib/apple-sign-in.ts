@@ -44,7 +44,11 @@ export function usesNativeAppleSignIn(os: string): boolean {
 }
 
 export function createAppleSignIn(deps: AppleSignInDeps) {
-  return async function signInWithApple(messages: ProviderMessages): Promise<ProviderOutcome> {
+  return async function signInWithApple(
+    messages: ProviderMessages,
+    /** The sheet is gone and the token is on its way to Supabase; as in `provider-sign-in.ts`. */
+    onReturn?: () => void,
+  ): Promise<ProviderOutcome> {
     // Apple writes the hash into the token; Supabase gets the raw value and
     // hashes it itself. A token replayed from another attempt carries a hash of
     // a nonce this attempt never made, and is refused.
@@ -71,6 +75,7 @@ export function createAppleSignIn(deps: AppleSignInDeps) {
       return { kind: 'failed', message: messages.failedToFinish }
     }
 
+    onReturn?.()
     const { error } = await deps.signInWithIdToken(identityToken, nonce)
     if (error) {
       deps.reportFailure?.('supabase', error.message)
