@@ -47,6 +47,7 @@ import {
   emptyCheckForm,
   formToCheckInput,
   newIdempotencyKey,
+  refusalLifted,
   toggleSign,
   type CheckForm,
 } from '@/features/checks/check-form'
@@ -195,7 +196,9 @@ export default function NewCheck() {
   const loadPets = petList.reload
   // The balance, through the profile's cache: an empty one is said on the first
   // step, before the form is filled in for a check that cannot be sent.
-  const balance = useCached(['me'], () => withFreshSession((api) => api.getMe())).data
+  const me = useCached(['me'], () => withFreshSession((api) => api.getMe()))
+  const balance = me.data
+  const reloadBalance = me.reload
 
   // The check is about one animal; starting on the first one saves a tap for
   // the many people who own exactly one. A draft can name a pet that has since
@@ -328,6 +331,34 @@ export default function NewCheck() {
         void keepDraft()
       }
     }, [keepDraft, startFresh, userId, watch]),
+  )
+
+  /**
+   * A refusal for the balance waits for an extra check, which is granted by
+   * hand, minutes or hours later. Nothing else takes the refusal down: it
+   * stayed on screen with the check already on the balance until the app was
+   * restarted. So the balance is asked again on the way back — to the tab, or
+   * to the app from the background, which does not refocus the tab — and a
+   * check on it puts the form back, still filled in.
+   */
+  const shortOfChecks = failure?.kind === 'insufficient_credits'
+  useFocusEffect(
+    useCallback(() => {
+      if (!shortOfChecks) return
+      let current = true
+      const recheck = () =>
+        void reloadBalance().then((refresh) => {
+          if (current && onScreen.current && refusalLifted(refresh)) setFailure(null)
+        })
+      recheck()
+      const subscription = AppState.addEventListener('change', (state) => {
+        if (state === 'active') recheck()
+      })
+      return () => {
+        current = false
+        subscription.remove()
+      }
+    }, [shortOfChecks, reloadBalance]),
   )
 
   /** Which side the step now on screen came in from; null when it simply appeared. */

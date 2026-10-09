@@ -19,6 +19,7 @@ export function useCached<T>(key: readonly unknown[], load: () => Promise<T>) {
     enabled: false,
   })
   const { refetch } = query
+  const reload = useCallback(() => refetch({ cancelRefetch: false }), [refetch])
 
   useFocusEffect(
     useCallback(() => {
@@ -33,7 +34,7 @@ export function useCached<T>(key: readonly unknown[], load: () => Promise<T>) {
     error: query.error,
     /** A request is on its way, cached data or not. */
     fetching: query.isFetching,
-    reload: () => refetch({ cancelRefetch: false }),
+    reload,
   }
 }
 
