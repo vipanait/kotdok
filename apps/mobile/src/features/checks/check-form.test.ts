@@ -8,6 +8,7 @@ import {
   emptyCheckForm,
   formToCheckInput,
   newIdempotencyKey,
+  refusalLifted,
   toggleSign,
 } from './check-form'
 
@@ -124,5 +125,23 @@ describe('what a failed send leaves for the next try', () => {
 
   it('keeps the key when the photos never left the phone', () => {
     expect(afterFailedSend(new PhotoUploadError())).toEqual({ keepKey: true, keepUploads: false })
+  })
+})
+
+describe('a refusal for the balance', () => {
+  it('is lifted by a fresh balance with a check on it', () => {
+    // A request granted while the refusal was on screen.
+    expect(refusalLifted({ isSuccess: true, data: { credits: 1 } })).toBe(true)
+  })
+
+  it('stays while the fresh balance is still empty', () => {
+    expect(refusalLifted({ isSuccess: true, data: { credits: 0 } })).toBe(false)
+  })
+
+  it('stays when the balance could not be asked again', () => {
+    // A failed refresh hands back the cached balance, which may be the very one
+    // the server has just refused.
+    expect(refusalLifted({ isSuccess: false, data: { credits: 2 } })).toBe(false)
+    expect(refusalLifted({ isSuccess: false, data: undefined })).toBe(false)
   })
 })

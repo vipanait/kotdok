@@ -121,3 +121,15 @@ export function afterFailedSend(cause: unknown): { keepKey: boolean; keepUploads
   }
   return { keepKey: true, keepUploads: true }
 }
+
+/**
+ * Whether a check refused for the balance can be sent after all.
+ *
+ * The extra check is granted by hand, at any time after the request; the
+ * balance asked again since the refusal is how the screen finds out. Only a
+ * fresh answer counts: a failed refresh hands back the cached balance, which
+ * may be the very one the server has just refused.
+ */
+export function refusalLifted(refresh: { isSuccess: boolean; data?: { credits: number } }): boolean {
+  return refresh.isSuccess && (refresh.data?.credits ?? 0) > 0
+}
