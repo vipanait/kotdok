@@ -4,6 +4,7 @@ import * as Updates from 'expo-updates'
 import { useText } from '@/i18n'
 import { ConfirmDialog } from '@/ui/Dialog'
 import { hasUnsavedChanges, subscribeUnsavedChanges } from '@/features/unsaved/tab-guard'
+import { isFirstLaunch } from './first-launch'
 import { shouldCheckOnResume, shouldOfferRestart } from './update-state'
 
 /**
@@ -12,12 +13,14 @@ import { shouldCheckOnResume, shouldOfferRestart } from './update-state'
  * expo-updates checks by itself only at a cold start, and a phone keeps the app
  * alive for days, so coming back to the app checks too. Downloading is silent;
  * the question appears when there is something to restart into, and not while a
- * form holds unsaved changes. "Later" leaves the update to the next launch.
+ * form holds unsaved changes, and not in the first run after install. "Later"
+ * leaves the update to the next launch.
  */
 export function UpdatePrompt() {
   const t = useText()
   const { isUpdatePending, downloadedUpdate, isChecking, isDownloading } = Updates.useUpdates()
   const editing = useSyncExternalStore(subscribeUnsavedChanges, hasUnsavedChanges)
+  const [firstLaunch] = useState(isFirstLaunch)
   const [declinedUpdateId, setDeclinedUpdateId] = useState<string | null>(null)
   const [restarting, setRestarting] = useState(false)
   const lastCheckAt = useRef<number | null>(null)
@@ -50,7 +53,7 @@ export function UpdatePrompt() {
       'rollback'
     : null
 
-  const visible = restarting || shouldOfferRestart({ pendingUpdateId, declinedUpdateId, editing })
+  const visible = restarting || shouldOfferRestart({ pendingUpdateId, declinedUpdateId, editing, firstLaunch })
 
   async function restart() {
     setRestarting(true)

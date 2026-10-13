@@ -30,23 +30,27 @@ describe('checking for an update on resume', () => {
 
 describe('offering a restart', () => {
   it('stays quiet with nothing downloaded', () => {
-    expect(shouldOfferRestart({ pendingUpdateId: null, declinedUpdateId: null, editing: false })).toBe(false)
+    expect(shouldOfferRestart({ pendingUpdateId: null, declinedUpdateId: null, editing: false, firstLaunch: false })).toBe(false)
   })
 
   it('asks once an update is downloaded', () => {
-    expect(shouldOfferRestart({ pendingUpdateId: 'a', declinedUpdateId: null, editing: false })).toBe(true)
+    expect(shouldOfferRestart({ pendingUpdateId: 'a', declinedUpdateId: null, editing: false, firstLaunch: false })).toBe(true)
   })
 
   it('waits while a screen holds unsaved changes', () => {
-    expect(shouldOfferRestart({ pendingUpdateId: 'a', declinedUpdateId: null, editing: true })).toBe(false)
+    expect(shouldOfferRestart({ pendingUpdateId: 'a', declinedUpdateId: null, editing: true, firstLaunch: false })).toBe(false)
   })
 
   it('does not ask again about an update put off with "Later"', () => {
-    expect(shouldOfferRestart({ pendingUpdateId: 'a', declinedUpdateId: 'a', editing: false })).toBe(false)
+    expect(shouldOfferRestart({ pendingUpdateId: 'a', declinedUpdateId: 'a', editing: false, firstLaunch: false })).toBe(false)
   })
 
   it('asks about a newer update after an older one was put off', () => {
-    expect(shouldOfferRestart({ pendingUpdateId: 'b', declinedUpdateId: 'a', editing: false })).toBe(true)
+    expect(shouldOfferRestart({ pendingUpdateId: 'b', declinedUpdateId: 'a', editing: false, firstLaunch: false })).toBe(true)
+  })
+
+  it('stays quiet in the first run after install; the update applies at the next launch', () => {
+    expect(shouldOfferRestart({ pendingUpdateId: 'a', declinedUpdateId: null, editing: false, firstLaunch: true })).toBe(false)
   })
 })
 

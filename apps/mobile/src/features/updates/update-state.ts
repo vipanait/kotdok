@@ -30,6 +30,7 @@ export function shouldOfferRestart({
   pendingUpdateId,
   declinedUpdateId,
   editing,
+  firstLaunch,
 }: {
   /** The downloaded update waiting for a restart, if any. */
   pendingUpdateId: string | null
@@ -37,8 +38,15 @@ export function shouldOfferRestart({
   declinedUpdateId: string | null
   /** A screen holds unsaved changes that a restart would throw away. */
   editing: boolean
+  /**
+   * The first run since the app was installed. A store build is older than the
+   * latest update, so a fresh install always finds one at once; asking someone
+   * who has just installed the app to restart it is noise. The update is
+   * already downloaded and applies at the next launch.
+   */
+  firstLaunch: boolean
 }): boolean {
-  if (!pendingUpdateId || editing) return false
+  if (!pendingUpdateId || editing || firstLaunch) return false
   // "Later" means later for this update; a newer one is worth asking about.
   return pendingUpdateId !== declinedUpdateId
 }
