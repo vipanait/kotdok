@@ -18,8 +18,10 @@ Checked on 2026-10-19 on branch `web/landing-app-download`, `npm run dev:staging
 
 | File | Decoded | `APP_STORE_LINKS` |
 |---|---|---|
-| qr-ios.svg | `https://apps.apple.com/id/app/lapka-pet-care-and-love/id6813030153` | `ios`, identical |
+| qr-ios.svg | `https://apps.apple.com/app/id6813030153` | `ios`, identical |
 | qr-android.svg | `https://play.google.com/store/apps/details?id=my.lapka.app` | `android`, identical |
+
+The plan's App Store link had the Indonesian storefront (`/id/app/…`): a click on a computer opened the Indonesian page. On the owner's choice the link has no storefront, so Apple opens the visitor's own store; `qr-ios.svg` was regenerated with `toqr` 0.1.1 (already in node_modules via @expo/cli), error correction M, 4-module white quiet zone, and decoded again. `qr-android.svg` is the design's file, unchanged. `docs/design/app-download` keeps the mockup's old iOS code.
 
 Both URLs answer 200. Not scanned with a phone camera: no phone at hand during the check.
 
