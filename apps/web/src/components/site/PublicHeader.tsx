@@ -21,6 +21,8 @@ export default function PublicHeader({ dict, account = 'sign-in' }: Props) {
       </Link>
       <nav aria-label={t.about}>
         <Link href="/#how">{t.howItWorks}</Link>
+        {/* Kept on narrow screens, next to the account button. */}
+        <Link href="/#app" className="nav-app">{t.app}</Link>
         <Link href="/legal">{t.about}</Link>
         {account === 'sign-in' && (
           <Link href="/login" className="btn secondary">{t.signIn}</Link>

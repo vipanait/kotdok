@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import AppDownloadSection from '@/components/site/AppDownloadSection'
 import PublicFooter from '@/components/site/PublicFooter'
 import PublicHeader from '@/components/site/PublicHeader'
 import Icon from '@/components/ui/Icon'
@@ -51,7 +52,7 @@ export default function LandingContent({ signedIn, dict }: Props) {
         </section>
 
         <section id="how" className="landing-steps" aria-labelledby="how-title">
-          <h2 id="how-title" className="sr-only">{t.stepsTitle}</h2>
+          <h2 id="how-title">{t.stepsTitle}</h2>
           <ol className="grid3">
             {t.steps.map((step, i) => (
               <li key={step.title}>
@@ -61,9 +62,14 @@ export default function LandingContent({ signedIn, dict }: Props) {
               </li>
             ))}
           </ol>
+          {/* Next to the steps it qualifies, not above the footer. */}
+          <p className="care-note">
+            <span className="info-mark" aria-hidden="true">i</span>
+            <span>{t.disclaimer}</span>
+          </p>
         </section>
 
-        <p className="footnote">{t.disclaimer}</p>
+        <AppDownloadSection dict={dict} />
       </main>
       <PublicFooter dict={dict} />
     </>
