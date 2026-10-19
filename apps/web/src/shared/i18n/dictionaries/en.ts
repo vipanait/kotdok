@@ -14,6 +14,7 @@ const en: Dictionary = {
   site: {
     homeAria: 'Lapka — home',
     howItWorks: 'How it works',
+    app: 'App',
     about: 'About',
     signIn: 'Sign in',
     toAccount: 'My account',
@@ -53,7 +54,7 @@ const en: Dictionary = {
     offer: '2 free checks · No bank card needed',
     sloganLine1: 'Little paws.',
     sloganLine2: 'Big care.',
-    stepsTitle: 'How it works',
+    stepsTitle: 'How Lapka works',
     steps: [
       {
         title: 'Tell us about your pet',
@@ -68,7 +69,19 @@ const en: Dictionary = {
         text: 'An urgency level, clear steps and questions for the vet.',
       },
     ],
-    disclaimer: 'Not a veterinary diagnosis and does not replace an examination by a specialist.',
+    disclaimer: 'The check result is not a veterinary diagnosis and does not replace an examination by a veterinarian.',
+    appDownload: {
+      eyebrow: 'Now on iOS and Android',
+      titleLine1: 'Lapka —',
+      titleLine2: 'always at hand',
+      description: 'Get the app to care for your pet from your phone.',
+      scanHint: 'Scan the QR code with your phone’s camera',
+      iosPlatform: 'For iPhone',
+      androidPlatform: 'For Android',
+      downloadIn: 'Get it on',
+      iosQrAlt: 'QR code to get Lapka on the App Store',
+      androidQrAlt: 'QR code to get Lapka on Google Play',
+    },
   },
   auth: {
     story: {
