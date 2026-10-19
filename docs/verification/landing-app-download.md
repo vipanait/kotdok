@@ -39,6 +39,7 @@ Viewport emulation in the in-app browser; `scrollWidth` equals the viewport widt
 - The phone switch uses the site's existing 760 px breakpoint, not the mockup's 700 px; 761–900 px put the QR cards under the text.
 - Signed-in header at 320 px simulated by putting «Личный кабинет» into the account button: the nav wraps to two rows and the header grows to 114 px; nothing clipped, no horizontal scroll. Before the fix the fixed 85 px header pushed «Приложение» above the top edge.
 - EN at 390 px: «How Lapka works», the new disclaimer, «Get it on App Store» / «Get it on Google Play» on one line each, 56 px.
+- After review: the store-link arrow no longer takes the caption style (14 px, text colour, was 11 px muted); at 800 px the scan hint is centred under the cards (centre 258 px = cards centre, was 400 px).
 - The hidden variant is `display: none`, so its links are out of the Tab order and the accessibility tree.
 
 ## Navigation
