@@ -1,5 +1,6 @@
 import type { HealthOverview } from '@lapka/contracts'
-import { headAge, isTakenNow } from '@lapka/shared'
+import { isTakenNow } from '@lapka/shared'
+import { ageText } from '@/features/pets/pet-age'
 import type { Dictionary } from '@/i18n'
 import { duePhrase, dueItems, dueStatus } from './due'
 import { speciesWord } from './overview'
@@ -19,8 +20,7 @@ export function sitterMemo(t: Dictionary, overview: HealthOverview, today: strin
   const { pet } = overview
   const sections: string[] = []
 
-  const age = headAge(pet, today)
-  const head = [speciesWord(t, pet).toLowerCase(), pet.breed?.trim() || null, age === null ? null : t.petAge(age)]
+  const head = [speciesWord(t, pet).toLowerCase(), pet.breed?.trim() || null, ageText(t, pet, today)]
   sections.push(`${pet.name} — ${head.filter(Boolean).join(', ')}`)
 
   if (pet.diet) sections.push(words.diet(t.diet[pet.diet]))

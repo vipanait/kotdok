@@ -843,6 +843,8 @@ export const en: Dictionary = {
   },
 
   petAge: (years: number) => `${years} ${years === 1 ? 'year' : 'years'}`,
+  petAgeMonths: (months: number) => `${months} ${months === 1 ? 'month' : 'months'}`,
+  petAgeUnderMonth: 'under a month',
 
   species: { cat: 'Cat', dog: 'Dog' },
   sexCat: { male: 'Male', female: 'Female' },
