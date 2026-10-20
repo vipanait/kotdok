@@ -68,6 +68,8 @@ export const medicalRecordHref = {
     return `/pets/${petId}/health/${recordId}/complete${query ? `?${query}` : ''}`
   },
   vetSummary: (petId: string) => `/pets/${petId}/vet-summary`,
+  /** «Памятка для передержки»: the text for whoever minds the pet, to copy (FB-3/02). */
+  sitterMemo: (petId: string) => `/pets/${petId}/sitter-memo`,
 }
 
 /**

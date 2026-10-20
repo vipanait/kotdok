@@ -13,7 +13,7 @@ import { initialRecordState, loadRecord, recordCache, recordReducer, type Record
  * (MW-09, `useToday`), and the record is quietly loaded again for the new
  * day — «Принимает сейчас» is the server's, counted from the day sent.
  */
-export function useMedicalRecord(petId: string): { state: RecordState; reload: () => void; today: string } {
+export function useMedicalRecord(petId: string): { state: RecordState; reload: () => void; refresh: () => void; today: string } {
   const [state, dispatch] = useReducer(recordReducer, petId, (id) => initialRecordState(recordCache.get(id)))
   const latest = useRef(0)
   const today = useToday()
@@ -46,5 +46,10 @@ export function useMedicalRecord(petId: string): { state: RecordState; reload: (
     void run()
   }, [run])
 
-  return { state, reload, today }
+  /** Quietly, under what is on screen: back to the tab, changes made on the phone show up. */
+  const refresh = useCallback(() => {
+    void run()
+  }, [run])
+
+  return { state, reload, refresh, today }
 }

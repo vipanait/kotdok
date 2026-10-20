@@ -15,6 +15,10 @@ import { useMedicalRecord } from '../use-medical-record'
 import { eventSaveFailure } from '../events/event-form'
 import { courseRecord, type CourseSaved } from './course-view'
 import { CourseGone } from './CourseFormScreen'
+import DoseTimesField from './DoseTimesField'
+import TodayDoses from '../TodayDoses'
+import { useTodayDoses } from '../doses/use-today-doses'
+import { medicalRecordHref } from '../routes'
 
 /**
  * One medication course (web v1 «course», «course-finished»). A current
@@ -30,7 +34,7 @@ export default function CourseScreen({ petId, courseId, saved }: { petId: string
   const router = useRouter()
   const words = dict.medicalRecord
   const view = words.courseRecord
-  const { state, reload, today } = useMedicalRecord(petId)
+  const { state, reload, refresh, today } = useMedicalRecord(petId)
   const [asking, setAsking] = useState<'end' | 'delete' | null>(null)
   const [busy, setBusy] = useState(false)
   const [dialogError, setDialogError] = useState<string | undefined>()
@@ -39,6 +43,8 @@ export default function CourseScreen({ petId, courseId, saved }: { petId: string
   const endRef = useRef<HTMLButtonElement>(null)
   const deleteRef = useRef<HTMLButtonElement>(null)
   const inFlight = useRef(false)
+  const courses = state.status === 'ready' ? state.data.overview.medications.filter((entry) => entry.id === courseId) : []
+  const doses = useTodayDoses(petId, courses, today)
 
   // The end is stored: read the record again, so the page shows the course as finished.
   useEffect(() => {
@@ -127,6 +133,7 @@ export default function CourseScreen({ petId, courseId, saved }: { petId: string
   }
 
   const dosageLabel = record.current ? view.dosage : view.dosageFinished
+  const timesEditable = record.current && record.removable
 
   return (
     <div className="health-page event-record-page course-page">
@@ -138,13 +145,12 @@ export default function CourseScreen({ petId, courseId, saved }: { petId: string
       <div className="pagehead">
         <div>
           <h1>{record.title}</h1>
-          <p>{state.data.overview.pet.name}</p>
+          <p>{`${state.data.overview.pet.name} · ${view.kind}`}</p>
         </div>
-        {record.editHref && (
-          <div className="pagehead-actions">
-            <Link href={record.editHref} className="btn primary">{view.edit}</Link>
-          </div>
-        )}
+        <Link href={medicalRecordHref.record(petId)} className="link">
+          <Icon name="back" />
+          {view.toRecord}
+        </Link>
       </div>
 
       {/* Keyed: the end's confirmation is a new notice that takes focus, even over a `?saved=` one. */}
@@ -155,56 +161,81 @@ export default function CourseScreen({ petId, courseId, saved }: { petId: string
       )}
       <StaleNotice state={state} reload={reload} />
 
-      <div className="section-layout">
-        <div className="section-main">
-          <section className="card event-record-head course-record" aria-labelledby="course-period">
-            <span className={record.current ? 'pill event-badge planned' : 'pill event-badge'}>{record.badge}</span>
+      <div className="care-columns course-columns">
+        <div>
+          <section className="card course-record" aria-labelledby="course-title">
+            <div className="course-record-head">
+              <h2 id="course-title">{view.courseTitle}</h2>
+              <span className={record.current ? 'pill event-badge planned' : 'pill event-badge'}>{record.badge}</span>
+            </div>
             <dl className="course-facts">
-              <div>
-                <dt>{view.period}</dt>
-                <dd id="course-period">{record.period}</dd>
-              </div>
               <div>
                 <dt>{dosageLabel}</dt>
                 <dd>{record.dosage ?? view.noDosage}</dd>
               </div>
+              <div>
+                <dt>{view.period}</dt>
+                <dd id="course-period">{record.period}</dd>
+              </div>
             </dl>
+            {record.editHref && (
+              <>
+                <div className="divider" />
+                <Link href={record.editHref} className="link">{view.edit}</Link>
+              </>
+            )}
           </section>
+
+          <DoseTimesField
+            key={course.id}
+            petId={petId}
+            course={course}
+            editable={timesEditable}
+            onSaved={() => {
+              recordCache.forget(petId)
+              refresh()
+            }}
+          />
+
+          <div className="care-actions course-actions" aria-label={view.actionsTitle} role="group">
+            {record.endable && (
+              <button
+                ref={endRef}
+                type="button"
+                className="btn secondary"
+                onClick={() => {
+                  setDialogError(undefined)
+                  setAsking('end')
+                }}
+              >
+                {view.end}
+              </button>
+            )}
+            {record.removable && (
+              <button
+                ref={deleteRef}
+                type="button"
+                className="link danger"
+                onClick={() => {
+                  setDialogError(undefined)
+                  setAsking('delete')
+                }}
+              >
+                {view.delete}
+              </button>
+            )}
+          </div>
+          <p className="small muted">{record.actionsBody}</p>
         </div>
 
-        <aside className="section-aside">
-          <div className="card health-facts event-actions">
-            <h2>{view.actionsTitle}</h2>
-            <p>{record.actionsBody}</p>
-            <div className="course-actions">
-              {record.endable && (
-                <button
-                  ref={endRef}
-                  type="button"
-                  className="btn secondary"
-                  onClick={() => {
-                    setDialogError(undefined)
-                    setAsking('end')
-                  }}
-                >
-                  {view.end}
-                </button>
-              )}
-              {record.removable && (
-                <button
-                  ref={deleteRef}
-                  type="button"
-                  className="link danger"
-                  onClick={() => {
-                    setDialogError(undefined)
-                    setAsking('delete')
-                  }}
-                >
-                  {view.delete}
-                </button>
-              )}
-            </div>
-          </div>
+        <aside>
+          {doses.rows.length > 0 && (
+            <TodayDoses title={words.doses.courseTitle} doses={doses} today={today} headingId="course-today-title" />
+          )}
+          <section className="card soft" aria-labelledby="course-one-history">
+            <h2 id="course-one-history">{words.oneHistory.title}</h2>
+            <p>{words.oneHistory.body}</p>
+          </section>
         </aside>
       </div>
 

@@ -208,3 +208,117 @@
     .pet-form-page .form-actions > .btn.danger { align-self: flex-start; }
   }
 }
+
+@layer components {
+
+  /* ---------- Карточка питомца ---------- */
+
+  .pet-head { display: flex; align-items: center; gap: 20px; margin: 18px 0 30px; }
+  .pet-head .avatar { flex-shrink: 0; border-radius: 50%; }
+  .pet-head-copy { min-width: 0; }
+  .pet-head-copy h1 { margin-bottom: 4px; }
+  .pet-head-copy p { color: var(--muted); overflow-wrap: anywhere; }
+  .pet-head-together { margin-top: 2px; color: var(--green) !important; font-size: 14px; }
+  .pet-head-weight { margin-top: 2px; font-size: 13px; }
+  .pet-head-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 12px 24px; margin-left: auto; }
+  .pet-head-actions .link { min-height: 44px; }
+
+  .record-columns aside { display: grid; gap: 22px; min-width: 0; }
+  .record-columns .card { padding: 26px; border-radius: 22px; }
+  .record-columns h2 { font-size: 24px; }
+  .record-columns .health-sections { grid-area: auto; }
+  .record-columns .health-facts { grid-area: auto; }
+  .record-columns .health-facts dt { font-size: 13px; }
+  .record-columns .health-facts dd { font-size: 15px; }
+
+  /* «Сегодня»: time, medicine and dosage, then «Дали» or «Отменить». */
+  .today-doses ul,
+  .due-list,
+  .share-care ul { margin: 0; padding: 0; list-style: none; }
+  .dose-row { display: flex; align-items: center; gap: 16px; min-height: 82px; padding: 16px 0; }
+  .dose-row + .dose-row { border-top: 1px solid var(--line); }
+  .dose-time { min-width: 52px; font-size: 16px; font-variant-numeric: tabular-nums; }
+  .dose-copy { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+  .dose-copy small { display: block; margin-top: 2px; color: var(--muted); font-size: 13px; }
+  .dose-name { display: block; }
+  .dose-given { display: inline-flex !important; align-items: center; gap: 4px; color: var(--green) !important; }
+  .dose-given .icon { width: 15px; height: 15px; }
+  .dose-undo { min-height: 44px; flex-shrink: 0; }
+  .btn.compact { min-height: 44px; padding: 9px 18px; font-size: 13px; flex-shrink: 0; }
+  .today-doses-failed { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; color: var(--muted); }
+
+  /* «Напоминания»: plain rows, thin lines, a red overdue line under the day. */
+  .due-list .due-row { display: flex; align-items: center; gap: 14px; min-height: 76px; padding: 14px 0; border-bottom: 0; }
+  .due-list .due-row + .due-row { border-top: 1px solid var(--line); }
+  .due-list .due-row > .icon { width: 22px; height: 22px; color: var(--muted); flex-shrink: 0; }
+  .due-row-link { flex: 1; min-width: 0; color: var(--text); text-decoration: none; overflow-wrap: anywhere; }
+  .due-row-link:hover .due-title { text-decoration: underline; }
+  .due-row-link:focus-visible { outline: 3px solid var(--green); outline-offset: 4px; border-radius: 8px; }
+  .due-title { display: block; font-weight: 400; font-size: 16px; }
+  .due-row-link small { display: block; margin-top: 3px; font-size: 13px; line-height: 1.5; color: var(--muted); }
+  .due-row-link .due-overdue { color: var(--red); font-weight: 400; }
+  .due-row-link .due-when.soon { color: var(--green); }
+  .due-list .due-chevron { width: 16px; height: 16px; color: var(--muted); flex-shrink: 0; }
+  .health-due > .link { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; margin-top: 6px; }
+
+  /* «Поделиться заботой». */
+  .share-care li + li { border-top: 1px solid var(--line); }
+  .share-care a { display: flex; align-items: center; gap: 16px; min-height: 76px; padding: 14px 0; color: var(--text); text-decoration: none; }
+  .share-care a > span { flex: 1; min-width: 0; }
+  .share-care small { display: block; margin-top: 2px; color: var(--muted); font-size: 13px; }
+  .share-care .icon { color: var(--muted); flex-shrink: 0; }
+  .share-care a:hover > span { text-decoration: underline; }
+  .share-care a:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; border-radius: 8px; }
+
+  @media (max-width: 1100px) {
+    .record-columns .health-sections { grid-template-columns: minmax(0, 1fr); }
+  }
+
+  @media (max-width: 760px) {
+    .pet-head { flex-wrap: wrap; gap: 14px; margin-top: 8px; }
+    .pet-head-actions { width: 100%; justify-content: space-between; margin-left: 0; }
+    .record-columns .card { padding: 20px; }
+    .dose-row,
+    .due-list .due-row { gap: 10px; }
+    .btn.compact { padding: 8px 14px; }
+  }
+}
+
+@layer components {
+
+  /* ---------- Лекарство ---------- */
+
+  .course-columns aside { display: grid; gap: 22px; min-width: 0; }
+  .course-record-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; margin-bottom: 16px; }
+  .course-record-head h2 { margin: 0; }
+  .course-record .course-facts { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); gap: 20px; margin: 0; }
+  .course-record .course-facts dt { font-size: 13px; color: var(--muted); }
+  .course-record .course-facts dd { margin: 6px 0 0; font: 800 19px/1.3 var(--font-display); overflow-wrap: anywhere; }
+  .dose-times .chips { margin: 16px 0 20px; }
+  .time-add { display: flex; gap: 12px; max-width: 320px; margin-top: 7px; }
+  .time-add .input { flex: 1; min-width: 0; margin: 0; }
+  .time-add-button {
+    display: grid;
+    place-items: center;
+    width: 50px;
+    height: 50px;
+    flex-shrink: 0;
+    border: 0;
+    border-radius: 12px;
+    background: var(--mint);
+    color: var(--green);
+    cursor: pointer;
+  }
+  .time-add-button:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; }
+  .time-add-button[aria-disabled='true'] { opacity: 0.55; cursor: default; }
+  .dose-times > .field-hint { display: block; margin-top: 4px; }
+  .dose-times-saved { color: var(--green); }
+  .dose-times-notice { display: flex; align-items: flex-start; gap: 12px; margin-top: 20px; padding: 16px; border-radius: 14px; background: var(--soft); }
+  .dose-times-notice p { margin: 0; font-size: 13px; line-height: 1.6; }
+  .dose-times-notice .icon { flex-shrink: 0; color: var(--green); }
+  .course-actions { margin-top: 4px; }
+
+  @media (max-width: 760px) {
+    .course-record .course-facts { grid-template-columns: minmax(0, 1fr); }
+  }
+}
