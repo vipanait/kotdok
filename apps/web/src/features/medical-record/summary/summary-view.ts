@@ -162,11 +162,12 @@ export function vetSummaryPage(dict: Dictionary, locale: Locale, summary: VetSum
     taking.from === 'courses'
       ? taking.courses.map((course) => courseText(dict, course, today)).join('; ')
       : taking.from === 'form'
-        ? taking.names.join(', ')
+        ? taking.names.join('; ')
         : ''
   const facts = [
-    { label: record.important.allergies, text: pet.allergies.join(', ') },
-    { label: record.important.chronic, text: pet.chronic_conditions.join(', ') },
+    // «; » between items: an allergy may have a comma of its own (FB-1/06).
+    { label: record.important.allergies, text: pet.allergies.join('; ') },
+    { label: record.important.chronic, text: pet.chronic_conditions.join('; ') },
     { label: record.important.takingNow, text: takingText },
   ]
   const important: VetSummaryPage['important'] = facts.every((fact) => fact.text.trim() === '')

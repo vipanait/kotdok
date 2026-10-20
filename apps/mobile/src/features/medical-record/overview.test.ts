@@ -91,8 +91,15 @@ describe('important to know', () => {
     )
     expect(facts).toEqual([
       { label: 'Аллергии', value: 'курица' },
-      { label: 'Принимает сейчас', value: 'Лечебный корм, Фортифлора' },
+      { label: 'Принимает сейчас', value: 'Лечебный корм; Фортифлора' },
     ])
+  })
+})
+
+describe('lists in «Важно знать» (FB-1/06 follow-up)', () => {
+  it('keeps an item with a comma of its own whole', () => {
+    const facts = importantFacts(ru, pet({ allergies: ['курица', 'рыба, кроме лосося'], chronic_conditions: [], medications: [] }))
+    expect(facts).toEqual([{ label: 'Аллергии', value: 'курица; рыба, кроме лосося' }])
   })
 })
 

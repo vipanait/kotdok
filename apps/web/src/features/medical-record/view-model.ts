@@ -383,9 +383,10 @@ export function importantFacts(dict: Dictionary, overview: HealthOverview, today
           .map((course) => (course.ongoing ? `${course.name} · ${words.ongoing}` : course.name))
       : pet.medications
   return [
-    { label: words.allergies, value: pet.allergies.join(', ') },
-    { label: words.chronic, value: pet.chronic_conditions.join(', ') },
-    { label: words.takingNow, value: taking.join(', ') },
+    // «; » between items: an allergy may have a comma of its own (FB-1/06).
+    { label: words.allergies, value: pet.allergies.join('; ') },
+    { label: words.chronic, value: pet.chronic_conditions.join('; ') },
+    { label: words.takingNow, value: taking.join('; ') },
   ].filter((fact) => fact.value.trim() !== '')
 }
 
