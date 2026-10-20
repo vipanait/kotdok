@@ -56,7 +56,7 @@ export function headerFacts(t: Dictionary, overview: HealthOverview, today: stri
   const parts = [speciesWord(t, pet)]
   if (pet.breed) parts.push(pet.breed)
   // The shared rule: zero is said too («0 лет»), as on the site (MW-09).
-  const age = headAge(pet.age_years)
+  const age = headAge(pet, today)
   if (age !== null) parts.push(t.petAge(age))
 
   const latest = latestDated(weights)

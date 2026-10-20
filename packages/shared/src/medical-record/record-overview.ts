@@ -25,9 +25,13 @@ const pad = (value: number) => String(value).padStart(2, '0')
  * age among the pet's facts (§7.17) and does not single out zero, and the pet
  * form accepts it (a kitten under a year); the phone always said it, so the
  * site says it too (MW-09). Null when the owner gave none: nothing is shown.
+ * From a birth date when there is one.
  */
-export function headAge(ageYears: number | null | undefined): number | null {
-  return ageYears ?? null
+export function headAge(pet: { birth_date: string | null; age_years: number | null }, today: string): number | null {
+  // With a birth date the head shows whole years from it (FB-2/01): it grows
+  // on its own, and «4,4 года» is not how anyone says a cat's age.
+  if (pet.birth_date) return Math.floor(monthsBetween(pet.birth_date, today) / 12)
+  return pet.age_years ?? null
 }
 
 /**

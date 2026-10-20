@@ -2,7 +2,7 @@ import type { Locale } from '@/shared/i18n/config'
 import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
 import { formatCount } from '@/shared/i18n/plural'
 import type { Pet } from '@/shared/types'
-import { headAge } from '@lapka/shared'
+import { headAge, localToday } from '@lapka/shared'
 
 /**
  * "Сибирская · 3 года": whatever of breed and age the profile has, or an
@@ -10,7 +10,7 @@ import { headAge } from '@lapka/shared'
  * head (shared `headAge`, MW-09): zero is said too, «0 лет».
  */
 export function petSummary(
-  pet: Pick<Pet, 'breed' | 'age_years'>,
+  pet: Pick<Pet, 'breed' | 'age_years' | 'birth_date'>,
   dict: Dictionary,
   locale: Locale,
   separator = ' · ',
@@ -18,7 +18,8 @@ export function petSummary(
   const parts: string[] = []
   const breed = pet.breed?.trim()
   if (breed) parts.push(breed)
-  const age = headAge(pet.age_years)
+  // Today on the reader's own calendar: these lines are drawn where they are read.
+  const age = headAge(pet, localToday())
   if (age !== null) parts.push(formatCount(dict.pets.age, age, locale))
   return parts.join(separator)
 }
@@ -29,12 +30,12 @@ export function petSummary(
  * "healthy", only "not filled in", so it is simply left out.
  */
 export function petHealthFacts(
-  pet: Pick<Pet, 'age_years' | 'chronic_conditions'>,
+  pet: Pick<Pet, 'age_years' | 'birth_date' | 'chronic_conditions'>,
   dict: Dictionary,
   locale: Locale,
 ): { age: string | null; chronic: string | null } {
   // The same rule as everywhere (shared `headAge`): zero is said.
-  const years = headAge(pet.age_years)
+  const years = headAge(pet, localToday())
   const age = years !== null ? formatCount(dict.pets.age, years, locale) : null
   const conditions = (pet.chronic_conditions ?? []).map(c => c.trim()).filter(Boolean)
   const chronic = conditions.length ? dict.check.petChronic.replace('{list}', () => conditions.join(', ')) : null
