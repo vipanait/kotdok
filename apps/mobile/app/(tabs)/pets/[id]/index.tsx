@@ -227,7 +227,7 @@ export default function MedicalRecord() {
       }
     >
       {banner}
-      {birthday ? <Banner text={t.pets.birthday(pet.name)} tone="note" /> : null}
+      {birthday ? <Banner text={t.pets.birthday(pet.name)} tone="info" icon="paw" /> : null}
 
       <View
         style={styles.header}
