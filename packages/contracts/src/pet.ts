@@ -55,6 +55,16 @@ export const PetSchema = z.object({
 
 export type Pet = z.infer<typeof PetSchema>
 
+/**
+ * What a client can read, named in one request header (FB-2 release). The
+ * store builds from before FB-2 parse pets strictly: a new key fails their
+ * whole pet list. The server sends the birth date and the home day only to a
+ * client that lists `pet-dates`; the others get the pet as before.
+ */
+export const FEATURES_HEADER = 'X-Lapka-Features'
+export const PET_DATES_FEATURE = 'pet-dates'
+export const PET_DATE_FIELDS = ['birth_date', 'birth_date_approx', 'adopted_on'] as const
+
 const petWritableFields = {
   species: PetSpeciesSchema,
   name: z.string().min(1).max(NAME_MAX),

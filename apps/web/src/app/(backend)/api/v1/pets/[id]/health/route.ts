@@ -3,6 +3,7 @@ import { createServiceClient } from '@/server/supabase/server'
 import { getHealthOverview } from '@/server/medical-record/overview-service'
 import { requestToday } from '@/server/medical-record/weight-service'
 import { apiError, apiSuccess } from '@/server/api/response'
+import { petFor } from '@/server/pets/pet-contract'
 import { serviceFailureResponse } from '@/server/api/failure-response'
 import { withApiAuth, type ApiContext } from '@/server/api/with-api-auth'
 
@@ -22,5 +23,5 @@ export const GET = withApiAuth(async (request, context: ApiContext, params: Para
   const result = await getHealthOverview(createServiceClient(), context.account.userId, id, requestToday(request.nextUrl))
   if (!result.ok) return serviceFailureResponse(context.requestId, result.reason)
 
-  return apiSuccess(context.requestId, result.data)
+  return apiSuccess(context.requestId, { ...result.data, pet: petFor(request, result.data.pet) })
 })

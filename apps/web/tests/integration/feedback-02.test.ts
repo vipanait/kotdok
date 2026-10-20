@@ -2,9 +2,11 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { NextRequest } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import type { Client } from 'pg'
-import { PetSchema } from '@lapka/contracts'
-import { POST as createPet } from '@/app/(backend)/api/v1/pets/route'
+import { FEATURES_HEADER, PET_DATES_FEATURE, PetSchema } from '@lapka/contracts'
+import { GET as listPets, POST as createPet } from '@/app/(backend)/api/v1/pets/route'
 import { GET as getPet, PATCH as patchPet } from '@/app/(backend)/api/v1/pets/[id]/route'
+import { GET as getHealth } from '@/app/(backend)/api/v1/pets/[id]/health/route'
+import { GET as getSummary } from '@/app/(backend)/api/v1/pets/[id]/health/summary/route'
 import { FIXTURE_PASSWORD, OWNER_A, PET_IDS, connect, seedFixtures } from './fixtures'
 
 /**
@@ -24,10 +26,15 @@ async function signIn(email: string): Promise<string> {
   return data.session!.access_token
 }
 
-function request(method: string, body?: unknown) {
+/** An app that knows the dates says so (FB-2 release); `dates: false` is a store build from before. */
+function request(method: string, body?: unknown, { dates = true }: { dates?: boolean } = {}) {
   return new NextRequest('http://test.local/api/v1/pets', {
     method,
-    headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
+    headers: {
+      authorization: `Bearer ${token}`,
+      'content-type': 'application/json',
+      ...(dates ? { [FEATURES_HEADER]: PET_DATES_FEATURE } : {}),
+    },
     body: body === undefined ? undefined : JSON.stringify(body),
   })
 }
@@ -123,5 +130,22 @@ describe('pet dates (FB-2/01)', () => {
     await patchPet(request('PATCH', { birth_date: null, adopted_on: '2021-01-10' }), params(PET_IDS.aCat))
     const late = await patchPet(request('PATCH', { birth_date: '2025-01-01' }), params(PET_IDS.aCat))
     expect(late.status).toBe(400)
+  })
+
+  it('gives an app that does not ask for the dates the pet without them, on every route (FB-2 release)', async () => {
+    await patchPet(request('PATCH', { birth_date: '2020-10-20', adopted_on: null }), params(PET_IDS.aCat))
+    const older = { dates: false }
+    const keys = ['birth_date', 'birth_date_approx', 'adopted_on']
+
+    const one = await (await getPet(request('GET', undefined, older), params(PET_IDS.aCat))).json()
+    const list = await (await listPets(request('GET', undefined, older), undefined)).json()
+    const health = await (await getHealth(request('GET', undefined, older), params(PET_IDS.aCat))).json()
+    const summary = await (await getSummary(request('GET', undefined, older), params(PET_IDS.aCat))).json()
+    for (const pet of [one, ...list, health.pet, summary.pet]) {
+      for (const key of keys) expect(pet).not.toHaveProperty(key)
+    }
+
+    const current = await (await getPet(request('GET'), params(PET_IDS.aCat))).json()
+    expect(current).toMatchObject({ birth_date: '2020-10-20' })
   })
 })

@@ -47,6 +47,8 @@ import {
   type ProductKind,
   type WeightInput,
   type WeightPatch,
+  FEATURES_HEADER,
+  PET_DATES_FEATURE,
 } from '@lapka/contracts'
 import { z } from 'zod'
 
@@ -205,7 +207,13 @@ export function createApiClient(options: ApiClientOptions) {
     schema: z.ZodType<T> | null,
     request: RequestOptions = {},
   ): Promise<T> {
-    const headers: Record<string, string> = { accept: 'application/json', ...request.headers }
+    // What this client can read: the server sends the pet's dates only to
+    // those that say so, since older builds refuse unknown keys (FB-2).
+    const headers: Record<string, string> = {
+      accept: 'application/json',
+      [FEATURES_HEADER]: PET_DATES_FEATURE,
+      ...request.headers,
+    }
 
     if (!request.anonymous) {
       const token = await options.getAccessToken?.()
