@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import type { Pet } from '@lapka/contracts'
 import { ru } from '@/i18n/ru'
 import {
   AGE_MAX,
@@ -11,8 +12,12 @@ import {
   petFormChanged,
   petToForm,
   remainingError,
+  switchBirthMode,
+  switchWeightUnit,
   type PetForm,
 } from './pet-form'
+
+const TODAY = '2026-10-20'
 
 function filled(overrides: Partial<PetForm> = {}): PetForm {
   return { ...emptyPetForm(), name: 'Барсик', ...overrides }
@@ -20,16 +25,16 @@ function filled(overrides: Partial<PetForm> = {}): PetForm {
 
 describe('pet form', () => {
   it('sends a name and leaves the untouched fields empty rather than zero', () => {
-    const result = formToInput(ru, filled())
+    const result = formToInput(ru, filled(), TODAY)
 
     expect(result).toMatchObject({
       ok: true,
-      value: { name: 'Барсик', species: 'cat', age_years: null, weight_kg: null, breed: null },
+      value: { name: 'Барсик', species: 'cat', age_years: null, weight_kg: null, breed: null, birth_date: null, adopted_on: null },
     })
   })
 
   it('refuses a name of only spaces, which the field makes easy to type', () => {
-    expect(formToInput(ru, filled({ name: '   ' }))).toEqual({
+    expect(formToInput(ru, filled({ name: '   ' }), TODAY)).toEqual({
       ok: false,
       field: 'name',
       message: 'Введите имя питомца',
@@ -52,11 +57,11 @@ describe('pet form', () => {
   })
 
   it('names the field that is wrong, so the screen can point at it', () => {
-    expect(formToInput(ru, filled({ ageYears: 'три' }))).toMatchObject({
+    expect(formToInput(ru, filled({ approxYears: 'три' }), TODAY)).toMatchObject({
       ok: false,
-      field: 'ageYears',
+      field: 'approxYears',
     })
-    expect(formToInput(ru, filled({ weightKg: '500' }))).toMatchObject({
+    expect(formToInput(ru, filled({ weightKg: '500' }), TODAY)).toMatchObject({
       ok: false,
       field: 'weightKg',
     })
@@ -80,13 +85,13 @@ describe('pet form', () => {
   })
 
   it('drops dog-only fields for a cat, which the contract rejects outright', () => {
-    const result = formToInput(ru, filled({ species: 'cat', sizeClass: 'large', walkActivity: 'sport' }))
+    const result = formToInput(ru, filled({ species: 'cat', sizeClass: 'large', walkActivity: 'sport' }), TODAY)
 
     expect(result).toMatchObject({ ok: true, value: { size_class: null, walk_activity: null } })
   })
 
   it('keeps dog-only fields for a dog', () => {
-    const result = formToInput(ru, filled({ species: 'dog', sizeClass: 'large', walkActivity: 'sport' }))
+    const result = formToInput(ru, filled({ species: 'dog', sizeClass: 'large', walkActivity: 'sport' }), TODAY)
 
     expect(result).toMatchObject({
       ok: true,
@@ -113,10 +118,14 @@ describe('pet form', () => {
       chronic_conditions: [],
       medications: ['витамины'],
       notes: 'боится грозы',
+      birth_date: null,
+      birth_date_approx: false,
+      adopted_on: null,
+      avatar_url: null,
       created_at: '2026-09-06T11:51:53.000Z',
     }
 
-    const result = formToInput(ru, petToForm(pet))
+    const result = formToInput(ru, petToForm(pet, TODAY), TODAY)
 
     expect(result).toMatchObject({
       ok: true,
@@ -124,7 +133,10 @@ describe('pet form', () => {
         species: 'dog',
         name: 'Бобик',
         breed: 'Лабрадор',
+        // An age from before there were dates stays an age (PR #82 review).
         age_years: 3,
+        birth_date: null,
+        birth_date_approx: false,
         weight_kg: 24.5,
         sex: 'male',
         neutered: true,
@@ -155,5 +167,138 @@ describe('pet form', () => {
     expect(petFormChanged(start, { ...start })).toBe(false)
     expect(petFormChanged(start, { ...start, notes: 'боится грозы' })).toBe(true)
     expect(petFormChanged(start, { ...start, neutered: false })).toBe(true)
+  })
+
+  it('turns «about 4 years 6 months» into an approximate birth date and the age it gives (FB-2/01)', () => {
+    expect(formToInput(ru, filled({ birthMode: 'approx', approxYears: '4', approxMonths: '6' }), TODAY)).toMatchObject({
+      ok: true,
+      value: { birth_date: '2022-04-20', birth_date_approx: true, age_years: 4.5 },
+    })
+  })
+
+  it('takes an exact birth date and the home day as typed (FB-2/01)', () => {
+    expect(
+      formToInput(ru, filled({ birthMode: 'exact', birthDate: '20.10.2020', adoptedOn: '01.12.2020' }), TODAY),
+    ).toMatchObject({
+      ok: true,
+      value: { birth_date: '2020-10-20', birth_date_approx: false, age_years: 6, adopted_on: '2020-12-01' },
+    })
+  })
+
+  it('refuses a birth date ahead, a home day before the birth, and months past eleven (FB-2/01)', () => {
+    expect(formToInput(ru, filled({ birthMode: 'exact', birthDate: '21.10.2026' }), TODAY)).toMatchObject({ ok: false, field: 'birthDate' })
+    expect(
+      formToInput(ru, filled({ birthMode: 'exact', birthDate: '20.10.2020', adoptedOn: '19.10.2020' }), TODAY),
+    ).toMatchObject({ ok: false, field: 'adoptedOn' })
+    expect(formToInput(ru, filled({ adoptedOn: '21.10.2026' }), TODAY)).toMatchObject({ ok: false, field: 'adoptedOn' })
+    expect(formToInput(ru, filled({ birthMode: 'approx', approxMonths: '12' }), TODAY)).toMatchObject({ ok: false, field: 'approxMonths' })
+  })
+
+  it('opens an exact birth date as one, and an estimate as years and months (FB-2/01)', () => {
+    const base = { ...petToForm(sample(), TODAY) }
+    expect(base).toMatchObject({ birthMode: 'approx', approxYears: '3', approxMonths: '0' })
+    expect(petToForm(sample({ birth_date: '2020-10-20' }), TODAY)).toMatchObject({ birthMode: 'exact', birthDate: '20.10.2020' })
+    expect(petToForm(sample({ birth_date: '2022-04-20', birth_date_approx: true }), TODAY)).toMatchObject({
+      birthMode: 'approx',
+      approxYears: '4',
+      approxMonths: '6',
+    })
+    expect(petToForm(sample({ adopted_on: '2021-01-10' }), TODAY)).toMatchObject({ adoptedOn: '10.01.2021' })
+  })
+})
+
+describe('the birth date across saves (FB-2 review)', () => {
+  it('keeps an estimated birth date that the years and months still describe on a later day', () => {
+    const later = '2026-11-19'
+    const form = petToForm(sample({ birth_date: '2022-04-20', birth_date_approx: true }), later)
+    expect(form).toMatchObject({ approxYears: '4', approxMonths: '6' })
+    expect(formToInput(ru, form, later)).toMatchObject({ ok: true, value: { birth_date: '2022-04-20', birth_date_approx: true } })
+  })
+
+  it('counts from today once the owner changes the estimate', () => {
+    const later = '2026-11-19'
+    const form = { ...petToForm(sample({ birth_date: '2022-04-20', birth_date_approx: true }), later), approxYears: '5' }
+    expect(formToInput(ru, form, later)).toMatchObject({ ok: true, value: { birth_date: '2021-05-19' } })
+  })
+
+  it('saves a pet from before there were dates without inventing a birth date (PR #82 review)', () => {
+    for (const age of [0, 3]) {
+      const form = { ...petToForm(sample({ birth_date: null, birth_date_approx: false, age_years: age }), TODAY), weightKg: '4.5' }
+      expect(formToInput(ru, form, TODAY)).toMatchObject({ ok: true, value: { birth_date: null, age_years: age } })
+    }
+    // Changed by the owner: from then on an estimate on today's calendar.
+    const changed = { ...petToForm(sample({ birth_date: null, birth_date_approx: false, age_years: 3 }), TODAY), approxMonths: '6' }
+    expect(formToInput(ru, changed, TODAY)).toMatchObject({ ok: true, value: { birth_date: '2023-04-20', birth_date_approx: true } })
+  })
+
+  it('refuses a birth date that makes the pet older than the form allows, at its own field', () => {
+    expect(formToInput(ru, filled({ birthMode: 'exact', birthDate: '01.01.1960' }), TODAY)).toMatchObject({ ok: false, field: 'birthDate' })
+    expect(formToInput(ru, filled({ birthMode: 'approx', approxYears: '50', approxMonths: '6' }), TODAY)).toMatchObject({
+      ok: false,
+      field: 'approxYears',
+    })
+  })
+})
+
+describe('a newborn’s weight in grams (FB-2/05)', () => {
+  it('sends grams as kilograms and refuses a fraction of a gram', () => {
+    expect(formToInput(ru, filled({ weightUnit: 'g', weightKg: '85' }), TODAY)).toMatchObject({ ok: true, value: { weight_kg: 0.085 } })
+    expect(formToInput(ru, filled({ weightUnit: 'g', weightKg: '8,5' }), TODAY)).toMatchObject({ ok: false, field: 'weightKg' })
+  })
+
+  it('opens a weight under a kilogram in grams', () => {
+    expect(petToForm(sample({ weight_kg: 0.085 }), TODAY)).toMatchObject({ weightUnit: 'g', weightKg: '85' })
+    expect(petToForm(sample({ weight_kg: 4.2 }), TODAY)).toMatchObject({ weightUnit: 'kg', weightKg: '4.2' })
+  })
+
+  it('converts what is typed when the unit is switched', () => {
+    expect(switchWeightUnit({ weightKg: '0,085', weightUnit: 'kg' }, 'g')).toEqual({ weightKg: '85', weightUnit: 'g' })
+    expect(switchWeightUnit({ weightKg: '1200', weightUnit: 'g' }, 'kg')).toEqual({ weightKg: '1.2', weightUnit: 'kg' })
+    expect(switchWeightUnit({ weightKg: '', weightUnit: 'kg' }, 'g')).toEqual({ weightKg: '', weightUnit: 'g' })
+  })
+
+  it('shows under a kilogram in grams everywhere the record names a weight', () => {
+    expect(ru.medicalRecord.weight(0.085)).toBe('85 г')
+    expect(ru.medicalRecord.weight(4.2)).toBe('4,2 кг')
+  })
+})
+
+function sample(overrides: Partial<Pet> = {}): Pet {
+  return {
+    id: '2f3d6ae3-d78f-473e-b077-4c43b8508dcd',
+    species: 'cat',
+    name: 'Мурка',
+    breed: null,
+    age_years: 3,
+    weight_kg: null,
+    sex: null,
+    neutered: null,
+    indoor_outdoor: null,
+    diet: null,
+    size_class: null,
+    walk_activity: null,
+    allergies: [],
+    vaccinated: null,
+    chronic_conditions: [],
+    medications: [],
+    notes: null,
+    birth_date: null,
+    birth_date_approx: false,
+    adopted_on: null,
+    avatar_url: null,
+    created_at: '2026-09-06T11:51:53.000Z',
+    ...overrides,
+  }
+}
+
+describe('switching how the birth is given (PR #82 review)', () => {
+  it('turns a typed date into years and months, and leaves the date empty the other way', () => {
+    expect(switchBirthMode(filled({ birthMode: 'exact', birthDate: '20.04.2022' }), 'approx', TODAY)).toEqual({
+      birthMode: 'approx',
+      approxYears: '4',
+      approxMonths: '6',
+    })
+    expect(switchBirthMode(filled({ birthMode: 'approx', approxYears: '3' }), 'exact', TODAY)).toEqual({ birthMode: 'exact' })
+    expect(switchBirthMode(filled({ birthMode: 'exact', birthDate: '20.04.2022', approxYears: '1' }), 'approx', TODAY)).toEqual({ birthMode: 'approx' })
   })
 })

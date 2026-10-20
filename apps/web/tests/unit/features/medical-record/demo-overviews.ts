@@ -28,6 +28,10 @@ function pet(overrides: Partial<Pet>): Pet {
     chronic_conditions: [],
     medications: [],
     notes: null,
+    birth_date: null,
+    birth_date_approx: false,
+    adopted_on: null,
+    avatar_url: null,
     created_at: '2026-01-10T10:00:00.000Z',
     ...overrides,
   }
@@ -89,8 +93,8 @@ export const murka: HealthOverview = {
     event(108, { kind: 'visit', status: 'planned', date: '2026-10-03', visit_kind: 'checkup', reason: 'Контрольный осмотр' }),
   ],
   medications: [
-    { id: uuid(401), name: 'Лечебный корм', dosage: null, started_on: '2026-08-02', ended_on: null, ongoing: true, source: 'record' },
-    { id: uuid(402), name: 'Фортифлора', dosage: '1 пакетик в день', started_on: '2026-08-02', ended_on: '2026-08-15', ongoing: false, source: 'record' },
+    { id: uuid(401), name: 'Лечебный корм', dosage: null, started_on: '2026-08-02', ended_on: null, ongoing: true, source: 'record', reminder_times: [] },
+    { id: uuid(402), name: 'Фортифлора', dosage: '1 пакетик в день', started_on: '2026-08-02', ended_on: '2026-08-15', ongoing: false, source: 'record', reminder_times: [] },
   ],
 }
 

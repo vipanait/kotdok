@@ -361,9 +361,39 @@ export const MedicationSchema = z.object({
   ended_on: CalendarDateSchema.nullable(),
   ongoing: z.boolean(),
   source: z.enum(['record', 'form']),
+  /** When it is given, «HH:MM» on the phone's clock (FB-5); none for an older server. */
+  reminder_times: z.array(z.string()).default([]),
 })
 
 export type Medication = z.infer<typeof MedicationSchema>
+
+/** «08:00»: the time a dose is given at, on the phone's own clock (FB-5). */
+export const DoseTimeSchema = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/)
+
+export const MEDICATION_TIMES_MAX = 4
+
+/** The times a course is given at; replaces the list. */
+export const MedicationTimesSchema = z.strictObject({
+  reminder_times: z
+    .array(DoseTimeSchema)
+    .max(MEDICATION_TIMES_MAX)
+    .refine((times) => new Set(times).size === times.length, { message: 'a time is repeated' }),
+})
+
+export type MedicationTimes = z.infer<typeof MedicationTimesSchema>
+
+/** «Дали»: one dose of a course, on the owner's day, for one of its times (FB-5). */
+export const MedicationDoseInputSchema = z.strictObject({ taken_on: CalendarDateSchema, slot: DoseTimeSchema })
+
+export type MedicationDoseInput = z.infer<typeof MedicationDoseInputSchema>
+
+export const MedicationDoseSchema = z.object({
+  medication_id: UuidSchema,
+  taken_on: CalendarDateSchema,
+  slot: z.string(),
+})
+
+export type MedicationDose = z.infer<typeof MedicationDoseSchema>
 
 const medicationFields = {
   name: z.string().trim().min(1).max(MEDICATION_TEXT_MAX),

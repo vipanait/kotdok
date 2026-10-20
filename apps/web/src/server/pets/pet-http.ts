@@ -15,6 +15,8 @@ export function petFailureResponse(reason: PetFailure, message?: string) {
   if (reason === 'account_deleting') {
     return NextResponse.json({ error: 'Account is being deleted' }, { status: 403 })
   }
+  // A check the stored record fails, such as the dates' order: the request's mistake.
+  if (reason === 'invalid') return NextResponse.json({ error: 'Body does not match the stored record' }, { status: 400 })
   if (message) console.error('pet request failed:', message)
   return NextResponse.json({ error: 'Storage error' }, { status: 500 })
 }

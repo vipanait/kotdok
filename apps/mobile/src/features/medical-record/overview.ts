@@ -6,8 +6,9 @@ import {
   type Pet,
   type WeightMeasurement,
 } from '@lapka/contracts'
-import { headAge, isCurrentCourse, isTakenNow, lastDoneDate } from '@lapka/shared'
+import { isCurrentCourse, isTakenNow, lastDoneDate } from '@lapka/shared'
 import type { Dictionary } from '@/i18n'
+import { ageText } from '@/features/pets/pet-age'
 import { weightTrend } from './weight'
 import { visitSummary } from './visits'
 
@@ -32,7 +33,7 @@ export type HeaderFacts = {
  * «Кошка» for a female cat, as the design has it — but never the form's
  * «Сука», and never English's bare "Female" in place of the species.
  */
-function speciesWord(t: Dictionary, pet: Pet): string {
+export function speciesWord(t: Dictionary, pet: Pet): string {
   if (pet.sex === null) return t.species[pet.species]
   return t.medicalRecord.animal[pet.species][pet.sex]
 }
@@ -56,8 +57,8 @@ export function headerFacts(t: Dictionary, overview: HealthOverview, today: stri
   const parts = [speciesWord(t, pet)]
   if (pet.breed) parts.push(pet.breed)
   // The shared rule: zero is said too («0 лет»), as on the site (MW-09).
-  const age = headAge(pet.age_years)
-  if (age !== null) parts.push(t.petAge(age))
+  const age = ageText(t, pet, today)
+  if (age !== null) parts.push(age)
 
   const latest = latestDated(weights)
   const weightNote =
@@ -84,6 +85,12 @@ export type Fact = { label: string; value: string }
  * same rule as the summary for the vet), «(постоянно)» on the ongoing ones;
  * the form's list otherwise.
  */
+/**
+ * Between the items of a list the owner typed: «; », since an item may have
+ * a comma of its own — «рыба, кроме лосося» is one allergy, not two.
+ */
+export const LIST_SEPARATOR = '; '
+
 export function importantFacts(
   t: Dictionary,
   pet: Pet,
@@ -94,11 +101,11 @@ export function importantFacts(
   const current = courses.filter((course) => isTakenNow(course, today))
   const medicines =
     courses.length > 0
-      ? current.map((course) => (course.ongoing ? `${course.name} (${words.meds.ongoingOnly})` : course.name)).join(', ')
-      : pet.medications.join(', ')
+      ? current.map((course) => (course.ongoing ? `${course.name} (${words.meds.ongoingOnly})` : course.name)).join(LIST_SEPARATOR)
+      : pet.medications.join(LIST_SEPARATOR)
   const facts: Fact[] = [
-    { label: words.allergies, value: pet.allergies.join(', ') },
-    { label: words.chronic, value: pet.chronic_conditions.join(', ') },
+    { label: words.allergies, value: pet.allergies.join(LIST_SEPARATOR) },
+    { label: words.chronic, value: pet.chronic_conditions.join(LIST_SEPARATOR) },
     { label: words.takingNow, value: medicines },
   ]
   return facts.filter((fact) => fact.value !== '')

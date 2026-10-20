@@ -18,6 +18,11 @@ function toStringArray(val: unknown, maxItems = 20, maxItemLen = 150): string[] 
     .filter(Boolean)
 }
 
+/** `YYYY-MM-DD` or null; the contract has already refused anything else on the API. */
+function toCalendarDate(val: unknown): string | null {
+  return typeof val === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(val) ? val : null
+}
+
 export function sanitizeSpecies(val: unknown): PetSpecies {
   return val === 'dog' ? 'dog' : 'cat'
 }
@@ -58,5 +63,8 @@ export function sanitizePet(body: Record<string, unknown>) {
     chronic_conditions: toStringArray(body.chronic_conditions),
     medications: toStringArray(body.medications),
     notes: body.notes ? String(body.notes).slice(0, 300).trim() || null : null,
+    birth_date: toCalendarDate(body.birth_date),
+    birth_date_approx: toCalendarDate(body.birth_date) !== null && body.birth_date_approx === true,
+    adopted_on: toCalendarDate(body.adopted_on),
   }
 }

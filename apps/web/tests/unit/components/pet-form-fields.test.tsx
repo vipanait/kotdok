@@ -34,6 +34,9 @@ const murka: Pet = {
   chronic_conditions: [],
   medications: ['Лечебный корм', 'Фортифлора'],
   notes: null,
+  birth_date: null,
+  birth_date_approx: false,
+  adopted_on: null,
   created_at: '2026-01-01T00:00:00.000Z',
 }
 

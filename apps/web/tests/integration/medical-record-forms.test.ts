@@ -47,9 +47,11 @@ async function pet() {
 
 /** The form as the app sends it: everything it loaded, with the owner's edits. */
 function form(loaded: Awaited<ReturnType<typeof pet>>, edits: Record<string, unknown> = {}) {
-  const { id: _id, created_at: _created, ...fields } = loaded as Record<string, unknown>
+  // Read-only fields stay out, as in the app's form: the id, the date, the photo's link.
+  const { id: _id, created_at: _created, avatar_url: _avatar, ...fields } = loaded as Record<string, unknown>
   void _id
   void _created
+  void _avatar
   return { ...fields, weight_measured_on: day(0), ...edits }
 }
 

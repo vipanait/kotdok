@@ -1,14 +1,19 @@
-import { useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FlatList, Image, StyleSheet, View } from 'react-native'
-import { router } from 'expo-router'
+import { router, useFocusEffect } from 'expo-router'
 import type { DueItem, Pet } from '@lapka/contracts'
-import { headAge, nearestDueByPet } from '@lapka/shared'
+import { nearestDueByPet } from '@lapka/shared'
+import { ageText } from '@/features/pets/pet-age'
 import { withFreshSession } from '@/lib/api'
 import { useCached } from '@/lib/query-cache'
 import { localToday } from '@/lib/calendar-day'
 import { describeFailure } from '@/lib/errors'
 import { useText, type Dictionary } from '@/i18n'
 import { listDueLine } from '@/features/medical-record/due'
+import { Welcome } from '@/features/onboarding/Welcome'
+import { onboardingStore, resumeOnce, settle } from '@/features/onboarding/store'
+import type { OnboardingGoal, OnboardingState } from '@/features/onboarding/onboarding-store'
+import { useAuth } from '@/providers/AuthProvider'
 import { Button } from '@/ui/Button'
 import { Avatar, Card } from '@/ui/Card'
 import { Banner } from '@/ui/Card'
@@ -22,9 +27,9 @@ import { colour, space } from '@/ui/theme'
 function describe(t: Dictionary, pet: Pet): string {
   const parts: string[] = [t.species[pet.species]]
   if (pet.breed) parts.push(pet.breed)
-  // The one age rule of the phone and the site (shared `headAge`, MW-09): zero is said.
-  const age = headAge(pet.age_years)
-  if (age !== null) parts.push(t.petAge(age))
+  // Months under a year from a birth date, otherwise years with zero said (`ageText`, FB-2/05).
+  const age = ageText(t, pet, localToday())
+  if (age !== null) parts.push(age)
   return parts.join(' · ')
 }
 
@@ -81,15 +86,87 @@ export default function Pets() {
   const settling = pets !== null && pets.length === 0 && loading
   const empty = pets !== null && pets.length === 0 && !error && !loading
 
+  // Onboarding (design 20 October 2026): the first entry of someone with no
+  // pet offers two ways in. Read on every focus, per account.
+  const { session } = useAuth()
+  const userId = session?.user.id ?? null
+  const [onboarding, setOnboarding] = useState<OnboardingState | null>(null)
+  // Whether a path may still be resumed: only one read at a launch's start.
+  const resumable = useRef<OnboardingGoal | null>(null)
+  useFocusEffect(
+    useCallback(() => {
+      if (!userId) return
+      void onboardingStore.read(userId).then((state) => {
+        if (state.goal && !state.skipped && resumeOnce(userId)) resumable.current = state.goal
+        else settle(userId)
+        // Only the choice is shown from here; a path is begun by a tap.
+        setOnboarding({ ...state, goal: null })
+      })
+    }, [userId]),
+  )
+
+  // One screen per tap: a second tap while the first is on its way is the same tap.
+  const starting = useRef(false)
+  useFocusEffect(
+    useCallback(() => {
+      starting.current = false
+    }, []),
+  )
+
+  const start = useCallback((goal: OnboardingGoal) => {
+    if (starting.current) return
+    starting.current = true
+    // A check needs a pet: its form, in the check tab, then straight on to
+    // the check with that pet. The health path creates the card first.
+    if (goal === 'check') router.navigate('/check/new-pet?goal=check')
+    else router.push('/pets/new?goal=health')
+  }, [])
+
+  function choose(goal: OnboardingGoal) {
+    if (!userId) return
+    settle(userId)
+    void onboardingStore.choose(userId, goal).catch(() => undefined)
+    start(goal)
+  }
+
+  function skip() {
+    setOnboarding((current) => ({ ...(current ?? onboardingStore.empty), skipped: true, goal: null }))
+    if (userId) {
+      settle(userId)
+      void onboardingStore.skip(userId).catch(() => undefined)
+    }
+  }
+
+  // An account that has pets — one added on the site, say — has nothing to
+  // resume: the stored path is closed, not kept for after a last pet is deleted.
+  const hasPets = pets !== null && pets.length > 0
+  useEffect(() => {
+    if (!hasPets || !userId || !resumable.current) return
+    resumable.current = null
+    void onboardingStore.finish(userId).catch(() => undefined)
+  }, [hasPets, userId])
+
+  // A path begun before the app was closed goes on without asking again — once.
+  useEffect(() => {
+    if (!empty || !resumable.current) return
+    const goal = resumable.current
+    resumable.current = null
+    start(goal)
+  }, [empty, onboarding, start])
+
+  const welcome = empty && onboarding !== null && !onboarding.skipped
+
   return (
     <Screen
-      title={t.pets.title}
+      // The first entry has the logo instead of a title.
+      title={welcome ? undefined : t.pets.title}
       action={
         empty || settling
           ? undefined
           : { icon: 'plus', label: t.pets.add, onPress: () => router.push('/pets/new') }
       }
-      centered={empty}
+      centered={empty && !welcome}
+      scroll={welcome}
       dock={
         empty || settling ? null : (
           <Button title={t.pets.checkSymptoms} onPress={() => router.push('/check')} />
@@ -104,8 +181,10 @@ export default function Pets() {
         </>
       ) : null}
 
-      {pets === null || settling ? (
+      {pets === null || settling || (empty && onboarding === null) ? (
         <ListSkeleton rows={3} avatar />
+      ) : welcome ? (
+        <Welcome onCheck={() => choose('check')} onHealth={() => choose('health')} onSkip={skip} />
       ) : empty ? (
         <View>
           <Image
@@ -133,7 +212,7 @@ export default function Pets() {
               accessibilityLabel={`${item.name}, ${describe(t, item)}`}
               style={styles.petCard}
             >
-              <Avatar species={item.species} />
+              <Avatar species={item.species} uri={item.avatar_url} />
               <View style={styles.petCopy}>
                 {/* One line: the card is a row in a list, the full name is on the pet's own screen. */}
                 <Text variant="h2" numberOfLines={1}>

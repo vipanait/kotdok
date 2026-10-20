@@ -183,6 +183,21 @@ expect(togetherMilestone(2001)).toBe(false)
 
 ---
 
+### Task 8: Вес новорождённых в граммах (добавлено 20 октября по отзыву)
+
+**Files:**
+- Modify: `packages/shared/src/medical-record/weight-entry.ts` (+ тест), `apps/mobile/src/features/pets/pet-form.ts`, `PetFields.tsx`, `apps/mobile/src/features/medical-record/weight.ts`, `WeightSheet.tsx`, `src/i18n/{ru,en}.ts`
+
+**Interfaces:**
+- Produces (shared): `WEIGHT_MAX_GRAMS = 9999`; `parseWeightGrams(text: string): ParsedWeight` — целые граммы от 1 до 9999, значение в килограммах (`85` → `0.085`); `weightUnitFor(kg: number | null): 'kg' | 'g'` — граммы для веса меньше 1 кг.
+- Produces (mobile): у `PetForm` и черновика веса в медкарте поле `weightUnit: 'kg' | 'g'`; переключатель «кг / г» рядом с полем веса; `t.medicalRecord.weight(kg)` выводит вес меньше 1 кг в граммах («85 г»).
+- Контракт и база не меняются: вес хранится в килограммах, `weight_kg > 0`.
+
+- [ ] **Step 1: Тесты.** `parseWeightGrams('85')` → `{ ok: true, value: 0.085 }`; `'0'`, `'10000'`, `'8,5'` → `invalid`; `weightUnitFor(0.085)` → `'g'`, `weightUnitFor(4.2)` → `'kg'`; форма питомца с `weightUnit: 'g'` и «85» шлёт `weight_kg: 0.085`; питомец с 0.085 кг открывается как «85» и «г»; `ru.medicalRecord.weight(0.085)` → «85 г».
+- [ ] **Step 2:** FAIL → реализация → PASS.
+- [ ] **Step 3:** Симулятор: новый питомец «примерно 0 лет 1 месяц», вес 85 г → карточка «85 г»; запись веса в медкарте в граммах.
+- [ ] **Step 4:** Коммит, строка в отчёте FB-2.
+
 ## Отклонения от критериев в roadmap
 
 - **FB-2/03:** «план по возрасту из справочника» заменён на предложение запланировать осмотр. Расписания прививок по возрасту в справочнике нет, а без ветеринара его не добавить (MR-04). Критерий в `mobile-api-plan.md` поправить в Task 7.

@@ -139,7 +139,7 @@ describe('courses', () => {
     started_on,
     ended_on,
     ongoing: ended_on === null,
-    source: 'record',
+    source: 'record', reminder_times: [],
   })
 
   it('treats a course that ends today as finished', () => {
@@ -185,11 +185,17 @@ describe('courses', () => {
 })
 
 describe('the age in a pet’s head (MW-09)', () => {
+  const typed = (age_years: number | null) => ({ birth_date: null, age_years })
+
   it('shows zero like any other age, and nothing when none was given', () => {
-    expect(headAge(0)).toBe(0)
-    expect(headAge(3)).toBe(3)
-    expect(headAge(null)).toBeNull()
-    expect(headAge(undefined)).toBeNull()
+    expect(headAge(typed(0), '2026-10-20')).toBe(0)
+    expect(headAge(typed(3), '2026-10-20')).toBe(3)
+    expect(headAge(typed(null), '2026-10-20')).toBeNull()
+  })
+
+  it('counts whole years from a birth date, which wins over the typed age (FB-2/01)', () => {
+    expect(headAge({ birth_date: '2022-04-20', age_years: 9 }, '2026-10-19')).toBe(4)
+    expect(headAge({ birth_date: '2026-04-20', age_years: null }, '2026-10-20')).toBe(0)
   })
 })
 

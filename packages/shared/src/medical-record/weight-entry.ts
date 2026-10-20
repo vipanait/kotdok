@@ -45,6 +45,29 @@ export function parseWeight(text: string): ParsedWeight {
 }
 
 /**
+ * A newborn weighs less than the 0.1 kg the kilogram field takes (FB-2/05):
+ * whole grams, up to just under ten kilograms, stored as kilograms like any
+ * weight — the contract and the table do not change.
+ */
+export const WEIGHT_MAX_GRAMS = 9999
+
+export function parseWeightGrams(text: string): ParsedWeight {
+  const trimmed = text.trim()
+  if (trimmed === '') return { ok: false, problem: 'empty' }
+  if (!/^\d{1,4}$/.test(trimmed)) return { ok: false, problem: 'invalid' }
+
+  const grams = Number(trimmed)
+  if (grams < 1 || grams > WEIGHT_MAX_GRAMS) return { ok: false, problem: 'invalid' }
+  // Through the decimal literal: 85 g is the double nearest 0.085, as if «0,085» had been typed.
+  return { ok: true, value: Number(`${Math.floor(grams / 1000)}.${String(grams % 1000).padStart(3, '0')}`) }
+}
+
+/** The unit a weight is shown and edited in: grams under a kilogram. */
+export function weightUnitFor(kg: number | null): 'kg' | 'g' {
+  return kg !== null && kg < 1 ? 'g' : 'kg'
+}
+
+/**
  * The weight field of a form that opened with a value already stored: text
  * that still says that value is that value, even with more decimals than a
  * typed weight may have. The pet form keeps 4.25 kg; dating it («Уточнить»)

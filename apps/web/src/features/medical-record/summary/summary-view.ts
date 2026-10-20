@@ -143,7 +143,7 @@ export function vetSummaryPage(dict: Dictionary, locale: Locale, summary: VetSum
   const meta = [record.animal[pet.species].unknown]
   if (pet.breed?.trim()) meta.push(pet.breed.trim())
   // Zero included, as in the record's head and on the phone (shared `headAge`, MW-09).
-  const age = headAge(pet.age_years)
+  const age = headAge(pet, today)
   if (age !== null) meta.push(formatCount(dict.pets.age, age, locale))
   if (pet.sex === 'female' || pet.sex === 'male') meta.push(words.sex[pet.sex])
   if (pet.neutered === true) meta.push(record.neutered[pet.sex ?? 'unknown'])
@@ -162,11 +162,12 @@ export function vetSummaryPage(dict: Dictionary, locale: Locale, summary: VetSum
     taking.from === 'courses'
       ? taking.courses.map((course) => courseText(dict, course, today)).join('; ')
       : taking.from === 'form'
-        ? taking.names.join(', ')
+        ? taking.names.join('; ')
         : ''
   const facts = [
-    { label: record.important.allergies, text: pet.allergies.join(', ') },
-    { label: record.important.chronic, text: pet.chronic_conditions.join(', ') },
+    // «; » between items: an allergy may have a comma of its own (FB-1/06).
+    { label: record.important.allergies, text: pet.allergies.join('; ') },
+    { label: record.important.chronic, text: pet.chronic_conditions.join('; ') },
     { label: record.important.takingNow, text: takingText },
   ]
   const important: VetSummaryPage['important'] = facts.every((fact) => fact.text.trim() === '')

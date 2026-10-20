@@ -115,6 +115,63 @@ export const ru = {
     removeTitle: 'Удалить питомца?',
     removeBody: 'Вместе с ним исчезнет история его проверок. Отменить это будет нельзя.',
     removeConfirm: 'Удалить',
+    /** Under the pet's facts (FB-2/02); a milestone day says it louder. */
+    together: (days: number) => `Вместе ${days} ${plural(days, 'день', 'дня', 'дней')}`,
+    togetherMilestone: (days: number) => `Сегодня ${days} ${plural(days, 'день', 'дня', 'дней')} вместе!`,
+    birthday: (name: string) => `С днём рождения, ${name}!`,
+  },
+
+  /** A planned date sent to Google Calendar (FB-3/01). */
+  calendarEvent: {
+    add: 'Добавить в календарь',
+    title: (pet: string, what: string) => `${pet}: ${what}`,
+    failed: 'Не удалось открыть календарь',
+  },
+
+  /** The memo for whoever minds the pet (FB-3/02). */
+  sitterMemo: {
+    row: 'Памятка для передержки',
+    diet: (value: string) => `Питание: ${value}`,
+    allergies: (list: string) => `Аллергии: ${list}`,
+    chronic: (list: string) => `Хронические болезни: ${list}`,
+    medicines: 'Лекарства сейчас:',
+    notes: (text: string) => `Заметки: ${text}`,
+    clinic: (name: string) => `Ветклиника: ${name}`,
+    plans: 'Ближайшие 2 недели:',
+    overdueSince: (day: string) => `просрочено с ${day}`,
+    footer: 'Отправлено из «Лапки»',
+  },
+
+  /** The pet's photo (FB-4). */
+  petPhoto: {
+    add: 'Добавить фото',
+    change: 'Сменить фото',
+    camera: 'Снять на камеру',
+    remove: 'Убрать фото',
+    failed: 'Не удалось сохранить фото',
+    pickFailed: 'Не удалось открыть камеру или галерею',
+    cameraDenied: 'Доступ к камере выключен в настройках телефона',
+    openSettings: 'Открыть настройки',
+    saving: 'Сохраняем фото',
+  },
+
+  /** The step after a new pet's form (FB-2/03, FB-2/04). */
+  firstSteps: {
+    title: 'Прививки и врач',
+    vaccines: 'Какие прививки делали?',
+    vaccinesHint: 'Отметьте, что помните. Даты обычно есть в ветпаспорте.',
+    unknown: 'Не помню',
+    vaccineDate: (name: string) => `${name}: когда · необязательно`,
+    noDateNote: 'Без даты прививка не попадёт в медкарту — её можно добавить позже.',
+    lastVisit: 'Когда последний раз были у врача?',
+    lastVisits: { thisYear: 'В этом году', overYear: 'Больше года назад', never: 'Ни разу', unknown: 'Не помню' },
+    done: 'Готово',
+    skip: 'Пропустить',
+    saveFailed: 'Не удалось сохранить прививки',
+    checkupTitle: 'Запланировать осмотр?',
+    checkupBody: 'Профилактический осмотр обычно советуют раз в год. Запланируйте его — напомним заранее.',
+    checkupPlan: 'Запланировать осмотр',
+    notNow: 'Не сейчас',
   },
 
   medicalRecord: {
@@ -124,7 +181,8 @@ export const ru = {
       cat: { male: 'Кот', female: 'Кошка' },
       dog: { male: 'Собака', female: 'Собака' },
     },
-    weight: (kg: number) => `${decimal(kg)} кг`,
+    /** Under a kilogram in grams: a newborn is «85 г», not «0,085 кг» (FB-2/05). */
+    weight: (kg: number) => (kg < 1 ? `${Math.round(kg * 1000)} г` : `${decimal(kg)} кг`),
     neutered: { female: 'Стерилизована', male: 'Кастрирован', unknown: 'Стерилизован(а)' },
     important: 'Важно знать',
     allergies: 'Аллергии',
@@ -154,6 +212,9 @@ export const ru = {
     addWeight: 'Добавить вес',
     editWeight: 'Изменить вес',
     weightField: 'Вес, кг',
+    weightFieldGrams: 'Вес, г',
+    weightInvalidGrams: 'Вес — целое число граммов от 1 до 9999',
+    units: { kg: 'кг', g: 'г' },
     dateField: 'Дата',
     datePlaceholder: 'ДД.ММ.ГГГГ',
     oneMorePoint: 'Добавьте ещё одно измерение, чтобы увидеть изменения',
@@ -203,13 +264,13 @@ export const ru = {
       overdue: '— просрочено',
       soon: (when: string) => `— ${when}`,
     },
-    dueTitle: 'Сроки',
-    allDue: (count: number) => `Все сроки · ${count}`,
-    allDueTitle: 'Все сроки',
+    dueTitle: 'Напоминания',
+    allDue: (count: number) => `Все напоминания · ${count}`,
+    allDueTitle: 'Напоминания',
     markDone: 'Сделано',
     /** On a due row whose day has come; beside a date ahead «Сделано» read as a status (FB-1/01). */
     markDue: 'Отметить',
-    /** Group headings in «Сроки»; overdue rows need none, each says it. */
+    /** Group headings in «Напоминания»; overdue rows need none, each says it. */
     dueUpcoming: 'Ближайшее',
     dueLater: 'Позже',
     duePlannedDate: 'Плановая дата',
@@ -332,7 +393,7 @@ export const ru = {
       plan: 'Запланировать',
       /** Under the switch, so each side says what it leads to (FB-1/03). */
       doneNote: 'Запишите диагноз и назначения — они останутся в медкарте.',
-      planNote: 'Визит появится в сроках, напомним о нём заранее.',
+      planNote: 'Визит появится в напоминаниях, напомним о нём заранее.',
       kind: 'Вид визита',
       kinds: { checkup: 'Осмотр или профилактика', illness: 'Болезнь', surgery: 'Операция', tests: 'Анализы и диагностика', other: 'Другое' },
       kindsShort: { checkup: 'Осмотр', illness: 'Болезнь', surgery: 'Операция', tests: 'Анализы', other: 'Другое' },
@@ -410,8 +471,8 @@ export const ru = {
       plans === 0
         ? 'Запишем как сделанное, без следующей даты.'
         : plans === 1
-          ? `Запишем как сделанное. ${day ? `Следующая — ${day}, она` : 'Следующая дата'} появится в сроках.`
-          : `Запишем как сделанное. ${day ? `Следующие — ${day}, они` : 'Следующие даты'} появятся в сроках.`,
+          ? `Запишем как сделанное. ${day ? `Следующая — ${day}, она` : 'Следующая дата'} появится в напоминаниях.`
+          : `Запишем как сделанное. ${day ? `Следующие — ${day}, они` : 'Следующие даты'} появятся в напоминаниях.`,
     /** After «Запишем как сделанное…» when only one item of a plan is marked. */
     summaryComplete: (others: number) =>
       others === 1
@@ -466,8 +527,17 @@ export const ru = {
     species: 'Вид',
     name: 'Имя *',
     breed: 'Порода',
-    age: (max: number) => `Возраст (лет), до ${max}`,
+    birth: 'Дата рождения',
+    birthExact: 'Знаю дату',
+    birthApprox: 'Примерно',
+    birthDate: 'Дата',
+    approxYears: 'Лет',
+    approxMonths: 'Месяцев',
+    adoptedOn: 'В семье с · необязательно',
     weight: (max: number) => `Вес (кг), до ${max}`,
+    weightGrams: 'Вес (г)',
+    /** Read out for the kg / g switch, which has no visible name. */
+    weightUnit: 'Единица веса',
     sex: 'Пол',
     health: 'Здоровье',
     lifestyle: 'Образ жизни',
@@ -596,6 +666,59 @@ export const ru = {
     fileName: (name: string, day: string) => `${name} — медкарта — ${day}`,
   },
 
+  /** The first entry of someone with no pet (design 20 October 2026). */
+  onboarding: {
+    title: 'С чего начнём?',
+    body: 'Поможем позаботиться о вашем питомце',
+    check: 'Проверить симптомы',
+    checkBody: 'Узнайте, насколько срочно нужен ветеринар',
+    health: 'Следить за здоровьем',
+    healthBody: 'Прививки, обработки и визиты в одном месте',
+    skip: 'Пока просто посмотрю',
+    createdTitle: 'Здоровье питомца',
+    created: 'Карточка создана',
+    firstRecord: 'Добавим первую запись?',
+    firstRecordBody: 'Начните с того, что помните. Остальное можно добавить позже.',
+    vaccination: 'Прививка',
+    vaccinationBody: 'Какая и когда сделана',
+    parasite: 'Обработка от паразитов',
+    parasiteBody: 'Препарат и дата',
+    visit: 'Визит к ветеринару',
+    visitBody: 'Прошедший или предстоящий',
+    later: 'Добавлю позже',
+  },
+
+  /** When a course is given (FB-5). */
+  doseTimes: {
+    title: 'Напоминать о приёме',
+    custom: 'Своё время',
+    addLabel: 'Добавить время напоминания',
+    invalid: 'Время — ЧЧ:ММ',
+    note: 'Время приёма задаёте вы: приложение не советует ни время, ни дозу.',
+    failed: 'Не удалось сохранить время',
+  },
+  /** The pet card's doses for today (FB-5/04). */
+  today: {
+    title: 'Сегодня',
+    give: 'Дали',
+    given: 'Дали',
+    undo: 'Отменить',
+    undoLabel: (medicine: string, slot: string) => `Снять отметку приёма: ${medicine}, ${slot}`,
+    missed: 'Не отмечено',
+    failed: 'Не удалось отметить',
+  },
+
+  /** A dose at the time the owner set (FB-5). */
+  doseReminders: {
+    about: (medicine: string) => `о приёме «${medicine}»`,
+    renew: 'Напоминания о лекарствах заканчиваются. Откройте «Лапку», чтобы они продолжились.',
+    askBody: 'Пришлём уведомление в выбранное время, пока идёт курс. Выключить можно в профиле.',
+    body: (pet: string, what: string) => {
+      const cases = nameCase(pet)
+      return cases ? `${cases.dative} пора: ${what}` : `${pet} — пора: ${what}`
+    },
+  },
+
   reminders: {
     notificationTitle: 'Лапка',
     before: (pet: string, days: number, what: string) => {
@@ -680,11 +803,12 @@ export const ru = {
     remind: 'Напоминать',
     notNow: 'Не сейчас',
     openSettings: 'Открыть настройки',
-    deniedBody: 'Уведомления выключены в настройках телефона. Сроки всё равно видны в медкарте.',
-    title: 'Напоминания',
+    deniedBody: 'Уведомления выключены в настройках телефона. Напоминания всё равно видны в медкарте.',
+    // The settings screen and its profile row: «Напоминания» is the record's list (design 20 October 2026).
+    title: 'Уведомления',
     on: 'Вкл',
     off: 'Выкл',
-    toggle: 'Напоминать о прививках, обработках и визитах',
+    toggle: 'Напоминать о прививках, обработках, визитах и лекарствах',
     when: 'Когда',
     whenOptions: {
       1: 'В день срока и за 1 день',
@@ -816,8 +940,13 @@ export const ru = {
     symptomsMax: (max: number) => `Слишком длинное описание, предел ${max} символов`,
     petRequired: 'Выберите питомца — без него проверку не сделать',
     nameRequired: 'Введите имя питомца',
-    ageRange: (max: number) => `Возраст — число от 0 до ${max}`,
+    ageRange: (max: number) => `Лет — целое число от 0 до ${max}`,
+    monthsRange: 'Месяцев — от 0 до 11',
+    dayPast: 'Дата — ДД.ММ.ГГГГ, не позже сегодня',
+    adoptedBeforeBirth: 'Не раньше даты рождения',
+    birthTooOld: (max: number) => `Не раньше, чем ${max} лет назад`,
     weightRange: (max: number) => `Вес — число от 0 до ${max}`,
+    weightGrams: 'Вес — целое число граммов от 1 до 9999',
   },
 
   provider: {
@@ -842,6 +971,8 @@ export const ru = {
   },
 
   petAge: (years: number) => `${years} ${plural(years, 'год', 'года', 'лет')}`,
+  petAgeMonths: (months: number) => `${months} ${plural(months, 'месяц', 'месяца', 'месяцев')}`,
+  petAgeUnderMonth: 'меньше месяца',
 
   species: { cat: 'Кот', dog: 'Собака' },
   sexCat: { male: 'Кот', female: 'Кошка' },

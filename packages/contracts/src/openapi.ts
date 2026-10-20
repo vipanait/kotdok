@@ -3,13 +3,27 @@ import { API_VERSION } from './version'
 import { ApiErrorEnvelopeSchema, ERROR_STATUS, type ErrorCode } from './errors'
 import { ProfileUpdateInputSchema, PublicProfileSchema } from './profile'
 import { ConsentInputSchema, ConsentStatusSchema } from './consent'
-import { PetCreateInputSchema, PetSchema, PetUpdateInputSchema } from './pet'
+import {
+  AvatarConfirmSchema,
+  AvatarGrantRequestSchema,
+  AvatarGrantSchema,
+  FEATURES_HEADER,
+  PET_AVATAR_FEATURE,
+  PET_DATE_FIELDS,
+  PET_DATES_FEATURE,
+  PetCreateInputSchema,
+  PetSchema,
+  PetUpdateInputSchema,
+} from './pet'
 import {
   CompleteItemInputSchema,
   DueItemSchema,
   HealthProductSchema,
+  MedicationDoseInputSchema,
+  MedicationDoseSchema,
   MedicationPatchSchema,
   MedicationSchema,
+  MedicationTimesSchema,
   MedicationsInputSchema,
   VisitInputSchema,
   VisitPatchSchema,
@@ -71,6 +85,12 @@ const COMPONENTS: Array<[string, z.ZodType]> = [
   ['DueItem', DueItemSchema],
   ['HealthProduct', HealthProductSchema],
   ['Medication', MedicationSchema],
+  ['MedicationTimes', MedicationTimesSchema],
+  ['MedicationDoseInput', MedicationDoseInputSchema],
+  ['MedicationDose', MedicationDoseSchema],
+  ['AvatarGrantRequest', AvatarGrantRequestSchema],
+  ['AvatarGrant', AvatarGrantSchema],
+  ['AvatarConfirm', AvatarConfirmSchema],
   ['MedicationsInput', MedicationsInputSchema],
   ['MedicationPatch', MedicationPatchSchema],
   ['VisitInput', VisitInputSchema],
@@ -100,6 +120,15 @@ function componentSchemas(): Record<string, unknown> {
     target: 'draft-2020-12',
     uri: (id) => `#/components/schemas/${id}`,
   }) as { schemas: Record<string, Record<string, unknown>> }
+
+  // The pet's newer fields reach only a client that names them in
+  // X-Lapka-Features (FB-2, FB-4): optional in the document, which describes
+  // what every client may receive.
+  const pet = schemas.Pet as { required?: string[] } | undefined
+  if (pet?.required) {
+    const gated: string[] = [...PET_DATE_FIELDS, 'avatar_url']
+    pet.required = pet.required.filter((field) => !gated.includes(field))
+  }
 
   // OpenAPI 3.1 carries the dialect on the document, not on each schema.
   return Object.fromEntries(
@@ -244,6 +273,23 @@ const courseDayParam = {
   schema: { type: 'string', format: 'date' },
 }
 
+/**
+ * What the client can read (FB-2 release): `pet-dates` adds the pet's
+ * birth_date, birth_date_approx and adopted_on, `pet-avatar` its avatar_url.
+ * Without it a pet comes as older clients parse it.
+ */
+const featuresParam = {
+  name: FEATURES_HEADER,
+  in: 'header',
+  required: false,
+  description:
+    `Comma-separated features the client reads. \`${PET_DATES_FEATURE}\`: the pet's birth_date, birth_date_approx and ` +
+    `adopted_on. \`${PET_AVATAR_FEATURE}\`: the pet's avatar_url, a link signed for an hour. Without them those fields are left out.`,
+  schema: { type: 'string', example: `${PET_DATES_FEATURE},${PET_AVATAR_FEATURE}` },
+}
+
+const medicationIdParam = { name: 'medication_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }
+
 const idParam = {
   name: 'id',
   in: 'path',
@@ -329,6 +375,7 @@ export function buildOpenApiDocument(): Record<string, unknown> {
         },
       },
       '/pets': {
+        parameters: [featuresParam],
         get: {
           summary: 'Own pets',
           responses: {
@@ -348,7 +395,7 @@ export function buildOpenApiDocument(): Record<string, unknown> {
         },
       },
       '/pets/{id}': {
-        parameters: [idParam],
+        parameters: [idParam, featuresParam],
         get: {
           summary: 'One own pet',
           responses: { '200': json('Pet', 'The pet'), ...commonErrors('not_found') },
@@ -367,7 +414,7 @@ export function buildOpenApiDocument(): Record<string, unknown> {
         },
       },
       '/pets/{id}/health': {
-        parameters: [idParam],
+        parameters: [idParam, featuresParam],
         get: {
           summary: 'The pet\'s medical record: the pet form and the sections that accept records',
           description:
@@ -378,7 +425,7 @@ export function buildOpenApiDocument(): Record<string, unknown> {
         },
       },
       '/pets/{id}/health/summary': {
-        parameters: [idParam],
+        parameters: [idParam, featuresParam],
         get: {
           summary: 'Everything to show a vet, the source of the «Для врача» screen and PDF',
           description:
@@ -550,6 +597,80 @@ export function buildOpenApiDocument(): Record<string, unknown> {
           summary: 'Delete a course; the pet form\'s medicines list follows',
           parameters: [listDayParam],
           responses: { '204': { description: 'Deleted' }, ...commonErrors('not_found') },
+        },
+      },
+      '/pets/{id}/health/medications/{medication_id}/times': {
+        parameters: [idParam, medicationIdParam],
+        put: {
+          summary: 'Set the times of day a course is given at (FB-5)',
+          description:
+            'Up to four «HH:MM» on the phone\'s own clock, sorted and without repeats; an empty list stops the ' +
+            'reminders. The times are the owner\'s: the app suggests neither the time nor the dose.',
+          requestBody: body('MedicationTimes'),
+          responses: { '200': json('Medication', 'The course'), ...commonErrors('bad_request', 'not_found') },
+        },
+      },
+      '/pets/{id}/health/medications/{medication_id}/doses': {
+        parameters: [idParam, medicationIdParam],
+        post: {
+          summary: '«Дали»: mark a dose given (FB-5)',
+          description:
+            'A second mark of the same day and time is the same dose: 200 with it. The time must be one of the ' +
+            'course\'s; the day within the course, not ahead, and not more than 14 days back.',
+          requestBody: body('MedicationDoseInput'),
+          responses: {
+            '201': json('MedicationDose', 'Marked'),
+            '200': json('MedicationDose', 'Already marked'),
+            ...commonErrors('bad_request', 'not_found'),
+          },
+        },
+        delete: {
+          summary: 'Take back the mark of one dose',
+          parameters: [
+            { name: 'taken_on', in: 'query', required: true, schema: { type: 'string', format: 'date' } },
+            { name: 'slot', in: 'query', required: true, schema: { type: 'string', pattern: '^([01]\\d|2[0-3]):[0-5]\\d$' } },
+          ],
+          responses: { '204': { description: 'Unmarked, or was not marked' }, ...commonErrors('bad_request', 'not_found') },
+        },
+      },
+      '/pets/{id}/health/doses': {
+        parameters: [idParam],
+        get: {
+          summary: 'The doses marked given between two days, at most 31 days apart (FB-5)',
+          parameters: [
+            { name: 'from', in: 'query', required: true, schema: { type: 'string', format: 'date' } },
+            { name: 'to', in: 'query', required: true, schema: { type: 'string', format: 'date' } },
+          ],
+          responses: {
+            '200': {
+              description: 'Doses, by day and time',
+              content: { 'application/json': { schema: { type: 'array', items: ref('MedicationDose') } } },
+            },
+            ...commonErrors('bad_request', 'not_found'),
+          },
+        },
+      },
+      '/pets/{id}/avatar': {
+        parameters: [idParam, featuresParam],
+        post: {
+          summary: 'Ask to upload the pet\'s photo (FB-4)',
+          description:
+            'A signed URL to PUT the bytes straight to storage, good for two hours; then confirm with PUT here.',
+          requestBody: body('AvatarGrantRequest'),
+          responses: { '201': json('AvatarGrant', 'Where to put the photo'), ...commonErrors('bad_request', 'not_found') },
+        },
+        put: {
+          summary: 'Confirm the uploaded photo; the pet shows it and the previous one goes',
+          description: 'The path must be one this grant made for this pet, and the bytes a JPEG, PNG or WebP picture.',
+          requestBody: body('AvatarConfirm'),
+          responses: {
+            '200': json('Pet', 'The pet with its photo'),
+            ...commonErrors('bad_request', 'not_found', 'payload_too_large', 'unsupported_media_type'),
+          },
+        },
+        delete: {
+          summary: 'Remove the pet\'s photo; the drawing shows again',
+          responses: { '200': json('Pet', 'The pet without a photo'), ...commonErrors('not_found') },
         },
       },
       '/pets/{id}/health/visits': {

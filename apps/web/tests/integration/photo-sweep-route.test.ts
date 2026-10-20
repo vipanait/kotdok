@@ -19,13 +19,13 @@ describe('GET /api/cron/photo-uploads', () => {
     expect(response.status).toBe(401)
   })
 
-  it('answers with a count and nothing else', async () => {
+  it('answers with the counts — check photos and pet photos (FB-4) — and nothing else', async () => {
     const response = await sweep(
       new NextRequest('http://test.local/api/cron/photo-uploads', {
         headers: { authorization: 'Bearer test-cron-secret' },
       }),
     )
     expect(response.status).toBe(200)
-    expect(Object.keys(await response.json())).toEqual(['removed'])
+    expect(Object.keys(await response.json())).toEqual(['removed', 'avatars'])
   })
 })

@@ -5,7 +5,11 @@ import type { Pet, PetSizeClass, PetSpecies, PetWalkActivity } from '@/shared/ty
  * the fields as typed, and what the record needs to read them.
  */
 
-export type PetFormValues = Omit<Pet, 'id' | 'user_id' | 'created_at'>
+/**
+ * The site's form knows no dates yet (FB-2 is the app's): it leaves them out,
+ * and the server keeps the ones the app saved.
+ */
+export type PetFormValues = Omit<Pet, 'id' | 'user_id' | 'created_at' | 'birth_date' | 'birth_date_approx' | 'adopted_on'>
 
 /** The form's fields as the owner left them: text as typed, choices as picked. */
 export type PetFormFields = {

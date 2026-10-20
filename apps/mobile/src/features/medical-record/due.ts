@@ -47,7 +47,7 @@ export function dueStatus(t: Dictionary, date: string, today: string): DueStatus
 export type DueGroup = { tone: DueTone; rows: Array<{ due: Due; status: DueStatus }> }
 
 /**
- * Due dates as the «Сроки» card draws them: overdue, then «Ближайшее», then
+ * Due dates as the «Напоминания» card draws them: overdue, then «Ближайшее», then
  * «Позже» (due priority design, 20 October 2026). Only for display: the
  * order inside a group is the one given, and a group with nothing in it is
  * left out, heading and all.
@@ -193,7 +193,7 @@ export function nextYear(date: string): string {
   return addMonths(date, 12)
 }
 
-/** «Запишем как сделанное. Следующие — 24 сентября 2027, они появятся в сроках.» */
+/** «Запишем как сделанное. Следующие — 24 сентября 2027, они появятся в напоминаниях.» */
 export function saveSummary(t: Dictionary, nextDays: readonly (string | null)[], today: string): string {
   const days = nextDays.filter((next): next is string => next !== null)
   const same = days.length > 0 && days.every((next) => next === days[0])
@@ -286,6 +286,16 @@ export function duePhrase(
     case 'plainVaccination':
       return { text: words.plainVaccination, form: 'f' }
   }
+}
+
+/**
+ * A visit in a line of its own — «визит к врачу (осмотр)» — for the calendar
+ * and the sitter memo, where «визит к врачу: осмотр» would follow another
+ * colon. «Другое» names nothing and is left out.
+ */
+export function visitPhrase(t: Dictionary, kind: HealthEvent['visit_kind']): string {
+  const visit = t.medicalRecord.visits.dueTitle.toLowerCase()
+  return kind && kind !== 'other' ? `${visit} (${t.medicalRecord.visits.kindsShort[kind].toLowerCase()})` : visit
 }
 
 /**

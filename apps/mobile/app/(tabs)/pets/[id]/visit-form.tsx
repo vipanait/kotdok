@@ -42,6 +42,8 @@ type Params = {
   /** From a check result: link it, «Болезнь», its first line as the reason. */
   checkId?: string
   reason?: string
+  /** From the first steps (FB-2/04): `planned` with kind `checkup` opens a plan of a checkup. */
+  plan?: string
 }
 
 /**
@@ -86,7 +88,7 @@ export default function VisitForm() {
       .catch(() => setLoadedChecks([]))
 
     if (mode === 'new') {
-      const start = blankVisit('done')
+      const start = blankVisit(params.plan === 'checkup' ? 'planned' : 'done')
       if (params.checkId) {
         start.checkId = params.checkId
         start.visitKind = 'illness'
@@ -110,7 +112,7 @@ export default function VisitForm() {
         setDraft(start)
       })
       .catch((cause) => setError(describeFailure(t, cause, t.medicalRecord.loadEventFailed)))
-  }, [petId, mode, params.eventId, params.checkId, params.reason, t])
+  }, [petId, mode, params.eventId, params.checkId, params.reason, params.plan, t])
 
   const changed = draft !== null && initial !== null && JSON.stringify(draft) !== JSON.stringify(initial)
   const unsaved = useUnsavedChanges(changed)

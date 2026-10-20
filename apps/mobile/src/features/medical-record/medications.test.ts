@@ -9,7 +9,7 @@ const TODAY = '2026-09-24'
 const NOW = new Date(2026, 8, 24, 12, 0)
 
 function course(overrides: Partial<Medication>): Medication {
-  return { id: 'm', name: 'Лечебный корм', dosage: null, started_on: null, ended_on: null, ongoing: false, source: 'record', ...overrides }
+  return { id: 'm', name: 'Лечебный корм', dosage: null, started_on: null, ended_on: null, ongoing: false, source: 'record', reminder_times: [], ...overrides }
 }
 
 describe('when a course is current', () => {
@@ -36,7 +36,7 @@ describe('the dates of a course (MR-06.4)', () => {
     expect(courseDates(ru, course({ started_on: '2026-07-28', ended_on: '2026-08-15' }), TODAY)).toBe('28 июля – 15 августа')
     expect(courseDates(ru, course({ started_on: '2025-12-20', ended_on: '2026-01-10' }), TODAY)).toBe('20 декабря 2025 – 10 января 2026')
     expect(courseDates(ru, course({ started_on: '2026-08-02' }), TODAY)).toBe('с 2 августа')
-    expect(courseDates(ru, course({ source: 'form' }), TODAY)).toBe('Из анкеты — добавьте дозировку и даты')
+    expect(courseDates(ru, course({ source: 'form', reminder_times: [] }), TODAY)).toBe('Из анкеты — добавьте дозировку и даты')
     // Ended on the day it started (MW-05: «Завершить курс» on a course begun today).
     expect(courseDates(ru, course({ started_on: TODAY, ended_on: TODAY }), TODAY)).toBe('24 сентября')
   })
