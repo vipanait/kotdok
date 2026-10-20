@@ -10,6 +10,8 @@ export type ServiceFailure =
   | 'not_found'
   | 'bad_cursor'
   | 'conflict'
+  /** The body passed the contract but not the row it lands on (a database check). */
+  | 'invalid'
   | 'storage_error'
 
 /**
@@ -28,6 +30,8 @@ export function serviceFailureResponse(requestId: string, reason: ServiceFailure
       return apiError(requestId, 'bad_request', 'Cursor is not valid')
     case 'conflict':
       return apiError(requestId, 'conflict', 'Conflicts with an existing record')
+    case 'invalid':
+      return apiError(requestId, 'bad_request', 'Body does not match the stored record')
     default:
       return apiError(requestId, 'internal_error', 'Storage is unavailable')
   }

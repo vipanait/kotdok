@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { headAge } from '../medical-record/record-overview'
 import { approxBirthDate, daysTogether, isBirthday, petAgeYears, togetherMilestone } from './pet-dates'
 
 describe('a pet’s age (FB-2/01)', () => {
@@ -51,5 +52,17 @@ describe('the birthday (FB-2/02)', () => {
     expect(isBirthday('2020-02-29', false, '2026-02-28')).toBe(true)
     expect(isBirthday('2020-02-29', false, '2028-02-28')).toBe(false)
     expect(isBirthday('2020-02-29', false, '2028-02-29')).toBe(true)
+  })
+})
+
+describe('a 29 February birth (FB-2 review)', () => {
+  it('turns a year older on 28 February outside a leap year, the day it is greeted', () => {
+    const born = { birth_date: '2024-02-29', age_years: null }
+    expect(isBirthday(born.birth_date, false, '2025-02-28')).toBe(true)
+    expect(headAge(born, '2025-02-28')).toBe(1)
+    expect(petAgeYears(born, '2025-02-28')).toBe(1)
+    expect(headAge(born, '2025-02-27')).toBe(0)
+    expect(headAge(born, '2028-02-28')).toBe(3)
+    expect(headAge(born, '2028-02-29')).toBe(4)
   })
 })

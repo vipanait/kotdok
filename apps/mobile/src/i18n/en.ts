@@ -793,6 +793,7 @@ export const en: Dictionary = {
     monthsRange: 'Months — from 0 to 11',
     dayPast: 'Date — DD.MM.YYYY, today or earlier',
     adoptedBeforeBirth: 'Not before the birth date',
+    birthTooOld: (max: number) => `No more than ${max} years ago`,
     weightRange: (max: number) => `Weight — a number from 0 to ${max}`,
   },
 

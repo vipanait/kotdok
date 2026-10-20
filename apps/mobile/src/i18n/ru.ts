@@ -849,6 +849,7 @@ export const ru = {
     monthsRange: 'Месяцев — от 0 до 11',
     dayPast: 'Дата — ДД.ММ.ГГГГ, не позже сегодня',
     adoptedBeforeBirth: 'Не раньше даты рождения',
+    birthTooOld: (max: number) => `Не раньше, чем ${max} лет назад`,
     weightRange: (max: number) => `Вес — число от 0 до ${max}`,
   },
 
