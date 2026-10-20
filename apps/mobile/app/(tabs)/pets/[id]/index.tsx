@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Pressable, StyleSheet, View } from 'react-native'
+import { Pressable, StyleSheet, View, Share } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import * as SecureStore from 'expo-secure-store'
 import { withFreshSession } from '@/lib/api'
@@ -16,6 +16,7 @@ import {
 import { AddRecordSheet, type AddChoice } from '@/features/medical-record/AddRecordSheet'
 import { daysTogether, isBirthday, togetherMilestone } from '@lapka/shared'
 import { DueList } from '@/features/medical-record/DueList'
+import { sitterMemo } from '@/features/medical-record/sitter-memo'
 import { doneRoute, recordRoute, dueItems } from '@/features/medical-record/due'
 import { Button, IconButton, LinkButton } from '@/ui/Button'
 import { Avatar, Banner, Card, SettingRow } from '@/ui/Card'
@@ -327,6 +328,13 @@ export default function MedicalRecord() {
       </Card>
 
       {forVet}
+      {/* FB-3/02: what a sitter needs, as text for Telegram or anywhere. */}
+      <SettingRow
+        icon="share"
+        title={t.sitterMemo.row}
+        // Closing the sheet is not a failure; nothing to report either way.
+        onPress={() => void Share.share({ message: sitterMemo(t, shown, today) }).catch(() => undefined)}
+      />
       {history}
 
       <AddRecordSheet visible={adding} choices={choices} onClose={() => setAdding(false)} />

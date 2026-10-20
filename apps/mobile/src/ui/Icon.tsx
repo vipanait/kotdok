@@ -25,6 +25,7 @@ const paths = {
   clock: '<circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/>',
   check: '<circle cx="12" cy="12" r="9"/><path d="m7 12 3 3 7-7"/>',
   tick: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  share: '<path d="M12 3v12m-4-8 4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/>',
   home: '<path d="m3 11 9-8 9 8M5 10v11h14V10m-10 11v-7h6v7"/>',
   globe: '<circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/>',
   logout: '<path d="M10 3H4v18h6m4-14 5 5-5 5m-5-5h12"/>',

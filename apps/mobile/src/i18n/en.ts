@@ -115,7 +115,6 @@ export const en: Dictionary = {
 
   sitterMemo: {
     row: 'Memo for a pet sitter',
-    rowNote: 'The essentials and the next two weeks — to Telegram or anywhere',
     diet: (value: string) => `Food: ${value}`,
     allergies: (list: string) => `Allergies: ${list}`,
     chronic: (list: string) => `Chronic conditions: ${list}`,
