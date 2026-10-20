@@ -1,4 +1,4 @@
-import { PixelRatio, Text as Native, StyleSheet, type TextProps, type TextStyle } from 'react-native'
+import { Text as Native, StyleSheet, type TextProps, type TextStyle } from 'react-native'
 import { colour, type } from './theme'
 
 /**
@@ -41,24 +41,18 @@ export function Text({
   center?: boolean
 }) {
   /**
-   * React Native scales `fontSize` with the system setting and leaves a
-   * `lineHeight` given as a number exactly where it was. The design gives both,
-   * so at the largest accessibility size the glyphs grew inside a line box that
-   * did not: "Symptom check" lost its descenders, "Pet" came out as a dash, and
-   * a button label rendered as its first letter. The leading is scaled by hand,
-   * by the same factor and under the same ceiling as the size it belongs to.
+   * The leading is the theme's number, as is: React Native multiplies a
+   * numeric `lineHeight` by the system font scale itself, on both platforms
+   * and under the same `maxFontSizeMultiplier` as the size (iOS in
+   * RCTAttributedTextUtils, Android in TextAttributes.effectiveLineHeight).
+   * Scaling it here as well squared the factor: at accessibility-large a
+   * 12 pt caption grew to 26 pt inside a 73 pt line, and a two-line pet
+   * description showed a blank line's worth of gap between its lines.
    */
-  const scale = Math.min(
-    PixelRatio.getFontScale(),
-    rest.maxFontSizeMultiplier ?? Number.POSITIVE_INFINITY,
-  )
-  const { lineHeight, ...face } = type[variant]
-
   return (
     <Native
       style={[
-        face as TextStyle,
-        { lineHeight: lineHeight * scale },
+        type[variant] as TextStyle,
         { color: tones[tone] },
         center ? styles.center : null,
         style,
