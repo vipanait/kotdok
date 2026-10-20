@@ -2,17 +2,18 @@ import { NextRequest } from 'next/server'
 import { PetCreateInputSchema } from '@lapka/contracts'
 import { createServiceClient } from '@/server/supabase/server'
 import { createPet, listPets } from '@/server/pets/pet-service'
-import { petFor, toPetContract } from '@/server/pets/pet-contract'
+import { presentPets } from '@/server/pets/pet-contract'
 import { apiError, apiSuccess } from '@/server/api/response'
 import { serviceFailureResponse } from '@/server/api/failure-response'
 import { isFutureDay } from '@/server/medical-record/weight-service'
 import { withApiAuth, type ApiContext } from '@/server/api/with-api-auth'
 
 export const GET = withApiAuth(async (request, context: ApiContext) => {
-  const result = await listPets(createServiceClient(), context.account.userId)
+  const supabase = createServiceClient()
+  const result = await listPets(supabase, context.account.userId)
   if (!result.ok) return serviceFailureResponse(context.requestId, result.reason)
 
-  return apiSuccess(context.requestId, result.data.map((pet) => petFor(request, toPetContract(pet))))
+  return apiSuccess(context.requestId, await presentPets(request, supabase, result.data))
 })
 
 export const POST = withApiAuth(async (request: NextRequest, context: ApiContext) => {
@@ -37,5 +38,6 @@ export const POST = withApiAuth(async (request: NextRequest, context: ApiContext
   const result = await createPet(createServiceClient(), context.account.userId, parsed.data)
   if (!result.ok) return serviceFailureResponse(context.requestId, result.reason)
 
-  return apiSuccess(context.requestId, petFor(request, toPetContract(result.data)), 201)
+  const [pet] = await presentPets(request, createServiceClient(), [result.data])
+  return apiSuccess(context.requestId, pet, 201)
 })

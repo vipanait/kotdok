@@ -65,6 +65,7 @@ const pet = {
   birth_date: '2023-03-14',
   birth_date_approx: false,
   adopted_on: null,
+  avatar_url: null,
   created_at: '2026-05-01T10:00:00.000Z',
 }
 
@@ -112,8 +113,8 @@ describe('pet contracts', () => {
   })
 
   it('reads a pet from before the dates as having none (FB-2/01)', () => {
-    const { birth_date: _b, birth_date_approx: _a, adopted_on: _o, ...older } = pet
-    expect(PetSchema.parse(older)).toMatchObject({ birth_date: null, birth_date_approx: false, adopted_on: null })
+    const { birth_date: _b, birth_date_approx: _a, adopted_on: _o, avatar_url: _u, ...older } = pet
+    expect(PetSchema.parse(older)).toMatchObject({ birth_date: null, birth_date_approx: false, adopted_on: null, avatar_url: null })
   })
 
   it('takes a birth date, approximate or not, and the day the pet came home (FB-2/01)', () => {

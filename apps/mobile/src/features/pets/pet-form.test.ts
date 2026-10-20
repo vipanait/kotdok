@@ -120,6 +120,7 @@ describe('pet form', () => {
       birth_date: null,
       birth_date_approx: false,
       adopted_on: null,
+      avatar_url: null,
       created_at: '2026-09-06T11:51:53.000Z',
     }
 
@@ -272,6 +273,7 @@ function sample(overrides: Partial<Pet> = {}): Pet {
     birth_date: null,
     birth_date_approx: false,
     adopted_on: null,
+    avatar_url: null,
     created_at: '2026-09-06T11:51:53.000Z',
     ...overrides,
   }

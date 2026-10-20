@@ -31,6 +31,7 @@ function pet(overrides: Partial<Pet>): Pet {
     birth_date: null,
     birth_date_approx: false,
     adopted_on: null,
+    avatar_url: null,
     created_at: '2026-01-10T10:00:00.000Z',
     ...overrides,
   }

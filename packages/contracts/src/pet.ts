@@ -50,6 +50,8 @@ export const PetSchema = z.object({
   birth_date_approx: z.boolean().default(false),
   /** The first day together. */
   adopted_on: CalendarDateSchema.nullable().default(null),
+  /** A short-lived signed link to the pet's photo (FB-4), or none. */
+  avatar_url: z.url().nullable().default(null),
   created_at: IsoDateTimeSchema,
 })
 
@@ -64,6 +66,27 @@ export type Pet = z.infer<typeof PetSchema>
 export const FEATURES_HEADER = 'X-Lapka-Features'
 export const PET_DATES_FEATURE = 'pet-dates'
 export const PET_DATE_FIELDS = ['birth_date', 'birth_date_approx', 'adopted_on'] as const
+/** The pet's photo (FB-4): `avatar_url` only for a client that lists it. */
+export const PET_AVATAR_FEATURE = 'pet-avatar'
+
+/** Asking to write a pet's photo straight to storage (FB-4); the bytes never pass through the API. */
+export const AvatarGrantRequestSchema = z.strictObject({
+  content_type: z.enum(['image/jpeg', 'image/png', 'image/webp']),
+  size_bytes: z.int().min(1).max(5 * 1024 * 1024),
+})
+
+export const AvatarGrantSchema = z.strictObject({
+  /** Named back in the confirmation; the server checks it is this pet's. */
+  path: z.string().min(1).max(200),
+  url: z.url(),
+  method: z.literal('PUT'),
+  headers: z.record(z.string(), z.string()),
+  expires_at: IsoDateTimeSchema,
+})
+
+export type AvatarGrant = z.infer<typeof AvatarGrantSchema>
+
+export const AvatarConfirmSchema = z.strictObject({ path: z.string().min(1).max(200) })
 
 const petWritableFields = {
   species: PetSpeciesSchema,
