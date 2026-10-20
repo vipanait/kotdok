@@ -16,11 +16,18 @@ import { eventSaveFailure } from '../events/event-form'
 import { usePetChecks } from './use-pet-checks'
 import { visitRecord, type VisitSaved } from './visit-view'
 import { VisitGone } from './VisitFormScreen'
+import { visitCalendarHref } from './visit-calendar'
+import PetAvatar from '@/components/PetAvatar'
+import { medicalRecordHref } from '../routes'
+import { headFacts } from '../view-model'
 
 /**
- * One visit (web v1 «visit-record», «visit-planned»). A plan has
- * «Состоялся», which opens its own step, and «Изменить», which also moves
- * it; «Отменить план» asks first, naming it. A visit that happened is only
+ * One visit (web v1 «visit-record», «visit-planned»; design `visit` of 20
+ * October 2026). A plan's main action is «Перенести визит» — its form, where
+ * the day moves — and «Визит уже был» opens its own step; the clinic, notes
+ * and the rest of the record stay as they are. A plan on today or ahead can
+ * go to Google Calendar, which the owner saves there. «Отменить план» asks
+ * first, naming it. A visit that happened is only
  * read — no «Изменить», and its edit address shows this page (owner rule of
  * 26 September 2026); deleting it asks first. A prescription of a visit
  * that happened can go to the medicines here, once: the server starts one
@@ -127,6 +134,11 @@ export default function VisitRecordScreen({ petId, visitId, saved }: { petId: st
     }
   }
 
+  const pet = state.data.overview.pet
+  const petFacts = headFacts(dict, locale, state.data.overview, today)
+  const calendarHref = visitCalendarHref(dict, pet.name, visit, today)
+  const when = record.due && record.due.tone === 'soon' ? record.due.text : record.day
+
   return (
     <div className="health-page event-record-page visit-record-page">
       <Link href={record.sectionHref} className="link health-back">
@@ -137,14 +149,12 @@ export default function VisitRecordScreen({ petId, visitId, saved }: { petId: st
       <div className="pagehead">
         <div>
           <h1>{view.title}</h1>
-          <p>{state.data.overview.pet.name}</p>
+          <p>{(planned ? view.planSubtitle : view.doneSubtitle).replace('{name}', () => pet.name)}</p>
         </div>
-        {(record.heldHref || record.editHref) && (
-          <div className="pagehead-actions">
-            {record.heldHref && <Link href={record.heldHref} className="btn primary">{view.markHeld}</Link>}
-            {record.editHref && <Link href={record.editHref} className="btn secondary">{view.edit}</Link>}
-          </div>
-        )}
+        <Link href={medicalRecordHref.record(petId)} className="link">
+          <Icon name="back" />
+          {view.toRecord}
+        </Link>
       </div>
 
       {/* Keyed: every addition is a new notice that takes focus, even over a `?saved=` one or the previous addition's. */}
@@ -155,16 +165,16 @@ export default function VisitRecordScreen({ petId, visitId, saved }: { petId: st
       )}
       <StaleNotice state={state} reload={reload} />
 
-      <div className="section-layout">
-        <div className="section-main">
-          <section className="card event-record-head" aria-labelledby="visit-record-day">
-            <span className={planned ? 'pill event-badge planned' : 'pill event-badge'}>{record.badge}</span>
-            <h2 id="visit-record-day">{record.day}</h2>
-            <p>{record.kind}</p>
-            {record.due && <p className={`event-due ${record.due.tone}`}>{record.due.text}</p>}
-          </section>
+      <div className="care-columns visit-columns">
+        <div>
+          <section className="card visit-record-body" aria-labelledby="visit-record-kind">
+            <h2 id="visit-record-kind">{record.kind}</h2>
+            <span className={planned ? 'pill event-badge planned' : 'pill event-badge'}>
+              <span className="sr-only">{`${record.badge}: `}</span>
+              {when}
+            </span>
+            {record.due && record.due.tone === 'overdue' && <p className="due-overdue visit-overdue">{record.due.text}</p>}
 
-          <section className="card visit-record-body" aria-label={view.title}>
             <dl className="visit-facts">
               {record.clinic && (
                 <div>
@@ -182,6 +192,12 @@ export default function VisitRecordScreen({ petId, visitId, saved }: { petId: st
                 <div>
                   <dt>{view.diagnosis}</dt>
                   <dd>{record.diagnosis}</dd>
+                </div>
+              )}
+              {record.notes && (
+                <div>
+                  <dt>{planned ? view.notesShort : view.notes}</dt>
+                  <dd>{record.notes}</dd>
                 </div>
               )}
             </dl>
@@ -225,13 +241,24 @@ export default function VisitRecordScreen({ petId, visitId, saved }: { petId: st
               </div>
             )}
 
-            {record.notes && (
-              <div className="event-record-notes">
-                <h3>{view.notes}</h3>
-                <p>{record.notes}</p>
+            {(record.editHref || record.heldHref) && (
+              <div className="care-actions visit-actions">
+                {record.editHref && <Link href={record.editHref} className="btn primary">{view.reschedule}</Link>}
+                {record.heldHref && <Link href={record.heldHref} className="link">{view.wasHeld}</Link>}
               </div>
             )}
           </section>
+
+          {calendarHref && (
+            <section className="card" aria-labelledby="visit-calendar-title">
+              <h2 id="visit-calendar-title">{view.calendarTitle}</h2>
+              <p className="muted">{view.calendarBody}</p>
+              <a href={calendarHref} target="_blank" rel="noopener noreferrer" className="btn secondary" aria-label={view.calendarAddLabel}>
+                <Icon name="calendarAdd" />
+                {view.calendarAdd}
+              </a>
+            </section>
+          )}
 
           {record.check && (
             <Link
@@ -249,15 +276,27 @@ export default function VisitRecordScreen({ petId, visitId, saved }: { petId: st
           )}
         </div>
 
-        <aside className="section-aside">
-          <div className="card health-facts event-actions">
-            <h2>{view.actionsTitle}</h2>
-            <p>{record.actionsBody}</p>
+        <aside>
+          <section className="card soft visit-pet" aria-labelledby="visit-pet-title">
+            <h2 id="visit-pet-title">{view.aboutPet}</h2>
+            <PetAvatar size={84} species={pet.species} photoUrl={pet.avatar_url} />
+            <h3>{pet.name}</h3>
+            <p>{petFacts.meta}</p>
+          </section>
+
+          <section className="card event-actions" aria-labelledby="visit-manage-title">
+            <h2 id="visit-manage-title">{view.manage}</h2>
+            <p className="small muted">{record.actionsBody}</p>
+            {record.editHref && (
+              <p>
+                <Link href={record.editHref} className="link">{view.editRecord}</Link>
+              </p>
+            )}
             {record.removable && (
               <button
                 ref={removeRef}
                 type="button"
-                className="btn secondary"
+                className="link danger"
                 onClick={() => {
                   setRemoveError(undefined)
                   setAsking(true)
@@ -266,7 +305,7 @@ export default function VisitRecordScreen({ petId, visitId, saved }: { petId: st
                 {planned ? view.cancelPlan : view.delete}
               </button>
             )}
-          </div>
+          </section>
         </aside>
       </div>
 
