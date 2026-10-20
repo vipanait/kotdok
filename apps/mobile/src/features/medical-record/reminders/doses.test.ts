@@ -29,8 +29,19 @@ describe('the doses ahead (FB-5/03)', () => {
   it('leaves out a dose already given, and the days after the course ended', () => {
     const given = [{ medication_id: 'c1', taken_on: '2026-10-20', slot: '20:00' }]
     expect(doseMoments([{ pet, course: course() }], given, NOW, 1)).toEqual([])
-    const ended = course({ ongoing: false, ended_on: '2026-10-20' })
+    const ended = course({ ongoing: false, ended_on: '2026-10-19' })
     expect(doseMoments([{ pet, course: ended }], [], NOW, 3)).toEqual([])
+  })
+
+  it('reminds on the course’s last day too: «до 20 октября» includes the 20th', () => {
+    const lastDay = course({ ongoing: false, ended_on: '2026-10-20' })
+    expect(doseMoments([{ pet, course: lastDay }], [], NOW, 3).map((moment) => `${moment.day} ${moment.slot}`)).toEqual(['2026-10-20 20:00'])
+    expect(todayDoses([lastDay], [], NOW).map((dose) => dose.slot)).toEqual(['08:00', '20:00'])
+  })
+
+  it('does not remind before the course starts', () => {
+    const later = course({ started_on: '2026-10-22' })
+    expect(doseMoments([{ pet, course: later }], [], NOW, 3).map((moment) => moment.day)).toEqual(['2026-10-22', '2026-10-22'])
   })
 
   it('fires on the wall clock, whatever the offset', () => {

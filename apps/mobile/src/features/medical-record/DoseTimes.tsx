@@ -49,7 +49,11 @@ export function DoseTimes({ petId, course, onChanged }: { petId: string; course:
 
   return (
     <View style={styles.block}>
-      <Chips label={words.title} options={options} values={times} onToggle={(time) => !busy && void save(toggleTime(times, time))} />
+      <Chips label={words.title} options={options} values={times} onToggle={(time) => {
+          // A fifth time is refused here, not sent: the chip simply stays off.
+          if (busy || (full && !times.includes(time))) return
+          void save(toggleTime(times, time))
+        }} />
       {!full ? (
         <View style={styles.custom}>
           <Field

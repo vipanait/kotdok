@@ -13,6 +13,7 @@ import { Banner, Card } from '@/ui/Card'
 import { ConfirmDialog } from '@/ui/Dialog'
 import { Screen } from '@/ui/Screen'
 import { DoseTimes } from '@/features/medical-record/DoseTimes'
+import { useReminders } from '@/features/medical-record/reminders/ReminderProvider'
 import { DetailSkeleton } from '@/ui/Skeleton'
 import { Text } from '@/ui/Text'
 import { space } from '@/ui/theme'
@@ -30,6 +31,7 @@ export default function MedicationView() {
   const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
   const [busy, setBusy] = useState(false)
   const [asking, setAsking] = useState(false)
+  const reminders = useReminders()
   /** The day «Завершить курс» first sent, until the server answers it (`endCourse`). */
   const ending = useRef<{ day: string | null }>({ day: null })
 
@@ -60,6 +62,11 @@ export default function MedicationView() {
     setBusy(true)
     setError(null)
     try {
+      // A course ended today gives no more doses: its times go first, while
+      // it can still be changed, and with them today's remaining reminders.
+      if (course && course.reminder_times.length > 0) {
+        setCourse(await withFreshSession((api) => api.setMedicationTimes(id, medicationId, [])))
+      }
       const ended = await endCourse(
         (patch, day) => withFreshSession((api) => api.changeMedication(id, medicationId, patch, day)),
         ending.current,
@@ -69,6 +76,7 @@ export default function MedicationView() {
       // only, which the screen then says in place of «Изменить».
       if (ended.kind === 'ended') setCourse(ended.course)
       else void load()
+      reminders.refresh()
     } catch (cause) {
       setError(describeFailure(t, cause, words.saveFailed))
     } finally {
@@ -80,6 +88,8 @@ export default function MedicationView() {
     setBusy(true)
     try {
       await withFreshSession((api) => api.deleteMedication(id, medicationId, localToday()))
+      // Its dose reminders go with it, not at the next start of the app.
+      reminders.refresh()
       setAsking(false)
       router.back()
     } catch (cause) {

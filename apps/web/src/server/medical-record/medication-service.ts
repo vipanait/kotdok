@@ -4,6 +4,7 @@ import { MedicationSchema, type Medication, type MedicationPatch, type Medicatio
 import { isCurrentCourse } from '@lapka/shared'
 import type { createServiceClient } from '@/server/supabase/server'
 import { RECORD_DONE_SQLSTATE, isFutureDay, utcToday, type WeightResult } from './weight-service'
+import { liveCourse } from './dose-service'
 
 type SupabaseService = ReturnType<typeof createServiceClient>
 
@@ -263,6 +264,9 @@ export async function setMedicationTimes(
   medicationId: string,
   times: readonly string[],
 ): Promise<WeightResult<Medication>> {
+  // Only a live pet's course: another phone may still show a deleted pet.
+  const course = await liveCourse(supabase, userId, petId, medicationId)
+  if (!course.ok) return course.reason === 'not_found' ? { ok: false, reason: 'not_found' } : { ok: false, reason: 'storage_error', message: 'course lookup failed' }
   const sorted = [...new Set(times)].sort()
   const { data, error } = await supabase
     .from('pet_medications')

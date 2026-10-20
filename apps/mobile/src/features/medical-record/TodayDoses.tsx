@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import type { Medication, MedicationDose } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
@@ -30,6 +30,10 @@ export function TodayDoses({ petId, courses }: { petId: string; courses: readonl
   // Marks sent but not yet answered, over what the server last said.
   const [pending, setPending] = useState<ReadonlyMap<string, boolean>>(new Map())
   const [error, setError] = useState<string | null>(null)
+  // One request per dose at a time: «Дали» then a quick «Отменить» could reach
+  // the server in either order and leave the opposite of what was meant. The
+  // ref answers a double tap before the state shows the row as busy.
+  const inFlight = useRef(new Set<string>())
 
   const loaded = record.data ?? []
   const doses: MedicationDose[] = [
@@ -46,6 +50,8 @@ export function TodayDoses({ petId, courses }: { petId: string; courses: readonl
 
   async function mark(course: Medication, slot: string, given: boolean) {
     const key = doseKey(course.id, slot)
+    if (inFlight.current.has(key)) return
+    inFlight.current.add(key)
     setError(null)
     setPending((current) => new Map(current).set(key, given))
     try {
@@ -56,6 +62,7 @@ export function TodayDoses({ petId, courses }: { petId: string; courses: readonl
     } catch (cause) {
       setError(describeFailure(t, cause, words.failed).text)
     } finally {
+      inFlight.current.delete(key)
       setPending((current) => {
         const next = new Map(current)
         next.delete(key)
@@ -70,6 +77,7 @@ export function TodayDoses({ petId, courses }: { petId: string; courses: readonl
         {words.title}
       </Text>
       {rows.map(({ course, slot, state }, index) => {
+        const busy = pending.has(doseKey(course.id, slot))
         return (
           <View key={doseKey(course.id, slot)}>
             {index > 0 ? <View style={styles.divider} /> : null}
@@ -102,11 +110,19 @@ export function TodayDoses({ petId, courses }: { petId: string; courses: readonl
                     title={words.undo}
                     align="right"
                     accessibilityLabel={`${words.undo}: ${slot}, ${course.name}`}
+                    disabled={busy}
                     onPress={() => void mark(course, slot, false)}
                   />
                 </View>
               ) : (
-                <Button title={words.give} kind="secondary" style={styles.give} onPress={() => void mark(course, slot, true)} />
+                <Button
+                  title={words.give}
+                  accessibilityLabel={`${words.give}: ${slot}, ${course.name}`}
+                  kind="secondary"
+                  disabled={busy}
+                  style={styles.give}
+                  onPress={() => void mark(course, slot, true)}
+                />
               )}
             </View>
           </View>

@@ -118,10 +118,14 @@ describe('the journal goes with the course and the pet (FB-5/02)', () => {
     expect(await dosesOf('medication_id', id)).toBe(0)
   })
 
-  it('when the pet is deleted', async () => {
-    await givenDose(PET_IDS.aDog)
+  it('when the pet is deleted, and a deleted pet’s course takes no more', async () => {
+    const id = await givenDose(PET_IDS.aDog)
     expect(await dosesOf('pet_id', PET_IDS.aDog)).toBe(1)
     expect((await deletePet(request(tokenA, 'DELETE'), params(PET_IDS.aDog))).status).toBeLessThan(300)
+    expect(await dosesOf('pet_id', PET_IDS.aDog)).toBe(0)
+    // Another phone still showing the pet.
+    expect((await markDose(request(tokenA, 'POST', { taken_on: day(0), slot: '08:00' }), medParams(PET_IDS.aDog, id))).status).toBe(404)
+    expect((await setTimes(request(tokenA, 'PUT', { reminder_times: ['09:00'] }), medParams(PET_IDS.aDog, id))).status).toBe(404)
     expect(await dosesOf('pet_id', PET_IDS.aDog)).toBe(0)
   })
 })

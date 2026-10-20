@@ -631,7 +631,7 @@ export const en: Dictionary = {
   },
   today: {
     title: 'Today',
-    give: 'Given',
+    give: 'Mark given',
     given: 'Given',
     undo: 'Undo',
     missed: 'Not marked',
