@@ -41,6 +41,8 @@ const ADAPTERS = new Set([
   'auth/sign-out.ts',
   'i18n/get-locale.ts',
   'i18n/get-time-zone.ts',
+  // Reads the first-entry cookie, as get-time-zone.ts reads the zone's.
+  'onboarding/get-onboarding.ts',
   'pets/pet-http.ts',
   'security/csrf.ts',
   'supabase/server.ts',

@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Medication, MedicationDose } from '@lapka/contracts'
 import { doseKey, todayDoses, type TodayDose } from '@lapka/shared'
@@ -11,6 +11,32 @@ import { createDoseActions, type DoseFailure } from './dose-actions'
 function clockNow(): string {
   const now = new Date()
   return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+}
+
+type Read = { doses: MedicationDose[]; status: 'loading' | 'ready' | 'failed' }
+type ReadAction =
+  | { type: 'loaded'; doses: MedicationDose[] }
+  | { type: 'failed' }
+  /** One dose as the server now has it: `doses` holds it when marked, not when taken off. */
+  | { type: 'applied'; key: string; doses: MedicationDose[] }
+
+const keyOf = (dose: MedicationDose) => doseKey(dose.medication_id, dose.taken_on, dose.slot)
+
+function readReducer(state: Read, action: ReadAction): Read {
+  switch (action.type) {
+    case 'loaded':
+      return { doses: action.doses, status: 'ready' }
+    case 'failed':
+      // A failed refresh keeps what is shown; only a first read fails the block.
+      return state.status === 'ready' ? state : { ...state, status: 'failed' }
+    case 'applied':
+      // Applied to what is shown now, not to what it was when pressed: two
+      // doses pressed one after the other both stay.
+      return {
+        ...state,
+        doses: [...state.doses.filter((dose) => keyOf(dose) !== action.key), ...action.doses.filter((dose) => keyOf(dose) === action.key)],
+      }
+  }
 }
 
 export type TodayDosesState = {
@@ -34,28 +60,25 @@ export type TodayDosesState = {
 export function useTodayDoses(petId: string, courses: readonly Medication[], today: string): TodayDosesState {
   const router = useRouter()
   const actions = useMemo(() => createDoseActions(browserApi(), petId), [petId])
-  const [doses, setDoses] = useState<MedicationDose[]>([])
-  const [status, setStatus] = useState<TodayDosesState['status']>('loading')
+  const [{ doses, status }, dispatch] = useReducer(readReducer, { doses: [], status: 'loading' })
   const [pending, setPending] = useState<ReadonlySet<string>>(new Set())
   const [error, setError] = useState<TodayDosesState['error']>(null)
   const latest = useRef(0)
   const timed = courses.some((course) => course.reminder_times.length > 0)
 
   const load = useCallback(async () => {
-    if (!timed) {
-      setStatus('ready')
-      return
-    }
+    // No course has times: nothing to read, and nothing to show.
+    if (!timed) return
     const request = ++latest.current
-    try {
-      const read = await browserApi().listDoses(petId, today, today)
-      if (request !== latest.current) return
-      setDoses(read)
-      setStatus('ready')
-    } catch {
-      if (request !== latest.current) return
-      setStatus((current) => (current === 'ready' ? current : 'failed'))
-    }
+    const read = await browserApi()
+      .listDoses(petId, today, today)
+      .then(
+        (doses) => ({ ok: true as const, doses }),
+        () => ({ ok: false as const }),
+      )
+    // An answer to an older read, or for a press made since, is dropped.
+    if (request !== latest.current) return
+    dispatch(read.ok ? { type: 'loaded', doses: read.doses } : { type: 'failed' })
   }, [petId, today, timed])
 
   useEffect(() => {
@@ -94,8 +117,7 @@ export function useTodayDoses(petId: string, courses: readonly Medication[], tod
       if (result.ok) {
         // Applied to what is shown now, not to what it was when pressed: two
         // doses pressed one after the other both stay.
-        const same = (entry: MedicationDose) => doseKey(entry.medication_id, entry.taken_on, entry.slot) === key
-        setDoses((current) => [...current.filter((entry) => !same(entry)), ...result.doses.filter(same)])
+        dispatch({ type: 'applied', key, doses: result.doses })
         return
       }
       if (result.reason === 'deleting') {
@@ -108,7 +130,7 @@ export function useTodayDoses(petId: string, courses: readonly Medication[], tod
   )
 
   return {
-    status,
+    status: timed ? status : 'ready',
     rows: todayDoses(courses, doses, today, clockNow()),
     pending,
     error,

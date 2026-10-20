@@ -7,7 +7,7 @@ import welcomePets from '@/assets/illustrations/welcome-pets.png'
 import { useTranslations } from '@/components/LocaleProvider'
 import Icon from '@/components/ui/Icon'
 import { updateOnboarding } from './onboarding-cookie'
-import { chooseGoal, newPetHref, skipOnboarding, type OnboardingGoal } from './onboarding-state'
+import { chooseGoal, newPetHref, skipOnboarding, type OnboardingGoal } from '@/shared/onboarding/onboarding-state'
 
 /**
  * «С чего начнём?» — the overview of a new account (design `welcome`). Both
