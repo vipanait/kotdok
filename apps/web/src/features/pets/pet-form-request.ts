@@ -1,4 +1,5 @@
 import type { Pet, PetSizeClass, PetSpecies, PetWalkActivity } from '@/shared/types'
+import type { PetDatesValue } from '@/features/pets/pet-dates-form'
 
 /**
  * The pet form's request, apart from React so its fields are unit tested:
@@ -6,17 +7,19 @@ import type { Pet, PetSizeClass, PetSpecies, PetWalkActivity } from '@/shared/ty
  */
 
 /**
- * The site's form knows no dates yet (FB-2 is the app's): it leaves them out,
- * and the server keeps the ones the app saved.
+ * Every field of the pet, the dates included (FB-2): the form always sends
+ * the dates it shows, read by `readPetDates` — untouched, they are the ones
+ * the pet has, so a save never clears them. The photo goes its own way.
  */
-export type PetFormValues = Omit<Pet, 'id' | 'user_id' | 'created_at' | 'birth_date' | 'birth_date_approx' | 'adopted_on'>
+export type PetFormValues = Omit<Pet, 'id' | 'user_id' | 'created_at' | 'avatar_path'>
 
 /** The form's fields as the owner left them: text as typed, choices as picked. */
 export type PetFormFields = {
   species: PetSpecies
   name: string
   breed: string
-  ageYears: string
+  /** The «Даты» section as read (`readPetDates`): the birth date, its estimate, the home day and the age. */
+  dates: PetDatesValue
   weightKg: string
   sex: Pet['sex']
   neutered: boolean | null
@@ -70,7 +73,10 @@ export function petFormRequest(
     species: fields.species,
     name: fields.name.trim(),
     breed: fields.breed.trim() || null,
-    age_years: parseDecimal(fields.ageYears),
+    age_years: fields.dates.age_years,
+    birth_date: fields.dates.birth_date,
+    birth_date_approx: fields.dates.birth_date_approx,
+    adopted_on: fields.dates.adopted_on,
     weight_kg: parseDecimal(fields.weightKg),
     sex: fields.sex,
     neutered: fields.neutered,
