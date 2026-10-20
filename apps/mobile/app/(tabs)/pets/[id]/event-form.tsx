@@ -169,9 +169,11 @@ export default function EventForm() {
 
   const summary = useMemo(() => {
     if (!draft || !showNext || !recordDay) return null
-    if (mode === 'complete') return words.summaryComplete(source?.others ?? 0)
     const days = draft.items.map((item) => nextDate(item, recordDay, localToday()) ?? null)
-    return saveSummary(t, days, localToday())
+    const done = saveSummary(t, days, localToday())
+    // Marking one item of a plan says what becomes of the rest, in the same words (FB-1/02).
+    const others = mode === 'complete' ? (source?.others ?? 0) : 0
+    return others > 0 ? `${done} ${words.summaryComplete(others)}` : done
   }, [draft, showNext, recordDay, mode, words, source, t])
 
   async function save(then: () => void = () => router.back()) {

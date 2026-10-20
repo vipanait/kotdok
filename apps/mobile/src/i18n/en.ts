@@ -193,6 +193,8 @@ export const en: Dictionary = {
     allDue: (count: number) => `All due dates · ${count}`,
     allDueTitle: 'All due dates',
     markDone: 'Done',
+    markDue: 'Mark done',
+    markDoneEarly: 'Already done',
     addRecord: 'Add a record',
     addWhat: 'What to add?',
     addVaccinationRow: 'Vaccination',
@@ -307,6 +309,8 @@ export const en: Dictionary = {
       addRow: 'Vet visit',
       done: 'Happened',
       plan: 'Plan',
+      doneNote: 'Note the diagnosis and prescriptions — they stay in the record.',
+      planNote: 'The visit will appear under due dates; we’ll remind you ahead.',
       kind: 'Kind of visit',
       kinds: { checkup: 'Check-up or prevention', illness: 'Illness', surgery: 'Surgery', tests: 'Tests and diagnostics', other: 'Other' },
       kindsShort: { checkup: 'Check-up', illness: 'Illness', surgery: 'Surgery', tests: 'Tests', other: 'Other' },
@@ -327,6 +331,7 @@ export const en: Dictionary = {
       linkedCheck: 'Linked check',
       byCheck: (day: string) => `after the check of ${day}`,
       markDone: 'Happened',
+      markDoneEarly: 'It already happened',
       emptyTitle: 'No visits yet',
       emptyBody: 'Record a visit — the diagnosis and prescriptions will be at hand',
       last: (day: string, what: string) => `Last — ${day}, ${what}`,
@@ -378,12 +383,10 @@ export const en: Dictionary = {
     notes: 'Note · optional',
     summaryDone: (plans: number, day: string | null) =>
       plans === 0
-        ? 'After saving: one record, no next dates.'
-        : `After saving: one record and ${plans} next ${plans === 1 ? 'date' : 'dates'}${day ? ` on ${day}` : ''}.`,
+        ? 'Saved as done, with no next date.'
+        : `Saved as done. ${plans === 1 ? 'The next one' : 'The next ones'}${day ? ` on ${day}` : ''} will appear under due dates.`,
     summaryComplete: (others: number) =>
-      others === 0
-        ? 'The plan becomes a done record.'
-        : `Only this item is marked. ${others === 1 ? 'One more stays' : `${others} more stay`} planned.`,
+      others === 1 ? 'One more item of this record stays planned.' : `${others} more items of this record stay planned.`,
     itemsRequired: 'Add at least one vaccine',
     itemEmpty: 'Give a name or mark what the vaccine is against',
     eventItemsFull: (max: number) => `No more than ${max} items in one record.`,
@@ -444,7 +447,9 @@ export const en: Dictionary = {
     yes: 'Yes',
     no: 'No',
     allergies: 'Allergies',
-    allergiesHint: 'chicken, fish — separated by commas',
+    allergiesHint: 'Chicken',
+    addLine: '+ Add another',
+    removeLine: 'Remove',
     chronic: 'Chronic conditions',
     medications: 'Medications',
     keeping: 'Kept',
@@ -456,6 +461,7 @@ export const en: Dictionary = {
 
   check: {
     recordCaption: 'We take the medical record into account: vaccinations, medicines, weight',
+    forPet: (pet: string) => `For ${pet}`,
     title: 'Symptom check',
     step: (current: number, of: number) => `Step ${current} of ${of}`,
     pet: 'Pet',
@@ -640,6 +646,7 @@ export const en: Dictionary = {
   profile: {
     title: 'Profile',
     checksLeft: (count: number) => (count === 1 ? 'check left' : 'checks left'),
+    checksWhy: 'Every check is analysed by AI, which costs money, so their number is limited.',
     language: 'Language',
     history: 'Check history',
     signOut: 'Sign out',
@@ -814,14 +821,14 @@ export const en: Dictionary = {
     cat: {
       name: 'Whiskers',
       breed: 'Siberian',
-      chronic: 'CKD, diabetes — separated by commas',
-      medications: 'Nefrostop, vitamins — separated by commas',
+      chronic: 'CKD',
+      medications: 'Nefrostop',
     },
     dog: {
       name: 'Rex',
       breed: 'Labrador',
-      chronic: 'Dysplasia, atopy — separated by commas',
-      medications: 'Apoquel, vitamins — separated by commas',
+      chronic: 'Dysplasia',
+      medications: 'Apoquel',
     },
   },
 }

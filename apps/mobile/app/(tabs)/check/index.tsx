@@ -556,6 +556,30 @@ export default function NewCheck() {
         <StepSlide key="step-1" from={enteredFrom.current}>
           <Steps current={1} of={2} label={t.check.step} />
 
+          {/* Right under the steps, where a choice is looked for. With several
+              animals, a sheet rather than a row of names, which stops fitting
+              as soon as somebody has a few. With one there is nothing to
+              choose: a quiet line, not its name in the middle of the screen,
+              the most valuable place on it (FB-1/05). */}
+          {pets.length > 1 ? (
+            <Select
+              label={t.check.pet}
+              allowNone={false}
+              options={pets.map((pet) => ({ value: pet.id, label: pet.name }))}
+              value={form.petId}
+              onChange={(petId) => change({ petId })}
+            />
+          ) : (
+            <Text variant="h3" style={styles.onlyPet}>
+              {t.check.forPet(chosen?.name ?? pets[0].name)}
+            </Text>
+          )}
+          {withRecord !== null && withRecord === form.petId ? (
+            <Text variant="caption" tone="muted" style={styles.recordCaption}>
+              {t.check.recordCaption}
+            </Text>
+          ) : null}
+
           {/* Said before the form is filled in, not after: with nothing on the
               balance both steps ended in «Не хватает проверок». The form stays
               usable — a request granted while it is open is a check to send. */}
@@ -566,31 +590,6 @@ export default function NewCheck() {
                 <LinkButton title={t.profile.extraRequest} align="left" onPress={() => router.push('/check/extra-check')} />
               ) : null}
             </View>
-          ) : null}
-
-          {/* With several animals, a sheet rather than a row of names, which
-              stops fitting as soon as somebody has a few. With one there is
-              nothing to choose, so it is named instead. */}
-          {pets.length > 1 ? (
-            <Select
-              label={t.check.pet}
-              allowNone={false}
-              options={pets.map((pet) => ({ value: pet.id, label: pet.name }))}
-              value={form.petId}
-              onChange={(petId) => change({ petId })}
-            />
-          ) : (
-            <View style={styles.onlyPet}>
-              <Text variant="label" tone="muted">
-                {t.check.pet}
-              </Text>
-              <Text variant="h3">{chosen?.name ?? pets[0].name}</Text>
-            </View>
-          )}
-          {withRecord !== null && withRecord === form.petId ? (
-            <Text variant="caption" tone="muted" style={styles.recordCaption}>
-              {t.check.recordCaption}
-            </Text>
           ) : null}
 
           <Field
@@ -738,7 +737,7 @@ function Waiting({
 const styles = StyleSheet.create({
   recordCaption: { marginTop: -8, marginBottom: 16 },
   summaryCopy: { flex: 1, minWidth: 0 },
-  onlyPet: { marginBottom: space.block, gap: 6 },
+  onlyPet: { marginBottom: space.row },
   noChecks: { marginBottom: space.block },
   // The pair stands rather than sits, so it needs the height; a narrow phone
   // gets the smaller one, which leaves the button above the fold.

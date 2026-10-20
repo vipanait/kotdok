@@ -59,6 +59,19 @@ export function blankVisit(status: 'done' | 'planned', now: Date = new Date()): 
 }
 
 /**
+ * The day a new visit keeps when «Уже был» and «Запланировать» are switched:
+ * the one typed, if it still fits — not after today for a visit that
+ * happened, not before today for a plan. Wiping a fitting date made the
+ * switch feel like it threw the form away (FB-1/03).
+ */
+export function dateOnSwitch(date: string, status: VisitDraft['status'], now: Date = new Date()): string {
+  const today = localToday(now)
+  const typed = parseDayText(date)
+  if (typed !== null && (status === 'done' ? typed <= today : typed >= today)) return date
+  return status === 'done' ? dayInput(today) : ''
+}
+
+/**
  * A visit as the form opens it: to correct, or — `as: 'done'` — to mark a
  * plan as having happened, with what the plan said.
  */

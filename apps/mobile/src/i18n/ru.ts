@@ -207,6 +207,10 @@ export const ru = {
     allDue: (count: number) => `Все сроки · ${count}`,
     allDueTitle: 'Все сроки',
     markDone: 'Сделано',
+    /** On a due row whose day has come; beside a date ahead «Сделано» read as a status (FB-1/01). */
+    markDue: 'Отметить',
+    /** On a plan whose day is still ahead: a link under «Перенести», not the main button. */
+    markDoneEarly: 'Уже сделано',
     addRecord: 'Добавить запись',
     addWhat: 'Что добавить?',
     addVaccinationRow: 'Прививка',
@@ -320,8 +324,11 @@ export const ru = {
       viewTitle: 'Визит',
       add: 'Добавить визит',
       addRow: 'Визит к врачу',
-      done: 'Был',
+      done: 'Уже был',
       plan: 'Запланировать',
+      /** Under the switch, so each side says what it leads to (FB-1/03). */
+      doneNote: 'Запишите диагноз и назначения — они останутся в медкарте.',
+      planNote: 'Визит появится в сроках, напомним о нём заранее.',
       kind: 'Вид визита',
       kinds: { checkup: 'Осмотр или профилактика', illness: 'Болезнь', surgery: 'Операция', tests: 'Анализы и диагностика', other: 'Другое' },
       kindsShort: { checkup: 'Осмотр', illness: 'Болезнь', surgery: 'Операция', tests: 'Анализы', other: 'Другое' },
@@ -342,6 +349,7 @@ export const ru = {
       linkedCheck: 'Связанная проверка',
       byCheck: (day: string) => `по проверке ${day}`,
       markDone: 'Был',
+      markDoneEarly: 'Визит уже был',
       emptyTitle: 'Визитов пока нет',
       emptyBody: 'Запишите визит — диагноз и назначения будут под рукой',
       last: (day: string, what: string) => `Последний — ${day}, ${what}`,
@@ -393,14 +401,18 @@ export const ru = {
     nextNote: 'Обычно через год. Уточните у врача.',
     clinic: 'Клиника · необязательно',
     notes: 'Заметка · необязательно',
+    /** What saving does, in the owner's words: «одна запись и 1 следующий срок» read as the database (FB-1/02). */
     summaryDone: (plans: number, day: string | null) =>
       plans === 0
-        ? 'После сохранения: одна запись, без следующих сроков.'
-        : `После сохранения: одна запись и ${plans} ${plural(plans, 'следующий срок', 'следующих срока', 'следующих сроков')}${day ? ` на ${day}` : ''}.`,
+        ? 'Запишем как сделанное, без следующей даты.'
+        : plans === 1
+          ? `Запишем как сделанное. ${day ? `Следующая — ${day}, она` : 'Следующая дата'} появится в сроках.`
+          : `Запишем как сделанное. ${day ? `Следующие — ${day}, они` : 'Следующие даты'} появятся в сроках.`,
+    /** After «Запишем как сделанное…» when only one item of a plan is marked. */
     summaryComplete: (others: number) =>
-      others === 0
-        ? 'План станет сделанной записью.'
-        : `Отмечается только эта позиция. ${others === 1 ? 'Ещё одна останется' : `Ещё ${others} останутся`} в плане.`,
+      others === 1
+        ? 'Ещё одна позиция этой записи останется в плане.'
+        : `Ещё ${others} ${plural(others, 'позиция', 'позиции', 'позиций')} этой записи останутся в плане.`,
     itemsRequired: 'Добавьте хотя бы одну вакцину',
     itemEmpty: 'Укажите название или отметьте, от чего прививка',
     /** In place of «+ Ещё вакцина / препарат» once a record holds the contract's number of items. */
@@ -462,7 +474,10 @@ export const ru = {
     yes: 'Да',
     no: 'Нет',
     allergies: 'Аллергии',
-    allergiesHint: 'курица, рыба — через запятую',
+    allergiesHint: 'Курица',
+    /** Under a list typed one item per line (FB-1/06). */
+    addLine: '+ Ещё',
+    removeLine: 'Убрать',
     chronic: 'Хронические болезни',
     medications: 'Принимает препараты',
     keeping: 'Содержание',
@@ -474,6 +489,11 @@ export const ru = {
 
   check: {
     recordCaption: 'Учтём медкарту: прививки, лекарства, вес',
+    /** With one pet, a line under the steps instead of its name mid-screen (FB-1/05). */
+    forPet: (pet: string) => {
+      const cases = nameCase(pet)
+      return cases ? `Проверяем у ${cases.genitive}` : `Питомец: ${pet}`
+    },
     title: 'Проверка симптомов',
     step: (current: number, of: number) => `Шаг ${current} из ${of}`,
     pet: 'Питомец',
@@ -678,6 +698,7 @@ export const ru = {
     // The verb agrees too: «1 проверка осталась», «21 проверка осталась».
     checksLeft: (count: number) =>
       plural(count, 'проверка осталась', 'проверки осталось', 'проверок осталось'),
+    checksWhy: 'Каждую проверку разбирает ИИ, а это стоит денег, поэтому их число ограничено.',
     language: 'Язык',
     history: 'История проверок',
     signOut: 'Выйти',
@@ -864,14 +885,14 @@ export const ru = {
     cat: {
       name: 'Мурка',
       breed: 'Сибирская',
-      chronic: 'ХБП, сахарный диабет — через запятую',
-      medications: 'Нефростоп, витамины — через запятую',
+      chronic: 'ХБП',
+      medications: 'Нефростоп',
     },
     dog: {
       name: 'Бобик',
       breed: 'Лабрадор',
-      chronic: 'Дисплазия, атопия — через запятую',
-      medications: 'Апоквел, витамины — через запятую',
+      chronic: 'Дисплазия',
+      medications: 'Апоквел',
     },
   },
 }

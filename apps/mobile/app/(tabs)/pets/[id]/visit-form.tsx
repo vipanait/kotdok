@@ -12,6 +12,7 @@ import { urgencyText } from '@/features/checks/urgency'
 import {
   blankVisit,
   canAddPrescription,
+  dateOnSwitch,
   firstVisitError,
   readVisit,
   recentChecks,
@@ -205,9 +206,8 @@ export default function VisitForm() {
             { value: 'planned', label: words.plan },
           ]}
           value={draft.status}
-          onChange={(status) =>
-            status && change({ status, date: status === 'done' ? blankVisit('done').date : '' })
-          }
+          onChange={(status) => status && change({ status, date: dateOnSwitch(draft.date, status) })}
+          note={draft.status === 'done' ? words.doneNote : words.planNote}
           clearable={false}
         />
       ) : null}

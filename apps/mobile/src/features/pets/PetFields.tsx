@@ -2,10 +2,11 @@ import { StyleSheet, View } from 'react-native'
 import { PET_DIETS, PET_LIFESTYLES, PET_SIZE_CLASSES, PET_WALK_ACTIVITIES } from '@lapka/contracts'
 import { useText } from '@/i18n'
 import { Field, Segment, Select } from '@/ui/Field'
+import { ListField } from '@/ui/ListField'
 import { Accordion } from '@/ui/Section'
 import { Text } from '@/ui/Text'
 import { space } from '@/ui/theme'
-import { AGE_MAX, WEIGHT_MAX, type FieldError, type PetForm } from './pet-form'
+import { AGE_MAX, LIST_MAX_ITEMS, WEIGHT_MAX, type FieldError, type PetForm } from './pet-form'
 
 /** Yes / no / not stated, which a switch cannot express. */
 function Tristate({
@@ -42,7 +43,9 @@ function tally(
   answers: ReadonlyArray<unknown>,
   count: (filled: number, total: number) => string,
 ): string | undefined {
-  const filled = answers.filter((value) => value !== null && value !== '').length
+  const filled = answers.filter((value) =>
+    Array.isArray(value) ? value.some((item: string) => item.trim() !== '') : value !== null && value !== '',
+  ).length
   return filled === 0 ? undefined : count(filled, answers.length)
 }
 
@@ -180,25 +183,34 @@ export function PetFields({
           no={t.petForm.no}
           note={notes.vaccinated}
         />
-        <Field
+        <ListField
           label={t.petForm.allergies}
-          value={form.allergies}
-          onChangeText={(allergies) => onChange({ allergies })}
+          values={form.allergies}
+          onChange={(allergies) => onChange({ allergies })}
           placeholder={t.petForm.allergiesHint}
+          addLabel={t.petForm.addLine}
+          removeLabel={t.petForm.removeLine}
+          max={LIST_MAX_ITEMS}
           autoCapitalize="none"
         />
-        <Field
+        <ListField
           label={t.petForm.chronic}
-          value={form.chronicConditions}
-          onChangeText={(chronicConditions) => onChange({ chronicConditions })}
+          values={form.chronicConditions}
+          onChange={(chronicConditions) => onChange({ chronicConditions })}
           placeholder={hint.chronic}
+          addLabel={t.petForm.addLine}
+          removeLabel={t.petForm.removeLine}
+          max={LIST_MAX_ITEMS}
         />
-        <Field
+        <ListField
           label={t.petForm.medications}
-          value={form.medications}
-          onChangeText={(medications) => onChange({ medications })}
+          values={form.medications}
+          onChange={(medications) => onChange({ medications })}
           placeholder={hint.medications}
           hint={notes.medications}
+          addLabel={t.petForm.addLine}
+          removeLabel={t.petForm.removeLine}
+          max={LIST_MAX_ITEMS}
         />
       </Accordion>
 

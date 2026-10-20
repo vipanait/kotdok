@@ -4,6 +4,7 @@ import { ru } from '@/i18n/ru'
 import { dueItems, itemTitle } from './due'
 import {
   blankVisit,
+  dateOnSwitch,
   canAddPrescription,
   firstVisitError,
   heldNote,
@@ -223,5 +224,18 @@ describe('the field a refused save moves to (MW-09)', () => {
     const read = readVisit(ru, { ...blankVisit('done', NOW), clinic: 'к'.repeat(VISIT_LIMITS.clinic + 1), notes: 'н'.repeat(VISIT_LIMITS.notes + 1) }, 'new', NOW)
     expect(read.ok).toBe(false)
     if (!read.ok) expect(firstVisitError(read.errors, { prescriptions: [] })).toBe('clinic')
+  })
+})
+
+describe('switching a new visit between «Уже был» and «Запланировать» (FB-1/03)', () => {
+  it('keeps a typed date that still fits', () => {
+    expect(dateOnSwitch('20.09.2026', 'done', NOW)).toBe('20.09.2026')
+    expect(dateOnSwitch('03.10.2026', 'planned', NOW)).toBe('03.10.2026')
+  })
+
+  it('replaces one that does not: today for a visit that happened, nothing for a plan', () => {
+    expect(dateOnSwitch('03.10.2026', 'done', NOW)).toBe(blankVisit('done', NOW).date)
+    expect(dateOnSwitch('20.09.2026', 'planned', NOW)).toBe('')
+    expect(dateOnSwitch('', 'done', NOW)).toBe(blankVisit('done', NOW).date)
   })
 })

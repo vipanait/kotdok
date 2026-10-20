@@ -34,10 +34,11 @@ export type PetForm = {
   diet: (typeof PET_DIETS)[number] | null
   sizeClass: (typeof PET_SIZE_CLASSES)[number] | null
   walkActivity: (typeof PET_WALK_ACTIVITIES)[number] | null
-  allergies: string
+  /** One item per line as typed; empty lines are dropped when the form is read (FB-1/06). */
+  allergies: string[]
   vaccinated: boolean | null
-  chronicConditions: string
-  medications: string
+  chronicConditions: string[]
+  medications: string[]
   notes: string
 }
 
@@ -53,10 +54,10 @@ export const emptyPetForm = (species: Species = 'cat'): PetForm => ({
   diet: null,
   sizeClass: null,
   walkActivity: null,
-  allergies: '',
+  allergies: [],
   vaccinated: null,
-  chronicConditions: '',
-  medications: '',
+  chronicConditions: [],
+  medications: [],
   notes: '',
 })
 
@@ -73,29 +74,28 @@ export function petToForm(pet: Pet): PetForm {
     diet: pet.diet,
     sizeClass: pet.size_class,
     walkActivity: pet.walk_activity,
-    allergies: formatList(pet.allergies),
+    allergies: [...pet.allergies],
     vaccinated: pet.vaccinated,
-    chronicConditions: formatList(pet.chronic_conditions),
-    medications: formatList(pet.medications),
+    chronicConditions: [...pet.chronic_conditions],
+    medications: [...pet.medications],
     notes: pet.notes ?? '',
   }
 }
 
 /** Whether anything a person could see differs — what "unsaved changes" means. */
 export function petFormChanged(before: PetForm, after: PetForm): boolean {
-  return (Object.keys(before) as (keyof PetForm)[]).some((key) => before[key] !== after[key])
-}
-
-/** Lists are typed as one line, the way the site asks for them. */
-export function formatList(items: readonly string[]): string {
-  return items.join(', ')
+  return (Object.keys(before) as (keyof PetForm)[]).some((key) => {
+    const was = before[key]
+    const is = after[key]
+    return Array.isArray(was) || Array.isArray(is) ? JSON.stringify(was) !== JSON.stringify(is) : was !== is
+  })
 }
 
 export const LIST_MAX_ITEMS = 20
 
-export function parseList(text: string): string[] {
-  return text
-    .split(',')
+/** The lines of a list field as the contract keeps them: trimmed, none empty, at most the limit. */
+export function parseList(rows: readonly string[]): string[] {
+  return rows
     .map((item) => item.trim())
     .filter((item) => item.length > 0)
     .slice(0, LIST_MAX_ITEMS)
