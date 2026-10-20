@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Image, Pressable, StyleSheet, View, type ViewStyle } from 'react-native'
 import { Icon, type IconName } from './Icon'
 import { Text } from './Text'
@@ -57,7 +58,24 @@ export function Card({
  * Deliberately drawn rather than photographic: the app has no pictures of the
  * animal it is talking about, and a photo-like avatar would imply it did.
  */
-export function Avatar({ species, size = 48 }: { species: 'cat' | 'dog'; size?: number }) {
+/**
+ * The pet's photo, round, when it has one (FB-4); otherwise the drawing of
+ * its species. A photo that fails to load — a link that ran out while the
+ * screen was open — falls back to the drawing.
+ */
+export function Avatar({ species, size = 48, uri }: { species: 'cat' | 'dog'; size?: number; uri?: string | null }) {
+  const [failed, setFailed] = useState(false)
+  if (uri && !failed) {
+    return (
+      <Image
+        source={{ uri }}
+        style={{ width: size, height: size, borderRadius: size / 2 }}
+        resizeMode="cover"
+        accessible={false}
+        onError={() => setFailed(true)}
+      />
+    )
+  }
   return (
     <Image
       source={art[species]}

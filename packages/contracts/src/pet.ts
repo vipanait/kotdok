@@ -75,6 +75,8 @@ export const AvatarGrantRequestSchema = z.strictObject({
   size_bytes: z.int().min(1).max(5 * 1024 * 1024),
 })
 
+export type AvatarGrantRequest = z.infer<typeof AvatarGrantRequestSchema>
+
 export const AvatarGrantSchema = z.strictObject({
   /** Named back in the confirmation; the server checks it is this pet's. */
   path: z.string().min(1).max(200),

@@ -134,7 +134,7 @@ export default function Pets() {
               accessibilityLabel={`${item.name}, ${describe(t, item)}`}
               style={styles.petCard}
             >
-              <Avatar species={item.species} />
+              <Avatar species={item.species} uri={item.avatar_url} />
               <View style={styles.petCopy}>
                 {/* One line: the card is a row in a list, the full name is on the pet's own screen. */}
                 <Text variant="h2" numberOfLines={1}>

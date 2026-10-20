@@ -49,6 +49,9 @@ import {
   type WeightPatch,
   FEATURES_HEADER,
   PET_DATES_FEATURE,
+  AvatarGrantSchema,
+  PET_AVATAR_FEATURE,
+  type AvatarGrantRequest,
 } from '@lapka/contracts'
 import { z } from 'zod'
 
@@ -211,7 +214,7 @@ export function createApiClient(options: ApiClientOptions) {
     // those that say so, since older builds refuse unknown keys (FB-2).
     const headers: Record<string, string> = {
       accept: 'application/json',
-      [FEATURES_HEADER]: PET_DATES_FEATURE,
+      [FEATURES_HEADER]: `${PET_DATES_FEATURE},${PET_AVATAR_FEATURE}`,
       ...request.headers,
     }
 
@@ -298,6 +301,12 @@ export function createApiClient(options: ApiClientOptions) {
     getPet: (id: string) => call(`/pets/${id}`, PetSchema),
     updatePet: (id: string, body: PetUpdateInput) =>
       call(`/pets/${id}`, PetSchema, { method: 'PATCH', body }),
+    /** A signed URL to write the pet's photo to (FB-4); then `confirmAvatar` with its path. */
+    requestAvatar: (id: string, body: AvatarGrantRequest) =>
+      call(`/pets/${id}/avatar`, AvatarGrantSchema, { method: 'POST', body }),
+    confirmAvatar: (id: string, path: string) =>
+      call(`/pets/${id}/avatar`, PetSchema, { method: 'PUT', body: { path } }),
+    removeAvatar: (id: string) => call(`/pets/${id}/avatar`, PetSchema, { method: 'DELETE' }),
     deletePet: (id: string) => call<void>(`/pets/${id}`, null, { method: 'DELETE' }),
 
     /**

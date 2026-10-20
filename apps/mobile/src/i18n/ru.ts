@@ -142,6 +142,15 @@ export const ru = {
     footer: 'Отправлено из «Лапки»',
   },
 
+  /** The pet's photo (FB-4). */
+  petPhoto: {
+    add: 'Добавить фото',
+    change: 'Сменить фото',
+    camera: 'Снять на камеру',
+    remove: 'Убрать фото',
+    failed: 'Не удалось сохранить фото',
+  },
+
   /** The step after a new pet's form (FB-2/03, FB-2/04). */
   firstSteps: {
     title: 'Прививки и врач',

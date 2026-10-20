@@ -1,3 +1,4 @@
+import type { Pet } from '@lapka/contracts'
 import { useCallback, useEffect, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
@@ -7,6 +8,7 @@ import { localToday } from '@/lib/calendar-day'
 import { describeFailure } from '@/lib/errors'
 import { useText } from '@/i18n'
 import { useReminders } from '@/features/medical-record/reminders/ReminderProvider'
+import { PetPhotoPicker } from '@/features/pets/PetPhotoPicker'
 import { PetFields } from '@/features/pets/PetFields'
 import {
   formToInput,
@@ -30,6 +32,8 @@ export default function EditPet() {
   const t = useText()
   const reminders = useReminders()
   const [form, setForm] = useState<PetForm | null>(null)
+  /** The pet as last read, for its photo, which saves on its own (FB-4). */
+  const [pet, setPet] = useState<Pet | null>(null)
   const [hints, setHints] = useState<PetFormHints>({ weight: false, vaccinations: 0, medications: false })
   // What the server holds, to tell an edit from a form that was only looked at.
   const [saved, setSaved] = useState<PetForm | null>(null)
@@ -47,6 +51,7 @@ export default function EditPet() {
       // when there is one.
       const overview = await withFreshSession((api) => api.getHealthOverview(id, localToday()))
       const { pet } = overview
+      setPet(pet)
       setForm(petToForm(pet, localToday()))
       setSaved(petToForm(pet, localToday()))
       setOpened({ medications: pet.medications, weight_kg: pet.weight_kg })
@@ -147,6 +152,15 @@ export default function EditPet() {
       scroll
       dock={<Button title={t.common.save} onPress={() => void save()} busy={busy} />}
     >
+      {pet ? (
+        <PetPhotoPicker
+          pet={pet}
+          onChanged={(updated) => {
+            setPet(updated)
+            reminders.refresh()
+          }}
+        />
+      ) : null}
       <PetFields
         form={form}
         onChange={change}
