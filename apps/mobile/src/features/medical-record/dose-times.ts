@@ -18,14 +18,17 @@ export function readTime(text: string): string | null {
 }
 
 /**
- * What the field holds after an edit. A whole time, typed or pasted, reads as
- * «ЧЧ:ММ»; a time on its way («1», «12», «12:», «123») stays as typed, and so
- * does a deletion. Anything that cannot become a time — letters, a second
- * time stuck to the first — keeps the field as it was.
+ * What the field holds after an edit. A pasted time reads as «ЧЧ:ММ». What is
+ * typed or deleted a character at a time stays as it is while it can still
+ * become a time («1», «12:», «123», «1:30» after deleting the 2 of «12:30») —
+ * rewriting it would move the caret and change a time the person is still
+ * correcting; «+» reads it. Anything that cannot become a time — letters, a
+ * second time stuck to the first — keeps the field as it was.
  */
 export function editTime(previous: string, next: string): string {
+  const pasted = next.length - previous.length > 1
   const whole = readTime(next)
-  if (whole && (next.length >= 4 || /\D/.test(next.trim()))) return whole
+  if (pasted && whole) return whole
   const text = next.replace(/\s+/g, ' ')
   if (text === '' || new RegExp(`^\\d{1,2}(?:${SEPARATOR}\\d{0,2})?$|^\\d{3,4}$`).test(text)) return text
   return previous

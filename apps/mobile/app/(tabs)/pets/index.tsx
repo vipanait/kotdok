@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FlatList, Image, StyleSheet, View } from 'react-native'
 import { router, useFocusEffect } from 'expo-router'
 import type { DueItem, Pet } from '@lapka/contracts'
@@ -11,7 +11,7 @@ import { describeFailure } from '@/lib/errors'
 import { useText, type Dictionary } from '@/i18n'
 import { listDueLine } from '@/features/medical-record/due'
 import { Welcome } from '@/features/onboarding/Welcome'
-import { onboardingStore, resumeOnce } from '@/features/onboarding/store'
+import { onboardingStore, resumeOnce, settle } from '@/features/onboarding/store'
 import type { OnboardingGoal, OnboardingState } from '@/features/onboarding/onboarding-store'
 import { useAuth } from '@/providers/AuthProvider'
 import { Button } from '@/ui/Button'
@@ -91,15 +91,32 @@ export default function Pets() {
   const { session } = useAuth()
   const userId = session?.user.id ?? null
   const [onboarding, setOnboarding] = useState<OnboardingState | null>(null)
+  // Whether a path may still be resumed: only one read at a launch's start.
+  const resumable = useRef<OnboardingGoal | null>(null)
   useFocusEffect(
     useCallback(() => {
       if (!userId) return
-      void onboardingStore.read(userId).then(setOnboarding)
+      void onboardingStore.read(userId).then((state) => {
+        if (state.goal && !state.skipped && resumeOnce(userId)) resumable.current = state.goal
+        else settle(userId)
+        // Only the choice is shown from here; a path is begun by a tap.
+        setOnboarding({ ...state, goal: null })
+      })
     }, [userId]),
   )
 
+  // One screen per tap: a second tap while the first is on its way is the same tap.
+  const starting = useRef(false)
+  useFocusEffect(
+    useCallback(() => {
+      starting.current = false
+    }, []),
+  )
+
   const start = useCallback((goal: OnboardingGoal) => {
-    // A check needs a pet: its form, in the check tab, then straight back to
+    if (starting.current) return
+    starting.current = true
+    // A check needs a pet: its form, in the check tab, then straight on to
     // the check with that pet. The health path creates the card first.
     if (goal === 'check') router.navigate('/check/new-pet?goal=check')
     else router.push('/pets/new?goal=health')
@@ -107,18 +124,25 @@ export default function Pets() {
 
   function choose(goal: OnboardingGoal) {
     if (!userId) return
+    settle(userId)
     void onboardingStore.choose(userId, goal).catch(() => undefined)
     start(goal)
   }
 
   function skip() {
     setOnboarding((current) => ({ ...(current ?? onboardingStore.empty), skipped: true, goal: null }))
-    if (userId) void onboardingStore.skip(userId).catch(() => undefined)
+    if (userId) {
+      settle(userId)
+      void onboardingStore.skip(userId).catch(() => undefined)
+    }
   }
 
-  // A path begun before the app was closed goes on without asking again.
+  // A path begun before the app was closed goes on without asking again — once.
   useEffect(() => {
-    if (empty && onboarding?.goal && !onboarding.skipped && resumeOnce()) start(onboarding.goal)
+    if (!empty || !resumable.current) return
+    const goal = resumable.current
+    resumable.current = null
+    start(goal)
   }, [empty, onboarding, start])
 
   const welcome = empty && onboarding !== null && !onboarding.skipped

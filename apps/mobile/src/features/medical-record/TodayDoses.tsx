@@ -140,7 +140,7 @@ export function TodayDoses({ petId, courses }: { petId: string; courses: readonl
                     kind="secondary"
                     compact
                     busy={busy}
-                    style={stacked ? styles.giveStacked : undefined}
+                    style={stacked ? styles.giveStacked : styles.give}
                     onPress={() => void mark(course, slot, true)}
                   />
                 )}
@@ -166,6 +166,7 @@ const styles = StyleSheet.create({
   action: { width: 96, alignItems: 'flex-end' },
   actionStacked: { alignSelf: 'stretch', alignItems: 'flex-start' },
   giveStacked: { alignSelf: 'flex-start' },
+  give: { alignSelf: 'flex-end' },
   undoStacked: { alignItems: 'flex-start' },
   undo: { minHeight: TAP_TARGET, minWidth: TAP_TARGET, alignItems: 'flex-end', justifyContent: 'center' },
   undoText: { fontWeight: '700' },
