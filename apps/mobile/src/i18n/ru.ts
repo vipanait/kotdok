@@ -902,6 +902,8 @@ export const ru = {
   },
 
   petAge: (years: number) => `${years} ${plural(years, 'год', 'года', 'лет')}`,
+  petAgeMonths: (months: number) => `${months} ${plural(months, 'месяц', 'месяца', 'месяцев')}`,
+  petAgeUnderMonth: 'меньше месяца',
 
   species: { cat: 'Кот', dog: 'Собака' },
   sexCat: { male: 'Кот', female: 'Кошка' },

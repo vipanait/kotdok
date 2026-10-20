@@ -2,7 +2,8 @@ import { useMemo } from 'react'
 import { FlatList, Image, StyleSheet, View } from 'react-native'
 import { router } from 'expo-router'
 import type { DueItem, Pet } from '@lapka/contracts'
-import { headAge, nearestDueByPet } from '@lapka/shared'
+import { nearestDueByPet } from '@lapka/shared'
+import { ageText } from '@/features/pets/pet-age'
 import { withFreshSession } from '@/lib/api'
 import { useCached } from '@/lib/query-cache'
 import { localToday } from '@/lib/calendar-day'
@@ -22,9 +23,9 @@ import { colour, space } from '@/ui/theme'
 function describe(t: Dictionary, pet: Pet): string {
   const parts: string[] = [t.species[pet.species]]
   if (pet.breed) parts.push(pet.breed)
-  // The one age rule of the phone and the site (shared `headAge`, MW-09): zero is said.
-  const age = headAge(pet, localToday())
-  if (age !== null) parts.push(t.petAge(age))
+  // Months under a year from a birth date, otherwise years with zero said (`ageText`, FB-2/05).
+  const age = ageText(t, pet, localToday())
+  if (age !== null) parts.push(age)
   return parts.join(' · ')
 }
 
