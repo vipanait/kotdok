@@ -322,3 +322,23 @@
     .course-record .course-facts { grid-template-columns: minmax(0, 1fr); }
   }
 }
+
+@layer components {
+
+  /* ---------- Плановый визит ---------- */
+
+  .visit-columns aside { display: grid; gap: 22px; min-width: 0; }
+  .visit-columns .visit-record-body > h2 { margin-bottom: 14px; }
+  .visit-columns .visit-record-body > .pill { display: inline-block; margin-bottom: 20px; }
+  .visit-overdue { margin: -10px 0 18px; color: var(--red); font-size: 13px; }
+  .visit-columns .visit-facts { margin: 0; }
+  .visit-columns .visit-facts dt { margin-top: 14px; font-size: 13px; color: var(--muted); }
+  .visit-columns .visit-facts dd { margin: 4px 0 0; overflow-wrap: anywhere; }
+  .visit-actions { margin-top: 24px; }
+  .visit-pet { text-align: left; }
+  .visit-pet .avatar { margin: 4px 0 12px; border-radius: 50%; }
+  .visit-pet h3 { margin: 0 0 4px; font-size: 19px; }
+  .visit-pet p { color: var(--muted); }
+  .visit-columns .card .btn .icon { width: 20px; height: 20px; }
+  .visit-columns .event-actions .link { min-height: 44px; }
+}
