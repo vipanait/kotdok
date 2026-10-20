@@ -171,6 +171,23 @@ async function readCreated(supabase: SupabaseService, userId: string, created: P
   return read.ok ? read : { ok: true, data: created }
 }
 
+type PetFields = ReturnType<typeof sanitizePet>
+
+/**
+ * The columns an update writes: only those the body speaks about, since the
+ * contract promises a partial update and sanitizePet fills every absent field
+ * with an empty value — `{ vaccinated: true }` would rename the pet «Кот».
+ * A pet turned into a cat loses its dog-only fields, which stay null for cats.
+ */
+function sentFields(sanitized: PetFields, body: Record<string, unknown>): Partial<PetFields & { vaccinated_form: boolean | null }> {
+  const sent: Partial<PetFields> = Object.fromEntries(Object.entries(sanitized).filter(([key]) => key in body))
+  if ('species' in body && sanitized.species === 'cat') {
+    sent.size_class = null
+    sent.walk_activity = null
+  }
+  return sent
+}
+
 export async function updatePet(
   supabase: SupabaseService,
   userId: string,
@@ -180,13 +197,25 @@ export async function updatePet(
   const allowed = await requireActiveAccount(supabase, userId)
   if (!allowed.ok) return allowed
 
-  const sanitized = sanitizePet(body)
+  // maybeSingle, not single: a pet that belongs to someone else matches no
+  // row, and `single` reports that as an error rather than as absence, which
+  // turned "not yours" into a 500.
+  const { data: current, error: readError } = await supabase
+    .from('pets')
+    .select('species, vaccinated, vaccinated_form')
+    .eq('id', petId)
+    .eq('user_id', userId)
+    .is('deleted_at', null)
+    .maybeSingle()
+  if (readError) return { ok: false, reason: 'storage_error', message: readError.message }
+  if (!current) return { ok: false, reason: 'not_found' }
+
+  // A dog's field sent without the species is about the stored dog.
+  const sanitized = sanitizePet({ species: current.species, ...body })
   // The medicines list is the courses' to set (MR-06): the form's list goes
   // through sync_form_medications, never straight into the column.
-  const { medications: formMedications, ...rest } = sanitized
-  const withoutWeight: Partial<typeof sanitized> = { ...rest }
-  delete withoutWeight.weight_kg
-  let pet: Partial<typeof sanitized> = rest
+  const pet = sentFields(sanitized, body)
+  delete pet.medications
 
   // Before the form is saved: the record keeps the form's previous weight as
   // history, so it has to see it first. Once the weight is in the history,
@@ -194,49 +223,48 @@ export async function updatePet(
   // not always the one just saved — so the update leaves the column alone.
   // Sent back as it was opened, the form's weight is not a new measurement:
   // a newer one may have come in since, and would be overwritten by old data.
-  const unchangedWeight = 'weight_kg_before' in body && body.weight_kg_before === sanitized.weight_kg
-  const weight = unchangedWeight ? null : formWeight(body, sanitized)
-  if (weight) {
-    const recorded = await recordWeight(supabase, userId, petId, weight, 'form')
-    if (!recorded.ok) {
-      return { ok: false, reason: recorded.reason === 'not_found' ? 'not_found' : 'storage_error', message: recorded.message }
+  if ('weight_kg' in pet) {
+    const unchangedWeight = 'weight_kg_before' in body && body.weight_kg_before === sanitized.weight_kg
+    const weight = unchangedWeight ? null : formWeight(body, sanitized)
+    if (weight) {
+      const recorded = await recordWeight(supabase, userId, petId, weight, 'form')
+      if (!recorded.ok) {
+        return { ok: false, reason: recorded.reason === 'not_found' ? 'not_found' : 'storage_error', message: recorded.message }
+      }
+      delete pet.weight_kg
+    } else if (unchangedWeight || (await hasWeights(supabase, petId))) {
+      // Clearing the field does not delete measurements, and the form would
+      // disagree with the history it points to.
+      delete pet.weight_kg
     }
-    pet = withoutWeight
-  } else if (unchangedWeight || (await hasWeights(supabase, petId))) {
-    // Clearing the field does not delete measurements, and the form would
-    // disagree with the history it points to.
-    pet = withoutWeight
   }
 
   // The answer is the owner's; what the pet is shown as also counts the
   // vaccinations in the record, so it is worked out after the update. The
   // form shows that combined value: sent back unchanged, it is not the
   // owner's answer, and the answer already given stays.
-  const { data: current } = await supabase
-    .from('pets')
-    .select('vaccinated, vaccinated_form')
-    .eq('id', petId)
-    .eq('user_id', userId)
-    .is('deleted_at', null)
-    .maybeSingle()
-  const vaccinatedForm =
-    current && 'vaccinated' in body && sanitized.vaccinated === current.vaccinated && current.vaccinated !== current.vaccinated_form
-      ? current.vaccinated_form
-      : sanitized.vaccinated
-  const { data: updated, error: updateError } = await supabase
-    .from('pets')
-    .update({ ...pet, vaccinated_form: vaccinatedForm })
-    .eq('id', petId)
-    .eq('user_id', userId)
-    .is('deleted_at', null)
-    .select()
-    // maybeSingle, not single: a pet that belongs to someone else matches no
-    // row, and `single` reports that as an error rather than as absence, which
-    // turned "not yours" into a 500.
-    .maybeSingle()
+  if ('vaccinated' in pet) {
+    pet.vaccinated_form =
+      sanitized.vaccinated === current.vaccinated && current.vaccinated !== current.vaccinated_form
+        ? current.vaccinated_form
+        : sanitized.vaccinated
+  }
 
-  if (updateError) return { ok: false, reason: 'storage_error', message: updateError.message }
-  if (!updated) return { ok: false, reason: 'not_found' }
+  // A body with only the medicines, or only a weight the history took, leaves
+  // the row as it is.
+  if (Object.keys(pet).length > 0) {
+    const { data: updated, error: updateError } = await supabase
+      .from('pets')
+      .update(pet)
+      .eq('id', petId)
+      .eq('user_id', userId)
+      .is('deleted_at', null)
+      .select()
+      .maybeSingle()
+
+    if (updateError) return { ok: false, reason: 'storage_error', message: updateError.message }
+    if (!updated) return { ok: false, reason: 'not_found' }
+  }
 
   const synced = await supabase.rpc('sync_pet_vaccinated', { p_pet_id: petId })
   if (synced.error) return { ok: false, reason: 'storage_error', message: synced.error.message }
@@ -245,7 +273,7 @@ export async function updatePet(
   // list with [], and a partial update must not end every course.
   if ('medications' in body) {
     const before = Array.isArray(body.medications_before) ? (body.medications_before as string[]) : null
-    const medicines = await syncFormMedications(supabase, userId, petId, formMedications, formDay(body), before)
+    const medicines = await syncFormMedications(supabase, userId, petId, sanitized.medications, formDay(body), before)
     if (!medicines.ok) return { ok: false, reason: 'storage_error', message: medicines.message }
   }
 
