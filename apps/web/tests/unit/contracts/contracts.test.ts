@@ -102,6 +102,12 @@ describe('pet contracts', () => {
     expect(() => PetSchema.parse({ ...pet, species: 'ferret' })).toThrow()
   })
 
+  it('drops a field a later server adds instead of failing (FB-2)', () => {
+    const read = PetSchema.parse({ ...pet, birth_date: '2020-05-01' })
+    expect(read).toEqual(pet)
+    expect(read).not.toHaveProperty('birth_date')
+  })
+
   it('rejects dog-only fields on a cat', () => {
     expect(() => PetCreateInputSchema.parse({ species: 'cat', name: 'Мурка', size_class: 'large' })).toThrow()
   })
