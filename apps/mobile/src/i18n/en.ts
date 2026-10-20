@@ -126,6 +126,14 @@ export const en: Dictionary = {
     footer: 'Sent from Lapka',
   },
 
+  petPhoto: {
+    add: 'Add a photo',
+    change: 'Change photo',
+    camera: 'Take a photo',
+    remove: 'Remove photo',
+    failed: 'Could not save the photo',
+  },
+
   firstSteps: {
     title: 'Vaccinations and vet',
     vaccines: 'Which vaccinations has it had?',

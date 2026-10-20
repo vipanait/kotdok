@@ -360,6 +360,6 @@ describe('what the client says it can read (FB-2 release)', () => {
       return ok([]) as never
     }
     await createApiClient({ baseUrl: BASE, fetch }).listPets()
-    expect(seen[0]['X-Lapka-Features']).toBe('pet-dates')
+    expect(seen[0]['X-Lapka-Features']).toBe('pet-dates,pet-avatar')
   })
 })

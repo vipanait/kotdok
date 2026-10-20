@@ -235,7 +235,7 @@ export default function MedicalRecord() {
         accessible
         accessibilityLabel={[facts.meta, facts.neutered, facts.weight].filter(Boolean).join(', ')}
       >
-        <Avatar species={pet.species} size={64} />
+        <Avatar species={pet.species} uri={pet.avatar_url} size={64} />
         <View style={styles.headerCopy}>
           <Text variant="label" tone="muted">
             {facts.meta}
