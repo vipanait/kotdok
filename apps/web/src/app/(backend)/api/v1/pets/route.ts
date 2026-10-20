@@ -28,8 +28,9 @@ export const POST = withApiAuth(async (request: NextRequest, context: ApiContext
   const parsed = PetCreateInputSchema.safeParse(body)
   // A weighing day ahead of every time zone is a wrong clock, and it would stay
   // the newest measurement for ever.
-  const day = parsed.success ? parsed.data.weight_measured_on : undefined
-  if (!parsed.success || (day !== undefined && isFutureDay(day))) {
+  // So is a birth or a home day ahead of every time zone (FB-2/01).
+  const days = parsed.success ? [parsed.data.weight_measured_on, parsed.data.birth_date, parsed.data.adopted_on] : []
+  if (!parsed.success || days.some((day) => day != null && isFutureDay(day))) {
     return apiError(context.requestId, 'bad_request', 'Body does not match the contract')
   }
 

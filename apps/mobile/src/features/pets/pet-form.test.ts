@@ -113,6 +113,9 @@ describe('pet form', () => {
       chronic_conditions: [],
       medications: ['витамины'],
       notes: 'боится грозы',
+      birth_date: null,
+      birth_date_approx: false,
+      adopted_on: null,
       created_at: '2026-09-06T11:51:53.000Z',
     }
 

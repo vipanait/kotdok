@@ -20,6 +20,9 @@ describe('sanitizePet', () => {
       chronic_conditions: ['asthma'],
       medications: [' inhaler '],
       notes: '  Needs evening meds  ',
+      birth_date: '2022-04-20',
+      birth_date_approx: true,
+      adopted_on: '2022-06-01',
     })).toEqual({
       species: 'dog',
       name: 'Барсик',
@@ -37,6 +40,17 @@ describe('sanitizePet', () => {
       chronic_conditions: ['asthma'],
       medications: ['inhaler'],
       notes: 'Needs evening meds',
+      birth_date: '2022-04-20',
+      birth_date_approx: true,
+      adopted_on: '2022-06-01',
+    })
+  })
+
+  it('keeps «approximate» only with a date, and drops a date not written as one (FB-2/01)', () => {
+    expect(sanitizePet({ name: 'Барсик', birth_date_approx: true })).toMatchObject({ birth_date: null, birth_date_approx: false })
+    expect(sanitizePet({ name: 'Барсик', birth_date: '20.04.2022', adopted_on: 5 })).toMatchObject({
+      birth_date: null,
+      adopted_on: null,
     })
   })
 

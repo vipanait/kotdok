@@ -41,6 +41,9 @@ export interface Pet {
   chronic_conditions: string[]
   medications: string[]
   notes: string | null
+  birth_date: string | null
+  birth_date_approx: boolean
+  adopted_on: string | null
   created_at: string
 }
 
