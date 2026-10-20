@@ -131,7 +131,6 @@ export const ru = {
   /** The memo for whoever minds the pet (FB-3/02). */
   sitterMemo: {
     row: 'Памятка для передержки',
-    rowNote: 'Важное и планы на 2 недели — в Telegram или куда удобно',
     diet: (value: string) => `Питание: ${value}`,
     allergies: (list: string) => `Аллергии: ${list}`,
     chronic: (list: string) => `Хронические болезни: ${list}`,
