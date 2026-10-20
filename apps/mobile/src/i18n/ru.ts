@@ -265,12 +265,12 @@ export const ru = {
       soon: (when: string) => `— ${when}`,
     },
     dueTitle: 'Напоминания',
-    allDue: (count: number) => `Все сроки · ${count}`,
-    allDueTitle: 'Все сроки',
+    allDue: (count: number) => `Все напоминания · ${count}`,
+    allDueTitle: 'Напоминания',
     markDone: 'Сделано',
     /** On a due row whose day has come; beside a date ahead «Сделано» read as a status (FB-1/01). */
     markDue: 'Отметить',
-    /** Group headings in «Сроки»; overdue rows need none, each says it. */
+    /** Group headings in «Напоминания»; overdue rows need none, each says it. */
     dueUpcoming: 'Ближайшее',
     dueLater: 'Позже',
     duePlannedDate: 'Плановая дата',
@@ -393,7 +393,7 @@ export const ru = {
       plan: 'Запланировать',
       /** Under the switch, so each side says what it leads to (FB-1/03). */
       doneNote: 'Запишите диагноз и назначения — они останутся в медкарте.',
-      planNote: 'Визит появится в сроках, напомним о нём заранее.',
+      planNote: 'Визит появится в напоминаниях, напомним о нём заранее.',
       kind: 'Вид визита',
       kinds: { checkup: 'Осмотр или профилактика', illness: 'Болезнь', surgery: 'Операция', tests: 'Анализы и диагностика', other: 'Другое' },
       kindsShort: { checkup: 'Осмотр', illness: 'Болезнь', surgery: 'Операция', tests: 'Анализы', other: 'Другое' },
@@ -471,8 +471,8 @@ export const ru = {
       plans === 0
         ? 'Запишем как сделанное, без следующей даты.'
         : plans === 1
-          ? `Запишем как сделанное. ${day ? `Следующая — ${day}, она` : 'Следующая дата'} появится в сроках.`
-          : `Запишем как сделанное. ${day ? `Следующие — ${day}, они` : 'Следующие даты'} появятся в сроках.`,
+          ? `Запишем как сделанное. ${day ? `Следующая — ${day}, она` : 'Следующая дата'} появится в напоминаниях.`
+          : `Запишем как сделанное. ${day ? `Следующие — ${day}, они` : 'Следующие даты'} появятся в напоминаниях.`,
     /** After «Запишем как сделанное…» when only one item of a plan is marked. */
     summaryComplete: (others: number) =>
       others === 1
@@ -711,6 +711,7 @@ export const ru = {
   /** A dose at the time the owner set (FB-5). */
   doseReminders: {
     about: (medicine: string) => `о приёме «${medicine}»`,
+    renew: 'Напоминания о лекарствах заканчиваются. Откройте «Лапку», чтобы они продолжились.',
     askBody: 'Пришлём уведомление в выбранное время, пока идёт курс. Выключить можно в профиле.',
     body: (pet: string, what: string) => {
       const cases = nameCase(pet)
@@ -802,8 +803,9 @@ export const ru = {
     remind: 'Напоминать',
     notNow: 'Не сейчас',
     openSettings: 'Открыть настройки',
-    deniedBody: 'Уведомления выключены в настройках телефона. Сроки всё равно видны в медкарте.',
-    title: 'Напоминания',
+    deniedBody: 'Уведомления выключены в настройках телефона. Напоминания всё равно видны в медкарте.',
+    // The settings screen and its profile row: «Напоминания» is the record's list (design 20 October 2026).
+    title: 'Уведомления',
     on: 'Вкл',
     off: 'Выкл',
     toggle: 'Напоминать о прививках, обработках, визитах и лекарствах',

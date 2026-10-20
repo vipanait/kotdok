@@ -30,7 +30,7 @@
 
 ### Task 1: Время приёма у курса
 
-**Files:** migration `supabase/migrations/20261021110000_medication_times.sql`; `packages/contracts/src/medical-record.ts`; `apps/web/src/server/medical-record/medication-service.ts` (или где пишутся курсы); `apps/mobile/src/features/medical-record/medications.ts`, `app/(tabs)/pets/[id]/medication-form.tsx`, i18n; тесты контракта и `medications.test.ts`.
+**Files:** migration `supabase/migrations/20261020140000_medication_times.sql`; `packages/contracts/src/medical-record.ts`; `apps/web/src/server/medical-record/medication-service.ts` (или где пишутся курсы); `apps/mobile/src/features/medical-record/medications.ts`, `app/(tabs)/pets/[id]/medication-form.tsx`, i18n; тесты контракта и `medications.test.ts`.
 
 **Interfaces:** `pet_medications.reminder_times text[] not null default '{}'` с проверкой формата; `MedicationSchema.reminder_times: string[]` (default `[]`); `MedicationInputSchema`/`MedicationPatchSchema` + `reminder_times?: string[]` (0–4, `^([01]\d|2[0-3]):[0-5]\d$`, без повторов). Форма: «Напоминать» — чипы «08:00», «20:00» и «Своё время» (выбор часа и минут).
 

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { Medication } from '@lapka/contracts'
 import { ru } from '@/i18n/ru'
-import { doseMoments, planDoseReminders, todayDoses } from './doses'
+import { doseMoments, planDoseReminders, planDoseRenewal, todayDoses } from './doses'
 import { REMINDER_LIMIT } from './schedule'
 
 const course = (overrides: Partial<Medication> = {}): Medication => ({
@@ -72,5 +72,22 @@ describe('today’s doses on the pet card (FB-5/04)', () => {
       { course: expect.objectContaining({ id: 'c1' }), slot: '20:00', state: 'due' },
     ])
     expect(todayDoses([course()], [], NOW)[0].state).toBe('missed')
+  })
+})
+
+describe('the week’s end, when the app was not opened (PR #82 review)', () => {
+  it('adds «откройте Лапку» a minute after the last dose held, while the course runs on', () => {
+    const planned = planDoseReminders(ru, [{ pet, course: course() }], [], NOW)
+    const renewal = planDoseRenewal(ru, [{ pet, course: course() }], [], NOW, planned)
+    const last = planned[planned.length - 1]
+    expect(renewal).toMatchObject({ id: 'lapka-dose-renew', petId: 'p1', day: last.day, hour: 20, minute: 1 })
+    expect(renewal!.body).toContain('Откройте «Лапку»')
+  })
+
+  it('says nothing when the course ends within the week, or nothing is held', () => {
+    const ending = course({ ongoing: false, ended_on: '2026-10-22' })
+    const planned = planDoseReminders(ru, [{ pet, course: ending }], [], NOW)
+    expect(planDoseRenewal(ru, [{ pet, course: ending }], [], NOW, planned)).toBeNull()
+    expect(planDoseRenewal(ru, [{ pet, course: course() }], [], NOW, [])).toBeNull()
   })
 })

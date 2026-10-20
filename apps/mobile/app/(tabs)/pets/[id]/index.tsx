@@ -60,7 +60,7 @@ const SECTION_ROUTES: Partial<Record<SectionRow['section'], string>> = {
   weight: 'weight',
 }
 
-/** At most this many due dates on the record itself; the rest behind «Все сроки» (spec §7.2). */
+/** At most this many due dates on the record itself; the rest behind «Все напоминания» (spec §7.2). */
 const DUE_ON_RECORD = 3
 
 /** Where «Скрыть подсказку» is remembered, per pet and per phone. */
@@ -282,7 +282,7 @@ export default function MedicalRecord() {
           <Text variant="h2" style={styles.dueTitle}>
             {t.medicalRecord.dueTitle}
           </Text>
-          {/* The limit first, then the groups: «Все сроки» keeps the count of all. */}
+          {/* The limit first, then the groups: «Все напоминания» keeps the count of all. */}
           <DueList
             items={due.slice(0, DUE_ON_RECORD)}
             today={today}

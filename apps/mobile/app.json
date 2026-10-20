@@ -59,7 +59,8 @@
           }
         }
       ],
-      "./plugins/android-orientation"
+      "./plugins/android-orientation",
+      "expo-image"
     ],
     "extra": {
       "router": {},

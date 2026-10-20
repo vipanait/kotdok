@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { Image, Pressable, StyleSheet, View, type ViewStyle } from 'react-native'
+import { Image as ExpoImage } from 'expo-image'
+import { avatarCacheKey } from './avatar-cache-key'
 import { Icon, type IconName } from './Icon'
 import { Text } from './Text'
 import { colour, radius, shadow, space, urgency as urgencyScale } from './theme'
@@ -62,11 +64,15 @@ export function Avatar({ species, size = 48, uri }: { species: 'cat' | 'dog'; si
   // Which link failed, not whether one did: a fresh link (a re-read, a new photo) is tried again.
   const [failed, setFailed] = useState<string | null>(null)
   if (uri && failed !== uri) {
+    const key = avatarCacheKey(uri)
     return (
-      <Image
-        source={{ uri }}
+      <ExpoImage
+        source={{ uri, cacheKey: key }}
+        recyclingKey={key}
+        cachePolicy="memory-disk"
+        contentFit="cover"
+        transition={0}
         style={{ width: size, height: size, borderRadius: size / 2 }}
-        resizeMode="cover"
         accessible={false}
         onError={() => setFailed(uri)}
       />
