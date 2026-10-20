@@ -1,6 +1,7 @@
-import { UuidSchema, type DueItem } from '@lapka/contracts'
+import { UuidSchema, type DueItem, type MedicationDose } from '@lapka/contracts'
 import type { Dictionary } from '@/i18n'
-import { planReminders, type PlannedReminder, type ReminderSettings } from './schedule'
+import { REMINDER_LIMIT, planReminders, type PlannedReminder, type ReminderSettings } from './schedule'
+import { planDoseReminders, type DoseCourse } from './doses'
 
 /** The slice of expo-notifications this needs, so tests need no native module. */
 export type Notifier = {
@@ -13,7 +14,13 @@ export type Notifier = {
 
 export type ReminderAccount = {
   userId: string
-  load(): Promise<{ due: DueItem[]; pets: { id: string; name: string }[] }>
+  load(): Promise<{
+    due: DueItem[]
+    pets: { id: string; name: string }[]
+    /** Courses with times, and the doses given in the week ahead (FB-5); none from an older caller. */
+    courses?: DoseCourse[]
+    doses?: MedicationDose[]
+  }>
 }
 
 /**
@@ -45,9 +52,12 @@ export function createReminderSync(deps: {
       if (mine === generation) await deps.notifier.cancelAll()
       return
     }
-    const { due, pets } = await account.load()
+    const { due, pets, courses = [], doses = [] } = await account.load()
     if (mine !== generation) return
-    const plan = planReminders(deps.t(), due, pets, settings, deps.now?.() ?? new Date())
+    const now = deps.now?.() ?? new Date()
+    // Doses first: a medicine missed matters more than a reminder of a date.
+    const dosePlan = planDoseReminders(deps.t(), courses, doses, now)
+    const plan = [...dosePlan, ...planReminders(deps.t(), due, pets, settings, now, REMINDER_LIMIT - dosePlan.length)]
     await deps.notifier.cancelAll()
     for (const reminder of plan) {
       if (mine !== generation) return

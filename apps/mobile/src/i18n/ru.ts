@@ -660,6 +660,33 @@ export const ru = {
     fileName: (name: string, day: string) => `${name} — медкарта — ${day}`,
   },
 
+  /** When a course is given (FB-5). */
+  doseTimes: {
+    title: 'Напоминать о приёме',
+    custom: 'Своё время',
+    add: 'Добавить',
+    invalid: 'Время — ЧЧ:ММ',
+    note: 'Время приёма задаёте вы: приложение не советует ни время, ни дозу.',
+    failed: 'Не удалось сохранить время',
+  },
+  /** The pet card's doses for today (FB-5/04). */
+  today: {
+    title: 'Сегодня',
+    give: 'Дали',
+    given: 'Дали',
+    undo: 'Отменить',
+    missed: 'Не отмечено',
+    failed: 'Не удалось отметить',
+  },
+
+  /** A dose at the time the owner set (FB-5). */
+  doseReminders: {
+    body: (pet: string, what: string) => {
+      const cases = nameCase(pet)
+      return cases ? `${cases.dative} пора: ${what}` : `${pet} — пора: ${what}`
+    },
+  },
+
   reminders: {
     notificationTitle: 'Лапка',
     before: (pet: string, days: number, what: string) => {

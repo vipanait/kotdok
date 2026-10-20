@@ -52,6 +52,8 @@ import {
   AvatarGrantSchema,
   PET_AVATAR_FEATURE,
   type AvatarGrantRequest,
+  MedicationDoseSchema,
+  type MedicationDoseInput,
 } from '@lapka/contracts'
 import { z } from 'zod'
 
@@ -391,6 +393,22 @@ export function createApiClient(options: ApiClientOptions) {
      */
     changeMedication: (petId: string, medicationId: string, body: MedicationPatch, today?: string) =>
       call(`/pets/${petId}/health/medications/${medicationId}`, MedicationSchema, { method: 'PATCH', body, query: { today } }),
+    /** The times a course is given at (FB-5); the list replaces the stored one. */
+    setMedicationTimes: (petId: string, medicationId: string, reminderTimes: string[]) =>
+      call(`/pets/${petId}/health/medications/${medicationId}/times`, MedicationSchema, {
+        method: 'PUT',
+        body: { reminder_times: reminderTimes },
+      }),
+    /** «Дали»: marking the same dose again answers with that dose. */
+    markDose: (petId: string, medicationId: string, body: MedicationDoseInput) =>
+      call(`/pets/${petId}/health/medications/${medicationId}/doses`, MedicationDoseSchema, { method: 'POST', body }),
+    unmarkDose: (petId: string, medicationId: string, body: MedicationDoseInput) =>
+      call<void>(`/pets/${petId}/health/medications/${medicationId}/doses`, null, {
+        method: 'DELETE',
+        query: { taken_on: body.taken_on, slot: body.slot },
+      }),
+    listDoses: (petId: string, from: string, to: string) =>
+      call(`/pets/${petId}/health/doses`, z.array(MedicationDoseSchema), { query: { from, to } }),
     deleteMedication: (petId: string, medicationId: string, today?: string) =>
       call<void>(`/pets/${petId}/health/medications/${medicationId}`, null, { method: 'DELETE', query: { today } }),
     /** `signal`: a search the screen no longer shows (a newer query, another pet) is aborted. */

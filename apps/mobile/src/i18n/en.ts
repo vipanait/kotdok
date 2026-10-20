@@ -621,6 +621,27 @@ export const en: Dictionary = {
     fileName: (name: string, day: string) => `${name} — medical record — ${day}`,
   },
 
+  doseTimes: {
+    title: 'Remind me to give it',
+    custom: 'Your own time',
+    add: 'Add',
+    invalid: 'Time — HH:MM',
+    note: 'You set the times: the app suggests neither the time nor the dose.',
+    failed: 'Could not save the time',
+  },
+  today: {
+    title: 'Today',
+    give: 'Given',
+    given: 'Given',
+    undo: 'Undo',
+    missed: 'Not marked',
+    failed: 'Could not mark it',
+  },
+
+  doseReminders: {
+    body: (pet: string, what: string) => `${pet}: time for ${what}`,
+  },
+
   reminders: {
     notificationTitle: 'Lapka',
     before: (pet: string, days: number, what: string) =>
