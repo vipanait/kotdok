@@ -19,6 +19,7 @@ export default function MyPetsSection({
   pets,
   latestChecksByPet,
   dueByPet,
+  photosByPet,
   today,
   dict,
   locale,
@@ -26,6 +27,7 @@ export default function MyPetsSection({
   pets: Pet[]
   latestChecksByPet: Record<string, PetLatestCheck>
   dueByPet: Record<string, DueItem>
+  photosByPet: Record<string, string>
   today: string
   dict: Dictionary
   locale: Locale
@@ -47,6 +49,7 @@ export default function MyPetsSection({
         pets={pets.slice(0, OVERVIEW_PET_LIMIT)}
         latestChecksByPet={latestChecksByPet}
         dueByPet={dueByPet}
+        photosByPet={photosByPet}
         today={today}
         dict={dict}
         locale={locale}

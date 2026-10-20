@@ -1,6 +1,6 @@
 'use client'
 
-import { useId, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import Link from 'next/link'
 import type { Pet, PetSizeClass, PetSpecies, PetWalkActivity } from '@/shared/types'
 import { useTranslations } from '@/components/LocaleProvider'
@@ -12,6 +12,8 @@ import { petFormCancelHref, petFormDoneHref } from '@/features/pets/pet-form-exi
 import { csrfHeaders } from '@/shared/security/csrf-client'
 import { fromArr, petFormRequest } from '@/features/pets/pet-form-request'
 import { localToday } from '@lapka/shared'
+import { updateOnboarding } from '@/features/onboarding/onboarding-cookie'
+import { chooseGoal, finishOnboarding, type OnboardingGoal } from '@/features/onboarding/onboarding-state'
 
 
 /**
@@ -29,6 +31,12 @@ interface Props {
   /** The pet being edited; none for a new one. */
   pet?: Pet
   hints?: PetFormHintTexts
+  /**
+   * A new pet's path from the first entry («Проверить симптомы» or «Следить
+   * за здоровьем»), and the account it is kept for: the form says where it
+   * goes next and goes there once the pet is saved.
+   */
+  onboarding?: { userId: string; goal: OnboardingGoal | null }
 }
 
 const NOTES_MAX = 300
@@ -48,7 +56,7 @@ function sanitizeDecimalInput(raw: string): string {
  * right. Leaving with unsaved changes — any link on the page, a reload or
  * closing the tab — asks first. Delete is set apart and confirmed in a dialog.
  */
-export default function PetForm({ pet, hints = {} }: Props) {
+export default function PetForm({ pet, hints = {}, onboarding }: Props) {
   const dict = useTranslations()
   const t = dict.pets
   const isEdit = !!pet
@@ -83,6 +91,16 @@ export default function PetForm({ pet, hints = {} }: Props) {
   const [deleteError, setDeleteError] = useState('')
 
   const nameRef = useRef<HTMLInputElement>(null)
+  /** One save at a time: a second press while the first runs sends nothing. */
+  const inFlight = useRef(false)
+
+  // A path named in the address is this account's path from now on: it goes
+  // on after the owner leaves the form and comes back by another way.
+  const goal = onboarding?.goal ?? null
+  const userId = onboarding?.userId
+  useEffect(() => {
+    if (userId && goal) updateOnboarding(userId, (state) => chooseGoal(state, goal))
+  }, [userId, goal])
   const deleteButtonRef = useRef<HTMLButtonElement>(null)
 
   const sexFemale = species === 'dog' ? t.sexFemaleDog : t.sexFemaleCat
@@ -116,12 +134,13 @@ export default function PetForm({ pet, hints = {} }: Props) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (saving) return
+    if (inFlight.current) return
     if (!name.trim()) {
       setNameError(t.errorName)
       nameRef.current?.focus()
       return
     }
+    inFlight.current = true
     setSaving(true)
     setFormError('')
     setNameError('')
@@ -134,24 +153,32 @@ export default function PetForm({ pet, hints = {} }: Props) {
       },
       localToday(),
     )
+    let saved: { id?: unknown } | null = null
     try {
       const res = await fetch(request.url, {
         method: request.method,
         headers: csrfHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify(request.body),
       })
-      if (!res.ok) {
-        setFormError(t.saveError)
-        setSaving(false)
-        return
-      }
+      if (res.ok) saved = await res.json().catch(() => ({}))
     } catch {
+      saved = null
+    }
+    if (!saved) {
+      // What was typed stays; the owner can try again.
+      inFlight.current = false
       setFormError(t.saveError)
       setSaving(false)
       return
     }
 
-    leave(petFormDoneHref(pet ? { kind: 'updated', petId: pet.id } : { kind: 'created' }))
+    if (pet) {
+      leave(petFormDoneHref({ kind: 'updated', petId: pet.id }))
+      return
+    }
+    if (userId) updateOnboarding(userId, finishOnboarding)
+    // The new pet's id comes back with it; without one (never expected) the list shows it.
+    leave(typeof saved.id === 'string' ? petFormDoneHref({ kind: 'created', petId: saved.id, goal }) : '/pets?petSaved=created')
   }
 
   async function handleDelete() {

@@ -24,7 +24,8 @@ export function buildContentSecurityPolicy(options: {
     // Styles keep `'unsafe-inline'`: the inline style attributes React writes
     // carry no nonce, and a style cannot run code.
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' blob: data:",
+    // Supabase: a pet's photo is shown from its short-lived signed Storage link (FB-4).
+    `img-src 'self' blob: data: ${supabaseOrigin}`,
     "font-src 'self' data:",
     // The browser talks to this site and to Supabase — auth, the database, and
     // nothing else.

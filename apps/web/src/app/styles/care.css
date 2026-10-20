@@ -1,0 +1,124 @@
+/*
+ * The screens of the web update of 20 October 2026 (docs/design/web-update-2026-10-20):
+ * the first entry, the pet's dates and photo, «Сегодня», «Напоминания», the
+ * course's times, the visit's calendar link and the sitter's memo. Additions
+ * to the design system, in its tokens; loaded last, so they win ties.
+ */
+@layer components {
+
+  /* ---------- Two columns: the page, then its context ---------- */
+
+  .care-columns {
+    display: grid;
+    grid-template-columns: minmax(0, 1.65fr) minmax(280px, 1fr);
+    gap: 26px;
+    align-items: start;
+  }
+
+  .care-columns > div { display: grid; gap: 22px; min-width: 0; }
+  .care-columns .card { margin: 0; }
+  .card.soft { background: var(--soft); }
+  .card.mint { background: var(--mint); border-color: #C4DFD8; }
+
+  /* ---------- «С чего начнём?» ---------- */
+
+  .welcome-start {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    gap: 54px;
+    max-width: 1020px;
+    margin: 20px auto 0;
+  }
+
+  .welcome-start-art { padding-top: 22px; text-align: center; }
+  .welcome-start-art .art { width: 100%; max-width: 355px; height: 310px; object-fit: contain; margin: 0 auto; }
+  .welcome-start-motto { margin-top: 22px; font: 800 28px/1.35 var(--font-display); white-space: pre-line; }
+
+  .welcome-start-options { display: grid; gap: 22px; align-content: start; }
+  .welcome-option { padding: 30px; }
+  .welcome-option h2 { margin-bottom: 12px; }
+  .welcome-option p { margin-bottom: 18px; color: #5B5346; }
+  .welcome-option.is-check { background: var(--mint); border-color: #C4DFD8; }
+  .welcome-skip { justify-self: start; min-height: 44px; }
+
+  @media (max-width: 1100px) {
+    .welcome-start { gap: 24px; }
+  }
+
+  @media (max-width: 900px) {
+    .care-columns { grid-template-columns: minmax(0, 1fr); }
+  }
+
+  @media (max-width: 760px) {
+    .welcome-start { grid-template-columns: minmax(0, 1fr); gap: 20px; margin: 0; }
+    .welcome-start-art { padding: 0; }
+    .welcome-start-art .art { height: 160px; }
+    .welcome-start-motto { display: none; }
+    .welcome-option { padding: 22px; }
+  }
+}
+
+@layer components {
+
+  /* ---------- «Добавим первую запись?» ---------- */
+
+  .first-record-head { margin: 12px 0 42px; text-align: center; }
+  .first-record-head .avatar { margin: 0 auto; border-radius: 50%; object-fit: cover; }
+  .first-record-created { display: inline-flex; align-items: center; gap: 8px; margin: 16px 0; color: var(--green); font-weight: 600; }
+  .first-record-created .icon { width: 18px; height: 18px; }
+  .first-record-head h1 { margin-bottom: 14px; }
+  .first-record-head > p:last-child { color: var(--muted); }
+
+  .first-record-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin: 0; padding: 0; list-style: none; }
+  .first-record-cards .card { display: flex; flex-direction: column; margin: 0; }
+  .first-record-cards h2 { margin-bottom: 10px; font-size: 22px; }
+  .first-record-cards p { margin-bottom: 20px; color: var(--muted); }
+  .first-record-cards .btn { align-self: flex-start; margin-top: auto; }
+  .first-record-icon { display: grid; place-items: center; width: 58px; height: 58px; margin-bottom: 24px; border-radius: 16px; background: var(--soft); color: var(--green); }
+  .first-record-icon .icon { width: 28px; height: 28px; }
+  .first-record-later { margin-top: 24px; text-align: center; }
+
+  /* The owner's photo: cropped to the circle, never stretched. */
+  .pet-photo { border-radius: 50%; object-fit: cover; background: var(--soft); }
+
+  @media (max-width: 1100px) {
+    .first-record-cards { gap: 12px; }
+  }
+
+  @media (max-width: 760px) {
+    .first-record-cards { grid-template-columns: minmax(0, 1fr); }
+    .first-record-head h1 { font-size: 28px; }
+  }
+}
+
+@layer components {
+
+  /* ---------- Actions under a card, and the first steps ---------- */
+
+  .care-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 22px; }
+  .care-columns .chips { margin: 18px 0 20px; }
+  .care-columns .field + .field { margin-top: 16px; }
+  .care-columns .card > h2 { margin-bottom: 12px; }
+  .care-columns .card > p.muted { margin-bottom: 0; color: var(--muted); }
+  .first-steps-offer { max-width: 720px; }
+  .first-steps-offer p { margin: 8px 0 22px; color: var(--muted); }
+}
+
+@layer components {
+
+  /* ---------- Проверка симптомов ---------- */
+
+  .check-columns aside { display: grid; gap: 22px; min-width: 0; }
+  .check-columns .check-form { padding: 26px; }
+  .check-columns .check-form .form-grid .field,
+  .check-columns .check-form .form-grid [role='group'] { margin-bottom: 18px; }
+  .check-pet-card .row { gap: 16px; align-items: center; }
+  .check-pet-card h2 { margin: 0 0 4px; font-size: 22px; }
+  .check-columns aside .card h2 { margin-bottom: 10px; }
+
+  /* On a phone the pet's card follows the form, as in the design. */
+  @media (max-width: 760px) {
+    .check-columns .check-pet-card { display: block; }
+    .check-columns .care-actions .btn { flex: 1 1 auto; }
+  }
+}
