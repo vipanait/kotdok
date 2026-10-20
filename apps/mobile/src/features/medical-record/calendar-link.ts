@@ -1,4 +1,6 @@
+import type { HealthEvent } from '@lapka/contracts'
 import type { Dictionary } from '@/i18n'
+import { dueLineTitle, duePhrase } from './due'
 
 /**
  * A planned visit or due date as a Google Calendar event (FB-3/01).
@@ -25,6 +27,32 @@ export function calendarLink(event: { title: string; date: string; details?: str
 /** «Мурка: визит к врачу». */
 export function calendarTitle(t: Dictionary, petName: string, what: string): string {
   return t.calendarEvent.title(petName, what)
+}
+
+/**
+ * A planned record as an event: «Мурка: визит к врачу», «Мурка: прививка
+ * «Нобивак Tricat»»; a record of several items is counted in the title —
+ * «Мурка: 2 прививки» — and each item named in the details, so none is
+ * lost (FB-3 review). The record's note follows them.
+ */
+export function calendarEvent(
+  t: Dictionary,
+  petName: string,
+  event: HealthEvent,
+): { title: string; date: string; details: string | null; location: string | null } {
+  const items = event.items
+  const what =
+    event.kind === 'visit'
+      ? t.medicalRecord.visits.dueTitle.toLowerCase()
+      : items.length > 1
+        ? t.reminders.count(event.kind, items.length)
+        : duePhrase(t, { kind: event.kind, name: items[0]?.name ?? null, targets: items[0]?.targets ?? [] }).text
+  const names =
+    event.kind !== 'visit' && items.length > 1
+      ? items.map((item) => item.name ?? dueLineTitle(t, { kind: event.kind, name: null, targets: item.targets })).join('\n')
+      : null
+  const details = [names, event.notes?.trim() || null].filter(Boolean).join('\n\n') || null
+  return { title: calendarTitle(t, petName, what), date: event.date, details, location: event.clinic }
 }
 
 function compact(day: string): string {
