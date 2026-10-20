@@ -168,7 +168,8 @@ export const ru = {
       cat: { male: 'Кот', female: 'Кошка' },
       dog: { male: 'Собака', female: 'Собака' },
     },
-    weight: (kg: number) => `${decimal(kg)} кг`,
+    /** Under a kilogram in grams: a newborn is «85 г», not «0,085 кг» (FB-2/05). */
+    weight: (kg: number) => (kg < 1 ? `${Math.round(kg * 1000)} г` : `${decimal(kg)} кг`),
     neutered: { female: 'Стерилизована', male: 'Кастрирован', unknown: 'Стерилизован(а)' },
     important: 'Важно знать',
     allergies: 'Аллергии',
@@ -198,6 +199,9 @@ export const ru = {
     addWeight: 'Добавить вес',
     editWeight: 'Изменить вес',
     weightField: 'Вес, кг',
+    weightFieldGrams: 'Вес, г',
+    weightInvalidGrams: 'Вес — целое число граммов от 1 до 9999',
+    units: { kg: 'кг', g: 'г' },
     dateField: 'Дата',
     datePlaceholder: 'ДД.ММ.ГГГГ',
     oneMorePoint: 'Добавьте ещё одно измерение, чтобы увидеть изменения',
@@ -518,6 +522,7 @@ export const ru = {
     approxMonths: 'Месяцев',
     adoptedOn: 'В семье с · необязательно',
     weight: (max: number) => `Вес (кг), до ${max}`,
+    weightGrams: 'Вес (г)',
     sex: 'Пол',
     health: 'Здоровье',
     lifestyle: 'Образ жизни',
@@ -872,6 +877,7 @@ export const ru = {
     adoptedBeforeBirth: 'Не раньше даты рождения',
     birthTooOld: (max: number) => `Не раньше, чем ${max} лет назад`,
     weightRange: (max: number) => `Вес — число от 0 до ${max}`,
+    weightGrams: 'Вес — целое число граммов от 1 до 9999',
   },
 
   provider: {

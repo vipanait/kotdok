@@ -9,11 +9,11 @@ import { useText } from '@/i18n'
 import { Button, IconButton } from '@/ui/Button'
 import { Banner } from '@/ui/Card'
 import { DateField } from '@/ui/DateField'
-import { Field } from '@/ui/Field'
+import { Field, Segment } from '@/ui/Field'
 import { Sheet } from '@/ui/Sheet'
 import { Text } from '@/ui/Text'
 import { space } from '@/ui/theme'
-import { parseWeightKeeping, weightPatch, weightSaveFailure } from './weight'
+import { readWeight, weightInput, weightPatch, weightSaveFailure, type WeightUnit } from './weight'
 
 /**
  * Adding a weighing, or correcting one (M20).
@@ -46,6 +46,8 @@ export function WeightSheet({
   const t = useText()
   const words = t.medicalRecord
   const [weight, setWeight] = useState('')
+  /** Grams for a newborn (FB-2/05); a stored weight opens in its own unit. */
+  const [unit, setUnit] = useState<WeightUnit>('kg')
   const [day, setDay] = useState('')
   const [invalid, setInvalid] = useState<{ weight?: string; day?: string }>({})
   const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
@@ -60,7 +62,9 @@ export function WeightSheet({
   useEffect(() => {
     if (!visible) return
     requestKey.current = newRequestKey()
-    setWeight(editing ? t.decimal(editing.weight_kg) : '')
+    const opened = editing ? weightInput(t, editing.weight_kg) : null
+    setWeight(opened?.text ?? '')
+    setUnit(opened?.unit ?? 'kg')
     // An undated weight from the form opens with an empty day, not today's.
     setDay(editing ? (editing.measured_on ? dayInput(editing.measured_on) : '') : dayInput(localToday()))
     setInvalid({})
@@ -71,12 +75,12 @@ export function WeightSheet({
 
   async function save() {
     // The measurement's own value, unchanged, is taken as stored (4,25 from the pet form is not refused).
-    const parsedWeight = parseWeightKeeping(weight, editing?.weight_kg ?? null)
+    const parsedWeight = readWeight(weight, unit, editing?.weight_kg ?? null)
     // Only the undated weight may stay without a day.
     const dayOptional = editing !== null && editing.measured_on === null && day.trim() === ''
     const parsedDay = dayOptional ? null : parseDayInput(day)
     setInvalid({
-      weight: parsedWeight.ok ? undefined : words.weightInvalid,
+      weight: parsedWeight.ok ? undefined : unit === 'g' ? words.weightInvalidGrams : words.weightInvalid,
       day: parsedDay || dayOptional ? undefined : words.dateInvalid,
     })
     if (!parsedWeight.ok || (!parsedDay && !dayOptional)) return
@@ -157,11 +161,28 @@ export function WeightSheet({
           </View>
 
           <Field
-            label={words.weightField}
+            label={unit === 'g' ? words.weightFieldGrams : words.weightField}
             value={weight}
             onChangeText={setWeight}
-            keyboardType="decimal-pad"
+            keyboardType={unit === 'g' ? 'numeric' : 'decimal-pad'}
             error={invalid.weight}
+          />
+          <Segment
+            label={words.weightFieldGrams}
+            labelHidden
+            clearable={false}
+            options={[
+              { value: 'kg' as const, label: words.units.kg },
+              { value: 'g' as const, label: words.units.g },
+            ]}
+            value={unit}
+            onChange={(next) => {
+              if (!next || next === unit) return
+              // What is typed follows the unit when it reads as a weight.
+              const read = readWeight(weight, unit, null)
+              if (read.ok) setWeight(next === 'g' ? String(Math.round(read.value * 1000)) : t.decimal(read.value))
+              setUnit(next)
+            }}
           />
           <DateField
             label={words.dateField}
