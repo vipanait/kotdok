@@ -119,4 +119,23 @@ describe('the memo for whoever minds the pet (FB-3/02)', () => {
       'Мурка — кот\n\nОтправлено из «Лапки»',
     )
   })
+
+  it('falls back to the form’s medicines when the record has no courses, as «Важно знать» does (FB-3 review)', () => {
+    const memo = sitterMemo(ru, overview({ medications: [] }), TODAY)
+    expect(memo).toContain('Лекарства сейчас:\n— Нефростоп')
+  })
+
+  it('leaves out what has been overdue for months, and empty list items (FB-3 review)', () => {
+    const memo = sitterMemo(
+      ru,
+      overview({
+        pet: { ...pet, allergies: ['курица', '  '] },
+        events: [event({ id: 'old', date: '2025-01-15', items: [item('old', 'Нобивак Rabies')] })] as HealthEvent[],
+      }),
+      TODAY,
+    )
+    expect(memo).not.toContain('Rabies')
+    expect(memo).not.toContain('Ближайшие')
+    expect(memo).toContain('Аллергии: курица\n')
+  })
 })
