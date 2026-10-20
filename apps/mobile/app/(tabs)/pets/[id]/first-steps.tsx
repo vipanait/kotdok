@@ -7,7 +7,6 @@ import { describeFailure } from '@/lib/errors'
 import { localToday } from '@/lib/calendar-day'
 import { newRequestKey } from '@/lib/request-key'
 import { useText } from '@/i18n'
-import { formToInput, petToForm } from '@/features/pets/pet-form'
 import {
   UNKNOWN,
   coreTargets,
@@ -86,18 +85,8 @@ export default function FirstSteps() {
       // «Привит(а)» first: the form's answer is stored as the owner's only
       // while the record has not yet set the same value (FB-2 review).
       if (read.vaccinatedWithoutDate && pet.vaccinated !== true && !sent.current.has('vaccinated')) {
-        // The whole form, as the edit screen sends it: the update replaces the form's fields.
-        const form = formToInput(t, { ...petToForm(pet, today), vaccinated: true }, today)
-        if (form.ok) {
-          await withFreshSession((api) =>
-            api.updatePet(id, {
-              ...form.value,
-              weight_measured_on: today,
-              medications_before: pet.medications,
-              weight_kg_before: pet.weight_kg,
-            }),
-          )
-        }
+        // A partial update: only «привит(а)» changes (#81).
+        await withFreshSession((api) => api.updatePet(id, { vaccinated: true }))
         sent.current.add('vaccinated')
       }
       for (const event of read.events) {
