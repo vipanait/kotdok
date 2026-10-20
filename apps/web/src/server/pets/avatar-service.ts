@@ -90,8 +90,21 @@ export async function confirmAvatar(
     return { ok: false, reason: verdict.code }
   }
 
-  const { error } = await supabase.from('pets').update({ avatar_path: path }).eq('id', petId).eq('user_id', userId)
+  // Only a live pet: one deleted since the check above takes no photo, and
+  // the file it would have shown goes now rather than being kept by a row.
+  const { data: updated, error } = await supabase
+    .from('pets')
+    .update({ avatar_path: path })
+    .eq('id', petId)
+    .eq('user_id', userId)
+    .is('deleted_at', null)
+    .select('id')
+    .maybeSingle()
   if (error) return { ok: false, reason: 'storage_error' }
+  if (!updated) {
+    await bucket.remove([path])
+    return { ok: false, reason: 'not_found' }
+  }
 
   // The pet has moved on; an old file left behind is swept, not shown.
   if (pet.avatarPath && pet.avatarPath !== path) await bucket.remove([pet.avatarPath])
@@ -107,7 +120,12 @@ export async function removeAvatar(
   if (!pet.ok) return pet
   if (!pet.avatarPath) return { ok: true }
 
-  const { error } = await supabase.from('pets').update({ avatar_path: null }).eq('id', petId).eq('user_id', userId)
+  const { error } = await supabase
+    .from('pets')
+    .update({ avatar_path: null })
+    .eq('id', petId)
+    .eq('user_id', userId)
+    .is('deleted_at', null)
   if (error) return { ok: false, reason: 'storage_error' }
   await supabase.storage.from(AVATAR_BUCKET).remove([pet.avatarPath])
   return { ok: true }

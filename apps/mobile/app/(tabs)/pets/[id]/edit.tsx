@@ -155,10 +155,7 @@ export default function EditPet() {
       {pet ? (
         <PetPhotoPicker
           pet={pet}
-          onChanged={(updated) => {
-            setPet(updated)
-            reminders.refresh()
-          }}
+          onChanged={setPet}
         />
       ) : null}
       <PetFields
