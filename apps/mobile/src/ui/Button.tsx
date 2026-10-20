@@ -40,6 +40,7 @@ export function Button({
   busy = false,
   disabled = false,
   style,
+  accessibilityLabel,
 }: {
   title: string
   onPress: () => void
@@ -47,6 +48,8 @@ export function Button({
   busy?: boolean
   disabled?: boolean
   style?: ViewStyle
+  /** When the title alone does not say which row it acts on. */
+  accessibilityLabel?: string
 }) {
   const off = disabled || busy
 
@@ -54,7 +57,7 @@ export function Button({
     <Pressable
       accessibilityRole="button"
       accessibilityState={{ disabled: off, busy }}
-      accessibilityLabel={title}
+      accessibilityLabel={accessibilityLabel ?? title}
       disabled={off}
       onPress={onPress}
       style={({ pressed }) => [

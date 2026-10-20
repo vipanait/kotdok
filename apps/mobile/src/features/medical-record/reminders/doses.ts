@@ -1,5 +1,4 @@
 import type { Medication, MedicationDose } from '@lapka/contracts'
-import { isTakenNow } from '@lapka/shared'
 import type { Dictionary } from '@/i18n'
 import { localToday } from '@/lib/calendar-day'
 import { REMINDER_LIMIT, type PlannedReminder } from './schedule'
@@ -29,6 +28,16 @@ function wallClock(day: string, slot: string): Date {
   return new Date(year, month - 1, date, hour, minute, 0, 0)
 }
 
+/**
+ * A dose is given on every day from the start to the last day, both
+ * included: «до 25 октября» means the 25th too. (`isTakenNow` counts a course
+ * ending today as finished — right for «Принимает сейчас», not for the doses
+ * of that day.) «Завершить курс» takes the times off, so it stops these.
+ */
+function givenOn(course: Pick<Medication, 'started_on' | 'ended_on'>, day: string): boolean {
+  return (course.started_on === null || course.started_on <= day) && (course.ended_on === null || course.ended_on >= day)
+}
+
 const given = (doses: readonly MedicationDose[]) => new Set(doses.map((dose) => `${dose.medication_id}|${dose.taken_on}|${dose.slot}`))
 
 export function doseMoments(courses: readonly DoseCourse[], doses: readonly MedicationDose[], now: Date, days = DAYS_AHEAD): DoseMoment[] {
@@ -38,7 +47,7 @@ export function doseMoments(courses: readonly DoseCourse[], doses: readonly Medi
   for (let offset = 0; offset < days; offset++) {
     const day = addDays(today, offset)
     for (const { pet, course } of courses) {
-      if (!isTakenNow(course, day)) continue
+      if (!givenOn(course, day)) continue
       for (const slot of course.reminder_times) {
         const at = wallClock(day, slot)
         if (at <= now || done.has(`${course.id}|${day}|${slot}`)) continue
@@ -75,7 +84,7 @@ export function todayDoses(courses: readonly Medication[], doses: readonly Medic
   const day = localToday(now)
   const done = given(doses)
   return courses
-    .filter((course) => course.reminder_times.length > 0 && isTakenNow(course, day))
+    .filter((course) => course.reminder_times.length > 0 && givenOn(course, day))
     .flatMap((course) =>
       course.reminder_times.map((slot) => ({
         course,

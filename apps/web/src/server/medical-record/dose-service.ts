@@ -15,14 +15,16 @@ export type DoseFailure = 'not_found' | 'bad_slot' | 'future' | 'storage_error'
 
 const COLUMNS = 'medication_id, taken_on, slot'
 
-async function liveCourse(supabase: SupabaseService, userId: string, petId: string, medicationId: string) {
+/** A live course of a live pet: a deleted pet keeps its courses' rows, not their use. */
+export async function liveCourse(supabase: SupabaseService, userId: string, petId: string, medicationId: string) {
   const { data, error } = await supabase
     .from('pet_medications')
-    .select('id, reminder_times')
+    .select('id, reminder_times, pets!inner(deleted_at)')
     .eq('id', medicationId)
     .eq('pet_id', petId)
     .eq('user_id', userId)
     .is('deleted_at', null)
+    .is('pets.deleted_at', null)
     .maybeSingle()
   if (error) return { ok: false as const, reason: 'storage_error' as const }
   if (!data) return { ok: false as const, reason: 'not_found' as const }

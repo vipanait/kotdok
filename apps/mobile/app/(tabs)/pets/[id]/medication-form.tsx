@@ -18,6 +18,7 @@ import {
   type CourseErrors,
 } from '@/features/medical-record/medications'
 import { useUnsavedChanges } from '@/features/unsaved/useUnsavedChanges'
+import { useReminders } from '@/features/medical-record/reminders/ReminderProvider'
 import { Button, IconButton, LinkButton } from '@/ui/Button'
 import { Banner, Card } from '@/ui/Card'
 import { DateField } from '@/ui/DateField'
@@ -78,6 +79,7 @@ export default function MedicationForm() {
 
   const changed = drafts !== null && initial !== null && JSON.stringify(drafts) !== JSON.stringify(initial)
   const unsaved = useUnsavedChanges(changed)
+  const reminders = useReminders()
 
   const change = (key: string, patch: Partial<CourseDraft>) =>
     setDrafts((current) => current?.map((draft) => (draft.key === key ? { ...draft, ...patch } : draft)) ?? current)
@@ -99,6 +101,8 @@ export default function MedicationForm() {
             api.changeMedication(petId, medicationId!, read.value[0], localToday())
           : api.addMedications(petId, { items: read.value }, requestKey.current, localToday()),
       )
+      // New dates move or end the course's dose reminders (FB-5).
+      if (editing) reminders.refresh()
       unsaved.leave(then)
     } catch (cause) {
       if (cause instanceof ApiError && cause.code === 'conflict') {

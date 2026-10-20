@@ -76,11 +76,17 @@ export function ReminderProvider({ children }: { children: ReactNode }) {
             const today = localToday()
             const records = await Promise.all(
               pets.map(async (pet) => {
-                const overview = await api.getHealthOverview(pet.id, today)
-                const timed = overview.medications.filter((course) => course.reminder_times.length > 0)
-                if (timed.length === 0) return { courses: [], doses: [] }
-                const doses = await api.listDoses(pet.id, today, addDays(today, 7))
-                return { courses: timed.map((course) => ({ pet: { id: pet.id, name: pet.name }, course })), doses }
+                try {
+                  const overview = await api.getHealthOverview(pet.id, today)
+                  const timed = overview.medications.filter((course) => course.reminder_times.length > 0)
+                  if (timed.length === 0) return { courses: [], doses: [] }
+                  const doses = await api.listDoses(pet.id, today, addDays(today, 7))
+                  return { courses: timed.map((course) => ({ pet: { id: pet.id, name: pet.name }, course })), doses }
+                } catch {
+                  // One pet that fails to load must not keep every other
+                  // reminder, due dates included, from being rebuilt.
+                  return { courses: [], doses: [] }
+                }
               }),
             )
             return {

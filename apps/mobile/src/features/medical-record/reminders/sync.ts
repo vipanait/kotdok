@@ -1,6 +1,6 @@
 import { UuidSchema, type DueItem, type MedicationDose } from '@lapka/contracts'
 import type { Dictionary } from '@/i18n'
-import { REMINDER_LIMIT, planReminders, type PlannedReminder, type ReminderSettings } from './schedule'
+import { REMINDER_LIMIT, planReminders, reminderMoment, type PlannedReminder, type ReminderSettings } from './schedule'
 import { planDoseReminders, type DoseCourse } from './doses'
 
 /** The slice of expo-notifications this needs, so tests need no native module. */
@@ -55,9 +55,14 @@ export function createReminderSync(deps: {
     const { due, pets, courses = [], doses = [] } = await account.load()
     if (mine !== generation) return
     const now = deps.now?.() ?? new Date()
-    // Doses first: a medicine missed matters more than a reminder of a date.
-    const dosePlan = planDoseReminders(deps.t(), courses, doses, now)
-    const plan = [...dosePlan, ...planReminders(deps.t(), due, pets, settings, now, REMINDER_LIMIT - dosePlan.length)]
+    // Both by when they fire, within the phone's limit: a due date tomorrow
+    // is not pushed out by a dose next week. At the same moment a dose comes
+    // first — a medicine missed matters more than a reminder of a date.
+    const plan = [...planDoseReminders(deps.t(), courses, doses, now), ...planReminders(deps.t(), due, pets, settings, now, REMINDER_LIMIT)]
+      .map((reminder, order) => ({ reminder, order, at: reminderMoment(reminder.day, reminder.hour, reminder.minute).getTime() }))
+      .sort((a, b) => a.at - b.at || a.order - b.order)
+      .slice(0, REMINDER_LIMIT)
+      .map(({ reminder }) => reminder)
     await deps.notifier.cancelAll()
     for (const reminder of plan) {
       if (mine !== generation) return
