@@ -6,6 +6,8 @@ describe('the times a course is given at (FB-5/01)', () => {
     expect(readTime('7:30')).toBe('07:30')
     expect(readTime('0730')).toBe('07:30')
     expect(readTime('07.30')).toBe('07:30')
+    expect(readTime('13;12')).toBe('13:12')
+    expect(readTime('7 30')).toBe('07:30')
     expect(readTime('24:00')).toBeNull()
     expect(readTime('утром')).toBeNull()
   })

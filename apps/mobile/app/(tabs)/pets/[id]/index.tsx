@@ -16,6 +16,7 @@ import {
 import { AddRecordSheet, type AddChoice } from '@/features/medical-record/AddRecordSheet'
 import { daysTogether, isBirthday, togetherMilestone } from '@lapka/shared'
 import { DueList } from '@/features/medical-record/DueList'
+import { TodayDoses } from '@/features/medical-record/TodayDoses'
 import { sitterMemo } from '@/features/medical-record/sitter-memo'
 import { doneRoute, recordRoute, dueItems } from '@/features/medical-record/due'
 import { Button, IconButton, LinkButton } from '@/ui/Button'
@@ -272,6 +273,9 @@ export default function MedicalRecord() {
           <IconButton icon="close" label={t.medicalRecord.hideBanner} onPress={hideHint} />
         </View>
       ) : null}
+
+      {/* FB-5/04: today's doses first, the one thing on the card that is due by the hour. */}
+      <TodayDoses petId={id} courses={shown.medications} />
 
       {due.length > 0 ? (
         <Card style={styles.due}>

@@ -29,6 +29,8 @@ type Reminders = {
    * whether to remind — our sheet, then the system's question.
    */
   planSaved(plan: Pick<DueItem, 'kind' | 'name' | 'targets'>): void
+  /** After a course's times were set (FB-5): the same, about that medicine. */
+  timesSaved(medicine: string): void
 }
 
 const RemindersContext = createContext<Reminders | null>(null)
@@ -148,20 +150,32 @@ export function ReminderProvider({ children }: { children: ReactNode }) {
       .catch(() => openFromReminder('/pets'))
   }, [response, loading, userId, ready, openFromReminder])
 
-  const [asking, setAsking] = useState<{ about: string; denied: boolean } | null>(null)
+  const [asking, setAsking] = useState<{ about: string; denied: boolean; dose: boolean } | null>(null)
   const [days, setDays] = useState(3)
 
-  const planSaved = useCallback(
-    (plan: Pick<DueItem, 'kind' | 'name' | 'targets'>) => {
+  // Reschedules, and the first time asks whether to remind at all.
+  const savedThenAsk = useCallback(
+    (about: () => string, dose: boolean) => {
       refresh()
       void (async () => {
         const [state, notNowUntil, settings] = await Promise.all([permissionState(), reminderStore.notNowUntil(), reminderStore.settings()])
         if (state === 'granted' || !settings.enabled || !shouldAsk(notNowUntil)) return
         setDays(settings.daysBefore)
-        setAsking({ about: reminderAbout(tRef.current, plan), denied: state === 'denied' })
+        setAsking({ about: about(), denied: state === 'denied', dose })
       })().catch(() => {})
     },
     [refresh],
+  )
+
+  const planSaved = useCallback(
+    (plan: Pick<DueItem, 'kind' | 'name' | 'targets'>) => savedThenAsk(() => reminderAbout(tRef.current, plan), false),
+    [savedThenAsk],
+  )
+
+  // Times set for a course are no use if the phone never asked to notify (FB-5/03).
+  const timesSaved = useCallback(
+    (medicine: string) => savedThenAsk(() => tRef.current.doseReminders.about(medicine), true),
+    [savedThenAsk],
   )
 
   async function remind() {
@@ -179,7 +193,7 @@ export function ReminderProvider({ children }: { children: ReactNode }) {
     void reminderStore.notNow().catch(() => {})
   }
 
-  const value = useMemo(() => ({ refresh, planSaved }), [refresh, planSaved])
+  const value = useMemo(() => ({ refresh, planSaved, timesSaved }), [refresh, planSaved, timesSaved])
 
   return (
     <RemindersContext.Provider value={value}>
@@ -187,7 +201,7 @@ export function ReminderProvider({ children }: { children: ReactNode }) {
       <Sheet visible={asking !== null} onClose={notNow}>
         <Text variant="h2">{asking ? words.askTitle(asking.about) : ''}</Text>
         <Text tone="muted" style={styles.body}>
-          {asking?.denied ? words.deniedBody : words.askBody(days)}
+          {asking?.denied ? words.deniedBody : asking?.dose ? t.doseReminders.askBody : words.askBody(days)}
         </Text>
         <Button title={asking?.denied ? words.openSettings : words.remind} onPress={() => void remind()} />
         <Button title={words.notNow} kind="secondary" onPress={notNow} style={styles.second} />

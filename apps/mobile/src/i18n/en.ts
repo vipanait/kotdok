@@ -639,6 +639,8 @@ export const en: Dictionary = {
   },
 
   doseReminders: {
+    about: (medicine: string) => `to give ${medicine}`,
+    askBody: 'We will notify you at the times you chose while the course runs. You can turn this off in Profile.',
     body: (pet: string, what: string) => `${pet}: time for ${what}`,
   },
 
@@ -712,7 +714,7 @@ export const en: Dictionary = {
     title: 'Reminders',
     on: 'On',
     off: 'Off',
-    toggle: 'Remind me about vaccinations, treatments and visits',
+    toggle: 'Remind me about vaccinations, treatments, visits and medicines',
     when: 'When',
     whenOptions: {
       1: 'On the day and 1 day before',
