@@ -66,7 +66,9 @@ export function DoseTimes({ petId, course, onChanged }: { petId: string; course:
       setCustom('')
       return
     }
-    if (await save(addTime(times, time))) setCustom('')
+    const sent = custom
+    // Cleared only if nothing was typed while it was being saved.
+    if (await save(addTime(times, time))) setCustom((current) => (current === sent ? '' : current))
   }
 
   const options = [...new Set([...PRESETS, ...times])].sort().map((time) => ({ value: time, label: time }))

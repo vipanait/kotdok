@@ -35,11 +35,19 @@ describe('editing «Своё время» (design 20 October 2026)', () => {
     expect(editTime('07:3', '')).toBe('')
   })
 
-  it('reads a whole time, typed or pasted', () => {
-    expect(editTime('123', '1230')).toBe('12:30')
+  it('reads a pasted time, and leaves a typed one as typed for «+» to read', () => {
     expect(editTime('', '0730')).toBe('07:30')
     expect(editTime('', '13;12')).toBe('13:12')
-    expect(editTime('7:3', '7:30')).toBe('07:30')
+    expect(editTime('123', '1230')).toBe('1230')
+    expect(editTime('7:3', '7:30')).toBe('7:30')
+    expect(readTime('1230')).toBe('12:30')
+  })
+
+  it('deletes from the middle without changing the time', () => {
+    expect(editTime('12:30', '1:30')).toBe('1:30')
+    expect(editTime('07:30', '0:30')).toBe('0:30')
+    expect(editTime('1:30', '15:30')).toBe('15:30')
+    expect(editTime('12:30', '12:0')).toBe('12:0')
   })
 
   it('does not let a second time pile onto the first, nor letters in', () => {

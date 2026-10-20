@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
-import { StyleSheet, View } from 'react-native'
-import { router, useLocalSearchParams } from 'expo-router'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { BackHandler, StyleSheet, View } from 'react-native'
+import { Stack, router, useFocusEffect, useLocalSearchParams } from 'expo-router'
 import type { Pet } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
 import { describeFailure } from '@/lib/errors'
@@ -27,27 +27,51 @@ export default function FirstRecord() {
   const words = t.onboarding
   const [pet, setPet] = useState<Pet | null>(null)
   const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
+  const [attempt, setAttempt] = useState(0)
 
   useEffect(() => {
+    setError(null)
     withFreshSession((api) => api.getPet(id))
       .then(setPet)
       .catch((cause) => setError(describeFailure(t, cause, t.errors.loadPetsFailed)))
-  }, [id, t])
+  }, [id, t, attempt])
 
-  const toCard = () => router.replace(`/pets/${id}`)
+  // Once: a second tap on the way out would put a second card or form on top.
+  const leaving = useRef(false)
+  const toCard = useCallback(() => {
+    if (leaving.current) return
+    leaving.current = true
+    router.replace(`/pets/${id}`)
+  }, [id])
   // The card goes under the form, so the form's save and back both end on it.
   const open = (form: string) => {
+    if (leaving.current) return
     toCard()
     router.push(form as never)
   }
 
+  // Back of any kind — the header, Android's — goes to the new card, not past it.
+  useFocusEffect(
+    useCallback(() => {
+      const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+        toCard()
+        return true
+      })
+      return () => subscription.remove()
+    }, [toCard]),
+  )
+  // The iOS swipe would pop to the list under it: off here, the arrow does the same.
+  const noSwipe = <Stack.Screen options={{ gestureEnabled: false }} />
+
   if (!pet) {
     return (
       <Screen title={words.createdTitle} onBack={toCard}>
+        {noSwipe}
         {error ? (
           <>
             <Banner text={error.text} tone="error" icon={error.offline ? 'wifi' : 'alert'} />
-            <Button title={words.later} kind="secondary" onPress={toCard} />
+            <Button title={t.common.retry} onPress={() => setAttempt((count) => count + 1)} />
+            <LinkButton title={words.later} onPress={toCard} />
           </>
         ) : (
           <FormSkeleton fields={3} />
@@ -58,6 +82,7 @@ export default function FirstRecord() {
 
   return (
     <Screen title={words.createdTitle} onBack={toCard} scroll dock={<LinkButton title={words.later} onPress={toCard} />}>
+      {noSwipe}
       <View style={styles.head} accessible accessibilityLabel={`${pet.name}. ${words.created}`}>
         <Avatar species={pet.species} uri={pet.avatar_url} size={72} />
         <View style={styles.headCopy}>
