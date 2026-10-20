@@ -4,7 +4,7 @@ import { createServiceClient } from '@/server/supabase/server'
 import { getAuthUser } from '@/server/auth/get-auth-user'
 import { owesConsent } from '@/server/consent/consent-service'
 import { softDeletePetAndChecks, updatePet } from '@/server/pets/pet-service'
-import { petFailureResponse } from '@/server/pets/pet-http'
+import { datesAhead, petFailureResponse } from '@/server/pets/pet-http'
 import { csrfForbiddenResponse, verifyCsrf } from '@/server/security/csrf'
 
 export async function PUT(
@@ -27,7 +27,9 @@ export async function PUT(
     return NextResponse.json({ error: 'Body is not valid JSON' }, { status: 400 })
   }
   const parsed = PetUpdateInputSchema.safeParse(body)
-  if (!parsed.success) return NextResponse.json({ error: 'Body does not match the contract' }, { status: 400 })
+  if (!parsed.success || datesAhead(parsed.data)) {
+    return NextResponse.json({ error: 'Body does not match the contract' }, { status: 400 })
+  }
   const result = await updatePet(createServiceClient(), user.id, id, parsed.data)
   if (!result.ok) return petFailureResponse(result.reason, result.message)
 

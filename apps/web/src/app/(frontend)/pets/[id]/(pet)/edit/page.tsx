@@ -7,6 +7,7 @@ import { getLocale } from '@/server/i18n/get-locale'
 import { getOwnerToday } from '@/server/i18n/get-time-zone'
 import { getHealthOverview } from '@/server/medical-record/overview-service'
 import { createServiceClient } from '@/server/supabase/server'
+import { signAvatars } from '@/server/pets/avatar-service'
 import { formatCount } from '@/shared/i18n/plural'
 import type { Locale } from '@/shared/i18n/config'
 import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
@@ -58,7 +59,14 @@ export default async function EditPetPage({ params }: { params: Promise<{ id: st
   const path = `/pets/${id}/edit`
   // The same gate as every page of the pet (it already ran in the layout),
   // and the record for the form's notes read at the same time.
-  const [{ cabinet, pet, dict }, locale, overview] = await Promise.all([openPetPage(id, path), getLocale(), readRecordForForm(id, path)])
+  const [{ cabinet, pet, dict }, locale, overview, today] = await Promise.all([
+    openPetPage(id, path),
+    getLocale(),
+    readRecordForForm(id, path),
+    getOwnerToday(),
+  ])
+  // A fresh signed link for this page; a link is never stored.
+  const [photoUrl] = await signAvatars(createServiceClient(), [pet.avatar_path ?? null])
   const t = dict.pets
   // The form's list of medicines as the record has it on the owner's day
   // (MW-09: the courses current today, as the phone's form opens with); the
@@ -73,7 +81,12 @@ export default async function EditPetPage({ params }: { params: Promise<{ id: st
         backLabel={dict.medicalRecord.title}
         backHref={medicalRecordHref.record(id)}
       />
-      <PetForm pet={medications ? { ...pet, medications } : pet} hints={formHints(overview, dict, locale)} />
+      <PetForm
+        pet={medications ? { ...pet, medications } : pet}
+        hints={formHints(overview, dict, locale)}
+        photoUrl={photoUrl}
+        today={today}
+      />
     </CabinetShell>
   )
 }

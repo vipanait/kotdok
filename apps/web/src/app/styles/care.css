@@ -122,3 +122,89 @@
     .check-columns .care-actions .btn { flex: 1 1 auto; }
   }
 }
+
+@layer components {
+
+  /* ---------- Анкета питомца ---------- */
+
+  .pet-form-page .card > h2 { margin-bottom: 20px; }
+  .pet-form-page .form-actions { margin-top: 0; border-top: 0; padding-top: 0; }
+  .pet-form-page aside { display: grid; gap: 22px; min-width: 0; }
+  .pet-form-page .pet-form-aside { position: static; }
+  .pet-form-page .pet-form-more h3 { margin: 6px 0 10px; font-size: 16px; }
+
+  .pet-photo-field { display: flex; align-items: center; gap: 20px; margin-bottom: 24px; }
+  .pet-photo-field .avatar { flex-shrink: 0; border-radius: 50%; }
+  .pet-photo-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; }
+  .pet-photo-field .field-hint { display: block; margin-top: 8px; }
+
+  .dates-tabs { display: flex; gap: 24px; margin-bottom: 22px; border-bottom: 1px solid var(--line); }
+  .dates-tab {
+    min-height: 44px;
+    margin-bottom: -1px;
+    padding: 0 0 10px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: none;
+    color: var(--muted);
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .dates-tab[aria-checked='true'] { border-bottom-color: var(--green); color: var(--green); font-weight: 600; }
+  .dates-tab:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; border-radius: 6px; }
+  .dates-approx { margin: 0; padding: 0; border: 0; min-width: 0; }
+  .dates-approx-row { display: flex; gap: 14px; }
+  .dates-approx-row label { display: flex; align-items: center; gap: 8px; color: var(--muted); }
+  .dates-approx-row .input { width: 76px; }
+  .pet-dates > .field-hint { margin-top: 4px; }
+
+  .pet-form-more > summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 44px;
+    list-style: none;
+    cursor: pointer;
+  }
+  .pet-form-more > summary::-webkit-details-marker { display: none; }
+  .pet-form-more > summary strong { display: block; font: 800 20px/1.3 var(--font-display); }
+  .pet-form-more > summary small { display: block; color: var(--muted); }
+  .pet-form-more > summary .icon { transform: rotate(90deg); transition: transform 0.15s; color: var(--muted); }
+  .pet-form-more[open] > summary { margin-bottom: 20px; }
+  .pet-form-more[open] > summary .icon { transform: rotate(-90deg); }
+  .pet-form-more > summary:focus-visible { outline: 3px solid var(--green); outline-offset: 4px; border-radius: 10px; }
+
+  .pet-form-more-links { margin: 0; padding: 0; list-style: none; }
+  .pet-form-more-links li + li { border-top: 1px solid var(--line); }
+  .pet-form-more-links button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    min-height: 64px;
+    padding: 12px 0;
+    border: 0;
+    background: none;
+    color: var(--text);
+    text-align: left;
+    cursor: pointer;
+  }
+  .pet-form-more-links small { display: block; color: var(--muted); font-size: 13px; }
+  .pet-form-more-links .icon { color: var(--muted); flex-shrink: 0; }
+
+  .pet-photo-failed h2 { margin-bottom: 8px; font-size: 22px; }
+  .pet-photo-failed p { margin-bottom: 18px; }
+  .pet-photo-failed:focus-visible { outline: 3px solid var(--green); outline-offset: 3px; }
+
+  @media (max-width: 760px) {
+    .pet-photo-field { gap: 12px; }
+    .dates-tabs { gap: 14px; }
+    .dates-tab { font-size: 13px; }
+    .pet-form-page .form-actions { flex-direction: column-reverse; align-items: stretch; }
+    .pet-form-page .form-actions > .row { margin-left: 0; justify-content: flex-end; }
+    .pet-form-page .form-actions > .row > .btn { flex: 1 1 auto; }
+    .pet-form-page .form-actions > .btn.danger { align-self: flex-start; }
+  }
+}

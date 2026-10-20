@@ -9,6 +9,7 @@ import { privatePageMetadata } from '@/server/i18n/page-metadata'
 import { getOnboarding } from '@/server/onboarding/get-onboarding'
 import { listPets } from '@/server/pets/pet-service'
 import { createServiceClient } from '@/server/supabase/server'
+import { getOwnerToday } from '@/server/i18n/get-time-zone'
 
 export const generateMetadata = privatePageMetadata(d => d.pets.newPageTitle)
 
@@ -31,7 +32,7 @@ export default async function NewPetPage({
   return (
     <CabinetShell cabinet={cabinet} active="pets" crumb={`${t.listTitle} / ${t.newPageTitle}`}>
       <PetPageHead title={t.newPageTitle} subtitle={t.newSubtitle} backLabel={t.listTitle} />
-      <PetForm onboarding={{ userId: cabinet.user.id, goal }} />
+      <PetForm onboarding={{ userId: cabinet.user.id, goal }} today={await getOwnerToday()} />
     </CabinetShell>
   )
 }
