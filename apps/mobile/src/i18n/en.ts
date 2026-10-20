@@ -107,6 +107,24 @@ export const en: Dictionary = {
     birthday: (name: string) => `Happy birthday, ${name}!`,
   },
 
+  firstSteps: {
+    title: 'Vaccinations and vet',
+    vaccines: 'Which vaccinations has it had?',
+    vaccinesHint: 'Tick what you remember. Dates are usually in the vet passport.',
+    unknown: 'Don’t remember',
+    vaccineDate: (name: string) => `${name}: when · optional`,
+    noDateNote: 'Without a date a vaccination stays out of the record — you can add it later.',
+    lastVisit: 'When did you last see a vet?',
+    lastVisits: { thisYear: 'This year', overYear: 'Over a year ago', never: 'Never', unknown: 'Don’t remember' },
+    done: 'Done',
+    skip: 'Skip',
+    saveFailed: 'Could not save the vaccinations',
+    checkupTitle: 'Plan a checkup?',
+    checkupBody: 'A preventive checkup is usually advised once a year. Plan it and we’ll remind you ahead.',
+    checkupPlan: 'Plan a checkup',
+    notNow: 'Not now',
+  },
+
   medicalRecord: {
     form: 'Form',
     fromForm: 'From the form',

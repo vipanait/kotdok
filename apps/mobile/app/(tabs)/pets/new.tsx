@@ -36,9 +36,9 @@ export default function NewPet() {
   }
 
   /**
-   * @param then where to go once saved. By default the new pet, which is where
-   * the person checks it came out right; from the leave question, wherever they
-   * were headed.
+   * @param then where to go once saved. By default the new pet's first steps
+   * (vaccinations and the last vet visit, FB-2/03), then the pet itself; from
+   * the leave question, wherever they were headed.
    */
   async function submit(then?: () => void) {
     const input = formToInput(t, form, localToday())
@@ -57,7 +57,7 @@ export default function NewPet() {
       )
       // From the check tab, back to the check the pet was added for; the form
       // reloads the pets on the way in and now has one to offer.
-      unsaved.leave(then ?? (() => (tab === 'check' ? router.back() : router.replace(`/pets/${pet.id}`))))
+      unsaved.leave(then ?? (() => (tab === 'check' ? router.back() : router.replace(`/pets/${pet.id}/first-steps`))))
     } catch (cause) {
       setError(errorMessage(t, cause, t.errors.savePetFailed))
     } finally {

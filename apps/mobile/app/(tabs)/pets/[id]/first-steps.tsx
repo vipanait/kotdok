@@ -1,0 +1,201 @@
+import { useEffect, useRef, useState } from 'react'
+import { StyleSheet, View } from 'react-native'
+import { router, useLocalSearchParams } from 'expo-router'
+import type { Pet, VaccineTarget } from '@lapka/contracts'
+import { withFreshSession } from '@/lib/api'
+import { describeFailure } from '@/lib/errors'
+import { localToday } from '@/lib/calendar-day'
+import { newRequestKey } from '@/lib/request-key'
+import { useText } from '@/i18n'
+import { formToInput, petToForm } from '@/features/pets/pet-form'
+import {
+  UNKNOWN,
+  coreTargets,
+  firstStepsRequests,
+  type FirstStepsDraft,
+  type LastVisit,
+  type VaccineChoice,
+} from '@/features/pets/first-steps'
+import { useReminders } from '@/features/medical-record/reminders/ReminderProvider'
+import { Button, LinkButton } from '@/ui/Button'
+import { Banner, Card } from '@/ui/Card'
+import { DateField } from '@/ui/DateField'
+import { Chips, Select } from '@/ui/Field'
+import { Screen } from '@/ui/Screen'
+import { FormSkeleton } from '@/ui/Skeleton'
+import { Text } from '@/ui/Text'
+import { space } from '@/ui/theme'
+
+const LAST_VISITS: LastVisit[] = ['thisYear', 'overYear', 'never', 'unknown']
+
+/**
+ * After a new pet's form (FB-2/03, FB-2/04): the core vaccinations it has had
+ * and when, and when it last saw a vet. Everything may be skipped. A ticked
+ * vaccination with a day becomes a done record with its next date; without a
+ * day only the form's «привит(а)» is set. «Ни разу» or «больше года» offers
+ * to plan a checkup — an offer, not advice.
+ */
+export default function FirstSteps() {
+  const { id } = useLocalSearchParams<{ id: string }>()
+  const t = useText()
+  const words = t.firstSteps
+  const reminders = useReminders()
+  const [pet, setPet] = useState<Pet | null>(null)
+  const [draft, setDraft] = useState<FirstStepsDraft>({ vaccines: [], dates: {}, lastVisit: null })
+  const [wrongDate, setWrongDate] = useState<VaccineTarget | null>(null)
+  const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
+  const [busy, setBusy] = useState(false)
+  const [offer, setOffer] = useState(false)
+  /** One key per record for the life of the screen: a second «Готово» repeats, it does not add. */
+  const keys = useRef(new Map<string, string>())
+
+  useEffect(() => {
+    withFreshSession((api) => api.getPet(id))
+      .then(setPet)
+      .catch((cause) => setError(describeFailure(t, cause, t.errors.savePetFailed)))
+  }, [id, t])
+
+  const toPet = () => router.replace(`/pets/${id}`)
+
+  function toggle(choice: VaccineChoice) {
+    setWrongDate(null)
+    setDraft((current) => {
+      if (choice === UNKNOWN) return { ...current, vaccines: current.vaccines.includes(UNKNOWN) ? [] : [UNKNOWN] }
+      const without = current.vaccines.filter((value) => value !== UNKNOWN && value !== choice)
+      return { ...current, vaccines: current.vaccines.includes(choice) ? without : [...without, choice] }
+    })
+  }
+
+  async function save() {
+    if (!pet) return
+    const today = localToday()
+    const read = firstStepsRequests(draft, today)
+    if (!read.ok) {
+      setWrongDate(read.target)
+      return
+    }
+    setBusy(true)
+    setError(null)
+    try {
+      for (const event of read.events) {
+        if (!keys.current.has(event.date)) keys.current.set(event.date, newRequestKey())
+        const key = keys.current.get(event.date)!
+        await withFreshSession((api) => api.createHealthEvent(id, event, key))
+      }
+      if (read.vaccinatedWithoutDate && pet.vaccinated !== true) {
+        // The whole form, as the edit screen sends it: the update replaces the form's fields.
+        const form = formToInput(t, { ...petToForm(pet, today), vaccinated: true }, today)
+        if (form.ok) {
+          await withFreshSession((api) =>
+            api.updatePet(id, {
+              ...form.value,
+              weight_measured_on: today,
+              medications_before: pet.medications,
+              weight_kg_before: pet.weight_kg,
+            }),
+          )
+        }
+      }
+      reminders.refresh()
+      if (read.offerCheckup) setOffer(true)
+      else toPet()
+    } catch (cause) {
+      setError(describeFailure(t, cause, words.saveFailed))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  if (!pet) {
+    return (
+      <Screen title={words.title}>
+        {error ? <Banner text={error.text} tone="error" icon={error.offline ? 'wifi' : 'alert'} /> : <FormSkeleton fields={3} />}
+      </Screen>
+    )
+  }
+
+  if (offer) {
+    return (
+      <Screen title={words.title} scroll>
+        <Card style={styles.offer}>
+          <Text variant="h3">{words.checkupTitle}</Text>
+          <Text tone="muted">{words.checkupBody}</Text>
+          <Button
+            title={words.checkupPlan}
+            onPress={() => {
+              toPet()
+              router.push(`/pets/${id}/visit-form?plan=checkup`)
+            }}
+          />
+          <LinkButton title={words.notNow} onPress={toPet} />
+        </Card>
+      </Screen>
+    )
+  }
+
+  const chosen = draft.vaccines.filter((choice): choice is VaccineTarget => choice !== UNKNOWN)
+  const names = t.medicalRecord.targets as Record<string, string>
+
+  return (
+    <Screen
+      title={words.title}
+      scroll
+      dock={
+        <>
+          <Button title={words.done} onPress={() => void save()} busy={busy} />
+          <LinkButton title={words.skip} onPress={toPet} />
+        </>
+      }
+    >
+      <Chips
+        label={words.vaccines}
+        options={[
+          ...coreTargets(pet.species).map((target) => ({ value: target as VaccineChoice, label: names[target] ?? target })),
+          { value: UNKNOWN, label: words.unknown },
+        ]}
+        values={draft.vaccines}
+        onToggle={toggle}
+      />
+      <Text variant="caption" tone="muted" style={styles.hint}>
+        {words.vaccinesHint}
+      </Text>
+
+      {chosen.map((target) => (
+        <DateField
+          key={target}
+          label={words.vaccineDate(names[target] ?? target)}
+          value={draft.dates[target] ?? ''}
+          onChangeText={(text) => {
+            setWrongDate(null)
+            setDraft((current) => ({ ...current, dates: { ...current.dates, [target]: text } }))
+          }}
+          placeholder={t.medicalRecord.datePlaceholder}
+          max={localToday()}
+          error={wrongDate === target ? t.validation.dayPast : null}
+        />
+      ))}
+      {chosen.some((target) => !(draft.dates[target] ?? '').trim()) ? (
+        <Text variant="caption" tone="muted" style={styles.hint}>
+          {words.noDateNote}
+        </Text>
+      ) : null}
+
+      <View style={styles.visit}>
+        <Select
+          label={words.lastVisit}
+          options={LAST_VISITS.map((value) => ({ value, label: words.lastVisits[value] }))}
+          value={draft.lastVisit}
+          onChange={(lastVisit) => setDraft((current) => ({ ...current, lastVisit }))}
+        />
+      </View>
+
+      {error ? <Banner text={error.text} tone="error" icon={error.offline ? 'wifi' : 'alert'} /> : null}
+    </Screen>
+  )
+}
+
+const styles = StyleSheet.create({
+  hint: { marginTop: -8, marginBottom: space.block },
+  visit: { marginTop: space.row },
+  offer: { gap: space.row },
+})
