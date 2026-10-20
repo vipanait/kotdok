@@ -624,7 +624,7 @@ export const en: Dictionary = {
   doseTimes: {
     title: 'Remind me to give it',
     custom: 'Your own time',
-    add: 'Add',
+    addLabel: 'Add a reminder time',
     invalid: 'Time — HH:MM',
     note: 'You set the times: the app suggests neither the time nor the dose.',
     failed: 'Could not save the time',
@@ -634,6 +634,7 @@ export const en: Dictionary = {
     give: 'Mark given',
     given: 'Given',
     undo: 'Undo',
+    undoLabel: (medicine: string, slot: string) => `Unmark the dose: ${medicine}, ${slot}`,
     missed: 'Not marked',
     failed: 'Could not mark it',
   },

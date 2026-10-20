@@ -664,7 +664,7 @@ export const ru = {
   doseTimes: {
     title: 'Напоминать о приёме',
     custom: 'Своё время',
-    add: 'Добавить',
+    addLabel: 'Добавить время напоминания',
     invalid: 'Время — ЧЧ:ММ',
     note: 'Время приёма задаёте вы: приложение не советует ни время, ни дозу.',
     failed: 'Не удалось сохранить время',
@@ -675,6 +675,7 @@ export const ru = {
     give: 'Дали',
     given: 'Дали',
     undo: 'Отменить',
+    undoLabel: (medicine: string, slot: string) => `Снять отметку приёма: ${medicine}, ${slot}`,
     missed: 'Не отмечено',
     failed: 'Не удалось отметить',
   },

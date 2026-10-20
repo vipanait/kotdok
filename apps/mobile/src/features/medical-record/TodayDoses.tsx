@@ -1,18 +1,22 @@
 import { useRef, useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { ActivityIndicator, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native'
 import type { Medication, MedicationDose } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
 import { localToday } from '@/lib/calendar-day'
 import { describeFailure } from '@/lib/errors'
 import { useCached } from '@/lib/query-cache'
 import { useText } from '@/i18n'
-import { Button, LinkButton } from '@/ui/Button'
+import { Button } from '@/ui/Button'
 import { Banner, Card } from '@/ui/Card'
 import { Icon } from '@/ui/Icon'
-import { Text } from '@/ui/Text'
-import { colour, shadow, space } from '@/ui/theme'
+import { CONTROL_FONT_LIMIT, Text } from '@/ui/Text'
+import { TAP_TARGET, colour, shadow, space } from '@/ui/theme'
 import { useReminders } from './reminders/ReminderProvider'
 import { todayDoses } from './reminders/doses'
+
+/** Narrower than this, or with a large system font, a row stacks: time, dose, action. */
+const SIDE_BY_SIDE_MIN_WIDTH = 360
+const SIDE_BY_SIDE_MAX_FONT = 1.2
 
 const doseKey = (medicationId: string, slot: string) => `${medicationId}|${slot}`
 
@@ -25,6 +29,9 @@ export function TodayDoses({ petId, courses }: { petId: string; courses: readonl
   const t = useText()
   const words = t.today
   const reminders = useReminders()
+  const { width, fontScale } = useWindowDimensions()
+  // A name squeezed into a column a few letters wide reads as nothing; stack instead.
+  const stacked = width < SIDE_BY_SIDE_MIN_WIDTH || fontScale > SIDE_BY_SIDE_MAX_FONT
   const today = localToday()
   const record = useCached(['doses', petId, today], () => withFreshSession((api) => api.listDoses(petId, today, today)))
   // Marks sent but not yet answered, over what the server last said.
@@ -81,11 +88,11 @@ export function TodayDoses({ petId, courses }: { petId: string; courses: readonl
         return (
           <View key={doseKey(course.id, slot)}>
             {index > 0 ? <View style={styles.divider} /> : null}
-            <View style={styles.row} accessible={false}>
-              <Text variant="h3" style={styles.slot}>
+            <View style={[styles.row, stacked ? styles.stacked : null]} accessible={false}>
+              <Text variant="h3" numberOfLines={1} style={styles.slot}>
                 {slot}
               </Text>
-              <View style={styles.copy}>
+              <View style={[styles.copy, stacked ? styles.copyStacked : null]}>
                 <Text numberOfLines={2}>{course.name}</Text>
                 {course.dosage ? (
                   <Text variant="label" tone="muted" numberOfLines={2}>
@@ -97,33 +104,47 @@ export function TodayDoses({ petId, courses }: { petId: string; courses: readonl
                     {words.missed}
                   </Text>
                 ) : null}
-              </View>
-              {state === 'given' ? (
-                <View style={styles.given}>
+                {/* The status in words and a tick, under the dose — not a colour alone. */}
+                {state === 'given' ? (
                   <View style={styles.givenMark}>
-                    <Icon name="check" size={18} color={colour.accentText} />
+                    <Icon name="check" size={16} color={colour.accentText} />
                     <Text variant="label" tone="accent">
                       {words.given}
                     </Text>
                   </View>
-                  <LinkButton
-                    title={words.undo}
-                    align="right"
-                    accessibilityLabel={`${words.undo}: ${slot}, ${course.name}`}
+                ) : null}
+              </View>
+              {/* One width for both actions, so the text beside them never moves. */}
+              <View style={stacked ? styles.actionStacked : styles.action}>
+                {state === 'given' ? (
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={words.undoLabel(course.name, slot)}
+                    accessibilityState={{ disabled: busy, busy }}
                     disabled={busy}
                     onPress={() => void mark(course, slot, false)}
+                    style={({ pressed }) => [styles.undo, stacked ? styles.undoStacked : null, { opacity: pressed ? 0.6 : 1 }]}
+                  >
+                    {busy ? (
+                      <ActivityIndicator color={colour.accent} />
+                    ) : (
+                      <Text variant="label" tone="accent" maxFontSizeMultiplier={CONTROL_FONT_LIMIT} style={styles.undoText}>
+                        {words.undo}
+                      </Text>
+                    )}
+                  </Pressable>
+                ) : (
+                  <Button
+                    title={words.give}
+                    accessibilityLabel={`${words.give}: ${slot}, ${course.name}`}
+                    kind="secondary"
+                    compact
+                    busy={busy}
+                    style={stacked ? styles.giveStacked : undefined}
+                    onPress={() => void mark(course, slot, true)}
                   />
-                </View>
-              ) : (
-                <Button
-                  title={words.give}
-                  accessibilityLabel={`${words.give}: ${slot}, ${course.name}`}
-                  kind="secondary"
-                  disabled={busy}
-                  style={styles.give}
-                  onPress={() => void mark(course, slot, true)}
-                />
-              )}
+                )}
+              </View>
             </View>
           </View>
         )
@@ -137,10 +158,17 @@ const styles = StyleSheet.create({
   card: { padding: 20, borderRadius: 22, marginBottom: space.block, ...shadow.card },
   title: { fontSize: 25, fontWeight: '800', marginBottom: 8 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 64, paddingVertical: 8 },
-  slot: { width: 56 },
+  // Never broken across lines: «08:\n00» reads as nothing.
+  slot: { minWidth: 56, flexShrink: 0 },
   copy: { flex: 1, minWidth: 0, gap: 2 },
-  give: { width: 96 },
-  given: { alignItems: 'flex-end' },
-  givenMark: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  copyStacked: { flex: 0, alignSelf: 'stretch' },
+  stacked: { flexDirection: 'column', alignItems: 'flex-start', gap: 6 },
+  action: { width: 96, alignItems: 'flex-end' },
+  actionStacked: { alignSelf: 'stretch', alignItems: 'flex-start' },
+  giveStacked: { alignSelf: 'flex-start' },
+  undoStacked: { alignItems: 'flex-start' },
+  undo: { minHeight: TAP_TARGET, minWidth: TAP_TARGET, alignItems: 'flex-end', justifyContent: 'center' },
+  undoText: { fontWeight: '700' },
+  givenMark: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
   divider: { height: StyleSheet.hairlineWidth, backgroundColor: colour.line },
 })
