@@ -3,6 +3,7 @@ import { AppState, Linking, StyleSheet } from 'react-native'
 import { router, useSegments } from 'expo-router'
 import * as Notifications from 'expo-notifications'
 import type { DueItem } from '@lapka/contracts'
+import { localToday } from '@/lib/calendar-day'
 import { withFreshSession } from '@/lib/api'
 import { deviceStorage } from '@/lib/supabase'
 import { useText } from '@/i18n'
@@ -69,7 +70,23 @@ export function ReminderProvider({ children }: { children: ReactNode }) {
         load: () =>
           withFreshSession(async (api) => {
             const [due, pets] = await Promise.all([api.listDue(), api.listPets()])
-            return { due, pets: pets.map((pet) => ({ id: pet.id, name: pet.name })) }
+            // The courses given at set times, and the doses given in the week ahead (FB-5).
+            const today = localToday()
+            const records = await Promise.all(
+              pets.map(async (pet) => {
+                const overview = await api.getHealthOverview(pet.id, today)
+                const timed = overview.medications.filter((course) => course.reminder_times.length > 0)
+                if (timed.length === 0) return { courses: [], doses: [] }
+                const doses = await api.listDoses(pet.id, today, addDays(today, 7))
+                return { courses: timed.map((course) => ({ pet: { id: pet.id, name: pet.name }, course })), doses }
+              }),
+            )
+            return {
+              due,
+              pets: pets.map((pet) => ({ id: pet.id, name: pet.name })),
+              courses: records.flatMap((record) => record.courses),
+              doses: records.flatMap((record) => record.doses),
+            }
           }),
       })
       .catch(() => {})
@@ -183,3 +200,8 @@ const styles = StyleSheet.create({
   body: { marginTop: 8, marginBottom: space.section },
   second: { marginTop: space.row },
 })
+
+function addDays(day: string, days: number): string {
+  const [year, month, date] = day.split('-').map(Number)
+  return new Date(Date.UTC(year, month - 1, date + days)).toISOString().slice(0, 10)
+}

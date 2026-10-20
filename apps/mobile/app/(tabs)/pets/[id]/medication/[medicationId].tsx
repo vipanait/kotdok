@@ -12,6 +12,7 @@ import { Button, LinkButton } from '@/ui/Button'
 import { Banner, Card } from '@/ui/Card'
 import { ConfirmDialog } from '@/ui/Dialog'
 import { Screen } from '@/ui/Screen'
+import { DoseTimes } from '@/features/medical-record/DoseTimes'
 import { DetailSkeleton } from '@/ui/Skeleton'
 import { Text } from '@/ui/Text'
 import { space } from '@/ui/theme'
@@ -113,6 +114,7 @@ export default function MedicationView() {
             {course.dosage ? <Text tone="muted">{course.dosage}</Text> : null}
             <Text tone="muted">{courseDates(t, course, today)}</Text>
           </Card>
+          {courseEditable(course, today) ? <DoseTimes petId={id} course={course} onChanged={setCourse} /> : null}
           {courseEditable(course, today) ? (
             <LinkButton title={words.edit} align="left" onPress={() => router.push(`/pets/${id}/medication-form?medicationId=${course.id}`)} />
           ) : (

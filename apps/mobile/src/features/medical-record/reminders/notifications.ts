@@ -52,8 +52,8 @@ export const notifier: Notifier = {
       content: { title: reminder.title, body: reminder.body, data },
       trigger:
         Platform.OS === 'ios'
-          ? { type: Notifications.SchedulableTriggerInputTypes.CALENDAR, year, month, day, hour: reminder.hour, minute: 0, repeats: false }
-          : { type: Notifications.SchedulableTriggerInputTypes.DATE, date: reminderMoment(reminder.day, reminder.hour), channelId: CHANNEL },
+          ? { type: Notifications.SchedulableTriggerInputTypes.CALENDAR, year, month, day, hour: reminder.hour, minute: reminder.minute ?? 0, repeats: false }
+          : { type: Notifications.SchedulableTriggerInputTypes.DATE, date: reminderMoment(reminder.day, reminder.hour, reminder.minute ?? 0), channelId: CHANNEL },
     })
   },
 }
