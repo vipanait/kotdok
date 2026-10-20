@@ -116,6 +116,20 @@ describe('what «Сохранить» sends', () => {
     })
   })
 
+  it('an untouched list keeps its items whole, even one with a comma of its own', () => {
+    const listed = { ...murka, allergies: ['Курица', 'рыба, кроме лосося'], chronic_conditions: ['ХБП, стадия 2'], medications: ['Витамины A, D'] }
+    expect(petFormRequest(listed, untouched(listed), TODAY).body).toMatchObject({
+      allergies: ['Курица', 'рыба, кроме лосося'],
+      chronic_conditions: ['ХБП, стадия 2'],
+      medications: ['Витамины A, D'],
+    })
+  })
+
+  it('a list the owner edited is read from the field again', () => {
+    const listed = { ...murka, allergies: ['Курица', 'рыба, кроме лосося'] }
+    expect(petFormRequest(listed, { ...untouched(listed), allergies: 'Курица, говядина' }, TODAY).body.allergies).toEqual(['Курица', 'говядина'])
+  })
+
   it('an older pet’s age stays an age: no birth date is invented', () => {
     const older = { ...murka, age_years: 3 }
     expect(petFormRequest(older, untouched(older), TODAY).body).toMatchObject({ age_years: 3, birth_date: null, birth_date_approx: false })

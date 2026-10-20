@@ -70,6 +70,12 @@ const PATHS = {
   ),
   share: <path d="M12 15V3m-5 5 5-5 5 5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6" />,
   chevron: <path d="m9 6 6 6-6 6" />,
+  done: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="m8 12 3 3 5-6" />
+    </>
+  ),
   copy: (
     <>
       <rect x="8" y="8" width="13" height="13" rx="2" />
