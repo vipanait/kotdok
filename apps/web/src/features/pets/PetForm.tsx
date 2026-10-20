@@ -13,7 +13,7 @@ import { petFormCancelHref, petFormDoneHref } from '@/features/pets/pet-form-exi
 import { csrfHeaders } from '@/shared/security/csrf-client'
 import { fromArr, petFormRequest } from '@/features/pets/pet-form-request'
 import { updateOnboarding } from '@/features/onboarding/onboarding-cookie'
-import { chooseGoal, finishOnboarding, type OnboardingGoal } from '@/features/onboarding/onboarding-state'
+import { chooseGoal, finishOnboarding, type OnboardingGoal } from '@/shared/onboarding/onboarding-state'
 import PetDatesFields from './PetDatesFields'
 import PetPhotoField from './PetPhotoField'
 import { datesFromPet, readPetDates, type PetDatesError, type PetDatesFields as DatesFields } from './pet-dates-form'

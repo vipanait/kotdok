@@ -1,4 +1,4 @@
-import { ONBOARDING_COOKIE, readOnboarding, writeOnboarding, type OnboardingState } from './onboarding-state'
+import { ONBOARDING_COOKIE, readOnboarding, writeOnboarding, type OnboardingState } from '@/shared/onboarding/onboarding-state'
 
 function rawCookie(): string | undefined {
   return document.cookie

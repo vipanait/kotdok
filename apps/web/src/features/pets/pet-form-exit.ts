@@ -1,7 +1,7 @@
 import { recordCache } from '@/features/medical-record/record-load'
 import { medicalRecordHref } from '@/features/medical-record/routes'
 import type { PetSavedKind } from '@/features/pets/pet-saved'
-import { petCreatedHref, type OnboardingGoal } from '@/features/onboarding/onboarding-state'
+import { petCreatedHref, type OnboardingGoal } from '@/shared/onboarding/onboarding-state'
 
 /** The pets list: where a new pet's form starts from and returns to. */
 export const PETS_LIST_HREF = '/pets'

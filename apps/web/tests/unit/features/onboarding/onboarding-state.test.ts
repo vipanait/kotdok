@@ -10,7 +10,7 @@ import {
   showWelcome,
   skipOnboarding,
   writeOnboarding,
-} from '@/features/onboarding/onboarding-state'
+} from '@/shared/onboarding/onboarding-state'
 
 const ANNA = '11111111-1111-4111-8111-111111111111'
 const BORIS = '22222222-2222-4222-8222-222222222222'
