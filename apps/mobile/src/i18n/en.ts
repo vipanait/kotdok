@@ -113,6 +113,20 @@ export const en: Dictionary = {
     failed: 'Could not open the calendar',
   },
 
+  sitterMemo: {
+    row: 'Memo for a pet sitter',
+    rowNote: 'The essentials and the next two weeks — to Telegram or anywhere',
+    diet: (value: string) => `Food: ${value}`,
+    allergies: (list: string) => `Allergies: ${list}`,
+    chronic: (list: string) => `Chronic conditions: ${list}`,
+    medicines: 'Medicines now:',
+    notes: (text: string) => `Notes: ${text}`,
+    clinic: (name: string) => `Vet clinic: ${name}`,
+    plans: 'Next two weeks:',
+    overdueSince: (day: string) => `overdue since ${day}`,
+    footer: 'Sent from Lapka',
+  },
+
   firstSteps: {
     title: 'Vaccinations and vet',
     vaccines: 'Which vaccinations has it had?',
