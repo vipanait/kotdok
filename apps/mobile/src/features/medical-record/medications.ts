@@ -6,9 +6,9 @@ import { dayInput, dayParts, localToday, parseDayText } from '@/lib/calendar-day
 /**
  * Medication courses for the screens: how their dates read, and the course
  * form. Which courses are current, and their order, is shared with the site
- * (`isCurrentCourse`, `splitCourses` in @lapka/shared). No schedules and no
- * reminders — a course is written down so it is not forgotten, the dose is
- * the vet's (spec §7.12).
+ * (`isCurrentCourse`, `splitCourses` in @lapka/shared). The dose is the
+ * vet's (spec §7.12); the times it is given at, and the reminders, are the
+ * owner's own (FB-5, spec §7.8) — the app suggests neither.
  */
 
 /**

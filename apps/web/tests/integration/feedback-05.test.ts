@@ -7,6 +7,8 @@ import { POST as addMedications } from '@/app/(backend)/api/v1/pets/[id]/health/
 import { PUT as setTimes } from '@/app/(backend)/api/v1/pets/[id]/health/medications/[medicationId]/times/route'
 import { DELETE as unmarkDose, POST as markDose } from '@/app/(backend)/api/v1/pets/[id]/health/medications/[medicationId]/doses/route'
 import { GET as listDoses } from '@/app/(backend)/api/v1/pets/[id]/health/doses/route'
+import { DELETE as deleteCourse } from '@/app/(backend)/api/v1/pets/[id]/health/medications/[medicationId]/route'
+import { DELETE as deletePet } from '@/app/(backend)/api/v1/pets/[id]/route'
 import { FIXTURE_PASSWORD, OWNER_A, OWNER_B, PET_IDS, connect, seedFixtures } from './fixtures'
 
 /** FB-5: the times a course is given at, and «дали» for a dose. */
@@ -36,8 +38,8 @@ const params = (id: string) => ({ params: Promise.resolve({ id }) })
 const medParams = (id: string, medicationId: string) => ({ params: Promise.resolve({ id, medicationId }) })
 const day = (offset: number) => new Date(Date.now() + offset * 86_400_000).toISOString().slice(0, 10)
 
-async function newCourse(): Promise<string> {
-  const response = await addMedications(request(tokenA, 'POST', { items: [{ name: 'Нефростоп', dosage: '1 таблетка', started_on: day(-3) }] }), params(PET_IDS.aCat))
+async function newCourse(petId: string = PET_IDS.aCat): Promise<string> {
+  const response = await addMedications(request(tokenA, 'POST', { items: [{ name: 'Нефростоп', dosage: '1 таблетка', started_on: day(-3) }] }), params(petId))
   const [course] = (await response.json()).map((row: unknown) => MedicationSchema.parse(row))
   return course.id
 }
@@ -95,5 +97,31 @@ describe('«дали» (FB-5/02)', () => {
     expect((await markDose(request(tokenA, 'POST', { taken_on: day(0), slot: '09:00' }), medParams(PET_IDS.aCat, id))).status).toBe(400)
     expect((await markDose(request(tokenA, 'POST', { taken_on: day(3), slot: '08:00' }), medParams(PET_IDS.aCat, id))).status).toBe(400)
     expect((await markDose(request(tokenB, 'POST', { taken_on: day(0), slot: '08:00' }), medParams(PET_IDS.bCat, id))).status).toBe(404)
+  })
+})
+
+describe('the journal goes with the course and the pet (FB-5/02)', () => {
+  async function givenDose(petId: string): Promise<string> {
+    const id = await newCourse(petId)
+    await setTimes(request(tokenA, 'PUT', { reminder_times: ['08:00'] }), medParams(petId, id))
+    expect((await markDose(request(tokenA, 'POST', { taken_on: day(0), slot: '08:00' }), medParams(petId, id))).status).toBe(201)
+    return id
+  }
+  const dosesOf = async (column: 'medication_id' | 'pet_id', id: string) =>
+    (await db.query(`select count(*)::int as n from public.medication_doses where ${column} = $1`, [id])).rows[0].n as number
+
+  it('when the course is deleted', async () => {
+    const id = await givenDose(PET_IDS.aCat)
+    expect(await dosesOf('medication_id', id)).toBe(1)
+    const deleted = await deleteCourse(request(tokenA, 'DELETE', undefined, `http://test.local/x?today=${day(0)}`), medParams(PET_IDS.aCat, id))
+    expect(deleted.status).toBe(204)
+    expect(await dosesOf('medication_id', id)).toBe(0)
+  })
+
+  it('when the pet is deleted', async () => {
+    await givenDose(PET_IDS.aDog)
+    expect(await dosesOf('pet_id', PET_IDS.aDog)).toBe(1)
+    expect((await deletePet(request(tokenA, 'DELETE'), params(PET_IDS.aDog))).status).toBeLessThan(300)
+    expect(await dosesOf('pet_id', PET_IDS.aDog)).toBe(0)
   })
 })

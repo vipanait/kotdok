@@ -34,3 +34,35 @@ create index if not exists medication_doses_pet_day on public.medication_doses (
 
 -- Only the server reaches it, as every record table.
 alter table public.medication_doses enable row level security;
+
+-- Courses and pets are deleted softly; their doses go for real, whichever
+-- path deleted them (the course screen, the pet form's list, the pet).
+create or replace function public.drop_doses_of_deleted()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if tg_table_name = 'pet_medications' then
+    delete from public.medication_doses where medication_id = new.id;
+  else
+    delete from public.medication_doses where pet_id = new.id;
+  end if;
+  return new;
+end;
+$$;
+
+revoke all on function public.drop_doses_of_deleted() from public, anon, authenticated;
+
+drop trigger if exists pet_medications_drop_doses on public.pet_medications;
+create trigger pet_medications_drop_doses
+  after update of deleted_at on public.pet_medications
+  for each row when (old.deleted_at is null and new.deleted_at is not null)
+  execute function public.drop_doses_of_deleted();
+
+drop trigger if exists pets_drop_doses on public.pets;
+create trigger pets_drop_doses
+  after update of deleted_at on public.pets
+  for each row when (old.deleted_at is null and new.deleted_at is not null)
+  execute function public.drop_doses_of_deleted();
