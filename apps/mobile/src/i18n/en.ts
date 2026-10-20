@@ -107,6 +107,12 @@ export const en: Dictionary = {
     birthday: (name: string) => `Happy birthday, ${name}!`,
   },
 
+  calendarEvent: {
+    add: 'Add to calendar',
+    title: (pet: string, what: string) => `${pet}: ${what}`,
+    failed: 'Could not open the calendar',
+  },
+
   firstSteps: {
     title: 'Vaccinations and vet',
     vaccines: 'Which vaccinations has it had?',
