@@ -11,7 +11,7 @@ type SupabaseService = ReturnType<typeof createServiceClient>
  * times. One row per dose; a second mark of the same dose is that dose.
  */
 
-export type DoseFailure = 'not_found' | 'bad_slot' | 'future' | 'storage_error'
+export type DoseFailure = 'not_found' | 'bad_slot' | 'future' | 'bad_day' | 'storage_error'
 
 const COLUMNS = 'medication_id, taken_on, slot'
 
@@ -19,7 +19,7 @@ const COLUMNS = 'medication_id, taken_on, slot'
 export async function liveCourse(supabase: SupabaseService, userId: string, petId: string, medicationId: string) {
   const { data, error } = await supabase
     .from('pet_medications')
-    .select('id, reminder_times, pets!inner(deleted_at)')
+    .select('id, reminder_times, started_on, ended_on, pets!inner(deleted_at)')
     .eq('id', medicationId)
     .eq('pet_id', petId)
     .eq('user_id', userId)
@@ -28,7 +28,19 @@ export async function liveCourse(supabase: SupabaseService, userId: string, petI
     .maybeSingle()
   if (error) return { ok: false as const, reason: 'storage_error' as const }
   if (!data) return { ok: false as const, reason: 'not_found' as const }
-  return { ok: true as const, times: (data.reminder_times as string[]) ?? [] }
+  return {
+    ok: true as const,
+    times: (data.reminder_times as string[]) ?? [],
+    startedOn: (data.started_on as string | null) ?? null,
+    endedOn: (data.ended_on as string | null) ?? null,
+  }
+}
+
+/** How far back a dose may still be marked: the week the phone reminds about, and a margin. */
+const MARK_DAYS_BACK = 14
+
+function daysBefore(now: Date, days: number): string {
+  return new Date(now.getTime() - days * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
 }
 
 /** @returns the dose and whether it was new (201) or already there (200). */
@@ -44,6 +56,11 @@ export async function markDose(
   if (!course.ok) return course
   if (!course.times.includes(input.slot)) return { ok: false, reason: 'bad_slot' }
   if (isFutureDay(input.taken_on, now)) return { ok: false, reason: 'future' }
+  // Within the course's days, and not long ago: a mark is «дали» today or
+  // lately, not a journal to fill for every day there ever was (PR #82 review).
+  if (input.taken_on < daysBefore(now, MARK_DAYS_BACK)) return { ok: false, reason: 'bad_day' }
+  if (course.startedOn && input.taken_on < course.startedOn) return { ok: false, reason: 'bad_day' }
+  if (course.endedOn && input.taken_on > course.endedOn) return { ok: false, reason: 'bad_day' }
 
   const row = { user_id: userId, pet_id: petId, medication_id: medicationId, taken_on: input.taken_on, slot: input.slot }
   const { data, error } = await supabase
@@ -95,7 +112,9 @@ export async function listDoses(
 
   const { data, error } = await supabase
     .from('medication_doses')
-    .select(COLUMNS)
+    // Only live courses: a mark that raced the course's deletion stays unseen.
+    .select(`${COLUMNS}, pet_medications!inner(deleted_at)`)
+    .is('pet_medications.deleted_at', null)
     .eq('pet_id', petId)
     .eq('user_id', userId)
     .gte('taken_on', from)
@@ -103,5 +122,8 @@ export async function listDoses(
     .order('taken_on')
     .order('slot')
   if (error) return { ok: false, reason: 'storage_error', message: error.message }
-  return { ok: true, data: data as MedicationDose[] }
+  return {
+    ok: true,
+    data: (data as (MedicationDose & { pet_medications?: unknown })[]).map(({ medication_id, taken_on, slot }) => ({ medication_id, taken_on, slot })),
+  }
 }

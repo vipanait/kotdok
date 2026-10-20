@@ -274,7 +274,12 @@ export async function updatePet(
       .maybeSingle()
 
     // 23514: a check such as the dates' order failed against what is stored
-    // (FB-2 review) — the caller's mistake, not the storage's.
+    // (FB-2 review) — the caller's mistake, not the storage's. The same code
+    // comes from `refuse_write_for_inactive_account`: an account being
+    // deleted is said as such (PR #82 review).
+    if (updateError?.code === '23514' && updateError.message.includes('not accepting writes')) {
+      return { ok: false, reason: 'account_deleting' }
+    }
     if (updateError?.code === '23514') return { ok: false, reason: 'invalid', message: updateError.message }
     if (updateError) return { ok: false, reason: 'storage_error', message: updateError.message }
     if (!updated) return { ok: false, reason: 'not_found' }

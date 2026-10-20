@@ -1,8 +1,8 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ActivityIndicator, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native'
 import type { Medication, MedicationDose } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
-import { localToday } from '@/lib/calendar-day'
+import { useToday } from '@/lib/use-today'
 import { describeFailure } from '@/lib/errors'
 import { useCached } from '@/lib/query-cache'
 import { useText } from '@/i18n'
@@ -32,8 +32,14 @@ export function TodayDoses({ petId, courses }: { petId: string; courses: readonl
   const { width, fontScale } = useWindowDimensions()
   // A name squeezed into a column a few letters wide reads as nothing; stack instead.
   const stacked = width < SIDE_BY_SIDE_MIN_WIDTH || fontScale > SIDE_BY_SIDE_MAX_FONT
-  const today = localToday()
+  const today = useToday()
   const record = useCached(['doses', petId, today], () => withFreshSession((api) => api.listDoses(petId, today, today)))
+  // A new day is a new list: read it, the cache only reads on focus.
+  const reload = record.reload
+  const firstDay = useRef(today)
+  useEffect(() => {
+    if (today !== firstDay.current) void reload()
+  }, [today, reload])
   // Marks sent but not yet answered, over what the server last said.
   const [pending, setPending] = useState<ReadonlyMap<string, boolean>>(new Map())
   const [error, setError] = useState<string | null>(null)
@@ -163,7 +169,8 @@ const styles = StyleSheet.create({
   copy: { flex: 1, minWidth: 0, gap: 2 },
   copyStacked: { flex: 0, alignSelf: 'stretch' },
   stacked: { flexDirection: 'column', alignItems: 'flex-start', gap: 6 },
-  action: { width: 96, alignItems: 'flex-end' },
+  // At least as wide as «Отменить», so the text beside it does not move; wider for a longer word.
+  action: { minWidth: 96, alignItems: 'flex-end' },
   actionStacked: { alignSelf: 'stretch', alignItems: 'flex-start' },
   giveStacked: { alignSelf: 'flex-start' },
   give: { alignSelf: 'flex-end' },

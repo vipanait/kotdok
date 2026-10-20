@@ -137,6 +137,15 @@ export default function Pets() {
     }
   }
 
+  // An account that has pets — one added on the site, say — has nothing to
+  // resume: the stored path is closed, not kept for after a last pet is deleted.
+  const hasPets = pets !== null && pets.length > 0
+  useEffect(() => {
+    if (!hasPets || !userId || !resumable.current) return
+    resumable.current = null
+    void onboardingStore.finish(userId).catch(() => undefined)
+  }, [hasPets, userId])
+
   // A path begun before the app was closed goes on without asking again — once.
   useEffect(() => {
     if (!empty || !resumable.current) return

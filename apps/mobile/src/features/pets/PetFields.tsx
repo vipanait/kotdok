@@ -9,7 +9,7 @@ import { ListField } from '@/ui/ListField'
 import { Accordion } from '@/ui/Section'
 import { Text } from '@/ui/Text'
 import { space } from '@/ui/theme'
-import { LIST_MAX_ITEMS, WEIGHT_MAX, switchWeightUnit, type FieldError, type PetForm } from './pet-form'
+import { LIST_MAX_ITEMS, WEIGHT_MAX, switchBirthMode, switchWeightUnit, type FieldError, type PetForm } from './pet-form'
 
 /** Yes / no / not stated, which a switch cannot express. */
 function Tristate({
@@ -153,7 +153,7 @@ export function PetFields({
           { value: 'approx' as const, label: t.petForm.birthApprox },
         ]}
         value={form.birthMode}
-        onChange={(birthMode) => birthMode && onChange({ birthMode })}
+        onChange={(birthMode) => birthMode && onChange(switchBirthMode(form, birthMode, localToday()))}
       />
       {form.birthMode === 'exact' ? (
         <DateField
@@ -208,7 +208,7 @@ export function PetFields({
       />
       {/* A newborn weighs less than the field's 0,1 kg (FB-2/05). */}
       <Segment
-        label={t.petForm.weightGrams}
+        label={t.petForm.weightUnit}
         labelHidden
         clearable={false}
         options={[

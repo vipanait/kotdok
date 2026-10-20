@@ -132,6 +132,10 @@ export const en: Dictionary = {
     camera: 'Take a photo',
     remove: 'Remove photo',
     failed: 'Could not save the photo',
+    pickFailed: 'Could not open the camera or the library',
+    cameraDenied: 'Camera access is off in the phone’s settings',
+    openSettings: 'Open settings',
+    saving: 'Saving the photo',
   },
 
   firstSteps: {
@@ -498,6 +502,7 @@ export const en: Dictionary = {
     adoptedOn: 'With you since · optional',
     weight: (max: number) => `Weight (kg), up to ${max}`,
     weightGrams: 'Weight (g)',
+    weightUnit: 'Weight unit',
     sex: 'Sex',
     health: 'Health',
     lifestyle: 'Lifestyle',

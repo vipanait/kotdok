@@ -54,11 +54,14 @@ export default function FirstSteps() {
   /** What already went through, so a retry after a failure sends only the rest. */
   const sent = useRef(new Set<string>())
 
+  // The pet is already saved: a failed load says so, and offers a retry and a way on.
+  const [attempt, setAttempt] = useState(0)
   useEffect(() => {
+    setError(null)
     withFreshSession((api) => api.getPet(id))
       .then(setPet)
-      .catch((cause) => setError(describeFailure(t, cause, t.errors.savePetFailed)))
-  }, [id, t])
+      .catch((cause) => setError(describeFailure(t, cause, t.errors.loadPetFailed)))
+  }, [id, t, attempt])
 
   const toPet = () => router.replace(`/pets/${id}`)
 
@@ -113,8 +116,16 @@ export default function FirstSteps() {
 
   if (!pet) {
     return (
-      <Screen title={words.title}>
-        {error ? <Banner text={error.text} tone="error" icon={error.offline ? 'wifi' : 'alert'} /> : <FormSkeleton fields={3} />}
+      <Screen title={words.title} onBack={toPet}>
+        {error ? (
+          <>
+            <Banner text={error.text} tone="error" icon={error.offline ? 'wifi' : 'alert'} />
+            <Button title={t.common.retry} onPress={() => setAttempt((count) => count + 1)} />
+            <LinkButton title={words.skip} onPress={toPet} />
+          </>
+        ) : (
+          <FormSkeleton fields={3} />
+        )}
       </Screen>
     )
   }

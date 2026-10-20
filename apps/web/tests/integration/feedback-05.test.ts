@@ -91,6 +91,24 @@ describe('«дали» (FB-5/02)', () => {
     expect(after.filter((dose) => (dose as { medication_id: string }).medication_id === id)).toHaveLength(0)
   })
 
+  it('refuses a day before the course, or long ago (PR #82 review)', async () => {
+    const id = await newCourse()
+    await setTimes(request(tokenA, 'PUT', { reminder_times: ['08:00'] }), medParams(PET_IDS.aCat, id))
+    // The course began three days ago.
+    expect((await markDose(request(tokenA, 'POST', { taken_on: day(-5), slot: '08:00' }), medParams(PET_IDS.aCat, id))).status).toBe(400)
+    expect((await markDose(request(tokenA, 'POST', { taken_on: day(-3), slot: '08:00' }), medParams(PET_IDS.aCat, id))).status).toBe(201)
+    await db.query(`update public.pet_medications set started_on = $2 where id = $1`, [id, day(-60)])
+    expect((await markDose(request(tokenA, 'POST', { taken_on: day(-30), slot: '08:00' }), medParams(PET_IDS.aCat, id))).status).toBe(400)
+  })
+
+  it('keeps a time per element in the database: no NULL, empty or joined element (PR #82 review)', async () => {
+    const id = await newCourse()
+    for (const bad of [`{'08:00',NULL}`, `{08:00,""}`, `{"08:00,09:00"}`]) {
+      await expect(db.query(`update public.pet_medications set reminder_times = $2::text[] where id = $1`, [id, bad.replace(/'/g, '')])).rejects.toThrow()
+    }
+    await db.query(`update public.pet_medications set reminder_times = '{08:00,20:00}' where id = $1`, [id])
+  })
+
   it('refuses a time the course is not given at, a day ahead, and another person’s course', async () => {
     const id = await newCourse()
     await setTimes(request(tokenA, 'PUT', { reminder_times: ['08:00'] }), medParams(PET_IDS.aCat, id))

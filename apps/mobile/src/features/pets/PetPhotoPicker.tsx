@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ActivityIndicator, StyleSheet, View } from 'react-native'
+import { ActivityIndicator, Linking, StyleSheet, View } from 'react-native'
 import * as ImagePicker from 'expo-image-picker'
 import type { Pet } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
@@ -22,20 +22,34 @@ export function PetPhotoPicker({ pet, onChanged }: { pet: Pet; onChanged: (pet: 
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  const [denied, setDenied] = useState(false)
+
   async function pick(source: 'library' | 'camera') {
-    if (source === 'camera') {
-      const permission = await ImagePicker.requestCameraPermissionsAsync()
-      if (!permission.granted) return
+    setError(null)
+    setDenied(false)
+    let picked: ImagePicker.ImagePickerResult
+    try {
+      if (source === 'camera') {
+        const permission = await ImagePicker.requestCameraPermissionsAsync()
+        // Said, with the way to Settings: a tap that does nothing reads as broken.
+        if (!permission.granted) {
+          setDenied(true)
+          return
+        }
+      }
+      picked =
+        source === 'camera'
+          ? await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 1, allowsEditing: true, aspect: [1, 1] })
+          : await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 1, allowsEditing: true, aspect: [1, 1] })
+    } catch {
+      // No camera (a simulator), or the picker failed to open.
+      setError(words.pickFailed)
+      return
     }
-    const result =
-      source === 'camera'
-        ? await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 1, allowsEditing: true, aspect: [1, 1] })
-        : await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 1, allowsEditing: true, aspect: [1, 1] })
-    if (result.canceled || !result.assets[0]) return
-    const { uri, width, height } = result.assets[0]
+    if (picked.canceled || !picked.assets[0]) return
+    const { uri, width, height } = picked.assets[0]
 
     setBusy(true)
-    setError(null)
     try {
       const updated = await withFreshSession((api) =>
         uploadAvatar(
@@ -73,7 +87,7 @@ export function PetPhotoPicker({ pet, onChanged }: { pet: Pet; onChanged: (pet: 
     <View style={styles.block}>
       <View style={styles.row}>
         <Avatar species={pet.species} uri={pet.avatar_url} size={72} />
-        {busy ? <ActivityIndicator color={colour.accent} /> : null}
+        {busy ? <ActivityIndicator color={colour.accent} accessibilityLabel={words.saving} /> : null}
         <View style={styles.actions}>
           <LinkButton title={pet.avatar_url ? words.change : words.add} align="left" onPress={() => void pick('library')} disabled={busy} />
           <LinkButton title={words.camera} align="left" onPress={() => void pick('camera')} disabled={busy} />
@@ -81,6 +95,12 @@ export function PetPhotoPicker({ pet, onChanged }: { pet: Pet; onChanged: (pet: 
         </View>
       </View>
       {error ? <Banner text={error} tone="error" /> : null}
+      {denied ? (
+        <>
+          <Banner text={words.cameraDenied} tone="error" />
+          <LinkButton title={words.openSettings} align="left" onPress={() => void Linking.openSettings()} />
+        </>
+      ) : null}
     </View>
   )
 }

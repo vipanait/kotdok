@@ -135,7 +135,8 @@ export default function EventView() {
             ) : null}
             {event.clinic ? <Text tone="muted">{event.clinic}</Text> : null}
           </Card>
-          {planned ? <AddToCalendar petName={petName} event={event} /> : null}
+          {/* A day already past is not put in a calendar (PR #82 review). */}
+          {planned && event.date >= localToday() ? <AddToCalendar petName={petName} event={event} /> : null}
 
           {event.items.map((item) => (
             <Card key={item.id} outlined style={styles.item}>

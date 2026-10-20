@@ -1,9 +1,9 @@
 import type { HealthOverview } from '@lapka/contracts'
-import { isTakenNow } from '@lapka/shared'
 import { ageText } from '@/features/pets/pet-age'
 import type { Dictionary } from '@/i18n'
 import { duePhrase, dueItems, dueStatus, visitPhrase } from './due'
 import { speciesWord } from './overview'
+import { givenOn } from './reminders/doses'
 
 /** How far ahead the memo looks: a stay with relatives is usually a week or two. */
 const DAYS_AHEAD = 14
@@ -35,8 +35,13 @@ export function sitterMemo(t: Dictionary, overview: HealthOverview, today: strin
   const medicines =
     overview.medications.length > 0
       ? overview.medications
-          .filter((course) => isTakenNow(course, today))
-          .map((course) => `${course.name}${course.dosage ? `, ${course.dosage}` : ''}`)
+          // Given today, its last day included, as «Сегодня» counts it; with the
+          // times the owner set — exactly what a sitter needs (PR #82 review).
+          .filter((course) => givenOn(course, today))
+          .map(
+            (course) =>
+              `${course.name}${course.dosage ? `, ${course.dosage}` : ''}${course.reminder_times.length > 0 ? ` (${course.reminder_times.join(', ')})` : ''}`,
+          )
       : filled(pet.medications)
   if (medicines.length > 0) sections.push([words.medicines, ...medicines.map((line) => `— ${line}`)].join('\n'))
 

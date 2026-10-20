@@ -149,6 +149,10 @@ export const ru = {
     camera: 'Снять на камеру',
     remove: 'Убрать фото',
     failed: 'Не удалось сохранить фото',
+    pickFailed: 'Не удалось открыть камеру или галерею',
+    cameraDenied: 'Доступ к камере выключен в настройках телефона',
+    openSettings: 'Открыть настройки',
+    saving: 'Сохраняем фото',
   },
 
   /** The step after a new pet's form (FB-2/03, FB-2/04). */
@@ -532,6 +536,8 @@ export const ru = {
     adoptedOn: 'В семье с · необязательно',
     weight: (max: number) => `Вес (кг), до ${max}`,
     weightGrams: 'Вес (г)',
+    /** Read out for the kg / g switch, which has no visible name. */
+    weightUnit: 'Единица веса',
     sex: 'Пол',
     health: 'Здоровье',
     lifestyle: 'Образ жизни',

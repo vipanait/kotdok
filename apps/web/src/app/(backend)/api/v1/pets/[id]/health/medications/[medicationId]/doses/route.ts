@@ -21,6 +21,7 @@ function failure(requestId: string, reason: DoseFailure) {
   if (reason === 'not_found') return apiError(requestId, 'not_found', 'No such resource')
   if (reason === 'bad_slot') return apiError(requestId, 'bad_request', 'The course is not given at that time')
   if (reason === 'future') return apiError(requestId, 'bad_request', 'A dose cannot be given in the future')
+  if (reason === 'bad_day') return apiError(requestId, 'bad_request', 'The course is not given on that day, or it is too long ago')
   return apiError(requestId, 'internal_error', 'Storage is unavailable')
 }
 
