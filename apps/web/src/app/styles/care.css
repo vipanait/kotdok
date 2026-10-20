@@ -342,3 +342,20 @@
   .visit-columns .card .btn .icon { width: 20px; height: 20px; }
   .visit-columns .event-actions .link { min-height: 44px; }
 }
+
+@layer components {
+
+  /* ---------- Памятка для передержки ---------- */
+
+  .memo-columns aside { display: grid; gap: 22px; min-width: 0; }
+  .memo-card h2 { margin-bottom: 6px; }
+  .memo-card h3 { margin: 22px 0 6px; font-size: 18px; }
+  .memo-card section p { margin: 0 0 4px; overflow-wrap: anywhere; }
+  .memo-share .btn { margin-top: 6px; }
+  .memo-copy-status { min-height: 1.5em; margin-top: 12px; font-size: 14px; color: var(--green); }
+  .memo-manual { width: 100%; font-size: 14px; line-height: 1.5; }
+}
+
+@layer components {
+  .memo-copy-status.failed { color: var(--text); }
+}
