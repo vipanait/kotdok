@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Icon from '@/components/ui/Icon'
-import Illustration from '@/components/ui/Illustration'
+import PetAvatar from '@/components/PetAvatar'
 import { medicalRecordHref } from '@/features/medical-record/routes'
 import { petDueLine } from '@/features/medical-record/view-model'
 import UrgencyBadge from '@/components/ui/UrgencyBadge'
@@ -29,6 +29,7 @@ export default function PetRows({
   pets,
   latestChecksByPet,
   dueByPet,
+  photosByPet = {},
   today,
   dict,
   locale,
@@ -36,6 +37,8 @@ export default function PetRows({
   pets: Pet[]
   latestChecksByPet: Record<string, PetLatestCheck>
   dueByPet: Record<string, DueItem>
+  /** Signed links of the pets' own photos; a pet without one shows its species drawing. */
+  photosByPet?: Record<string, string>
   /** The owner's calendar day. */
   today: string
   dict: Dictionary
@@ -52,7 +55,7 @@ export default function PetRows({
           <li key={pet.id}>
             <Link href={medicalRecordHref.record(pet.id)} className="compact-pet">
               {/* 48px, 42px on phones: sized by CSS, so no fixed box here. */}
-              <Illustration name={pet.species === 'dog' ? 'avatar-dog' : 'avatar-cat'} size={48} className="avatar" />
+              <PetAvatar species={pet.species} photoUrl={photosByPet[pet.id]} size={48} fixedSize={false} />
               <div className="compact-pet-copy">
                 <h3>{pet.name}</h3>
                 <p>{meta}</p>
