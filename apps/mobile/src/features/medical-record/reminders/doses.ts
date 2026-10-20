@@ -16,6 +16,9 @@ export type DoseMoment = { petId: string; petName: string; course: Medication; d
 
 const DAYS_AHEAD = 7
 
+export const DOSE_ID_PREFIX = 'lapka-dose-'
+const RENEWAL_ID = 'lapka-dose-renew'
+
 function addDays(day: string, days: number): string {
   const [year, month, date] = day.split('-').map(Number)
   return new Date(Date.UTC(year, month - 1, date + days)).toISOString().slice(0, 10)
@@ -66,7 +69,7 @@ export function planDoseReminders(t: Dictionary, courses: readonly DoseCourse[],
       const [hour, minute] = moment.slot.split(':').map(Number)
       const what = moment.course.dosage ? `${moment.course.name}, ${moment.course.dosage}` : moment.course.name
       return {
-        id: `lapka-dose-${moment.course.id}-${moment.day}-${moment.slot}`,
+        id: `${DOSE_ID_PREFIX}${moment.course.id}-${moment.day}-${moment.slot}`,
         petId: moment.petId,
         day: moment.day,
         hour,
@@ -75,6 +78,37 @@ export function planDoseReminders(t: Dictionary, courses: readonly DoseCourse[],
         body: t.doseReminders.body(moment.petName, what),
       }
     })
+}
+
+/**
+ * The phone holds a week of doses, rebuilt whenever the app is opened. One
+ * more notification, a minute after the last dose it holds, says so while
+ * the course goes on past it — otherwise the reminders would simply stop for
+ * someone who did not open the app for a week (PR #82 review).
+ */
+export function planDoseRenewal(
+  t: Dictionary,
+  courses: readonly DoseCourse[],
+  doses: readonly MedicationDose[],
+  now: Date,
+  planned: readonly PlannedReminder[],
+): PlannedReminder | null {
+  const last = [...planned].reverse().find((reminder) => reminder.id.startsWith(DOSE_ID_PREFIX))
+  if (!last) return null
+  const lastAt = wallClock(last.day, `${String(last.hour).padStart(2, '0')}:${String(last.minute ?? 0).padStart(2, '0')}`)
+  // A day past the window, so a course that runs on after it is seen too.
+  const continues = doseMoments(courses, doses, now, DAYS_AHEAD + 1).some((moment) => moment.at > lastAt)
+  if (!continues) return null
+  const at = new Date(lastAt.getTime() + 60_000)
+  return {
+    id: RENEWAL_ID,
+    petId: last.petId,
+    day: localToday(at),
+    hour: at.getHours(),
+    minute: at.getMinutes(),
+    title: t.reminders.notificationTitle,
+    body: t.doseReminders.renew,
+  }
 }
 
 export type TodayDose = { course: Medication; slot: string; state: 'given' | 'due' | 'missed' }

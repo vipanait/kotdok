@@ -245,8 +245,8 @@ export const en: Dictionary = {
       soon: (when: string) => `— ${when}`,
     },
     dueTitle: 'Reminders',
-    allDue: (count: number) => `All due dates · ${count}`,
-    allDueTitle: 'All due dates',
+    allDue: (count: number) => `All reminders · ${count}`,
+    allDueTitle: 'Reminders',
     markDone: 'Done',
     markDue: 'Mark done',
     dueUpcoming: 'Upcoming',
@@ -368,7 +368,7 @@ export const en: Dictionary = {
       done: 'Happened',
       plan: 'Plan',
       doneNote: 'Note the diagnosis and prescriptions — they stay in the record.',
-      planNote: 'The visit will appear under due dates; we’ll remind you ahead.',
+      planNote: 'The visit will appear under reminders; we’ll remind you ahead.',
       kind: 'Kind of visit',
       kinds: { checkup: 'Check-up or prevention', illness: 'Illness', surgery: 'Surgery', tests: 'Tests and diagnostics', other: 'Other' },
       kindsShort: { checkup: 'Check-up', illness: 'Illness', surgery: 'Surgery', tests: 'Tests', other: 'Other' },
@@ -442,7 +442,7 @@ export const en: Dictionary = {
     summaryDone: (plans: number, day: string | null) =>
       plans === 0
         ? 'Saved as done, with no next date.'
-        : `Saved as done. ${plans === 1 ? 'The next one' : 'The next ones'}${day ? ` on ${day}` : ''} will appear under due dates.`,
+        : `Saved as done. ${plans === 1 ? 'The next one' : 'The next ones'}${day ? ` on ${day}` : ''} will appear under reminders.`,
     summaryComplete: (others: number) =>
       others === 1 ? 'One more item of this record stays planned.' : `${others} more items of this record stay planned.`,
     itemsRequired: 'Add at least one vaccine',
@@ -667,6 +667,7 @@ export const en: Dictionary = {
 
   doseReminders: {
     about: (medicine: string) => `to give ${medicine}`,
+    renew: 'Medicine reminders are running out. Open Lapka to keep them going.',
     askBody: 'We will notify you at the times you chose while the course runs. You can turn this off in Profile.',
     body: (pet: string, what: string) => `${pet}: time for ${what}`,
   },
@@ -737,8 +738,8 @@ export const en: Dictionary = {
     remind: 'Remind me',
     notNow: 'Not now',
     openSettings: 'Open settings',
-    deniedBody: 'Notifications are off in the phone settings. Due dates are still shown in the medical record.',
-    title: 'Reminders',
+    deniedBody: 'Notifications are off in the phone settings. Reminders are still shown in the medical record.',
+    title: 'Notifications',
     on: 'On',
     off: 'Off',
     toggle: 'Remind me about vaccinations, treatments, visits and medicines',

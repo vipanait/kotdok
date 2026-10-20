@@ -7,7 +7,7 @@ import { dueGroups, marksFromRow, type Due } from './due'
 
 /**
  * Due dates in groups: overdue first, then «Ближайшее», then «Позже»
- * (`dueGroups`). Shared by the record's «Сроки» card and «Все сроки», so the
+ * (`dueGroups`). Shared by the record's «Напоминания» card and «Все напоминания», so the
  * two cannot drift. It draws what it is given: the caller loads, cuts the
  * list to its limit and owns the routes.
  */

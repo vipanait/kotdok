@@ -30,7 +30,7 @@
 
 ### Task 1: Миграция
 
-**Files:** Create `supabase/migrations/20261021100000_pet_avatars.sql`.
+**Files:** Create `supabase/migrations/20261020130000_pet_avatars.sql`.
 
 - [ ] Бакет `pet-avatars` (private, 5 МБ, jpeg/png/webp), `alter table pets add column avatar_path text` (unique where not null), RPC `stale_avatar_objects(p_cutoff timestamptz, p_limit int)` — объекты `pet-avatars` старше `p_cutoff`, чьего имени нет в `pets.avatar_path`.
 - [ ] `npx supabase db reset` → stop/start → проверить колонку и бакет SQL-запросом.

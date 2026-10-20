@@ -12,7 +12,7 @@
 
 | Часть | Изменение | ID |
 | --- | --- | --- |
-| `supabase/migrations/20261021100000_pet_avatars.sql` | Приватный бакет `pet-avatars`, `pets.avatar_path` (уникальный), RPC `stale_avatar_objects` | FB-4/01 |
+| `supabase/migrations/20261020130000_pet_avatars.sql` | Приватный бакет `pet-avatars`, `pets.avatar_path` (уникальный), RPC `stale_avatar_objects` | FB-4/01 |
 | `server/pets/avatar-service.ts`, `api/v1/pets/[id]/avatar` | POST — подписанная ссылка на запись; PUT — проверка пути (свой пользователь и питомец) и байтов (`verifyPhoto`), замена со сносом старого; DELETE | FB-4/01 |
 | `server/pets/pet-contract.ts` | `avatar_url` — подписанная ссылка на час, только клиенту с `pet-avatar` в `X-Lapka-Features` | FB-4/03 |
 | `pet-service.ts`, `photo-storage.ts` | Фото удаляется вместе с питомцем; шаг `photos` удаления аккаунта чистит и `pet-avatars` | FB-4/02 |
