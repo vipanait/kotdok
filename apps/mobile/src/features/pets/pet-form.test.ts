@@ -12,6 +12,7 @@ import {
   petFormChanged,
   petToForm,
   remainingError,
+  switchWeightUnit,
   type PetForm,
 } from './pet-form'
 
@@ -223,6 +224,29 @@ describe('the birth date across saves (FB-2 review)', () => {
       ok: false,
       field: 'approxYears',
     })
+  })
+})
+
+describe('a newborn’s weight in grams (FB-2/05)', () => {
+  it('sends grams as kilograms and refuses a fraction of a gram', () => {
+    expect(formToInput(ru, filled({ weightUnit: 'g', weightKg: '85' }), TODAY)).toMatchObject({ ok: true, value: { weight_kg: 0.085 } })
+    expect(formToInput(ru, filled({ weightUnit: 'g', weightKg: '8,5' }), TODAY)).toMatchObject({ ok: false, field: 'weightKg' })
+  })
+
+  it('opens a weight under a kilogram in grams', () => {
+    expect(petToForm(sample({ weight_kg: 0.085 }), TODAY)).toMatchObject({ weightUnit: 'g', weightKg: '85' })
+    expect(petToForm(sample({ weight_kg: 4.2 }), TODAY)).toMatchObject({ weightUnit: 'kg', weightKg: '4.2' })
+  })
+
+  it('converts what is typed when the unit is switched', () => {
+    expect(switchWeightUnit({ weightKg: '0,085', weightUnit: 'kg' }, 'g')).toEqual({ weightKg: '85', weightUnit: 'g' })
+    expect(switchWeightUnit({ weightKg: '1200', weightUnit: 'g' }, 'kg')).toEqual({ weightKg: '1.2', weightUnit: 'kg' })
+    expect(switchWeightUnit({ weightKg: '', weightUnit: 'kg' }, 'g')).toEqual({ weightKg: '', weightUnit: 'g' })
+  })
+
+  it('shows under a kilogram in grams everywhere the record names a weight', () => {
+    expect(ru.medicalRecord.weight(0.085)).toBe('85 г')
+    expect(ru.medicalRecord.weight(4.2)).toBe('4,2 кг')
   })
 })
 

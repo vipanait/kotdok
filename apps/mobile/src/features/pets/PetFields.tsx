@@ -8,7 +8,7 @@ import { ListField } from '@/ui/ListField'
 import { Accordion } from '@/ui/Section'
 import { Text } from '@/ui/Text'
 import { space } from '@/ui/theme'
-import { LIST_MAX_ITEMS, WEIGHT_MAX, type FieldError, type PetForm } from './pet-form'
+import { LIST_MAX_ITEMS, WEIGHT_MAX, switchWeightUnit, type FieldError, type PetForm } from './pet-form'
 
 /** Yes / no / not stated, which a switch cannot express. */
 function Tristate({
@@ -181,12 +181,25 @@ export function PetFields({
         error={errorFor('adoptedOn')}
       />
       <Field
-        label={t.petForm.weight(WEIGHT_MAX)}
+        label={form.weightUnit === 'g' ? t.petForm.weightGrams : t.petForm.weight(WEIGHT_MAX)}
         value={form.weightKg}
         onChangeText={(weightKg) => onChange({ weightKg })}
         error={errorFor('weightKg')}
         hint={notes.weight}
         keyboardType="numeric"
+        style={styles.weightField}
+      />
+      {/* A newborn weighs less than the field's 0,1 kg (FB-2/05). */}
+      <Segment
+        label={t.petForm.weightGrams}
+        labelHidden
+        clearable={false}
+        options={[
+          { value: 'kg' as const, label: t.medicalRecord.units.kg },
+          { value: 'g' as const, label: t.medicalRecord.units.g },
+        ]}
+        value={form.weightUnit}
+        onChange={(unit) => unit && onChange(switchWeightUnit(form, unit))}
       />
       <Segment
         label={t.petForm.sex}
@@ -308,4 +321,5 @@ const styles = StyleSheet.create({
   fixed: { marginBottom: space.block, gap: 6 },
   approx: { flexDirection: 'row', gap: space.row },
   approxField: { flex: 1 },
+  weightField: { marginBottom: space.row },
 })

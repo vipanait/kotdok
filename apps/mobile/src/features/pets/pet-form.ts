@@ -8,7 +8,7 @@
  */
 
 import type { Dictionary } from '@/i18n'
-import { approxBirthDate, monthsBetween, petAgeYears } from '@lapka/shared'
+import { approxBirthDate, monthsBetween, parseWeightGrams, petAgeYears, weightUnitFor } from '@lapka/shared'
 import { dayInput, parseDayText } from '@/lib/calendar-day'
 import {
   PET_DIETS,
@@ -45,6 +45,8 @@ export type PetForm = {
   /** The first day together, ДД.ММ.ГГГГ; empty when not given. */
   adoptedOn: string
   weightKg: string
+  /** The weight field's unit: grams for a newborn (FB-2/05). */
+  weightUnit: 'kg' | 'g'
   sex: (typeof PET_SEXES)[number] | null
   neutered: boolean | null
   indoorOutdoor: (typeof PET_LIFESTYLES)[number] | null
@@ -70,6 +72,7 @@ export const emptyPetForm = (species: Species = 'cat'): PetForm => ({
   storedBirthDate: '',
   adoptedOn: '',
   weightKg: '',
+  weightUnit: 'kg',
   sex: null,
   neutered: null,
   indoorOutdoor: null,
@@ -102,7 +105,9 @@ export function petToForm(pet: Pet, today: string): PetForm {
     approxMonths: exact || months === null ? '' : String(months % 12),
     storedBirthDate: !exact && pet.birth_date ? pet.birth_date : '',
     adoptedOn: pet.adopted_on ? dayInput(pet.adopted_on) : '',
-    weightKg: pet.weight_kg === null ? '' : String(pet.weight_kg),
+    weightUnit: weightUnitFor(pet.weight_kg),
+    weightKg:
+      pet.weight_kg === null ? '' : weightUnitFor(pet.weight_kg) === 'g' ? String(Math.round(pet.weight_kg * 1000)) : String(pet.weight_kg),
     sex: pet.sex,
     neutered: pet.neutered,
     indoorOutdoor: pet.indoor_outdoor,
@@ -194,9 +199,13 @@ export function formToInput(t: Dictionary, form: PetForm, today: string): FormRe
     return { ok: false, field: 'adoptedOn', message: t.validation.adoptedBeforeBirth }
   }
 
-  const weight = parseOptionalNumber(form.weightKg, WEIGHT_MAX)
+  const weight = readFormWeight(form)
   if (!weight.ok) {
-    return { ok: false, field: 'weightKg', message: t.validation.weightRange(WEIGHT_MAX) }
+    return {
+      ok: false,
+      field: 'weightKg',
+      message: form.weightUnit === 'g' ? t.validation.weightGrams : t.validation.weightRange(WEIGHT_MAX),
+    }
   }
 
   const isDog = form.species === 'dog'
@@ -259,4 +268,26 @@ function readBirth(t: Dictionary, form: PetForm, today: string): ({ ok: true; da
 /** Past the age the contract keeps (`age_years` ≤ AGE_MAX): a typo, not a pet. */
 function tooOld(birthDate: string, today: string): boolean {
   return (petAgeYears({ birth_date: birthDate, age_years: null }, today) ?? 0) > AGE_MAX
+}
+
+/** The weight in kilograms, or empty: grams are whole grams, as for a weighing (FB-2/05). */
+function readFormWeight(form: PetForm): NumberResult {
+  if (form.weightUnit === 'kg') return parseOptionalNumber(form.weightKg, WEIGHT_MAX)
+  if (form.weightKg.trim() === '') return { ok: true, value: null }
+  const grams = parseWeightGrams(form.weightKg)
+  return grams.ok ? { ok: true, value: grams.value } : { ok: false }
+}
+
+/**
+ * Switching the weight's unit converts what is typed when it reads as a
+ * weight — 0,085 kg becomes 85 g — and leaves anything else as it is.
+ */
+export function switchWeightUnit(form: Pick<PetForm, 'weightKg' | 'weightUnit'>, unit: 'kg' | 'g'): Pick<PetForm, 'weightKg' | 'weightUnit'> {
+  if (unit === form.weightUnit) return form
+  const read = readFormWeight({ ...form } as PetForm)
+  if (!read.ok || read.value === null) return { weightKg: form.weightKg, weightUnit: unit }
+  return {
+    weightUnit: unit,
+    weightKg: unit === 'g' ? String(Math.round(read.value * 1000)) : String(read.value),
+  }
 }

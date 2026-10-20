@@ -8,8 +8,7 @@ import {
   weightCorrection,
   weightDayProblem,
   weightFieldText,
-  weightPatch,
-} from './weight-entry'
+  weightPatch, WEIGHT_MAX_GRAMS, parseWeightGrams, weightUnitFor } from './weight-entry'
 
 const TODAY = '2026-09-26'
 
@@ -129,5 +128,27 @@ describe('corrections', () => {
     expect(weightFieldText(4.2, ',')).toBe('4,2')
     expect(weightFieldText(28, ',')).toBe('28')
     expect(weightFieldText(4.2, '.')).toBe('4.2')
+  })
+})
+
+describe('a newborn’s weight in grams (FB-2/05)', () => {
+  it('reads whole grams as kilograms', () => {
+    expect(parseWeightGrams('85')).toEqual({ ok: true, value: 0.085 })
+    expect(parseWeightGrams(' 9999 ')).toEqual({ ok: true, value: 9.999 })
+    expect(parseWeightGrams('3')).toEqual({ ok: true, value: 0.003 })
+    expect(parseWeightGrams('1050')).toEqual({ ok: true, value: 1.05 })
+  })
+
+  it('refuses zero, past the field and fractions', () => {
+    expect(parseWeightGrams('0')).toEqual({ ok: false, problem: 'invalid' })
+    expect(parseWeightGrams(String(WEIGHT_MAX_GRAMS + 1))).toEqual({ ok: false, problem: 'invalid' })
+    expect(parseWeightGrams('8,5')).toEqual({ ok: false, problem: 'invalid' })
+    expect(parseWeightGrams('')).toEqual({ ok: false, problem: 'empty' })
+  })
+
+  it('shows under a kilogram in grams', () => {
+    expect(weightUnitFor(0.085)).toBe('g')
+    expect(weightUnitFor(4.2)).toBe('kg')
+    expect(weightUnitFor(null)).toBe('kg')
   })
 })
