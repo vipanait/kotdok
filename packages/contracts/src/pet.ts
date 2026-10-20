@@ -20,8 +20,14 @@ const LIST_ITEM_MAX = 150
 
 const stringList = z.array(z.string().min(1).max(LIST_ITEM_MAX)).max(LIST_MAX_ITEMS)
 
-/** A pet as the API returns it. `user_id` stays server-side. */
-export const PetSchema = z.strictObject({
+/**
+ * A pet as the API returns it. `user_id` stays server-side.
+ *
+ * Not strict: a field a later server adds is dropped by an older app, not
+ * fatal — the store builds read every pet list with this. The server still
+ * builds the object field by field (`toPetContract`), so nothing leaks.
+ */
+export const PetSchema = z.object({
   id: UuidSchema,
   species: PetSpeciesSchema,
   name: z.string().min(1).max(NAME_MAX),
