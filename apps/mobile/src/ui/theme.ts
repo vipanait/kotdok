@@ -48,6 +48,17 @@ export const urgency = {
   healthy: { signal: '#1F6E45', background: '#DCEEE2' },
 } as const
 
+/**
+ * The «Сроки» card (due priority design, 20 October 2026). A missed date is a
+ * calm terracotta line and word — not the urgency scale, which stays the only
+ * alarm: it says a day passed, not that the pet is in danger.
+ */
+export const due = {
+  overdue: '#A44836',
+  iconBox: '#F4F0E8',
+  date: '#716B61',
+} as const
+
 export const font = {
   /** Headings. Softer than the body face, which is the point. */
   display: 'Nunito',

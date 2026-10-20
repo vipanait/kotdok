@@ -1,17 +1,16 @@
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import { withFreshSession } from '@/lib/api'
 import { useCached } from '@/lib/query-cache'
 import { describeFailure } from '@/lib/errors'
 import { localToday } from '@/lib/calendar-day'
 import { useText } from '@/i18n'
-import { DueRow } from '@/features/medical-record/DueRow'
-import { doneRoute, marksFromRow, recordRoute, dueItems, dueStatus } from '@/features/medical-record/due'
+import { DueList } from '@/features/medical-record/DueList'
+import { doneRoute, recordRoute, dueItems } from '@/features/medical-record/due'
 import { Button } from '@/ui/Button'
 import { Banner, Card } from '@/ui/Card'
 import { Screen } from '@/ui/Screen'
 import { ListSkeleton } from '@/ui/Skeleton'
-import { colour } from '@/ui/theme'
 
 /** Every due date of the pet (X-dates): overdue first, then the soonest. */
 export default function AllDue() {
@@ -39,18 +38,13 @@ export default function AllDue() {
         <ListSkeleton rows={4} />
       ) : null}
       {all.length > 0 ? (
-        <Card outlined style={styles.card}>
-          {all.map((due, index) => (
-            <View key={due.itemId} style={index > 0 ? styles.divider : null}>
-              <DueRow
-                due={due}
-                status={dueStatus(t, due.date, today)}
-                markable={marksFromRow(due.date, today)}
-                onOpen={() => router.push(recordRoute(id, due))}
-                onDone={() => router.push(doneRoute(id, due))}
-              />
-            </View>
-          ))}
+        <Card style={styles.card}>
+          <DueList
+            items={all}
+            today={today}
+            onOpen={(due) => router.push(recordRoute(id, due))}
+            onDone={(due) => router.push(doneRoute(id, due))}
+          />
         </Card>
       ) : null}
     </Screen>
@@ -58,6 +52,5 @@ export default function AllDue() {
 }
 
 const styles = StyleSheet.create({
-  card: { paddingVertical: 4, paddingHorizontal: 16 },
-  divider: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colour.line },
+  card: { padding: 20, borderRadius: 22 },
 })

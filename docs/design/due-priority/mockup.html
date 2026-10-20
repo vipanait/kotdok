@@ -1,0 +1,44 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Nunito:wght@600;700;800&display=swap');
+#lapka-deadlines .lp-stage{--lp-bg:light-dark(#FBF6EE,#24231F);--lp-paper:light-dark(#FFFFFF,#30312C);--lp-text:light-dark(#1F1B15,#F6F2EB);--lp-muted:light-dark(#716B61,#BBB5AA);--lp-line:light-dark(#ECE7DE,#494B44);--lp-mint:light-dark(#DDEFEB,#254A43);--lp-green:light-dark(#0B6B5E,#9AD6C9);--lp-red:light-dark(#A44836,#F4AA96);--lp-rose:light-dark(#FBECE6,#50372F);--lp-soft:light-dark(#F4F0E8,#3D3D35);font-family:Manrope,system-ui,sans-serif;color:var(--lp-text);padding:24px 12px;min-height:475px;box-sizing:border-box}
+#lapka-deadlines .lp-frame{width:100%;max-width:390px;margin:0 auto;background:var(--lp-bg);padding:18px;box-sizing:border-box;border-radius:26px}
+#lapka-deadlines .lp-panel{background:var(--lp-paper);border-radius:22px;padding:20px}
+#lapka-deadlines h2{font-family:Nunito,system-ui,sans-serif;font-size:25px;font-weight:800;line-height:1.25;letter-spacing:-.4px;margin:0 0 23px;color:var(--lp-text)}
+#lapka-deadlines h3{font-size:16px;line-height:1.4;font-weight:700;margin:0;color:var(--lp-text);overflow-wrap:anywhere}
+#lapka-deadlines p{margin:0}
+#lapka-deadlines .lp-row{display:grid;grid-template-columns:36px minmax(0,1fr);gap:12px;align-items:start}
+#lapka-deadlines .lp-icon{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:11px;background:var(--lp-soft);color:var(--lp-muted)}
+#lapka-deadlines .lp-icon svg{width:20px;height:20px;stroke-width:1.7}
+#lapka-deadlines .lp-date{font-size:13px;line-height:1.6;color:var(--lp-muted);margin-top:5px}
+#lapka-deadlines .lp-tag{display:inline-block;font-size:11px;line-height:1.6;font-weight:600;padding:3px 8px;border-radius:7px;color:var(--lp-red);background:var(--lp-rose);margin-top:8px}
+#lapka-deadlines .lp-green{color:var(--lp-green)}
+#lapka-deadlines .lp-action{display:flex;align-items:center;justify-content:center;gap:7px;border:none;border-radius:11px;background:var(--lp-mint);color:var(--lp-green);font:700 13px/1.3 Manrope,system-ui,sans-serif;min-height:44px;padding:10px 15px;box-sizing:border-box}
+#lapka-deadlines .lp-action svg{width:16px;height:16px}
+#lapka-deadlines .lp-action:focus-visible{outline:2px solid var(--lp-green);outline-offset:3px}
+#lapka-deadlines .lp-below{margin-top:13px;width:100%}
+#lapka-deadlines .lp-divider{height:1px;background:var(--lp-line);margin:20px 0}
+#lapka-deadlines .lp-visit{grid-template-columns:36px minmax(0,1fr) 16px;align-items:center}
+#lapka-deadlines .lp-chevron{width:16px;height:16px;color:var(--lp-muted)}
+#lapka-deadlines .lp-small-title{font-size:11px;line-height:1.4;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;color:var(--lp-muted);margin:0 0 11px}
+#lapka-deadlines .lp-event{background:var(--lp-paper);padding:18px;border-radius:18px;margin-top:12px}
+#lapka-deadlines .lp-frame>h2{margin:1px 0 18px 2px}
+#lapka-deadlines .lp-event .lp-tag{margin-top:0;margin-bottom:13px}
+#lapka-deadlines .lp-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;border-top:1px solid var(--lp-line);padding-top:12px;margin-top:16px}
+#lapka-deadlines .lp-footer .lp-date{margin-top:0}
+#lapka-deadlines .lp-priority{border-left:3px solid var(--lp-red);padding:0 0 0 14px}
+#lapka-deadlines .lp-status{font-size:12px;line-height:1.5;color:var(--lp-red);font-weight:700;margin-bottom:10px}
+#lapka-deadlines .lp-priority .lp-action{position:relative;margin-top:12px;margin-left:48px;background:var(--lp-green);color:var(--lp-paper);width:fit-content;min-height:36px;padding:8px 13px;border-radius:10px}
+#lapka-deadlines .lp-priority .lp-action::after{content:"";position:absolute;inset:-4px 0;border-radius:10px}
+#lapka-deadlines .lp-upcoming{margin-top:23px}
+#lapka-deadlines .lp-stamped .lp-tag{background:var(--lp-mint);color:var(--lp-green)}
+@media(max-width:370px){#lapka-deadlines .lp-stage{padding:16px 0;min-height:500px}#lapka-deadlines .lp-frame{padding:12px}#lapka-deadlines .lp-panel{padding:16px}#lapka-deadlines .lp-event{padding:15px}}
+</style>
+<div id="lapka-deadlines">
+<section data-variant="Сначала просроченное" aria-label="Сначала просроченное">
+<div class="lp-stage"><div class="lp-frame"><div class="lp-panel" aria-label="Сроки с акцентом на просрочку">
+<h2>Сроки</h2>
+<div class="lp-priority lp-entry"><p class="lp-status">Просрочено на 9 дней</p><div class="lp-row"><span class="lp-icon"><i data-lucide="syringe" aria-hidden="true"></i></span><div><h3>Нобивак Tricat</h3><p class="lp-date">Плановая дата · 10 октября</p></div></div><button class="lp-action cursor-interaction" type="button" data-mark><i data-lucide="check" aria-hidden="true"></i><span>Отметить</span></button></div>
+<div class="lp-upcoming"><p class="lp-small-title">Ближайшее</p><div class="lp-row lp-visit"><span class="lp-icon"><i data-lucide="stethoscope" aria-hidden="true"></i></span><div><h3>Визит к врачу</h3><p class="lp-date"><strong class="lp-green">Завтра</strong> · 20 октября</p></div><i class="lp-chevron" data-lucide="chevron-right" aria-hidden="true"></i></div></div>
+</div></div></div>
+</section>
+</div>
