@@ -42,7 +42,8 @@ describe('what a planned record becomes in the calendar (FB-3 review)', () => {
     ({ id: name ?? 'x', name, targets, source_item_id: null, product_id: null, interval: null, instructions: null, medication_id: null }) as HealthEvent['items'][number]
 
   it('names a visit, and one vaccination by its item', () => {
-    expect(calendarEvent(ru, 'Мурка', record({ kind: 'visit', visit_kind: 'checkup' }))).toMatchObject({ title: 'Мурка: визит к врачу', location: 'Вега' })
+    expect(calendarEvent(ru, 'Мурка', record({ kind: 'visit', visit_kind: 'checkup' }))).toMatchObject({ title: 'Мурка: визит к врачу (осмотр)', location: 'Вега' })
+    expect(calendarEvent(ru, 'Мурка', record({ kind: 'visit', visit_kind: 'other' })).title).toBe('Мурка: визит к врачу')
     expect(calendarEvent(ru, 'Мурка', record({ items: [item('Нобивак Tricat')] })).title).toBe('Мурка: прививка «Нобивак Tricat»')
   })
 

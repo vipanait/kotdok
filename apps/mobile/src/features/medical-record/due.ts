@@ -289,6 +289,16 @@ export function duePhrase(
 }
 
 /**
+ * A visit in a line of its own — «визит к врачу (осмотр)» — for the calendar
+ * and the sitter memo, where «визит к врачу: осмотр» would follow another
+ * colon. «Другое» names nothing and is left out.
+ */
+export function visitPhrase(t: Dictionary, kind: HealthEvent['visit_kind']): string {
+  const visit = t.medicalRecord.visits.dueTitle.toLowerCase()
+  return kind && kind !== 'other' ? `${visit} (${t.medicalRecord.visits.kindsShort[kind].toLowerCase()})` : visit
+}
+
+/**
  * The pet list's due line names the date (spec §7.1): «Прививка от
  * бешенства», «Обработка от блох и клещей», «Визит к врачу: осмотр» — as
  * the site's pet rows (`dueLineTitle` there), by the same shared rule.
