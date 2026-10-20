@@ -1,4 +1,4 @@
-import { addMonths, daysBetween, monthsBetween } from '../medical-record/record-overview'
+import { addMonths, ageInMonths, daysBetween } from '../medical-record/record-overview'
 
 /**
  * A pet's dates (FB-2): its age, the day an estimated age stands for, the
@@ -12,7 +12,7 @@ import { addMonths, daysBetween, monthsBetween } from '../medical-record/record-
  */
 export function petAgeYears(pet: { birth_date: string | null; age_years: number | null }, today: string): number | null {
   if (!pet.birth_date) return pet.age_years
-  return Math.round((monthsBetween(pet.birth_date, today) / 12) * 10) / 10
+  return Math.round((ageInMonths(pet.birth_date, today) / 12) * 10) / 10
 }
 
 /** «About 4 years 6 months» as a day: that long before `today`. */

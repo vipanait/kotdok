@@ -14,7 +14,7 @@ type SupabaseService = ReturnType<typeof createServiceClient>
  * Pet operations return plain data and a reason, not a Supabase result object,
  * so an adapter never has to know how the storage layer reports failure.
  */
-export type PetFailure = 'not_found' | 'account_deleting' | 'storage_error'
+export type PetFailure = 'not_found' | 'account_deleting' | 'invalid' | 'storage_error'
 
 export type PetResult<T> = { ok: true; data: T } | { ok: false; reason: PetFailure; message?: string }
 
@@ -272,6 +272,9 @@ export async function updatePet(
       .select()
       .maybeSingle()
 
+    // 23514: a check such as the dates' order failed against what is stored
+    // (FB-2 review) — the caller's mistake, not the storage's.
+    if (updateError?.code === '23514') return { ok: false, reason: 'invalid', message: updateError.message }
     if (updateError) return { ok: false, reason: 'storage_error', message: updateError.message }
     if (!updated) return { ok: false, reason: 'not_found' }
   }

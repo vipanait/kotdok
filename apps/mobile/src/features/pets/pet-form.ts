@@ -36,6 +36,12 @@ export type PetForm = {
   birthDate: string
   approxYears: string
   approxMonths: string
+  /**
+   * The estimated birth date the pet was saved with, `YYYY-MM-DD`, or empty.
+   * Years and months that still describe it keep it: counted again from a
+   * later today, the estimate would move a few weeks on every save.
+   */
+  storedBirthDate: string
   /** The first day together, ДД.ММ.ГГГГ; empty when not given. */
   adoptedOn: string
   weightKg: string
@@ -61,6 +67,7 @@ export const emptyPetForm = (species: Species = 'cat'): PetForm => ({
   birthDate: '',
   approxYears: '',
   approxMonths: '',
+  storedBirthDate: '',
   adoptedOn: '',
   weightKg: '',
   sex: null,
@@ -93,6 +100,7 @@ export function petToForm(pet: Pet, today: string): PetForm {
     birthDate: exact && pet.birth_date ? dayInput(pet.birth_date) : '',
     approxYears: exact || months === null ? '' : String(Math.floor(months / 12)),
     approxMonths: exact || months === null ? '' : String(months % 12),
+    storedBirthDate: !exact && pet.birth_date ? pet.birth_date : '',
     adoptedOn: pet.adopted_on ? dayInput(pet.adopted_on) : '',
     weightKg: pet.weight_kg === null ? '' : String(pet.weight_kg),
     sex: pet.sex,
@@ -226,6 +234,7 @@ function readBirth(t: Dictionary, form: PetForm, today: string): ({ ok: true; da
     if (form.birthDate.trim() === '') return { ok: true, date: null }
     const date = parseDayText(form.birthDate)
     if (date === null || date > today) return { ok: false, field: 'birthDate', message: t.validation.dayPast }
+    if (tooOld(date, today)) return { ok: false, field: 'birthDate', message: t.validation.birthTooOld(AGE_MAX) }
     return { ok: true, date }
   }
 
@@ -238,5 +247,16 @@ function readBirth(t: Dictionary, form: PetForm, today: string): ({ ok: true; da
     return { ok: false, field: 'approxMonths', message: t.validation.monthsRange }
   }
   if (years.value === null && months.value === null) return { ok: true, date: null }
+  const total = (years.value ?? 0) * 12 + (months.value ?? 0)
+  if (total > AGE_MAX * 12) return { ok: false, field: 'approxYears', message: t.validation.ageRange(AGE_MAX) }
+  // The same estimate as saved: its day stays (FB-2 review).
+  if (form.storedBirthDate && monthsBetween(form.storedBirthDate, today) === total) {
+    return { ok: true, date: form.storedBirthDate }
+  }
   return { ok: true, date: approxBirthDate(years.value ?? 0, months.value ?? 0, today) }
+}
+
+/** Past the age the contract keeps (`age_years` ≤ AGE_MAX): a typo, not a pet. */
+function tooOld(birthDate: string, today: string): boolean {
+  return (petAgeYears({ birth_date: birthDate, age_years: null }, today) ?? 0) > AGE_MAX
 }

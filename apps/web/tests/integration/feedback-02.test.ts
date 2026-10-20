@@ -118,4 +118,10 @@ describe('pet dates (FB-2/01)', () => {
     expect(both.status).toBe(200)
     expect(await read(PET_IDS.aCat)).toMatchObject({ age_years: 7, birth_date: '2019-10-20', birth_date_approx: true })
   })
+
+  it('answers a birth date after the stored home day with 400, not a storage error (FB-2 review)', async () => {
+    await patchPet(request('PATCH', { birth_date: null, adopted_on: '2021-01-10' }), params(PET_IDS.aCat))
+    const late = await patchPet(request('PATCH', { birth_date: '2025-01-01' }), params(PET_IDS.aCat))
+    expect(late.status).toBe(400)
+  })
 })

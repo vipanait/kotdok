@@ -30,7 +30,7 @@ const pad = (value: number) => String(value).padStart(2, '0')
 export function headAge(pet: { birth_date: string | null; age_years: number | null }, today: string): number | null {
   // With a birth date the head shows whole years from it (FB-2/01): it grows
   // on its own, and «4,4 года» is not how anyone says a cat's age.
-  if (pet.birth_date) return Math.floor(monthsBetween(pet.birth_date, today) / 12)
+  if (pet.birth_date) return Math.floor(ageInMonths(pet.birth_date, today) / 12)
   return pet.age_years ?? null
 }
 
@@ -54,6 +54,18 @@ export function addMonths(day: string, months: number): string {
   const lastDay = new Date(Date.UTC(target.getUTCFullYear(), target.getUTCMonth() + 1, 0)).getUTCDate()
   target.setUTCDate(Math.min(date, lastDay))
   return target.toISOString().slice(0, 10)
+}
+
+/**
+ * Full months of a life from `birth` to `today`. Born on 29 February: in a
+ * year without one, the birthday is the 28th — the day it is greeted
+ * (`isBirthday`) is the day the age goes up.
+ */
+export function ageInMonths(birth: string, today: string): number {
+  const year = Number(today.slice(0, 4))
+  const leap = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0
+  const from = birth.slice(5) === '02-29' && !leap ? `${birth.slice(0, 4)}-02-28` : birth
+  return monthsBetween(from, today)
 }
 
 /** Full months from `from` to `to`. */

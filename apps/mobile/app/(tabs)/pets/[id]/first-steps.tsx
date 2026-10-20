@@ -46,8 +46,14 @@ export default function FirstSteps() {
   const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
   const [busy, setBusy] = useState(false)
   const [offer, setOffer] = useState(false)
-  /** One key per record for the life of the screen: a second «Готово» repeats, it does not add. */
+  /**
+   * One key per record body for the life of the screen: a second «Готово»
+   * repeats what was sent, it does not add — and an edited record is a new
+   * body with a new key, never an old key with different data (a 409).
+   */
   const keys = useRef(new Map<string, string>())
+  /** What already went through, so a retry after a failure sends only the rest. */
+  const sent = useRef(new Set<string>())
 
   useEffect(() => {
     withFreshSession((api) => api.getPet(id))
@@ -77,12 +83,9 @@ export default function FirstSteps() {
     setBusy(true)
     setError(null)
     try {
-      for (const event of read.events) {
-        if (!keys.current.has(event.date)) keys.current.set(event.date, newRequestKey())
-        const key = keys.current.get(event.date)!
-        await withFreshSession((api) => api.createHealthEvent(id, event, key))
-      }
-      if (read.vaccinatedWithoutDate && pet.vaccinated !== true) {
+      // «Привит(а)» first: the form's answer is stored as the owner's only
+      // while the record has not yet set the same value (FB-2 review).
+      if (read.vaccinatedWithoutDate && pet.vaccinated !== true && !sent.current.has('vaccinated')) {
         // The whole form, as the edit screen sends it: the update replaces the form's fields.
         const form = formToInput(t, { ...petToForm(pet, today), vaccinated: true }, today)
         if (form.ok) {
@@ -95,6 +98,19 @@ export default function FirstSteps() {
             }),
           )
         }
+        sent.current.add('vaccinated')
+      }
+      for (const event of read.events) {
+        // Only the vaccinations of this day not yet recorded: one added to a
+        // day that already went through is not recorded twice.
+        const items = event.items.filter((item) => !sent.current.has(`${event.date}:${item.targets.join()}`))
+        if (items.length === 0) continue
+        const rest = { ...event, items }
+        const body = JSON.stringify(rest)
+        if (!keys.current.has(body)) keys.current.set(body, newRequestKey())
+        const key = keys.current.get(body)!
+        await withFreshSession((api) => api.createHealthEvent(id, rest, key))
+        for (const item of items) sent.current.add(`${event.date}:${item.targets.join()}`)
       }
       reminders.refresh()
       if (read.offerCheckup) setOffer(true)

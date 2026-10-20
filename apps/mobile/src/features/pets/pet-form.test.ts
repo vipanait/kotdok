@@ -203,6 +203,29 @@ describe('pet form', () => {
   })
 })
 
+describe('the birth date across saves (FB-2 review)', () => {
+  it('keeps an estimated birth date that the years and months still describe on a later day', () => {
+    const later = '2026-11-19'
+    const form = petToForm(sample({ birth_date: '2022-04-20', birth_date_approx: true }), later)
+    expect(form).toMatchObject({ approxYears: '4', approxMonths: '6' })
+    expect(formToInput(ru, form, later)).toMatchObject({ ok: true, value: { birth_date: '2022-04-20', birth_date_approx: true } })
+  })
+
+  it('counts from today once the owner changes the estimate', () => {
+    const later = '2026-11-19'
+    const form = { ...petToForm(sample({ birth_date: '2022-04-20', birth_date_approx: true }), later), approxYears: '5' }
+    expect(formToInput(ru, form, later)).toMatchObject({ ok: true, value: { birth_date: '2021-05-19' } })
+  })
+
+  it('refuses a birth date that makes the pet older than the form allows, at its own field', () => {
+    expect(formToInput(ru, filled({ birthMode: 'exact', birthDate: '01.01.1960' }), TODAY)).toMatchObject({ ok: false, field: 'birthDate' })
+    expect(formToInput(ru, filled({ birthMode: 'approx', approxYears: '50', approxMonths: '6' }), TODAY)).toMatchObject({
+      ok: false,
+      field: 'approxYears',
+    })
+  })
+})
+
 function sample(overrides: Partial<Pet> = {}): Pet {
   return {
     id: '2f3d6ae3-d78f-473e-b077-4c43b8508dcd',
