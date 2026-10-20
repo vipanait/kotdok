@@ -121,6 +121,25 @@ export const ru = {
     birthday: (name: string) => `С днём рождения, ${name}!`,
   },
 
+  /** The step after a new pet's form (FB-2/03, FB-2/04). */
+  firstSteps: {
+    title: 'Прививки и врач',
+    vaccines: 'Какие прививки делали?',
+    vaccinesHint: 'Отметьте, что помните. Даты обычно есть в ветпаспорте.',
+    unknown: 'Не помню',
+    vaccineDate: (name: string) => `${name}: когда · необязательно`,
+    noDateNote: 'Без даты прививка не попадёт в медкарту — её можно добавить позже.',
+    lastVisit: 'Когда последний раз были у врача?',
+    lastVisits: { thisYear: 'В этом году', overYear: 'Больше года назад', never: 'Ни разу', unknown: 'Не помню' },
+    done: 'Готово',
+    skip: 'Пропустить',
+    saveFailed: 'Не удалось сохранить прививки',
+    checkupTitle: 'Запланировать осмотр?',
+    checkupBody: 'Профилактический осмотр обычно советуют раз в год. Запланируйте его — напомним заранее.',
+    checkupPlan: 'Запланировать осмотр',
+    notNow: 'Не сейчас',
+  },
+
   medicalRecord: {
     form: 'Анкета',
     fromForm: 'Из анкеты',
