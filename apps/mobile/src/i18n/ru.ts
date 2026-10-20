@@ -681,6 +681,8 @@ export const ru = {
 
   /** A dose at the time the owner set (FB-5). */
   doseReminders: {
+    about: (medicine: string) => `о приёме «${medicine}»`,
+    askBody: 'Пришлём уведомление в выбранное время, пока идёт курс. Выключить можно в профиле.',
     body: (pet: string, what: string) => {
       const cases = nameCase(pet)
       return cases ? `${cases.dative} пора: ${what}` : `${pet} — пора: ${what}`
@@ -775,7 +777,7 @@ export const ru = {
     title: 'Напоминания',
     on: 'Вкл',
     off: 'Выкл',
-    toggle: 'Напоминать о прививках, обработках и визитах',
+    toggle: 'Напоминать о прививках, обработках, визитах и лекарствах',
     when: 'Когда',
     whenOptions: {
       1: 'В день срока и за 1 день',

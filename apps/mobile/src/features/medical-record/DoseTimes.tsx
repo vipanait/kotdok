@@ -34,7 +34,9 @@ export function DoseTimes({ petId, course, onChanged }: { petId: string; course:
     setError(null)
     try {
       onChanged(await withFreshSession((api) => api.setMedicationTimes(petId, course.id, next)))
-      reminders.refresh()
+      // A time added is the moment to ask whether to notify; one taken off only reschedules.
+      if (next.length > times.length) reminders.timesSaved(course.name)
+      else reminders.refresh()
     } catch (cause) {
       setError(describeFailure(t, cause, words.failed).text)
     } finally {

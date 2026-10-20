@@ -1,8 +1,8 @@
 import { MEDICATION_TIMES_MAX } from '@lapka/contracts'
 
-/** «7:30», «0730», «07.30» → «07:30»; null for what is not a time of day. */
+/** «7:30», «0730», «07.30», «7 30», «7;30» (a keyboard's other colon) → «07:30»; null for what is not a time of day. */
 export function readTime(text: string): string | null {
-  const match = /^\s*(\d{1,2})[:.]?(\d{2})\s*$/.exec(text)
+  const match = /^\s*(\d{1,2})(?:\s*[:.;,\-\s]\s*)?(\d{2})\s*$/.exec(text)
   if (!match) return null
   const hour = Number(match[1])
   const minute = Number(match[2])
