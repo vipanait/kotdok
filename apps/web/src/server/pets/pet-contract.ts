@@ -30,6 +30,9 @@ export function toPetContract(row: Pet): PetContract {
     chronic_conditions: row.chronic_conditions ?? [],
     medications: row.medications ?? [],
     notes: row.notes,
+    birth_date: row.birth_date ?? null,
+    birth_date_approx: row.birth_date_approx ?? false,
+    adopted_on: row.adopted_on ?? null,
     created_at: toUtcIso(row.created_at),
   })
 }

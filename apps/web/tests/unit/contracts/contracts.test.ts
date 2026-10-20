@@ -62,6 +62,9 @@ const pet = {
   chronic_conditions: [],
   medications: [],
   notes: null,
+  birth_date: '2023-03-14',
+  birth_date_approx: false,
+  adopted_on: null,
   created_at: '2026-05-01T10:00:00.000Z',
 }
 
@@ -103,9 +106,31 @@ describe('pet contracts', () => {
   })
 
   it('drops a field a later server adds instead of failing (FB-2)', () => {
-    const read = PetSchema.parse({ ...pet, birth_date: '2020-05-01' })
+    const read = PetSchema.parse({ ...pet, coat_colour: 'ginger' })
     expect(read).toEqual(pet)
-    expect(read).not.toHaveProperty('birth_date')
+    expect(read).not.toHaveProperty('coat_colour')
+  })
+
+  it('reads a pet from before the dates as having none (FB-2/01)', () => {
+    const { birth_date: _b, birth_date_approx: _a, adopted_on: _o, ...older } = pet
+    expect(PetSchema.parse(older)).toMatchObject({ birth_date: null, birth_date_approx: false, adopted_on: null })
+  })
+
+  it('takes a birth date, approximate or not, and the day the pet came home (FB-2/01)', () => {
+    const input = { species: 'cat', name: 'Мурка', birth_date: '2022-04-20', birth_date_approx: true, adopted_on: '2022-06-01' }
+    expect(PetCreateInputSchema.parse(input)).toMatchObject(input)
+    expect(PetUpdateInputSchema.parse({ birth_date: null, birth_date_approx: false })).toEqual({
+      birth_date: null,
+      birth_date_approx: false,
+    })
+  })
+
+  it('refuses a home day before the birth, and «approximate» without a date (FB-2/01)', () => {
+    expect(() =>
+      PetCreateInputSchema.parse({ species: 'cat', name: 'Мурка', birth_date: '2022-04-20', adopted_on: '2022-04-19' }),
+    ).toThrow()
+    expect(() => PetUpdateInputSchema.parse({ birth_date: null, birth_date_approx: true })).toThrow()
+    expect(() => PetCreateInputSchema.parse({ species: 'cat', name: 'Мурка', birth_date: '20.04.2022' })).toThrow()
   })
 
   it('rejects dog-only fields on a cat', () => {

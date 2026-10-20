@@ -202,7 +202,7 @@ export async function updatePet(
   // turned "not yours" into a 500.
   const { data: current, error: readError } = await supabase
     .from('pets')
-    .select('species, vaccinated, vaccinated_form')
+    .select('species, vaccinated, vaccinated_form, age_years')
     .eq('id', petId)
     .eq('user_id', userId)
     .is('deleted_at', null)
@@ -216,6 +216,16 @@ export async function updatePet(
   // through sync_form_medications, never straight into the column.
   const pet = sentFields(sanitized, body)
   delete pet.medications
+
+  // FB-2/01: «примерно» goes with its date. The site's form and older apps
+  // know no dates and send the age: changed by hand, it drops the birth date,
+  // which would otherwise win; the same age sent back is no correction.
+  if ('birth_date' in body) {
+    pet.birth_date_approx = sanitized.birth_date_approx
+  } else if ('age_years' in body && sanitized.age_years !== current.age_years) {
+    pet.birth_date = null
+    pet.birth_date_approx = false
+  }
 
   // Before the form is saved: the record keeps the form's previous weight as
   // history, so it has to see it first. Once the weight is in the history,

@@ -23,6 +23,9 @@ function pet(overrides: Partial<Pet> = {}): Pet {
     chronic_conditions: [],
     medications: [],
     notes: null,
+    birth_date: null,
+    birth_date_approx: false,
+    adopted_on: null,
     created_at: '2026-05-01T10:00:00.000Z',
     ...overrides,
   }

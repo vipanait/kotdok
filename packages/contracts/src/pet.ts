@@ -45,6 +45,11 @@ export const PetSchema = z.object({
   chronic_conditions: stringList,
   medications: stringList,
   notes: z.string().max(NOTES_MAX).nullable(),
+  /** Exact, or the owner's estimate when `birth_date_approx` (FB-2/01). Absent from older servers. */
+  birth_date: CalendarDateSchema.nullable().default(null),
+  birth_date_approx: z.boolean().default(false),
+  /** The first day together. */
+  adopted_on: CalendarDateSchema.nullable().default(null),
   created_at: IsoDateTimeSchema,
 })
 
@@ -67,12 +72,32 @@ const petWritableFields = {
   chronic_conditions: stringList,
   medications: stringList,
   notes: z.string().max(NOTES_MAX).nullable(),
+  birth_date: CalendarDateSchema.nullable(),
+  birth_date_approx: z.boolean(),
+  adopted_on: CalendarDateSchema.nullable(),
   /**
    * The owner's local day, for the weight history: a weight saved from the
    * form is that day's measurement. Not a pet column. Without it the server
    * uses today in UTC.
    */
   weight_measured_on: CalendarDateSchema.optional(),
+}
+
+/**
+ * The dates in order (FB-2/01): home no earlier than birth, and «approximate»
+ * only about a date. Days in the future are the route's to refuse — it knows
+ * the server's day, the contract does not.
+ */
+function checkDates(
+  value: { birth_date?: string | null; birth_date_approx?: boolean; adopted_on?: string | null },
+  ctx: z.RefinementCtx,
+): void {
+  if (value.birth_date && value.adopted_on && value.adopted_on < value.birth_date) {
+    ctx.addIssue({ code: 'custom', path: ['adopted_on'], message: 'the pet came home before it was born' })
+  }
+  if (value.birth_date_approx === true && !value.birth_date) {
+    ctx.addIssue({ code: 'custom', path: ['birth_date_approx'], message: 'an approximate birth date needs a date' })
+  }
 }
 
 // size_class and walk_activity describe dogs only; the database keeps them null
@@ -115,9 +140,15 @@ export const PetCreateInputSchema = z
     chronic_conditions: true,
     medications: true,
     notes: true,
+    birth_date: true,
+    birth_date_approx: true,
+    adopted_on: true,
     weight_measured_on: true,
   })
-  .superRefine(rejectDogFieldsOnCats)
+  .superRefine((value, ctx) => {
+    rejectDogFieldsOnCats(value, ctx)
+    checkDates(value, ctx)
+  })
 
 export type PetCreateInput = z.infer<typeof PetCreateInputSchema>
 
@@ -144,6 +175,7 @@ export const PetUpdateInputSchema = z
       return
     }
     rejectDogFieldsOnCats(value, ctx)
+    checkDates(value, ctx)
   })
 
 export type PetUpdateInput = z.infer<typeof PetUpdateInputSchema>
