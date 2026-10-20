@@ -118,7 +118,7 @@ function DateLine({ status }: { status: DueStatus }) {
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', gap: ICON_GAP },
+  row: { flexDirection: 'row', alignItems: 'center', gap: ICON_GAP, minHeight: 64 },
   stacked: { flexDirection: 'column', alignItems: 'stretch', gap: 10 },
   open: { flex: 1, minWidth: 0 },
   head: { flexDirection: 'row', alignItems: 'center', gap: ICON_GAP },
