@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { PetSchema, type Pet as PetContract } from '@lapka/contracts'
+import { FEATURES_HEADER, PET_DATES_FEATURE, PET_DATE_FIELDS, PetSchema, type Pet as PetContract } from '@lapka/contracts'
 import { toUtcIso } from '@lapka/shared'
 import type { Pet } from '@/shared/types'
 
@@ -35,4 +35,23 @@ export function toPetContract(row: Pet): PetContract {
     adopted_on: row.adopted_on ?? null,
     created_at: toUtcIso(row.created_at),
   })
+}
+
+/** Whether the request comes from an app that reads the pet's dates. */
+export function readsPetDates(request: Request): boolean {
+  return (request.headers.get(FEATURES_HEADER) ?? '')
+    .split(',')
+    .map((feature) => feature.trim())
+    .includes(PET_DATES_FEATURE)
+}
+
+/**
+ * The pet as this client can read it: without the dates for a build from
+ * before them, whose strict schema would refuse the whole response.
+ */
+export function petFor<T extends Record<string, unknown>>(request: Request, pet: T): T {
+  if (readsPetDates(request)) return pet
+  const older = { ...pet }
+  for (const key of PET_DATE_FIELDS) delete older[key]
+  return older
 }
