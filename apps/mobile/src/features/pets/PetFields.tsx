@@ -1,9 +1,10 @@
+import { useEffect, useRef } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { PET_DIETS, PET_LIFESTYLES, PET_SIZE_CLASSES, PET_WALK_ACTIVITIES } from '@lapka/contracts'
 import { useText } from '@/i18n'
 import { localToday } from '@/lib/calendar-day'
 import { DateField } from '@/ui/DateField'
-import { Field, Segment, Select } from '@/ui/Field'
+import { Field, Segment, Select, type FieldHandle } from '@/ui/Field'
 import { ListField } from '@/ui/ListField'
 import { Accordion } from '@/ui/Section'
 import { Text } from '@/ui/Text'
@@ -87,6 +88,16 @@ export function PetFields({
 }) {
   const t = useText()
   const errorFor = (field: keyof PetForm) => (invalid?.field === field ? invalid.message : null)
+  // The field a refused save complains about is brought into view: below the
+  // dock its message read as a red frame and nothing else.
+  const inputs = useRef(new Map<keyof PetForm, FieldHandle>())
+  const input = (field: keyof PetForm) => (node: FieldHandle | null) => {
+    if (node) inputs.current.set(field, node)
+    else inputs.current.delete(field)
+  }
+  useEffect(() => {
+    if (invalid) inputs.current.get(invalid.field)?.focus()
+  }, [invalid])
   const hint = t.placeholders[form.species]
   const sex = form.species === 'dog' ? t.sexDog : t.sexCat
   const isDog = form.species === 'dog'
@@ -122,6 +133,7 @@ export function PetFields({
         value={form.name}
         onChangeText={(name) => onChange({ name })}
         error={errorFor('name')}
+        fieldRef={input('name')}
         placeholder={hint.name}
         autoCorrect={false}
       />
@@ -151,6 +163,7 @@ export function PetFields({
           placeholder={t.medicalRecord.datePlaceholder}
           max={localToday()}
           error={errorFor('birthDate')}
+        fieldRef={input('birthDate')}
         />
       ) : (
         <View style={styles.approx}>
@@ -159,6 +172,7 @@ export function PetFields({
             value={form.approxYears}
             onChangeText={(approxYears) => onChange({ approxYears })}
             error={errorFor('approxYears')}
+        fieldRef={input('approxYears')}
             keyboardType="numeric"
             style={styles.approxField}
           />
@@ -167,6 +181,7 @@ export function PetFields({
             value={form.approxMonths}
             onChangeText={(approxMonths) => onChange({ approxMonths })}
             error={errorFor('approxMonths')}
+        fieldRef={input('approxMonths')}
             keyboardType="numeric"
             style={styles.approxField}
           />
@@ -179,12 +194,14 @@ export function PetFields({
         placeholder={t.medicalRecord.datePlaceholder}
         max={localToday()}
         error={errorFor('adoptedOn')}
+        fieldRef={input('adoptedOn')}
       />
       <Field
         label={form.weightUnit === 'g' ? t.petForm.weightGrams : t.petForm.weight(WEIGHT_MAX)}
         value={form.weightKg}
         onChangeText={(weightKg) => onChange({ weightKg })}
         error={errorFor('weightKg')}
+        fieldRef={input('weightKg')}
         hint={notes.weight}
         keyboardType="numeric"
         style={styles.weightField}

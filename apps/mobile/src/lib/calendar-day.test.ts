@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { addMonths, dayInput, localToday, monthGrid, monthOf, monthsBetween, parseDayInput, parseDayText, shiftMonth, typedDay } from './calendar-day'
+import { addMonths, dayInput, localToday, monthGrid, monthOf, monthsBetween, parseDayInput, parseDayText, shiftMonth, typedDay, dateFieldText } from './calendar-day'
 import { en } from '@/i18n/en'
 import { ru } from '@/i18n/ru'
 
@@ -95,5 +95,14 @@ describe('the calendar sheet', () => {
     expect(days).toHaveLength(29)
     expect(days.at(-1)).toBe('2028-02-29')
     expect(grid.every((week) => week.length === 7)).toBe(true)
+  })
+})
+
+describe('a date field on a keyboard with a dot (iOS)', () => {
+  it('puts the dots into digits typed without them, and leaves typed dots alone', () => {
+    expect(dateFieldText('01022024')).toBe('01.02.2024')
+    expect(dateFieldText('0102')).toBe('01.02')
+    expect(dateFieldText('1.2.2024')).toBe('1.2.2024')
+    expect(dateFieldText('')).toBe('')
   })
 })

@@ -35,6 +35,15 @@ export function typedDay(text: string): string {
   return [digits.slice(0, 2), digits.slice(2, 4), digits.slice(4)].filter(Boolean).join('.')
 }
 
+/**
+ * A date field on a keyboard that has a dot (iOS): digits typed without
+ * separators get them as on Android — «01022024» read as a mistake before —
+ * and text the owner separated themselves is left as typed («1.2.2024»).
+ */
+export function dateFieldText(text: string): string {
+  return /^\d+$/.test(text) ? typedDay(text) : text
+}
+
 /** «24.09.2026» (or with / or -) → `2026-09-24`; null for a day that does not exist. */
 export function parseDayText(text: string): string | null {
   const match = /^\s*(\d{1,2})[./-](\d{1,2})[./-](\d{4})\s*$/.exec(text)
