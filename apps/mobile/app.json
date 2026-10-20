@@ -20,7 +20,8 @@
       "appleTeamId": "KAY8S7KK98",
       "usesAppleSignIn": true,
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "CFBundleLocalizations": ["ru", "en"]
       }
     },
     "android": {
