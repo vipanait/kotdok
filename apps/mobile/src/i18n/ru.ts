@@ -115,6 +115,10 @@ export const ru = {
     removeTitle: 'Удалить питомца?',
     removeBody: 'Вместе с ним исчезнет история его проверок. Отменить это будет нельзя.',
     removeConfirm: 'Удалить',
+    /** Under the pet's facts (FB-2/02); a milestone day says it louder. */
+    together: (days: number) => `Вместе ${days} ${plural(days, 'день', 'дня', 'дней')}`,
+    togetherMilestone: (days: number) => `Сегодня ${days} ${plural(days, 'день', 'дня', 'дней')} вместе!`,
+    birthday: (name: string) => `С днём рождения, ${name}!`,
   },
 
   medicalRecord: {
@@ -466,7 +470,13 @@ export const ru = {
     species: 'Вид',
     name: 'Имя *',
     breed: 'Порода',
-    age: (max: number) => `Возраст (лет), до ${max}`,
+    birth: 'Дата рождения',
+    birthExact: 'Знаю дату',
+    birthApprox: 'Примерно',
+    birthDate: 'Дата',
+    approxYears: 'Лет',
+    approxMonths: 'Месяцев',
+    adoptedOn: 'В семье с · необязательно',
     weight: (max: number) => `Вес (кг), до ${max}`,
     sex: 'Пол',
     health: 'Здоровье',
@@ -816,7 +826,10 @@ export const ru = {
     symptomsMax: (max: number) => `Слишком длинное описание, предел ${max} символов`,
     petRequired: 'Выберите питомца — без него проверку не сделать',
     nameRequired: 'Введите имя питомца',
-    ageRange: (max: number) => `Возраст — число от 0 до ${max}`,
+    ageRange: (max: number) => `Лет — целое число от 0 до ${max}`,
+    monthsRange: 'Месяцев — от 0 до 11',
+    dayPast: 'Дата — ДД.ММ.ГГГГ, не позже сегодня',
+    adoptedBeforeBirth: 'Не раньше даты рождения',
     weightRange: (max: number) => `Вес — число от 0 до ${max}`,
   },
 

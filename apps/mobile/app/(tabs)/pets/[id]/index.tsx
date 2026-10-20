@@ -14,6 +14,7 @@ import {
   type SectionRow,
 } from '@/features/medical-record/overview'
 import { AddRecordSheet, type AddChoice } from '@/features/medical-record/AddRecordSheet'
+import { daysTogether, isBirthday, togetherMilestone } from '@lapka/shared'
 import { DueList } from '@/features/medical-record/DueList'
 import { doneRoute, recordRoute, dueItems } from '@/features/medical-record/due'
 import { Button, IconButton, LinkButton } from '@/ui/Button'
@@ -180,6 +181,9 @@ export default function MedicalRecord() {
   const { pet } = shown
   const today = localToday()
   const facts = headerFacts(t, shown, today)
+  // FB-2/02: the days together, louder on a milestone, and the birthday.
+  const together = daysTogether(pet.adopted_on, today)
+  const birthday = isBirthday(pet.birth_date, pet.birth_date_approx, today)
   const important = importantFacts(t, pet, shown.medications, today)
   const due = dueItems(shown.events)
   const canVaccinate = shown.writable.includes('vaccinations')
@@ -223,6 +227,7 @@ export default function MedicalRecord() {
       }
     >
       {banner}
+      {birthday ? <Banner text={t.pets.birthday(pet.name)} tone="note" /> : null}
 
       <View
         style={styles.header}
@@ -237,6 +242,11 @@ export default function MedicalRecord() {
           {facts.neutered ? (
             <Text variant="label" tone="muted">
               {facts.neutered}
+            </Text>
+          ) : null}
+          {together !== null ? (
+            <Text variant="label" tone="accent" style={togetherMilestone(together) ? styles.milestone : null}>
+              {togetherMilestone(together) ? t.pets.togetherMilestone(together) : t.pets.together(together)}
             </Text>
           ) : null}
           {facts.weight ? (
@@ -351,6 +361,7 @@ const styles = StyleSheet.create({
   hintCopy: { flex: 1 },
   due: { padding: 20, borderRadius: 22, marginBottom: space.block, ...shadow.card },
   dueTitle: { fontSize: 25, fontWeight: '800', marginBottom: 16 },
+  milestone: { fontWeight: '700' },
   sections: { paddingVertical: 4, marginBottom: space.block, ...shadow.card },
   section: { flexDirection: 'row', alignItems: 'center', gap: 16, minHeight: 64, paddingVertical: 12 },
   sectionCopy: { flex: 1, minWidth: 0, gap: 2 },
