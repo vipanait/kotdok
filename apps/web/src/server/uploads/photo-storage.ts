@@ -3,6 +3,7 @@ import 'server-only'
 import { randomUUID } from 'node:crypto'
 import { PHOTO_LIMITS, type UploadGrant, type UploadRequest } from '@lapka/contracts'
 import type { createServiceClient } from '@/server/supabase/server'
+import { removeUserAvatars } from '@/server/pets/avatar-service'
 
 type SupabaseService = ReturnType<typeof createServiceClient>
 
@@ -116,6 +117,9 @@ export async function removeUserPhotos(supabase: SupabaseService, userId: string
 
   const { error } = await supabase.from('photo_uploads').delete().eq('user_id', userId)
   if (error) throw new Error('rows delete failed')
+
+  // The pets' own photos (FB-4) go in the same step.
+  await removeUserAvatars(supabase, userId)
 }
 
 /** How many batches one sweep takes on; a guard, not an expected volume. */

@@ -2,6 +2,7 @@ import 'server-only'
 
 import type { createServiceClient } from '@/server/supabase/server'
 import { loadAccount } from '@/server/auth/account-state'
+import { removeDeletedPetAvatar } from '@/server/pets/avatar-service'
 import { sanitizePet } from '@/shared/utils/pet-utils'
 import type { Pet } from '@/shared/types'
 import { WEIGHT_MAX_KG } from '@lapka/contracts'
@@ -322,6 +323,13 @@ export async function softDeletePetAndChecks(
     .is('deleted_at', null)
 
   if (checks.error) return { ok: false, reason: 'storage_error', message: checks.error.message }
+
+  // The photo goes with the pet (FB-4); the row keeps no path to it.
+  const avatarPath = (deletedPet.data as Pet).avatar_path ?? null
+  if (avatarPath) {
+    await supabase.from('pets').update({ avatar_path: null }).eq('id', petId)
+    await removeDeletedPetAvatar(supabase, avatarPath)
+  }
 
   return { ok: true, data: deletedPet.data as Pet }
 }

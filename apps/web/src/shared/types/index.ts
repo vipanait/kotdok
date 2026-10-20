@@ -44,6 +44,8 @@ export interface Pet {
   birth_date: string | null
   birth_date_approx: boolean
   adopted_on: string | null
+  /** The pet's photo in `pet-avatars` (FB-4); never sent as is — a signed link is. */
+  avatar_path?: string | null
   created_at: string
 }
 
