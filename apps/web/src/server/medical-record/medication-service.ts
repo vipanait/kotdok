@@ -15,9 +15,10 @@ type MedicationRow = {
   ended_on: string | null
   ongoing: boolean
   source: 'record' | 'form'
+  reminder_times: string[]
 }
 
-const COLUMNS = 'id, name, dosage, started_on, ended_on, ongoing, source'
+const COLUMNS = 'id, name, dosage, started_on, ended_on, ongoing, source, reminder_times'
 
 function toMedicationContract(row: MedicationRow): Medication {
   return MedicationSchema.parse(row)
@@ -250,3 +251,29 @@ export function changesCourse(
   })
 }
 
+/**
+ * The times a course is given at (FB-5), sorted and without repeats. Set
+ * apart from the course's other fields: it changes nothing of the record and
+ * goes for a finished course too, where it simply stops being used.
+ */
+export async function setMedicationTimes(
+  supabase: SupabaseService,
+  userId: string,
+  petId: string,
+  medicationId: string,
+  times: readonly string[],
+): Promise<WeightResult<Medication>> {
+  const sorted = [...new Set(times)].sort()
+  const { data, error } = await supabase
+    .from('pet_medications')
+    .update({ reminder_times: sorted })
+    .eq('id', medicationId)
+    .eq('pet_id', petId)
+    .eq('user_id', userId)
+    .is('deleted_at', null)
+    .select(COLUMNS)
+    .maybeSingle()
+  if (error) return { ok: false, reason: 'storage_error', message: error.message }
+  if (!data) return { ok: false, reason: 'not_found' }
+  return { ok: true, data: toMedicationContract(data as MedicationRow) }
+}

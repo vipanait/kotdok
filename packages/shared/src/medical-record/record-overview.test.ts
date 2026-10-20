@@ -139,7 +139,7 @@ describe('courses', () => {
     started_on,
     ended_on,
     ongoing: ended_on === null,
-    source: 'record',
+    source: 'record', reminder_times: [],
   })
 
   it('treats a course that ends today as finished', () => {

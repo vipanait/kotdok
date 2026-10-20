@@ -63,7 +63,7 @@ const course = (overrides: Partial<Medication>): Medication => ({
   started_on: null,
   ended_on: null,
   ongoing: true,
-  source: 'record',
+  source: 'record', reminder_times: [],
   ...overrides,
 })
 

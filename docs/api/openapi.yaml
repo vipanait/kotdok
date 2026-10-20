@@ -1271,6 +1271,11 @@ components:
           enum:
             - record
             - form
+        reminder_times:
+          default: []
+          type: array
+          items:
+            type: string
       required:
         - id
         - name
@@ -1279,6 +1284,7 @@ components:
         - ended_on
         - ongoing
         - source
+        - reminder_times
       additionalProperties: false
     MedicationsInput:
       type: object

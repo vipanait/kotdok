@@ -25,7 +25,7 @@ const food = murka.medications[0] // ongoing since 2 August
 const fortiflora = murka.medications[1] // 2–15 August, finished
 
 function course(overrides: Partial<Medication>): Medication {
-  return { id: '00000000-0000-4000-8000-000000000499', name: 'Апоквел', dosage: null, started_on: '2026-09-20', ended_on: null, ongoing: false, source: 'record', ...overrides }
+  return { id: '00000000-0000-4000-8000-000000000499', name: 'Апоквел', dosage: null, started_on: '2026-09-20', ended_on: null, ongoing: false, source: 'record', reminder_times: [], ...overrides }
 }
 
 const draft = (key: string, fields: Partial<CourseDraft>): CourseDraft => ({ ...blankCourse(key, TODAY), ...fields })
@@ -119,7 +119,7 @@ describe('correcting a current course', () => {
   })
 
   it('keeps an unknown start of a course from the pet form unknown, and refuses an end before a start', () => {
-    const fromForm = course({ started_on: null, source: 'form' })
+    const fromForm = course({ started_on: null, source: 'form', reminder_times: [] })
     expect(readCourseChange(fromForm, { ...draftFromCourse(fromForm), dosage: '1 таблетка' })).toEqual({ ok: true, value: { dosage: '1 таблетка' } })
     const read = readCourseChange(food, { ...draftFromCourse(food), ongoing: false, end: '2026-08-01' })
     expect(read).toEqual({ ok: false, problems: { course: { [food.id]: { end: 'beforeStart' } } } })
@@ -148,7 +148,7 @@ describe('the medicines section', () => {
     expect(coursePeriod(ru, course({ started_on: '2026-08-02' }), TODAY)).toBe('С 2 августа')
     expect(coursePeriod(ru, course({ started_on: '2026-10-03' }), TODAY)).toBe('Начнётся 3 октября')
     expect(coursePeriod(ru, course({ started_on: '2025-12-20', ended_on: '2026-01-10' }), TODAY)).toBe('20 декабря 2025 – 10 января 2026')
-    expect(coursePeriod(ru, course({ started_on: null, source: 'form' }), TODAY)).toBe('Из анкеты — дозировка и даты не указаны')
+    expect(coursePeriod(ru, course({ started_on: null, source: 'form', reminder_times: [] }), TODAY)).toBe('Из анкеты — дозировка и даты не указаны')
     expect(coursePeriod(ru, course({ started_on: null, ongoing: true }), TODAY)).toBe('Постоянно')
     expect(coursePeriod(en, course({ started_on: '2026-08-02', ongoing: true }), TODAY)).toBe('Since August 2 · ongoing')
   })

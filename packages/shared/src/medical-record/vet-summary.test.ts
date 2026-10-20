@@ -17,7 +17,7 @@ import {
 const TODAY = '2026-09-26'
 
 function course(overrides: Partial<Medication>): Medication {
-  return { id: 'm', name: 'Лечебный корм', dosage: null, started_on: '2026-08-02', ended_on: null, ongoing: true, source: 'record', ...overrides }
+  return { id: 'm', name: 'Лечебный корм', dosage: null, started_on: '2026-08-02', ended_on: null, ongoing: true, source: 'record', reminder_times: [], ...overrides }
 }
 
 const pet = (overrides: Partial<VetSummary['pet']> = {}) => ({ medications: [], weight_kg: null, ...overrides }) as unknown as VetSummary['pet']
