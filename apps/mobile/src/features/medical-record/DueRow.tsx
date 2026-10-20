@@ -17,11 +17,10 @@ const SIDE_BY_SIDE_MAX_FONT = 1.2
  * come it also offers «Отметить» (`marksFromRow`, FB-1/01) — a button of its
  * own beside the row, so a press on it never opens the record too.
  *
- * Overdue is drawn apart (due priority design, 20 October 2026): a
- * terracotta line and the status in words, under the date (medical actions
- * design, same day). The colour only repeats what the words say, and it is
- * not the urgency scale: a missed date, not a medical alarm. Soon is the
- * relative day in teal; later is just the date.
+ * Overdue is said in words under the date, in the colour and size of «Не
+ * отмечено» under a dose (block «Напоминания», design 20 October 2026) — no
+ * line, fill or mark beside it: a missed date, not a medical alarm. Soon is
+ * the relative day in teal; later is just the date.
  *
  * «Отметить» is a compact secondary button on the right, like «Дали»; where
  * it would squeeze the title into a column too narrow to read, it moves under
@@ -47,7 +46,7 @@ export function DueRow({
   const overdue = status.tone === 'overdue'
 
   return (
-    <View style={[styles.row, stacked ? styles.stacked : null, overdue ? styles.overdue : null]}>
+    <View style={[styles.row, stacked ? styles.stacked : null]}>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={`${title}, ${dueLine(status)}`}
@@ -59,12 +58,12 @@ export function DueRow({
             <Icon name={due.kind === 'parasite' ? 'parasite' : due.kind === 'visit' ? 'visit' : 'vaccine'} size={22} />
           </View>
           <View style={styles.copy}>
-            <Text variant="h3" style={styles.title}>
-              {title}
-            </Text>
+            {/* As a medicine's name in «Сегодня». */}
+            <Text>{title}</Text>
             <DateLine status={status} />
+            {/* Words, as «Не отмечено» under a dose: the colour only repeats them. */}
             {overdue ? (
-              <Text variant="label" style={styles.overdueStatus}>
+              <Text variant="caption" tone="danger">
                 {status.text}
               </Text>
             ) : null}
@@ -122,13 +121,10 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: ICON_GAP },
   stacked: { flexDirection: 'column', alignItems: 'stretch', gap: 10 },
   open: { flex: 1, minWidth: 0 },
-  overdue: { borderLeftWidth: 3, borderLeftColor: dueColour.overdue, paddingLeft: 14 },
-  overdueStatus: { color: dueColour.overdue, fontWeight: '700' },
   head: { flexDirection: 'row', alignItems: 'center', gap: ICON_GAP },
   // The outline icon alone, on the row's own background (design 20 October 2026).
   iconBox: { width: ICON_BOX, alignItems: 'center', justifyContent: 'center' },
   copy: { flex: 1, minWidth: 0, gap: 2 },
-  title: { fontSize: 16, fontWeight: '700' },
   date: { color: dueColour.date },
   soon: { color: colour.accentText, fontWeight: '700' },
   markStacked: { alignSelf: 'flex-start', marginLeft: ICON_BOX + ICON_GAP },

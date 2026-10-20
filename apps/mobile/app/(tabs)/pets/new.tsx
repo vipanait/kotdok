@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { router, useSegments } from 'expo-router'
+import { useEffect, useState } from 'react'
+import { router, useLocalSearchParams, useSegments } from 'expo-router'
 import { withFreshSession } from '@/lib/api'
 import { localToday } from '@/lib/calendar-day'
 import { errorMessage } from '@/lib/errors'
@@ -18,11 +18,25 @@ import { Banner } from '@/ui/Card'
 import { useUnsavedChanges } from '@/features/unsaved/useUnsavedChanges'
 import { SaveChangesDialog } from '@/ui/Dialog'
 import { Screen } from '@/ui/Screen'
+import { onboardingStore } from '@/features/onboarding/store'
+import { useAuth } from '@/providers/AuthProvider'
 
 export default function NewPet() {
   const t = useText()
   // Also mounted in the check tab (check/new-pet), where saving returns to the check.
   const tab = (useSegments() as string[])[1]
+  // Onboarding: the path this form was opened on, if any (`check` or `health`).
+  const { goal } = useLocalSearchParams<{ goal?: string }>()
+  const { session } = useAuth()
+  const userId = session?.user.id ?? null
+  // Left with back, the path is over too: nothing to resume at the next start.
+  // A form the system closes with the app keeps it, and opens again.
+  useEffect(
+    () => () => {
+      if (goal && userId) void onboardingStore.finish(userId).catch(() => undefined)
+    },
+    [goal, userId],
+  )
   const [form, setForm] = useState<PetForm>(emptyPetForm())
   const [error, setError] = useState<string | null>(null)
   const [invalid, setInvalid] = useState<FieldError | null>(null)
@@ -55,9 +69,15 @@ export default function NewPet() {
       const pet = await withFreshSession((api) =>
         api.createPet({ ...input.value, weight_measured_on: localToday() }),
       )
-      // From the check tab, back to the check the pet was added for; the form
-      // reloads the pets on the way in and now has one to offer.
-      unsaved.leave(then ?? (() => (tab === 'check' ? router.back() : router.replace(`/pets/${pet.id}/first-steps`))))
+      // From the check tab, on to the check the pet was added for, with this
+      // pet chosen — also when the form was opened from onboarding, where
+      // there was no check under it to go back to.
+      // Onboarding's health path offers the first record instead of the first
+      // steps' questions — one or the other, never both.
+      const next = tab === 'check' ? () => router.dismissTo({ pathname: '/check', params: { petId: pet.id } }) : goal === 'health' ? () => router.replace(`/pets/${pet.id}/first-record`) : () => router.replace(`/pets/${pet.id}/first-steps`)
+      // The pet is saved: the path it was begun on has nothing left to resume.
+      if (goal && userId) void onboardingStore.finish(userId).catch(() => undefined)
+      unsaved.leave(then ?? next)
     } catch (cause) {
       setError(errorMessage(t, cause, t.errors.savePetFailed))
     } finally {

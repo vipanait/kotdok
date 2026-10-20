@@ -1,6 +1,6 @@
-import { useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FlatList, Image, StyleSheet, View } from 'react-native'
-import { router } from 'expo-router'
+import { router, useFocusEffect } from 'expo-router'
 import type { DueItem, Pet } from '@lapka/contracts'
 import { nearestDueByPet } from '@lapka/shared'
 import { ageText } from '@/features/pets/pet-age'
@@ -10,6 +10,10 @@ import { localToday } from '@/lib/calendar-day'
 import { describeFailure } from '@/lib/errors'
 import { useText, type Dictionary } from '@/i18n'
 import { listDueLine } from '@/features/medical-record/due'
+import { Welcome } from '@/features/onboarding/Welcome'
+import { onboardingStore, resumeOnce } from '@/features/onboarding/store'
+import type { OnboardingGoal, OnboardingState } from '@/features/onboarding/onboarding-store'
+import { useAuth } from '@/providers/AuthProvider'
 import { Button } from '@/ui/Button'
 import { Avatar, Card } from '@/ui/Card'
 import { Banner } from '@/ui/Card'
@@ -82,15 +86,54 @@ export default function Pets() {
   const settling = pets !== null && pets.length === 0 && loading
   const empty = pets !== null && pets.length === 0 && !error && !loading
 
+  // Onboarding (design 20 October 2026): the first entry of someone with no
+  // pet offers two ways in. Read on every focus, per account.
+  const { session } = useAuth()
+  const userId = session?.user.id ?? null
+  const [onboarding, setOnboarding] = useState<OnboardingState | null>(null)
+  useFocusEffect(
+    useCallback(() => {
+      if (!userId) return
+      void onboardingStore.read(userId).then(setOnboarding)
+    }, [userId]),
+  )
+
+  const start = useCallback((goal: OnboardingGoal) => {
+    // A check needs a pet: its form, in the check tab, then straight back to
+    // the check with that pet. The health path creates the card first.
+    if (goal === 'check') router.navigate('/check/new-pet?goal=check')
+    else router.push('/pets/new?goal=health')
+  }, [])
+
+  function choose(goal: OnboardingGoal) {
+    if (!userId) return
+    void onboardingStore.choose(userId, goal).catch(() => undefined)
+    start(goal)
+  }
+
+  function skip() {
+    setOnboarding((current) => ({ ...(current ?? onboardingStore.empty), skipped: true, goal: null }))
+    if (userId) void onboardingStore.skip(userId).catch(() => undefined)
+  }
+
+  // A path begun before the app was closed goes on without asking again.
+  useEffect(() => {
+    if (empty && onboarding?.goal && !onboarding.skipped && resumeOnce()) start(onboarding.goal)
+  }, [empty, onboarding, start])
+
+  const welcome = empty && onboarding !== null && !onboarding.skipped
+
   return (
     <Screen
-      title={t.pets.title}
+      // The first entry has the logo instead of a title.
+      title={welcome ? undefined : t.pets.title}
       action={
         empty || settling
           ? undefined
           : { icon: 'plus', label: t.pets.add, onPress: () => router.push('/pets/new') }
       }
-      centered={empty}
+      centered={empty && !welcome}
+      scroll={welcome}
       dock={
         empty || settling ? null : (
           <Button title={t.pets.checkSymptoms} onPress={() => router.push('/check')} />
@@ -105,8 +148,10 @@ export default function Pets() {
         </>
       ) : null}
 
-      {pets === null || settling ? (
+      {pets === null || settling || (empty && onboarding === null) ? (
         <ListSkeleton rows={3} avatar />
+      ) : welcome ? (
+        <Welcome onCheck={() => choose('check')} onHealth={() => choose('health')} onSkip={skip} />
       ) : empty ? (
         <View>
           <Image

@@ -260,7 +260,7 @@ export const ru = {
       overdue: '— просрочено',
       soon: (when: string) => `— ${when}`,
     },
-    dueTitle: 'Сроки',
+    dueTitle: 'Напоминания',
     allDue: (count: number) => `Все сроки · ${count}`,
     allDueTitle: 'Все сроки',
     markDone: 'Сделано',
@@ -658,6 +658,28 @@ export const ru = {
     retry: 'Повторить',
     loadFailed: 'Не удалось загрузить сводку',
     fileName: (name: string, day: string) => `${name} — медкарта — ${day}`,
+  },
+
+  /** The first entry of someone with no pet (design 20 October 2026). */
+  onboarding: {
+    title: 'С чего начнём?',
+    body: 'Поможем позаботиться о вашем питомце',
+    check: 'Проверить симптомы',
+    checkBody: 'Узнайте, насколько срочно нужен ветеринар',
+    health: 'Следить за здоровьем',
+    healthBody: 'Прививки, обработки и визиты в одном месте',
+    skip: 'Пока просто посмотрю',
+    createdTitle: 'Здоровье питомца',
+    created: 'Карточка создана',
+    firstRecord: 'Добавим первую запись?',
+    firstRecordBody: 'Начните с того, что помните. Остальное можно добавить позже.',
+    vaccination: 'Прививка',
+    vaccinationBody: 'Какая и когда сделана',
+    parasite: 'Обработка от паразитов',
+    parasiteBody: 'Препарат и дата',
+    visit: 'Визит к ветеринару',
+    visitBody: 'Прошедший или предстоящий',
+    later: 'Добавлю позже',
   },
 
   /** When a course is given (FB-5). */
