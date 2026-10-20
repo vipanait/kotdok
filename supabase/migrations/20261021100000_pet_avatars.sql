@@ -30,7 +30,7 @@ as $$
     from storage.objects o
    where o.bucket_id = 'pet-avatars'
      and o.created_at < p_cutoff
-     and not exists (select 1 from public.pets p where p.avatar_path = o.name)
+     and not exists (select 1 from public.pets p where p.avatar_path = o.name and p.deleted_at is null)
    order by o.created_at
    limit p_limit;
 $$;

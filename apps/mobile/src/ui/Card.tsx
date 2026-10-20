@@ -53,26 +53,22 @@ export function Card({
 }
 
 /**
- * A species portrait, not a photograph of anyone's pet.
- *
- * Deliberately drawn rather than photographic: the app has no pictures of the
- * animal it is talking about, and a photo-like avatar would imply it did.
- */
-/**
- * The pet's photo, round, when it has one (FB-4); otherwise the drawing of
- * its species. A photo that fails to load — a link that ran out while the
- * screen was open — falls back to the drawing.
+ * The pet's own photo, round, when the owner gave one (FB-4); otherwise the
+ * drawing of its species — drawn, so it does not pass for a photo of this
+ * animal. A photo that fails to load (a link that ran out while the screen
+ * was open) falls back to the drawing until a fresh link comes.
  */
 export function Avatar({ species, size = 48, uri }: { species: 'cat' | 'dog'; size?: number; uri?: string | null }) {
-  const [failed, setFailed] = useState(false)
-  if (uri && !failed) {
+  // Which link failed, not whether one did: a fresh link (a re-read, a new photo) is tried again.
+  const [failed, setFailed] = useState<string | null>(null)
+  if (uri && failed !== uri) {
     return (
       <Image
         source={{ uri }}
         style={{ width: size, height: size, borderRadius: size / 2 }}
         resizeMode="cover"
         accessible={false}
-        onError={() => setFailed(true)}
+        onError={() => setFailed(uri)}
       />
     )
   }
