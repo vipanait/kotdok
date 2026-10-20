@@ -121,6 +121,13 @@ export const ru = {
     birthday: (name: string) => `С днём рождения, ${name}!`,
   },
 
+  /** A planned date sent to Google Calendar (FB-3/01). */
+  calendarEvent: {
+    add: 'Добавить в календарь',
+    title: (pet: string, what: string) => `${pet}: ${what}`,
+    failed: 'Не удалось открыть календарь',
+  },
+
   /** The step after a new pet's form (FB-2/03, FB-2/04). */
   firstSteps: {
     title: 'Прививки и врач',
