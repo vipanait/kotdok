@@ -8,6 +8,7 @@ import { consumeRateLimit } from '@/server/api/rate-limit'
 import type { Pet, PetSpecies, SymptomCheckResult, Urgency } from '@/shared/types'
 import { PAIN_SIGN_PROMPT_LABELS, type PainSign } from '@/shared/utils/check-params'
 import { sanitizeSpecies } from '@/shared/utils/pet-utils'
+import { petAgeYears } from '@lapka/shared'
 import { loadAnalysisContext, type LoadedContext } from '@/server/medical-record/analysis-context'
 
 type SupabaseService = ReturnType<typeof createServiceClient>
@@ -227,12 +228,14 @@ const STOOL_LABELS: Record<string, string> = {
 }
 
 /** The pet as the model reads it: one line of what the owner filled in. */
-export function describePetProfile(pet: Pet, species: PetSpecies): string {
+export function describePetProfile(pet: Pet, species: PetSpecies, today: string = new Date().toISOString().slice(0, 10)): string {
+  // From the birth date when the app saved one (FB-2/01); an estimate is said to be one.
+  const age = petAgeYears(pet, today)
   return [
     `species: ${species}`,
     pet.name,
     pet.breed ? `breed: ${pet.breed}` : null,
-    pet.age_years != null ? `${pet.age_years} years old` : null,
+    age != null ? `${pet.birth_date && pet.birth_date_approx ? 'about ' : ''}${age} years old` : null,
     pet.weight_kg != null ? `weight: ${pet.weight_kg} kg` : null,
     pet.sex || null,
     pet.neutered != null ? (pet.neutered ? 'neutered/spayed' : 'intact') : null,

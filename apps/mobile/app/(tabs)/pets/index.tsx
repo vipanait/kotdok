@@ -23,7 +23,7 @@ function describe(t: Dictionary, pet: Pet): string {
   const parts: string[] = [t.species[pet.species]]
   if (pet.breed) parts.push(pet.breed)
   // The one age rule of the phone and the site (shared `headAge`, MW-09): zero is said.
-  const age = headAge(pet.age_years)
+  const age = headAge(pet, localToday())
   if (age !== null) parts.push(t.petAge(age))
   return parts.join(' · ')
 }
