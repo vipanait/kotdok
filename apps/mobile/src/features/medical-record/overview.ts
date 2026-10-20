@@ -85,6 +85,12 @@ export type Fact = { label: string; value: string }
  * same rule as the summary for the vet), «(постоянно)» on the ongoing ones;
  * the form's list otherwise.
  */
+/**
+ * Between the items of a list the owner typed: «; », since an item may have
+ * a comma of its own — «рыба, кроме лосося» is one allergy, not two.
+ */
+export const LIST_SEPARATOR = '; '
+
 export function importantFacts(
   t: Dictionary,
   pet: Pet,
@@ -95,11 +101,11 @@ export function importantFacts(
   const current = courses.filter((course) => isTakenNow(course, today))
   const medicines =
     courses.length > 0
-      ? current.map((course) => (course.ongoing ? `${course.name} (${words.meds.ongoingOnly})` : course.name)).join(', ')
-      : pet.medications.join(', ')
+      ? current.map((course) => (course.ongoing ? `${course.name} (${words.meds.ongoingOnly})` : course.name)).join(LIST_SEPARATOR)
+      : pet.medications.join(LIST_SEPARATOR)
   const facts: Fact[] = [
-    { label: words.allergies, value: pet.allergies.join(', ') },
-    { label: words.chronic, value: pet.chronic_conditions.join(', ') },
+    { label: words.allergies, value: pet.allergies.join(LIST_SEPARATOR) },
+    { label: words.chronic, value: pet.chronic_conditions.join(LIST_SEPARATOR) },
     { label: words.takingNow, value: medicines },
   ]
   return facts.filter((fact) => fact.value !== '')

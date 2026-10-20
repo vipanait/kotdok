@@ -10,7 +10,7 @@ import {
 } from '@lapka/shared'
 import type { Dictionary } from '@/i18n'
 import { dayInput, localToday } from '@/lib/calendar-day'
-import { headerFacts, importantFacts } from './overview'
+import { headerFacts, importantFacts, LIST_SEPARATOR } from './overview'
 
 /**
  * «Для врача» (spec §7.17, §7.18) as text: the screen and the PDF both draw
@@ -67,7 +67,7 @@ export function summaryView(t: Dictionary, summary: VetSummary, today: string = 
         taking.from === 'courses'
           ? taking.courses.map((course) => (course.dosage ? `${course.name} — ${course.dosage}` : course.name)).join('; ')
           : taking.from === 'form'
-            ? taking.names.join(', ')
+            ? taking.names.join(LIST_SEPARATOR)
             : '',
     },
   ].map((fact) => ({ label: fact.label, value: fact.value || words.notStated }))
