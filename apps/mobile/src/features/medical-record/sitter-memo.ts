@@ -2,7 +2,7 @@ import type { HealthOverview } from '@lapka/contracts'
 import { isTakenNow } from '@lapka/shared'
 import { ageText } from '@/features/pets/pet-age'
 import type { Dictionary } from '@/i18n'
-import { duePhrase, dueItems, dueStatus } from './due'
+import { duePhrase, dueItems, dueStatus, visitPhrase } from './due'
 import { speciesWord } from './overview'
 
 /** How far ahead the memo looks: a stay with relatives is usually a week or two. */
@@ -51,7 +51,10 @@ export function sitterMemo(t: Dictionary, overview: HealthOverview, today: strin
     // Overdue for months (`dated`) is the owner's to sort out, not the sitter's.
     .filter(({ due, status }) => due.date <= horizon && !status.dated)
     .map(({ due, status }) => {
-      const what = duePhrase(t, { kind: due.kind, name: due.item.name, targets: due.item.targets }).text
+      const visit = due.kind === 'visit' ? overview.events.find((event) => event.id === due.eventId) : undefined
+      const what = visit
+        ? visitPhrase(t, visit.visit_kind)
+        : duePhrase(t, { kind: due.kind, name: due.item.name, targets: due.item.targets }).text
       const place = overview.events.find((event) => event.id === due.eventId)?.clinic
       const when = status.tone === 'overdue' ? words.overdueSince(status.day) : status.day
       return `— ${when}: ${what}${place ? `, ${place}` : ''}`

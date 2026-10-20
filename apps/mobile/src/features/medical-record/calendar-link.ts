@@ -1,6 +1,6 @@
 import type { HealthEvent } from '@lapka/contracts'
 import type { Dictionary } from '@/i18n'
-import { dueLineTitle, duePhrase } from './due'
+import { dueLineTitle, duePhrase, visitPhrase } from './due'
 
 /**
  * A planned visit or due date as a Google Calendar event (FB-3/01).
@@ -43,7 +43,7 @@ export function calendarEvent(
   const items = event.items
   const what =
     event.kind === 'visit'
-      ? t.medicalRecord.visits.dueTitle.toLowerCase()
+      ? visitPhrase(t, event.visit_kind)
       : items.length > 1
         ? t.reminders.count(event.kind, items.length)
         : duePhrase(t, { kind: event.kind, name: items[0]?.name ?? null, targets: items[0]?.targets ?? [] }).text
