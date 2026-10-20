@@ -8,7 +8,7 @@ import { describeFailure } from '@/lib/errors'
 import { localToday } from '@/lib/calendar-day'
 import { useText } from '@/i18n'
 import { useReminders } from '@/features/medical-record/reminders/ReminderProvider'
-import { dueLine, dueStatus } from '@/features/medical-record/due'
+import { dueLine, dueStatus, marksFromRow } from '@/features/medical-record/due'
 import { heldNote } from '@/features/medical-record/visits'
 import { Button, LinkButton } from '@/ui/Button'
 import { Banner, Card, SettingRow } from '@/ui/Card'
@@ -97,10 +97,19 @@ export default function VisitView() {
       dock={
         visit ? (
           planned ? (
-            <>
-              <Button title={words.markDone} onPress={() => edit('done')} />
-              <LinkButton title={t.medicalRecord.reschedule} onPress={() => edit('edit')} />
-            </>
+            // A visit still ahead is moved, not marked: «Был» as the main
+            // button beside «Завтра» read as if it had happened (FB-1/01).
+            marksFromRow(visit.date, localToday()) ? (
+              <>
+                <Button title={words.markDone} onPress={() => edit('done')} />
+                <LinkButton title={t.medicalRecord.reschedule} onPress={() => edit('edit')} />
+              </>
+            ) : (
+              <>
+                <Button title={t.medicalRecord.reschedule} kind="secondary" onPress={() => edit('edit')} />
+                <LinkButton title={words.markDoneEarly} onPress={() => edit('done')} />
+              </>
+            )
           ) : null
         ) : null
       }

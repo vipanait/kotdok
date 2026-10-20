@@ -153,6 +153,10 @@ export default function Profile() {
           {profile.credits}
         </Text>
         <Text tone="muted">{t.profile.checksLeft(profile.credits)}</Text>
+        {/* «А какая ценность в ограничении проверок?» — asked by the first users (FB-1/07). */}
+        <Text variant="caption" tone="faint" style={styles.balanceWhy}>
+          {t.profile.checksWhy}
+        </Text>
         {empty && profile.capabilities.extra_check_request ? (
           <Button
             title={t.profile.extraRequest}
@@ -215,5 +219,6 @@ const styles = StyleSheet.create({
   balanceEmpty: { backgroundColor: colour.soft },
   count: { marginBottom: 4 },
   balanceAction: { marginTop: space.block },
+  balanceWhy: { marginTop: space.row },
   version: { marginTop: 16 },
 })

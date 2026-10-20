@@ -15,7 +15,7 @@ import {
 } from '@/features/medical-record/overview'
 import { AddRecordSheet, type AddChoice } from '@/features/medical-record/AddRecordSheet'
 import { DueRow } from '@/features/medical-record/DueRow'
-import { doneRoute, dueItems, dueStatus } from '@/features/medical-record/due'
+import { doneRoute, marksFromRow, recordRoute, dueItems, dueStatus } from '@/features/medical-record/due'
 import { Button, IconButton, LinkButton } from '@/ui/Button'
 import { Avatar, Banner, Card, SettingRow } from '@/ui/Card'
 import { Icon, type IconName } from '@/ui/Icon'
@@ -270,6 +270,8 @@ export default function MedicalRecord() {
               <DueRow
                 due={item}
                 status={dueStatus(t, item.date, today)}
+                markable={marksFromRow(item.date, today)}
+                onOpen={() => router.push(recordRoute(id, item))}
                 onDone={() => router.push(doneRoute(id, item))}
               />
             </View>

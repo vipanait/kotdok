@@ -12,7 +12,7 @@ import { ResultFeedback } from '@/features/checks/ResultFeedback'
 import { Button, LinkButton } from '@/ui/Button'
 import { Banner, UrgencyCard } from '@/ui/Card'
 import { Screen } from '@/ui/Screen'
-import { Accordion, Bullets } from '@/ui/Section'
+import { Bullets, SummaryCard } from '@/ui/Section'
 import { ResultSkeleton } from '@/ui/Skeleton'
 import { Text } from '@/ui/Text'
 import { space } from '@/ui/theme'
@@ -83,6 +83,21 @@ export function CheckResult({ id }: { id: string }) {
         {formatCheckedAt(check.created_at, check.locale)}
       </Text>
 
+      {/* What was asked comes first, open: reading the advice meant scrolling
+          down to recall the question and back up again (FB-1/04). */}
+      <SummaryCard style={styles.described}>
+        <Text variant="label" tone="faint">
+          {t.result.youDescribed}
+        </Text>
+        <Text>{check.symptoms_input}</Text>
+        {/* One line, so the answer itself still starts on the first screen. */}
+        {answers.length > 0 ? (
+          <Text variant="label" tone="muted" style={styles.answers}>
+            {answers.map((answer) => `${answer.label}: ${lowerFirst(answer.value)}`).join(' · ')}
+          </Text>
+        ) : null}
+      </SummaryCard>
+
       <UrgencyCard
         level={check.urgency}
         icon={level.icon}
@@ -119,18 +134,6 @@ export function CheckResult({ id }: { id: string }) {
         />
       ) : null}
 
-      <Accordion title={t.result.youDescribed} soft>
-        <Text tone="muted">{check.symptoms_input}</Text>
-        {answers.map((answer) => (
-          <View key={answer.label} style={styles.answer}>
-            <Text variant="label" tone="faint">
-              {answer.label}
-            </Text>
-            <Text tone="muted">{answer.value}</Text>
-          </View>
-        ))}
-      </Accordion>
-
       <Banner text={t.result.disclaimer} />
 
       {offersVisit(check) ? (
@@ -165,5 +168,10 @@ const styles = StyleSheet.create({
   visit: { marginBottom: space.block },
   checkedAt: { marginBottom: space.row },
   clinic: { marginTop: -space.row, marginBottom: space.block },
-  answer: { marginTop: space.row, gap: 2 },
+  described: { flexDirection: 'column', alignItems: 'stretch', gap: 4 },
+  answers: { marginTop: 4 },
 })
+
+function lowerFirst(text: string): string {
+  return text.charAt(0).toLowerCase() + text.slice(1)
+}
