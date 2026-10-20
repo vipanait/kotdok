@@ -47,8 +47,8 @@ export default function EditPet() {
       // when there is one.
       const overview = await withFreshSession((api) => api.getHealthOverview(id, localToday()))
       const { pet } = overview
-      setForm(petToForm(pet))
-      setSaved(petToForm(pet))
+      setForm(petToForm(pet, localToday()))
+      setSaved(petToForm(pet, localToday()))
       setOpened({ medications: pet.medications, weight_kg: pet.weight_kg })
       // Which fields the record says more about: one rule with the site (spec §4).
       setHints(petFormHints(overview))
@@ -77,7 +77,7 @@ export default function EditPet() {
   async function save(then: () => void = () => router.back()) {
     if (!form) return
 
-    const input = formToInput(t, form)
+    const input = formToInput(t, form, localToday())
     if (!input.ok) {
       setInvalid({ field: input.field, message: input.message })
       setError(null)

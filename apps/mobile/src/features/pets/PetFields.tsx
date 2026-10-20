@@ -1,12 +1,14 @@
 import { StyleSheet, View } from 'react-native'
 import { PET_DIETS, PET_LIFESTYLES, PET_SIZE_CLASSES, PET_WALK_ACTIVITIES } from '@lapka/contracts'
 import { useText } from '@/i18n'
+import { localToday } from '@/lib/calendar-day'
+import { DateField } from '@/ui/DateField'
 import { Field, Segment, Select } from '@/ui/Field'
 import { ListField } from '@/ui/ListField'
 import { Accordion } from '@/ui/Section'
 import { Text } from '@/ui/Text'
 import { space } from '@/ui/theme'
-import { AGE_MAX, LIST_MAX_ITEMS, WEIGHT_MAX, type FieldError, type PetForm } from './pet-form'
+import { LIST_MAX_ITEMS, WEIGHT_MAX, type FieldError, type PetForm } from './pet-form'
 
 /** Yes / no / not stated, which a switch cannot express. */
 function Tristate({
@@ -130,12 +132,53 @@ export function PetFields({
         placeholder={hint.breed}
         autoCorrect={false}
       />
-      <Field
-        label={t.petForm.age(AGE_MAX)}
-        value={form.ageYears}
-        onChangeText={(ageYears) => onChange({ ageYears })}
-        error={errorFor('ageYears')}
-        keyboardType="numeric"
+      {/* A shelter cat has no papers: «about» is as good an answer as a date (FB-2/01). */}
+      <Segment
+        label={t.petForm.birth}
+        clearable={false}
+        options={[
+          { value: 'exact' as const, label: t.petForm.birthExact },
+          { value: 'approx' as const, label: t.petForm.birthApprox },
+        ]}
+        value={form.birthMode}
+        onChange={(birthMode) => birthMode && onChange({ birthMode })}
+      />
+      {form.birthMode === 'exact' ? (
+        <DateField
+          label={t.petForm.birthDate}
+          value={form.birthDate}
+          onChangeText={(birthDate) => onChange({ birthDate })}
+          placeholder={t.medicalRecord.datePlaceholder}
+          max={localToday()}
+          error={errorFor('birthDate')}
+        />
+      ) : (
+        <View style={styles.approx}>
+          <Field
+            label={t.petForm.approxYears}
+            value={form.approxYears}
+            onChangeText={(approxYears) => onChange({ approxYears })}
+            error={errorFor('approxYears')}
+            keyboardType="numeric"
+            style={styles.approxField}
+          />
+          <Field
+            label={t.petForm.approxMonths}
+            value={form.approxMonths}
+            onChangeText={(approxMonths) => onChange({ approxMonths })}
+            error={errorFor('approxMonths')}
+            keyboardType="numeric"
+            style={styles.approxField}
+          />
+        </View>
+      )}
+      <DateField
+        label={t.petForm.adoptedOn}
+        value={form.adoptedOn}
+        onChangeText={(adoptedOn) => onChange({ adoptedOn })}
+        placeholder={t.medicalRecord.datePlaceholder}
+        max={localToday()}
+        error={errorFor('adoptedOn')}
       />
       <Field
         label={t.petForm.weight(WEIGHT_MAX)}
@@ -263,4 +306,6 @@ export function PetFields({
 const styles = StyleSheet.create({
   // As the check form names its only pet: a label over the value, spaced like a field.
   fixed: { marginBottom: space.block, gap: 6 },
+  approx: { flexDirection: 'row', gap: space.row },
+  approxField: { flex: 1 },
 })

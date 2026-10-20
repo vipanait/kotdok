@@ -41,7 +41,7 @@ export default function NewPet() {
    * were headed.
    */
   async function submit(then?: () => void) {
-    const input = formToInput(t, form)
+    const input = formToInput(t, form, localToday())
     if (!input.ok) {
       setInvalid({ field: input.field, message: input.message })
       setError(null)

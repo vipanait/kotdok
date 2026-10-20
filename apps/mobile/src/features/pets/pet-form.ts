@@ -8,6 +8,8 @@
  */
 
 import type { Dictionary } from '@/i18n'
+import { approxBirthDate, monthsBetween, petAgeYears } from '@lapka/shared'
+import { dayInput, parseDayText } from '@/lib/calendar-day'
 import {
   PET_DIETS,
   PET_LIFESTYLES,
@@ -26,7 +28,16 @@ export type PetForm = {
   species: Species
   name: string
   breed: string
-  ageYears: string
+  /**
+   * The birth date (FB-2/01): a day as typed (ДД.ММ.ГГГГ), or «about N years
+   * M months» — an estimate, kept as the day it stands for so the age grows.
+   */
+  birthMode: 'exact' | 'approx'
+  birthDate: string
+  approxYears: string
+  approxMonths: string
+  /** The first day together, ДД.ММ.ГГГГ; empty when not given. */
+  adoptedOn: string
   weightKg: string
   sex: (typeof PET_SEXES)[number] | null
   neutered: boolean | null
@@ -46,7 +57,11 @@ export const emptyPetForm = (species: Species = 'cat'): PetForm => ({
   species,
   name: '',
   breed: '',
-  ageYears: '',
+  birthMode: 'approx',
+  birthDate: '',
+  approxYears: '',
+  approxMonths: '',
+  adoptedOn: '',
   weightKg: '',
   sex: null,
   neutered: null,
@@ -61,12 +76,24 @@ export const emptyPetForm = (species: Species = 'cat'): PetForm => ({
   notes: '',
 })
 
-export function petToForm(pet: Pet): PetForm {
+export function petToForm(pet: Pet, today: string): PetForm {
+  // An exact date opens as one; an estimate, or an age typed before there
+  // were dates, opens as years and months on today's calendar.
+  const exact = pet.birth_date !== null && !pet.birth_date_approx
+  const months = pet.birth_date
+    ? monthsBetween(pet.birth_date, today)
+    : pet.age_years === null
+      ? null
+      : Math.round(pet.age_years * 12)
   return {
     species: pet.species,
     name: pet.name,
     breed: pet.breed ?? '',
-    ageYears: pet.age_years === null ? '' : String(pet.age_years),
+    birthMode: exact ? 'exact' : 'approx',
+    birthDate: exact && pet.birth_date ? dayInput(pet.birth_date) : '',
+    approxYears: exact || months === null ? '' : String(Math.floor(months / 12)),
+    approxMonths: exact || months === null ? '' : String(months % 12),
+    adoptedOn: pet.adopted_on ? dayInput(pet.adopted_on) : '',
     weightKg: pet.weight_kg === null ? '' : String(pet.weight_kg),
     sex: pet.sex,
     neutered: pet.neutered,
@@ -144,13 +171,19 @@ export function remainingError(
  * contract rejects them outright, and a person who once filled them in for a
  * dog should not be blocked by a value they can no longer see.
  */
-export function formToInput(t: Dictionary, form: PetForm): FormResult {
+export function formToInput(t: Dictionary, form: PetForm, today: string): FormResult {
   const name = form.name.trim()
   if (name === '') return { ok: false, field: 'name', message: t.validation.nameRequired }
 
-  const age = parseOptionalNumber(form.ageYears, AGE_MAX)
-  if (!age.ok) {
-    return { ok: false, field: 'ageYears', message: t.validation.ageRange(AGE_MAX) }
+  const birth = readBirth(t, form, today)
+  if (!birth.ok) return birth
+
+  const adoptedOn = form.adoptedOn.trim() === '' ? null : parseDayText(form.adoptedOn)
+  if (form.adoptedOn.trim() !== '' && (adoptedOn === null || adoptedOn > today)) {
+    return { ok: false, field: 'adoptedOn', message: t.validation.dayPast }
+  }
+  if (adoptedOn && birth.date && adoptedOn < birth.date) {
+    return { ok: false, field: 'adoptedOn', message: t.validation.adoptedBeforeBirth }
   }
 
   const weight = parseOptionalNumber(form.weightKg, WEIGHT_MAX)
@@ -166,7 +199,11 @@ export function formToInput(t: Dictionary, form: PetForm): FormResult {
       species: form.species,
       name,
       breed: form.breed.trim() || null,
-      age_years: age.value,
+      // Still sent: the site and older apps read the age, not the date.
+      age_years: birth.date ? petAgeYears({ birth_date: birth.date, age_years: null }, today) : null,
+      birth_date: birth.date,
+      birth_date_approx: birth.date !== null && form.birthMode === 'approx',
+      adopted_on: adoptedOn,
       weight_kg: weight.value,
       sex: form.sex,
       neutered: form.neutered,
@@ -181,4 +218,25 @@ export function formToInput(t: Dictionary, form: PetForm): FormResult {
       notes: form.notes.trim() || null,
     },
   }
+}
+
+/** The birth date the form describes, or the field to complain about. */
+function readBirth(t: Dictionary, form: PetForm, today: string): ({ ok: true; date: string | null }) | ({ ok: false } & FieldError) {
+  if (form.birthMode === 'exact') {
+    if (form.birthDate.trim() === '') return { ok: true, date: null }
+    const date = parseDayText(form.birthDate)
+    if (date === null || date > today) return { ok: false, field: 'birthDate', message: t.validation.dayPast }
+    return { ok: true, date }
+  }
+
+  const years = parseOptionalNumber(form.approxYears, AGE_MAX)
+  if (!years.ok || (years.value !== null && !Number.isInteger(years.value))) {
+    return { ok: false, field: 'approxYears', message: t.validation.ageRange(AGE_MAX) }
+  }
+  const months = parseOptionalNumber(form.approxMonths, 11)
+  if (!months.ok || (months.value !== null && !Number.isInteger(months.value))) {
+    return { ok: false, field: 'approxMonths', message: t.validation.monthsRange }
+  }
+  if (years.value === null && months.value === null) return { ok: true, date: null }
+  return { ok: true, date: approxBirthDate(years.value ?? 0, months.value ?? 0, today) }
 }
