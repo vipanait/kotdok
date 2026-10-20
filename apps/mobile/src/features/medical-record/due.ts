@@ -44,6 +44,22 @@ export function dueStatus(t: Dictionary, date: string, today: string): DueStatus
   return { tone: 'soon', text: words.inDays(timing.days), day: shown }
 }
 
+export type DueGroup = { tone: DueTone; rows: Array<{ due: Due; status: DueStatus }> }
+
+/**
+ * Due dates as the «Сроки» card draws them: overdue, then «Ближайшее», then
+ * «Позже» (due priority design, 20 October 2026). Only for display: the
+ * order inside a group is the one given, and a group with nothing in it is
+ * left out, heading and all.
+ */
+export function dueGroups(t: Dictionary, items: readonly Due[], today: string): DueGroup[] {
+  const order: DueTone[] = ['overdue', 'soon', 'later']
+  const rows = items.map((due) => ({ due, status: dueStatus(t, due.date, today) }))
+  return order
+    .map((tone) => ({ tone, rows: rows.filter((row) => row.status.tone === tone) }))
+    .filter((group) => group.rows.length > 0)
+}
+
 /** «Просрочено на 12 дней · 12 сентября», or just «12 марта 2027». */
 export function dueLine(status: DueStatus): string {
   if (status.dated && status.text) return status.text

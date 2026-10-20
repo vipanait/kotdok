@@ -14,8 +14,8 @@ import {
   type SectionRow,
 } from '@/features/medical-record/overview'
 import { AddRecordSheet, type AddChoice } from '@/features/medical-record/AddRecordSheet'
-import { DueRow } from '@/features/medical-record/DueRow'
-import { doneRoute, marksFromRow, recordRoute, dueItems, dueStatus } from '@/features/medical-record/due'
+import { DueList } from '@/features/medical-record/DueList'
+import { doneRoute, recordRoute, dueItems } from '@/features/medical-record/due'
 import { Button, IconButton, LinkButton } from '@/ui/Button'
 import { Avatar, Banner, Card, SettingRow } from '@/ui/Card'
 import { Icon, type IconName } from '@/ui/Icon'
@@ -264,18 +264,16 @@ export default function MedicalRecord() {
 
       {due.length > 0 ? (
         <Card style={styles.due}>
-          <Text variant="h2">{t.medicalRecord.dueTitle}</Text>
-          {due.slice(0, DUE_ON_RECORD).map((item, index) => (
-            <View key={item.itemId} style={index > 0 ? styles.rowDivider : null}>
-              <DueRow
-                due={item}
-                status={dueStatus(t, item.date, today)}
-                markable={marksFromRow(item.date, today)}
-                onOpen={() => router.push(recordRoute(id, item))}
-                onDone={() => router.push(doneRoute(id, item))}
-              />
-            </View>
-          ))}
+          <Text variant="h2" style={styles.dueTitle}>
+            {t.medicalRecord.dueTitle}
+          </Text>
+          {/* The limit first, then the groups: «Все сроки» keeps the count of all. */}
+          <DueList
+            items={due.slice(0, DUE_ON_RECORD)}
+            today={today}
+            onOpen={(item) => router.push(recordRoute(id, item))}
+            onDone={(item) => router.push(doneRoute(id, item))}
+          />
           {due.length > DUE_ON_RECORD ? (
             <LinkButton
               title={t.medicalRecord.allDue(due.length)}
@@ -351,12 +349,12 @@ const styles = StyleSheet.create({
     marginBottom: space.block,
   },
   hintCopy: { flex: 1 },
-  due: { paddingVertical: 16, marginBottom: space.block, ...shadow.card },
+  due: { padding: 20, borderRadius: 22, marginBottom: space.block, ...shadow.card },
+  dueTitle: { fontSize: 25, fontWeight: '800', marginBottom: 16 },
   sections: { paddingVertical: 4, marginBottom: space.block, ...shadow.card },
   section: { flexDirection: 'row', alignItems: 'center', gap: 16, minHeight: 64, paddingVertical: 12 },
   sectionCopy: { flex: 1, minWidth: 0, gap: 2 },
   divider: { height: StyleSheet.hairlineWidth, backgroundColor: colour.line },
-  rowDivider: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colour.line },
 
   blank: { backgroundColor: colour.soft, borderRadius: radius.field },
   blankAvatar: { width: 64, height: 64, borderRadius: radius.pill },

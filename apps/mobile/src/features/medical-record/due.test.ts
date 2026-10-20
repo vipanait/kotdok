@@ -3,7 +3,7 @@ import type { HealthEvent } from '@lapka/contracts'
 import { en } from '@/i18n/en'
 import { ru } from '@/i18n/ru'
 import { lastDoneDate } from '@lapka/shared'
-import { coreStatuses, dueItems, dueLine, dueLineTitle, dueStatus, itemTitle, listDueLine, nextYear, saveSummary } from './due'
+import { coreStatuses, dueGroups, dueItems, dueLine, dueLineTitle, dueStatus, itemTitle, listDueLine, nextYear, saveSummary } from './due'
 
 const TODAY = '2026-09-24'
 
@@ -163,5 +163,30 @@ describe('the pet list’s due line names the date as spec §7.1 does (MW-09)', 
     })
     expect(listDueLine(en, { ...due('vaccination', ['rabies']), date: '2026-09-29' }, TODAY)?.text).toBe('Rabies vaccination — in 5 days')
     expect(listDueLine(ru, { ...due('vaccination', ['rabies']), date: '2026-10-20' }, TODAY)).toBeNull()
+  })
+})
+
+describe('due dates in groups, overdue first (due priority)', () => {
+  const due = (itemId: string, date: string) => ({
+    kind: 'vaccination' as const,
+    eventId: `e-${itemId}`,
+    itemId,
+    date,
+    item: { id: itemId, name: itemId, targets: [], source_item_id: null } as never,
+    others: 0,
+  })
+  // In the shared order: overdue first, then the soonest.
+  const items = [due('a', '2026-09-01'), due('b', '2026-09-20'), due('c', '2026-09-25'), due('d', '2027-03-01')]
+
+  it('splits by tone in the order given, losing nothing', () => {
+    const groups = dueGroups(ru, items, TODAY)
+    expect(groups.map((group) => group.tone)).toEqual(['overdue', 'soon', 'later'])
+    expect(groups.flatMap((group) => group.rows.map((row) => row.due.itemId))).toEqual(['a', 'b', 'c', 'd'])
+    expect(groups[0].rows[0].status.tone).toBe('overdue')
+  })
+
+  it('leaves out a group with nothing in it', () => {
+    expect(dueGroups(ru, [items[2]], TODAY).map((group) => group.tone)).toEqual(['soon'])
+    expect(dueGroups(ru, [], TODAY)).toEqual([])
   })
 })
