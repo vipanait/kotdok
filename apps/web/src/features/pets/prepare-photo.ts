@@ -19,11 +19,18 @@ export async function preparePhoto(file: File): Promise<PreparedPhoto> {
     canvas.height = Math.round(bitmap.height * scale)
     const context = canvas.getContext('2d')
     if (!context) throw new Error('no canvas')
-    context.drawImage(bitmap, 0, 0, canvas.width, canvas.height)
+    drawOnWhite(context, bitmap, canvas.width, canvas.height)
     const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.85))
     if (!blob) throw new Error('no image')
     return { blob, contentType: 'image/jpeg' }
   } finally {
     bitmap.close()
   }
+}
+
+/** On white: a JPEG has no transparency, and a transparent picture would turn black. */
+export function drawOnWhite(context: CanvasRenderingContext2D, image: CanvasImageSource, width: number, height: number): void {
+  context.fillStyle = '#FFFFFF'
+  context.fillRect(0, 0, width, height)
+  context.drawImage(image, 0, 0, width, height)
 }

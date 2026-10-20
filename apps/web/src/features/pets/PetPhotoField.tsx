@@ -76,10 +76,19 @@ export default function PetPhotoField({
             type="file"
             accept="image/jpeg,image/png,image/webp"
             className="sr-only"
+            // Opened by the visible button: not a tab stop of its own with no visible focus.
+            tabIndex={-1}
             aria-describedby={`${id}-note${problem ? ` ${id}-problem` : ''}`}
             onChange={(event) => void pick(event.target.files?.[0])}
           />
-          <button type="button" className="btn secondary" onClick={() => input.current?.click()} aria-disabled={reading || undefined}>
+          <button
+            type="button"
+            className="btn secondary"
+            onClick={() => {
+              if (!reading) input.current?.click()
+            }}
+            aria-disabled={reading || undefined}
+          >
             <Icon name="plus" />
             {hasPhoto ? t.replace : t.add}
           </button>

@@ -16,6 +16,7 @@ import { eventSaveFailure } from '../events/event-form'
 import { courseRecord, type CourseSaved } from './course-view'
 import { CourseGone } from './CourseFormScreen'
 import DoseTimesField from './DoseTimesField'
+import { doseTimesKey } from './dose-times-field'
 import TodayDoses from '../TodayDoses'
 import { useTodayDoses } from '../doses/use-today-doses'
 import { medicalRecordHref } from '../routes'
@@ -43,6 +44,14 @@ export default function CourseScreen({ petId, courseId, saved }: { petId: string
   const endRef = useRef<HTMLButtonElement>(null)
   const deleteRef = useRef<HTMLButtonElement>(null)
   const inFlight = useRef(false)
+  // Back to the tab: times or marks set on the phone meanwhile show up here.
+  useEffect(() => {
+    const again = () => {
+      if (document.visibilityState === 'visible') refresh()
+    }
+    document.addEventListener('visibilitychange', again)
+    return () => document.removeEventListener('visibilitychange', again)
+  }, [refresh])
   const courses = state.status === 'ready' ? state.data.overview.medications.filter((entry) => entry.id === courseId) : []
   const doses = useTodayDoses(petId, courses, today)
 
@@ -187,7 +196,7 @@ export default function CourseScreen({ petId, courseId, saved }: { petId: string
           </section>
 
           <DoseTimesField
-            key={course.id}
+            key={doseTimesKey(course)}
             petId={petId}
             course={course}
             editable={timesEditable}
