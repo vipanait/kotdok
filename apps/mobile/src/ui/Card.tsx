@@ -1,4 +1,7 @@
+import { useState } from 'react'
 import { Image, Pressable, StyleSheet, View, type ViewStyle } from 'react-native'
+import { Image as ExpoImage } from 'expo-image'
+import { avatarCacheKey } from './avatar-cache-key'
 import { Icon, type IconName } from './Icon'
 import { Text } from './Text'
 import { colour, radius, shadow, space, urgency as urgencyScale } from './theme'
@@ -52,12 +55,29 @@ export function Card({
 }
 
 /**
- * A species portrait, not a photograph of anyone's pet.
- *
- * Deliberately drawn rather than photographic: the app has no pictures of the
- * animal it is talking about, and a photo-like avatar would imply it did.
+ * The pet's own photo, round, when the owner gave one (FB-4); otherwise the
+ * drawing of its species — drawn, so it does not pass for a photo of this
+ * animal. A photo that fails to load (a link that ran out while the screen
+ * was open) falls back to the drawing until a fresh link comes.
  */
-export function Avatar({ species, size = 48 }: { species: 'cat' | 'dog'; size?: number }) {
+export function Avatar({ species, size = 48, uri }: { species: 'cat' | 'dog'; size?: number; uri?: string | null }) {
+  // Which link failed, not whether one did: a fresh link (a re-read, a new photo) is tried again.
+  const [failed, setFailed] = useState<string | null>(null)
+  if (uri && failed !== uri) {
+    const key = avatarCacheKey(uri)
+    return (
+      <ExpoImage
+        source={{ uri, cacheKey: key }}
+        recyclingKey={key}
+        cachePolicy="memory-disk"
+        contentFit="cover"
+        transition={0}
+        style={{ width: size, height: size, borderRadius: size / 2 }}
+        accessible={false}
+        onError={() => setFailed(uri)}
+      />
+    )
+  }
   return (
     <Image
       source={art[species]}

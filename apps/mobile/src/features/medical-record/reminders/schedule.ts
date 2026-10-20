@@ -29,6 +29,8 @@ export type PlannedReminder = {
   /** The phone's calendar day and hour it fires at. */
   day: string
   hour: number
+  /** 0 for due dates; a dose fires at its own minute (FB-5). */
+  minute?: number
   title: string
   body: string
 }
@@ -42,9 +44,9 @@ function addDays(day: string, days: number): string {
 }
 
 /** The moment a reminder fires: that hour on the wall clock of that day, whatever the offset. */
-export function reminderMoment(day: string, hour: number): Date {
+export function reminderMoment(day: string, hour: number, minute = 0): Date {
   const { year, month, date } = dayParts(day)
-  return new Date(year, month - 1, date, hour, 0, 0, 0)
+  return new Date(year, month - 1, date, hour, minute, 0, 0)
 }
 
 function itemPhrase(t: Dictionary, item: DueItem): { text: string; form: 'f' | 'm' } {
@@ -89,6 +91,8 @@ export function planReminders(
   pets: readonly { id: string; name: string }[],
   settings: ReminderSettings,
   now: Date = new Date(),
+  /** What the doses leave of the phone's limit (FB-5). */
+  limit: number = REMINDER_LIMIT,
 ): PlannedReminder[] {
   if (!settings.enabled) return []
   const names = new Map(pets.map((pet) => [pet.id, pet.name]))
@@ -112,7 +116,7 @@ export function planReminders(
 
   return [...groups.values()]
     .sort((a, b) => a.day.localeCompare(b.day) || a.petId.localeCompare(b.petId))
-    .slice(0, REMINDER_LIMIT)
+    .slice(0, Math.max(0, limit))
     .map((group) => {
       const pet = names.get(group.petId)!
       const lines = PHASE_ORDER.filter((phase) => group.phases.has(phase)).map((phase) => {

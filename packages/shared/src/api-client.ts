@@ -47,6 +47,13 @@ import {
   type ProductKind,
   type WeightInput,
   type WeightPatch,
+  FEATURES_HEADER,
+  PET_DATES_FEATURE,
+  AvatarGrantSchema,
+  PET_AVATAR_FEATURE,
+  type AvatarGrantRequest,
+  MedicationDoseSchema,
+  type MedicationDoseInput,
 } from '@lapka/contracts'
 import { z } from 'zod'
 
@@ -205,7 +212,13 @@ export function createApiClient(options: ApiClientOptions) {
     schema: z.ZodType<T> | null,
     request: RequestOptions = {},
   ): Promise<T> {
-    const headers: Record<string, string> = { accept: 'application/json', ...request.headers }
+    // What this client can read: the server sends the pet's dates only to
+    // those that say so, since older builds refuse unknown keys (FB-2).
+    const headers: Record<string, string> = {
+      accept: 'application/json',
+      [FEATURES_HEADER]: `${PET_DATES_FEATURE},${PET_AVATAR_FEATURE}`,
+      ...request.headers,
+    }
 
     if (!request.anonymous) {
       const token = await options.getAccessToken?.()
@@ -290,6 +303,12 @@ export function createApiClient(options: ApiClientOptions) {
     getPet: (id: string) => call(`/pets/${id}`, PetSchema),
     updatePet: (id: string, body: PetUpdateInput) =>
       call(`/pets/${id}`, PetSchema, { method: 'PATCH', body }),
+    /** A signed URL to write the pet's photo to (FB-4); then `confirmAvatar` with its path. */
+    requestAvatar: (id: string, body: AvatarGrantRequest) =>
+      call(`/pets/${id}/avatar`, AvatarGrantSchema, { method: 'POST', body }),
+    confirmAvatar: (id: string, path: string) =>
+      call(`/pets/${id}/avatar`, PetSchema, { method: 'PUT', body: { path } }),
+    removeAvatar: (id: string) => call(`/pets/${id}/avatar`, PetSchema, { method: 'DELETE' }),
     deletePet: (id: string) => call<void>(`/pets/${id}`, null, { method: 'DELETE' }),
 
     /**
@@ -374,6 +393,22 @@ export function createApiClient(options: ApiClientOptions) {
      */
     changeMedication: (petId: string, medicationId: string, body: MedicationPatch, today?: string) =>
       call(`/pets/${petId}/health/medications/${medicationId}`, MedicationSchema, { method: 'PATCH', body, query: { today } }),
+    /** The times a course is given at (FB-5); the list replaces the stored one. */
+    setMedicationTimes: (petId: string, medicationId: string, reminderTimes: string[]) =>
+      call(`/pets/${petId}/health/medications/${medicationId}/times`, MedicationSchema, {
+        method: 'PUT',
+        body: { reminder_times: reminderTimes },
+      }),
+    /** «Дали»: marking the same dose again answers with that dose. */
+    markDose: (petId: string, medicationId: string, body: MedicationDoseInput) =>
+      call(`/pets/${petId}/health/medications/${medicationId}/doses`, MedicationDoseSchema, { method: 'POST', body }),
+    unmarkDose: (petId: string, medicationId: string, body: MedicationDoseInput) =>
+      call<void>(`/pets/${petId}/health/medications/${medicationId}/doses`, null, {
+        method: 'DELETE',
+        query: { taken_on: body.taken_on, slot: body.slot },
+      }),
+    listDoses: (petId: string, from: string, to: string) =>
+      call(`/pets/${petId}/health/doses`, z.array(MedicationDoseSchema), { query: { from, to } }),
     deleteMedication: (petId: string, medicationId: string, today?: string) =>
       call<void>(`/pets/${petId}/health/medications/${medicationId}`, null, { method: 'DELETE', query: { today } }),
     /** `signal`: a search the screen no longer shows (a newer query, another pet) is aborted. */

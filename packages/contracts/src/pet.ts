@@ -45,10 +45,50 @@ export const PetSchema = z.object({
   chronic_conditions: stringList,
   medications: stringList,
   notes: z.string().max(NOTES_MAX).nullable(),
+  /** Exact, or the owner's estimate when `birth_date_approx` (FB-2/01). Absent from older servers. */
+  birth_date: CalendarDateSchema.nullable().default(null),
+  birth_date_approx: z.boolean().default(false),
+  /** The first day together. */
+  adopted_on: CalendarDateSchema.nullable().default(null),
+  /** A short-lived signed link to the pet's photo (FB-4), or none. */
+  avatar_url: z.url().nullable().default(null),
   created_at: IsoDateTimeSchema,
 })
 
 export type Pet = z.infer<typeof PetSchema>
+
+/**
+ * What a client can read, named in one request header (FB-2 release). The
+ * store builds from before FB-2 parse pets strictly: a new key fails their
+ * whole pet list. The server sends the birth date and the home day only to a
+ * client that lists `pet-dates`; the others get the pet as before.
+ */
+export const FEATURES_HEADER = 'X-Lapka-Features'
+export const PET_DATES_FEATURE = 'pet-dates'
+export const PET_DATE_FIELDS = ['birth_date', 'birth_date_approx', 'adopted_on'] as const
+/** The pet's photo (FB-4): `avatar_url` only for a client that lists it. */
+export const PET_AVATAR_FEATURE = 'pet-avatar'
+
+/** Asking to write a pet's photo straight to storage (FB-4); the bytes never pass through the API. */
+export const AvatarGrantRequestSchema = z.strictObject({
+  content_type: z.enum(['image/jpeg', 'image/png', 'image/webp']),
+  size_bytes: z.int().min(1).max(5 * 1024 * 1024),
+})
+
+export type AvatarGrantRequest = z.infer<typeof AvatarGrantRequestSchema>
+
+export const AvatarGrantSchema = z.strictObject({
+  /** Named back in the confirmation; the server checks it is this pet's. */
+  path: z.string().min(1).max(200),
+  url: z.url(),
+  method: z.literal('PUT'),
+  headers: z.record(z.string(), z.string()),
+  expires_at: IsoDateTimeSchema,
+})
+
+export type AvatarGrant = z.infer<typeof AvatarGrantSchema>
+
+export const AvatarConfirmSchema = z.strictObject({ path: z.string().min(1).max(200) })
 
 const petWritableFields = {
   species: PetSpeciesSchema,
@@ -67,12 +107,32 @@ const petWritableFields = {
   chronic_conditions: stringList,
   medications: stringList,
   notes: z.string().max(NOTES_MAX).nullable(),
+  birth_date: CalendarDateSchema.nullable(),
+  birth_date_approx: z.boolean(),
+  adopted_on: CalendarDateSchema.nullable(),
   /**
    * The owner's local day, for the weight history: a weight saved from the
    * form is that day's measurement. Not a pet column. Without it the server
    * uses today in UTC.
    */
   weight_measured_on: CalendarDateSchema.optional(),
+}
+
+/**
+ * The dates in order (FB-2/01): home no earlier than birth, and «approximate»
+ * only about a date. Days in the future are the route's to refuse — it knows
+ * the server's day, the contract does not.
+ */
+function checkDates(
+  value: { birth_date?: string | null; birth_date_approx?: boolean; adopted_on?: string | null },
+  ctx: z.RefinementCtx,
+): void {
+  if (value.birth_date && value.adopted_on && value.adopted_on < value.birth_date) {
+    ctx.addIssue({ code: 'custom', path: ['adopted_on'], message: 'the pet came home before it was born' })
+  }
+  if (value.birth_date_approx === true && !value.birth_date) {
+    ctx.addIssue({ code: 'custom', path: ['birth_date_approx'], message: 'an approximate birth date needs a date' })
+  }
 }
 
 // size_class and walk_activity describe dogs only; the database keeps them null
@@ -115,9 +175,15 @@ export const PetCreateInputSchema = z
     chronic_conditions: true,
     medications: true,
     notes: true,
+    birth_date: true,
+    birth_date_approx: true,
+    adopted_on: true,
     weight_measured_on: true,
   })
-  .superRefine(rejectDogFieldsOnCats)
+  .superRefine((value, ctx) => {
+    rejectDogFieldsOnCats(value, ctx)
+    checkDates(value, ctx)
+  })
 
 export type PetCreateInput = z.infer<typeof PetCreateInputSchema>
 
@@ -144,6 +210,7 @@ export const PetUpdateInputSchema = z
       return
     }
     rejectDogFieldsOnCats(value, ctx)
+    checkDates(value, ctx)
   })
 
 export type PetUpdateInput = z.infer<typeof PetUpdateInputSchema>

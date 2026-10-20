@@ -8,6 +8,7 @@ import { localToday } from '@/lib/calendar-day'
 import { useText } from '@/i18n'
 import { useReminders } from '@/features/medical-record/reminders/ReminderProvider'
 import { dueLine, dueStatus, itemName, marksFromRow, targetList } from '@/features/medical-record/due'
+import { AddToCalendar } from '@/features/medical-record/AddToCalendar'
 import { Button, LinkButton } from '@/ui/Button'
 import { Banner, Card } from '@/ui/Card'
 import { ConfirmDialog } from '@/ui/Dialog'
@@ -30,6 +31,7 @@ export default function EventView() {
   const reminders = useReminders()
   const words = t.medicalRecord
   const [event, setEvent] = useState<HealthEvent | null>(null)
+  const [petName, setPetName] = useState('')
   const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
   const [asking, setAsking] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -46,6 +48,7 @@ export default function EventView() {
         return
       }
       setEvent(found)
+      setPetName(overview.pet.name)
     } catch (cause) {
       setError(describeFailure(t, cause, words.loadEventFailed))
     }
@@ -132,6 +135,8 @@ export default function EventView() {
             ) : null}
             {event.clinic ? <Text tone="muted">{event.clinic}</Text> : null}
           </Card>
+          {/* A day already past is not put in a calendar (PR #82 review). */}
+          {planned && event.date >= localToday() ? <AddToCalendar petName={petName} event={event} /> : null}
 
           {event.items.map((item) => (
             <Card key={item.id} outlined style={styles.item}>

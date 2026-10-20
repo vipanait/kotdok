@@ -3,8 +3,10 @@ import { AppState, Linking, StyleSheet } from 'react-native'
 import { router, useSegments } from 'expo-router'
 import * as Notifications from 'expo-notifications'
 import type { DueItem } from '@lapka/contracts'
+import { localToday } from '@/lib/calendar-day'
 import { withFreshSession } from '@/lib/api'
 import { deviceStorage } from '@/lib/supabase'
+import { ApiError } from '@lapka/shared'
 import { useText } from '@/i18n'
 import { useAuth } from '@/providers/AuthProvider'
 import { consentSettled } from '@/features/consent/consent-gate'
@@ -20,6 +22,9 @@ import { createReminderSync, openTarget } from './sync'
 
 export const reminderStore = createReminderStore(deviceStorage)
 
+/** At most this often on a return to the app; the week ahead is planned, so a few minutes change nothing. */
+const ACTIVE_REFRESH_AFTER_MS = 10 * 60 * 1000
+
 type Reminders = {
   /** After any change to plans or settings: reschedules this phone. */
   refresh(): void
@@ -28,6 +33,8 @@ type Reminders = {
    * whether to remind — our sheet, then the system's question.
    */
   planSaved(plan: Pick<DueItem, 'kind' | 'name' | 'targets'>): void
+  /** After a course's times were set (FB-5): the same, about that medicine. */
+  timesSaved(medicine: string): void
 }
 
 const RemindersContext = createContext<Reminders | null>(null)
@@ -61,15 +68,43 @@ export function ReminderProvider({ children }: { children: ReactNode }) {
     [],
   )
 
+  /** When the phone's reminders were last rebuilt: a return to the app soon after does not ask again. */
+  const lastRun = useRef(0)
   const refresh = useCallback(() => {
     if (!userId || !ready) return
+    lastRun.current = Date.now()
     void sync
       .run({
         userId,
         load: () =>
           withFreshSession(async (api) => {
             const [due, pets] = await Promise.all([api.listDue(), api.listPets()])
-            return { due, pets: pets.map((pet) => ({ id: pet.id, name: pet.name })) }
+            // The courses given at set times, and the doses given in the week ahead (FB-5).
+            const today = localToday()
+            const records = await Promise.all(
+              pets.map(async (pet) => {
+                try {
+                  const overview = await api.getHealthOverview(pet.id, today)
+                  const timed = overview.medications.filter((course) => course.reminder_times.length > 0)
+                  if (timed.length === 0) return { courses: [], doses: [] }
+                  const doses = await api.listDoses(pet.id, today, addDays(today, 7))
+                  return { courses: timed.map((course) => ({ pet: { id: pet.id, name: pet.name }, course })), doses }
+                } catch (cause) {
+                  // A pet deleted meanwhile simply has nothing to remind of.
+                  // Any other failure stops the run, and the phone keeps the
+                  // reminders it has: rebuilding without this pet's medicines
+                  // would drop them for the week with no word (PR #82 review).
+                  if (cause instanceof ApiError && cause.code === 'not_found') return { courses: [], doses: [] }
+                  throw cause
+                }
+              }),
+            )
+            return {
+              due,
+              pets: pets.map((pet) => ({ id: pet.id, name: pet.name })),
+              courses: records.flatMap((record) => record.courses),
+              doses: records.flatMap((record) => record.doses),
+            }
           }),
       })
       .catch(() => {})
@@ -86,8 +121,12 @@ export function ReminderProvider({ children }: { children: ReactNode }) {
       return
     }
     refresh()
+    // Coming back to the app rebuilds them, but not more than once in a while:
+    // a permission dialog, Control Center or a return from Share is no news,
+    // and each rebuild reads every pet's record (PR #82 review). A change
+    // made in the app rebuilds at once, through `refresh` itself.
     const subscription = AppState.addEventListener('change', (state) => {
-      if (state === 'active') refresh()
+      if (state === 'active' && Date.now() - lastRun.current >= ACTIVE_REFRESH_AFTER_MS) refresh()
     })
     return () => subscription.remove()
   }, [loading, userId, refresh, sync])
@@ -131,20 +170,32 @@ export function ReminderProvider({ children }: { children: ReactNode }) {
       .catch(() => openFromReminder('/pets'))
   }, [response, loading, userId, ready, openFromReminder])
 
-  const [asking, setAsking] = useState<{ about: string; denied: boolean } | null>(null)
+  const [asking, setAsking] = useState<{ about: string; denied: boolean; dose: boolean } | null>(null)
   const [days, setDays] = useState(3)
 
-  const planSaved = useCallback(
-    (plan: Pick<DueItem, 'kind' | 'name' | 'targets'>) => {
+  // Reschedules, and the first time asks whether to remind at all.
+  const savedThenAsk = useCallback(
+    (about: () => string, dose: boolean) => {
       refresh()
       void (async () => {
         const [state, notNowUntil, settings] = await Promise.all([permissionState(), reminderStore.notNowUntil(), reminderStore.settings()])
         if (state === 'granted' || !settings.enabled || !shouldAsk(notNowUntil)) return
         setDays(settings.daysBefore)
-        setAsking({ about: reminderAbout(tRef.current, plan), denied: state === 'denied' })
+        setAsking({ about: about(), denied: state === 'denied', dose })
       })().catch(() => {})
     },
     [refresh],
+  )
+
+  const planSaved = useCallback(
+    (plan: Pick<DueItem, 'kind' | 'name' | 'targets'>) => savedThenAsk(() => reminderAbout(tRef.current, plan), false),
+    [savedThenAsk],
+  )
+
+  // Times set for a course are no use if the phone never asked to notify (FB-5/03).
+  const timesSaved = useCallback(
+    (medicine: string) => savedThenAsk(() => tRef.current.doseReminders.about(medicine), true),
+    [savedThenAsk],
   )
 
   async function remind() {
@@ -162,7 +213,7 @@ export function ReminderProvider({ children }: { children: ReactNode }) {
     void reminderStore.notNow().catch(() => {})
   }
 
-  const value = useMemo(() => ({ refresh, planSaved }), [refresh, planSaved])
+  const value = useMemo(() => ({ refresh, planSaved, timesSaved }), [refresh, planSaved, timesSaved])
 
   return (
     <RemindersContext.Provider value={value}>
@@ -170,7 +221,7 @@ export function ReminderProvider({ children }: { children: ReactNode }) {
       <Sheet visible={asking !== null} onClose={notNow}>
         <Text variant="h2">{asking ? words.askTitle(asking.about) : ''}</Text>
         <Text tone="muted" style={styles.body}>
-          {asking?.denied ? words.deniedBody : words.askBody(days)}
+          {asking?.denied ? words.deniedBody : asking?.dose ? t.doseReminders.askBody : words.askBody(days)}
         </Text>
         <Button title={asking?.denied ? words.openSettings : words.remind} onPress={() => void remind()} />
         <Button title={words.notNow} kind="secondary" onPress={notNow} style={styles.second} />
@@ -183,3 +234,8 @@ const styles = StyleSheet.create({
   body: { marginTop: 8, marginBottom: space.section },
   second: { marginTop: space.row },
 })
+
+function addDays(day: string, days: number): string {
+  const [year, month, date] = day.split('-').map(Number)
+  return new Date(Date.UTC(year, month - 1, date + days)).toISOString().slice(0, 10)
+}

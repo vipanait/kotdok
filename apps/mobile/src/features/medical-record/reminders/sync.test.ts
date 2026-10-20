@@ -40,6 +40,42 @@ describe('keeping the phone’s notifications in step', () => {
     ])
   })
 
+  it('schedules a course’s doses as well, which open the pet when tapped (FB-5/03)', async () => {
+    const { notifier, scheduled } = fakeNotifier()
+    const sync = createReminderSync({ notifier, settings: async () => DEFAULT_REMINDERS, t: () => ru, now: () => NOW })
+    const course = { id: 'c1', name: 'Нефростоп', dosage: '1 таблетка', started_on: '2026-09-01', ended_on: null, ongoing: true, source: 'record' as const, reminder_times: ['20:00'] }
+    await sync.run({
+      userId: 'user-a',
+      load: async () => ({ due: [], pets: [{ id: A_PET, name: 'Мурка' }], courses: [{ pet: { id: A_PET, name: 'Мурка' }, course }], doses: [] }),
+    })
+    const dose = scheduled.get('lapka-dose-c1-2026-09-24-20:00')
+    expect(dose).toEqual({ body: 'Мурке пора: Нефростоп, 1 таблетка', data: { petId: A_PET, userId: 'user-a' } })
+    expect(openTarget(dose!.data, 'user-a', [{ id: A_PET }])).toBe(`/pets/${A_PET}`)
+  })
+
+  it('keeps a near due date over doses next week when the limit is reached (FB-5/03)', async () => {
+    const { notifier, scheduled } = fakeNotifier()
+    const sync = createReminderSync({ notifier, settings: async () => DEFAULT_REMINDERS, t: () => ru, now: () => NOW })
+    // 4 courses × 4 times × 7 days = 112 doses, more than the phone keeps.
+    const courses = Array.from({ length: 4 }, (_, index) => ({
+      pet: { id: A_PET, name: 'Мурка' },
+      course: { id: `c${index}`, name: 'Нефростоп', dosage: null, started_on: '2026-09-01', ended_on: null, ongoing: true, source: 'record' as const, reminder_times: ['08:00', '13:00', '18:00', '22:00'] },
+    }))
+    const soon = { ...item(A_PET), date: '2026-09-26' }
+    await sync.run({ userId: 'user-a', load: async () => ({ due: [soon], pets: [{ id: A_PET, name: 'Мурка' }], courses, doses: [] }) })
+    expect(scheduled.size).toBe(64)
+    expect([...scheduled.keys()].some((id) => !id.startsWith('lapka-dose-'))).toBe(true)
+    expect([...scheduled.keys()].some((id) => id.includes('2026-09-30'))).toBe(false)
+  })
+
+  it('does nothing about doses while reminders are off (FB-5/03)', async () => {
+    const { notifier, scheduled } = fakeNotifier()
+    const sync = createReminderSync({ notifier, settings: async () => ({ ...DEFAULT_REMINDERS, enabled: false }), t: () => ru, now: () => NOW })
+    const course = { id: 'c1', name: 'Нефростоп', dosage: null, started_on: '2026-09-01', ended_on: null, ongoing: true, source: 'record' as const, reminder_times: ['20:00'] }
+    await sync.run({ userId: 'user-a', load: async () => ({ due: [], pets: [], courses: [{ pet: { id: A_PET, name: 'Мурка' }, course }], doses: [] }) })
+    expect(scheduled.size).toBe(0)
+  })
+
   it('leaves nothing of the previous account after sign-out and another sign-in (MR-08.3)', async () => {
     const { notifier, scheduled } = fakeNotifier()
     const sync = createReminderSync({ notifier, settings: async () => DEFAULT_REMINDERS, t: () => ru, now: () => NOW })

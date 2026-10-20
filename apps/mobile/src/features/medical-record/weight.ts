@@ -15,6 +15,24 @@ import { ApiError, isKeyReused, weightTrend as trendOf } from '@lapka/shared'
 // one decimal, a comma or a point — and a stored value left as it opened is
 // kept exactly (a pet-form weight of 4,25 kg can be dated, MW-09).
 export { parseWeight, parseWeightKeeping, weightPatch } from '@lapka/shared'
+import { parseWeightGrams, parseWeightKeeping as keepingKg, weightUnitFor, type ParsedWeight } from '@lapka/shared'
+
+export type WeightUnit = 'kg' | 'g'
+
+/**
+ * A weighing as typed in its unit (FB-2/05): grams for a newborn, kilograms
+ * otherwise. A stored weight sent back unchanged is taken as stored.
+ */
+export function readWeight(text: string, unit: WeightUnit, kept: number | null): ParsedWeight {
+  if (unit === 'kg') return keepingKg(text, kept)
+  if (kept !== null && text.trim() === String(Math.round(kept * 1000))) return { ok: true, value: kept }
+  return parseWeightGrams(text)
+}
+
+/** A stored weight as its field opens: under a kilogram in grams. */
+export function weightInput(t: Dictionary, kg: number): { unit: WeightUnit; text: string } {
+  return weightUnitFor(kg) === 'g' ? { unit: 'g', text: String(Math.round(kg * 1000)) } : { unit: 'kg', text: t.decimal(kg) }
+}
 
 /**
  * «−0,3 кг за 6 месяцев»: the latest weight against the earliest one of the

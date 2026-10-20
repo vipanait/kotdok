@@ -20,6 +20,8 @@ export const RATE_LIMITS = {
    * `analysis_create`: a person may pick photos again before sending.
    */
   upload_create: { limit: 30, windowSeconds: 60 * 60 },
+  /** Confirming a pet's photo downloads up to 5 MB to check it (PR #82 review). */
+  avatar_confirm: { limit: 30, windowSeconds: 60 * 60 },
   /** Asking for a free extra check notifies a human. */
   extra_check_request: { limit: 5, windowSeconds: 60 * 60 },
   /**

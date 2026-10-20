@@ -21,6 +21,9 @@ const pet: Pet = {
   chronic_conditions: [],
   medications: [],
   notes: null,
+  birth_date: null,
+  birth_date_approx: false,
+  adopted_on: null,
   created_at: '2026-09-01T00:00:00Z',
 }
 
@@ -31,5 +34,12 @@ describe('the pet profile the model reads', () => {
 
   it('leaves the weight out when the owner never gave one', () => {
     expect(describePetProfile({ ...pet, weight_kg: null }, 'dog')).not.toContain('weight')
+  })
+
+  it('reads the age from the birth date on the given day, and says when it is an estimate (FB-2/01)', () => {
+    const born = { ...pet, age_years: 9, birth_date: '2020-10-20' }
+    expect(describePetProfile(born, 'dog', '2026-10-20')).toContain('6 years old')
+    expect(describePetProfile({ ...born, birth_date_approx: true }, 'dog', '2026-10-20')).toContain('about 6 years old')
+    expect(describePetProfile({ ...pet, birth_date: '2026-04-20' }, 'dog', '2026-10-20')).toContain('0.5 years old')
   })
 })

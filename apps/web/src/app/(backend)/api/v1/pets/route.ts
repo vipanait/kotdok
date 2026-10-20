@@ -2,17 +2,18 @@ import { NextRequest } from 'next/server'
 import { PetCreateInputSchema } from '@lapka/contracts'
 import { createServiceClient } from '@/server/supabase/server'
 import { createPet, listPets } from '@/server/pets/pet-service'
-import { toPetContract } from '@/server/pets/pet-contract'
+import { presentPets } from '@/server/pets/pet-contract'
 import { apiError, apiSuccess } from '@/server/api/response'
 import { serviceFailureResponse } from '@/server/api/failure-response'
 import { isFutureDay } from '@/server/medical-record/weight-service'
 import { withApiAuth, type ApiContext } from '@/server/api/with-api-auth'
 
-export const GET = withApiAuth(async (_request, context: ApiContext) => {
-  const result = await listPets(createServiceClient(), context.account.userId)
+export const GET = withApiAuth(async (request, context: ApiContext) => {
+  const supabase = createServiceClient()
+  const result = await listPets(supabase, context.account.userId)
   if (!result.ok) return serviceFailureResponse(context.requestId, result.reason)
 
-  return apiSuccess(context.requestId, result.data.map(toPetContract))
+  return apiSuccess(context.requestId, await presentPets(request, supabase, result.data))
 })
 
 export const POST = withApiAuth(async (request: NextRequest, context: ApiContext) => {
@@ -28,13 +29,15 @@ export const POST = withApiAuth(async (request: NextRequest, context: ApiContext
   const parsed = PetCreateInputSchema.safeParse(body)
   // A weighing day ahead of every time zone is a wrong clock, and it would stay
   // the newest measurement for ever.
-  const day = parsed.success ? parsed.data.weight_measured_on : undefined
-  if (!parsed.success || (day !== undefined && isFutureDay(day))) {
+  // So is a birth or a home day ahead of every time zone (FB-2/01).
+  const days = parsed.success ? [parsed.data.weight_measured_on, parsed.data.birth_date, parsed.data.adopted_on] : []
+  if (!parsed.success || days.some((day) => day != null && isFutureDay(day))) {
     return apiError(context.requestId, 'bad_request', 'Body does not match the contract')
   }
 
   const result = await createPet(createServiceClient(), context.account.userId, parsed.data)
   if (!result.ok) return serviceFailureResponse(context.requestId, result.reason)
 
-  return apiSuccess(context.requestId, toPetContract(result.data), 201)
+  const [pet] = await presentPets(request, createServiceClient(), [result.data])
+  return apiSuccess(context.requestId, pet, 201)
 })

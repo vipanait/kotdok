@@ -4,7 +4,7 @@ import { en } from '@/i18n/en'
 import { ru } from '@/i18n/ru'
 import { chartLayout, weightsInPeriod as pointsInPeriod, type DatedWeight } from '@lapka/shared'
 import { ApiError } from '@lapka/shared'
-import { parseWeight, weightPatch, weightSaveFailure, weightTrend } from './weight'
+import { parseWeight, weightPatch, weightSaveFailure, weightTrend, readWeight, weightInput } from './weight'
 
 function d(measured_on: string, weight_kg: number): DatedWeight {
   return { id: `${measured_on}-${weight_kg}`, measured_on, weight_kg, source: 'record' }
@@ -118,5 +118,18 @@ describe('a weight save refused (MW-09 final review)', () => {
     expect(weightSaveFailure(new ApiError('conflict', 409, 'day'))).toBe('dayTaken')
     expect(weightSaveFailure(new ApiError('bad_request', 400, 'x'))).toBe('failed')
     expect(weightSaveFailure(new TypeError('Network request failed'))).toBe('failed')
+  })
+})
+
+describe('a weighing in grams (FB-2/05)', () => {
+  it('reads grams, and keeps a stored weight sent back as its grams', () => {
+    expect(readWeight('85', 'g', null)).toEqual({ ok: true, value: 0.085 })
+    expect(readWeight('85', 'g', 0.085)).toEqual({ ok: true, value: 0.085 })
+    expect(readWeight('4,2', 'kg', null)).toEqual({ ok: true, value: 4.2 })
+  })
+
+  it('opens a stored weight in its unit', () => {
+    expect(weightInput(ru, 0.085)).toEqual({ unit: 'g', text: '85' })
+    expect(weightInput(ru, 4.2)).toEqual({ unit: 'kg', text: '4,2' })
   })
 })

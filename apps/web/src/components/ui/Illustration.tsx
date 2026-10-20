@@ -7,7 +7,8 @@ import welcomePets from '@/assets/illustrations/welcome-pets.png'
 
 /**
  * The transparent illustrations shared with the mobile app
- * (docs/design/mobile-concept-v1/assets/transparent), resized for the web.
+ * (docs/design/cartoon-illustrations-v2, 20 October 2026), trimmed to a square
+ * canvas and resized for the web.
  *
  * - `pets-together` — the pair in a bed: first pet.
  * - `welcome-pets` — the standing pair: no checks yet, no pet to check, landing.

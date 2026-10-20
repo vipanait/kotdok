@@ -351,3 +351,15 @@ describe('MW-09 Task 2: an error the client does not know', () => {
     await expect(api.listPets()).rejects.toMatchObject({ code: 'internal_error', status: 502 })
   })
 })
+
+describe('what the client says it can read (FB-2 release)', () => {
+  it('names pet-dates on every request, so the server sends the dates to it and not to older builds', async () => {
+    const seen: Array<Record<string, string>> = []
+    const fetch: FetchLike = async (_url, init) => {
+      seen.push({ ...(init?.headers as Record<string, string>) })
+      return ok([]) as never
+    }
+    await createApiClient({ baseUrl: BASE, fetch }).listPets()
+    expect(seen[0]['X-Lapka-Features']).toBe('pet-dates,pet-avatar')
+  })
+})

@@ -1,6 +1,7 @@
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator'
 import { File } from 'expo-file-system'
 import { fetch } from 'expo/fetch'
+import { AVATAR_QUALITY, avatarTarget } from '@/features/pets/pet-avatar'
 import {
   PHOTO_QUALITY,
   resizeTarget,
@@ -19,6 +20,16 @@ export async function preparePhoto(photo: PickedPhoto): Promise<PreparedPhoto> {
   if (target) context.resize(target)
   const image = await context.renderAsync()
   const saved = await image.saveAsync({ format: SaveFormat.JPEG, compress: PHOTO_QUALITY })
+  return { uri: saved.uri, size: new File(saved.uri).size, contentType: 'image/jpeg' }
+}
+
+/** The pet's photo (FB-4): smaller than a check's, re-encoded the same way. */
+export async function prepareAvatar(photo: PickedPhoto): Promise<PreparedPhoto> {
+  const context = ImageManipulator.manipulate(photo.uri)
+  const target = avatarTarget(photo)
+  if (target) context.resize(target)
+  const image = await context.renderAsync()
+  const saved = await image.saveAsync({ format: SaveFormat.JPEG, compress: AVATAR_QUALITY })
   return { uri: saved.uri, size: new File(saved.uri).size, contentType: 'image/jpeg' }
 }
 

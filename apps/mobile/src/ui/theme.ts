@@ -49,7 +49,7 @@ export const urgency = {
 } as const
 
 /**
- * The «Сроки» card (due priority design, 20 October 2026). A missed date is a
+ * The «Напоминания» card (due priority design, 20 October 2026). A missed date is a
  * calm terracotta line and word — not the urgency scale, which stays the only
  * alarm: it says a day passed, not that the pet is in danger.
  */

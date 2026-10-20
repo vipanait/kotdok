@@ -40,6 +40,8 @@ export function Button({
   busy = false,
   disabled = false,
   style,
+  accessibilityLabel,
+  compact = false,
 }: {
   title: string
   onPress: () => void
@@ -47,6 +49,13 @@ export function Button({
   busy?: boolean
   disabled?: boolean
   style?: ViewStyle
+  /** When the title alone does not say which row it acts on. */
+  accessibilityLabel?: string
+  /**
+   * An action inside a row («Дали», «Отметить»): as wide as its word, 44 tall
+   * — still a whole fingertip — with the label's size of type.
+   */
+  compact?: boolean
 }) {
   const off = disabled || busy
 
@@ -54,11 +63,12 @@ export function Button({
     <Pressable
       accessibilityRole="button"
       accessibilityState={{ disabled: off, busy }}
-      accessibilityLabel={title}
+      accessibilityLabel={accessibilityLabel ?? title}
       disabled={off}
       onPress={onPress}
       style={({ pressed }) => [
         styles.base,
+        compact ? styles.compact : null,
         {
           backgroundColor: off ? colour.disabled : background[kind],
           borderColor: off ? 'transparent' : border[kind],
@@ -71,8 +81,9 @@ export function Button({
         <ActivityIndicator color={kind === 'primary' || kind === 'danger' ? '#fff' : colour.accent} />
       ) : (
         <Text
-          variant="action"
+          variant={compact ? 'label' : 'action'}
           tone={off ? 'faint' : label[kind]}
+          style={compact ? styles.compactText : undefined}
           maxFontSizeMultiplier={CONTROL_FONT_LIMIT}
           numberOfLines={2}
           center
@@ -173,6 +184,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  compact: { minHeight: TAP_TARGET, width: 'auto', paddingHorizontal: 16, paddingVertical: 8 },
+  compactText: { fontWeight: '700' },
   // Wide as well as tall: a one-word link such as «Анкета» / "Form" is
   // narrower than a fingertip.
   link: { minHeight: TAP_TARGET, minWidth: TAP_TARGET, justifyContent: 'center', paddingVertical: 10 },

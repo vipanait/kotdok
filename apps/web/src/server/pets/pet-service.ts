@@ -2,6 +2,7 @@ import 'server-only'
 
 import type { createServiceClient } from '@/server/supabase/server'
 import { loadAccount } from '@/server/auth/account-state'
+import { removeDeletedPetAvatar } from '@/server/pets/avatar-service'
 import { sanitizePet } from '@/shared/utils/pet-utils'
 import type { Pet } from '@/shared/types'
 import { WEIGHT_MAX_KG } from '@lapka/contracts'
@@ -14,7 +15,7 @@ type SupabaseService = ReturnType<typeof createServiceClient>
  * Pet operations return plain data and a reason, not a Supabase result object,
  * so an adapter never has to know how the storage layer reports failure.
  */
-export type PetFailure = 'not_found' | 'account_deleting' | 'storage_error'
+export type PetFailure = 'not_found' | 'account_deleting' | 'invalid' | 'storage_error'
 
 export type PetResult<T> = { ok: true; data: T } | { ok: false; reason: PetFailure; message?: string }
 
@@ -202,7 +203,7 @@ export async function updatePet(
   // turned "not yours" into a 500.
   const { data: current, error: readError } = await supabase
     .from('pets')
-    .select('species, vaccinated, vaccinated_form')
+    .select('species, vaccinated, vaccinated_form, age_years')
     .eq('id', petId)
     .eq('user_id', userId)
     .is('deleted_at', null)
@@ -216,6 +217,16 @@ export async function updatePet(
   // through sync_form_medications, never straight into the column.
   const pet = sentFields(sanitized, body)
   delete pet.medications
+
+  // FB-2/01: «примерно» goes with its date. The site's form and older apps
+  // know no dates and send the age: changed by hand, it drops the birth date,
+  // which would otherwise win; the same age sent back is no correction.
+  if ('birth_date' in body) {
+    pet.birth_date_approx = sanitized.birth_date_approx
+  } else if ('age_years' in body && sanitized.age_years !== current.age_years) {
+    pet.birth_date = null
+    pet.birth_date_approx = false
+  }
 
   // Before the form is saved: the record keeps the form's previous weight as
   // history, so it has to see it first. Once the weight is in the history,
@@ -262,6 +273,14 @@ export async function updatePet(
       .select()
       .maybeSingle()
 
+    // 23514: a check such as the dates' order failed against what is stored
+    // (FB-2 review) — the caller's mistake, not the storage's. The same code
+    // comes from `refuse_write_for_inactive_account`: an account being
+    // deleted is said as such (PR #82 review).
+    if (updateError?.code === '23514' && updateError.message.includes('not accepting writes')) {
+      return { ok: false, reason: 'account_deleting' }
+    }
+    if (updateError?.code === '23514') return { ok: false, reason: 'invalid', message: updateError.message }
     if (updateError) return { ok: false, reason: 'storage_error', message: updateError.message }
     if (!updated) return { ok: false, reason: 'not_found' }
   }
@@ -309,6 +328,13 @@ export async function softDeletePetAndChecks(
     .is('deleted_at', null)
 
   if (checks.error) return { ok: false, reason: 'storage_error', message: checks.error.message }
+
+  // The photo goes with the pet (FB-4); the row keeps no path to it.
+  const avatarPath = (deletedPet.data as Pet).avatar_path ?? null
+  if (avatarPath) {
+    await supabase.from('pets').update({ avatar_path: null }).eq('id', petId)
+    await removeDeletedPetAvatar(supabase, avatarPath)
+  }
 
   return { ok: true, data: deletedPet.data as Pet }
 }

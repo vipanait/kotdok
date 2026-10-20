@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server'
 import { PetUpdateInputSchema, UuidSchema } from '@lapka/contracts'
 import { createServiceClient } from '@/server/supabase/server'
 import { getPet, softDeletePetAndChecks, updatePet } from '@/server/pets/pet-service'
-import { toPetContract } from '@/server/pets/pet-contract'
+import { presentPets } from '@/server/pets/pet-contract'
 import { apiError, apiNoContent, apiSuccess } from '@/server/api/response'
 import { serviceFailureResponse } from '@/server/api/failure-response'
 import { isFutureDay } from '@/server/medical-record/weight-service'
@@ -19,14 +19,15 @@ async function readPetId(params: Params): Promise<string | null> {
   return UuidSchema.safeParse(id).success ? id : null
 }
 
-export const GET = withApiAuth(async (_request, context: ApiContext, params: Params) => {
+export const GET = withApiAuth(async (request, context: ApiContext, params: Params) => {
   const id = await readPetId(params)
   if (!id) return apiError(context.requestId, 'not_found', 'No such resource')
 
   const result = await getPet(createServiceClient(), context.account.userId, id)
   if (!result.ok) return serviceFailureResponse(context.requestId, result.reason)
 
-  return apiSuccess(context.requestId, toPetContract(result.data))
+  const [pet] = await presentPets(request, createServiceClient(), [result.data])
+  return apiSuccess(context.requestId, pet)
 })
 
 export const PATCH = withApiAuth(async (request: NextRequest, context: ApiContext, params: Params) => {
@@ -43,15 +44,17 @@ export const PATCH = withApiAuth(async (request: NextRequest, context: ApiContex
   const parsed = PetUpdateInputSchema.safeParse(body)
   // A weighing day ahead of every time zone is a wrong clock, and it would stay
   // the newest measurement for ever.
-  const day = parsed.success ? parsed.data.weight_measured_on : undefined
-  if (!parsed.success || (day !== undefined && isFutureDay(day))) {
+  // So is a birth or a home day ahead of every time zone (FB-2/01).
+  const days = parsed.success ? [parsed.data.weight_measured_on, parsed.data.birth_date, parsed.data.adopted_on] : []
+  if (!parsed.success || days.some((day) => day != null && isFutureDay(day))) {
     return apiError(context.requestId, 'bad_request', 'Body does not match the contract')
   }
 
   const result = await updatePet(createServiceClient(), context.account.userId, id, parsed.data)
   if (!result.ok) return serviceFailureResponse(context.requestId, result.reason)
 
-  return apiSuccess(context.requestId, toPetContract(result.data))
+  const [pet] = await presentPets(request, createServiceClient(), [result.data])
+  return apiSuccess(context.requestId, pet)
 })
 
 export const DELETE = withApiAuth(async (_request, context: ApiContext, params: Params) => {

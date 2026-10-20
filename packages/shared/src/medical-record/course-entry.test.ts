@@ -10,7 +10,7 @@ import { splitCourses } from './record-overview'
 const TODAY = '2026-09-26'
 
 function course(overrides: Partial<Medication>): Medication {
-  return { id: 'm', name: 'Лечебный корм', dosage: null, started_on: '2026-08-02', ended_on: null, ongoing: false, source: 'record', ...overrides }
+  return { id: 'm', name: 'Лечебный корм', dosage: null, started_on: '2026-08-02', ended_on: null, ongoing: false, source: 'record', reminder_times: [], ...overrides }
 }
 
 describe('which course can change', () => {

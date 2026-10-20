@@ -10,6 +10,7 @@ import { useText } from '@/i18n'
 import { useReminders } from '@/features/medical-record/reminders/ReminderProvider'
 import { dueLine, dueStatus, marksFromRow } from '@/features/medical-record/due'
 import { heldNote } from '@/features/medical-record/visits'
+import { AddToCalendar } from '@/features/medical-record/AddToCalendar'
 import { Button, LinkButton } from '@/ui/Button'
 import { Banner, Card, SettingRow } from '@/ui/Card'
 import { ConfirmDialog } from '@/ui/Dialog'
@@ -31,6 +32,7 @@ export default function VisitView() {
   const reminders = useReminders()
   const words = t.medicalRecord.visits
   const [visit, setVisit] = useState<HealthEvent | null>(null)
+  const [petName, setPetName] = useState('')
   const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
   const [asking, setAsking] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -45,6 +47,7 @@ export default function VisitView() {
         return
       }
       setVisit(found)
+      setPetName(overview.pet.name)
     } catch (cause) {
       setError(describeFailure(t, cause, t.medicalRecord.loadEventFailed))
     }
@@ -130,6 +133,8 @@ export default function VisitView() {
               </Text>
             ) : null}
           </Card>
+          {/* A day already past is not put in a calendar (PR #82 review). */}
+          {planned && visit.date >= localToday() ? <AddToCalendar petName={petName} event={visit} /> : null}
 
           {note ? (
             <Text tone="muted" style={styles.gap}>

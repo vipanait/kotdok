@@ -1,16 +1,7 @@
 import { useState } from 'react'
 import { Platform, Pressable, StyleSheet, View, type ViewStyle } from 'react-native'
 import { useText } from '@/i18n'
-import {
-  dayInput,
-  localToday,
-  monthGrid,
-  monthOf,
-  parseDayText,
-  shiftMonth,
-  typedDay,
-  type CalendarMonth,
-} from '@/lib/calendar-day'
+import { dayInput, localToday, monthGrid, monthOf, parseDayText, shiftMonth, typedDay, type CalendarMonth, dateFieldText } from '@/lib/calendar-day'
 import { IconButton, LinkButton } from './Button'
 import { Field, type FieldHandle } from './Field'
 import { Sheet } from './Sheet'
@@ -62,7 +53,8 @@ export function DateField({
         // `numbers-and-punctuation` is the letter keyboard, digits a layer
         // away, and «15112027» typed there was refused. So Android gets the
         // digit pad and the dots are put in for it.
-        onChangeText={DIGITS_ONLY ? (text) => onChangeText(typedDay(text)) : onChangeText}
+        // iOS keeps the dot key, but «01022024» typed there gets its dots too.
+        onChangeText={(text) => onChangeText(DIGITS_ONLY ? typedDay(text) : dateFieldText(text))}
         placeholder={placeholder}
         keyboardType={DIGITS_ONLY ? 'numeric' : 'numbers-and-punctuation'}
         error={error}

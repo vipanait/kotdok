@@ -20,7 +20,8 @@
       "appleTeamId": "KAY8S7KK98",
       "usesAppleSignIn": true,
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "CFBundleLocalizations": ["ru", "en"]
       }
     },
     "android": {
@@ -45,8 +46,8 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Lapka shows the photos you pick to the symptom check. They are deleted right after the analysis.",
-          "cameraPermission": "Lapka uses the camera to photograph your pet's symptom for the check. Photos are deleted right after the analysis.",
+          "photosPermission": "Lapka uses the photos you pick for your pet's profile picture and for a symptom check. Symptom check photos are deleted right after the analysis.",
+          "cameraPermission": "Lapka uses the camera to take your pet's profile picture or a photo of a symptom for a check. Symptom check photos are deleted right after the analysis.",
           "microphonePermission": false
         }
       ],
@@ -59,7 +60,8 @@
           }
         }
       ],
-      "./plugins/android-orientation"
+      "./plugins/android-orientation",
+      "expo-image"
     ],
     "extra": {
       "router": {},

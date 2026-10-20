@@ -1,6 +1,7 @@
-import { UuidSchema, type DueItem } from '@lapka/contracts'
+import { UuidSchema, type DueItem, type MedicationDose } from '@lapka/contracts'
 import type { Dictionary } from '@/i18n'
-import { planReminders, type PlannedReminder, type ReminderSettings } from './schedule'
+import { REMINDER_LIMIT, planReminders, reminderMoment, type PlannedReminder, type ReminderSettings } from './schedule'
+import { planDoseReminders, planDoseRenewal, type DoseCourse } from './doses'
 
 /** The slice of expo-notifications this needs, so tests need no native module. */
 export type Notifier = {
@@ -13,7 +14,13 @@ export type Notifier = {
 
 export type ReminderAccount = {
   userId: string
-  load(): Promise<{ due: DueItem[]; pets: { id: string; name: string }[] }>
+  load(): Promise<{
+    due: DueItem[]
+    pets: { id: string; name: string }[]
+    /** Courses with times, and the doses given in the week ahead (FB-5); none from an older caller. */
+    courses?: DoseCourse[]
+    doses?: MedicationDose[]
+  }>
 }
 
 /**
@@ -45,9 +52,20 @@ export function createReminderSync(deps: {
       if (mine === generation) await deps.notifier.cancelAll()
       return
     }
-    const { due, pets } = await account.load()
+    const { due, pets, courses = [], doses = [] } = await account.load()
     if (mine !== generation) return
-    const plan = planReminders(deps.t(), due, pets, settings, deps.now?.() ?? new Date())
+    const now = deps.now?.() ?? new Date()
+    // Both by when they fire, within the phone's limit: a due date tomorrow
+    // is not pushed out by a dose next week. At the same moment a dose comes
+    // first — a medicine missed matters more than a reminder of a date.
+    const sorted = [...planDoseReminders(deps.t(), courses, doses, now), ...planReminders(deps.t(), due, pets, settings, now, REMINDER_LIMIT)]
+      .map((reminder, order) => ({ reminder, order, at: reminderMoment(reminder.day, reminder.hour, reminder.minute).getTime() }))
+      .sort((a, b) => a.at - b.at || a.order - b.order)
+      .map(({ reminder }) => reminder)
+    // One place kept for «откройте Лапку», when the doses run on past what the phone holds.
+    const kept = sorted.slice(0, REMINDER_LIMIT - 1)
+    const renewal = planDoseRenewal(deps.t(), courses, doses, now, kept)
+    const plan = renewal ? [...kept, renewal] : sorted.slice(0, REMINDER_LIMIT)
     await deps.notifier.cancelAll()
     for (const reminder of plan) {
       if (mine !== generation) return

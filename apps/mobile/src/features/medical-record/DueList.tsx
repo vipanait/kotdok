@@ -7,7 +7,7 @@ import { dueGroups, marksFromRow, type Due } from './due'
 
 /**
  * Due dates in groups: overdue first, then «Ближайшее», then «Позже»
- * (`dueGroups`). Shared by the record's «Сроки» card and «Все сроки», so the
+ * (`dueGroups`). Shared by the record's «Напоминания» card and «Все напоминания», so the
  * two cannot drift. It draws what it is given: the caller loads, cuts the
  * list to its limit and owns the routes.
  */
@@ -36,15 +36,18 @@ export function DueList({
             </Text>
           )}
           <View style={group.tone === 'overdue' ? styles.overdueRows : styles.rows}>
-            {group.rows.map(({ due, status }) => (
-              <DueRow
-                key={due.itemId}
-                due={due}
-                status={status}
-                markable={marksFromRow(due.date, today)}
-                onOpen={() => onOpen(due)}
-                onDone={() => onDone(due)}
-              />
+            {/* A thin line between rows, as between doses in «Сегодня» (design 20 October 2026). */}
+            {group.rows.map(({ due, status }, row) => (
+              <View key={due.itemId}>
+                {row > 0 ? <View style={styles.divider} /> : null}
+                <DueRow
+                  due={due}
+                  status={status}
+                  markable={marksFromRow(due.date, today)}
+                  onOpen={() => onOpen(due)}
+                  onDone={() => onDone(due)}
+                />
+              </View>
             ))}
           </View>
         </View>
@@ -56,6 +59,7 @@ export function DueList({
 const styles = StyleSheet.create({
   group: { marginTop: 23 },
   heading: { color: colour.faint, fontWeight: '700', letterSpacing: 1, marginBottom: 12 },
-  overdueRows: { gap: 20 },
-  rows: { gap: 16 },
+  overdueRows: {},
+  rows: {},
+  divider: { height: StyleSheet.hairlineWidth, backgroundColor: colour.line, marginVertical: 10 },
 })

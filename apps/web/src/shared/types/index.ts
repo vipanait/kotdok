@@ -41,11 +41,16 @@ export interface Pet {
   chronic_conditions: string[]
   medications: string[]
   notes: string | null
+  birth_date: string | null
+  birth_date_approx: boolean
+  adopted_on: string | null
+  /** The pet's photo in `pet-avatars` (FB-4); never sent as is — a signed link is. */
+  avatar_path?: string | null
   created_at: string
 }
 
 /** What the check form and the result aside show about a pet. */
-export type CheckPet = Pick<Pet, 'id' | 'name' | 'species' | 'breed' | 'age_years' | 'chronic_conditions'>
+export type CheckPet = Pick<Pet, 'id' | 'name' | 'species' | 'breed' | 'age_years' | 'birth_date' | 'chronic_conditions'>
 
 export interface PetLatestCheck {
   urgency: string

@@ -94,7 +94,7 @@ export function headFacts(dict: Dictionary, locale: Locale, overview: HealthOver
   const breed = pet.breed?.trim()
   if (breed) parts.push(breed)
   // Zero included, as on the phone (shared `headAge`, MW-09).
-  const age = headAge(pet.age_years)
+  const age = headAge(pet, today)
   if (age !== null) parts.push(formatCount(dict.pets.age, age, locale))
   if (pet.neutered === true) parts.push(words.neutered[pet.sex ?? 'unknown'])
 
@@ -383,9 +383,10 @@ export function importantFacts(dict: Dictionary, overview: HealthOverview, today
           .map((course) => (course.ongoing ? `${course.name} · ${words.ongoing}` : course.name))
       : pet.medications
   return [
-    { label: words.allergies, value: pet.allergies.join(', ') },
-    { label: words.chronic, value: pet.chronic_conditions.join(', ') },
-    { label: words.takingNow, value: taking.join(', ') },
+    // «; » between items: an allergy may have a comma of its own (FB-1/06).
+    { label: words.allergies, value: pet.allergies.join('; ') },
+    { label: words.chronic, value: pet.chronic_conditions.join('; ') },
+    { label: words.takingNow, value: taking.join('; ') },
   ].filter((fact) => fact.value.trim() !== '')
 }
 
