@@ -42,6 +42,12 @@ export type PetForm = {
    * later today, the estimate would move a few weeks on every save.
    */
   storedBirthDate: string
+  /**
+   * The age a pet saved before there were dates has (`age_years`, no birth
+   * date): sent back as it is while the years and months still say it, so
+   * opening and saving the form never invents a birth date (PR #82 review).
+   */
+  storedAge: number | null
   /** The first day together, ДД.ММ.ГГГГ; empty when not given. */
   adoptedOn: string
   weightKg: string
@@ -70,6 +76,7 @@ export const emptyPetForm = (species: Species = 'cat'): PetForm => ({
   approxYears: '',
   approxMonths: '',
   storedBirthDate: '',
+  storedAge: null,
   adoptedOn: '',
   weightKg: '',
   weightUnit: 'kg',
@@ -104,6 +111,7 @@ export function petToForm(pet: Pet, today: string): PetForm {
     approxYears: exact || months === null ? '' : String(Math.floor(months / 12)),
     approxMonths: exact || months === null ? '' : String(months % 12),
     storedBirthDate: !exact && pet.birth_date ? pet.birth_date : '',
+    storedAge: pet.birth_date === null ? pet.age_years : null,
     adoptedOn: pet.adopted_on ? dayInput(pet.adopted_on) : '',
     weightUnit: weightUnitFor(pet.weight_kg),
     weightKg:
@@ -217,7 +225,7 @@ export function formToInput(t: Dictionary, form: PetForm, today: string): FormRe
       name,
       breed: form.breed.trim() || null,
       // Still sent: the site and older apps read the age, not the date.
-      age_years: birth.date ? petAgeYears({ birth_date: birth.date, age_years: null }, today) : null,
+      age_years: birth.date ? petAgeYears({ birth_date: birth.date, age_years: null }, today) : (birth.age ?? null),
       birth_date: birth.date,
       birth_date_approx: birth.date !== null && form.birthMode === 'approx',
       adopted_on: adoptedOn,
@@ -238,7 +246,11 @@ export function formToInput(t: Dictionary, form: PetForm, today: string): FormRe
 }
 
 /** The birth date the form describes, or the field to complain about. */
-function readBirth(t: Dictionary, form: PetForm, today: string): ({ ok: true; date: string | null }) | ({ ok: false } & FieldError) {
+function readBirth(
+  t: Dictionary,
+  form: PetForm,
+  today: string,
+): ({ ok: true; date: string | null; age?: number | null }) | ({ ok: false } & FieldError) {
   if (form.birthMode === 'exact') {
     if (form.birthDate.trim() === '') return { ok: true, date: null }
     const date = parseDayText(form.birthDate)
@@ -262,7 +274,28 @@ function readBirth(t: Dictionary, form: PetForm, today: string): ({ ok: true; da
   if (form.storedBirthDate && monthsBetween(form.storedBirthDate, today) === total) {
     return { ok: true, date: form.storedBirthDate }
   }
+  // An age from before there were dates, untouched: still an age, not a day.
+  if (!form.storedBirthDate && form.storedAge !== null && Math.round(form.storedAge * 12) === total) {
+    return { ok: true, date: null, age: form.storedAge }
+  }
   return { ok: true, date: approxBirthDate(years.value ?? 0, months.value ?? 0, today) }
+}
+
+/**
+ * «Знаю дату» → «Примерно»: a typed date becomes its years and months, so
+ * saving after the switch keeps the age instead of clearing it (PR #82
+ * review). The other way leaves the date empty — an estimate is not a day.
+ */
+export function switchBirthMode(form: PetForm, mode: PetForm['birthMode'], today: string): Partial<PetForm> {
+  if (mode === form.birthMode) return {}
+  if (mode === 'approx' && form.approxYears.trim() === '' && form.approxMonths.trim() === '') {
+    const date = parseDayText(form.birthDate)
+    if (date !== null && date <= today) {
+      const months = monthsBetween(date, today)
+      return { birthMode: mode, approxYears: String(Math.floor(months / 12)), approxMonths: String(months % 12) }
+    }
+  }
+  return { birthMode: mode }
 }
 
 /** Past the age the contract keeps (`age_years` ≤ AGE_MAX): a typo, not a pet. */

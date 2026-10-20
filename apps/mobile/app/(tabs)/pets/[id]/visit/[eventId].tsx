@@ -133,7 +133,8 @@ export default function VisitView() {
               </Text>
             ) : null}
           </Card>
-          {planned ? <AddToCalendar petName={petName} event={visit} /> : null}
+          {/* A day already past is not put in a calendar (PR #82 review). */}
+          {planned && visit.date >= localToday() ? <AddToCalendar petName={petName} event={visit} /> : null}
 
           {note ? (
             <Text tone="muted" style={styles.gap}>

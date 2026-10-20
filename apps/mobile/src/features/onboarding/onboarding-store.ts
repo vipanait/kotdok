@@ -49,6 +49,8 @@ export function createOnboardingStore(storage: SecureStorage) {
     choose: async (userId: string, goal: OnboardingGoal) => write(userId, { ...(await read(userId)), goal }),
     /** A pet was saved, or the path was left: nothing to resume. */
     finish: async (userId: string) => write(userId, { ...(await read(userId)), goal: null }),
+    /** At sign-out: nothing of an account stays on the phone after it. */
+    forget: async (userId: string) => storage.deleteItemAsync(key(userId)),
     empty: EMPTY,
   }
 }

@@ -76,10 +76,11 @@ export default function MedicationView() {
       // only, which the screen then says in place of «Изменить».
       if (ended.kind === 'ended') setCourse(ended.course)
       else void load()
-      reminders.refresh()
     } catch (cause) {
       setError(describeFailure(t, cause, words.saveFailed))
     } finally {
+      // Also when only the times went: their reminders go with them.
+      reminders.refresh()
       setBusy(false)
     }
   }

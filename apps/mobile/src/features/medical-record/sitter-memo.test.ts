@@ -121,6 +121,15 @@ describe('the memo for whoever minds the pet (FB-3/02)', () => {
     )
   })
 
+  it('gives a course’s times, and a course on its last day (PR #82 review)', () => {
+    const memo = sitterMemo(
+      ru,
+      { ...overview({}), medications: [course({ reminder_times: ['08:00', '20:00'], ongoing: false, ended_on: TODAY })] } as HealthOverview,
+      TODAY,
+    )
+    expect(memo).toContain('— Нефростоп, 1 таблетка утром (08:00, 20:00)')
+  })
+
   it('falls back to the form’s medicines when the record has no courses, as «Важно знать» does (FB-3 review)', () => {
     const memo = sitterMemo(ru, overview({ medications: [] }), TODAY)
     expect(memo).toContain('Лекарства сейчас:\n— Нефростоп')

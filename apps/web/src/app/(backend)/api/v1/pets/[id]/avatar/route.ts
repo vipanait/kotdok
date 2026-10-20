@@ -66,7 +66,11 @@ export const PUT = withApiAuth(async (request: NextRequest, context: ApiContext,
   const parsed = AvatarConfirmSchema.safeParse(await readBody(request))
   if (!parsed.success) return apiError(context.requestId, 'bad_request', 'Body does not match the contract')
 
-  const result = await confirmAvatar(createServiceClient(), context.account.userId, petId, parsed.data.path)
+  const supabase = createServiceClient()
+  const rate = await consumeRateLimit(supabase, 'avatar_confirm', context.account.userId)
+  if (!rate.allowed) return apiError(context.requestId, 'rate_limited', 'Too many uploads, try again later.')
+
+  const result = await confirmAvatar(supabase, context.account.userId, petId, parsed.data.path)
   if (!result.ok) return failure(context.requestId, result.reason)
   return answerWithPet(request, context, petId)
 })

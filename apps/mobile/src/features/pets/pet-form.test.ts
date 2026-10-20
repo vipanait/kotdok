@@ -12,6 +12,7 @@ import {
   petFormChanged,
   petToForm,
   remainingError,
+  switchBirthMode,
   switchWeightUnit,
   type PetForm,
 } from './pet-form'
@@ -132,9 +133,10 @@ describe('pet form', () => {
         species: 'dog',
         name: 'Бобик',
         breed: 'Лабрадор',
+        // An age from before there were dates stays an age (PR #82 review).
         age_years: 3,
-        birth_date: '2023-10-20',
-        birth_date_approx: true,
+        birth_date: null,
+        birth_date_approx: false,
         weight_kg: 24.5,
         sex: 'male',
         neutered: true,
@@ -219,6 +221,16 @@ describe('the birth date across saves (FB-2 review)', () => {
     expect(formToInput(ru, form, later)).toMatchObject({ ok: true, value: { birth_date: '2021-05-19' } })
   })
 
+  it('saves a pet from before there were dates without inventing a birth date (PR #82 review)', () => {
+    for (const age of [0, 3]) {
+      const form = { ...petToForm(sample({ birth_date: null, birth_date_approx: false, age_years: age }), TODAY), weightKg: '4.5' }
+      expect(formToInput(ru, form, TODAY)).toMatchObject({ ok: true, value: { birth_date: null, age_years: age } })
+    }
+    // Changed by the owner: from then on an estimate on today's calendar.
+    const changed = { ...petToForm(sample({ birth_date: null, birth_date_approx: false, age_years: 3 }), TODAY), approxMonths: '6' }
+    expect(formToInput(ru, changed, TODAY)).toMatchObject({ ok: true, value: { birth_date: '2023-04-20', birth_date_approx: true } })
+  })
+
   it('refuses a birth date that makes the pet older than the form allows, at its own field', () => {
     expect(formToInput(ru, filled({ birthMode: 'exact', birthDate: '01.01.1960' }), TODAY)).toMatchObject({ ok: false, field: 'birthDate' })
     expect(formToInput(ru, filled({ birthMode: 'approx', approxYears: '50', approxMonths: '6' }), TODAY)).toMatchObject({
@@ -278,3 +290,15 @@ function sample(overrides: Partial<Pet> = {}): Pet {
     ...overrides,
   }
 }
+
+describe('switching how the birth is given (PR #82 review)', () => {
+  it('turns a typed date into years and months, and leaves the date empty the other way', () => {
+    expect(switchBirthMode(filled({ birthMode: 'exact', birthDate: '20.04.2022' }), 'approx', TODAY)).toEqual({
+      birthMode: 'approx',
+      approxYears: '4',
+      approxMonths: '6',
+    })
+    expect(switchBirthMode(filled({ birthMode: 'approx', approxYears: '3' }), 'exact', TODAY)).toEqual({ birthMode: 'exact' })
+    expect(switchBirthMode(filled({ birthMode: 'exact', birthDate: '20.04.2022', approxYears: '1' }), 'approx', TODAY)).toEqual({ birthMode: 'approx' })
+  })
+})

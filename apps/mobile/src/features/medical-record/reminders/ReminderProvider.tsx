@@ -6,6 +6,7 @@ import type { DueItem } from '@lapka/contracts'
 import { localToday } from '@/lib/calendar-day'
 import { withFreshSession } from '@/lib/api'
 import { deviceStorage } from '@/lib/supabase'
+import { ApiError } from '@lapka/shared'
 import { useText } from '@/i18n'
 import { useAuth } from '@/providers/AuthProvider'
 import { consentSettled } from '@/features/consent/consent-gate'
@@ -20,6 +21,9 @@ import { reminderAbout } from './schedule'
 import { createReminderSync, openTarget } from './sync'
 
 export const reminderStore = createReminderStore(deviceStorage)
+
+/** At most this often on a return to the app; the week ahead is planned, so a few minutes change nothing. */
+const ACTIVE_REFRESH_AFTER_MS = 10 * 60 * 1000
 
 type Reminders = {
   /** After any change to plans or settings: reschedules this phone. */
@@ -64,8 +68,11 @@ export function ReminderProvider({ children }: { children: ReactNode }) {
     [],
   )
 
+  /** When the phone's reminders were last rebuilt: a return to the app soon after does not ask again. */
+  const lastRun = useRef(0)
   const refresh = useCallback(() => {
     if (!userId || !ready) return
+    lastRun.current = Date.now()
     void sync
       .run({
         userId,
@@ -82,10 +89,13 @@ export function ReminderProvider({ children }: { children: ReactNode }) {
                   if (timed.length === 0) return { courses: [], doses: [] }
                   const doses = await api.listDoses(pet.id, today, addDays(today, 7))
                   return { courses: timed.map((course) => ({ pet: { id: pet.id, name: pet.name }, course })), doses }
-                } catch {
-                  // One pet that fails to load must not keep every other
-                  // reminder, due dates included, from being rebuilt.
-                  return { courses: [], doses: [] }
+                } catch (cause) {
+                  // A pet deleted meanwhile simply has nothing to remind of.
+                  // Any other failure stops the run, and the phone keeps the
+                  // reminders it has: rebuilding without this pet's medicines
+                  // would drop them for the week with no word (PR #82 review).
+                  if (cause instanceof ApiError && cause.code === 'not_found') return { courses: [], doses: [] }
+                  throw cause
                 }
               }),
             )
@@ -111,8 +121,12 @@ export function ReminderProvider({ children }: { children: ReactNode }) {
       return
     }
     refresh()
+    // Coming back to the app rebuilds them, but not more than once in a while:
+    // a permission dialog, Control Center or a return from Share is no news,
+    // and each rebuild reads every pet's record (PR #82 review). A change
+    // made in the app rebuilds at once, through `refresh` itself.
     const subscription = AppState.addEventListener('change', (state) => {
-      if (state === 'active') refresh()
+      if (state === 'active' && Date.now() - lastRun.current >= ACTIVE_REFRESH_AFTER_MS) refresh()
     })
     return () => subscription.remove()
   }, [loading, userId, refresh, sync])

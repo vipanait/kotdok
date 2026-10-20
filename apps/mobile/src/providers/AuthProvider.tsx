@@ -25,6 +25,7 @@ import {
 } from '@/lib/provider-sign-in'
 import { createAppleSignIn, usesNativeAppleSignIn } from '@/lib/apple-sign-in'
 import { forgetCache } from '@/lib/query-client'
+import { onboardingStore } from '@/features/onboarding/store'
 
 /**
  * The provider sign-in with its real browser and real client.
@@ -150,7 +151,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    */
   const endSession = useCallback(
     async (reason: string | null) => {
+      // Whose session it was, before it goes: its onboarding state goes with it.
+      const leaving = (await supabase.auth.getSession().catch(() => null))?.data.session?.user.id ?? null
       await supabase.auth.signOut().catch(() => {})
+      if (leaving) await onboardingStore.forget(leaving).catch(() => {})
       await sessionStorage.clearAll()
       // Whose consent was confirmed here: only the user id, but it belongs to the session.
       await consentMemory.forget()

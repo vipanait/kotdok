@@ -34,7 +34,7 @@ function wallClock(day: string, slot: string): Date {
  * ending today as finished — right for «Принимает сейчас», not for the doses
  * of that day.) «Завершить курс» takes the times off, so it stops these.
  */
-function givenOn(course: Pick<Medication, 'started_on' | 'ended_on'>, day: string): boolean {
+export function givenOn(course: Pick<Medication, 'started_on' | 'ended_on'>, day: string): boolean {
   return (course.started_on === null || course.started_on <= day) && (course.ended_on === null || course.ended_on >= day)
 }
 

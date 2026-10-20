@@ -30,5 +30,7 @@ describe('the first entry’s choice (onboarding)', () => {
     expect((await store.read('user-a')).goal).toBeNull()
     await store.skip('user-b')
     expect(await store.read('user-b')).toEqual({ skipped: true, goal: null })
+    await store.forget('user-b')
+    expect(await store.read('user-b')).toEqual({ skipped: false, goal: null })
   })
 })

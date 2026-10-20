@@ -292,10 +292,6 @@ components:
         - chronic_conditions
         - medications
         - notes
-        - birth_date
-        - birth_date_approx
-        - adopted_on
-        - avatar_url
         - created_at
       additionalProperties: false
     PetCreateInput:
@@ -1285,6 +1281,107 @@ components:
         - ongoing
         - source
         - reminder_times
+      additionalProperties: false
+    MedicationTimes:
+      type: object
+      properties:
+        reminder_times:
+          maxItems: 4
+          type: array
+          items:
+            type: string
+            pattern: ^([01]\d|2[0-3]):[0-5]\d$
+      required:
+        - reminder_times
+      additionalProperties: false
+    MedicationDoseInput:
+      type: object
+      properties:
+        taken_on:
+          type: string
+          format: date
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+        slot:
+          type: string
+          pattern: ^([01]\d|2[0-3]):[0-5]\d$
+      required:
+        - taken_on
+        - slot
+      additionalProperties: false
+    MedicationDose:
+      type: object
+      properties:
+        medication_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        taken_on:
+          type: string
+          format: date
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+        slot:
+          type: string
+      required:
+        - medication_id
+        - taken_on
+        - slot
+      additionalProperties: false
+    AvatarGrantRequest:
+      type: object
+      properties:
+        content_type:
+          type: string
+          enum:
+            - image/jpeg
+            - image/png
+            - image/webp
+        size_bytes:
+          type: integer
+          minimum: 1
+          maximum: 5242880
+      required:
+        - content_type
+        - size_bytes
+      additionalProperties: false
+    AvatarGrant:
+      type: object
+      properties:
+        path:
+          type: string
+          minLength: 1
+          maxLength: 200
+        url:
+          type: string
+          format: uri
+        method:
+          type: string
+          const: PUT
+        headers:
+          type: object
+          propertyNames:
+            type: string
+          additionalProperties:
+            type: string
+        expires_at:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+      required:
+        - path
+        - url
+        - method
+        - headers
+        - expires_at
+      additionalProperties: false
+    AvatarConfirm:
+      type: object
+      properties:
+        path:
+          type: string
+          minLength: 1
+          maxLength: 200
+      required:
+        - path
       additionalProperties: false
     MedicationsInput:
       type: object
@@ -2282,6 +2379,17 @@ paths:
                   message: Unexpected server error
                   request_id: 01J000000000000000000000
   /pets:
+    parameters:
+      - &a1
+        name: X-Lapka-Features
+        in: header
+        required: false
+        description: "Comma-separated features the client reads. `pet-dates`: the pet's birth_date,
+          birth_date_approx and adopted_on. `pet-avatar`: the pet's avatar_url, a link signed for an
+          hour. Without them those fields are left out."
+        schema:
+          type: string
+          example: pet-dates,pet-avatar
     get:
       summary: Own pets
       responses:
@@ -2413,13 +2521,14 @@ paths:
                   request_id: 01J000000000000000000000
   /pets/{id}:
     parameters:
-      - &a1
+      - &a2
         name: id
         in: path
         required: true
-        schema: &a4
+        schema: &a6
           type: string
           format: uuid
+      - *a1
     get:
       summary: One own pet
       responses:
@@ -2633,13 +2742,14 @@ paths:
                   request_id: 01J000000000000000000000
   /pets/{id}/health:
     parameters:
+      - *a2
       - *a1
     get:
       summary: "The pet's medical record: the pet form and the sections that accept records"
       description: "pet.medications is the pet form's list as the courses have it: the courses current on
         `today` (the owner's day), when the pet has any courses."
       parameters:
-        - &a3
+        - &a4
           name: today
           in: query
           required: false
@@ -2715,6 +2825,7 @@ paths:
                   request_id: 01J000000000000000000000
   /pets/{id}/health/summary:
     parameters:
+      - *a2
       - *a1
     get:
       summary: Everything to show a vet, the source of the «Для врача» screen and PDF
@@ -2797,7 +2908,7 @@ paths:
                   request_id: 01J000000000000000000000
   /pets/{id}/health/weights:
     parameters:
-      - *a1
+      - *a2
     post:
       summary: Record a weighing; a second one for the same day replaces that day's value
       description: "The pet form's weight becomes the latest measurement. A day in the future is refused.
@@ -2807,7 +2918,7 @@ paths:
         made (a retry after midnight adds nothing); with other data, 409 conflict with
         details.reason idempotency_key_reused."
       parameters:
-        - &a2
+        - &a3
           name: Idempotency-Key
           in: header
           required: false
@@ -2909,7 +3020,7 @@ paths:
                   request_id: 01J000000000000000000000
   /pets/{id}/health/weights/{weight_id}:
     parameters:
-      - *a1
+      - *a2
       - name: weight_id
         in: path
         required: true
@@ -2922,7 +3033,7 @@ paths:
         idempotency_key_reused — the Idempotency-Key was used for other data. The same key with the
         same data returns the measurement."
       parameters:
-        - *a2
+        - *a3
       requestBody:
         required: true
         content:
@@ -3230,13 +3341,13 @@ paths:
                   request_id: 01J000000000000000000000
   /pets/{id}/health/events:
     parameters:
-      - *a1
+      - *a2
     post:
       summary: Record vaccinations done or planned; a done record also plans each item's next date
       description: A done record cannot be in the future; a plan and a next date cannot be in the past.
         The same Idempotency-Key with the same data returns the first record; with other data, 409.
       parameters:
-        - *a2
+        - *a3
       requestBody:
         required: true
         content:
@@ -3331,7 +3442,7 @@ paths:
                   request_id: 01J000000000000000000000
   /pets/{id}/health/events/{event_id}:
     parameters:
-      - *a1
+      - *a2
       - name: event_id
         in: path
         required: true
@@ -3501,7 +3612,7 @@ paths:
                   request_id: 01J000000000000000000000
   /pets/{id}/health/items/{item_id}/complete:
     parameters:
-      - *a1
+      - *a2
       - name: item_id
         in: path
         required: true
@@ -3516,7 +3627,7 @@ paths:
         Idempotency-Key with the same data returns the done record; with other data, 409 conflict.
         An item already done under another key returns its record as it was.
       parameters:
-        - *a2
+        - *a3
       requestBody:
         required: true
         content:
@@ -3611,12 +3722,12 @@ paths:
                   request_id: 01J000000000000000000000
   /pets/{id}/health/medications:
     parameters:
-      - *a1
+      - *a2
     post:
       summary: Add medication courses; the pet form's medicines list follows
       parameters:
-        - *a2
         - *a3
+        - *a4
       requestBody:
         required: true
         content:
@@ -3713,7 +3824,7 @@ paths:
                   request_id: 01J000000000000000000000
   /pets/{id}/health/medications/{medication_id}:
     parameters:
-      - *a1
+      - *a2
       - name: medication_id
         in: path
         required: true
@@ -3836,7 +3947,7 @@ paths:
     delete:
       summary: Delete a course; the pet form's medicines list follows
       parameters:
-        - *a3
+        - *a4
       responses:
         "204":
           description: Deleted
@@ -3897,16 +4008,649 @@ paths:
                   code: internal_error
                   message: Unexpected server error
                   request_id: 01J000000000000000000000
+  /pets/{id}/health/medications/{medication_id}/times:
+    parameters:
+      - *a2
+      - &a5
+        name: medication_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    put:
+      summary: Set the times of day a course is given at (FB-5)
+      description: "Up to four «HH:MM» on the phone's own clock, sorted and without repeats; an empty list
+        stops the reminders. The times are the owner's: the app suggests neither the time nor the
+        dose."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MedicationTimes"
+      responses:
+        "200":
+          description: The course
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Medication"
+        "400":
+          description: Request body or query is invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: bad_request
+                  message: Request body or query is invalid
+                  request_id: 01J000000000000000000000
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
+                  request_id: 01J000000000000000000000
+        "404":
+          description: No such resource for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: not_found
+                  message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
+  /pets/{id}/health/medications/{medication_id}/doses:
+    parameters:
+      - *a2
+      - *a5
+    post:
+      summary: "«Дали»: mark a dose given (FB-5)"
+      description: "A second mark of the same day and time is the same dose: 200 with it. The time must be
+        one of the course's; the day within the course, not ahead, and not more than 14 days back."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MedicationDoseInput"
+      responses:
+        "200":
+          description: Already marked
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MedicationDose"
+        "201":
+          description: Marked
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MedicationDose"
+        "400":
+          description: Request body or query is invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: bad_request
+                  message: Request body or query is invalid
+                  request_id: 01J000000000000000000000
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
+                  request_id: 01J000000000000000000000
+        "404":
+          description: No such resource for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: not_found
+                  message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
+    delete:
+      summary: Take back the mark of one dose
+      parameters:
+        - name: taken_on
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: slot
+          in: query
+          required: true
+          schema:
+            type: string
+            pattern: ^([01]\d|2[0-3]):[0-5]\d$
+      responses:
+        "204":
+          description: Unmarked, or was not marked
+        "400":
+          description: Request body or query is invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: bad_request
+                  message: Request body or query is invalid
+                  request_id: 01J000000000000000000000
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
+                  request_id: 01J000000000000000000000
+        "404":
+          description: No such resource for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: not_found
+                  message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
+  /pets/{id}/health/doses:
+    parameters:
+      - *a2
+    get:
+      summary: The doses marked given between two days, at most 31 days apart (FB-5)
+      parameters:
+        - name: from
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Doses, by day and time
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MedicationDose"
+        "400":
+          description: Request body or query is invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: bad_request
+                  message: Request body or query is invalid
+                  request_id: 01J000000000000000000000
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
+                  request_id: 01J000000000000000000000
+        "404":
+          description: No such resource for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: not_found
+                  message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
+  /pets/{id}/avatar:
+    parameters:
+      - *a2
+      - *a1
+    post:
+      summary: Ask to upload the pet's photo (FB-4)
+      description: A signed URL to PUT the bytes straight to storage, good for two hours; then confirm
+        with PUT here.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AvatarGrantRequest"
+      responses:
+        "201":
+          description: Where to put the photo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AvatarGrant"
+        "400":
+          description: Request body or query is invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: bad_request
+                  message: Request body or query is invalid
+                  request_id: 01J000000000000000000000
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
+                  request_id: 01J000000000000000000000
+        "404":
+          description: No such resource for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: not_found
+                  message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
+    put:
+      summary: Confirm the uploaded photo; the pet shows it and the previous one goes
+      description: The path must be one this grant made for this pet, and the bytes a JPEG, PNG or WebP picture.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AvatarConfirm"
+      responses:
+        "200":
+          description: The pet with its photo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pet"
+        "400":
+          description: Request body or query is invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: bad_request
+                  message: Request body or query is invalid
+                  request_id: 01J000000000000000000000
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
+                  request_id: 01J000000000000000000000
+        "404":
+          description: No such resource for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: not_found
+                  message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "413":
+          description: Upload exceeds the published size limit
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: payload_too_large
+                  message: Upload exceeds the published size limit
+                  request_id: 01J000000000000000000000
+        "415":
+          description: File format is not accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unsupported_media_type
+                  message: File format is not accepted
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
+    delete:
+      summary: Remove the pet's photo; the drawing shows again
+      responses:
+        "200":
+          description: The pet without a photo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pet"
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
+                  request_id: 01J000000000000000000000
+        "404":
+          description: No such resource for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: not_found
+                  message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
   /pets/{id}/health/visits:
     parameters:
-      - *a1
+      - *a2
     post:
       summary: Record a vet visit that happened, with prescriptions, or plan one
       description: A prescription with add_to_medications starts a course from the visit's day. A planned
         visit takes no diagnosis or prescriptions. The check must be of this pet.
       parameters:
-        - *a2
         - *a3
+        - *a4
       requestBody:
         required: true
         content:
@@ -4001,7 +4745,7 @@ paths:
                   request_id: 01J000000000000000000000
   /pets/{id}/health/visits/{event_id}:
     parameters:
-      - *a1
+      - *a2
       - name: event_id
         in: path
         required: true
@@ -4016,8 +4760,8 @@ paths:
         again with the same body changes nothing and answers 200, even once the visit is done; with
         another body it is a conflict."
       parameters:
-        - *a2
         - *a3
+        - *a4
       requestBody:
         required: true
         content:
@@ -4123,7 +4867,7 @@ paths:
                   request_id: 01J000000000000000000000
   /pets/{id}/health/items/{item_id}/medication:
     parameters:
-      - *a1
+      - *a2
       - name: item_id
         in: path
         required: true
@@ -4133,7 +4877,7 @@ paths:
     post:
       summary: Start a course from a prescription; once
       parameters:
-        - *a3
+        - *a4
       responses:
         "201":
           description: The course
@@ -4538,7 +5282,7 @@ paths:
                   request_id: 01J000000000000000000000
   /checks/{id}:
     parameters:
-      - *a1
+      - *a2
     get:
       summary: A stored result, including checks made before v1
       responses:
@@ -4607,7 +5351,7 @@ paths:
                   request_id: 01J000000000000000000000
   /checks/{id}/feedback:
     parameters:
-      - *a1
+      - *a2
     get:
       summary: The opinion already given on this result, if any
       responses:
@@ -4679,7 +5423,7 @@ paths:
       - name: job_id
         in: path
         required: true
-        schema: *a4
+        schema: *a6
     get:
       summary: Job state, and the check id once it succeeded
       responses:

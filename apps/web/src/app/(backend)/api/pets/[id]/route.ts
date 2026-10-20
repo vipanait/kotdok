@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { PetUpdateInputSchema } from '@lapka/contracts'
 import { createServiceClient } from '@/server/supabase/server'
 import { getAuthUser } from '@/server/auth/get-auth-user'
 import { owesConsent } from '@/server/consent/consent-service'
@@ -17,8 +18,17 @@ export async function PUT(
   if (await owesConsent(user.id)) return NextResponse.json({ error: 'Consent required' }, { status: 403 })
 
   const { id } = await params
-  const body = await request.json()
-  const result = await updatePet(createServiceClient(), user.id, id, body)
+  // The same contract as /api/v1: a future birth date or a day that does not
+  // exist is a 400 here too, not a 500 from the database (PR #82 review).
+  let body: unknown
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: 'Body is not valid JSON' }, { status: 400 })
+  }
+  const parsed = PetUpdateInputSchema.safeParse(body)
+  if (!parsed.success) return NextResponse.json({ error: 'Body does not match the contract' }, { status: 400 })
+  const result = await updatePet(createServiceClient(), user.id, id, parsed.data)
   if (!result.ok) return petFailureResponse(result.reason, result.message)
 
   return NextResponse.json(result.data)
