@@ -56,7 +56,7 @@ export default function TodayDoses({
                 {dose.course.dosage && <small>{dose.course.dosage}</small>}
                 {given && (
                   <small className="dose-given">
-                    <Icon name="check" />
+                    <Icon name="done" />
                     {t.given}
                   </small>
                 )}

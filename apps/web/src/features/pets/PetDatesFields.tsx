@@ -81,6 +81,7 @@ export default function PetDatesFields({
                 <span className="sr-only">{t.years}</span>
                 <input
                   id={id('approx-years')}
+                  aria-label={`${t.approxLegend}: ${t.years}`}
                   type="text"
                   inputMode="numeric"
                   className="input"
@@ -95,6 +96,7 @@ export default function PetDatesFields({
                 <span className="sr-only">{t.months}</span>
                 <input
                   id={id('approx-months')}
+                  aria-label={`${t.approxLegend}: ${t.months}`}
                   type="text"
                   inputMode="numeric"
                   className="input"

@@ -97,7 +97,7 @@
 
   .care-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 22px; }
   .care-columns .chips { margin: 18px 0 20px; }
-  .care-columns .field + .field { margin-top: 16px; }
+  .care-columns .card > .field + .field { margin-top: 16px; }
   .care-columns .card > h2 { margin-bottom: 12px; }
   .care-columns .card > p.muted { margin-bottom: 0; color: var(--muted); }
   .first-steps-offer { max-width: 720px; }
@@ -227,7 +227,8 @@
   .record-columns .card { padding: 26px; border-radius: 22px; }
   .record-columns h2 { font-size: 24px; }
   .record-columns .health-sections { grid-area: auto; }
-  .record-columns .health-facts { grid-area: auto; }
+  .record-columns .health-facts,
+  .record-columns .health-due { grid-area: auto; }
   .record-columns .health-facts dt { font-size: 13px; }
   .record-columns .health-facts dd { font-size: 15px; }
 
@@ -244,6 +245,7 @@
   .dose-given { display: inline-flex !important; align-items: center; gap: 4px; color: var(--green) !important; }
   .dose-given .icon { width: 15px; height: 15px; }
   .dose-undo { min-height: 44px; flex-shrink: 0; }
+  .dose-copy .field-error { color: var(--red); }
   .btn.compact { min-height: 44px; padding: 9px 18px; font-size: 13px; flex-shrink: 0; }
   .today-doses-failed { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; color: var(--muted); }
 

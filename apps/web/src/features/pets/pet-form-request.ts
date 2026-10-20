@@ -45,6 +45,15 @@ export function fromArr(arr: string[]): string {
   return arr.join(', ')
 }
 
+/**
+ * The list a field stands for: the pet's own list while the field shows it
+ * untouched — an item may have a comma of its own («рыба, кроме лосося»),
+ * which reading the field again would split in two — otherwise the field.
+ */
+function listOf(field: string, before: string[] | null | undefined): string[] {
+  return before && field === fromArr(before) ? [...before] : toArr(field)
+}
+
 /** «4,2» or «4.2» as a number; empty or unreadable is none. */
 export function parseDecimal(value: string): number | null {
   const normalized = value.trim().replace(',', '.')
@@ -84,10 +93,10 @@ export function petFormRequest(
     diet: fields.diet,
     size_class: dog ? fields.sizeClass : null,
     walk_activity: dog ? fields.walkActivity : null,
-    allergies: toArr(fields.allergies),
+    allergies: listOf(fields.allergies, pet?.allergies),
     vaccinated: fields.vaccinated,
-    chronic_conditions: toArr(fields.chronicConditions),
-    medications: toArr(fields.medications),
+    chronic_conditions: listOf(fields.chronicConditions, pet?.chronic_conditions),
+    medications: listOf(fields.medications, pet?.medications),
     notes: fields.notes.trim() || null,
   }
   const recordContext = {

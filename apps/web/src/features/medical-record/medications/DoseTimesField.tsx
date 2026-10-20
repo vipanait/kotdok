@@ -41,6 +41,7 @@ export default function DoseTimesField({
   async function save(change: TimesChange, typedField: boolean) {
     if (inFlight.current) return
     if (!change.ok) {
+      setSavedNote(false)
       setProblem(t.errors[change.reason])
       return
     }
@@ -109,6 +110,7 @@ export default function DoseTimesField({
                 onChange={(event) => {
                   setTyped(editTime(typed, event.target.value))
                   setProblem('')
+                  setSavedNote(false)
                 }}
                 aria-invalid={problem ? true : undefined}
                 aria-describedby={[problem ? problemId : null, noteId].filter(Boolean).join(' ')}

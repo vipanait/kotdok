@@ -44,7 +44,7 @@ export default function FirstRecord({
       <div className="first-record-head">
         {avatar}
         <p className="first-record-created">
-          <Icon name="check" />
+          <Icon name="done" />
           {t.created.replace('{name}', () => petName)}
         </p>
         <h1>{t.firstRecordTitle}</h1>
