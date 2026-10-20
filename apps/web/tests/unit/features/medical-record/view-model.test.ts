@@ -23,7 +23,22 @@ describe('Мурка: the server record (MW-01.3)', () => {
       meta: 'Кошка · Сибирская · 3 года · стерилизована',
       weight: '4,2 кг',
       weightNote: '−0,3 кг за 6 месяцев',
+      together: null,
     })
+  })
+
+  it('counts the days together from the home day, the first day as one (FB-2, design `record`)', () => {
+    const home = { ...murka, pet: { ...murka.pet, adopted_on: '2026-09-01' } }
+    // DESIGN_TODAY is 24 September 2026: 1 September is day 1, the 24th is day 24.
+    expect(headFacts(ru, 'ru', home, DESIGN_TODAY).together).toBe('Вместе 24 дня')
+    expect(headFacts(en, 'en', home, DESIGN_TODAY).together).toBe('Together for 24 days')
+  })
+
+  it('counts the age from an estimated birth date without ever showing the day', () => {
+    const estimated = { ...murka, pet: { ...murka.pet, age_years: null, birth_date: '2022-03-24', birth_date_approx: true } }
+    const head = headFacts(ru, 'ru', estimated, DESIGN_TODAY)
+    expect(head.meta).toBe('Кошка · Сибирская · 4 года · стерилизована')
+    expect(head.meta).not.toContain('2022')
   })
 
   it('lists the first three due dates, overdue first, and counts the rest', () => {
@@ -79,7 +94,7 @@ describe('Бобик: the form only, no made-up dates (MW-01.3)', () => {
 
   it('says the weight comes from the form, with no day', () => {
     const head = headFacts(ru, 'ru', bobik, DESIGN_TODAY)
-    expect(head).toEqual({ name: 'Бобик', meta: 'Собака · 5 лет', weight: '28 кг', weightNote: 'Из анкеты, дата не указана' })
+    expect(head).toEqual({ name: 'Бобик', meta: 'Собака · 5 лет', weight: '28 кг', weightNote: 'Из анкеты, дата не указана', together: null })
   })
 
   it('has no due dates and nothing to know that was not said', () => {
