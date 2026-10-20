@@ -177,7 +177,7 @@ export function nextYear(date: string): string {
   return addMonths(date, 12)
 }
 
-/** «После сохранения: одна запись и 2 следующих срока на 24 сентября 2027.» */
+/** «Запишем как сделанное. Следующие — 24 сентября 2027, они появятся в сроках.» */
 export function saveSummary(t: Dictionary, nextDays: readonly (string | null)[], today: string): string {
   const days = nextDays.filter((next): next is string => next !== null)
   const same = days.length > 0 && days.every((next) => next === days[0])
@@ -213,7 +213,22 @@ export function parasiteStatuses(t: Dictionary, events: readonly HealthEvent[], 
   })
 }
 
-/** «Сделано» on a due date: the record form for an item, «Был» for a planned visit. */
+/**
+ * Whether a due row offers «Отметить» itself: only once the day has come.
+ * Beside a date still ahead the action read as a status — «Визит завтра ·
+ * Сделано» (first users' feedback, FB-1/01) — so a future row opens its
+ * record instead, where it can still be marked or moved.
+ */
+export function marksFromRow(date: string, today: string): boolean {
+  return date <= today
+}
+
+/** The record a due row opens: the plan's own screen, with «Сделано»/«Был» and «Перенести». */
+export function recordRoute(petId: string, due: { kind: string; eventId: string }): string {
+  return `/pets/${petId}/${due.kind === 'visit' ? 'visit' : 'event'}/${due.eventId}`
+}
+
+/** «Отметить» on a due date: the record form for an item, «Был» for a planned visit. */
 export function doneRoute(petId: string, due: { kind: string; itemId: string; eventId: string }): string {
   return due.kind === 'visit'
     ? `/pets/${petId}/visit-form?mode=done&eventId=${due.eventId}`

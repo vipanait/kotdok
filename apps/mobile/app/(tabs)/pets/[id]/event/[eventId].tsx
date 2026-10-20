@@ -7,7 +7,7 @@ import { describeFailure } from '@/lib/errors'
 import { localToday } from '@/lib/calendar-day'
 import { useText } from '@/i18n'
 import { useReminders } from '@/features/medical-record/reminders/ReminderProvider'
-import { dueLine, dueStatus, itemName, targetList } from '@/features/medical-record/due'
+import { dueLine, dueStatus, itemName, marksFromRow, targetList } from '@/features/medical-record/due'
 import { Button, LinkButton } from '@/ui/Button'
 import { Banner, Card } from '@/ui/Card'
 import { ConfirmDialog } from '@/ui/Dialog'
@@ -79,6 +79,7 @@ export default function EventView() {
   const planned = event?.status === 'planned'
   const status = event && planned ? dueStatus(t, event.date, localToday()) : null
   const single = event?.items.length === 1
+  const ahead = event ? !marksFromRow(event.date, localToday()) : false
 
   return (
     <Screen
@@ -88,10 +89,19 @@ export default function EventView() {
       dock={
         event ? (
           planned ? (
-            <>
-              {single ? <Button title={words.markDone} onPress={() => complete(event.items[0].id)} /> : null}
-              <LinkButton title={words.reschedule} onPress={edit} />
-            </>
+            // A date still ahead is moved, not marked: «Сделано» as the main
+            // button beside «Завтра» read as a status (FB-1/01).
+            ahead ? (
+              <>
+                <Button title={words.reschedule} kind="secondary" onPress={edit} />
+                {single ? <LinkButton title={words.markDoneEarly} onPress={() => complete(event.items[0].id)} /> : null}
+              </>
+            ) : (
+              <>
+                {single ? <Button title={words.markDone} onPress={() => complete(event.items[0].id)} /> : null}
+                <LinkButton title={words.reschedule} onPress={edit} />
+              </>
+            )
           ) : null
         ) : null
       }
@@ -131,7 +141,7 @@ export default function EventView() {
               ) : null}
               {planned && !single ? (
                 <View style={styles.itemDone}>
-                  <Button title={words.markDone} kind="secondary" onPress={() => complete(item.id)} />
+                  <Button title={ahead ? words.markDoneEarly : words.markDone} kind="secondary" onPress={() => complete(item.id)} />
                 </View>
               ) : null}
             </Card>

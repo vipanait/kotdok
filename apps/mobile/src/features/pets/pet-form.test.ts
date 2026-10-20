@@ -62,14 +62,21 @@ describe('pet form', () => {
     })
   })
 
-  it('reads a list the way people type one', () => {
-    expect(parseList(' курица ,рыба,  , говядина ')).toEqual(['курица', 'рыба', 'говядина'])
+  it('reads a list one item per line, keeping a comma inside an item (FB-1/06)', () => {
+    expect(parseList([' курица ', '', '  ', 'рыба, кроме лосося'])).toEqual(['курица', 'рыба, кроме лосося'])
   })
 
   it('stops at the limit instead of having the server refuse the whole pet', () => {
-    const many = Array.from({ length: LIST_MAX_ITEMS + 5 }, (_, index) => `a${index}`).join(',')
+    const many = Array.from({ length: LIST_MAX_ITEMS + 5 }, (_, index) => `a${index}`)
 
     expect(parseList(many)).toHaveLength(LIST_MAX_ITEMS)
+  })
+
+  it('sees an edited list line as a change, and an untouched list as none', () => {
+    const start = { ...emptyPetForm(), allergies: ['курица'] }
+
+    expect(petFormChanged(start, { ...start, allergies: ['курица'] })).toBe(false)
+    expect(petFormChanged(start, { ...start, allergies: ['курица', ''] })).toBe(true)
   })
 
   it('drops dog-only fields for a cat, which the contract rejects outright', () => {
