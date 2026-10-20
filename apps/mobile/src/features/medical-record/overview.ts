@@ -32,7 +32,7 @@ export type HeaderFacts = {
  * «Кошка» for a female cat, as the design has it — but never the form's
  * «Сука», and never English's bare "Female" in place of the species.
  */
-function speciesWord(t: Dictionary, pet: Pet): string {
+export function speciesWord(t: Dictionary, pet: Pet): string {
   if (pet.sex === null) return t.species[pet.species]
   return t.medicalRecord.animal[pet.species][pet.sex]
 }

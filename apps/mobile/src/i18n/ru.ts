@@ -128,6 +128,21 @@ export const ru = {
     failed: 'Не удалось открыть календарь',
   },
 
+  /** The memo for whoever minds the pet (FB-3/02). */
+  sitterMemo: {
+    row: 'Памятка для передержки',
+    rowNote: 'Важное и планы на 2 недели — в Telegram или куда удобно',
+    diet: (value: string) => `Питание: ${value}`,
+    allergies: (list: string) => `Аллергии: ${list}`,
+    chronic: (list: string) => `Хронические болезни: ${list}`,
+    medicines: 'Лекарства сейчас:',
+    notes: (text: string) => `Заметки: ${text}`,
+    clinic: (name: string) => `Ветклиника: ${name}`,
+    plans: 'Ближайшие 2 недели:',
+    overdueSince: (day: string) => `просрочено с ${day}`,
+    footer: 'Отправлено из «Лапки»',
+  },
+
   /** The step after a new pet's form (FB-2/03, FB-2/04). */
   firstSteps: {
     title: 'Прививки и врач',
