@@ -209,6 +209,10 @@ export const ru = {
     markDone: 'Сделано',
     /** On a due row whose day has come; beside a date ahead «Сделано» read as a status (FB-1/01). */
     markDue: 'Отметить',
+    /** Group headings in «Сроки»; overdue rows need none, each says it. */
+    dueUpcoming: 'Ближайшее',
+    dueLater: 'Позже',
+    duePlannedDate: 'Плановая дата',
     /** On a plan whose day is still ahead: a link under «Перенести», not the main button. */
     markDoneEarly: 'Уже сделано',
     addRecord: 'Добавить запись',
