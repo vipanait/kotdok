@@ -6,6 +6,7 @@ import type { Pet, PetLatestCheck } from '@/shared/types'
 import type { DueItem, SymptomCheckRecord } from '@lapka/contracts'
 import { nearestDueByPet, toUtcIso } from '@lapka/shared'
 import { listDue } from '@/server/medical-record/event-service'
+import { signAvatars } from '@/server/pets/avatar-service'
 import { mapSymptomCheckRow, symptomCheckSelect } from '@/server/symptom-check/map-symptom-check'
 
 export type { PetLatestCheck }
@@ -20,6 +21,8 @@ export interface PetsOverview {
    * has no entry.
    */
   dueByPet: Record<string, DueItem>
+  /** The owner's photo of each pet that has one, as a short-lived signed link (FB-4). */
+  photosByPet: Record<string, string>
 }
 
 export interface DashboardData extends PetsOverview {
@@ -96,7 +99,16 @@ export async function loadPetsOverview(userId: string, today: string): Promise<P
     }
   }
 
-  return { pets: (pets ?? []) as Pet[], latestChecksByPet, dueByPet }
+  const rows = (pets ?? []) as Pet[]
+  // A photo only decorates the row: links that cannot be signed leave the drawings.
+  const urls = await signAvatars(service, rows.map((pet) => pet.avatar_path ?? null))
+  const photosByPet: Record<string, string> = {}
+  rows.forEach((pet, index) => {
+    const url = urls[index]
+    if (url) photosByPet[pet.id] = url
+  })
+
+  return { pets: rows, latestChecksByPet, dueByPet, photosByPet }
 }
 
 /**

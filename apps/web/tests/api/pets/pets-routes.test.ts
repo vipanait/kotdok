@@ -124,6 +124,24 @@ describe('pets API routes', () => {
     expect(response.status).toBe(404)
   })
 
+  it('refuses a birth or home day ahead of every time zone on create and update, as /api/v1 does', async () => {
+    const ahead = '2999-01-01'
+    for (const body of [{ name: 'Мурка', species: 'cat', birth_date: ahead }, { name: 'Мурка', species: 'cat', adopted_on: ahead }]) {
+      expect((await createPetRoute(jsonRequest(body))).status).toBe(400)
+      expect((await updatePetRoute(jsonRequest({ birth_date: body.birth_date ?? null, adopted_on: body.adopted_on ?? null }), params('pet-1'))).status).toBe(400)
+    }
+    expect(createPet).not.toHaveBeenCalled()
+    expect(updatePet).not.toHaveBeenCalled()
+  })
+
+  it('takes a past birth and home day', async () => {
+    vi.mocked(createPet).mockResolvedValue({ ok: true, data: { id: 'pet-2' } } as never)
+    vi.mocked(updatePet).mockResolvedValue({ ok: true, data: { id: 'pet-1' } } as never)
+    const body = { name: 'Мурка', species: 'cat', birth_date: '2020-06-15', adopted_on: '2021-01-10' }
+    expect((await createPetRoute(jsonRequest(body))).status).toBe(201)
+    expect((await updatePetRoute(jsonRequest({ birth_date: '2020-06-15', adopted_on: '2021-01-10' }), params('pet-1'))).status).toBe(200)
+  })
+
   it('soft-deletes a pet for the authenticated user', async () => {
     vi.mocked(softDeletePetAndChecks).mockResolvedValue({ ok: true, data: { id: 'pet-1' } } as never)
 

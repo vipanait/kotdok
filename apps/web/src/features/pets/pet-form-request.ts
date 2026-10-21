@@ -1,4 +1,5 @@
 import type { Pet, PetSizeClass, PetSpecies, PetWalkActivity } from '@/shared/types'
+import type { PetDatesValue } from '@/features/pets/pet-dates-form'
 
 /**
  * The pet form's request, apart from React so its fields are unit tested:
@@ -6,17 +7,19 @@ import type { Pet, PetSizeClass, PetSpecies, PetWalkActivity } from '@/shared/ty
  */
 
 /**
- * The site's form knows no dates yet (FB-2 is the app's): it leaves them out,
- * and the server keeps the ones the app saved.
+ * Every field of the pet, the dates included (FB-2): the form always sends
+ * the dates it shows, read by `readPetDates` — untouched, they are the ones
+ * the pet has, so a save never clears them. The photo goes its own way.
  */
-export type PetFormValues = Omit<Pet, 'id' | 'user_id' | 'created_at' | 'birth_date' | 'birth_date_approx' | 'adopted_on'>
+export type PetFormValues = Omit<Pet, 'id' | 'user_id' | 'created_at' | 'avatar_path'>
 
 /** The form's fields as the owner left them: text as typed, choices as picked. */
 export type PetFormFields = {
   species: PetSpecies
   name: string
   breed: string
-  ageYears: string
+  /** The «Даты» section as read (`readPetDates`): the birth date, its estimate, the home day and the age. */
+  dates: PetDatesValue
   weightKg: string
   sex: Pet['sex']
   neutered: boolean | null
@@ -40,6 +43,15 @@ export function toArr(val: string): string[] {
 /** A list as the comma-separated field shows it. */
 export function fromArr(arr: string[]): string {
   return arr.join(', ')
+}
+
+/**
+ * The list a field stands for: the pet's own list while the field shows it
+ * untouched — an item may have a comma of its own («рыба, кроме лосося»),
+ * which reading the field again would split in two — otherwise the field.
+ */
+function listOf(field: string, before: string[] | null | undefined): string[] {
+  return before && field === fromArr(before) ? [...before] : toArr(field)
 }
 
 /** «4,2» or «4.2» as a number; empty or unreadable is none. */
@@ -70,7 +82,10 @@ export function petFormRequest(
     species: fields.species,
     name: fields.name.trim(),
     breed: fields.breed.trim() || null,
-    age_years: parseDecimal(fields.ageYears),
+    age_years: fields.dates.age_years,
+    birth_date: fields.dates.birth_date,
+    birth_date_approx: fields.dates.birth_date_approx,
+    adopted_on: fields.dates.adopted_on,
     weight_kg: parseDecimal(fields.weightKg),
     sex: fields.sex,
     neutered: fields.neutered,
@@ -78,10 +93,10 @@ export function petFormRequest(
     diet: fields.diet,
     size_class: dog ? fields.sizeClass : null,
     walk_activity: dog ? fields.walkActivity : null,
-    allergies: toArr(fields.allergies),
+    allergies: listOf(fields.allergies, pet?.allergies),
     vaccinated: fields.vaccinated,
-    chronic_conditions: toArr(fields.chronicConditions),
-    medications: toArr(fields.medications),
+    chronic_conditions: listOf(fields.chronicConditions, pet?.chronic_conditions),
+    medications: listOf(fields.medications, pet?.medications),
     notes: fields.notes.trim() || null,
   }
   const recordContext = {

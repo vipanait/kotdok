@@ -68,6 +68,26 @@ const PATHS = {
       <path d="M7 3v4m10-4v4M3 10h18" />
     </>
   ),
+  share: <path d="M12 15V3m-5 5 5-5 5 5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6" />,
+  chevron: <path d="m9 6 6 6-6 6" />,
+  done: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="m8 12 3 3 5-6" />
+    </>
+  ),
+  copy: (
+    <>
+      <rect x="8" y="8" width="13" height="13" rx="2" />
+      <path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3" />
+    </>
+  ),
+  calendarAdd: (
+    <>
+      <rect x="3" y="5" width="18" height="16" rx="3" />
+      <path d="M7 3v4m10-4v4M3 10h18m-9 3v6m-3-3h6" />
+    </>
+  ),
   calendarLate: (
     <>
       <rect x="3" y="5" width="18" height="16" rx="3" />

@@ -24,7 +24,7 @@ export default async function PetsPage({
 
   // The owner's day, not the server's: "overdue" and "in 5 days" turn at their midnight.
   const today = dayInZone(new Date(), await getTimeZone())
-  const [{ pets, latestChecksByPet, dueByPet }, params, locale] = await Promise.all([
+  const [{ pets, latestChecksByPet, dueByPet, photosByPet }, params, locale] = await Promise.all([
     loadPetsOverview(cabinet.user.id, today),
     searchParams,
     getLocale(),
@@ -59,6 +59,7 @@ export default async function PetsPage({
             pets={pets}
             latestChecksByPet={latestChecksByPet}
             dueByPet={dueByPet}
+            photosByPet={photosByPet}
             today={today}
             dict={dict}
             locale={locale}

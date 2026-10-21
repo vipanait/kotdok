@@ -16,8 +16,16 @@ describe('the way out of the pet form', () => {
     expect(parseRecordSaved('form')).toBe(true)
   })
 
-  it('sends a new pet and a deleted one to the list', () => {
-    expect(petFormDoneHref({ kind: 'created' })).toBe('/pets?petSaved=created')
+  it('continues a new pet on the path chosen at the first entry', () => {
+    expect(petFormDoneHref({ kind: 'created', petId: PET, goal: 'check' })).toBe(`/check?pet=${PET}`)
+    expect(petFormDoneHref({ kind: 'created', petId: PET, goal: 'health' })).toBe(`/pets/${PET}/first-record`)
+  })
+
+  it('offers a pet added the ordinary way the optional first steps, never with the first record', () => {
+    expect(petFormDoneHref({ kind: 'created', petId: PET, goal: null })).toBe(`/pets/${PET}/first-steps`)
+  })
+
+  it('sends a deleted pet to the list', () => {
     expect(petFormDoneHref({ kind: 'deleted', petId: PET })).toBe('/pets?petSaved=deleted')
   })
 

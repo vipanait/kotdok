@@ -34,6 +34,12 @@ describe('the content security policy', () => {
     expect(directive(policy, 'connect-src')).toContain("'self'")
   })
 
+  it('shows a pet’s photo from its signed Storage link, and images from nowhere else', () => {
+    const images = directive(buildContentSecurityPolicy(options), 'img-src')
+
+    expect(images.split(' ').slice(1)).toEqual(["'self'", 'blob:', 'data:', 'https://project.supabase.co'])
+  })
+
   it('allows React’s eval only while developing', () => {
     // React rebuilds server-side error stacks with `eval` in development. A
     // build that ships has no such need, and saying so there would undo the

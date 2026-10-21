@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import ru from '@/shared/i18n/dictionaries/ru'
 import PetForm from '@/features/pets/PetForm'
 import { petFormRequest, type PetFormFields } from '@/features/pets/pet-form-request'
+import { datesFromPet, readPetDates } from '@/features/pets/pet-dates-form'
 import type { Pet } from '@/shared/types'
 import { render, tag } from './static-render'
 
@@ -42,11 +43,13 @@ const murka: Pet = {
 
 /** The fields as the form opens with a pet, untouched. */
 function untouched(pet: Pet): PetFormFields {
+  const dates = readPetDates(datesFromPet(pet, TODAY), TODAY)
+  if (!dates.ok) throw new Error('the pet’s own dates must read')
   return {
     species: pet.species,
     name: pet.name,
     breed: pet.breed ?? '',
-    ageYears: pet.age_years?.toString() ?? '',
+    dates: dates.value,
     weightKg: pet.weight_kg?.toString() ?? '',
     sex: pet.sex,
     neutered: pet.neutered,
@@ -81,14 +84,57 @@ describe('the medicines field', () => {
     expect(field.attrs['aria-describedby']).toBeUndefined()
   })
 
-  it('keeps an age of 0 and a weight with two decimals as they are', () => {
+  it('keeps an age of 0 (as «примерно» 0 years) and a weight with two decimals as they are', () => {
     const html = render(<PetForm pet={murka} />)
-    expect(tag(html, 'input', (input) => (input.attrs.id ?? '').endsWith('-age')).attrs.value).toBe('0')
+    expect(tag(html, 'input', (input) => (input.attrs.id ?? '').endsWith('-approx-years')).attrs.value).toBe('0')
     expect(tag(html, 'input', (input) => (input.attrs.id ?? '').endsWith('-weight')).attrs.value).toBe('4.25')
   })
 })
 
+describe('the dates and photo of the form', () => {
+  it('opens an exact birth date and the home day in their date fields', () => {
+    const html = render(<PetForm pet={{ ...murka, birth_date: '2020-06-15', adopted_on: '2021-01-10' }} />)
+    expect(tag(html, 'input', (input) => (input.attrs.id ?? '').endsWith('-birth-date')).attrs.value).toBe('2020-06-15')
+    expect(tag(html, 'input', (input) => (input.attrs.id ?? '').endsWith('-adopted-on')).attrs.value).toBe('2021-01-10')
+  })
+
+  it('names the photo button for a pet without a photo, and offers to replace or remove one it has', () => {
+    expect(render(<PetForm pet={murka} />)).toContain(t.photo.add)
+    const withPhoto = render(<PetForm pet={murka} photoUrl="https://project.supabase.co/storage/v1/object/sign/x" />)
+    expect(withPhoto).toContain(t.photo.replace)
+    expect(withPhoto).toContain(t.photo.remove)
+  })
+})
+
 describe('what «Сохранить» sends', () => {
+  it('an untouched edit sends the dates the pet has, so nothing is cleared', () => {
+    const dated = { ...murka, birth_date: '2022-04-03', birth_date_approx: true, adopted_on: '2022-06-01', age_years: 4.5 }
+    expect(petFormRequest(dated, untouched(dated), TODAY).body).toMatchObject({
+      birth_date: '2022-04-03',
+      birth_date_approx: true,
+      adopted_on: '2022-06-01',
+    })
+  })
+
+  it('an untouched list keeps its items whole, even one with a comma of its own', () => {
+    const listed = { ...murka, allergies: ['Курица', 'рыба, кроме лосося'], chronic_conditions: ['ХБП, стадия 2'], medications: ['Витамины A, D'] }
+    expect(petFormRequest(listed, untouched(listed), TODAY).body).toMatchObject({
+      allergies: ['Курица', 'рыба, кроме лосося'],
+      chronic_conditions: ['ХБП, стадия 2'],
+      medications: ['Витамины A, D'],
+    })
+  })
+
+  it('a list the owner edited is read from the field again', () => {
+    const listed = { ...murka, allergies: ['Курица', 'рыба, кроме лосося'] }
+    expect(petFormRequest(listed, { ...untouched(listed), allergies: 'Курица, говядина' }, TODAY).body.allergies).toEqual(['Курица', 'говядина'])
+  })
+
+  it('an older pet’s age stays an age: no birth date is invented', () => {
+    const older = { ...murka, age_years: 3 }
+    expect(petFormRequest(older, untouched(older), TODAY).body).toMatchObject({ age_years: 3, birth_date: null, birth_date_approx: false })
+  })
+
   it('an edit: PUT with the list and weight as the form opened (`medications_before`, `weight_kg_before`) and the owner’s day', () => {
     const fields = { ...untouched(murka), medications: 'Лечебный корм,  , Фортифлора, Апоквел ' }
     expect(petFormRequest(murka, fields, TODAY)).toMatchObject({

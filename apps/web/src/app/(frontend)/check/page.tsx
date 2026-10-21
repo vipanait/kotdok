@@ -4,6 +4,7 @@ import Illustration from '@/components/ui/Illustration'
 import CheckForm from '@/features/symptom-check/CheckForm'
 import { requireCabinet } from '@/components/cabinet/require-cabinet'
 import { loadCheckPets } from '@/server/checks/load-check-pages'
+import { loadPetPhotos } from '@/server/pets/pet-photos'
 import { getDictionary } from '@/server/i18n/get-dictionary'
 import { getLocale } from '@/server/i18n/get-locale'
 import { privatePageMetadata } from '@/server/i18n/page-metadata'
@@ -17,10 +18,11 @@ export default async function CheckPage({
 }) {
   const cabinet = await requireCabinet('/login?next=/check')
 
-  const [{ pet: petParam }, pets, locale] = await Promise.all([
+  const [{ pet: petParam }, pets, locale, photos] = await Promise.all([
     searchParams,
     loadCheckPets(cabinet.user.id),
     getLocale(),
+    loadPetPhotos(cabinet.user.id),
   ])
   const dict = await getDictionary(locale)
   const t = dict.check
@@ -32,7 +34,7 @@ export default async function CheckPage({
   return (
     <CabinetShell cabinet={cabinet} active="check" crumb={t.crumb}>
       {initialPet ? (
-        <CheckForm key={initialPet.id} pets={pets} initialPetId={initialPet.id} credits={cabinet.credits} />
+        <CheckForm key={initialPet.id} pets={pets} initialPetId={initialPet.id} credits={cabinet.credits} photos={photos} />
       ) : (
         // A check is always about a profile: without one there is nothing to send.
         <>

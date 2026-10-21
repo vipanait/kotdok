@@ -1,0 +1,110 @@
+[
+  {
+    "screen": "welcome",
+    "width": 1440,
+    "overflow": false,
+    "fonts": true
+  },
+  {
+    "screen": "pet-form",
+    "width": 1440,
+    "overflow": false,
+    "fonts": true
+  },
+  {
+    "screen": "first-record",
+    "width": 1440,
+    "overflow": false,
+    "fonts": true
+  },
+  {
+    "screen": "record",
+    "width": 1440,
+    "overflow": false,
+    "fonts": true
+  },
+  {
+    "screen": "medication",
+    "width": 1440,
+    "overflow": false,
+    "fonts": true
+  },
+  {
+    "screen": "visit",
+    "width": 1440,
+    "overflow": false,
+    "fonts": true
+  },
+  {
+    "screen": "memo",
+    "width": 1440,
+    "overflow": false,
+    "fonts": true
+  },
+  {
+    "screen": "first-steps",
+    "width": 1440,
+    "overflow": false,
+    "fonts": true
+  },
+  {
+    "screen": "check",
+    "width": 1440,
+    "overflow": false,
+    "fonts": true
+  },
+  {
+    "screen": "welcome",
+    "width": 390,
+    "overflow": false,
+    "fonts": true
+  },
+  {
+    "screen": "pet-form",
+    "width": 390,
+    "overflow": false,
+    "fonts": true
+  },
+  {
+    "screen": "first-record",
+    "width": 390,
+    "overflow": false,
+    "fonts": true
+  },
+  {
+    "screen": "record",
+    "width": 390,
+    "overflow": false,
+    "fonts": true
+  },
+  {
+    "screen": "medication",
+    "width": 390,
+    "overflow": false,
+    "fonts": true
+  },
+  {
+    "screen": "visit",
+    "width": 390,
+    "overflow": false,
+    "fonts": true
+  },
+  {
+    "screen": "memo",
+    "width": 390,
+    "overflow": false,
+    "fonts": true
+  },
+  {
+    "screen": "first-steps",
+    "width": 390,
+    "overflow": false,
+    "fonts": true
+  },
+  {
+    "screen": "check",
+    "width": 390,
+    "overflow": false,
+    "fonts": true
+  }
+]
