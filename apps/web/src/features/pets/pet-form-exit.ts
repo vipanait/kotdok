@@ -1,6 +1,7 @@
 import { recordCache } from '@/features/medical-record/record-load'
 import { medicalRecordHref } from '@/features/medical-record/routes'
 import type { PetSavedKind } from '@/features/pets/pet-saved'
+import { petCreatedHref, type OnboardingGoal } from '@/shared/onboarding/onboarding-state'
 
 /** The pets list: where a new pet's form starts from and returns to. */
 export const PETS_LIST_HREF = '/pets'
@@ -18,14 +19,18 @@ export function petFormCancelHref(petId?: string): string {
 
 /**
  * The way out of the pet form once the server accepted it, with its one-time
- * confirmation. An edit returns to the record it was opened from; a new pet
- * and a deleted one go to the list. A saved or deleted pet's record kept in
+ * confirmation. An edit returns to the record it was opened from; a deleted
+ * pet goes to the list. A new pet goes on with the path chosen at the first
+ * entry — the check, or «Добавим первую запись?» — and, added the ordinary
+ * way, to the optional first steps (design of 20 October 2026). A saved or deleted pet's record kept in
  * this tab is forgotten first: the form changes the allergies, conditions,
  * weight and «Принимает сейчас» the record shows, and the record must not
  * draw the ones from before the save while it reloads.
  */
-export function petFormDoneHref(done: { kind: 'created' } | { kind: 'updated' | 'deleted'; petId: string }): string {
-  if (done.kind === 'created') return `${PETS_LIST_HREF}?petSaved=created`
+export function petFormDoneHref(
+  done: { kind: 'created'; petId: string; goal: OnboardingGoal | null } | { kind: 'updated' | 'deleted'; petId: string },
+): string {
+  if (done.kind === 'created') return petCreatedHref(done.goal, done.petId)
   recordCache.forget(done.petId)
   if (done.kind === 'updated') return `${medicalRecordHref.record(done.petId)}?saved=${RECORD_FORM_SAVED}`
   const kind: PetSavedKind = done.kind

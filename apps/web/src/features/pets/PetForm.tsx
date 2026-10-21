@@ -1,18 +1,23 @@
 'use client'
 
-import { useId, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import Link from 'next/link'
 import type { Pet, PetSizeClass, PetSpecies, PetWalkActivity } from '@/shared/types'
 import { useTranslations } from '@/components/LocaleProvider'
-import PetAvatar from '@/components/PetAvatar'
 import Icon from '@/components/ui/Icon'
+import { browserApi } from '@/features/api/browser-api'
+import { useToday } from '@/features/forms/use-today'
 import ConfirmDialog from '@/features/pets/ConfirmDialog'
 import { useLeaveGuard } from '@/features/forms/use-leave-guard'
 import { petFormCancelHref, petFormDoneHref } from '@/features/pets/pet-form-exit'
 import { csrfHeaders } from '@/shared/security/csrf-client'
 import { fromArr, petFormRequest } from '@/features/pets/pet-form-request'
-import { localToday } from '@lapka/shared'
-
+import { updateOnboarding } from '@/features/onboarding/onboarding-cookie'
+import { chooseGoal, finishOnboarding, type OnboardingGoal } from '@/shared/onboarding/onboarding-state'
+import PetDatesFields from './PetDatesFields'
+import PetPhotoField from './PetPhotoField'
+import { datesFromPet, readPetDates, type PetDatesError, type PetDatesFields as DatesFields } from './pet-dates-form'
+import { applyPhoto, type PhotoChange, type PhotoDeps } from './pet-photo'
 
 /**
  * Standing notes under the fields the medical record says more about
@@ -29,6 +34,16 @@ interface Props {
   /** The pet being edited; none for a new one. */
   pet?: Pet
   hints?: PetFormHintTexts
+  /** The pet's photo as a signed link, read for this page; none without one. */
+  photoUrl?: string | null
+  /** The owner's day the page was drawn with (`getOwnerToday`), so both sides render the same dates. */
+  today?: string
+  /**
+   * A new pet's path from the first entry («Проверить симптомы» or «Следить
+   * за здоровьем»), and the account it is kept for: the form says where it
+   * goes next and goes there once the pet is saved.
+   */
+  onboarding?: { userId: string; goal: OnboardingGoal | null }
 }
 
 const NOTES_MAX = 300
@@ -43,15 +58,39 @@ function sanitizeDecimalInput(raw: string): string {
   return intPart + sep + frac
 }
 
+/** The photo through the v1 API (Bearer) and straight to storage, as the phone sends it. */
+const photoDeps: PhotoDeps = {
+  requestAvatar: (petId, body) => browserApi().requestAvatar(petId, body),
+  put: async (url, headers, body) => {
+    try {
+      const response = await fetch(url, { method: 'PUT', headers, body, credentials: 'omit' })
+      return response.ok
+    } catch {
+      return false
+    }
+  },
+  confirmAvatar: (petId, path) => browserApi().confirmAvatar(petId, path),
+  removeAvatar: (petId) => browserApi().removeAvatar(petId),
+}
+
 /**
- * The pet profile as a page: a sectioned form on the left, context on the
- * right. Leaving with unsaved changes — any link on the page, a reload or
- * closing the tab — asks first. Delete is set apart and confirmed in a dialog.
+ * The pet profile as a page (design `pet-form`): «О питомце» with the
+ * optional photo, «Даты», and every other field of the profile in the
+ * sections below — folded for a new pet, open for an edit, none of them
+ * required. Beside it, the path chosen at the first entry, or the usual
+ * notes. Leaving with unsaved changes — any link on the page, a reload or
+ * closing the tab — asks first. Delete is set apart and confirmed.
+ *
+ * A save goes once: a second press while it runs sends nothing, and an
+ * error keeps everything typed. The photo goes after the pet is saved; if
+ * only the photo fails, the pet is not saved again — the photo can be sent
+ * once more for the same pet, or left out.
  */
-export default function PetForm({ pet, hints = {} }: Props) {
+export default function PetForm({ pet, hints = {}, photoUrl = null, today: pageToday, onboarding }: Props) {
   const dict = useTranslations()
   const t = dict.pets
   const isEdit = !!pet
+  const today = useToday(pageToday)
   const formId = useId()
   const notesTitleId = `${formId}-notes-title`
   const notesCountId = `${formId}-notes-count`
@@ -61,7 +100,10 @@ export default function PetForm({ pet, hints = {} }: Props) {
   const [species, setSpecies] = useState<PetSpecies>(pet?.species ?? 'cat')
   const [name, setName] = useState(pet?.name ?? '')
   const [breed, setBreed] = useState(pet?.breed ?? '')
-  const [ageYears, setAgeYears] = useState(pet?.age_years?.toString() ?? '')
+  const [openedDates] = useState<DatesFields>(() => datesFromPet(pet, pageToday ?? today))
+  const [dates, setDates] = useState<DatesFields>(openedDates)
+  const [datesError, setDatesError] = useState<PetDatesError | null>(null)
+  const [photo, setPhoto] = useState<PhotoChange>({ kind: 'keep' })
   const [weightKg, setWeightKg] = useState(pet?.weight_kg?.toString() ?? '')
   const [sex, setSex] = useState<Pet['sex']>(pet?.sex ?? null)
   const [neutered, setNeutered] = useState<boolean | null>(pet?.neutered ?? null)
@@ -81,9 +123,28 @@ export default function PetForm({ pet, hints = {} }: Props) {
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState('')
+  /** The pet is saved and only its photo failed: where to go next, and the pet to send it for. */
+  const [photoFailed, setPhotoFailed] = useState<{ petId: string; doneHref: string } | null>(null)
+  const [photoRetrying, setPhotoRetrying] = useState(false)
+  const [moreOpen, setMoreOpen] = useState({ health: isEdit, life: isEdit })
 
   const nameRef = useRef<HTMLInputElement>(null)
+  const photoFailedRef = useRef<HTMLDivElement>(null)
+  /** One save at a time: a second press while the first runs sends nothing. */
+  const inFlight = useRef(false)
+
+  // A path named in the address is this account's path from now on: it goes
+  // on after the owner leaves the form and comes back by another way.
+  const goal = onboarding?.goal ?? null
+  const userId = onboarding?.userId
+  useEffect(() => {
+    if (userId && goal) updateOnboarding(userId, (state) => chooseGoal(state, goal))
+  }, [userId, goal])
   const deleteButtonRef = useRef<HTMLButtonElement>(null)
+
+  useEffect(() => {
+    if (photoFailed) photoFailedRef.current?.focus()
+  }, [photoFailed])
 
   const sexFemale = species === 'dog' ? t.sexFemaleDog : t.sexFemaleCat
   const sexMale = species === 'dog' ? t.sexMaleDog : t.sexMaleCat
@@ -96,7 +157,8 @@ export default function PetForm({ pet, hints = {} }: Props) {
     species !== (pet?.species ?? 'cat') ||
     name !== (pet?.name ?? '') ||
     breed !== (pet?.breed ?? '') ||
-    ageYears !== (pet?.age_years?.toString() ?? '') ||
+    JSON.stringify(dates) !== JSON.stringify(openedDates) ||
+    photo.kind !== 'keep' ||
     weightKg !== (pet?.weight_kg?.toString() ?? '') ||
     sex !== (pet?.sex ?? null) ||
     neutered !== (pet?.neutered ?? null) ||
@@ -112,46 +174,98 @@ export default function PetForm({ pet, hints = {} }: Props) {
 
   // Unsaved changes: the browser asks on reload or closing the tab; a link
   // anywhere on the page opens our own dialog first.
-  const { leaveHref, leaveLinkRef, stay, leave } = useLeaveGuard(dirty, petFormCancelHref(pet?.id))
+  const { leaveHref, leaveLinkRef, stay, leave } = useLeaveGuard(dirty && !photoFailed, petFormCancelHref(pet?.id))
+
+  /** Opens a folded section and takes the owner to it. */
+  function openMore(section: 'health' | 'life') {
+    setMoreOpen((current) => ({ ...current, [section]: true }))
+    requestAnimationFrame(() => {
+      const target = document.getElementById(fieldId(`more-${section}`))
+      target?.scrollIntoView({ block: 'start' })
+      target?.querySelector<HTMLElement>('summary')?.focus()
+    })
+  }
+
+  async function sendPhoto(petId: string, doneHref: string) {
+    try {
+      await applyPhoto(photoDeps, petId, photo)
+      leave(doneHref)
+      return true
+    } catch (error) {
+      console.warn('[pets] photo not saved', error)
+      setPhotoFailed({ petId, doneHref })
+      return false
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (saving) return
+    if (inFlight.current) return
     if (!name.trim()) {
       setNameError(t.errorName)
       nameRef.current?.focus()
       return
     }
+    const read = readPetDates(dates, today)
+    if (!read.ok) {
+      setDatesError(read)
+      const field = { birthDate: 'birth-date', approxYears: 'approx-years', approxMonths: 'approx-months', adoptedOn: 'adopted-on' }[read.field]
+      document.getElementById(fieldId(field))?.focus()
+      return
+    }
+    inFlight.current = true
     setSaving(true)
     setFormError('')
     setNameError('')
+    setDatesError(null)
 
     const request = petFormRequest(
       pet,
       {
-        species, name, breed, ageYears, weightKg, sex, neutered, indoorOutdoor, diet,
+        species, name, breed, dates: read.value, weightKg, sex, neutered, indoorOutdoor, diet,
         sizeClass, walkActivity, allergies, vaccinated, chronicConditions, medications, notes,
       },
-      localToday(),
+      today,
     )
+    let saved: { id?: unknown } | null = null
     try {
       const res = await fetch(request.url, {
         method: request.method,
         headers: csrfHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify(request.body),
       })
-      if (!res.ok) {
-        setFormError(t.saveError)
-        setSaving(false)
-        return
-      }
+      if (res.ok) saved = await res.json().catch(() => ({}))
     } catch {
+      saved = null
+    }
+    if (!saved) {
+      // What was typed stays; the owner can try again.
+      inFlight.current = false
       setFormError(t.saveError)
       setSaving(false)
       return
     }
 
-    leave(petFormDoneHref(pet ? { kind: 'updated', petId: pet.id } : { kind: 'created' }))
+    // From here on the pet exists: whatever happens to the photo, it is never sent again.
+    const petId = pet?.id ?? (typeof saved.id === 'string' ? saved.id : null)
+    if (!pet && userId) updateOnboarding(userId, finishOnboarding)
+    const doneHref = pet
+      ? petFormDoneHref({ kind: 'updated', petId: pet.id })
+      : petId
+        ? petFormDoneHref({ kind: 'created', petId, goal })
+        : '/pets?petSaved=created'
+    if (!petId || photo.kind === 'keep') {
+      leave(doneHref)
+      return
+    }
+    if (!(await sendPhoto(petId, doneHref))) setSaving(false)
+  }
+
+  async function retryPhoto() {
+    if (!photoFailed || photoRetrying) return
+    setPhotoRetrying(true)
+    const ok = await sendPhoto(photoFailed.petId, photoFailed.doneHref)
+    if (!ok) setPhotoRetrying(false)
   }
 
   async function handleDelete() {
@@ -173,11 +287,18 @@ export default function PetForm({ pet, hints = {} }: Props) {
     leave(petFormDoneHref({ kind: 'deleted', petId: pet.id }))
   }
 
+  const goalCard = goal && !isEdit
+    ? goal === 'check'
+      ? { title: dict.onboarding.goalCheckTitle, body: dict.onboarding.goalCheckBody }
+      : { title: dict.onboarding.goalHealthTitle, body: dict.onboarding.goalHealthBody }
+    : null
+
   return (
-    <div className="form-layout">
-      <form className="card pet-form" onSubmit={handleSubmit} noValidate aria-busy={saving || undefined}>
-        <section className="form-section">
-          <h3>{t.sectionBasic}</h3>
+    <form className="care-columns pet-form-page" onSubmit={handleSubmit} noValidate aria-busy={saving || undefined}>
+      <div>
+        <section className="card pet-form" aria-labelledby={fieldId('about')}>
+          <h2 id={fieldId('about')}>{t.sectionAbout}</h2>
+          <PetPhotoField species={species} photoUrl={photoUrl} change={photo} onChange={setPhoto} />
           <div className="form-grid">
             <Field id={fieldId('species')} label={t.species}>
               <select
@@ -213,44 +334,6 @@ export default function PetForm({ pet, hints = {} }: Props) {
               />
             </Field>
 
-            <Field id={fieldId('breed')} label={t.breed}>
-              <input
-                id={fieldId('breed')}
-                value={breed}
-                onChange={e => setBreed(e.target.value)}
-                placeholder={breedPlaceholder}
-                className="input"
-                autoComplete="off"
-              />
-            </Field>
-
-            <Field id={fieldId('age')} label={t.ageYears}>
-              <input
-                id={fieldId('age')}
-                type="text"
-                inputMode="decimal"
-                value={ageYears}
-                onChange={e => setAgeYears(sanitizeDecimalInput(e.target.value))}
-                placeholder="3"
-                className="input"
-                autoComplete="off"
-              />
-            </Field>
-
-            <Field id={fieldId('weight')} label={t.weightKg} hint={hints.weight}>
-              <input
-                id={fieldId('weight')}
-                aria-describedby={hints.weight ? `${fieldId('weight')}-hint` : undefined}
-                type="text"
-                inputMode="decimal"
-                value={weightKg}
-                onChange={e => setWeightKg(sanitizeDecimalInput(e.target.value))}
-                placeholder="4.5"
-                className="input"
-                autoComplete="off"
-              />
-            </Field>
-
             <Field id={fieldId('sex')} label={t.sex}>
               <select
                 id={fieldId('sex')}
@@ -263,11 +346,47 @@ export default function PetForm({ pet, hints = {} }: Props) {
                 <option value="male">{sexMale}</option>
               </select>
             </Field>
+
+            <Field id={fieldId('breed')} label={t.breed}>
+              <input
+                id={fieldId('breed')}
+                value={breed}
+                onChange={e => setBreed(e.target.value)}
+                placeholder={breedPlaceholder}
+                className="input"
+                autoComplete="off"
+              />
+            </Field>
           </div>
         </section>
 
-        <section className="form-section">
-          <h3>{t.sectionHealth}</h3>
+        <section className="card pet-form" aria-labelledby={fieldId('dates')}>
+          <h2 id={fieldId('dates')}>{t.sectionDates}</h2>
+          <PetDatesFields
+            idBase={formId}
+            fields={dates}
+            onChange={(next) => { setDates(next); setDatesError(null) }}
+            error={datesError}
+            today={today}
+          />
+        </section>
+
+        <details
+          id={fieldId('more-health')}
+          className="card pet-form pet-form-more"
+          open={moreOpen.health}
+          onToggle={e => {
+            const open = e.currentTarget.open
+            setMoreOpen(current => (current.health === open ? current : { ...current, health: open }))
+          }}
+        >
+          <summary>
+            <span>
+              <strong>{t.moreHealth}</strong>
+              <small>{t.moreHealthNote}</small>
+            </span>
+            <Icon name="arrow" />
+          </summary>
           <div className="form-grid">
             <Field id={fieldId('neutered')} label={t.neutered}>
               <select
@@ -330,11 +449,58 @@ export default function PetForm({ pet, hints = {} }: Props) {
               />
             </Field>
           </div>
-        </section>
 
-        <section className="form-section">
-          <h3>{t.sectionLifestyle}</h3>
+          {/* The heading is the textarea's only label: "Notes" is written once. */}
+          <h3 id={notesTitleId}>{t.sectionNotes}</h3>
+          <textarea
+            value={notes}
+            onChange={e => setNotes(e.target.value.slice(0, NOTES_MAX))}
+            placeholder={t.notesPlaceholder}
+            rows={4}
+            maxLength={NOTES_MAX}
+            className="input"
+            aria-labelledby={notesTitleId}
+            aria-describedby={notesCountId}
+          />
+          <p
+            id={notesCountId}
+            className={notes.length >= NOTES_MAX ? 'notes-counter is-max' : 'notes-counter'}
+          >
+            {notes.length}/{NOTES_MAX}
+          </p>
+        </details>
+
+        <details
+          id={fieldId('more-life')}
+          className="card pet-form pet-form-more"
+          open={moreOpen.life}
+          onToggle={e => {
+            const open = e.currentTarget.open
+            setMoreOpen(current => (current.life === open ? current : { ...current, life: open }))
+          }}
+        >
+          <summary>
+            <span>
+              <strong>{t.moreLife}</strong>
+              <small>{t.moreLifeNote}</small>
+            </span>
+            <Icon name="arrow" />
+          </summary>
           <div className="form-grid">
+            <Field id={fieldId('weight')} label={t.weightKg} hint={hints.weight}>
+              <input
+                id={fieldId('weight')}
+                aria-describedby={hints.weight ? `${fieldId('weight')}-hint` : undefined}
+                type="text"
+                inputMode="decimal"
+                value={weightKg}
+                onChange={e => setWeightKg(sanitizeDecimalInput(e.target.value))}
+                placeholder="4.5"
+                className="input"
+                autoComplete="off"
+              />
+            </Field>
+
             <Field id={fieldId('lifestyle')} label={t.lifestyle}>
               <select
                 id={fieldId('lifestyle')}
@@ -399,64 +565,92 @@ export default function PetForm({ pet, hints = {} }: Props) {
               </>
             )}
           </div>
-        </section>
-
-        <section className="form-section">
-          {/* The heading is the textarea's only label: "Notes" is written once. */}
-          <h3 id={notesTitleId}>{t.sectionNotes}</h3>
-          <textarea
-            value={notes}
-            onChange={e => setNotes(e.target.value.slice(0, NOTES_MAX))}
-            placeholder={t.notesPlaceholder}
-            rows={4}
-            maxLength={NOTES_MAX}
-            className="input"
-            aria-labelledby={notesTitleId}
-            aria-describedby={notesCountId}
-          />
-          <p
-            id={notesCountId}
-            className={notes.length >= NOTES_MAX ? 'notes-counter is-max' : 'notes-counter'}
-          >
-            {notes.length}/{NOTES_MAX}
-          </p>
-        </section>
+        </details>
 
         {formError && <p role="alert" className="banner error form-error">{formError}</p>}
 
-        <div className="form-actions">
-          {isEdit ? (
-            <button
-              ref={deleteButtonRef}
-              type="button"
-              className="btn danger"
-              onClick={() => { setDeleteError(''); setConfirmDelete(true) }}
-              disabled={deleting || saving}
-            >
-              {t.deletePet}
-            </button>
-          ) : null}
-          <div className="row">
-            <Link href={petFormCancelHref(pet?.id)} className="link">{t.cancelBtn}</Link>
-            <button type="submit" className="btn primary" disabled={saving}>
-              {saving ? t.savingBtn : isEdit ? t.saveBtn : t.addBtn}
-            </button>
+        {photoFailed ? (
+          <div ref={photoFailedRef} tabIndex={-1} className="card soft pet-photo-failed" role="alert">
+            <h2>{t.photo.failedTitle}</h2>
+            <p>{t.photo.failedBody}</p>
+            <div className="care-actions">
+              <button type="button" className="btn primary" onClick={() => void retryPhoto()} aria-disabled={photoRetrying || undefined}>
+                {photoRetrying ? t.photo.retrying : t.photo.retry}
+              </button>
+              <button type="button" className="link" onClick={() => leave(photoFailed.doneHref)}>
+                {t.photo.continueWithout}
+              </button>
+            </div>
           </div>
-        </div>
-      </form>
-
-      <aside className="summary-box pet-form-aside">
-        <PetAvatar species={species} />
-        <h3>{t.asideTitle}</h3>
-        <p>{t.asideBody}</p>
-        <div className="divider" />
-        <p>{t.asideNote}</p>
-        {isEdit && (
-          <Link href="/checks" className="link">
-            {t.asideHistory}
-            <Icon name="arrow" />
-          </Link>
+        ) : (
+          <div className="form-actions">
+            {isEdit ? (
+              <button
+                ref={deleteButtonRef}
+                type="button"
+                className="btn danger"
+                onClick={() => { setDeleteError(''); setConfirmDelete(true) }}
+                disabled={deleting || saving}
+              >
+                {t.deletePet}
+              </button>
+            ) : null}
+            <div className="row">
+              <Link href={petFormCancelHref(pet?.id)} className="link">{t.cancelBtn}</Link>
+              <button type="submit" className="btn primary" aria-disabled={saving || undefined}>
+                {saving ? t.savingBtn : isEdit ? t.saveBtn : goal ? t.saveContinue : t.addBtn}
+              </button>
+            </div>
+          </div>
         )}
+      </div>
+
+      <aside>
+        {goalCard ? (
+          <section className="card soft" aria-labelledby={fieldId('goal')}>
+            <h2 id={fieldId('goal')}>{goalCard.title}</h2>
+            <p>{goalCard.body}</p>
+            <div className="divider" />
+            <p className="small">{dict.onboarding.goalNote}</p>
+          </section>
+        ) : (
+          <section className="card soft pet-form-aside" aria-labelledby={fieldId('aside')}>
+            <h2 id={fieldId('aside')}>{t.asideTitle}</h2>
+            <p>{t.asideBody}</p>
+            <div className="divider" />
+            <p className="small">{t.asideNote}</p>
+            {isEdit && (
+              <Link href="/checks" className="link">
+                {t.asideHistory}
+                <Icon name="arrow" />
+              </Link>
+            )}
+          </section>
+        )}
+
+        <section className="card" aria-labelledby={fieldId('more')}>
+          <h2 id={fieldId('more')}>{t.sectionMore}</h2>
+          <ul className="pet-form-more-links">
+            <li>
+              <button type="button" onClick={() => openMore('health')}>
+                <span>
+                  {t.moreHealth}
+                  <small>{t.moreHealthNote}</small>
+                </span>
+                <Icon name="arrow" />
+              </button>
+            </li>
+            <li>
+              <button type="button" onClick={() => openMore('life')}>
+                <span>
+                  {t.moreLife}
+                  <small>{t.moreLifeNote}</small>
+                </span>
+                <Icon name="arrow" />
+              </button>
+            </li>
+          </ul>
+        </section>
       </aside>
 
       {confirmDelete && pet && (
@@ -486,7 +680,7 @@ export default function PetForm({ pet, hints = {} }: Props) {
           returnFocusRef={leaveLinkRef}
         />
       )}
-    </div>
+    </form>
   )
 }
 

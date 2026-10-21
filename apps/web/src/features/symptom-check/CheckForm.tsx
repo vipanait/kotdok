@@ -22,6 +22,8 @@ interface Props {
   initialPetId: string
   /** Balance when the page was rendered. */
   credits: number
+  /** Signed links of the pets' own photos; a pet without one shows its species drawing. */
+  photos?: Record<string, string>
 }
 
 type Phase = 'form' | 'loading' | 'error'
@@ -36,7 +38,7 @@ type CheckResponse = SymptomCheckResult & { credits_remaining: number; check_id?
  * on its own page; the form only renders one itself if the answer came back
  * without an id.
  */
-export default function CheckForm({ pets, initialPetId, credits: initialCredits }: Props) {
+export default function CheckForm({ pets, initialPetId, credits: initialCredits, photos = {} }: Props) {
   const router = useRouter()
   const dict = useTranslations()
   const locale = useLocale()
@@ -51,6 +53,9 @@ export default function CheckForm({ pets, initialPetId, credits: initialCredits 
   const [duration, setDuration] = useState('')
   const [stool, setStool] = useState('')
   const [painSigns, setPainSigns] = useState<string[]>([])
+  /** «Выбрать другого питомца»: the choice of pet, shown when asked for. */
+  const [choosingPet, setChoosingPet] = useState(false)
+  const petSelect = useRef<HTMLSelectElement>(null)
 
   const [phase, setPhase] = useState<Phase>('form')
   const [credits, setCredits] = useState(initialCredits)
@@ -72,6 +77,10 @@ export default function CheckForm({ pets, initialPetId, credits: initialCredits 
 
   // Focus follows the state that replaced the form, and comes back to the
   // description when the form returns.
+  useEffect(() => {
+    if (choosingPet) petSelect.current?.focus()
+  }, [choosingPet])
+
   useEffect(() => {
     if (phase !== 'form') {
       statusHeading.current?.focus()
@@ -265,134 +274,150 @@ export default function CheckForm({ pets, initialPetId, credits: initialCredits 
       <div className="pagehead">
         <div>
           <h1>{t.pageTitle}</h1>
-          <p>{t.pageSubtitle}</p>
+          <p>{pet ? t.checkingFor.replace('{name}', () => pet.name) : t.pageSubtitle}</p>
         </div>
+        {pets.length > 1 && !choosingPet && (
+          <button type="button" className="link" onClick={() => setChoosingPet(true)}>
+            {t.choosePet}
+          </button>
+        )}
       </div>
 
-      <div className="form-layout">
-        <form
-          className="card check-form"
-          onSubmit={e => { e.preventDefault(); void submit() }}
-          aria-labelledby={`${ids}-title`}
-        >
-          <div className="section-head">
-            <h2 id={`${ids}-title`}>{t.formTitle}</h2>
-            <span className="small muted nowrap">{t.formCost}</span>
-          </div>
-
-          {noCredits && (
-            <div className="banner check-notice" role={creditsRefused ? 'alert' : undefined}>
-              <strong>{t.noCreditsTitle}</strong>
-              <p>{t.noCreditsText}</p>
-              <Link href="/credits" className="link">
-                {t.noCreditsAction}
-                <Icon name="arrow" />
-              </Link>
+      <form
+        className="care-columns check-columns"
+        onSubmit={e => { e.preventDefault(); void submit() }}
+        aria-labelledby={`${ids}-title`}
+        noValidate
+      >
+        <div>
+          <section className="card check-form">
+            <div className="section-head">
+              <h2 id={`${ids}-title`}>{t.formTitle}</h2>
+              <span className="small muted nowrap">{t.formCost}</span>
             </div>
-          )}
 
-          <label className="field">
-            <span className="field-label">{t.petLabel}</span>
-            <select
-              className="input"
-              value={pet?.id ?? ''}
-              onChange={e => setPetId(e.target.value)}
-              aria-describedby={factsLine ? factsId : undefined}
-            >
-              {pets.map(p => {
-                const line = petSummary(p, dict, locale, ', ')
-                return (
-                  <option key={p.id} value={p.id}>
-                    {line ? `${p.name} · ${line}` : p.name}
-                  </option>
-                )
-              })}
-            </select>
-          </label>
-          {/* Phones only (the card beside the form is hidden there): the chosen
-              pet's age and chronic conditions, right under the choice. */}
-          {factsLine && (
-            <p id={factsId} className="check-pet-inline" aria-live="polite">{factsLine}</p>
-          )}
+            {noCredits && (
+              <div className="banner check-notice" role={creditsRefused ? 'alert' : undefined}>
+                <strong>{t.noCreditsTitle}</strong>
+                <p>{t.noCreditsText}</p>
+                <Link href="/credits" className="link">
+                  {t.noCreditsAction}
+                  <Icon name="arrow" />
+                </Link>
+              </div>
+            )}
 
-          <div className="field">
-            <label className="field-label" htmlFor={symptomsFieldId}>
-              {t.symptomsLabel}
-              <span aria-hidden> *</span>
-            </label>
-            <textarea
-              id={symptomsFieldId}
-              ref={symptomsField}
-              className="input"
-              value={symptoms}
-              onChange={e => setSymptoms(e.target.value)}
-              placeholder={t.symptomsHint}
-              required
-              minLength={SYMPTOMS_MIN}
-              maxLength={SYMPTOMS_MAX}
-              rows={5}
-              aria-describedby={symptomsHintId}
-            />
-            <span className="field-hint check-symptoms-meta">
-              <span id={symptomsHintId}>{tooShort ? t.symptomsRequired : ''}</span>
-              <span className="check-counter">
-                {t.symptomsCount.replace('{n}', String(symptoms.length)).replace('{max}', String(SYMPTOMS_MAX))}
+            {choosingPet && (
+              <label className="field">
+                <span className="field-label">{t.petLabel}</span>
+                <select
+                  ref={petSelect}
+                  className="input"
+                  value={pet?.id ?? ''}
+                  onChange={e => setPetId(e.target.value)}
+                  aria-describedby={factsLine ? factsId : undefined}
+                >
+                  {pets.map(p => {
+                    const line = petSummary(p, dict, locale, ', ')
+                    return (
+                      <option key={p.id} value={p.id}>
+                        {line ? `${p.name} · ${line}` : p.name}
+                      </option>
+                    )
+                  })}
+                </select>
+              </label>
+            )}
+            {/* Phones only (the pet's card comes after the form there): the chosen
+                pet's age and chronic conditions, right under the choice. */}
+            {choosingPet && factsLine && (
+              <p id={factsId} className="check-pet-inline" aria-live="polite">{factsLine}</p>
+            )}
+
+            <div className="field">
+              <label className="field-label" htmlFor={symptomsFieldId}>
+                {t.symptomsLabel}
+                <span aria-hidden> *</span>
+              </label>
+              <textarea
+                id={symptomsFieldId}
+                ref={symptomsField}
+                className="input"
+                value={symptoms}
+                onChange={e => setSymptoms(e.target.value)}
+                placeholder={t.symptomsHint}
+                required
+                minLength={SYMPTOMS_MIN}
+                maxLength={SYMPTOMS_MAX}
+                rows={5}
+                aria-describedby={symptomsHintId}
+              />
+              <span className="field-hint check-symptoms-meta">
+                <span id={symptomsHintId}>{tooShort ? t.symptomsRequired : ''}</span>
+                <span className="check-counter">
+                  {t.symptomsCount.replace('{n}', String(symptoms.length)).replace('{max}', String(SYMPTOMS_MAX))}
+                </span>
               </span>
-            </span>
-          </div>
+            </div>
 
-          <div className="banner">{t.writeFreely}</div>
+            <div className="banner">{t.writeFreely}</div>
 
-          <h3 className="check-clarify">
-            {t.clarifyTitle}
-            <span className="optional">{t.optional}</span>
-          </h3>
+            <div className="form-grid">
+              <ChipGroup id={`${ids}-duration`} label={t.duration} options={options.duration} value={duration} onChange={setDuration} />
+              <ChipGroup id={`${ids}-appetite`} label={t.appetite} options={options.appetite} value={appetite} onChange={setAppetite} />
+            </div>
+          </section>
 
-          <div className="form-grid">
-            <ChipGroup id={`${ids}-appetite`} label={t.appetite} options={options.appetite} value={appetite} onChange={setAppetite} />
-            <ChipGroup id={`${ids}-activity`} label={t.activity} options={options.activity} value={activity} onChange={setActivity} />
-            <ChipGroup id={`${ids}-duration`} label={t.duration} options={options.duration} value={duration} onChange={setDuration} />
-            <label className="field">
-              <span className="field-label">{t.stool}</span>
-              <select
-                className={stool ? 'input' : 'input is-empty'}
-                value={stool}
-                onChange={e => setStool(e.target.value)}
-              >
-                <option value="">{t.stoolUnset}</option>
-                {options.stool.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-              </select>
-            </label>
-          </div>
+          <section className="card check-form" aria-labelledby={`${ids}-clarify`}>
+            <h2 id={`${ids}-clarify`} className="check-clarify">
+              {t.clarifyTitle}
+              <span className="optional">{t.optional}</span>
+            </h2>
 
-          <MultiChipGroup
-            id={`${ids}-pain`}
-            label={t.painSigns}
-            options={options.painSigns}
-            values={painSigns}
-            onChange={setPainSigns}
-          />
+            <div className="form-grid">
+              <ChipGroup id={`${ids}-activity`} label={t.activity} options={options.activity} value={activity} onChange={setActivity} />
+              <label className="field">
+                <span className="field-label">{t.stool}</span>
+                <select
+                  className={stool ? 'input' : 'input is-empty'}
+                  value={stool}
+                  onChange={e => setStool(e.target.value)}
+                >
+                  <option value="">{t.stoolUnset}</option>
+                  {options.stool.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                </select>
+              </label>
+            </div>
+
+            <MultiChipGroup
+              id={`${ids}-pain`}
+              label={t.painSigns}
+              options={options.painSigns}
+              values={painSigns}
+              onChange={setPainSigns}
+            />
+          </section>
 
           {formError && <div className="banner error" role="alert">{formError}</div>}
 
-          <div className="form-actions">
-            <span className="small muted">
-              {noCredits ? t.noCreditsCharge : t.chargeNote.replace('{n}', String(credits))}
-            </span>
+          <div className="care-actions">
             <button type="submit" className="btn primary" disabled={noCredits || tooShort}>
               {t.checkSymptoms}
               <Icon name="arrow" />
             </button>
+            <span className="small muted">
+              {noCredits ? t.noCreditsCharge : t.chargeNote.replace('{n}', String(credits))}
+            </span>
           </div>
-        </form>
+        </div>
 
-        <aside className="stack">
+        <aside>
           {pet && (
-            <div className="card check-pet-card">
+            <section className="card soft check-pet-card" aria-labelledby={`${ids}-pet`}>
               <div className="row">
-                <PetAvatar species={pet.species} />
+                <PetAvatar species={pet.species} photoUrl={photos[pet.id]} size={64} />
                 <div className="check-pet">
-                  <h3>{pet.name}</h3>
+                  <h2 id={`${ids}-pet`}>{pet.name}</h2>
                   {petLine && <p className="small">{petLine}</p>}
                 </div>
               </div>
@@ -400,16 +425,16 @@ export default function CheckForm({ pets, initialPetId, credits: initialCredits 
               {facts.chronic && <p className="small check-pet-health">{facts.chronic}</p>}
               <p className="small">{t.petContext}</p>
               <Link href={`/pets/${pet.id}/edit`} className="link">{t.viewProfile}</Link>
-            </div>
+            </section>
           )}
-          <div className="summary-box">
-            <h3>{t.answerTitle}</h3>
+          <section className="card" aria-labelledby={`${ids}-answer`}>
+            <h2 id={`${ids}-answer`}>{t.answerTitle}</h2>
             <p>{t.answerText}</p>
             <div className="divider" />
-            <p>{t.answerNote}</p>
-          </div>
+            <p className="small muted">{t.answerNote}</p>
+          </section>
         </aside>
-      </div>
+      </form>
     </>
   )
 }

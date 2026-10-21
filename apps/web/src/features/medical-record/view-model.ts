@@ -3,6 +3,7 @@ import {
   chartLayout,
   chartTicks,
   chartY,
+  daysTogether,
   datedWeights,
   doneEvents,
   dueEntries,
@@ -81,6 +82,8 @@ export type HeadFacts = {
   weight: string | null
   /** The trend, the day of the last weighing, or that the form's weight has no date. */
   weightNote: string | null
+  /** «Вместе 2110 дней» from the home day (FB-2); none without that day. */
+  together: string | null
 }
 
 function speciesWord(words: Words, pet: Pet): string {
@@ -103,7 +106,13 @@ export function headFacts(dict: Dictionary, locale: Locale, overview: HealthOver
     meta: parts.join(' · '),
     weight: pet.weight_kg === null ? null : formatWeight(words, pet.weight_kg),
     weightNote: pet.weight_kg === null ? null : weightNote(dict, locale, overview, today),
+    together: togetherText(dict, locale, pet.adopted_on, today),
   }
+}
+
+function togetherText(dict: Dictionary, locale: Locale, adoptedOn: string | null, today: string): string | null {
+  const days = daysTogether(adoptedOn, today)
+  return days !== null && days > 0 ? formatCount(dict.medicalRecord.together, days, locale) : null
 }
 
 function spanText(dict: Dictionary, locale: Locale, months: number, days: number): string {
@@ -139,11 +148,20 @@ export type DueRow = {
   /** «Просрочено на 12 дней · 12 сентября», «Через 9 дней · 3 октября», «12 марта 2027». */
   status: string
   tone: DueTone
-  /** «Сделано» for this one item, «Состоялся» for a planned visit; null where the site does not offer it. */
+  /**
+   * An overdue date as the design draws it: the day («10 октября»), and under
+   * it in red the overdue words («Просрочено на 10 дней»). Overdue for long,
+   * one line says since when; null for a date not overdue.
+   */
+  day: string | null
+  overdue: string | null
+  /** The record the date belongs to: the row's text opens it, apart from «Отметить». */
+  recordHref: string
+  /** «Отметить» for this one item, «Состоялся» for a planned visit; null where the site does not offer it. */
   completeHref: string | null
-  /** «Сделано» or «Состоялся». */
+  /** «Отметить» or «Состоялся». */
   completeText: string
-  /** «Сделано: Блохи и клещи, просрочено на 12 дней · 12 сентября» — the button's accessible name. */
+  /** «Отметить сделанным: Блохи и клещи, просрочено на 12 дней · 12 сентября» — the button's accessible name. */
   completeLabel: string
 }
 
@@ -288,6 +306,17 @@ export function dueStatusText(dict: Dictionary, locale: Locale, date: string, to
   return { text: `${soonText(dict, locale, timing.days)} · ${shown}`, tone: 'soon' }
 }
 
+/** An overdue date split for the record's rows: the day, and the overdue words under it. */
+export function overdueParts(dict: Dictionary, locale: Locale, date: string, today: string): { day: string | null; overdue: string | null } {
+  const timing = dueTiming(date, today)
+  if (timing.tone !== 'overdue') return { day: null, overdue: null }
+  const words = dict.medicalRecord.due
+  const shown = day(dict.medicalRecord, date, today)
+  if (timing.longOverdue) return { day: null, overdue: words.overdueSince.replace('{day}', shown) }
+  const late = -timing.days
+  return { day: shown, overdue: late === 1 ? words.overdueYesterday : formatCount(words.overdueDays, late, locale) }
+}
+
 /** «Сегодня», «Завтра», «Через 5 дней»: a date among the fourteen "soon" days. */
 function soonText(dict: Dictionary, locale: Locale, days: number): string {
   const words = dict.medicalRecord.due
@@ -305,6 +334,8 @@ function dueRow(
   const status = dueStatusText(dict, locale, entry.date, today)
   const title = dueTitle(dict, entry)
   const petId = overview.pet.id
+  const parts = overdueParts(dict, locale, entry.date, today)
+  const recordHref = medicalRecordHref.recordView(petId, entry.event.id)
   // The server's word (`writable`): an older server gets no «Сделано» that would fail.
   const words = dict.medicalRecord.due
   if (entry.kind === 'visit') {
@@ -316,6 +347,8 @@ function dueRow(
       title,
       status: status.text,
       tone: status.tone,
+      ...parts,
+      recordHref,
       completeHref: held ? medicalRecordHref.complete(petId, entry.event.id, null, from) : null,
       completeText: words.markHeld,
       completeLabel: words.markHeldLabel.replace('{title}', title).replace('{status}', statusInSentence(status)),
@@ -328,6 +361,8 @@ function dueRow(
     title,
     status: status.text,
     tone: status.tone,
+    ...parts,
+    recordHref,
     completeHref: offered ? medicalRecordHref.complete(petId, entry.event.id, entry.key, from) : null,
     completeText: words.markDone,
     completeLabel: words.markDoneLabel.replace('{title}', title).replace('{status}', statusInSentence(status)),

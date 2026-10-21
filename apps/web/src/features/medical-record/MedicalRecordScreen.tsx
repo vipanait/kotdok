@@ -32,7 +32,17 @@ export default function MedicalRecordScreen({
 }) {
   const dict = useTranslations()
   const words = dict.medicalRecord.states
-  const { state, reload, today } = useMedicalRecord(petId)
+  const { state, reload, refresh, today } = useMedicalRecord(petId)
+
+  // Back to the tab: the record is read again under what is shown, so a
+  // change made on the phone meanwhile — a course, a time — shows up.
+  useEffect(() => {
+    const again = () => {
+      if (document.visibilityState === 'visible') refresh()
+    }
+    document.addEventListener('visibilitychange', again)
+    return () => document.removeEventListener('visibilitychange', again)
+  }, [refresh])
 
   if (state.status !== 'ready') {
     return (

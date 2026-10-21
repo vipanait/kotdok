@@ -224,7 +224,7 @@ describe('where «Сделано» is offered', () => {
   })
 })
 
-describe('«Все сроки» and the record’s «Сроки»', () => {
+describe('«Все напоминания» and the record’s «Напоминания»', () => {
   it('lists every due date overdue first, then the soonest, then the rest', () => {
     const due = allDue(ru, 'ru', murka, DESIGN_TODAY)
     expect(due.total).toBe(5)
@@ -237,24 +237,43 @@ describe('«Все сроки» and the record’s «Сроки»', () => {
     ])
   })
 
-  it('gives each item its own «Сделано», named for a screen reader; a planned visit its «Состоялся» (MW-06)', () => {
+  it('gives each item its own «Отметить», named for a screen reader; a planned visit its «Состоялся» (MW-06)', () => {
     const rows = allDue(ru, 'ru', murka, DESIGN_TODAY).rows
     expect(rows[0].completeHref).toBe(`/pets/${petId}/health/${uuid(104)}/complete?item=${uuid(206)}&from=due`)
-    expect(rows[0].completeLabel).toBe('Сделано: Блохи и клещи, просрочено на 12 дней · 12 сентября')
-    expect(rows[0].completeText).toBe('Сделано')
+    expect(rows[0].completeLabel).toBe('Отметить сделанным: Блохи и клещи, просрочено на 12 дней · 12 сентября')
+    expect(rows[0].completeText).toBe('Отметить')
     expect(rows[1].completeHref).toBe(`/pets/${petId}/health/${uuid(108)}/complete?from=due`)
     expect(rows[1].completeText).toBe('Состоялся')
     expect(rows[1].completeLabel).toBe('Состоялся: Осмотр, через 9 дней · 3 октября')
     // English keeps the month's capital in the name (MW-09): only the first letter goes lower case.
     const english = allDue(en, 'en', murka, DESIGN_TODAY).rows
-    expect(english[0].completeLabel).toBe('Done: Fleas and ticks, overdue by 12 days · September 12')
+    expect(english[0].completeLabel).toBe('Mark done: Fleas and ticks, overdue by 12 days · September 12')
     expect(english[3].completeLabel).toContain('March')
     // The two vaccines of one plan: two rows, two items, one plan.
     expect(rows[3].completeHref).toContain(`${uuid(102)}/complete?item=${uuid(203)}`)
     expect(rows[4].completeHref).toContain(`${uuid(102)}/complete?item=${uuid(204)}`)
   })
 
-  it('shows the first three in the record, returning there from «Сделано»', () => {
+  it('draws an overdue date as the day, then the overdue words under it in red (design `record`)', () => {
+    const [overdue, soon, , later] = allDue(ru, 'ru', murka, DESIGN_TODAY).rows
+    expect([overdue.day, overdue.overdue]).toEqual(['12 сентября', 'Просрочено на 12 дней'])
+    expect([soon.day, soon.overdue]).toEqual([null, null])
+    expect(later.overdue).toBeNull()
+  })
+
+  it('opens the record a row is about, apart from its «Отметить»', () => {
+    const [overdue, visit] = allDue(ru, 'ru', murka, DESIGN_TODAY).rows
+    expect(overdue.recordHref).toBe(`/pets/${petId}/health/${uuid(104)}`)
+    expect(visit.recordHref).toBe(`/pets/${petId}/health/${uuid(108)}`)
+  })
+
+  it('a date overdue for long says since when, once', () => {
+    const rows = allDue(ru, 'ru', murka, '2027-06-01').rows
+    const long = rows.find((row) => row.tone === 'overdue' && row.title === 'Блохи и клещи')!
+    expect([long.day, long.overdue]).toEqual([null, 'Просрочено с 12 сентября 2026'])
+  })
+
+  it('shows the first three in the record, returning there from «Отметить»', () => {
     const block = dueBlock(ru, 'ru', murka, DESIGN_TODAY)
     expect(block.rows).toHaveLength(3)
     expect(block.rows[0].completeHref).toContain('from=medical')

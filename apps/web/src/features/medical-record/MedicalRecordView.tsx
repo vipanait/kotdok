@@ -10,6 +10,8 @@ import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
 import type { ChecksPart } from './record-load'
 import { addableRecordTypes, medicalRecordHref, sectionOpen } from './routes'
 import WeightChart from './WeightChart'
+import TodayDoses from './TodayDoses'
+import { useTodayDoses } from './doses/use-today-doses'
 import { checkDayOf } from './visits/visit-view'
 import {
   dueBlock,
@@ -30,7 +32,7 @@ const KIND_ICON: Record<HealthEvent['kind'], IconName> = {
   visit: 'visit',
 }
 
-/** The record of one pet, drawn from data the API returned. */
+/** The record of one pet, drawn from data the API returned (design `record` of 20 October 2026). */
 export default function MedicalRecordView({
   petId,
   overview,
@@ -58,6 +60,7 @@ export default function MedicalRecordView({
   const due = dueBlock(dict, locale, overview, today)
   const facts = importantFacts(dict, overview, today)
   const addable = addableRecordTypes(overview.writable)
+  const doses = useTodayDoses(petId, overview.medications, today)
 
   return (
     <div className="health-page">
@@ -66,76 +69,101 @@ export default function MedicalRecordView({
         {words.allPets}
       </Link>
 
-      <header className="health-head">
-        <PetAvatar size={84} species={overview.pet.species} />
-        <div className="health-head-copy">
+      <header className="pet-head">
+        <PetAvatar size={84} species={overview.pet.species} photoUrl={overview.pet.avatar_url} />
+        <div className="pet-head-copy">
           <h1 className="pet-page-title">{head.name}</h1>
           <p>{head.meta}</p>
-        </div>
-        <div className="health-head-side">
+          {head.together && <p className="pet-head-together">{head.together}</p>}
           {head.weight && (
-            <div className="health-weight">
-              <strong>{head.weight}</strong>
-              {head.weightNote && <p>{head.weightNote}</p>}
-            </div>
+            <p className="pet-head-weight">
+              {head.weight}
+              {head.weightNote && <span>{` · ${head.weightNote}`}</span>}
+            </p>
           )}
-          <Link href={medicalRecordHref.form(petId)} className="link health-form-link">
-            {words.form}
-            <Icon name="arrow" />
+        </div>
+        <div className="pet-head-actions">
+          <Link href={medicalRecordHref.form(petId)} className="link">
+            {words.share.form}
           </Link>
+          {addable.length > 0 && (
+            <Link href={medicalRecordHref.add(petId)} className="btn primary">
+              {words.actions.addRecord}
+            </Link>
+          )}
         </div>
       </header>
 
       {notice}
 
-      <div className="health-grid has-actions">
-        {due.rows.length > 0 && <DueCard petId={petId} due={due} dict={dict} />}
+      <div className="care-columns record-columns">
+        <div>
+          {doses.rows.length > 0 && <TodayDoses title={words.doses.title} doses={doses} today={today} headingId="health-today-title" />}
 
-        {facts.length > 0 && (
-          <section className="card health-facts" aria-labelledby="health-facts-title">
-            <h2 id="health-facts-title">{words.important.title}</h2>
-            <dl>
-              {facts.map((fact) => (
-                <div key={fact.label}>
-                  <dt>{fact.label}</dt>
-                  <dd>{fact.value}</dd>
-                </div>
-              ))}
-            </dl>
-            <Link href={medicalRecordHref.form(petId)} className="link">
-              {words.important.editInForm}
-            </Link>
-          </section>
-        )}
+          {due.rows.length > 0 && <DueCard petId={petId} due={due} dict={dict} />}
 
-        <div className="health-sections">
-          {sectionCards(dict, overview, today).map((card) => (
-            <SectionCardView
-              key={card.section}
-              card={card}
-              href={sectionOpen(card.section, overview.writable) ? medicalRecordHref.section(petId, card.section) : null}
+          <div className="health-sections">
+            {sectionCards(dict, overview, today).map((card) => (
+              <SectionCardView
+                key={card.section}
+                card={card}
+                href={sectionOpen(card.section, overview.writable) ? medicalRecordHref.section(petId, card.section) : null}
+                dict={dict}
+              />
+            ))}
+            <WeightCardView
+              card={weightCard(dict, overview, today)}
+              href={sectionOpen('weight', overview.writable) ? medicalRecordHref.section(petId, 'weight') : null}
               dict={dict}
             />
-          ))}
-          <WeightCardView
-            card={weightCard(dict, overview, today)}
-            href={sectionOpen('weight', overview.writable) ? medicalRecordHref.section(petId, 'weight') : null}
-            dict={dict}
-          />
-          <ChecksCard petId={petId} checks={checks} dict={dict} today={today} onRetry={onRetry} retrying={retrying} />
+            <ChecksCard petId={petId} checks={checks} dict={dict} today={today} onRetry={onRetry} retrying={retrying} />
+          </div>
         </div>
 
-        <nav className="health-actions" aria-label={words.actions.label}>
-          {addable.length > 0 && (
-            <Link href={medicalRecordHref.add(petId)} className="btn primary">
-              {words.actions.addRecord}
-              <Icon name="plus" />
-            </Link>
+        <aside>
+          {facts.length > 0 && (
+            <section className="card soft health-facts" aria-labelledby="health-facts-title">
+              <h2 id="health-facts-title">{words.important.title}</h2>
+              <dl>
+                {facts.map((fact) => (
+                  <div key={fact.label}>
+                    <dt>{fact.label}</dt>
+                    <dd>{fact.value}</dd>
+                  </div>
+                ))}
+              </dl>
+              <Link href={medicalRecordHref.form(petId)} className="link">
+                {words.important.editInForm}
+              </Link>
+            </section>
           )}
-          <Link href={medicalRecordHref.vetSummary(petId)} className="btn secondary">
-            {words.actions.forVet}
-          </Link>
-        </nav>
+
+          <nav className="card share-care" aria-labelledby="health-share-title">
+            <h2 id="health-share-title">{words.share.title}</h2>
+            <ul>
+              <li>
+                <Link href={medicalRecordHref.sitterMemo(petId)}>
+                  <Icon name="share" />
+                  <span>
+                    {words.share.memo}
+                    <small>{words.share.memoNote}</small>
+                  </span>
+                  <Icon name="chevron" />
+                </Link>
+              </li>
+              <li>
+                <Link href={medicalRecordHref.vetSummary(petId)}>
+                  <Icon name="check" />
+                  <span>
+                    {words.share.vet}
+                    <small>{words.share.vetNote}</small>
+                  </span>
+                  <Icon name="chevron" />
+                </Link>
+              </li>
+            </ul>
+          </nav>
+        </aside>
       </div>
     </div>
   )
@@ -173,41 +201,53 @@ function DueCard({ petId, due, dict }: { petId: string; due: DueBlock; dict: Dic
   return (
     <section className="card health-due" aria-labelledby="health-due-title">
       <h2 id="health-due-title">{words.title}</h2>
-      <DueRows rows={due.rows} />
+      <DueRows rows={due.rows} visitStep={false} />
       <Link href={medicalRecordHref.due(petId)} className="link">
         {words.all.replace('{n}', String(due.total))}
+        <Icon name="arrow" />
       </Link>
     </section>
   )
 }
 
 /**
- * Due rows — in the record's «Сроки» and on «Все сроки». How far each date
- * is, is said in words with an icon beside it (colour only supports it);
- * overdue is neutral, not a red urgency badge. «Сделано» acts on that one
- * item; «Состоялся» opens a planned visit's own step (MW-06).
+ * Reminder rows — in the record's «Напоминания» and on «Все напоминания»
+ * (design `record`): plain text, the title in its usual weight, an overdue
+ * date as the day with the overdue words under it in red, thin lines
+ * between rows. The row's text opens its record; «Отметить» is a control of
+ * its own beside it, so the one never takes the other's press. A planned
+ * visit's «Состоялся» is on «Все напоминания» (`visitStep`); in the record
+ * the visit's own page has it, next to «Перенести визит».
  */
-export function DueRows({ rows }: { rows: DueRow[] }) {
+export function DueRows({ rows, visitStep = true }: { rows: DueRow[]; visitStep?: boolean }) {
   return (
-    <ul>
-      {rows.map((row) => (
-        <li key={row.key} className="due-row">
-          <Icon name={KIND_ICON[row.kind]} />
-          <div className="copy">
-            <strong>{row.title}</strong>
-            <p className={`due-state ${row.tone}`}>
-              {row.tone === 'overdue' && <Icon name="calendarLate" />}
-              {row.tone === 'soon' && <Icon name="calendar" />}
-              {row.status}
-            </p>
-          </div>
-          {row.completeHref && (
-            <Link href={row.completeHref} className="pill due-done" aria-label={row.completeLabel}>
-              {row.completeText}
+    <ul className="due-list">
+      {rows.map((row) => {
+        const action = row.completeHref && (row.kind !== 'visit' || visitStep) ? row.completeHref : null
+        return (
+          <li key={row.key} className="due-row">
+            <Icon name={KIND_ICON[row.kind]} />
+            <Link href={row.recordHref} className="due-row-link">
+              <span className="due-title">{row.title}</span>
+              {row.tone === 'overdue' ? (
+                <>
+                  {row.day && <small className="due-day">{row.day}</small>}
+                  <small className="due-overdue">{row.overdue}</small>
+                </>
+              ) : (
+                <small className={`due-when ${row.tone}`}>{row.status}</small>
+              )}
             </Link>
-          )}
-        </li>
-      ))}
+            {action ? (
+              <Link href={action} className="btn secondary compact due-done" aria-label={row.completeLabel}>
+                {row.completeText}
+              </Link>
+            ) : (
+              <Icon name="chevron" className="due-chevron" />
+            )}
+          </li>
+        )
+      })}
     </ul>
   )
 }

@@ -4,6 +4,8 @@ import HistoryRows from '@/components/cabinet/HistoryRows'
 import Icon from '@/components/ui/Icon'
 import { creditsState } from '@/features/credits/credits-state'
 import MyPetsSection from '@/features/dashboard/MyPetsSection'
+import Welcome from '@/features/onboarding/Welcome'
+import { showWelcome, type OnboardingState } from '@/shared/onboarding/onboarding-state'
 import PetSavedBanner from '@/features/pets/PetSavedBanner'
 import type { PetSavedKind } from '@/features/pets/pet-saved'
 import PetsEmptyCard from '@/features/pets/PetsEmptyCard'
@@ -19,6 +21,8 @@ interface Props {
   petSaved: PetSavedKind | null
   /** The owner's calendar day, for the pets' due lines. */
   today: string
+  /** This account's first entry: «С чего начнём?» until it is skipped or a pet is saved. */
+  onboarding: OnboardingState
 }
 
 /**
@@ -27,13 +31,22 @@ interface Props {
  * link away. With no checks left the next step is getting one, not a symptom
  * form the owner cannot send.
  */
-export default async function DashboardContent({ cabinet, data, petSaved, today }: Props) {
+export default async function DashboardContent({ cabinet, data, petSaved, today, onboarding }: Props) {
   const [locale, timeZone] = await Promise.all([getLocale(), getTimeZone()])
   const dict = await getDictionary(locale)
   const t = dict.dashboard
 
-  const { pets, checks, latestChecksByPet, dueByPet, latestRequestStatus } = data
+  const { pets, checks, latestChecksByPet, dueByPet, photosByPet, latestRequestStatus } = data
   const state = creditsState(cabinet.credits, latestRequestStatus)
+
+  // A new account: the choice of a path, not an empty overview (design `welcome`).
+  if (!petSaved && showWelcome(onboarding, { pets: pets.length, checks: checks.length })) {
+    return (
+      <CabinetShell cabinet={cabinet} active="overview" crumb={`${dict.shell.account} / ${dict.onboarding.crumb}`}>
+        <Welcome userId={cabinet.user.id} />
+      </CabinetShell>
+    )
+  }
 
   const recentChecks = (
     <section className="card recent-checks" aria-labelledby="recent-checks-title">
@@ -113,6 +126,7 @@ export default async function DashboardContent({ cabinet, data, petSaved, today 
               pets={pets}
               latestChecksByPet={latestChecksByPet}
               dueByPet={dueByPet}
+              photosByPet={photosByPet}
               today={today}
               dict={dict}
               locale={locale}
