@@ -64,6 +64,7 @@ import { FormSkeleton } from '@/ui/Skeleton'
 import { Text } from '@/ui/Text'
 import { colour, radius, space } from '@/ui/theme'
 import { localDay } from '@/features/followup/followup-ui'
+import { takeRecheck, type RecheckRequest } from '@/features/followup/recheck-request'
 import { ApiError } from '@lapka/shared'
 
 /** How often to ask, and for how long before saying so. */
@@ -226,7 +227,7 @@ export default function NewCheck() {
    * is the one chosen, once the list confirms it is still there. The parameter
    * is then dropped, so it does not win over a later choice in the form.
    */
-  const { petId: askedPet, caseId: askedCase } = useLocalSearchParams<{ petId?: string; caseId?: string }>()
+  const { petId: askedPet } = useLocalSearchParams<{ petId?: string }>()
   useEffect(() => {
     if (!askedPet || !pets?.some((pet) => pet.id === askedPet)) return
     setForm((current) => ({ ...current, petId: askedPet }))
@@ -234,26 +235,31 @@ export default function NewCheck() {
   }, [askedPet, pets])
 
   /**
-   * A re-check «с учётом прошлой» (follow-up loop): opened from a case's
-   * outcome, it carries the case, and the analysis reads its previous check
-   * and answers. Only while that case's pet is the one chosen; «Не учитывать»
-   * drops it. It costs a check like any other.
+   * A re-check «с учётом прошлой» (follow-up loop): asked for from a case's
+   * outcome (`takeRecheck`, on the way in), it carries the case, and the
+   * analysis reads its previous check and answers. Only while that case's pet
+   * is the one chosen; «Не учитывать» drops it. It costs a check like any other.
    */
   const [recheck, setRecheck] = useState<{ caseId: string; petId: string; date: string; answers: number } | null>(null)
-  useEffect(() => {
-    if (!askedCase) return
-    router.setParams({ caseId: undefined })
-    void withFreshSession((api) => api.getFollowup(askedCase))
-      .then((theCase) =>
-        setRecheck({
-          caseId: theCase.id,
-          petId: theCase.pet_id,
-          date: t.day(localDay(new Date(theCase.checks.at(-1)?.created_at ?? theCase.origin_checked_at)), false),
-          answers: theCase.checkins.length,
-        }),
-      )
-      .catch(() => setRecheck(null))
-  }, [askedCase, t])
+  const openRecheck = useCallback(
+    ({ caseId, petId }: RecheckRequest) => {
+      // The case's plaque lives on the first step; a form left on the second
+      // would send the previous description about it unseen.
+      setStep(1)
+      setForm((current) => ({ ...current, petId }))
+      void withFreshSession((api) => api.getFollowup(caseId))
+        .then((theCase) =>
+          setRecheck({
+            caseId: theCase.id,
+            petId: theCase.pet_id,
+            date: t.day(localDay(new Date(theCase.checks.at(-1)?.created_at ?? theCase.origin_checked_at)), false),
+            answers: theCase.checkins.length,
+          }),
+        )
+        .catch(() => setRecheck(null))
+    },
+    [t],
+  )
   const recheckFor = recheck && recheck.petId === form.petId ? recheck : null
 
   function change(patch: Partial<CheckForm>) {
@@ -343,6 +349,9 @@ export default function NewCheck() {
       // the fields while they are still on screen, in the moment the result is
       // being opened.
       if (finished.current) startFresh()
+      // After the emptying, or it would undo the pet the re-check is about.
+      const asked = takeRecheck()
+      if (asked) openRecheck(asked)
 
       const done = takeFinishedCheck(userId)
       if (done) {
@@ -356,7 +365,7 @@ export default function NewCheck() {
         focused.current = false
         void keepDraft()
       }
-    }, [keepDraft, startFresh, userId, watch]),
+    }, [keepDraft, openRecheck, startFresh, userId, watch]),
   )
 
   /**

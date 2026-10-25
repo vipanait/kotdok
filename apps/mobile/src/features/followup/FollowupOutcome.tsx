@@ -8,6 +8,7 @@ import { useCached } from '@/lib/query-cache'
 import { describeFailure } from '@/lib/errors'
 import { useText } from '@/i18n'
 import { clinicSearchUrl, visitFormHref } from '@/features/checks/check-answers'
+import { askRecheck } from './recheck-request'
 import { Button, LinkButton } from '@/ui/Button'
 import { Banner, Card } from '@/ui/Card'
 import { Screen } from '@/ui/Screen'
@@ -195,7 +196,10 @@ function SeeVet({ theCase, result, tab }: { theCase: FollowupCase; result: Follo
         <View style={styles.recheck}>
           <LinkButton
             title={words.recheck}
-            onPress={() => router.navigate({ pathname: '/check', params: { petId: theCase.pet_id, caseId: theCase.id } } as never)}
+            onPress={() => {
+              askRecheck({ caseId: theCase.id, petId: theCase.pet_id })
+              router.navigate('/check' as never)
+            }}
           />
           <Text variant="caption" tone="faint" center>
             {words.recheckPrice(credits)}

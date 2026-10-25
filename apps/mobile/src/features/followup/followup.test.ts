@@ -6,6 +6,7 @@ import { DEFAULT_REMINDERS } from '@/features/medical-record/reminders/schedule'
 import { createReminderSync, openTarget, type Notifier } from '@/features/medical-record/reminders/sync'
 import { planFollowupReminders } from './followup-reminders'
 import { askWhen, caseHref, dueCards, isDue, oneRowPerCase, tomorrowMorning } from './followup-ui'
+import { askRecheck, takeRecheck } from './recheck-request'
 
 vi.mock('react-native', () => ({}))
 
@@ -159,6 +160,15 @@ describe('notifications for open cases', () => {
     const sync = createReminderSync({ notifier, settings: async () => ({ ...DEFAULT_REMINDERS, enabled: false }), t: () => ru, now: () => NOW })
     await sync.run({ userId: 'user-a', load: async () => ({ due: [], pets: [], followups: [summary()] }) })
     expect(scheduled.size).toBe(0)
+  })
+})
+
+describe('a re-check asked for from an outcome', () => {
+  it('reaches the check tab once, the latest request winning', () => {
+    askRecheck({ caseId: 'old', petId: OTHER_PET })
+    askRecheck({ caseId: CASE, petId: PET })
+    expect(takeRecheck()).toEqual({ caseId: CASE, petId: PET })
+    expect(takeRecheck()).toBeNull()
   })
 })
 
