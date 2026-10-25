@@ -1,8 +1,10 @@
 import Link from 'next/link'
-import type { SymptomCheckView } from '@lapka/contracts'
+import type { CheckFollowup, SymptomCheckView } from '@lapka/contracts'
 import PetAvatar from '@/components/PetAvatar'
 import Icon from '@/components/ui/Icon'
 import ResultFeedback from '@/features/symptom-check/ResultFeedback'
+import ReminderCard from '@/features/followup/ReminderCard'
+import { offerPlacement } from '@/features/followup/followup-view'
 import { checkOptions, formatCheckDateTime } from '@/features/symptom-check/check-options'
 import type { Locale } from '@/shared/i18n/config'
 import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
@@ -10,11 +12,8 @@ import type { CheckPet } from '@/shared/types'
 import { petSummary } from '@/shared/utils/pet-summary'
 import { CLINIC_URGENCIES, VET_URGENCIES, urgencyTitle } from '@/shared/utils/urgency'
 import { medicalRecordHref } from '@/features/medical-record/routes'
+import { clinicSearchUrl } from '@/features/symptom-check/clinic-search'
 
-/** A map search for clinics near the owner, in the site's language. */
-function clinicSearchUrl(query: string): string {
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`
-}
 
 interface Props {
   check: SymptomCheckView
@@ -29,6 +28,12 @@ interface Props {
    * resets the form instead of linking to it.
    */
   onNewCheck?: () => void
+  /**
+   * The follow-up of a saved result (`GET /checks/{id}/followup`): the
+   * reminder switch, or the case a re-check belongs to. Absent when it could
+   * not be read, and for a result shown inside the form.
+   */
+  followup?: CheckFollowup | null
 }
 
 function stringList(value: unknown): string[] {
@@ -48,7 +53,7 @@ function text(value: unknown): string | null {
  * Every text is the service's answer or the dictionary's; a block exists only
  * when its data does.
  */
-export default function CheckResultContent({ check, dict, locale, timeZone, pet, onNewCheck }: Props) {
+export default function CheckResultContent({ check, dict, locale, timeZone, pet, onNewCheck, followup }: Props) {
   const t = dict.check
   const urgency = check.urgency
   const level = dict.urgency[urgency]
@@ -99,6 +104,14 @@ export default function CheckResultContent({ check, dict, locale, timeZone, pet,
       ? `${medicalRecordHref.newRecord(pet.id, 'visit')}&check=${encodeURIComponent(check.id)}`
       : null
 
+  // «Напомнить, как …?»: before the advice of a «watch» level, after the
+  // visit action of one that sends to a vet (design `result`, `urgent`).
+  const placement = offerPlacement(urgency)
+  const reminder =
+    check.id && followup && petName && placement ? (
+      <ReminderCard checkId={check.id} petName={petName} urgency={urgency} initial={followup} timeZone={timeZone} />
+    ) : null
+
   return (
     <>
       <div className="pagehead">
@@ -131,6 +144,8 @@ export default function CheckResultContent({ check, dict, locale, timeZone, pet,
 
       <div className="result-layout">
         <div>
+          {placement === 'top' && reminder}
+
           {isHealthy && (
             <section className="card">
               <h2>{t.keepCareTitle}</h2>
@@ -214,6 +229,8 @@ export default function CheckResultContent({ check, dict, locale, timeZone, pet,
               </Link>
             )}
           </section>
+
+          {placement === 'bottom' && reminder}
         </div>
 
         <aside className="stack">

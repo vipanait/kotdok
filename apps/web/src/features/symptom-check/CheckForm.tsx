@@ -24,6 +24,19 @@ interface Props {
   credits: number
   /** Signed links of the pets' own photos; a pet without one shows its species drawing. */
   photos?: Record<string, string>
+  /**
+   * A re-check «с учётом прошлой» (FU-03): the case whose previous check and
+   * answers the server adds to the analysis, and the plaque that says so.
+   */
+  recheck?: RecheckContext | null
+}
+
+export type RecheckContext = {
+  caseId: string
+  /** The case's pet: another pet chosen in the form drops the link. */
+  petId: string
+  /** «Учтём проверку от 23 октября и 2 отметки». */
+  label: string
 }
 
 type Phase = 'form' | 'loading' | 'error'
@@ -38,7 +51,7 @@ type CheckResponse = SymptomCheckResult & { credits_remaining: number; check_id?
  * on its own page; the form only renders one itself if the answer came back
  * without an id.
  */
-export default function CheckForm({ pets, initialPetId, credits: initialCredits, photos = {} }: Props) {
+export default function CheckForm({ pets, initialPetId, credits: initialCredits, photos = {}, recheck = null }: Props) {
   const router = useRouter()
   const dict = useTranslations()
   const locale = useLocale()
@@ -70,7 +83,11 @@ export default function CheckForm({ pets, initialPetId, credits: initialCredits,
   const symptomsField = useRef<HTMLTextAreaElement>(null)
   const returningToForm = useRef(false)
 
+  /** «Не учитывать», or a case the server refused: the check goes as a new one. */
+  const [recheckKept, setRecheckKept] = useState(true)
+
   const pet = pets.find(p => p.id === petId) ?? pets[0]
+  const linkedCase = recheck && recheckKept && pet?.id === recheck.petId ? recheck : null
   const trimmedLength = symptoms.trim().length
   const tooShort = trimmedLength < SYMPTOMS_MIN
   const noCredits = credits <= 0
@@ -111,6 +128,8 @@ export default function CheckForm({ pets, initialPetId, credits: initialCredits,
           pain_signs: painSigns.length ? painSigns : undefined,
           // The owner's day the pet's medical record is read on for the analysis.
           today: localToday(),
+          // A re-check: the server adds the case's previous check and answers.
+          ...(linkedCase ? { followup_case_id: linkedCase.caseId } : {}),
         }),
       })
     } catch {
@@ -145,6 +164,12 @@ export default function CheckForm({ pets, initialPetId, credits: initialCredits,
         setPhase('form')
       } else if (res.status === 404) {
         setFormError(t.errorPetMissing)
+        setPhase('form')
+      } else if (res.status === 409 && linkedCase) {
+        // The case cannot take a re-check any more; nothing was charged. The
+        // owner decides whether to send it as a new check.
+        setRecheckKept(false)
+        setFormError(dict.followup.recheckRefused)
         setPhase('form')
       } else {
         setFailure(res.status === 429 ? t.errorBusy : t.errorText)
@@ -274,7 +299,13 @@ export default function CheckForm({ pets, initialPetId, credits: initialCredits,
       <div className="pagehead">
         <div>
           <h1>{t.pageTitle}</h1>
-          <p>{pet ? t.checkingFor.replace('{name}', () => pet.name) : t.pageSubtitle}</p>
+          <p>
+            {linkedCase && pet
+              ? dict.followup.recheckSubtitle.replace('{name}', () => pet.name)
+              : pet
+                ? t.checkingFor.replace('{name}', () => pet.name)
+                : t.pageSubtitle}
+          </p>
         </div>
         {pets.length > 1 && !choosingPet && (
           <button type="button" className="link" onClick={() => setChoosingPet(true)}>
@@ -290,6 +321,15 @@ export default function CheckForm({ pets, initialPetId, credits: initialCredits,
         noValidate
       >
         <div>
+          {linkedCase && (
+            <div className="followup-plaque" role="group" aria-label={linkedCase.label}>
+              <strong>{linkedCase.label}</strong>
+              <button type="button" className="link" onClick={() => setRecheckKept(false)}>
+                {dict.followup.recheckDrop}
+              </button>
+            </div>
+          )}
+
           <section className="card check-form">
             <div className="section-head">
               <h2 id={`${ids}-title`}>{t.formTitle}</h2>
@@ -360,7 +400,7 @@ export default function CheckForm({ pets, initialPetId, credits: initialCredits,
               </span>
             </div>
 
-            <div className="banner">{t.writeFreely}</div>
+            <div className="banner">{linkedCase ? dict.followup.recheckNote : t.writeFreely}</div>
 
             <div className="form-grid">
               <ChipGroup id={`${ids}-duration`} label={t.duration} options={options.duration} value={duration} onChange={setDuration} />
