@@ -3,11 +3,12 @@ import 'server-only'
 import { createServiceClient } from '@/server/supabase/server'
 import { readExtraCheckRequestStatus } from '@/server/extra-check/extra-check-service'
 import type { Pet, PetLatestCheck } from '@/shared/types'
-import type { DueItem, SymptomCheckRecord } from '@lapka/contracts'
+import type { DueItem, FollowupCaseSummary, SymptomCheckRecord } from '@lapka/contracts'
 import { nearestDueByPet, toUtcIso } from '@lapka/shared'
 import { listDue } from '@/server/medical-record/event-service'
 import { signAvatars } from '@/server/pets/avatar-service'
 import { mapSymptomCheckRow, symptomCheckSelect } from '@/server/symptom-check/map-symptom-check'
+import { loadActiveFollowups } from '@/server/checks/load-followup-pages'
 
 export type { PetLatestCheck }
 
@@ -29,6 +30,11 @@ export interface DashboardData extends PetsOverview {
   /** The newest checks, for the "recent checks" card. */
   checks: SymptomCheckRecord[]
   latestRequestStatus: 'pending' | 'approved' | 'rejected' | null
+  /**
+   * Open follow-up cases, earliest question first: the overview picks the
+   * ones due now for its banners (FU-02, В-2). Empty when they could not be read.
+   */
+  followups: FollowupCaseSummary[]
 }
 
 const HISTORY_LIMIT = 3
@@ -118,7 +124,7 @@ export async function loadPetsOverview(userId: string, today: string): Promise<P
 export async function loadDashboard(userId: string, today: string): Promise<DashboardData> {
   const service = createServiceClient()
 
-  const [overview, checksResult, latestRequestStatus] = await Promise.all([
+  const [overview, checksResult, latestRequestStatus, followups] = await Promise.all([
     loadPetsOverview(userId, today),
     service
       .from('symptom_checks')
@@ -128,6 +134,7 @@ export async function loadDashboard(userId: string, today: string): Promise<Dash
       .order('created_at', { ascending: false })
       .limit(HISTORY_LIMIT),
     readExtraCheckRequestStatus(userId),
+    loadActiveFollowups(userId),
   ])
 
   if (checksResult.error) throw new Error(`recent checks: ${checksResult.error.message}`)
@@ -139,5 +146,6 @@ export async function loadDashboard(userId: string, today: string): Promise<Dash
       return { ...check, created_at: toUtcIso(check.created_at) }
     }),
     latestRequestStatus,
+    followups,
   }
 }
