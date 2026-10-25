@@ -259,7 +259,8 @@ export default function NewCheck() {
         // for them here.
         if (focused.current) {
           forgetPendingCheck()
-          router.push(`/check/${job.check_id}`)
+          // `fresh`: just answered, so the result may ask for a rating (store-review).
+          router.push({ pathname: '/check/[id]', params: { id: job.check_id, fresh: '1' } })
         } else if (userId) {
           rememberFinishedCheck(userId, job.check_id)
         }
@@ -320,7 +321,7 @@ export default function NewCheck() {
 
       const done = takeFinishedCheck(userId)
       if (done) {
-        router.push(`/check/${done}`)
+        router.push({ pathname: '/check/[id]', params: { id: done, fresh: '1' } })
       } else {
         const job = pendingCheck(userId)
         if (job) void watch(job)

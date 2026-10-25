@@ -178,9 +178,9 @@ components:
                 - female
             - type: "null"
         neutered:
-          anyOf:
-            - type: boolean
-            - type: "null"
+          type:
+            - boolean
+            - "null"
         indoor_outdoor:
           anyOf:
             - type: string
@@ -225,9 +225,9 @@ components:
             minLength: 1
             maxLength: 150
         vaccinated:
-          anyOf:
-            - type: boolean
-            - type: "null"
+          type:
+            - boolean
+            - "null"
         chronic_conditions:
           maxItems: 20
           type: array
@@ -273,7 +273,7 @@ components:
         created_at:
           type: string
           format: date-time
-          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
       required:
         - id
         - species
@@ -331,9 +331,9 @@ components:
                 - female
             - type: "null"
         neutered:
-          anyOf:
-            - type: boolean
-            - type: "null"
+          type:
+            - boolean
+            - "null"
         indoor_outdoor:
           anyOf:
             - type: string
@@ -378,9 +378,9 @@ components:
             minLength: 1
             maxLength: 150
         vaccinated:
-          anyOf:
-            - type: boolean
-            - type: "null"
+          type:
+            - boolean
+            - "null"
         chronic_conditions:
           maxItems: 20
           type: array
@@ -459,9 +459,9 @@ components:
                 - female
             - type: "null"
         neutered:
-          anyOf:
-            - type: boolean
-            - type: "null"
+          type:
+            - boolean
+            - "null"
         indoor_outdoor:
           anyOf:
             - type: string
@@ -506,9 +506,9 @@ components:
             minLength: 1
             maxLength: 150
         vaccinated:
-          anyOf:
-            - type: boolean
-            - type: "null"
+          type:
+            - boolean
+            - "null"
         chronic_conditions:
           maxItems: 20
           type: array
@@ -631,9 +631,9 @@ components:
                     pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
                   - type: "null"
               product:
-                anyOf:
-                  - type: string
-                  - type: "null"
+                type:
+                  - string
+                  - "null"
               next:
                 anyOf:
                   - type: string
@@ -664,9 +664,9 @@ components:
                     pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
                   - type: "null"
               product:
-                anyOf:
-                  - type: string
-                  - type: "null"
+                type:
+                  - string
+                  - "null"
               next:
                 anyOf:
                   - type: string
@@ -696,7 +696,7 @@ components:
               created_at:
                 type: string
                 format: date-time
-                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
               urgency:
                 type: string
                 enum:
@@ -799,13 +799,13 @@ components:
           format: date
           pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
         clinic:
-          anyOf:
-            - type: string
-            - type: "null"
+          type:
+            - string
+            - "null"
         notes:
-          anyOf:
-            - type: string
-            - type: "null"
+          type:
+            - string
+            - "null"
         items:
           type: array
           items:
@@ -816,9 +816,9 @@ components:
                 format: uuid
                 pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
               name:
-                anyOf:
-                  - type: string
-                  - type: "null"
+                type:
+                  - string
+                  - "null"
               targets:
                 type: array
                 items:
@@ -859,9 +859,9 @@ components:
                   - type: "null"
               instructions:
                 default: null
-                anyOf:
-                  - type: string
-                  - type: "null"
+                type:
+                  - string
+                  - "null"
               medication_id:
                 default: null
                 anyOf:
@@ -892,14 +892,14 @@ components:
             - type: "null"
         reason:
           default: null
-          anyOf:
-            - type: string
-            - type: "null"
+          type:
+            - string
+            - "null"
         diagnosis:
           default: null
-          anyOf:
-            - type: string
-            - type: "null"
+          type:
+            - string
+            - "null"
         check_id:
           default: null
           anyOf:
@@ -1132,9 +1132,9 @@ components:
           format: date
           pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
         name:
-          anyOf:
-            - type: string
-            - type: "null"
+          type:
+            - string
+            - "null"
         targets:
           type: array
           items:
@@ -1174,13 +1174,13 @@ components:
           type: string
         name_en:
           default: null
-          anyOf:
-            - type: string
-            - type: "null"
+          type:
+            - string
+            - "null"
         manufacturer:
-          anyOf:
-            - type: string
-            - type: "null"
+          type:
+            - string
+            - "null"
         aliases:
           type: array
           items:
@@ -1193,9 +1193,9 @@ components:
               - cat
               - dog
         form:
-          anyOf:
-            - type: string
-            - type: "null"
+          type:
+            - string
+            - "null"
         targets:
           type: array
           items:
@@ -1245,9 +1245,9 @@ components:
         name:
           type: string
         dosage:
-          anyOf:
-            - type: string
-            - type: "null"
+          type:
+            - string
+            - "null"
         started_on:
           anyOf:
             - type: string
@@ -1365,7 +1365,7 @@ components:
         expires_at:
           type: string
           format: date-time
-          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
       required:
         - path
         - url
@@ -1617,9 +1617,9 @@ components:
           items:
             type: string
         species_specific_warning:
-          anyOf:
-            - type: string
-            - type: "null"
+          type:
+            - string
+            - "null"
         home_care_steps:
           type: array
           items:
@@ -1638,7 +1638,7 @@ components:
         created_at:
           type: string
           format: date-time
-          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
         locale:
           type: string
           enum:
@@ -1651,9 +1651,9 @@ components:
               pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
             - type: "null"
         pet_name:
-          anyOf:
-            - type: string
-            - type: "null"
+          type:
+            - string
+            - "null"
         pet_species:
           anyOf:
             - type: string
@@ -1824,11 +1824,11 @@ components:
         created_at:
           type: string
           format: date-time
-          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
         updated_at:
           type: string
           format: date-time
-          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
       required:
         - job_id
         - status
@@ -1891,7 +1891,7 @@ components:
               expires_at:
                 type: string
                 format: date-time
-                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
             required:
               - upload_id
               - url
@@ -1967,7 +1967,7 @@ components:
         expires_at:
           type: string
           format: date-time
-          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
       required:
         - token
         - expires_at
