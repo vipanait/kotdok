@@ -1,3 +1,4 @@
+import { vocab } from '@lapka/shared'
 import type { Dictionary } from './ru'
 
 const en: Dictionary = {
@@ -184,26 +185,12 @@ const en: Dictionary = {
     dueOverdue: 'overdue',
     dueNames: {
       vaccination: '{against} vaccination',
-      against: {
-        panleukopenia: 'Panleukopenia',
-        calicivirus: 'Calicivirus',
-        rhinotracheitis: 'Rhinotracheitis',
-        distemper: 'Distemper',
-        parvovirus: 'Parvovirus',
-        adenovirus: 'Adenovirus',
-        rabies: 'Rabies',
-        felv: 'Feline leukaemia',
-        chlamydia: 'Chlamydia',
-        leptospirosis: 'Leptospirosis',
-        parainfluenza: 'Parainfluenza',
-        bordetella: 'Kennel cough',
-        coronavirus: 'Canine coronavirus',
-      } as Record<string, string>,
+      against: vocab.en.against,
       complexVaccination: 'Combined vaccination',
       namedVaccination: '{name} vaccination',
       plainVaccination: 'Vaccination',
       treatment: '{groups} treatment',
-      parasiteGroups: { fleas: 'flea', ticks: 'tick', worms: 'worm' },
+      parasiteGroups: vocab.en.parasiteGroupsOf,
       namedTreatment: '{name} treatment',
       plainTreatment: 'Parasite treatment',
       visit: 'Vet visit',
@@ -479,16 +466,7 @@ const en: Dictionary = {
     disclaimerFallback:
       'Lapka is an informational tool. It is not a veterinary diagnosis and does not replace an examination by a specialist.',
   },
-  urgency: {
-    emergency: { label: 'EMERGENCY', action: 'Go to a veterinary clinic immediately' },
-    urgent: { label: 'URGENT', action: 'See a vet within 24 hours' },
-    monitor: {
-      label: 'MONITOR',
-      action: 'Watch for 48 hours; if worsening — see a vet',
-    },
-    home_care: { label: 'HOME CARE', action: 'Can be treated at home' },
-    healthy: { label: 'ALL GOOD', action: 'No action needed' },
-  },
+  urgency: vocab.en.urgency,
   admin: {
     statistics: {
       crumb: 'Internal / Statistics',
@@ -625,7 +603,7 @@ const en: Dictionary = {
     form: 'Profile',
     formSaved: 'Profile saved.',
     savedOpen: 'Open the record',
-    months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+    months: vocab.en.months,
     dayFormat: '{m} {d}',
     dayYearFormat: '{m} {d}, {y}',
     decimalSeparator: '.',
@@ -642,22 +620,8 @@ const en: Dictionary = {
     daysSpan: { one: '{n} day', few: '{n} days', many: '{n} days', other: '{n} days' },
     together: { one: 'Together for {n} day', few: 'Together for {n} days', many: 'Together for {n} days', other: 'Together for {n} days' },
     and: 'and',
-    targets: {
-      panleukopenia: 'Panleukopenia',
-      calicivirus: 'Calicivirus',
-      rhinotracheitis: 'Rhinotracheitis',
-      distemper: 'Distemper',
-      parvovirus: 'Parvovirus',
-      adenovirus: 'Adenovirus',
-      rabies: 'Rabies',
-      felv: 'Feline leukaemia',
-      chlamydia: 'Chlamydia',
-      leptospirosis: 'Leptospirosis',
-      parainfluenza: 'Parainfluenza',
-      bordetella: 'Kennel cough',
-      coronavirus: 'Canine coronavirus',
-    },
-    parasiteGroups: { fleas: 'Fleas', ticks: 'Ticks', worms: 'Worms' },
+    targets: vocab.en.targets,
+    parasiteGroups: vocab.en.parasiteGroups,
     parasiteTargets: { fleas: 'Fleas', ticks: 'Ticks', ear_mites: 'Ear mites', worms: 'Worms', heartworm: 'Heartworm' },
     recordKinds: { vaccination: 'Vaccination', parasite: 'Parasite treatment', visit: 'Vet visit' },
     due: {

@@ -1,5 +1,6 @@
 import { dayParts } from '@/lib/calendar-day'
 import { listWords } from '@/lib/list-words'
+import { vocab } from '@lapka/shared'
 import type { Dictionary, MonthDay } from './ru'
 
 /**
@@ -12,7 +13,7 @@ import type { Dictionary, MonthDay } from './ru'
  */
 const decimal = (value: number) => String(value)
 
-const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+const MONTHS = vocab.en.months
 
 export const en: Dictionary = {
   decimal,
@@ -215,21 +216,7 @@ export const en: Dictionary = {
     chartLabel: (from: string, to: string) => `Weight chart, from ${from} to ${to}`,
     vaccinationsHint: (n: number) => `${n} ${n === 1 ? 'vaccination' : 'vaccinations'} in the medical record`,
     weightHistoryHint: 'Weight history is in the medical record',
-    targets: {
-      panleukopenia: 'Panleukopenia',
-      calicivirus: 'Calicivirus',
-      rhinotracheitis: 'Rhinotracheitis',
-      distemper: 'Distemper',
-      parvovirus: 'Parvovirus',
-      adenovirus: 'Adenovirus',
-      rabies: 'Rabies',
-      felv: 'Feline leukaemia',
-      chlamydia: 'Chlamydia',
-      leptospirosis: 'Leptospirosis',
-      parainfluenza: 'Parainfluenza',
-      bordetella: 'Kennel cough',
-      coronavirus: 'Canine coronavirus',
-    },
+    targets: vocab.en.targets,
     complexVaccination: 'Combined vaccination',
     noProduct: 'No product name',
     due: {
@@ -290,7 +277,7 @@ export const en: Dictionary = {
     diseases: 'Against',
     next: 'Next',
     nextYear: (day: string) => `In a year — ${day}`,
-    parasiteGroups: { fleas: 'Fleas', ticks: 'Ticks', worms: 'Worms' },
+    parasiteGroups: vocab.en.parasiteGroups,
     parasiteTitle: {
       fleasTicks: 'Fleas and ticks',
       worms: 'Worms',
@@ -806,21 +793,7 @@ export const en: Dictionary = {
       `${pet} ${days === 1 ? 'tomorrow' : `in ${days} days`}: ${what}`,
     today: (pet: string, what: string) => `Today for ${pet}: ${what}`,
     overdue: (pet: string, what: string) => `${pet} is due: ${what}, a week overdue`,
-    against: {
-      panleukopenia: 'panleukopenia',
-      calicivirus: 'calicivirus',
-      rhinotracheitis: 'rhinotracheitis',
-      distemper: 'distemper',
-      parvovirus: 'parvovirus',
-      adenovirus: 'adenovirus',
-      rabies: 'rabies',
-      felv: 'feline leukaemia',
-      chlamydia: 'chlamydia',
-      leptospirosis: 'leptospirosis',
-      parainfluenza: 'parainfluenza',
-      bordetella: 'kennel cough',
-      coronavirus: 'canine coronavirus',
-    } as Record<string, string>,
+    against: vocab.en.against,
     about: {
       panleukopenia: 'about panleukopenia',
       calicivirus: 'about calicivirus',
@@ -840,7 +813,7 @@ export const en: Dictionary = {
     namedVaccination: (name: string) => `${name} vaccination`,
     plainVaccination: 'vaccination',
     complexVaccination: 'combined vaccination',
-    parasiteGroups: { fleas: 'flea', ticks: 'tick', worms: 'worm' },
+    parasiteGroups: vocab.en.parasiteGroupsOf,
     treatment: (groups: readonly string[]) => `${listWords(groups, 'and')} treatment`,
     namedTreatment: (name: string) => `${name} treatment`,
     plainTreatment: 'parasite treatment',
@@ -1021,13 +994,7 @@ export const en: Dictionary = {
 
   tabs: { pets: 'Pets', check: 'Check', profile: 'Profile' },
 
-  urgency: {
-    emergency: { label: 'EMERGENCY', action: 'Go to a veterinary clinic immediately' },
-    urgent: { label: 'URGENT', action: 'See a vet within 24 hours' },
-    monitor: { label: 'MONITOR', action: 'Watch for 48 hours; if worsening — see a vet' },
-    home_care: { label: 'HOME CARE', action: 'Can be treated at home' },
-    healthy: { label: 'ALL GOOD', action: 'No action needed' },
-  },
+  urgency: vocab.en.urgency,
 
   petAge: (years: number) => `${years} ${years === 1 ? 'year' : 'years'}`,
   petAgeMonths: (months: number) => `${months} ${months === 1 ? 'month' : 'months'}`,

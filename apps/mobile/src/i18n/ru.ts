@@ -3,6 +3,7 @@ import { plural } from '@/lib/plural'
 import { listWords } from '@/lib/list-words'
 import { nameCase } from '@/lib/russian-name'
 import { PAIN_SIGNS, PET_DIETS, PET_LIFESTYLES, PET_SIZE_CLASSES, PET_WALK_ACTIVITIES } from '@lapka/contracts'
+import { vocab } from '@lapka/shared'
 
 /** One end of a range inside a month: its number, and the whole day as `t.day` writes it. */
 export type MonthDay = { date: number; day: string }
@@ -17,7 +18,7 @@ export type MonthDay = { date: number; day: string }
 /** «4,2»: a decimal the way Russian writes it. */
 const decimal = (value: number) => String(value).replace('.', ',')
 
-const MONTHS = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря']
+const MONTHS = vocab.ru.months
 const MONTH_NAMES = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
 const MONTHS_SHORT = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек']
 
@@ -234,21 +235,7 @@ export const ru = {
     chartLabel: (from: string, to: string) => `График веса, от ${from} до ${to}`,
     vaccinationsHint: (n: number) => `В медкарте ${n} ${plural(n, 'прививка', 'прививки', 'прививок')}`,
     weightHistoryHint: 'История веса — в медкарте',
-    targets: {
-      panleukopenia: 'Панлейкопения',
-      calicivirus: 'Калицивироз',
-      rhinotracheitis: 'Ринотрахеит',
-      distemper: 'Чума плотоядных',
-      parvovirus: 'Парвовирусный энтерит',
-      adenovirus: 'Аденовироз',
-      rabies: 'Бешенство',
-      felv: 'Лейкоз',
-      chlamydia: 'Хламидиоз',
-      leptospirosis: 'Лептоспироз',
-      parainfluenza: 'Парагрипп',
-      bordetella: 'Кашель питомников',
-      coronavirus: 'Коронавирусный энтерит',
-    },
+    targets: vocab.ru.targets,
     complexVaccination: 'Комплексная прививка',
     noProduct: 'Без препарата',
     due: {
@@ -314,7 +301,7 @@ export const ru = {
     diseases: 'От чего',
     next: 'Следующая',
     nextYear: (day: string) => `Через год — ${day}`,
-    parasiteGroups: { fleas: 'Блохи', ticks: 'Клещи', worms: 'Глисты' },
+    parasiteGroups: vocab.ru.parasiteGroups,
     parasiteTitle: {
       fleasTicks: 'Блохи и клещи',
       worms: 'Глисты',
@@ -876,21 +863,7 @@ export const ru = {
       const cases = nameCase(pet)
       return cases ? `${cases.dative} пора: ${what} ${late} на неделю` : `${pet} — пора: ${what} ${late} на неделю`
     },
-    against: {
-      panleukopenia: 'от панлейкопении',
-      calicivirus: 'от калицивироза',
-      rhinotracheitis: 'от ринотрахеита',
-      distemper: 'от чумы плотоядных',
-      parvovirus: 'от парвовирусного энтерита',
-      adenovirus: 'от аденовироза',
-      rabies: 'от бешенства',
-      felv: 'от лейкоза',
-      chlamydia: 'от хламидиоза',
-      leptospirosis: 'от лептоспироза',
-      parainfluenza: 'от парагриппа',
-      bordetella: 'от кашля питомников',
-      coronavirus: 'от коронавирусного энтерита',
-    } as Record<string, string>,
+    against: vocab.ru.against,
     about: {
       panleukopenia: 'о панлейкопении',
       calicivirus: 'о калицивирозе',
@@ -910,7 +883,7 @@ export const ru = {
     namedVaccination: (name: string) => `прививка «${name}»`,
     plainVaccination: 'прививка',
     complexVaccination: 'комплексная прививка',
-    parasiteGroups: { fleas: 'блох', ticks: 'клещей', worms: 'глистов' },
+    parasiteGroups: vocab.ru.parasiteGroupsOf,
     treatment: (groups: readonly string[]) => `обработка от ${listWords(groups, 'и')}`,
     namedTreatment: (name: string) => `обработка «${name}»`,
     plainTreatment: 'обработка от паразитов',
@@ -1103,13 +1076,7 @@ export const ru = {
 
   tabs: { pets: 'Питомцы', check: 'Проверка', profile: 'Профиль' },
 
-  urgency: {
-    emergency: { label: 'ЭКСТРЕННО', action: 'Немедленно в ветеринарную клинику' },
-    urgent: { label: 'СРОЧНО', action: 'К ветеринару в течение 24 часов' },
-    monitor: { label: 'НАБЛЮДАЕМ', action: 'Наблюдайте 48 часов, при ухудшении — к врачу' },
-    home_care: { label: 'ДОМАШНИЙ УХОД', action: 'Можно лечить дома' },
-    healthy: { label: 'ВСЁ В ПОРЯДКЕ', action: 'Ничего делать не нужно' },
-  },
+  urgency: vocab.ru.urgency,
 
   petAge: (years: number) => `${years} ${plural(years, 'год', 'года', 'лет')}`,
   petAgeMonths: (months: number) => `${months} ${plural(months, 'месяц', 'месяца', 'месяцев')}`,
