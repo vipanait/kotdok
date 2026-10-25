@@ -8,6 +8,7 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "typecheck": "tsc --noEmit",
+    "lint": "eslint",
     "export:ios": "expo export --clear --platform ios --output-dir dist/ios",
     "export:android": "expo export --clear --platform android --output-dir dist/android",
     "doctor": "expo-doctor",
@@ -54,6 +55,9 @@
   },
   "devDependencies": {
     "@types/react": "^19",
+    "eslint": "^9",
+    "eslint-config-expo": "~57.0.2",
+    "globals": "^16.5.0",
     "typescript": "~6.0.3",
     "vitest": "^4.1.11"
   },
