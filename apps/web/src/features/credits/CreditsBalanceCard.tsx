@@ -3,7 +3,9 @@
 import { useEffect, useRef, useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { ApiError } from '@lapka/shared'
 import { useLocale, useTranslations } from '@/components/LocaleProvider'
+import { browserApi } from '@/features/api/browser-api'
 import Icon from '@/components/ui/Icon'
 import {
   canRequestExtraCheck,
@@ -11,7 +13,6 @@ import {
   type ExtraCheckRequestStatus,
 } from '@/features/credits/credits-state'
 import { formatCount } from '@/shared/i18n/plural'
-import { csrfHeaders } from '@/shared/security/csrf-client'
 
 interface Props {
   credits: number
@@ -20,8 +21,9 @@ interface Props {
 
 /**
  * The balance and the next step it allows: start a check, ask for an extra
- * one, or wait for the answer. A request goes to `/api/credits/request-extra`;
- * the page is then refreshed so the server's state — pending — is what shows.
+ * one, or wait for the answer. A request goes through the shared client
+ * (POST /credits/extra-request); the page is then refreshed so the server's
+ * state — pending — is what shows.
  */
 export default function CreditsBalanceCard({ credits, latestRequestStatus }: Props) {
   const dict = useTranslations()
@@ -53,21 +55,17 @@ export default function CreditsBalanceCard({ credits, latestRequestStatus }: Pro
     setError('')
 
     try {
-      const response = await fetch('/api/credits/request-extra', { method: 'POST', headers: csrfHeaders() })
-      const payload = await response.json().catch(() => ({})) as { error?: string }
-      if (!response.ok) {
-        // The balance or a request changed elsewhere: show what is true now.
-        if (payload.error === 'pending_request_exists' || payload.error === 'credits_remaining') {
-          startRefresh(() => router.refresh())
-          return
-        }
-        setError(payload.error === 'rate_limited' ? t.rateLimited : t.requestError)
-        return
-      }
+      await browserApi().requestExtraCheck()
       announce.current = true
       startRefresh(() => router.refresh())
-    } catch {
-      setError(t.requestError)
+    } catch (error) {
+      // A request already pending, or checks back on the balance: the state
+      // changed elsewhere, so show what is true now.
+      if (error instanceof ApiError && error.code === 'conflict') {
+        startRefresh(() => router.refresh())
+        return
+      }
+      setError(error instanceof ApiError && error.code === 'rate_limited' ? t.rateLimited : t.requestError)
     } finally {
       setLoading(false)
     }

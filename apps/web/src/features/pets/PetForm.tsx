@@ -10,7 +10,6 @@ import { useToday } from '@/features/forms/use-today'
 import ConfirmDialog from '@/features/pets/ConfirmDialog'
 import { useLeaveGuard } from '@/features/forms/use-leave-guard'
 import { petFormCancelHref, petFormDoneHref } from '@/features/pets/pet-form-exit'
-import { csrfHeaders } from '@/shared/security/csrf-client'
 import { fromArr, petFormRequest } from '@/features/pets/pet-form-request'
 import { updateOnboarding } from '@/features/onboarding/onboarding-cookie'
 import { chooseGoal, finishOnboarding, type OnboardingGoal } from '@/shared/onboarding/onboarding-state'
@@ -227,14 +226,10 @@ export default function PetForm({ pet, hints = {}, photoUrl = null, today: pageT
       },
       today,
     )
-    let saved: { id?: unknown } | null = null
+    let saved: { id: string } | null = null
     try {
-      const res = await fetch(request.url, {
-        method: request.method,
-        headers: csrfHeaders({ 'Content-Type': 'application/json' }),
-        body: JSON.stringify(request.body),
-      })
-      if (res.ok) saved = await res.json().catch(() => ({}))
+      const api = browserApi()
+      saved = request.kind === 'update' ? await api.updatePet(request.petId, request.body) : await api.createPet(request.body)
     } catch {
       saved = null
     }
@@ -247,7 +242,7 @@ export default function PetForm({ pet, hints = {}, photoUrl = null, today: pageT
     }
 
     // From here on the pet exists: whatever happens to the photo, it is never sent again.
-    const petId = pet?.id ?? (typeof saved.id === 'string' ? saved.id : null)
+    const petId = pet?.id ?? saved.id
     if (!pet && userId) updateOnboarding(userId, finishOnboarding)
     const doneHref = pet
       ? petFormDoneHref({ kind: 'updated', petId: pet.id })
@@ -273,12 +268,7 @@ export default function PetForm({ pet, hints = {}, photoUrl = null, today: pageT
     setDeleting(true)
     setDeleteError('')
     try {
-      const res = await fetch(`/api/pets/${pet.id}`, { method: 'DELETE', headers: csrfHeaders() })
-      if (!res.ok) {
-        setDeleteError(t.deleteError)
-        setDeleting(false)
-        return
-      }
+      await browserApi().deletePet(pet.id)
     } catch {
       setDeleteError(t.deleteError)
       setDeleting(false)

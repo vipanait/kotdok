@@ -138,8 +138,8 @@ describe('what «Сохранить» sends', () => {
   it('an edit: PUT with the list and weight as the form opened (`medications_before`, `weight_kg_before`) and the owner’s day', () => {
     const fields = { ...untouched(murka), medications: 'Лечебный корм,  , Фортифлора, Апоквел ' }
     expect(petFormRequest(murka, fields, TODAY)).toMatchObject({
-      url: `/api/pets/${murka.id}`,
-      method: 'PUT',
+      kind: 'update',
+      petId: murka.id,
       body: {
         medications: ['Лечебный корм', 'Фортифлора', 'Апоквел'],
         medications_before: ['Лечебный корм', 'Фортифлора'],
@@ -153,13 +153,15 @@ describe('what «Сохранить» sends', () => {
   it('an older pet with no list sends the empty list the form showed, never null', () => {
     const older = { ...murka, medications: null } as unknown as Pet
     const request = petFormRequest(older, untouched(older), TODAY)
+    if (request.kind !== 'update') throw new Error('an edit')
     expect(request.body.medications_before).toEqual([])
     expect(request.body.medications).toEqual([])
   })
 
   it('a new pet: POST, no «before» values — there was nothing before', () => {
     const request = petFormRequest(undefined, { ...untouched(murka), name: '  Барсик ', weightKg: '4,2', breed: ' ' }, TODAY)
-    expect(request).toMatchObject({ url: '/api/pets', method: 'POST' })
+    expect(request).toMatchObject({ kind: 'create' })
+    expect(request).not.toHaveProperty('petId')
     expect(request.body).toMatchObject({ name: 'Барсик', weight_kg: 4.2, breed: null, weight_measured_on: TODAY })
     expect('medications_before' in request.body).toBe(false)
     expect('weight_kg_before' in request.body).toBe(false)

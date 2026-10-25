@@ -33,20 +33,14 @@ const ADAPTERS = new Set([
   'api/response.ts',
   'api/with-api-auth.ts',
   'auth/auth-callback.ts',
-  // Reads the browser's cookies to answer *when* the caller last
-  // authenticated, which re-authentication needs and the user object does not
-  // carry. Same nature as `get-auth-user.ts` beside it: an adapter, not a rule.
-  'auth/get-auth-session.ts',
   'auth/get-auth-user.ts',
   'auth/sign-out.ts',
   'i18n/get-locale.ts',
   'i18n/get-time-zone.ts',
   // Reads the first-entry cookie, as get-time-zone.ts reads the zone's.
   'onboarding/get-onboarding.ts',
-  'pets/pet-http.ts',
   'security/csrf.ts',
   'supabase/server.ts',
-  'symptom-check/symptom-check-http.ts',
 ])
 
 function sourceFiles(dir: string): string[] {
