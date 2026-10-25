@@ -1,14 +1,15 @@
-import { useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { Linking, StyleSheet, View } from 'react-native'
-import { router, useSegments } from 'expo-router'
+import { router, useFocusEffect, useLocalSearchParams, useSegments } from 'expo-router'
 import * as Clipboard from 'expo-clipboard'
 import { withFreshSession } from '@/lib/api'
 import { useCached } from '@/lib/query-cache'
 import { describeFailure } from '@/lib/errors'
 import { dictionary, useText } from '@/i18n'
-import { urgencyText } from '@/features/checks/urgency'
+import { urgencyText, type UrgencyLevel } from '@/features/checks/urgency'
 import { checkAnswers, formatCheckedAt, offersVisit, photoObservations, visitFormHref, clinicSearchUrl, offersClinicSearch } from '@/features/checks/check-answers'
 import { ResultFeedback } from '@/features/checks/ResultFeedback'
+import { reviewAfterCheck } from '@/features/review/store-review'
 import { Button, LinkButton } from '@/ui/Button'
 import { Banner, UrgencyCard } from '@/ui/Card'
 import { Screen } from '@/ui/Screen'
@@ -35,6 +36,9 @@ export function CheckResult({ id }: { id: string }) {
   const error = result.error ? describeFailure(ui, result.error, ui.common.offline) : null
   const load = result.reload
   const [copied, setCopied] = useState(false)
+  // Only an answer that has just arrived, not one reopened from the history.
+  const { fresh } = useLocalSearchParams<{ fresh?: string }>()
+  useReviewAfterResult(fresh === '1' && check ? check.urgency : null)
 
   async function copyQuestions() {
     if (!check) return
@@ -159,6 +163,28 @@ export function CheckResult({ id }: { id: string }) {
         onPress={() => (tab === 'check' ? router.dismissTo('/check') : router.navigate('/check'))}
       />
     </Screen>
+  )
+}
+
+/** How long a fresh answer is on screen before the rating sheet may cover it. */
+const READ_FIRST_MS = 3000
+
+/**
+ * The store's rating sheet over a fresh result, once it has been seen. Left
+ * before that, nothing is asked; the rules decide whether the answer is one to
+ * ask after at all (never an urgent one).
+ */
+function useReviewAfterResult(urgency: UrgencyLevel | null) {
+  const done = useRef(false)
+  useFocusEffect(
+    useCallback(() => {
+      if (!urgency || done.current) return
+      const timer = setTimeout(() => {
+        done.current = true
+        void reviewAfterCheck(urgency)
+      }, READ_FIRST_MS)
+      return () => clearTimeout(timer)
+    }, [urgency]),
   )
 }
 
