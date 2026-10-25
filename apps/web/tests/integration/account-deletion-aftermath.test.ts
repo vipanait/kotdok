@@ -6,7 +6,7 @@ import { issueReauthProof } from '@/server/auth/reauth'
 import { completeDeletionJob, requestAccountDeletion } from '@/server/account/deletion-service'
 import { loadAccount } from '@/server/auth/account-state'
 import { DELETION_RECORD_RETENTION_DAYS } from '@lapka/contracts'
-import { FIXTURE_PASSWORD, OWNER_A, connect, seedFixtures, type SeededFixtures } from './fixtures'
+import { OWNER_A, connect, seedFixtures, signIn, type SeededFixtures } from './fixtures'
 
 /**
  * What is true after an account is gone.
@@ -23,21 +23,6 @@ let seeded: SeededFixtures
 
 function service() {
   return createServiceClient()
-}
-
-/** A client carrying a real user session, exactly what a phone would hold. */
-async function tokenFor(email: string): Promise<string> {
-  const client = createClient(
-    process.env.TEST_SUPABASE_URL!,
-    process.env.TEST_SUPABASE_ANON_KEY!,
-    { auth: { autoRefreshToken: false, persistSession: false } },
-  )
-  const { data, error } = await client.auth.signInWithPassword({
-    email,
-    password: FIXTURE_PASSWORD,
-  })
-  if (error || !data.session) throw error ?? new Error('no session')
-  return data.session.access_token
 }
 
 /** The ordered cleanup from the data map, as stage 8/05 will run it. */
@@ -68,7 +53,7 @@ describe('after the account is gone', () => {
   it('keeps the job and its receipt when the Auth user is deleted', async () => {
     // A token taken while the account still works — this is the one that must
     // stop opening things.
-    staleToken = await tokenFor(OWNER_A.email)
+    staleToken = await signIn(OWNER_A.email)
 
     const proof = await issueReauthProof(service(), seeded.ownerAId, 'account_deletion')
     await requestAccountDeletion(service(), {

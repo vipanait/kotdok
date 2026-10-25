@@ -1,10 +1,9 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { NextRequest } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
 import type { Client } from 'pg'
 import { ApiErrorEnvelopeSchema, HealthOverviewSchema } from '@lapka/contracts'
 import { GET as getHealth } from '@/app/(backend)/api/v1/pets/[id]/health/route'
-import { FIXTURE_PASSWORD, OWNER_A, OWNER_B, PET_IDS, connect, seedFixtures, type SeededFixtures } from './fixtures'
+import { OWNER_A, OWNER_B, PET_IDS, connect, seedFixtures, signIn, type SeededFixtures } from './fixtures'
 
 // MR-01.2: the medical record answers only its owner, only for a live pet,
 // only while the account is active. Real database, real RLS-free service
@@ -14,15 +13,6 @@ let db: Client
 let seeded: SeededFixtures
 let tokenA: string
 let tokenB: string
-
-async function signIn(email: string): Promise<string> {
-  const client = createClient(process.env.TEST_SUPABASE_URL!, process.env.TEST_SUPABASE_ANON_KEY!, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  })
-  const { data, error } = await client.auth.signInWithPassword({ email, password: FIXTURE_PASSWORD })
-  if (error) throw error
-  return data.session!.access_token
-}
 
 function request(token: string, petId: string) {
   return new NextRequest(`http://test.local/api/v1/pets/${petId}/health`, {

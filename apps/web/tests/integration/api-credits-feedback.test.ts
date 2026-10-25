@@ -1,9 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
-import { NextRequest } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
 import type { Client } from 'pg'
 import { ApiErrorEnvelopeSchema, CheckFeedbackSchema, ExtraCheckRequestStatusSchema } from '@lapka/contracts'
-import { CHECK_IDS, FIXTURE_PASSWORD, OWNER_A, connect, seedFixtures, type SeededFixtures } from './fixtures'
+import { CHECK_IDS, OWNER_A, connect, seedFixtures, signIn, bearerRequest, type SeededFixtures } from './fixtures'
 
 // Telegram is the only outside service these routes touch. It is replaced so
 // the suite never sends a real message, and so the failure path can be driven
@@ -27,26 +25,8 @@ let db: Client
 let seeded: SeededFixtures
 let token: string
 
-async function signIn(): Promise<string> {
-  const client = createClient(
-    process.env.TEST_SUPABASE_URL!,
-    process.env.TEST_SUPABASE_ANON_KEY!,
-    { auth: { autoRefreshToken: false, persistSession: false } },
-  )
-  const { data, error } = await client.auth.signInWithPassword({
-    email: OWNER_A.email,
-    password: FIXTURE_PASSWORD,
-  })
-  if (error) throw error
-  return data.session!.access_token
-}
-
 function request(url: string, init: { method?: string; body?: unknown } = {}) {
-  return new NextRequest(url, {
-    method: init.method ?? 'GET',
-    headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
-    body: init.body === undefined ? undefined : JSON.stringify(init.body),
-  })
+  return bearerRequest(url, init, token)
 }
 
 async function errorCode(response: Response): Promise<string> {
@@ -68,7 +48,7 @@ beforeAll(async () => {
 beforeEach(async () => {
   seeded = await seedFixtures(db)
   await db.query('truncate table public.api_rate_limits')
-  token = await signIn()
+  token = await signIn(OWNER_A.email)
 })
 
 afterAll(async () => {

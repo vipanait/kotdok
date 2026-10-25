@@ -1,16 +1,14 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
-import { NextRequest } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import type { Client } from 'pg'
-import { HealthOverviewSchema, IDEMPOTENCY_KEY_HEADER, MedicationSchema } from '@lapka/contracts'
-import { GET as getHealth } from '@/app/(backend)/api/v1/pets/[id]/health/route'
+import { IDEMPOTENCY_KEY_HEADER, MedicationSchema } from '@lapka/contracts'
 import { POST as addMedications } from '@/app/(backend)/api/v1/pets/[id]/health/medications/route'
 import {
   DELETE as deleteMedication,
   PATCH as patchMedication,
 } from '@/app/(backend)/api/v1/pets/[id]/health/medications/[medicationId]/route'
 import { PATCH as patchPet } from '@/app/(backend)/api/v1/pets/[id]/route'
-import { FIXTURE_PASSWORD, OWNER_A, OWNER_B, PET_IDS, connect, seedFixtures } from './fixtures'
+import { OWNER_A, OWNER_B, PET_IDS, connect, seedFixtures, signIn, overview, bearerRequest } from './fixtures'
 
 // MR-06: medication courses and the pet form's list, against the real database.
 
@@ -19,19 +17,8 @@ let tokenA: string
 let tokenB: string
 const pet: string = PET_IDS.aCat
 
-async function signIn(email: string): Promise<string> {
-  const client = createClient(process.env.TEST_SUPABASE_URL!, process.env.TEST_SUPABASE_ANON_KEY!, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  })
-  const { data, error } = await client.auth.signInWithPassword({ email, password: FIXTURE_PASSWORD })
-  if (error) throw error
-  return data.session!.access_token
-}
-
 function request(token: string, method = 'GET', body?: unknown, key?: string) {
-  const headers: Record<string, string> = { authorization: `Bearer ${token}`, 'content-type': 'application/json' }
-  if (key) headers[IDEMPOTENCY_KEY_HEADER] = key
-  return new NextRequest('http://test.local/x', { method, headers, body: body === undefined ? undefined : JSON.stringify(body) })
+  return bearerRequest('/x', { method, body, headers: key ? { [IDEMPOTENCY_KEY_HEADER]: key } : {} }, token)
 }
 
 const params = (id: string) => ({ params: Promise.resolve({ id }) })
@@ -39,10 +26,6 @@ const medParams = (id: string, medicationId: string) => ({ params: Promise.resol
 
 function day(offset: number): string {
   return new Date(Date.now() + offset * 86_400_000).toISOString().slice(0, 10)
-}
-
-async function overview() {
-  return HealthOverviewSchema.parse(await (await getHealth(request(tokenA), params(pet))).json())
 }
 
 async function formList(): Promise<string[]> {
@@ -77,7 +60,7 @@ describe('the form’s old list', () => {
     await db.query(`update public.pets set medications = array['Лечебный корм', 'Фортифлора'] where id = $1`, [pet])
     await db.query(`select public.backfill_pet_medications()`)
     await db.query(`select public.backfill_pet_medications()`)
-    const { medications } = await overview()
+    const { medications } = await overview(pet, tokenA)
     expect(medications.map((m) => [m.name, m.started_on, m.source]).sort()).toEqual([
       ['Лечебный корм', null, 'form'],
       ['Фортифлора', null, 'form'],
@@ -89,7 +72,7 @@ describe('the pet form and the courses', () => {
   it('starts a course today for a name added in the form, and nothing when the list is saved again (MR-06.1)', async () => {
     await saveForm(['Лечебный корм'])
     await saveForm(['Лечебный корм'])
-    const { medications } = await overview()
+    const { medications } = await overview(pet, tokenA)
     expect(medications).toHaveLength(1)
     expect(medications[0]).toMatchObject({ name: 'Лечебный корм', dosage: null, source: 'form' })
     expect(medications[0].started_on).not.toBeNull()
@@ -98,7 +81,7 @@ describe('the pet form and the courses', () => {
   it('ends the course when the name is removed in the form, keeping it in the history (MR-06.2)', async () => {
     await saveForm(['Лечебный корм', 'Фортифлора'])
     await saveForm(['Лечебный корм'])
-    const { medications } = await overview()
+    const { medications } = await overview(pet, tokenA)
     const fortiflora = medications.find((m) => m.name === 'Фортифлора')!
     expect(fortiflora.ended_on).not.toBeNull()
     expect(await formList()).toEqual(['Лечебный корм'])
@@ -106,22 +89,22 @@ describe('the pet form and the courses', () => {
 
   it('takes the name out of the form when the course is ended in the record (MR-06.2)', async () => {
     await saveForm(['Лечебный корм'])
-    const [course] = (await overview()).medications
+    const [course] = (await overview(pet, tokenA)).medications
     const response = await patchMedication(
       request(tokenA, 'PATCH', { ended_on: day(0), ongoing: false }),
       medParams(pet, course.id),
     )
     expect(response.status).toBe(200)
     expect(await formList()).toEqual([])
-    expect((await overview()).medications).toHaveLength(1)
+    expect((await overview(pet, tokenA)).medications).toHaveLength(1)
   })
 
   it('does not start again a course that ran out while the form still lists it', async () => {
     await saveForm(['Фортифлора'])
-    const [course] = (await overview()).medications
+    const [course] = (await overview(pet, tokenA)).medications
     await db.query(`update public.pet_medications set started_on = $2, ended_on = $3 where id = $1`, [course.id, day(-20), day(-1)])
     await saveForm(['Фортифлора'])
-    expect((await overview()).medications).toHaveLength(1)
+    expect((await overview(pet, tokenA)).medications).toHaveLength(1)
   })
 })
 
@@ -129,7 +112,7 @@ describe('review fixes', () => {
   it('leaves courses alone when a partial update of the pet says nothing about medicines (review 3)', async () => {
     await saveForm(['Лечебный корм'])
     await patchPet(request(tokenA, 'PATCH', { name: 'Мурка' }), params(pet))
-    const [course] = (await overview()).medications
+    const [course] = (await overview(pet, tokenA)).medications
     expect(course.ended_on).toBeNull()
   })
 
@@ -139,7 +122,7 @@ describe('review fixes', () => {
     // An old form, loaded before Фортифлора, saved with the list it showed.
     await db.query(`update public.pets set medications = array['Лечебный корм'] where id = $1`, [pet])
     await saveForm(['Лечебный корм'])
-    const fortiflora = (await overview()).medications.find((m) => m.name === 'Фортифлора')!
+    const fortiflora = (await overview(pet, tokenA)).medications.find((m) => m.name === 'Фортифлора')!
     expect(fortiflora.ended_on).toBeNull()
   })
 
@@ -148,14 +131,14 @@ describe('review fixes', () => {
     expect(await formList()).toEqual(['Потом'])
     await saveForm([])
     expect(await formList()).toEqual([])
-    expect((await overview()).medications).toEqual([])
+    expect((await overview(pet, tokenA)).medications).toEqual([])
   })
 
   it('keeps a listed name that has no course yet, turning it into one (review 2)', async () => {
     await db.query(`update public.pets set medications = array['Старое'] where id = $1`, [pet])
     await saveForm(['Старое', 'Новое'])
     expect((await formList()).sort()).toEqual(['Новое', 'Старое'])
-    expect((await overview()).medications.map((m) => m.name).sort()).toEqual(['Новое', 'Старое'])
+    expect((await overview(pet, tokenA)).medications.map((m) => m.name).sort()).toEqual(['Новое', 'Старое'])
   })
 
   it('lists one name once whatever its case (minor)', async () => {
@@ -175,7 +158,7 @@ describe('review fixes', () => {
   it('shows the courses going on now in the overview even if nothing was written since one ended (review 1)', async () => {
     await addMedications(request(tokenA, 'POST', { items: [{ name: 'Кончился', started_on: day(-10), ended_on: day(-5) }] }), params(pet))
     await db.query(`update public.pets set medications = array['Кончился'] where id = $1`, [pet])
-    expect((await overview()).pet.medications).toEqual([])
+    expect((await overview(pet, tokenA)).pet.medications).toEqual([])
   })
 
   it('does not hand pet A’s courses to pet B for the same key (minor)', async () => {
@@ -210,7 +193,7 @@ describe('courses in the medical record', () => {
     const again = await addMedications(request(tokenA, 'POST', body, 'meds-key-1'), params(pet))
     expect(again.status).toBe(201)
     expect((await again.json()).length).toBe(2)
-    expect((await overview()).medications).toHaveLength(2)
+    expect((await overview(pet, tokenA)).medications).toHaveLength(2)
     const other = await addMedications(request(tokenA, 'POST', { items: [{ name: 'Другое' }] }, 'meds-key-1'), params(pet))
     expect(other.status).toBe(409)
   })

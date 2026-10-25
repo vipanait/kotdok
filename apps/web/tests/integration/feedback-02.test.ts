@@ -1,13 +1,12 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { NextRequest } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
 import type { Client } from 'pg'
 import { FEATURES_HEADER, PET_DATES_FEATURE, PetSchema } from '@lapka/contracts'
 import { GET as listPets, POST as createPet } from '@/app/(backend)/api/v1/pets/route'
 import { GET as getPet, PATCH as patchPet } from '@/app/(backend)/api/v1/pets/[id]/route'
 import { GET as getHealth } from '@/app/(backend)/api/v1/pets/[id]/health/route'
 import { GET as getSummary } from '@/app/(backend)/api/v1/pets/[id]/health/summary/route'
-import { FIXTURE_PASSWORD, OWNER_A, PET_IDS, connect, seedFixtures } from './fixtures'
+import { OWNER_A, PET_IDS, connect, seedFixtures, signIn } from './fixtures'
 
 /**
  * FB-2/01: a pet's birth date (exact or approximate) and the day it came
@@ -16,15 +15,6 @@ import { FIXTURE_PASSWORD, OWNER_A, PET_IDS, connect, seedFixtures } from './fix
 
 let db: Client
 let token: string
-
-async function signIn(email: string): Promise<string> {
-  const client = createClient(process.env.TEST_SUPABASE_URL!, process.env.TEST_SUPABASE_ANON_KEY!, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  })
-  const { data, error } = await client.auth.signInWithPassword({ email, password: FIXTURE_PASSWORD })
-  if (error) throw error
-  return data.session!.access_token
-}
 
 /** An app that knows the dates says so (FB-2 release); `dates: false` is a store build from before. */
 function request(method: string, body?: unknown, { dates = true }: { dates?: boolean } = {}) {

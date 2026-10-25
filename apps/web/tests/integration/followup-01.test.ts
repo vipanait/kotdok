@@ -22,7 +22,7 @@ import { DELETE as unrecord, PUT as record } from '@/app/(backend)/api/v1/follow
 import { GET as getCheck } from '@/app/(backend)/api/v1/checks/[id]/route'
 import { GET as listChecks } from '@/app/(backend)/api/v1/checks/route'
 import { GET as cron } from '@/app/(backend)/api/cron/followup-expiry/route'
-import { FIXTURE_PASSWORD, OWNER_A, OWNER_B, PET_IDS, connect, seedFixtures, type SeededFixtures } from './fixtures'
+import { OWNER_A, OWNER_B, PET_IDS, connect, seedFixtures, signIn, bearerRequest, type SeededFixtures } from './fixtures'
 
 /** FU-01: the follow-up case, its rule and its API, on the real local database. */
 
@@ -32,21 +32,8 @@ let tokenA: string
 let tokenB: string
 const HOUR = 3_600_000
 
-async function signIn(email: string): Promise<string> {
-  const client = createClient(process.env.TEST_SUPABASE_URL!, process.env.TEST_SUPABASE_ANON_KEY!, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  })
-  const { data, error } = await client.auth.signInWithPassword({ email, password: FIXTURE_PASSWORD })
-  if (error) throw error
-  return data.session!.access_token
-}
-
 function request(token: string, method = 'GET', body?: unknown, headers: Record<string, string> = {}, url = 'http://test.local/x') {
-  return new NextRequest(url, {
-    method,
-    headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json', ...headers },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  })
+  return bearerRequest(url, { method, body, headers }, token)
 }
 
 const idParams = (id: string) => ({ params: Promise.resolve({ id }) })

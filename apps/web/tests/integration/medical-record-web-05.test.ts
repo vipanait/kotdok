@@ -1,9 +1,6 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
-import { NextRequest } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
 import type { Client } from 'pg'
 import {
-  HealthOverviewSchema,
   IDEMPOTENCY_KEY_HEADER,
   MedicationSchema,
   PetSchema,
@@ -26,7 +23,7 @@ import ru from '@/shared/i18n/dictionaries/ru'
 import { addMedications as addMedicationsService, changeMedication, courseOverEverywhere } from '@/server/medical-record/medication-service'
 import { findHealthRecord } from '@/server/medical-record/record-lookup'
 import { createServiceClient } from '@/server/supabase/server'
-import { FIXTURE_PASSWORD, OWNER_A, OWNER_B, PET_IDS, connect, seedFixtures, type SeededFixtures } from './fixtures'
+import { OWNER_A, OWNER_B, PET_IDS, connect, seedFixtures, signIn, overview, bearerRequest, type SeededFixtures } from './fixtures'
 
 // MW-05: medicines and courses against the real database, through what the
 // web form sends. Several courses in one save are stored all or none; a
@@ -41,19 +38,8 @@ let tokenB: string
 let owners: SeededFixtures
 const pet: string = PET_IDS.aCat
 
-async function signIn(email: string): Promise<string> {
-  const client = createClient(process.env.TEST_SUPABASE_URL!, process.env.TEST_SUPABASE_ANON_KEY!, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  })
-  const { data, error } = await client.auth.signInWithPassword({ email, password: FIXTURE_PASSWORD })
-  if (error) throw error
-  return data.session!.access_token
-}
-
 function request(token: string, method = 'GET', body?: unknown, key?: string) {
-  const headers: Record<string, string> = { authorization: `Bearer ${token}`, 'content-type': 'application/json' }
-  if (key) headers[IDEMPOTENCY_KEY_HEADER] = key
-  return new NextRequest('http://test.local/x', { method, headers, body: body === undefined ? undefined : JSON.stringify(body) })
+  return bearerRequest('/x', { method, body, headers: key ? { [IDEMPOTENCY_KEY_HEADER]: key } : {} }, token)
 }
 
 const params = (id: string) => ({ params: Promise.resolve({ id }) })
@@ -69,10 +55,6 @@ function day(offset: number): string {
 const TODAY = day(0)
 
 /** What the phone reads for its medicine screens (`api.getHealthOverview`), with a bearer token as it sends. */
-async function overview(token = tokenA) {
-  return HealthOverviewSchema.parse(await (await getHealth(request(token), params(pet))).json())
-}
-
 async function rows(): Promise<number> {
   const { rows: found } = await db.query(`select count(*)::int as n from public.pet_medications where pet_id = $1 and deleted_at is null`, [pet])
   return found[0].n
@@ -125,7 +107,7 @@ describe('criterion 1: a course with an end and one «Постоянно»', () 
       ['Лечебный корм', null, true],
     ])
 
-    const record = await overview()
+    const record = await overview(pet, tokenA)
     const page = coursesPage(ru, record, TODAY)
     expect(page.current.map((c) => c.title).sort()).toEqual(['Лечебный корм', 'Фортифлора'])
     const periods = Object.fromEntries(page.current.map((c) => [c.title, c.period]))
@@ -152,7 +134,7 @@ describe('criterion 2: «Завершить курс»', () => {
     expect(response.status).toBe(200)
     expect(MedicationSchema.parse(await response.json())).toMatchObject({ ended_on: TODAY, ongoing: false })
 
-    const record = await overview()
+    const record = await overview(pet, tokenA)
     expect(record.medications.map((c) => c.id).sort()).toEqual([food.id, other.id].sort())
     const { current, past } = splitCourses(record.medications, TODAY)
     expect(current.map((c) => c.id)).toEqual([other.id])
@@ -181,7 +163,7 @@ describe('a finished course is history', () => {
       expect(response.status).toBe(409)
       expect((await response.json()).error.code).toBe('record_done')
     }
-    expect((await overview()).medications).toEqual([course])
+    expect((await overview(pet, tokenA)).medications).toEqual([course])
     expect(await findHealthRecord(createServiceClient(), owners.ownerAId, pet, course.id)).toEqual({ kind: 'medication', status: 'finished' })
     expect((await deleteMedication(request(tokenA, 'DELETE'), medParams(pet, course.id))).status).toBe(204)
     expect(await rows()).toBe(0)
@@ -266,7 +248,7 @@ describe('criterion 3: dates and all-or-none', () => {
     expect(retry.map((c) => c.id)).toEqual(first.map((c) => c.id))
     expect(await rows()).toBe(5)
     // And the record lists them so on every read — the site's and the phone's list (MW-09).
-    expect((await overview()).medications.map((c) => c.name)).toEqual(names)
+    expect((await overview(pet, tokenA)).medications.map((c) => c.name)).toEqual(names)
     // The same key with other fields is not taken for a second save.
     const changed = readNewCourses([draft('a', { name: 'Первый', start: day(-1), dosage: 'иначе' })])
     if (!changed.ok) throw new Error('refused')
@@ -282,7 +264,7 @@ describe('criterion 4: one list, read the same by the site and the phone', () =>
       draft('b', { name: 'Фортифлора', start: day(-40), end: day(-26) }),
     ])
     // The phone's medicine screens: GET /pets/{id}/health, the shared split by the phone's day.
-    const phone = await overview()
+    const phone = await overview(pet, tokenA)
     const { current, past } = splitCourses(phone.medications, TODAY)
     const site = coursesPage(ru, phone, TODAY)
     expect(current.map((c) => c.id)).toEqual(site.current.map((c) => c.id))
@@ -306,6 +288,6 @@ describe('owner B', () => {
     expect(await findHealthRecord(service, owners.ownerBId, pet, course.id)).toBeNull()
     expect(await findHealthRecord(service, owners.ownerBId, PET_IDS.bCat, course.id)).toBeNull()
     expect(await findHealthRecord(service, owners.ownerAId, PET_IDS.aDog, course.id)).toBeNull()
-    expect((await overview()).medications).toEqual([course])
+    expect((await overview(pet, tokenA)).medications).toEqual([course])
   })
 })

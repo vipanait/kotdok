@@ -1,9 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
-import { NextRequest } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import type { Client } from 'pg'
-import { ApiErrorEnvelopeSchema, HealthOverviewSchema, PetSchema, WeightMeasurementSchema } from '@lapka/contracts'
-import { GET as getHealth } from '@/app/(backend)/api/v1/pets/[id]/health/route'
+import { ApiErrorEnvelopeSchema, PetSchema, WeightMeasurementSchema } from '@lapka/contracts'
 import { POST as addWeight } from '@/app/(backend)/api/v1/pets/[id]/health/weights/route'
 import {
   DELETE as deleteWeight,
@@ -11,7 +9,7 @@ import {
 } from '@/app/(backend)/api/v1/pets/[id]/health/weights/[weightId]/route'
 import { PATCH as patchPet } from '@/app/(backend)/api/v1/pets/[id]/route'
 import { POST as createPet } from '@/app/(backend)/api/v1/pets/route'
-import { FIXTURE_PASSWORD, OWNER_A, OWNER_B, PET_IDS, connect, seedFixtures } from './fixtures'
+import { OWNER_A, OWNER_B, PET_IDS, connect, seedFixtures, signIn, overview, bearerRequest } from './fixtures'
 
 // MR-02: weight history against the real database — the SQL functions, the
 // unique index and the sync to the pet form are what is under test here.
@@ -21,21 +19,8 @@ let tokenA: string
 let tokenB: string
 const pet: string = PET_IDS.aCat
 
-async function signIn(email: string): Promise<string> {
-  const client = createClient(process.env.TEST_SUPABASE_URL!, process.env.TEST_SUPABASE_ANON_KEY!, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  })
-  const { data, error } = await client.auth.signInWithPassword({ email, password: FIXTURE_PASSWORD })
-  if (error) throw error
-  return data.session!.access_token
-}
-
 function request(token: string, method: string, body?: unknown) {
-  return new NextRequest('http://test.local/api/v1/pets/x/health/weights', {
-    method,
-    headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  })
+  return bearerRequest('/api/v1/pets/x/health/weights', { method, body }, token)
 }
 
 const params = (id: string) => ({ params: Promise.resolve({ id }) })
@@ -43,11 +28,6 @@ const weightParams = (id: string, weightId: string) => ({ params: Promise.resolv
 
 async function add(measured_on: string, weight_kg: unknown, token = tokenA, petId = pet) {
   return addWeight(request(token, 'POST', { measured_on, weight_kg }), params(petId))
-}
-
-async function overview() {
-  const response = await getHealth(request(tokenA, 'GET'), params(pet))
-  return HealthOverviewSchema.parse(await response.json())
 }
 
 async function formWeight(): Promise<number | null> {
@@ -78,7 +58,7 @@ describe('adding a weight', () => {
     const created = WeightMeasurementSchema.parse(await response.json())
     expect(created).toMatchObject({ measured_on: '2026-09-12', weight_kg: 4.2, source: 'record' })
 
-    const record = await overview()
+    const record = await overview(pet, tokenA)
     expect(record.writable).toContain('weight')
     expect(record.weights.map((w) => w.id)).toEqual([created.id])
     expect(record.pet.weight_kg).toBe(4.2)
@@ -90,7 +70,7 @@ describe('adding a weight', () => {
       const response = await add('2026-09-12', weight)
       expect(response.status, String(weight)).toBe(400)
     }
-    expect((await overview()).weights).toEqual([])
+    expect((await overview(pet, tokenA)).weights).toEqual([])
   })
 
   it('refuses a day in the future', async () => {
@@ -102,14 +82,14 @@ describe('adding a weight', () => {
     await add('2026-09-12', 4.2)
     await add('2026-03-12', 4.5)
     expect(await formWeight()).toBe(4.2)
-    expect((await overview()).weights.map((w) => w.measured_on)).toEqual(['2026-09-12', '2026-03-12'])
+    expect((await overview(pet, tokenA)).weights.map((w) => w.measured_on)).toEqual(['2026-09-12', '2026-03-12'])
   })
 
   it('updates the day’s value on a second save instead of adding a row', async () => {
     await add('2026-09-12', 4.2)
     const again = await add('2026-09-12', 4.3)
     expect(again.status).toBe(201)
-    const { weights } = await overview()
+    const { weights } = await overview(pet, tokenA)
     expect(weights).toHaveLength(1)
     expect(weights[0].weight_kg).toBe(4.3)
   })
@@ -129,7 +109,7 @@ describe('adding a weight', () => {
 
     await add('2026-09-24', 27.5)
 
-    const { weights, pet: form } = await overview()
+    const { weights, pet: form } = await overview(pet, tokenA)
     expect(form.weight_kg).toBe(27.5)
     expect(weights.map((w) => [w.measured_on, w.weight_kg, w.source])).toEqual([
       ['2026-09-24', 27.5, 'record'],
@@ -140,7 +120,7 @@ describe('adding a weight', () => {
   it('answers 404 for someone else’s pet and for a deleted one', async () => {
     expect((await add('2026-09-12', 4.2, tokenB, pet)).status).toBe(404)
     expect((await add('2026-09-12', 4.2, tokenB, PET_IDS.bDeleted)).status).toBe(404)
-    expect((await overview()).weights).toEqual([])
+    expect((await overview(pet, tokenA)).weights).toEqual([])
   })
 })
 
@@ -157,7 +137,7 @@ describe('correcting and deleting', () => {
     expect(moved.status).toBe(200)
     expect(await formWeight()).toBe(4.5)
 
-    const march = (await overview()).weights.find((w) => w.measured_on === '2026-03-12')!
+    const march = (await overview(pet, tokenA)).weights.find((w) => w.measured_on === '2026-03-12')!
     expect((await deleteWeight(request(tokenA, 'DELETE'), weightParams(pet, march.id))).status).toBe(204)
     expect(await formWeight()).toBe(4.1)
   })
@@ -166,7 +146,7 @@ describe('correcting and deleting', () => {
     const only = WeightMeasurementSchema.parse(await (await add('2026-09-12', 4.2)).json())
     await deleteWeight(request(tokenA, 'DELETE'), weightParams(pet, only.id))
     expect(await formWeight()).toBeNull()
-    expect((await overview()).pet.weight_kg).toBeNull()
+    expect((await overview(pet, tokenA)).pet.weight_kg).toBeNull()
   })
 
   it('refuses to move a measurement onto a day that already has one', async () => {
@@ -209,7 +189,7 @@ describe('row level security', () => {
       .from('pet_weights')
       .insert({ user_id: (await db.query(`select user_id from public.pets where id = $1`, [pet])).rows[0].user_id, pet_id: pet, measured_on: '2026-09-01', weight_kg: 9 })
     expect(insert.error).not.toBeNull()
-    expect((await overview()).weights).toEqual([])
+    expect((await overview(pet, tokenA)).weights).toEqual([])
   })
 })
 
@@ -224,7 +204,7 @@ describe('the pet form', () => {
 
     await patchPet(request(tokenA, 'PATCH', { name: 'Мурка', weight_kg: 4.4, weight_measured_on: '2026-09-26' }), params(pet))
 
-    const { weights } = await overview()
+    const { weights } = await overview(pet, tokenA)
     expect(weights.map((w) => [w.measured_on, w.weight_kg, w.source])).toEqual([['2026-09-25', 4.4, 'form']])
   })
 
@@ -235,7 +215,7 @@ describe('the pet form', () => {
     const form = await patchPet(request(tokenA, 'PATCH', { name: 'Мурка', weight_kg: 4.3, weight_measured_on: '2026-09-13' }), params(pet))
     expect(form.status).toBe(200)
 
-    const { weights } = await overview()
+    const { weights } = await overview(pet, tokenA)
     expect(weights.map((w) => w.weight_kg)).toEqual([4.3, 4.2])
   })
 
@@ -260,7 +240,7 @@ describe('the pet form', () => {
     await patchPet(request(tokenA, 'PATCH', { name: 'Мурка', weight_kg: 4.6, weight_measured_on: '2026-09-25' }), params(pet))
 
     expect(await formWeight()).toBe(4.1)
-    expect((await overview()).pet.weight_kg).toBe(4.1)
+    expect((await overview(pet, tokenA)).pet.weight_kg).toBe(4.1)
   })
 
   it('does not let clearing the weight in the form hide a history that is still there', async () => {
@@ -275,7 +255,7 @@ describe('the pet form', () => {
       params(pet),
     )
     expect(response.status).toBe(400)
-    expect((await overview()).weights).toEqual([])
+    expect((await overview(pet, tokenA)).weights).toEqual([])
   })
 })
 

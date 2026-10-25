@@ -1,19 +1,15 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
-import { NextRequest } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
 import type { Client } from 'pg'
-import { DueItemSchema, HealthEventSchema, HealthOverviewSchema, IDEMPOTENCY_KEY_HEADER, type HealthEvent } from '@lapka/contracts'
+import { HealthEventSchema, IDEMPOTENCY_KEY_HEADER, type HealthEvent } from '@lapka/contracts'
 import { reasonFromCheck } from '@lapka/shared'
-import { GET as getHealth } from '@/app/(backend)/api/v1/pets/[id]/health/route'
 import { POST as createVisit } from '@/app/(backend)/api/v1/pets/[id]/health/visits/route'
 import { PATCH as patchVisit } from '@/app/(backend)/api/v1/pets/[id]/health/visits/[eventId]/route'
 import { DELETE as deleteEvent } from '@/app/(backend)/api/v1/pets/[id]/health/events/[eventId]/route'
 import { POST as toMedication } from '@/app/(backend)/api/v1/pets/[id]/health/items/[itemId]/medication/route'
-import { GET as listDue } from '@/app/(backend)/api/v1/pets/due/route'
 import { blankPrescription, blankVisit, draftFromPlan, heldDraft, readHeld, readNewVisit, readPlanChange } from '@/features/medical-record/visits/visit-form'
 import { findHealthRecord } from '@/server/medical-record/record-lookup'
 import { createServiceClient } from '@/server/supabase/server'
-import { CHECK_IDS, FIXTURE_PASSWORD, OWNER_A, OWNER_B, PET_IDS, connect, seedFixtures, type SeededFixtures } from './fixtures'
+import { CHECK_IDS, OWNER_A, OWNER_B, PET_IDS, connect, seedFixtures, signIn, overview, due, bearerRequest, type SeededFixtures } from './fixtures'
 
 // MW-06: vet visits and the link to a check, against the real database,
 // through what the web form sends. A visit from a check result carries that
@@ -30,19 +26,8 @@ let tokenB: string
 let owners: SeededFixtures
 const cat: string = PET_IDS.aCat
 
-async function signIn(email: string): Promise<string> {
-  const client = createClient(process.env.TEST_SUPABASE_URL!, process.env.TEST_SUPABASE_ANON_KEY!, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  })
-  const { data, error } = await client.auth.signInWithPassword({ email, password: FIXTURE_PASSWORD })
-  if (error) throw error
-  return data.session!.access_token
-}
-
 function request(token: string, method = 'GET', body?: unknown, key?: string) {
-  const headers: Record<string, string> = { authorization: `Bearer ${token}`, 'content-type': 'application/json' }
-  if (key) headers[IDEMPOTENCY_KEY_HEADER] = key
-  return new NextRequest('http://test.local/x', { method, headers, body: body === undefined ? undefined : JSON.stringify(body) })
+  return bearerRequest('/x', { method, body, headers: key ? { [IDEMPOTENCY_KEY_HEADER]: key } : {} }, token)
 }
 
 const params = (id: string) => ({ params: Promise.resolve({ id }) })
@@ -57,10 +42,6 @@ function day(offset: number): string {
   return new Date(NOW + offset * 86_400_000).toISOString().slice(0, 10)
 }
 const TODAY = day(0)
-
-async function overview(token = tokenA) {
-  return HealthOverviewSchema.parse(await (await getHealth(request(token), params(cat))).json())
-}
 
 async function courses(): Promise<Array<{ name: string; visit_item_id: string | null; started_on: string | null }>> {
   const { rows } = await db.query(
@@ -88,11 +69,6 @@ async function plan(date = day(7)): Promise<HealthEvent> {
   const read = readNewVisit({ ...blankVisit(TODAY), status: 'planned', date, reason: 'Контрольный осмотр' }, TODAY)
   if (!read.ok) throw new Error('the form refused the plan')
   return newVisit(read.value)
-}
-
-async function due(token = tokenA) {
-  const body = await (await listDue(request(token), undefined)).json()
-  return DueItemSchema.array().parse(body.items ?? body)
 }
 
 beforeAll(async () => {
@@ -124,7 +100,7 @@ describe('criterion 1: a visit from a check result, and one made directly', () =
     expect(linked.reason).toBe(reasonFromCheck(rows[0].symptoms_input))
     expect(plain.check_id).toBeNull()
 
-    const read = await overview()
+    const read = await overview(cat, tokenA)
     expect(read.events.filter((e) => e.kind === 'visit').map((e) => [e.id, e.check_id]).sort()).toEqual(
       [
         [linked.id, CHECK_IDS.aFirst],
@@ -174,7 +150,7 @@ describe('criterion 2: two prescriptions; the chosen one is a course, once', () 
     if (!read.ok) throw new Error('the form refused the visit')
     const visit = await newVisit(read.value)
 
-    const reloaded = (await overview()).events.find((e) => e.id === visit.id)!
+    const reloaded = (await overview(cat, tokenA)).events.find((e) => e.id === visit.id)!
     expect(reloaded.items.map((i) => [i.name, i.instructions])).toEqual([
       ['Фортифлора', '1 пакетик в день, 14 дней'],
       ['Лечебный корм', 'Постоянно'],
@@ -184,7 +160,7 @@ describe('criterion 2: two prescriptions; the chosen one is a course, once', () 
     expect(reloaded.items[1].medication_id).toBeNull()
     expect(await courses()).toEqual([{ name: 'Фортифлора', visit_item_id: fortiflora.id, started_on: TODAY }])
     // «Принимает сейчас» reads the same list.
-    expect((await overview()).medications.map((m) => m.name)).toEqual(['Фортифлора'])
+    expect((await overview(cat, tokenA)).medications.map((m) => m.name)).toEqual(['Фортифлора'])
   })
 
   it('a new prescription is ticked by default and becomes a course; one the owner unticks does not', async () => {
@@ -221,7 +197,7 @@ describe('criterion 3: repeating never multiplies; a visit that happened is not 
     const third = await newVisit(body(), key)
     expect([again.id, third.id]).toEqual([first.id, first.id])
     expect(await visitRows()).toBe(1)
-    expect((await overview()).events.find((e) => e.id === first.id)!.items).toHaveLength(2)
+    expect((await overview(cat, tokenA)).events.find((e) => e.id === first.id)!.items).toHaveLength(2)
     expect(await courses()).toHaveLength(1)
     // The same key with other data is refused, not stored.
     const other = await createVisit(request(tokenA, 'POST', { ...body(), clinic: 'Другая' }, key), params(cat))
@@ -255,7 +231,7 @@ describe('criterion 3: repeating never multiplies; a visit that happened is not 
     const again = await patchVisit(request(tokenA, 'PATCH', read.value, key), eventParams(planned.id))
     expect(again.status).toBe(200)
     expect(HealthEventSchema.parse(await again.json())).toMatchObject({ status: 'done', diagnosis: 'Здорова' })
-    expect((await overview()).events.find((e) => e.id === planned.id)!.items.map((i) => i.name)).toEqual(['Витамины'])
+    expect((await overview(cat, tokenA)).events.find((e) => e.id === planned.id)!.items.map((i) => i.name)).toEqual(['Витамины'])
     expect(await courses()).toHaveLength(1)
 
     const changed = await patchVisit(request(tokenA, 'PATCH', { diagnosis: 'Гастрит' }, crypto.randomUUID()), eventParams(planned.id))
@@ -327,21 +303,21 @@ describe('criterion 4: a plan is marked held, cancelled or moved; the due dates 
     expect(read.value).toEqual({ date: day(12), clinic: 'Айболит' })
     const moved = await saved(await patchVisit(request(tokenA, 'PATCH', read.value, crypto.randomUUID()), eventParams(planned.id)))
     expect([moved.id, moved.date, moved.status, moved.clinic]).toEqual([planned.id, day(12), 'planned', 'Айболит'])
-    expect((await due()).filter((d) => d.event_id === planned.id).map((d) => d.date)).toEqual([day(12)])
+    expect((await due(tokenA)).filter((d) => d.event_id === planned.id).map((d) => d.date)).toEqual([day(12)])
     // Not into the past.
     expect((await patchVisit(request(tokenA, 'PATCH', { date: day(-2) }), eventParams(planned.id))).status).toBe(400)
   })
 
   it('marked held: leaves the due dates, becomes a visit that happened; a plan in the future cannot be held ahead of its day', async () => {
     const planned = await plan(day(5))
-    expect((await due()).some((d) => d.event_id === planned.id)).toBe(true)
+    expect((await due(tokenA)).some((d) => d.event_id === planned.id)).toBe(true)
     // «Состоялся» on a day still to come is refused.
     expect((await patchVisit(request(tokenA, 'PATCH', { status: 'done', date: day(2) }), eventParams(planned.id))).status).toBe(400)
     const read = readHeld(planned, heldDraft(planned, TODAY), TODAY)
     if (!read.ok) throw new Error('the form refused «Состоялся»')
     const held = await saved(await patchVisit(request(tokenA, 'PATCH', read.value, crypto.randomUUID()), eventParams(planned.id)))
     expect([held.id, held.status, held.date]).toEqual([planned.id, 'done', TODAY])
-    expect((await due()).some((d) => d.event_id === planned.id)).toBe(false)
+    expect((await due(tokenA)).some((d) => d.event_id === planned.id)).toBe(false)
     expect(await findHealthRecord(createServiceClient(), owners.ownerAId, cat, planned.id)).toEqual({ kind: 'visit', status: 'done' })
   })
 
@@ -349,10 +325,10 @@ describe('criterion 4: a plan is marked held, cancelled or moved; the due dates 
     const first = await plan(day(5))
     const second = await plan(day(9))
     expect((await deleteEvent(request(tokenA, 'DELETE'), eventParams(first.id))).status).toBe(204)
-    const ids = (await due()).map((d) => d.event_id)
+    const ids = (await due(tokenA)).map((d) => d.event_id)
     expect(ids).not.toContain(first.id)
     expect(ids).toContain(second.id)
-    expect((await overview()).events.map((e) => e.id)).toEqual([second.id])
+    expect((await overview(cat, tokenA)).events.map((e) => e.id)).toEqual([second.id])
   })
 })
 
@@ -372,7 +348,7 @@ describe('owner B', () => {
     expect(await findHealthRecord(createServiceClient(), owners.ownerBId, cat, planned.id)).toBeNull()
 
     // A's records are as they were.
-    const mine = await overview()
+    const mine = await overview(cat, tokenA)
     expect(mine.events.find((e) => e.id === planned.id)).toMatchObject({ status: 'planned', clinic: null })
     expect(await courses()).toEqual([])
   })

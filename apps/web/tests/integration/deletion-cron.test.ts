@@ -4,7 +4,7 @@ import type { Client } from 'pg'
 import { GET as cronRoute } from '@/app/(backend)/api/cron/deletion-jobs/route'
 import { createServiceClient } from '@/server/supabase/server'
 import { runDeletionCron } from '@/server/account/deletion-cron'
-import { connect, seedFixtures, type SeededFixtures } from './fixtures'
+import { connect, seedFixtures, requestDeletion, type SeededFixtures } from './fixtures'
 
 let db: Client
 let seeded: SeededFixtures
@@ -26,10 +26,6 @@ afterAll(async () => {
   await db.end()
 })
 
-async function requestDeletion(userId: string): Promise<void> {
-  await db.query(`select public.request_account_deletion($1, $2)`, [userId, `hash-${userId}`])
-}
-
 function get(authorization?: string) {
   return new NextRequest('http://test.local/api/cron/deletion-jobs', {
     headers: authorization ? { authorization } : {},
@@ -38,7 +34,7 @@ function get(authorization?: string) {
 
 describe('the deletion cron', () => {
   it('refuses a call without the secret and does nothing', async () => {
-    await requestDeletion(seeded.ownerAId)
+    await requestDeletion(db, seeded.ownerAId)
 
     expect((await cronRoute(get())).status).toBe(401)
     expect((await cronRoute(get('Bearer nope'))).status).toBe(401)
@@ -47,8 +43,8 @@ describe('the deletion cron', () => {
   })
 
   it('finishes waiting jobs and reports counts without ids', async () => {
-    await requestDeletion(seeded.ownerAId)
-    await requestDeletion(seeded.ownerBId)
+    await requestDeletion(db, seeded.ownerAId)
+    await requestDeletion(db, seeded.ownerBId)
 
     const response = await cronRoute(get('Bearer integration-cron-secret'))
 
@@ -63,8 +59,8 @@ describe('the deletion cron', () => {
   })
 
   it('keeps processing the rest of the batch when one job throws', async () => {
-    await requestDeletion(seeded.ownerAId)
-    await requestDeletion(seeded.ownerBId)
+    await requestDeletion(db, seeded.ownerAId)
+    await requestDeletion(db, seeded.ownerBId)
 
     const summary = await runDeletionCron(createServiceClient(), async (userId) => {
       if (userId === seeded.ownerAId) throw new Error('boom')
@@ -75,7 +71,7 @@ describe('the deletion cron', () => {
   })
 
   it('removes finished job records whose retention ran out', async () => {
-    await requestDeletion(seeded.ownerAId)
+    await requestDeletion(db, seeded.ownerAId)
     await db.query(
       `update public.deletion_jobs set status = 'completed', completed_at = now(), retain_until = now() - interval '1 day' where user_id = $1`,
       [seeded.ownerAId],

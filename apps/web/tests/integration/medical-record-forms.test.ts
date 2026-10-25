@@ -1,6 +1,4 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
-import { NextRequest } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
 import type { Client } from 'pg'
 import { HealthEventSchema, PetSchema } from '@lapka/contracts'
 import { GET as getPet, PATCH as patchPet } from '@/app/(backend)/api/v1/pets/[id]/route'
@@ -9,7 +7,7 @@ import { DELETE as deleteEvent } from '@/app/(backend)/api/v1/pets/[id]/health/e
 import { POST as addWeight } from '@/app/(backend)/api/v1/pets/[id]/health/weights/route'
 import { POST as addMedications } from '@/app/(backend)/api/v1/pets/[id]/health/medications/route'
 import { GET as getHealth } from '@/app/(backend)/api/v1/pets/[id]/health/route'
-import { FIXTURE_PASSWORD, OWNER_A, PET_IDS, connect, seedFixtures } from './fixtures'
+import { OWNER_A, PET_IDS, connect, seedFixtures, signIn, bearerRequest } from './fixtures'
 
 // The pet form against the record, across stages: what the owner said stays theirs,
 // and a form opened earlier changes only what the owner changed in it.
@@ -18,21 +16,8 @@ let db: Client
 let token: string
 const cat: string = PET_IDS.aCat
 
-async function signIn(email: string): Promise<string> {
-  const client = createClient(process.env.TEST_SUPABASE_URL!, process.env.TEST_SUPABASE_ANON_KEY!, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  })
-  const { data, error } = await client.auth.signInWithPassword({ email, password: FIXTURE_PASSWORD })
-  if (error) throw error
-  return data.session!.access_token
-}
-
 function request(method = 'GET', body?: unknown) {
-  return new NextRequest('http://test.local/x', {
-    method,
-    headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  })
+  return bearerRequest('/x', { method, body }, token)
 }
 
 const params = (id: string) => ({ params: Promise.resolve({ id }) })

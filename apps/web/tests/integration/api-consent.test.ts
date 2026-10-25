@@ -1,9 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
-import { NextRequest } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
 import type { Client } from 'pg'
 import { ApiErrorEnvelopeSchema, ConsentStatusSchema, PD_CONSENT_VERSION } from '@lapka/contracts'
-import { FIXTURE_PASSWORD, OWNER_A, connect, seedFixtures, type SeededFixtures } from './fixtures'
+import { OWNER_A, connect, seedFixtures, signIn, bearerRequest, type SeededFixtures } from './fixtures'
 
 /**
  * Stage 12/02: an account created after consent became a separate act cannot
@@ -21,24 +19,8 @@ let db: Client
 let seeded: SeededFixtures
 let token: string
 
-async function signIn(): Promise<string> {
-  const client = createClient(process.env.TEST_SUPABASE_URL!, process.env.TEST_SUPABASE_ANON_KEY!, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  })
-  const { data, error } = await client.auth.signInWithPassword({
-    email: OWNER_A.email,
-    password: FIXTURE_PASSWORD,
-  })
-  if (error) throw error
-  return data.session!.access_token
-}
-
 function request(path: string, init: { method?: string; body?: unknown } = {}) {
-  return new NextRequest(`http://test.local${path}`, {
-    method: init.method ?? 'GET',
-    headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
-    body: init.body === undefined ? undefined : JSON.stringify(init.body),
-  })
+  return bearerRequest(`${path}`, init, token)
 }
 
 async function codeOf(response: Response): Promise<string> {
@@ -56,7 +38,7 @@ beforeAll(async () => {
 beforeEach(async () => {
   seeded = await seedFixtures(db)
   await db.query('truncate table public.api_rate_limits')
-  token = await signIn()
+  token = await signIn(OWNER_A.email)
 })
 
 afterAll(async () => {

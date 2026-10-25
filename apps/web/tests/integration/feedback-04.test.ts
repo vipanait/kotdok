@@ -7,7 +7,7 @@ import { DELETE as deletePet, GET as getPet } from '@/app/(backend)/api/v1/pets/
 import { DELETE as removeAvatar, POST as grantAvatar, PUT as confirmAvatar } from '@/app/(backend)/api/v1/pets/[id]/avatar/route'
 import { AVATAR_BUCKET, sweepAvatars } from '@/server/pets/avatar-service'
 import { removeUserPhotos } from '@/server/uploads/photo-storage'
-import { FIXTURE_PASSWORD, OWNER_A, OWNER_B, PET_IDS, connect, seedFixtures } from './fixtures'
+import { OWNER_A, OWNER_B, PET_IDS, connect, seedFixtures, signIn } from './fixtures'
 
 /** FB-4: a pet's photo, written straight to private storage and kept until replaced. */
 
@@ -20,15 +20,6 @@ const service = () =>
   createClient(process.env.TEST_SUPABASE_URL!, process.env.TEST_SUPABASE_SERVICE_ROLE_KEY!, {
     auth: { autoRefreshToken: false, persistSession: false },
   })
-
-async function signIn(email: string): Promise<string> {
-  const client = createClient(process.env.TEST_SUPABASE_URL!, process.env.TEST_SUPABASE_ANON_KEY!, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  })
-  const { data, error } = await client.auth.signInWithPassword({ email, password: FIXTURE_PASSWORD })
-  if (error) throw error
-  return data.session!.access_token
-}
 
 // 1600×1200, as in check-jobs-photos.test.ts.
 const JPEG = new Uint8Array([
