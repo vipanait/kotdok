@@ -16,6 +16,15 @@ import { reads } from '@/server/pets/pet-contract'
 import { withCaseLinks } from '@/server/followup/followup-service'
 import { withApiAuth, type ApiContext } from '@/server/api/with-api-auth'
 
+/**
+ * An analysis runs inside the request: up to two attempts at the model of a
+ * minute each (`OPENAI_TIMEOUT_MS`, `OPENAI_MAX_RETRIES`), the photos and the
+ * database around them. The budget is said here so the platform never ends
+ * the function in the middle — that is the one case where a spent credit is
+ * not given back.
+ */
+export const maxDuration = 180
+
 export const GET = withApiAuth(async (request: NextRequest, context: ApiContext) => {
   const params = request.nextUrl.searchParams
   const raw: Record<string, unknown> = {}

@@ -38,6 +38,8 @@ const ADAPTERS = new Set([
   // carry. Same nature as `get-auth-user.ts` beside it: an adapter, not a rule.
   'auth/get-auth-session.ts',
   'auth/get-auth-user.ts',
+  // Reads the session cookie to say whether anyone is signed in, for public pages.
+  'auth/signed-in.ts',
   'auth/sign-out.ts',
   'i18n/get-locale.ts',
   'i18n/get-time-zone.ts',
