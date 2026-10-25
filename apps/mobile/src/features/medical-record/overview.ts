@@ -6,10 +6,10 @@ import {
   type Pet,
   type WeightMeasurement,
 } from '@lapka/contracts'
-import { isCurrentCourse, isTakenNow, lastDoneDate } from '@lapka/shared'
+import { headFactsData, importantFactsData, isCurrentCourse, lastDoneDate } from '@lapka/shared'
 import type { Dictionary } from '@/i18n'
 import { ageText } from '@/features/pets/pet-age'
-import { weightTrend } from './weight'
+import { trendWords } from './weight'
 import { visitSummary } from './visits'
 
 /**
@@ -33,9 +33,8 @@ export type HeaderFacts = {
  * «Кошка» for a female cat, as the design has it — but never the form's
  * «Сука», and never English's bare "Female" in place of the species.
  */
-export function speciesWord(t: Dictionary, pet: Pet): string {
-  if (pet.sex === null) return t.species[pet.species]
-  return t.medicalRecord.animal[pet.species][pet.sex]
+export function speciesWord(t: Dictionary, pet: Pick<Pet, 'species' | 'sex'>): string {
+  return t.medicalRecord.animal[pet.species][pet.sex ?? 'unknown']
 }
 
 /** The newest dated measurement; the form's undated value does not count. */
@@ -53,26 +52,22 @@ function day(t: Dictionary, measuredOn: string, today: string): string {
 }
 
 export function headerFacts(t: Dictionary, overview: HealthOverview, today: string): HeaderFacts {
-  const { pet, weights } = overview
-  const parts = [speciesWord(t, pet)]
-  if (pet.breed) parts.push(pet.breed)
+  const { pet } = overview
+  // What the head is made of is the shared rule (`headFactsData`), the site's too.
+  const data = headFactsData(overview, today)
+  const parts = [speciesWord(t, data)]
+  if (data.breed) parts.push(data.breed)
   // The shared rule: zero is said too («0 лет»), as on the site (MW-09).
   const age = ageText(t, pet, today)
   if (age !== null) parts.push(age)
 
-  const latest = latestDated(weights)
-  const weightNote =
-    pet.weight_kg === null
-      ? null
-      : latest === null
-        ? t.medicalRecord.fromForm
-        : (weightTrend(t, weights, today) ?? day(t, latest.measured_on, today))
-
+  const note = data.weightNote
   return {
     meta: parts.join(' · '),
-    neutered: pet.neutered === true ? t.medicalRecord.neutered[pet.sex ?? 'unknown'] : null,
+    neutered: data.neutered ? t.medicalRecord.neutered[data.sex ?? 'unknown'] : null,
     weight: pet.weight_kg === null ? null : t.medicalRecord.weight(pet.weight_kg),
-    weightNote,
+    weightNote:
+      note === null ? null : note.kind === 'fromForm' ? t.medicalRecord.fromForm : note.kind === 'trend' ? trendWords(t, note.trend) : t.day(note.day.day, note.day.withYear),
   }
 }
 
@@ -98,14 +93,12 @@ export function importantFacts(
   today: string = '',
 ): Fact[] {
   const words = t.medicalRecord
-  const current = courses.filter((course) => isTakenNow(course, today))
-  const medicines =
-    courses.length > 0
-      ? current.map((course) => (course.ongoing ? `${course.name} (${words.meds.ongoingOnly})` : course.name)).join(LIST_SEPARATOR)
-      : pet.medications.join(LIST_SEPARATOR)
+  // Which medicines count as taken now is the shared rule (`importantFactsData`), the site's too.
+  const data = importantFactsData({ pet, medications: courses }, today)
+  const medicines = data.taking.map((course) => (course.ongoing ? `${course.name} (${words.meds.ongoingOnly})` : course.name)).join(LIST_SEPARATOR)
   const facts: Fact[] = [
-    { label: words.allergies, value: pet.allergies.join(LIST_SEPARATOR) },
-    { label: words.chronic, value: pet.chronic_conditions.join(LIST_SEPARATOR) },
+    { label: words.allergies, value: data.allergies.join(LIST_SEPARATOR) },
+    { label: words.chronic, value: data.chronic.join(LIST_SEPARATOR) },
     { label: words.takingNow, value: medicines },
   ]
   return facts.filter((fact) => fact.value !== '')

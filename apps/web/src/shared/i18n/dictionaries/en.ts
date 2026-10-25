@@ -608,6 +608,7 @@ const en: Dictionary = {
     dayYearFormat: '{m} {d}, {y}',
     decimalSeparator: '.',
     weight: '{n} kg',
+    weightGrams: '{n} g',
     animal: {
       cat: { female: 'Cat', male: 'Cat', unknown: 'Cat' },
       dog: { female: 'Dog', male: 'Dog', unknown: 'Dog' },

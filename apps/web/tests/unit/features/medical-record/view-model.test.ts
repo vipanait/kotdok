@@ -168,6 +168,12 @@ describe('chart geometry', () => {
     expect(points[2].y).toBeGreaterThan(points[0].y)
   })
 
+  it('writes a newborn in grams, as the phone does (shared `weightParts`)', () => {
+    expect(formatWeight(ru.medicalRecord, 0.085)).toBe('85 г')
+    expect(formatWeight(en.medicalRecord, 0.085)).toBe('85 g')
+    expect(formatWeight(ru.medicalRecord, 4.25)).toBe('4,3 кг')
+  })
+
   it('draws each guide at the weight its label says: the 4,4 kg point sits on the «4,4 кг» line', () => {
     const { points, guides } = murkaChart()
     // Round weights only, labelled as drawn.

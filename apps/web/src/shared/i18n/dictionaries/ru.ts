@@ -621,6 +621,8 @@ const ru = {
     dayYearFormat: '{d} {m} {y}',
     decimalSeparator: ',',
     weight: '{n} кг',
+    /** Under a kilogram: a newborn is «85 г», not «0,1 кг» (shared `weightParts`). */
+    weightGrams: '{n} г',
     animal: {
       cat: { female: 'Кошка', male: 'Кот', unknown: 'Кошка' },
       dog: { female: 'Собака', male: 'Собака', unknown: 'Собака' },

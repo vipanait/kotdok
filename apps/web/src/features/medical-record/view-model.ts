@@ -1,23 +1,27 @@
-import type { DueItem, HealthEvent, HealthItem, HealthOverview, HealthSection, Medication, Pet } from '@lapka/contracts'
+import type { DueItem, HealthEvent, HealthItem, HealthOverview, HealthSection, Medication, ParasiteGroup, Pet } from '@lapka/contracts'
 import {
   chartLayout,
   chartTicks,
   chartY,
-  daysTogether,
   datedWeights,
   doneEvents,
   dueEntries,
   dueName,
-  dueTiming,
-  headAge,
-  isTakenNow,
-  parasiteGroups,
+  dueStatusParts,
+  dueTitleParts,
+  headFactsData,
+  importantFactsData,
+  itemNameParts,
   plannedEvents,
   splitCourses,
-  weightTrend,
+  trendParts,
+  weightParts,
   weightsInPeriod,
   type DueEntry,
+  type DueStatusParts,
   type DueTone,
+  type ItemNameParts,
+  type TrendParts,
   type WeightTrend,
 } from '@lapka/shared'
 import type { Locale } from '@/shared/i18n/config'
@@ -28,7 +32,9 @@ import { medicalRecordHref, sectionOpen, type CompleteFrom } from './routes'
 /**
  * What the medical record page says, worked out from the overview. No React
  * here: the rules — the form's answers shown without made-up dates, an empty
- * list read as "not said" rather than "none" — are unit tested.
+ * list read as "not said" rather than "none" — are unit tested. What a line
+ * is made of (which day, how many days, which disease) is the shared layer's
+ * (`record-parts.ts`, the phone's too); this file puts the parts into words.
  */
 
 type Words = Dictionary['medicalRecord']
@@ -69,8 +75,11 @@ export function formatDecimal(words: Words, value: number): string {
   return String(rounded).replace('.', words.decimalSeparator)
 }
 
+/** «4,2 кг»; under a kilogram «85 г», the phone's rule too (shared `weightParts`). */
 export function formatWeight(words: Words, kg: number): string {
-  return words.weight.replace('{n}', formatDecimal(words, kg))
+  const parts = weightParts(kg)
+  if (parts.unit === 'g') return words.weightGrams.replace('{n}', String(parts.grams))
+  return words.weight.replace('{n}', formatDecimal(words, parts.kg))
 }
 
 // ---------- Head ----------
@@ -86,57 +95,49 @@ export type HeadFacts = {
   together: string | null
 }
 
-function speciesWord(words: Words, pet: Pet): string {
+function speciesWord(words: Words, pet: Pick<Pet, 'species' | 'sex'>): string {
   return words.animal[pet.species][pet.sex ?? 'unknown']
 }
 
 export function headFacts(dict: Dictionary, locale: Locale, overview: HealthOverview, today: string): HeadFacts {
   const words = dict.medicalRecord
-  const { pet } = overview
-  const parts = [speciesWord(words, pet)]
-  const breed = pet.breed?.trim()
-  if (breed) parts.push(breed)
+  const data = headFactsData(overview, today)
+  const parts = [speciesWord(words, data)]
+  if (data.breed) parts.push(data.breed)
   // Zero included, as on the phone (shared `headAge`, MW-09).
-  const age = headAge(pet, today)
-  if (age !== null) parts.push(formatCount(dict.pets.age, age, locale))
-  if (pet.neutered === true) parts.push(words.neutered[pet.sex ?? 'unknown'])
+  if (data.ageYears !== null) parts.push(formatCount(dict.pets.age, data.ageYears, locale))
+  if (data.neutered) parts.push(words.neutered[data.sex ?? 'unknown'])
 
+  const note = data.weightNote
   return {
-    name: pet.name,
+    name: data.name,
     meta: parts.join(' · '),
-    weight: pet.weight_kg === null ? null : formatWeight(words, pet.weight_kg),
-    weightNote: pet.weight_kg === null ? null : weightNote(dict, locale, overview, today),
-    together: togetherText(dict, locale, pet.adopted_on, today),
+    weight: overview.pet.weight_kg === null ? null : formatWeight(words, overview.pet.weight_kg),
+    weightNote:
+      note === null ? null
+      : note.kind === 'fromForm' ? words.weightFromForm
+      : note.kind === 'trend' ? trendWords(dict, locale, note.trend)
+      : day(words, note.day.day, today),
+    together: data.togetherDays === null ? null : formatCount(words.together, data.togetherDays, locale),
   }
 }
 
-function togetherText(dict: Dictionary, locale: Locale, adoptedOn: string | null, today: string): string | null {
-  const days = daysTogether(adoptedOn, today)
-  return days !== null && days > 0 ? formatCount(dict.medicalRecord.together, days, locale) : null
+function spanText(dict: Dictionary, locale: Locale, span: TrendParts['span']): string {
+  const words = dict.medicalRecord
+  return span.kind === 'months' ? formatCount(words.monthsSpan, span.n, locale) : formatCount(words.daysSpan, span.n, locale)
 }
 
-function spanText(dict: Dictionary, locale: Locale, months: number, days: number): string {
+function trendWords(dict: Dictionary, locale: Locale, trend: TrendParts): string {
   const words = dict.medicalRecord
-  return months >= 1 ? formatCount(words.monthsSpan, months, locale) : formatCount(words.daysSpan, days, locale)
-}
-
-/** «−0,3 кг за 6 месяцев», «Без изменений за 1 месяц»: neutral, never "better" or "worse". */
-export function trendText(dict: Dictionary, locale: Locale, trend: WeightTrend): string {
-  const words = dict.medicalRecord
-  const span = spanText(dict, locale, trend.months, trend.days)
+  const span = spanText(dict, locale, trend.span)
   if (trend.change === 0) return words.noChange.replace('{span}', span)
   const change = `${trend.change < 0 ? '−' : '+'}${formatDecimal(words, Math.abs(trend.change))}`
   return words.trend.replace('{change}', change).replace('{span}', span)
 }
 
-function weightNote(dict: Dictionary, locale: Locale, overview: HealthOverview, today: string): string {
-  const words = dict.medicalRecord
-  const dated = datedWeights(overview.weights)
-  const latest = dated[dated.length - 1]
-  // The form's value with no weighing behind it: its day is unknown and is not made up.
-  if (!latest) return words.weightFromForm
-  const trend = weightTrend(overview.weights, today)
-  return trend ? trendText(dict, locale, trend) : day(words, latest.measured_on, today)
+/** «−0,3 кг за 6 месяцев», «Без изменений за 1 месяц»: neutral, never "better" or "worse". */
+export function trendText(dict: Dictionary, locale: Locale, trend: WeightTrend): string {
+  return trendWords(dict, locale, trendParts(trend))
 }
 
 // ---------- Due dates ----------
@@ -174,9 +175,8 @@ function targetName(dict: Dictionary, code: string): string {
   return (dict.medicalRecord.targets as Record<string, string>)[code] ?? code
 }
 
-function groupsTitle(dict: Dictionary, targets: readonly string[]): string | null {
-  const groups = parasiteGroups(targets)
-  if (groups.length === 0) return null
+/** «Блохи и клещи», «Блохи, клещи и глисты». */
+function groupsTitle(dict: Dictionary, groups: readonly ParasiteGroup[]): string {
   const names = groups.map((group) => dict.medicalRecord.parasiteGroups[group])
   const joined = names.length > 1 ? `${names.slice(0, -1).join(', ')} ${dict.medicalRecord.and} ${names[names.length - 1]}` : names[0]
   return joined.charAt(0).toUpperCase() + joined.slice(1).toLowerCase()
@@ -190,11 +190,21 @@ function dueItemTitle(
   visitKind: HealthEvent['visit_kind'],
 ): string {
   const words = dict.medicalRecord
-  if (kind === 'visit' || item === null) return visitKind ? words.visits.kinds[visitKind] : words.due.visit
-  if (kind === 'parasite') return groupsTitle(dict, item.targets) ?? item.name ?? words.due.noProduct
-  if (item.targets.length === 1) return targetName(dict, item.targets[0])
-  if (item.targets.length > 1) return words.due.complexVaccination
-  return item.name ?? words.due.noProduct
+  const parts = dueTitleParts(kind, item, visitKind)
+  switch (parts.kind) {
+    case 'visit':
+      return parts.visitKind ? words.visits.kinds[parts.visitKind] : words.due.visit
+    case 'parasiteGroups':
+      return groupsTitle(dict, parts.groups)
+    case 'target':
+      return targetName(dict, parts.target)
+    case 'complexVaccination':
+      return words.due.complexVaccination
+    case 'name':
+      return parts.name
+    case 'noProduct':
+      return words.due.noProduct
+  }
 }
 
 /** What a due row is called: the disease, «Блохи и клещи», the visit's kind, the owner's own name. */
@@ -284,43 +294,50 @@ export function petDueLine(
   due: Pick<DueItem, 'kind' | 'date' | 'name' | 'targets'> & Partial<Pick<DueItem, 'visit_kind'>>,
   today: string,
 ): PetDueLine | null {
-  const timing = dueTiming(due.date, today)
+  const timing = dueStatusParts(due.date, today)
   if (timing.tone === 'later') return null
   const title = dueLineTitle(dict, locale, due)
-  const when = timing.tone === 'overdue' ? dict.pets.dueOverdue : soonText(dict, locale, timing.days).toLocaleLowerCase(locale)
+  const when = timing.tone === 'overdue' ? dict.pets.dueOverdue : soonText(dict, locale, timing.when).toLocaleLowerCase(locale)
   const status = dict.pets.dueStatus.replace('{status}', when)
   return { tone: timing.tone, title, status, text: `${title} ${status}` }
 }
 
-export function dueStatusText(dict: Dictionary, locale: Locale, date: string, today: string): { text: string; tone: DueTone } {
+/** «Просрочено вчера», «Просрочено на 12 дней», «Просрочено с 12 июня» (the day is in the words then). */
+function overdueText(dict: Dictionary, locale: Locale, status: Extract<DueStatusParts, { tone: 'overdue' }>, shown: string): string {
   const words = dict.medicalRecord.due
-  const shown = day(dict.medicalRecord, date, today)
-  const timing = dueTiming(date, today)
-  if (timing.tone === 'later') return { text: shown, tone: 'later' }
-  if (timing.tone === 'overdue') {
-    if (timing.longOverdue) return { text: words.overdueSince.replace('{day}', shown), tone: 'overdue' }
-    const late = -timing.days
-    const text = late === 1 ? words.overdueYesterday : formatCount(words.overdueDays, late, locale)
-    return { text: `${text} · ${shown}`, tone: 'overdue' }
+  switch (status.since.kind) {
+    case 'long':
+      return words.overdueSince.replace('{day}', shown)
+    case 'yesterday':
+      return words.overdueYesterday
+    case 'days':
+      return formatCount(words.overdueDays, status.since.days, locale)
   }
-  return { text: `${soonText(dict, locale, timing.days)} · ${shown}`, tone: 'soon' }
+}
+
+export function dueStatusText(dict: Dictionary, locale: Locale, date: string, today: string): { text: string; tone: DueTone } {
+  const status = dueStatusParts(date, today)
+  const shown = formatDay(dict.medicalRecord, status.day.day, status.day.withYear)
+  if (status.tone === 'later') return { text: shown, tone: 'later' }
+  if (status.tone === 'overdue') {
+    const text = overdueText(dict, locale, status, shown)
+    return { text: status.since.kind === 'long' ? text : `${text} · ${shown}`, tone: 'overdue' }
+  }
+  return { text: `${soonText(dict, locale, status.when)} · ${shown}`, tone: 'soon' }
 }
 
 /** An overdue date split for the record's rows: the day, and the overdue words under it. */
 export function overdueParts(dict: Dictionary, locale: Locale, date: string, today: string): { day: string | null; overdue: string | null } {
-  const timing = dueTiming(date, today)
-  if (timing.tone !== 'overdue') return { day: null, overdue: null }
-  const words = dict.medicalRecord.due
-  const shown = day(dict.medicalRecord, date, today)
-  if (timing.longOverdue) return { day: null, overdue: words.overdueSince.replace('{day}', shown) }
-  const late = -timing.days
-  return { day: shown, overdue: late === 1 ? words.overdueYesterday : formatCount(words.overdueDays, late, locale) }
+  const status = dueStatusParts(date, today)
+  if (status.tone !== 'overdue') return { day: null, overdue: null }
+  const shown = formatDay(dict.medicalRecord, status.day.day, status.day.withYear)
+  return { day: status.since.kind === 'long' ? null : shown, overdue: overdueText(dict, locale, status, shown) }
 }
 
 /** «Сегодня», «Завтра», «Через 5 дней»: a date among the fourteen "soon" days. */
-function soonText(dict: Dictionary, locale: Locale, days: number): string {
+function soonText(dict: Dictionary, locale: Locale, when: Extract<DueStatusParts, { tone: 'soon' }>['when']): string {
   const words = dict.medicalRecord.due
-  return days === 0 ? words.today : days === 1 ? words.tomorrow : formatCount(words.inDays, days, locale)
+  return when.kind === 'today' ? words.today : when.kind === 'tomorrow' ? words.tomorrow : formatCount(words.inDays, when.days, locale)
 }
 
 function dueRow(
@@ -410,17 +427,12 @@ export type Fact = { label: string; value: string }
  */
 export function importantFacts(dict: Dictionary, overview: HealthOverview, today: string): Fact[] {
   const words = dict.medicalRecord.important
-  const { pet, medications } = overview
-  const taking =
-    medications.length > 0
-      ? splitCourses(medications, today)
-          .current.filter((course) => isTakenNow(course, today))
-          .map((course) => (course.ongoing ? `${course.name} · ${words.ongoing}` : course.name))
-      : pet.medications
+  const data = importantFactsData(overview, today)
+  const taking = data.taking.map((course) => (course.ongoing ? `${course.name} · ${words.ongoing}` : course.name))
   return [
     // «; » between items: an allergy may have a comma of its own (FB-1/06).
-    { label: words.allergies, value: pet.allergies.join('; ') },
-    { label: words.chronic, value: pet.chronic_conditions.join('; ') },
+    { label: words.allergies, value: data.allergies.join('; ') },
+    { label: words.chronic, value: data.chronic.join('; ') },
     { label: words.takingNow, value: taking.join('; ') },
   ].filter((fact) => fact.value.trim() !== '')
 }
@@ -450,15 +462,26 @@ function joinDetail(...parts: (string | null | undefined)[]): string {
  * «Без препарата».
  */
 export function eventItemName(dict: Dictionary, kind: HealthEvent['kind'], item: Pick<HealthItem, 'name' | 'targets'>): string {
-  if (kind === 'parasite') return item.name ?? groupsTitle(dict, item.targets) ?? dict.medicalRecord.due.noProduct
-  return vaccineName(dict, item)
+  return itemNameText(dict, itemNameParts(kind, item))
+}
+
+function itemNameText(dict: Dictionary, parts: ItemNameParts): string {
+  switch (parts.kind) {
+    case 'name':
+      return parts.name
+    case 'parasiteGroups':
+      return groupsTitle(dict, parts.groups)
+    case 'targets': {
+      const names = parts.targets.map((code) => targetName(dict, code))
+      return names.map((name, index) => (index === 0 ? name : name.toLowerCase())).join(', ')
+    }
+    case 'noProduct':
+      return dict.medicalRecord.due.noProduct
+  }
 }
 
 function vaccineName(dict: Dictionary, item: Pick<HealthItem, 'name' | 'targets'>): string {
-  if (item.name) return item.name
-  if (item.targets.length === 0) return dict.medicalRecord.due.noProduct
-  const names = item.targets.map((code) => targetName(dict, code))
-  return names.map((name, index) => (index === 0 ? name : name.toLowerCase())).join(', ')
+  return itemNameText(dict, itemNameParts('vaccination', item))
 }
 
 function vaccinationsCard(dict: Dictionary, overview: HealthOverview, today: string): SectionCard {
@@ -493,18 +516,22 @@ function vaccinationsCard(dict: Dictionary, overview: HealthOverview, today: str
 
 function parasitesCard(dict: Dictionary, overview: HealthOverview, today: string): SectionCard {
   const words = dict.medicalRecord
-  const groups = (item: HealthItem) => groupsTitle(dict, item.targets)?.toLowerCase() ?? null
+  // «Бравекто» with «блохи и клещи» under it; a product without a name is called by its groups.
+  const groups = (item: HealthItem) => {
+    const parts = itemNameParts('parasite', { name: null, targets: item.targets })
+    return parts.kind === 'parasiteGroups' ? groupsTitle(dict, parts.groups).toLowerCase() : null
+  }
   const done = doneEvents(overview.events, 'parasite').flatMap((event) =>
     event.items.map((item) => ({
       key: item.id,
-      title: item.name ?? groupsTitle(dict, item.targets) ?? words.due.noProduct,
+      title: eventItemName(dict, 'parasite', item),
       detail: joinDetail(day(words, event.date, today), item.name ? groups(item) : null),
     })),
   )
   const planned = plannedEvents(overview.events, 'parasite').flatMap((event) =>
     event.items.map((item) => ({
       key: item.id,
-      title: item.name ?? groupsTitle(dict, item.targets) ?? words.due.noProduct,
+      title: eventItemName(dict, 'parasite', item),
       detail: words.parasites.planned.replace('{day}', day(words, event.date, today)),
     })),
   )
