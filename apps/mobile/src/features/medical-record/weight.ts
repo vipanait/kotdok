@@ -1,6 +1,6 @@
 import type { WeightMeasurement } from '@lapka/contracts'
 import type { Dictionary } from '@/i18n'
-import { ApiError, isKeyReused, trendParts, weightTrend as trendOf, type TrendParts } from '@lapka/shared'
+import { apiFailure, trendParts, weightTrend as trendOf, type TrendParts } from '@lapka/shared'
 
 /**
  * Weight history, worked out for the screen: reading what was typed and the
@@ -59,7 +59,7 @@ export function trendWords(t: Dictionary, trend: TrendParts): string {
  * `failed`: anything else, said by `describeFailure`.
  */
 export function weightSaveFailure(cause: unknown): 'landed' | 'dayTaken' | 'failed' {
-  if (isKeyReused(cause)) return 'landed'
-  if (cause instanceof ApiError && cause.code === 'conflict') return 'dayTaken'
-  return 'failed'
+  const failure = apiFailure(cause)
+  // Any other 409 of a weight is its day already taken.
+  return failure === 'keyReused' ? 'landed' : failure === 'conflict' ? 'dayTaken' : 'failed'
 }

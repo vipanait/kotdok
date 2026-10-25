@@ -1,5 +1,5 @@
 import type { CheckCreateInput, CheckJobStatus, ErrorCode } from '@lapka/contracts'
-import { ApiError, ApiTimeoutError } from '@lapka/shared'
+import { ApiError, apiFailure } from '@lapka/shared'
 
 /**
  * The site's check goes the way the phone's does (POST /checks, then the
@@ -90,26 +90,25 @@ export type SubmitFailure =
 /** What a failed send means for the form. */
 export function submitFailure(error: unknown, linkedCase: boolean): SubmitFailure {
   if (error instanceof CheckJobFailed) return error.code === 'insufficient_credits' ? 'noCredits' : 'failed'
-  if (error instanceof ApiError) {
-    switch (error.code) {
-      case 'unauthorized':
-        return 'signedOut'
-      case 'insufficient_credits':
-        return 'noCredits'
-      case 'bad_request':
-        return 'invalid'
-      case 'not_found':
-        return 'petMissing'
-      case 'rate_limited':
-        return 'busy'
-      case 'conflict':
-        return linkedCase ? 'recheckRefused' : 'failed'
-      default:
-        return 'failed'
-    }
+  const failure = apiFailure(error)
+  switch (failure) {
+    case 'rejected':
+      return 'invalid'
+    case 'gone':
+      return 'petMissing'
+    case 'rateLimited':
+      return 'busy'
+    // A 409 on a check is the case refusing another re-check; alone it means nothing.
+    case 'keyReused':
+    case 'conflict':
+      return linkedCase ? 'recheckRefused' : 'failed'
+    case 'signedOut':
+    case 'noCredits':
+    case 'offline':
+      return failure
+    default:
+      return 'failed'
   }
-  if (error instanceof TypeError || error instanceof ApiTimeoutError) return 'offline'
-  return 'failed'
 }
 
 /**

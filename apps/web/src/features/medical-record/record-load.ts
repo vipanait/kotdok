@@ -1,5 +1,5 @@
 import type { HealthOverview, SymptomCheckRecord } from '@lapka/contracts'
-import { ApiError, localToday, type ApiClient } from '@lapka/shared'
+import { apiFailure, localToday, type ApiClient } from '@lapka/shared'
 
 /**
  * Loading a medical record, as states a screen can draw. Kept apart from
@@ -73,12 +73,16 @@ export function recordReducer<T = RecordData>(state: RecordState<T>, action: Rec
 
 /** What a failed request means for the screen. Anything unrecognised is a plain failure. */
 export function classifyFailure(error: unknown): LoadFailure {
-  if (error instanceof ApiError) {
-    if (error.code === 'not_found') return 'not_found'
-    if (error.code === 'unauthorized') return 'signed_out'
-    if (error.code === 'account_deleting') return 'deleting'
+  switch (apiFailure(error)) {
+    case 'gone':
+      return 'not_found'
+    case 'signedOut':
+      return 'signed_out'
+    case 'deleting':
+      return 'deleting'
+    default:
+      return 'failed'
   }
-  return 'failed'
 }
 
 /** How many checks the record shows; the full history is its own page. */

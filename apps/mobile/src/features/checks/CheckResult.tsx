@@ -8,7 +8,8 @@ import { queryKeys } from '@/lib/query-keys'
 import { describeFailure } from '@/lib/errors'
 import { dictionary, useText } from '@/i18n'
 import { urgencyText, type UrgencyLevel } from '@/features/checks/urgency'
-import { checkAnswers, formatCheckedAt, offersVisit, photoObservations, visitFormHref, clinicSearchUrl, offersClinicSearch } from '@/features/checks/check-answers'
+import { formatDateTime } from '@lapka/shared'
+import { checkAnswers, offersVisit, photoObservations, visitFormHref, clinicSearchUrl, offersClinicSearch } from '@/features/checks/check-answers'
 import { ResultFeedback } from '@/features/checks/ResultFeedback'
 import { FollowupOffer } from '@/features/followup/FollowupOffer'
 import { reviewAfterCheck } from '@/features/review/store-review'
@@ -91,7 +92,7 @@ export function CheckResult({ id }: { id: string }) {
   return (
     <Screen title={check.pet_name ?? t.result.fallbackTitle} onBack={() => router.back()} scroll>
       <Text variant="caption" tone="faint" style={styles.checkedAt}>
-        {formatCheckedAt(check.created_at, check.locale)}
+        {formatDateTime(check.created_at, check.locale)}
       </Text>
 
       {/* What was asked comes first, open: reading the advice meant scrolling

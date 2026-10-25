@@ -78,22 +78,6 @@ export function checkAnswers(
 }
 
 /**
- * «17 сентября 2026, 20:54» in the language given.
- *
- * With the time: two checks on the same day otherwise look identical, and the
- * one from this morning is not the one from tonight.
- */
-export function formatCheckedAt(iso: string, locale: string): string {
-  return new Date(iso).toLocaleString(locale, {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
-
-/**
  * Whether a result offers «Записать визит к врачу» (spec §7.22): every level
  * but «ВСЁ В ПОРЯДКЕ», and only for a check about a pet — a visit belongs in
  * a pet's record.

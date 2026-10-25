@@ -1,3 +1,4 @@
+import { vocab } from '@lapka/shared'
 const ru = {
   common: {
     or: 'или',
@@ -192,26 +193,12 @@ const ru = {
      */
     dueNames: {
       vaccination: 'Прививка {against}',
-      against: {
-        panleukopenia: 'от панлейкопении',
-        calicivirus: 'от калицивироза',
-        rhinotracheitis: 'от ринотрахеита',
-        distemper: 'от чумы плотоядных',
-        parvovirus: 'от парвовирусного энтерита',
-        adenovirus: 'от аденовироза',
-        rabies: 'от бешенства',
-        felv: 'от лейкоза',
-        chlamydia: 'от хламидиоза',
-        leptospirosis: 'от лептоспироза',
-        parainfluenza: 'от парагриппа',
-        bordetella: 'от кашля питомников',
-        coronavirus: 'от коронавирусного энтерита',
-      } as Record<string, string>,
+      against: vocab.ru.against,
       complexVaccination: 'Комплексная прививка',
       namedVaccination: 'Прививка «{name}»',
       plainVaccination: 'Прививка',
       treatment: 'Обработка от {groups}',
-      parasiteGroups: { fleas: 'блох', ticks: 'клещей', worms: 'глистов' },
+      parasiteGroups: vocab.ru.parasiteGroupsOf,
       namedTreatment: 'Обработка «{name}»',
       plainTreatment: 'Обработка от паразитов',
       visit: 'Визит к врачу',
@@ -490,16 +477,7 @@ const ru = {
     disclaimerFallback:
       'Лапка — информационный инструмент. Не является ветеринарным диагнозом и не заменяет осмотр специалиста.',
   },
-  urgency: {
-    emergency: { label: 'ЭКСТРЕННО', action: 'Немедленно в ветеринарную клинику' },
-    urgent: { label: 'СРОЧНО', action: 'К ветеринару в течение 24 часов' },
-    monitor: {
-      label: 'НАБЛЮДАЕМ',
-      action: 'Наблюдайте 48 часов, при ухудшении — к врачу',
-    },
-    home_care: { label: 'ДОМАШНИЙ УХОД', action: 'Можно лечить дома' },
-    healthy: { label: 'ВСЁ В ПОРЯДКЕ', action: 'Ничего делать не нужно' },
-  },
+  urgency: vocab.ru.urgency,
   admin: {
     statistics: {
       crumb: 'Служебный раздел / Статистика',
@@ -638,7 +616,7 @@ const ru = {
     /** Back on the record after the pet form was saved. */
     formSaved: 'Анкета сохранена.',
     savedOpen: 'Открыть запись',
-    months: ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'],
+    months: vocab.ru.months,
     dayFormat: '{d} {m}',
     dayYearFormat: '{d} {m} {y}',
     decimalSeparator: ',',
@@ -658,22 +636,8 @@ const ru = {
     /** «Вместе 2110 дней» under the pet's name: days since the home day, that day counting as one. */
     together: { one: 'Вместе {n} день', few: 'Вместе {n} дня', many: 'Вместе {n} дней', other: 'Вместе {n} дня' },
     and: 'и',
-    targets: {
-      panleukopenia: 'Панлейкопения',
-      calicivirus: 'Калицивироз',
-      rhinotracheitis: 'Ринотрахеит',
-      distemper: 'Чума плотоядных',
-      parvovirus: 'Парвовирусный энтерит',
-      adenovirus: 'Аденовироз',
-      rabies: 'Бешенство',
-      felv: 'Лейкоз',
-      chlamydia: 'Хламидиоз',
-      leptospirosis: 'Лептоспироз',
-      parainfluenza: 'Парагрипп',
-      bordetella: 'Кашель питомников',
-      coronavirus: 'Коронавирусный энтерит',
-    },
-    parasiteGroups: { fleas: 'Блохи', ticks: 'Клещи', worms: 'Глисты' },
+    targets: vocab.ru.targets,
+    parasiteGroups: vocab.ru.parasiteGroups,
     parasiteTargets: { fleas: 'Блохи', ticks: 'Клещи', ear_mites: 'Ушной клещ', worms: 'Глисты', heartworm: 'Дирофиляриоз' },
     recordKinds: { vaccination: 'Прививка', parasite: 'Обработка от паразитов', visit: 'Визит к врачу' },
     due: {

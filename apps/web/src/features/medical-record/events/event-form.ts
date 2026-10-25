@@ -11,8 +11,7 @@ import {
   type ProductKind,
 } from '@lapka/contracts'
 import {
-  ApiError,
-  ApiTimeoutError,
+  apiFailure,
   eventPatchItems,
   eventProblems,
   productName,
@@ -341,24 +340,21 @@ export type EventSaveFailure =
   | 'failed'
 
 export function eventSaveFailure(error: unknown): EventSaveFailure {
-  if (error instanceof ApiError) {
-    switch (error.code) {
-      case 'bad_request':
-        return 'rejected'
-      case 'not_found':
-        return 'gone'
-      case 'conflict':
-        return 'alreadySaved'
-      case 'record_done':
-        return 'done'
-      case 'unauthorized':
-        return 'signedOut'
-      case 'account_deleting':
-        return 'deleting'
-      default:
-        return 'failed'
-    }
+  const failure = apiFailure(error)
+  switch (failure) {
+    // A 409 of a record write is this very save, landed earlier.
+    case 'keyReused':
+    case 'conflict':
+      return 'alreadySaved'
+    case 'recordDone':
+      return 'done'
+    case 'rejected':
+    case 'gone':
+    case 'signedOut':
+    case 'deleting':
+    case 'offline':
+      return failure
+    default:
+      return 'failed'
   }
-  if (error instanceof TypeError || error instanceof ApiTimeoutError) return 'offline'
-  return 'failed'
 }

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { ActivityIndicator, FlatList, Image, StyleSheet, View } from 'react-native'
 import { router, useSegments } from 'expo-router'
 import type { SymptomCheckRecord } from '@lapka/contracts'
+import { formatDateTime } from '@lapka/shared'
 import { withFreshSession } from '@/lib/api'
 import { useCached, useSeedCache } from '@/lib/query-cache'
 import { queryKeys } from '@/lib/query-keys'
@@ -22,14 +23,7 @@ import { colour, space } from '@/ui/theme'
  * otherwise put "7 September" under a card written in Russian. With the time,
  * because two checks made on one day were otherwise the same line twice.
  */
-function formatDate(iso: string, locale: string): string {
-  return new Date(iso).toLocaleString(locale, {
-    day: 'numeric',
-    month: 'long',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
+const formatDate = (iso: string, locale: string) => formatDateTime(iso, locale, { year: false })
 
 /**
  * The list of past results, whole or narrowed to one pet.
