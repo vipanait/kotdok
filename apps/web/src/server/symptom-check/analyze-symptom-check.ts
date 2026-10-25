@@ -192,6 +192,12 @@ export type AnalyzeSymptomCheckInput = QuickAssessment & {
   today?: string
   /** A re-check of a follow-up case (FU-03): its previous check and answers go into the prompt. */
   followupCaseId?: string
+  /**
+   * The check job this analysis runs for. The credit is then reserved on the
+   * job (`reserve_check_job_credit`), so a job whose function dies can give
+   * it back (`fail_stale_check_job`).
+   */
+  jobId?: string
 }
 
 export type AnalyzeSymptomCheckSuccess = {
@@ -358,10 +364,9 @@ export async function analyzeSymptomCheck(
 
     // Reserve the credit before expensive external work. If anything below
     // fails, the catch block compensates it with refund_symptom_check_usage.
-    const { data: usage, error: usageError } = await supabase.rpc('apply_symptom_check_usage', {
-      p_user_id: input.userId,
-      p_symptom_check_id: null,
-    })
+    const { data: usage, error: usageError } = input.jobId
+      ? await supabase.rpc('reserve_check_job_credit', { p_user_id: input.userId, p_job_id: input.jobId })
+      : await supabase.rpc('apply_symptom_check_usage', { p_user_id: input.userId, p_symptom_check_id: null })
     if (usageError) {
       const failure = usageFailure(usageError.message)
       if (failure.code === 'internal_error') {
