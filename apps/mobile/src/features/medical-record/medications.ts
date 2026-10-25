@@ -1,5 +1,5 @@
 import { MEDICATION_LIMITS, type Medication, type MedicationPatch, type MedicationsInput } from '@lapka/contracts'
-import { ApiError, courseDayProblems, endCoursePatch, endsByToday } from '@lapka/shared'
+import { ApiError, courseProblems, courseValue, endCoursePatch, endsByToday } from '@lapka/shared'
 import type { Dictionary } from '@/i18n'
 import { dayInput, dayParts, localToday, parseDayText } from '@/lib/calendar-day'
 
@@ -88,29 +88,19 @@ export function readCourses(t: Dictionary, drafts: readonly CourseDraft[], start
   const errors: CourseErrors = {}
 
   const value = drafts.map((draft) => {
+    // The problems and the body are the shared reader's (`courseProblems`, `courseValue`, the site's too).
+    const fields = { ...draft, start: typedDay(draft.start), end: typedDay(draft.end) }
+    const found = courseProblems(fields, startOptional)
     const problems: CourseErrors[string] = {}
-    const name = draft.name.trim()
-    if (name === '') problems.name = words.nameRequired
-    else if (name.length > MEDICATION_LIMITS.name) problems.name = tooLong(MEDICATION_LIMITS.name)
-
-    const start = typedDay(draft.start)
-    const end = typedDay(draft.end)
-    const days = courseDayProblems({ start, end, ongoing: draft.ongoing }, startOptional)
-    if (days.start === 'empty') problems.start = words.startRequired
-    else if (days.start) problems.start = words.dateInvalid
-    if (days.end === 'invalid') problems.end = words.dateInvalid
-    else if (days.end === 'beforeStart') problems.end = words.endBeforeStart
-
-    const dosage = draft.dosage.trim()
-    if (dosage.length > MEDICATION_LIMITS.dosage) problems.dosage = tooLong(MEDICATION_LIMITS.dosage)
+    if (found.name === 'empty') problems.name = words.nameRequired
+    else if (found.name === 'tooLong') problems.name = tooLong(MEDICATION_LIMITS.name)
+    if (found.start === 'empty') problems.start = words.startRequired
+    else if (found.start) problems.start = words.dateInvalid
+    if (found.end === 'invalid') problems.end = words.dateInvalid
+    else if (found.end === 'beforeStart') problems.end = words.endBeforeStart
+    if (found.dosage) problems.dosage = tooLong(MEDICATION_LIMITS.dosage)
     if (Object.keys(problems).length > 0) errors[draft.key] = problems
-    return {
-      name,
-      dosage: dosage === '' ? null : dosage,
-      started_on: start === '' ? null : start,
-      ended_on: draft.ongoing || end === '' ? null : end,
-      ongoing: draft.ongoing,
-    }
+    return courseValue(fields)
   })
 
   return Object.keys(errors).length > 0 ? { ok: false, errors } : { ok: true, value }
