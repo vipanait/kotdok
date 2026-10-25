@@ -1,8 +1,6 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
-import { NextRequest } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
 import type { Client } from 'pg'
-import { HealthEventSchema, HealthOverviewSchema, IDEMPOTENCY_KEY_HEADER, type HealthEvent } from '@lapka/contracts'
+import { HealthEventSchema, IDEMPOTENCY_KEY_HEADER, type HealthEvent } from '@lapka/contracts'
 import { GET as getHealth } from '@/app/(backend)/api/v1/pets/[id]/health/route'
 import { POST as createEvent } from '@/app/(backend)/api/v1/pets/[id]/health/events/route'
 import { DELETE as deleteEvent, PATCH as patchEvent } from '@/app/(backend)/api/v1/pets/[id]/health/events/[eventId]/route'
@@ -21,7 +19,7 @@ import {
   toggleTarget,
   type EventDraft,
 } from '@/features/medical-record/events/event-form'
-import { FIXTURE_PASSWORD, OWNER_A, OWNER_B, PET_IDS, connect, seedFixtures, type SeededFixtures } from './fixtures'
+import { OWNER_A, OWNER_B, PET_IDS, connect, seedFixtures, signIn, overview, bearerRequest, type SeededFixtures } from './fixtures'
 
 // MW-03: the web vaccination form against the real database — what the form
 // sends is what is stored; a done record is history (owner rule of
@@ -35,19 +33,8 @@ let tokenA: string
 let tokenB: string
 const pet = PET_IDS.aCat
 
-async function signIn(email: string): Promise<string> {
-  const client = createClient(process.env.TEST_SUPABASE_URL!, process.env.TEST_SUPABASE_ANON_KEY!, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  })
-  const { data, error } = await client.auth.signInWithPassword({ email, password: FIXTURE_PASSWORD })
-  if (error) throw error
-  return data.session!.access_token
-}
-
 function request(token: string, method: string, body?: unknown, key?: string) {
-  const headers: Record<string, string> = { authorization: `Bearer ${token}`, 'content-type': 'application/json' }
-  if (key) headers[IDEMPOTENCY_KEY_HEADER] = key
-  return new NextRequest('http://test.local/api/v1/x', { method, headers, body: body === undefined ? undefined : JSON.stringify(body) })
+  return bearerRequest('/api/v1/x', { method, body, headers: key ? { [IDEMPOTENCY_KEY_HEADER]: key } : {} }, token)
 }
 
 const params = (id: string) => ({ params: Promise.resolve({ id }) })
@@ -61,10 +48,6 @@ function day(offset: number): string {
   return new Date(NOW + offset * 86_400_000).toISOString().slice(0, 10)
 }
 const TODAY = day(0)
-
-async function overview(token = tokenA) {
-  return HealthOverviewSchema.parse(await (await getHealth(request(token, 'GET'), params(pet))).json())
-}
 
 /** Two vaccines typed into the web form: the owner's own names, one with a next date. */
 function twoVaccines(status: 'done' | 'planned', date: string): EventDraft {
@@ -109,7 +92,7 @@ describe('what the web form sends is what is stored (MW-03.1)', () => {
       ['Нобивак Tricat Trio', ['panleukopenia', 'calicivirus']],
       ['Нобивак Rabies', ['rabies']],
     ])
-    const record = await overview()
+    const record = await overview(pet, tokenA)
     expect(record.events.find((event) => event.id === done.id)).toEqual(done)
     const plans = record.events.filter((event) => event.status === 'planned')
     expect(plans.map((plan) => [plan.date, plan.items.map((item) => item.source_item_id)])).toEqual([[day(364), [done.items[0].id]]])
@@ -124,7 +107,7 @@ describe('what the web form sends is what is stored (MW-03.1)', () => {
       params(pet),
     )
     expect(forced.status).toBe(400)
-    expect((await overview()).events).toEqual([])
+    expect((await overview(pet, tokenA)).events).toEqual([])
   })
 })
 
@@ -151,7 +134,7 @@ describe('a done record is history (owner rule of 26 September 2026)', () => {
         expect((await response.json()).error).toMatchObject({ code: 'record_done' })
       }
     }
-    const after = await overview()
+    const after = await overview(pet, tokenA)
     expect(after.events.find((event) => event.id === vaccination.id)).toEqual(vaccination)
     expect(after.events.find((event) => event.id === treatment.id)).toEqual(treatment)
   })
@@ -159,7 +142,7 @@ describe('a done record is history (owner rule of 26 September 2026)', () => {
   it('still deletes a wrong done record', async () => {
     const done = await created(twoVaccines('done', day(-1)))
     expect((await deleteEvent(request(tokenA, 'DELETE'), eventParams(pet, done.id))).status).toBe(204)
-    expect((await overview()).events.some((event) => event.id === done.id)).toBe(false)
+    expect((await overview(pet, tokenA)).events.some((event) => event.id === done.id)).toBe(false)
   })
 
   it('lets «Сделано» turn a plan into a done record, which is then read-only', async () => {
@@ -196,7 +179,7 @@ describe('a plan is corrected in place (MW-03.1)', () => {
   it('sends nothing for a plan opened and saved unchanged, even an overdue one', async () => {
     const plan = await created(twoVaccines('planned', day(30)))
     await db.query(`update public.pet_health_events set event_date = $2 where id = $1`, [plan.id, day(-5)])
-    const overdue = (await overview()).events.find((event) => event.id === plan.id)!
+    const overdue = (await overview(pet, tokenA)).events.find((event) => event.id === plan.id)!
     expect(readPlanChange(overdue, draftFromPlan(overdue), TODAY)).toEqual({ ok: true, patch: null })
   })
 })
@@ -209,12 +192,12 @@ describe('one Idempotency-Key, one record (MW-03.4)', () => {
     expect(first.status).toBe(201)
     expect(again.status).toBe(201)
     expect(HealthEventSchema.parse(await again.json()).id).toBe(HealthEventSchema.parse(await first.json()).id)
-    expect((await overview()).events.filter((event) => event.status === 'done')).toHaveLength(1)
+    expect((await overview(pet, tokenA)).events.filter((event) => event.status === 'done')).toHaveLength(1)
 
     const changed = await save({ ...twoVaccines('done', day(-1)), clinic: 'Другая' }, key)
     expect(changed.status).toBe(409)
     expect((await changed.json()).error.code).toBe('conflict')
-    expect((await overview()).events.filter((event) => event.status === 'done')).toHaveLength(1)
+    expect((await overview(pet, tokenA)).events.filter((event) => event.status === 'done')).toHaveLength(1)
   })
 })
 
@@ -237,7 +220,7 @@ describe('owner B reaches none of owner A’s records (MW-03 access)', () => {
     expect(await findHealthRecord(service, owners.ownerAId, PET_IDS.aDog, plan.id)).toBeNull()
     expect(await findHealthRecord(service, owners.ownerAId, pet, plan.id)).toEqual({ kind: 'vaccination', status: 'planned' })
 
-    const after = await overview()
+    const after = await overview(pet, tokenA)
     expect(after.events.find((event) => event.id === plan.id)).toEqual(plan)
     expect(after.events.find((event) => event.id === done.id)).toEqual(done)
   })

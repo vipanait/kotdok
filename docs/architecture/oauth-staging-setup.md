@@ -141,6 +141,26 @@ Production настраивается отдельно, список там св
 | --- | --- | --- | --- |
 | Google (staging) | Google Auth Platform → Clients | *заполнить* | *заполнить* |
 | Яндекс (staging) | oauth.yandex.ru → приложение | *заполнить* | *заполнить* |
+| Apple (staging и production) | `scripts/apple-client-secret.mjs` → Supabase | *заполнить* | раз в ≈180 дней, дата — в выводе скрипта |
+
+### Apple: секрет живёт полгода
+
+У Apple секрет для Supabase (**Authentication → Sign In / Providers → Apple → Secret Key (for
+OAuth)**) — не постоянная строка из кабинета, а JWT, подписанный ключом `.p8` из Apple Developer.
+Apple не принимает такой JWT дольше ≈182 дней, поэтому его нужно выпускать заново примерно раз в
+180 дней. Делает это [`scripts/apple-client-secret.mjs`](../../scripts/apple-client-secret.mjs):
+
+```bash
+node scripts/apple-client-secret.mjs ~/secure/AuthKey_XXXXXXXXXX.p8 | pbcopy
+```
+
+Скрипт читает ключ с диска и печатает только JWT; Key ID берётся из имени файла, которое дал
+Apple, поэтому файл не переименовывать. В stderr он пишет дату истечения — её и вписать в таблицу
+выше. Готовое значение вставить в Supabase и больше никуда. Секрет нужен только браузерному входу
+(Android и сайт, Services ID `my.lapka.web`); нативный вход на iOS его не использует. У staging и
+production ключи разные, поэтому скрипт запускается для каждого проекта отдельно. Истёкший секрет
+ломает вход через Apple на сайте и Android, а iOS продолжает работать — по этой асимметрии его
+и узнают.
 
 ## Источники
 

@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import type { Client } from 'pg'
-import { connect, seedFixtures, type SeededFixtures } from './fixtures'
+import { connect, seedFixtures, requestDeletion, type SeededFixtures } from './fixtures'
 
 /**
  * Stage 8/05, the database half: the functions the deletion worker calls.
@@ -31,11 +31,6 @@ afterAll(async () => {
 async function count(sql: string, params: unknown[] = []): Promise<number> {
   const { rows } = await db.query<{ n: string }>(sql, params)
   return Number(rows[0].n)
-}
-
-/** A job exactly as `request_account_deletion` leaves it. */
-async function requestDeletion(userId: string): Promise<void> {
-  await db.query(`select public.request_account_deletion($1, $2)`, [userId, `receipt-${userId}`])
 }
 
 /** Everything the fixtures do not seed but a real, long-lived account can have. */
@@ -109,7 +104,7 @@ describe('delete_account_data', () => {
       `insert into public.pet_medications (user_id, pet_id, name, started_on, visit_item_id) values ($1, $2, 'Нефростоп', current_date, $3)`,
       [seeded.ownerAId, check!.pet_id, item!.id],
     )
-    await requestDeletion(seeded.ownerAId)
+    await requestDeletion(db, seeded.ownerAId)
 
     await db.query(`select public.delete_account_data($1)`, [seeded.ownerAId])
 
@@ -127,7 +122,7 @@ describe('delete_account_data', () => {
   })
 
   it('archives a retired.credit_transactions row with no created_at', async () => {
-    await requestDeletion(seeded.ownerAId)
+    await requestDeletion(db, seeded.ownerAId)
     await db.query(
       `insert into retired.credit_transactions (user_id, amount, type, created_at) values ($1, 3, 'purchase', null)`,
       [seeded.ownerAId],
@@ -145,7 +140,7 @@ describe('delete_account_data', () => {
 
   it('rolls back everything when a later delete fails', async () => {
     await addTheRest(seeded.ownerAId)
-    await requestDeletion(seeded.ownerAId)
+    await requestDeletion(db, seeded.ownerAId)
     const before = await rowsOf(seeded.ownerAId)
     const archivedBefore = await count(
       `select count(*) n from public.financial_archive where subject_ref = $1`,
@@ -187,7 +182,7 @@ describe('delete_account_data', () => {
 
   it('removes every row of a long-lived account and archives the money', async () => {
     await addTheRest(seeded.ownerAId)
-    await requestDeletion(seeded.ownerAId)
+    await requestDeletion(db, seeded.ownerAId)
 
     await db.query(`select public.delete_account_data($1)`, [seeded.ownerAId])
 
@@ -220,7 +215,7 @@ describe('delete_account_data', () => {
   it('leaves the other owner untouched, soft-deleted pet included', async () => {
     const before = await rowsOf(seeded.ownerBId)
     await addTheRest(seeded.ownerAId)
-    await requestDeletion(seeded.ownerAId)
+    await requestDeletion(db, seeded.ownerAId)
 
     await db.query(`select public.delete_account_data($1)`, [seeded.ownerAId])
 
@@ -228,7 +223,7 @@ describe('delete_account_data', () => {
   })
 
   it('removes soft-deleted pets and checks too', async () => {
-    await requestDeletion(seeded.ownerBId)
+    await requestDeletion(db, seeded.ownerBId)
 
     await db.query(`select public.delete_account_data($1)`, [seeded.ownerBId])
 
@@ -238,7 +233,7 @@ describe('delete_account_data', () => {
 
   it('can run twice without failing or archiving twice', async () => {
     await addTheRest(seeded.ownerAId)
-    await requestDeletion(seeded.ownerAId)
+    await requestDeletion(db, seeded.ownerAId)
 
     await db.query(`select public.delete_account_data($1)`, [seeded.ownerAId])
     await db.query(`select public.delete_account_data($1)`, [seeded.ownerAId])
@@ -249,7 +244,7 @@ describe('delete_account_data', () => {
 
 describe('the job lifecycle functions', () => {
   it('claims a pending job once and reports its progress', async () => {
-    await requestDeletion(seeded.ownerAId)
+    await requestDeletion(db, seeded.ownerAId)
 
     const first = await db.query<{ p: unknown }>(`select public.claim_deletion_job($1, 120) p`, [seeded.ownerAId])
     const second = await db.query<{ p: unknown }>(`select public.claim_deletion_job($1, 120) p`, [seeded.ownerAId])
@@ -263,7 +258,7 @@ describe('the job lifecycle functions', () => {
   })
 
   it('lets a job be claimed again once its lease has run out', async () => {
-    await requestDeletion(seeded.ownerAId)
+    await requestDeletion(db, seeded.ownerAId)
     await db.query(`select public.claim_deletion_job($1, 120)`, [seeded.ownerAId])
     await db.query(`update public.deletion_jobs set lease_until = now() - interval '1 second' where user_id = $1`, [
       seeded.ownerAId,
@@ -275,7 +270,7 @@ describe('the job lifecycle functions', () => {
   })
 
   it('records steps in progress', async () => {
-    await requestDeletion(seeded.ownerAId)
+    await requestDeletion(db, seeded.ownerAId)
     await db.query(`select public.mark_deletion_step($1, 'data')`, [seeded.ownerAId])
 
     const { rows } = await db.query<{ progress: Record<string, string> }>(
@@ -286,13 +281,13 @@ describe('the job lifecycle functions', () => {
   })
 
   it('refuses a step name it does not know', async () => {
-    await requestDeletion(seeded.ownerAId)
+    await requestDeletion(db, seeded.ownerAId)
 
     await expect(db.query(`select public.mark_deletion_step($1, 'storage')`, [seeded.ownerAId])).rejects.toThrow()
   })
 
   it('counts failures, frees the lease, and gives up after the limit', async () => {
-    await requestDeletion(seeded.ownerAId)
+    await requestDeletion(db, seeded.ownerAId)
     const statuses: string[] = []
 
     for (let attempt = 0; attempt < 5; attempt++) {
@@ -313,7 +308,7 @@ describe('the job lifecycle functions', () => {
   })
 
   it('leaves a completed job alone when a failure is recorded against it', async () => {
-    await requestDeletion(seeded.ownerAId)
+    await requestDeletion(db, seeded.ownerAId)
     await db.query(`select public.claim_deletion_job($1, 120)`, [seeded.ownerAId])
     await db.query(`select public.complete_deletion_job($1)`, [seeded.ownerAId])
 
@@ -330,7 +325,7 @@ describe('the job lifecycle functions', () => {
   })
 
   it('refuses to mark a step on a job that already completed', async () => {
-    await requestDeletion(seeded.ownerAId)
+    await requestDeletion(db, seeded.ownerAId)
     await db.query(`select public.claim_deletion_job($1, 120)`, [seeded.ownerAId])
     await db.query(`select public.complete_deletion_job($1)`, [seeded.ownerAId])
 
@@ -338,7 +333,7 @@ describe('the job lifecycle functions', () => {
   })
 
   it('answers true both times a finished job is completed again, without moving completed_at', async () => {
-    await requestDeletion(seeded.ownerAId)
+    await requestDeletion(db, seeded.ownerAId)
     await db.query(`select public.claim_deletion_job($1, 120)`, [seeded.ownerAId])
 
     const first = await db.query<{ done: boolean }>(`select public.complete_deletion_job($1) done`, [
@@ -361,8 +356,8 @@ describe('the job lifecycle functions', () => {
   })
 
   it('lists due jobs oldest first and skips leased, finished and abandoned ones', async () => {
-    await requestDeletion(seeded.ownerAId)
-    await requestDeletion(seeded.ownerBId)
+    await requestDeletion(db, seeded.ownerAId)
+    await requestDeletion(db, seeded.ownerBId)
     await db.query(`update public.deletion_jobs set requested_at = now() - interval '1 hour' where user_id = $1`, [
       seeded.ownerBId,
     ])
@@ -376,8 +371,8 @@ describe('the job lifecycle functions', () => {
   })
 
   it('reopens jobs that gave up on the data step, and only those (25 October fix)', async () => {
-    await requestDeletion(seeded.ownerAId)
-    await requestDeletion(seeded.ownerBId)
+    await requestDeletion(db, seeded.ownerAId)
+    await requestDeletion(db, seeded.ownerBId)
     await db.query(
       `update public.deletion_jobs set status = 'action_required', attempts = 5, error_code = 'data_step_failed',
          progress = '{"photos": true}'::jsonb where user_id = $1`,

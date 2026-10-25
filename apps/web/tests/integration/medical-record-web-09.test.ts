@@ -1,10 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
-import { NextRequest } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
 import type { Client } from 'pg'
 import {
   HealthEventSchema,
-  HealthOverviewSchema,
   IDEMPOTENCY_KEY_HEADER,
   IDEMPOTENCY_KEY_REUSED,
   MedicationSchema,
@@ -13,7 +10,6 @@ import {
   type Medication,
 } from '@lapka/contracts'
 import { endCoursePatch, newWeightInput, weightFieldText } from '@lapka/shared'
-import { GET as getHealth } from '@/app/(backend)/api/v1/pets/[id]/health/route'
 import { POST as createEvent } from '@/app/(backend)/api/v1/pets/[id]/health/events/route'
 import { PATCH as patchEvent } from '@/app/(backend)/api/v1/pets/[id]/health/events/[eventId]/route'
 import { POST as completeItem } from '@/app/(backend)/api/v1/pets/[id]/health/items/[itemId]/complete/route'
@@ -29,7 +25,7 @@ import { changeMedication } from '@/server/medical-record/medication-service'
 import { deleteWeight, hasWeightHistory } from '@/server/medical-record/weight-service'
 import { createServiceClient } from '@/server/supabase/server'
 import ru from '@/shared/i18n/dictionaries/ru'
-import { FIXTURE_PASSWORD, OWNER_A, PET_IDS, connect, seedFixtures, type SeededFixtures } from './fixtures'
+import { OWNER_A, PET_IDS, connect, seedFixtures, signIn, overview, bearerRequest, type SeededFixtures } from './fixtures'
 
 // MW-09 Task 1: what only the database could close.
 //
@@ -51,19 +47,8 @@ let tokenA: string
 let owners: SeededFixtures
 const pet: string = PET_IDS.aCat
 
-async function signIn(email: string): Promise<string> {
-  const client = createClient(process.env.TEST_SUPABASE_URL!, process.env.TEST_SUPABASE_ANON_KEY!, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  })
-  const { data, error } = await client.auth.signInWithPassword({ email, password: FIXTURE_PASSWORD })
-  if (error) throw error
-  return data.session!.access_token
-}
-
 function request(method: string, body?: unknown, key?: string, query = '') {
-  const headers: Record<string, string> = { authorization: `Bearer ${tokenA}`, 'content-type': 'application/json' }
-  if (key) headers[IDEMPOTENCY_KEY_HEADER] = key
-  return new NextRequest(`http://test.local/api/v1/x${query}`, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) })
+  return bearerRequest(`/api/v1/x${query}`, { method, body, headers: key ? { [IDEMPOTENCY_KEY_HEADER]: key } : {} }, tokenA)
 }
 
 const params = (id: string) => ({ params: Promise.resolve({ id }) })
@@ -78,10 +63,6 @@ function day(offset: number): string {
   return new Date(NOW + offset * 86_400_000).toISOString().slice(0, 10)
 }
 const TODAY = day(0)
-
-async function overview() {
-  return HealthOverviewSchema.parse(await (await getHealth(request('GET'), params(pet))).json())
-}
 
 async function plan(body: { clinic?: string | null; notes?: string | null; items?: Array<{ name: string; targets: string[] }> } = {}): Promise<HealthEvent> {
   const response = await createEvent(
@@ -415,11 +396,11 @@ describe('a weight save with an Idempotency-Key', () => {
     const nextDay = await addWeight(request('POST', { measured_on: TODAY, weight_kg: 4.2 }, key), params(pet))
     expect(nextDay.status).toBe(409)
     expect((await nextDay.json()).error).toMatchObject({ code: 'conflict', details: { reason: IDEMPOTENCY_KEY_REUSED } })
-    expect((await overview()).weights).toHaveLength(1)
+    expect((await overview(pet, tokenA)).weights).toHaveLength(1)
 
     // Without a key (an older app) the same retry would have been a second measurement.
     await addWeight(request('POST', { measured_on: TODAY, weight_kg: 4.2 }), params(pet))
-    expect((await overview()).weights).toHaveLength(2)
+    expect((await overview(pet, tokenA)).weights).toHaveLength(2)
   })
 
   it('a correction: the same key answers the same, another body is 409 with the reason; a taken day is 409 without it', async () => {
@@ -436,7 +417,7 @@ describe('a weight save with an Idempotency-Key', () => {
     const other = await patchWeight(request('PATCH', { weight_kg: 4.4 }, key), weightParams(a.id))
     expect(other.status).toBe(409)
     expect((await other.json()).error.details).toEqual({ reason: IDEMPOTENCY_KEY_REUSED })
-    expect((await overview()).weights.find((w) => w.id === a.id)?.weight_kg).toBe(4.3)
+    expect((await overview(pet, tokenA)).weights.find((w) => w.id === a.id)?.weight_kg).toBe(4.3)
 
     const taken = await patchWeight(request('PATCH', { measured_on: b.measured_on }, crypto.randomUUID()), weightParams(a.id))
     expect(taken.status).toBe(409)
@@ -499,13 +480,13 @@ describe('«Уточнить» on the form’s weight with no history', () => {
   it('giving it a day leaves one dated row with that value, and the form keeps it', async () => {
     await db.query(`update public.pets set weight_kg = 4.2 where id = $1`, [pet])
     // The weight page offers «Уточнить» as a new weighing that starts from the form's value.
-    const page = weightPage(ru, 'ru', await overview(), 'all', TODAY, true)
+    const page = weightPage(ru, 'ru', await overview(pet, tokenA), 'all', TODAY, true)
     expect(page.rows[0].action?.href).toBe(`/pets/${pet}/health/new?type=weight&from=form`)
     const read = newWeightInput(weightFieldText(4.2, ','), day(-30), TODAY)
     if (!read.ok) throw new Error('The form refused')
     const response = await addWeight(request('POST', read.input, crypto.randomUUID()), params(pet))
     expect(response.status).toBe(201)
-    const record = await overview()
+    const record = await overview(pet, tokenA)
     expect(record.weights).toEqual([expect.objectContaining({ measured_on: day(-30), weight_kg: 4.2 })])
     expect(record.pet.weight_kg).toBe(4.2)
   })
@@ -518,7 +499,7 @@ describe('«Уточнить» on the form’s weight with no history', () => {
     await addWeight(request('POST', { measured_on: day(-3), weight_kg: 4.5 }), params(pet))
     // A history: the pet's weight is its latest measurement, not the form's to date — the form starts empty.
     expect(await hasWeightHistory(supabase, owners.ownerAId, pet)).toBe(true)
-    expect(weightPage(ru, 'ru', await overview(), 'all', TODAY, true).rows.some((row) => row.action?.href.includes('from=form'))).toBe(false)
+    expect(weightPage(ru, 'ru', await overview(pet, tokenA), 'all', TODAY, true).rows.some((row) => row.action?.href.includes('from=form'))).toBe(false)
     // Only this owner's live rows count.
     expect(await hasWeightHistory(supabase, owners.ownerBId, pet)).toBe(false)
     await db.query(`update public.pet_weights set deleted_at = now() where pet_id = $1`, [pet])
@@ -528,7 +509,7 @@ describe('«Уточнить» on the form’s weight with no history', () => {
   it('a first weighing with another value still keeps the form’s old one, undated', async () => {
     await db.query(`update public.pets set weight_kg = 4.2 where id = $1`, [pet])
     await addWeight(request('POST', { measured_on: TODAY, weight_kg: 4.5 }), params(pet))
-    const record = await overview()
+    const record = await overview(pet, tokenA)
     expect(record.weights.map((w) => [w.measured_on, w.weight_kg])).toEqual([[TODAY, 4.5], [null, 4.2]])
     expect(record.pet.weight_kg).toBe(4.5)
   })

@@ -1,10 +1,8 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { NextRequest } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
 import type { Client } from 'pg'
-import { HealthEventSchema, IDEMPOTENCY_KEY_HEADER, PetSchema } from '@lapka/contracts'
+import { HealthEventSchema, IDEMPOTENCY_KEY_HEADER } from '@lapka/contracts'
 import { petFormHints } from '@lapka/shared'
-import { POST as createPet } from '@/app/(backend)/api/v1/pets/route'
 import { DELETE as deletePet } from '@/app/(backend)/api/v1/pets/[id]/route'
 import { POST as createEvent } from '@/app/(backend)/api/v1/pets/[id]/health/events/route'
 import { POST as createVisit } from '@/app/(backend)/api/v1/pets/[id]/health/visits/route'
@@ -16,7 +14,7 @@ import { updatePet } from '@/server/pets/pet-service'
 import { createServiceClient } from '@/server/supabase/server'
 import { petDueLine } from '@/features/medical-record/view-model'
 import ru from '@/shared/i18n/dictionaries/ru'
-import { FIXTURE_PASSWORD, OWNER_A, PET_IDS, connect, seedFixtures } from './fixtures'
+import { OWNER_A, PET_IDS, connect, seedFixtures, signIn, newPet } from './fixtures'
 
 // MW-08: the overview's due lines and the pet form against the real database.
 // Every pet's line comes from one read of the owner's plans; owner B sees
@@ -29,15 +27,6 @@ let tokenA: string
 let ownerAId: string
 let ownerBId: string
 const created: string[] = []
-
-async function signIn(email: string): Promise<string> {
-  const client = createClient(process.env.TEST_SUPABASE_URL!, process.env.TEST_SUPABASE_ANON_KEY!, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  })
-  const { data, error } = await client.auth.signInWithPassword({ email, password: FIXTURE_PASSWORD })
-  if (error) throw error
-  return data.session!.access_token
-}
 
 function request(token: string, method = 'GET', body?: unknown) {
   const headers: Record<string, string> = {
@@ -63,13 +52,6 @@ async function ok(response: Response) {
   return response
 }
 
-async function newPet(body: Record<string, unknown>): Promise<string> {
-  const response = await ok(await createPet(request(tokenA, 'POST', body), undefined))
-  const pet = PetSchema.parse(await response.json())
-  created.push(pet.id)
-  return pet.id
-}
-
 async function plan(petId: string, date: string, targets: string[], kind: 'vaccination' | 'parasite' = 'vaccination') {
   const response = await ok(
     await createEvent(request(tokenA, 'POST', { kind, status: 'planned', date, items: [{ name: null, targets }] }), params(petId)),
@@ -90,11 +72,11 @@ afterAll(async () => {
 
 describe('the overview’s due lines (MW-08.1)', () => {
   it('names each pet’s one nearest date from one list of plans, and none past fourteen days', async () => {
-    const overdue = await newPet({ species: 'cat', name: 'Просрочка' })
-    const soon = await newPet({ species: 'cat', name: 'Скоро' })
-    const later = await newPet({ species: 'dog', name: 'Нескоро' })
-    const visit = await newPet({ species: 'dog', name: 'Визит' })
-    const none = await newPet({ species: 'cat', name: 'Без сроков' })
+    const overdue = await newPet({ species: 'cat', name: 'Просрочка' }, tokenA, created)
+    const soon = await newPet({ species: 'cat', name: 'Скоро' }, tokenA, created)
+    const later = await newPet({ species: 'dog', name: 'Нескоро' }, tokenA, created)
+    const visit = await newPet({ species: 'dog', name: 'Визит' }, tokenA, created)
+    const none = await newPet({ species: 'cat', name: 'Без сроков' }, tokenA, created)
 
     // A plan in the past cannot be made through the API: made for next week, then moved back, as time would.
     const late = await plan(overdue, day(7), ['fleas', 'ticks'], 'parasite')
@@ -145,7 +127,7 @@ describe('the web pet form and the record (MW-08, spec §4)', () => {
   }
 
   it('does not write the weight it was opened with over a newer one', async () => {
-    const pet = await newPet({ species: 'cat', name: 'Весы' })
+    const pet = await newPet({ species: 'cat', name: 'Весы' }, tokenA, created)
     await ok(await addWeight(request(tokenA, 'POST', { measured_on: day(-5), weight_kg: 4.2 }), params(pet)))
     const opened = await formBody(pet, {})
     // While the form is open, today's weighing comes in from the phone.
@@ -162,7 +144,7 @@ describe('the web pet form and the record (MW-08, spec §4)', () => {
   })
 
   it('keeps a course added elsewhere while the form was open', async () => {
-    const pet = await newPet({ species: 'cat', name: 'Курсы', medications: ['Лечебный корм'] })
+    const pet = await newPet({ species: 'cat', name: 'Курсы', medications: ['Лечебный корм'] }, tokenA, created)
     const opened = ['Лечебный корм']
     // Meanwhile, on the phone or in the record: a new course.
     await ok(await addMedications(request(tokenA, 'POST', { items: [{ name: 'Фортифлора', started_on: TODAY }] }), params(pet)))
@@ -175,7 +157,7 @@ describe('the web pet form and the record (MW-08, spec §4)', () => {
   })
 
   it('starts a medicine the form adds on the owner’s today, never on an old weighing day', async () => {
-    const pet = await newPet({ species: 'dog', name: 'День' })
+    const pet = await newPet({ species: 'dog', name: 'День' }, tokenA, created)
     await updatePet(service(), ownerAId, pet, await formBody(pet, { medications: ['Витамины'], medications_before: [], weight_kg: 12, weight_measured_on: day(-10) }))
     const overview = await getHealthOverview(service(), ownerAId, pet)
     if (!overview.ok) throw new Error(overview.reason)
@@ -190,7 +172,7 @@ describe('the web pet form and the record (MW-08, spec §4)', () => {
     if (!bare.ok) throw new Error(bare.reason)
     expect(petFormHints(bare.data)).toEqual({ weight: false, vaccinations: 0, medications: false })
 
-    const pet = await newPet({ species: 'cat', name: 'Подсказки', medications: ['Лечебный корм'] })
+    const pet = await newPet({ species: 'cat', name: 'Подсказки', medications: ['Лечебный корм'] }, tokenA, created)
     await ok(await addWeight(request(tokenA, 'POST', { measured_on: day(-3), weight_kg: 4 }), params(pet)))
     await ok(
       await createEvent(

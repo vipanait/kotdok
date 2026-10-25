@@ -24,10 +24,13 @@
     "src"
   ],
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint"
   },
   "devDependencies": {
-    "typescript": "~6.0.3"
+    "eslint": "^9",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.58.1"
   },
   "dependencies": {
     "zod": "^4.6.7"

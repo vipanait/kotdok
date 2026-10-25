@@ -20,12 +20,12 @@
     "ws@8": "^8.21.3"
   },
   "scripts": {
-    "lint": "npm run lint --workspace @lapka/web",
+    "lint": "npm run lint --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "test": "npm run test --workspace @lapka/web",
+    "test": "npm run test --workspaces --if-present",
     "test:integration": "npm run test:integration --workspace @lapka/web",
     "build": "npm run build --workspace @lapka/web",
     "dev": "npm run dev --workspace @lapka/web",
-    "test:ci-routing": "node --test .github/scripts/changed-groups.test.mjs .github/scripts/audit.test.mjs"
+    "test:ci-routing": "node --test .github/scripts/changed-groups.test.mjs .github/scripts/audit.test.mjs .github/scripts/easignore.test.mjs"
   }
 }

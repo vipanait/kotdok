@@ -1,6 +1,4 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
-import { NextRequest } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
 import type { Client } from 'pg'
 import { DueListReadSchema, HealthEventSchema, HealthOverviewSchema, IDEMPOTENCY_KEY_HEADER } from '@lapka/contracts'
 
@@ -26,7 +24,7 @@ import { loadAnalysisContext } from '@/server/medical-record/analysis-context'
 import { getVetSummary } from '@/server/medical-record/summary-service'
 import { requestToday } from '@/server/medical-record/weight-service'
 import { createServiceClient } from '@/server/supabase/server'
-import { FIXTURE_PASSWORD, OWNER_A, PET_IDS, connect, seedFixtures, type SeededFixtures } from './fixtures'
+import { OWNER_A, PET_IDS, connect, seedFixtures, signIn, bearerRequest, type SeededFixtures } from './fixtures'
 
 // MW-09 Task 2: where the server counted the day by UTC (MW-08, decision c),
 // it now takes the owner's day when the app says it (`?today=`, inside
@@ -44,19 +42,8 @@ let tokenA: string
 let owners: SeededFixtures
 const pet: string = PET_IDS.aCat
 
-async function signIn(email: string): Promise<string> {
-  const client = createClient(process.env.TEST_SUPABASE_URL!, process.env.TEST_SUPABASE_ANON_KEY!, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  })
-  const { data, error } = await client.auth.signInWithPassword({ email, password: FIXTURE_PASSWORD })
-  if (error) throw error
-  return data.session!.access_token
-}
-
 function request(method: string, body?: unknown, query = '', key?: string) {
-  const headers: Record<string, string> = { authorization: `Bearer ${tokenA}`, 'content-type': 'application/json' }
-  if (key) headers[IDEMPOTENCY_KEY_HEADER] = key
-  return new NextRequest(`http://test.local/api/v1/x${query}`, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) })
+  return bearerRequest(`/api/v1/x${query}`, { method, body, headers: key ? { [IDEMPOTENCY_KEY_HEADER]: key } : {} }, tokenA)
 }
 
 const params = (id: string) => ({ params: Promise.resolve({ id }) })

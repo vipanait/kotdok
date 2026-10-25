@@ -1,10 +1,8 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
-import { NextRequest } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
 import type { Client } from 'pg'
 import { PetSchema } from '@lapka/contracts'
 import { GET as getPet, PATCH as patchPet } from '@/app/(backend)/api/v1/pets/[id]/route'
-import { FIXTURE_PASSWORD, OWNER_A, PET_IDS, connect, seedFixtures } from './fixtures'
+import { OWNER_A, PET_IDS, connect, seedFixtures, signIn, bearerRequest } from './fixtures'
 
 /**
  * PATCH /api/v1/pets/:id is a partial update, as the contract says: a field
@@ -15,21 +13,8 @@ import { FIXTURE_PASSWORD, OWNER_A, PET_IDS, connect, seedFixtures } from './fix
 let db: Client
 let token: string
 
-async function signIn(email: string): Promise<string> {
-  const client = createClient(process.env.TEST_SUPABASE_URL!, process.env.TEST_SUPABASE_ANON_KEY!, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  })
-  const { data, error } = await client.auth.signInWithPassword({ email, password: FIXTURE_PASSWORD })
-  if (error) throw error
-  return data.session!.access_token
-}
-
 function request(method: string, body?: unknown) {
-  return new NextRequest('http://test.local/api/v1/pets', {
-    method,
-    headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  })
+  return bearerRequest('/api/v1/pets', { method, body }, token)
 }
 
 const params = (id: string) => ({ params: Promise.resolve({ id }) })

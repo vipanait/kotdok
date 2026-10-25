@@ -144,6 +144,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # The shared packages are linted here too: both apps import them, and
+      # the web job lints only apps/web.
+      - name: Lint
+        run: npm run lint --workspace @lapka/mobile --workspace @lapka/shared --workspace @lapka/contracts
+
       - name: Typecheck
         run: npm run typecheck --workspace @lapka/mobile
 

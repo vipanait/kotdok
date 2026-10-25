@@ -7,7 +7,17 @@
 // they come from the real Auth admin API rather than a hand-written insert.
 
 import { createClient } from '@supabase/supabase-js'
+import { NextRequest } from 'next/server'
 import { Client } from 'pg'
+import { expect } from 'vitest'
+import {
+  DueItemSchema,
+  HealthOverviewSchema,
+  IDEMPOTENCY_KEY_HEADER,
+  PetSchema,
+  type DueItem,
+  type HealthOverview,
+} from '@lapka/contracts'
 import { assertDisposableDatabase, resetDisposableDatabase, type GuardEnv } from '../support/db-guard'
 
 export const FIXTURE_PASSWORD = 'fixture-password-1'
@@ -161,4 +171,77 @@ export async function seedFixtures(
   )
 
   return { ownerAId, ownerBId }
+}
+
+// --- Calling the API as an owner -------------------------------------------
+//
+// Route handlers are imported lazily below: every integration file imports
+// this module, and most of them never touch the medical record.
+
+/** Signs a fixture owner in with the anon key and returns their access token, as a phone would hold it. */
+export async function signIn(email: string): Promise<string> {
+  const client = createClient(process.env.TEST_SUPABASE_URL!, process.env.TEST_SUPABASE_ANON_KEY!, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  })
+  const { data, error } = await client.auth.signInWithPassword({ email, password: FIXTURE_PASSWORD })
+  if (error || !data.session) throw error ?? new Error(`no session for ${email}`)
+  return data.session.access_token
+}
+
+export type BearerInit = {
+  method?: string
+  /** Sent as JSON; left out when undefined. */
+  body?: unknown
+  /** Added to, and able to override, the bearer and content-type headers. */
+  headers?: Record<string, string>
+}
+
+/**
+ * A request carrying `Authorization: Bearer <token>`, for calling a route
+ * handler directly. `path` is resolved against http://test.local, so a full
+ * URL with a query string works too.
+ */
+export function bearerRequest(path: string, init: BearerInit, token: string): NextRequest {
+  return new NextRequest(new URL(path, 'http://test.local').toString(), {
+    method: init.method ?? 'GET',
+    headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json', ...init.headers },
+    body: init.body === undefined ? undefined : JSON.stringify(init.body),
+  })
+}
+
+const routeParams = <T extends Record<string, string>>(params: T) => ({ params: Promise.resolve(params) })
+
+/** The pet's medical record as `GET /api/v1/pets/{id}/health` returns it. */
+export async function overview(petId: string, token: string): Promise<HealthOverview> {
+  const { GET } = await import('@/app/(backend)/api/v1/pets/[id]/health/route')
+  const response = await GET(bearerRequest('/api/v1/pets/x/health', {}, token), routeParams({ id: petId }))
+  return HealthOverviewSchema.parse(await response.json())
+}
+
+/** Every due date of the owner's pets, as `GET /api/v1/pets/due` returns them. */
+export async function due(token: string): Promise<DueItem[]> {
+  const { GET } = await import('@/app/(backend)/api/v1/pets/due/route')
+  const body = await (await GET(bearerRequest('/api/v1/pets/due', {}, token), undefined)).json()
+  return DueItemSchema.array().parse(Array.isArray(body) ? body : body.items)
+}
+
+/**
+ * Creates a pet through `POST /api/v1/pets` and returns its id. Pass `created`
+ * to collect the ids a file has to delete again in its afterAll.
+ */
+export async function newPet(body: Record<string, unknown>, token: string, created?: string[]): Promise<string> {
+  const { POST } = await import('@/app/(backend)/api/v1/pets/route')
+  const response = await POST(
+    bearerRequest('/api/v1/pets', { method: 'POST', body, headers: { [IDEMPOTENCY_KEY_HEADER]: crypto.randomUUID() } }, token),
+    undefined,
+  )
+  expect(response.status, await response.clone().text()).toBe(201)
+  const pet = PetSchema.parse(await response.json())
+  created?.push(pet.id)
+  return pet.id
+}
+
+/** A deletion job exactly as `request_account_deletion` leaves it. */
+export async function requestDeletion(client: Client, userId: string, receiptHash = `receipt-${userId}`): Promise<void> {
+  await client.query(`select public.request_account_deletion($1, $2)`, [userId, receiptHash])
 }

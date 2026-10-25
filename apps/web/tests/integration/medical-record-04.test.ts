@@ -1,5 +1,4 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
-import { NextRequest } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import type { Client } from 'pg'
 import { HealthEventSchema, HealthOverviewSchema, HealthProductSchema } from '@lapka/contracts'
@@ -7,7 +6,7 @@ import { GET as getCatalog } from '@/app/(backend)/api/v1/health/catalog/route'
 import { GET as getHealth } from '@/app/(backend)/api/v1/pets/[id]/health/route'
 import { POST as createEvent } from '@/app/(backend)/api/v1/pets/[id]/health/events/route'
 import { PATCH as patchEvent } from '@/app/(backend)/api/v1/pets/[id]/health/events/[eventId]/route'
-import { FIXTURE_PASSWORD, OWNER_A, PET_IDS, connect, seedFixtures } from './fixtures'
+import { OWNER_A, PET_IDS, connect, seedFixtures, signIn, bearerRequest } from './fixtures'
 
 // MR-04: the catalogue against the real database. The products are this
 // test's own, marked verified; the draft list stays out of it.
@@ -18,21 +17,8 @@ const cat: string = PET_IDS.aCat
 const dog: string = PET_IDS.aDog
 const ids: Record<string, string> = {}
 
-async function signIn(email: string): Promise<string> {
-  const client = createClient(process.env.TEST_SUPABASE_URL!, process.env.TEST_SUPABASE_ANON_KEY!, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  })
-  const { data, error } = await client.auth.signInWithPassword({ email, password: FIXTURE_PASSWORD })
-  if (error) throw error
-  return data.session!.access_token
-}
-
 function request(url: string, method = 'GET', body?: unknown) {
-  return new NextRequest(url, {
-    method,
-    headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  })
+  return bearerRequest(url, { method, body }, token)
 }
 
 const params = (id: string) => ({ params: Promise.resolve({ id }) })

@@ -1,9 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { NextRequest } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
 import type { Client } from 'pg'
-import { DueItemSchema, HealthEventSchema, HealthOverviewSchema, IDEMPOTENCY_KEY_HEADER } from '@lapka/contracts'
-import { GET as getHealth } from '@/app/(backend)/api/v1/pets/[id]/health/route'
+import { DueItemSchema, HealthEventSchema, IDEMPOTENCY_KEY_HEADER } from '@lapka/contracts'
 import { POST as createEvent } from '@/app/(backend)/api/v1/pets/[id]/health/events/route'
 import {
   DELETE as deleteEvent,
@@ -12,7 +10,7 @@ import {
 import { POST as completeItem } from '@/app/(backend)/api/v1/pets/[id]/health/items/[itemId]/complete/route'
 import { GET as listDue } from '@/app/(backend)/api/v1/pets/due/route'
 import { PATCH as patchPet } from '@/app/(backend)/api/v1/pets/[id]/route'
-import { FIXTURE_PASSWORD, OWNER_A, OWNER_B, PET_IDS, connect, seedFixtures } from './fixtures'
+import { OWNER_A, OWNER_B, PET_IDS, connect, seedFixtures, signIn, overview } from './fixtures'
 
 // MR-03: vaccinations, plans and "done" against the real database.
 
@@ -20,15 +18,6 @@ let db: Client
 let tokenA: string
 let tokenB: string
 const pet: string = PET_IDS.aCat
-
-async function signIn(email: string): Promise<string> {
-  const client = createClient(process.env.TEST_SUPABASE_URL!, process.env.TEST_SUPABASE_ANON_KEY!, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  })
-  const { data, error } = await client.auth.signInWithPassword({ email, password: FIXTURE_PASSWORD })
-  if (error) throw error
-  return data.session!.access_token
-}
 
 function request(token: string, method: string, body?: unknown, key?: string) {
   const headers: Record<string, string> = { authorization: `Bearer ${token}`, 'content-type': 'application/json' }
@@ -51,11 +40,6 @@ function day(offset: number): string {
 
 const tricat = { name: 'Нобивак Tricat Trio', targets: ['panleukopenia', 'calicivirus', 'rhinotracheitis'] }
 const rabies = { name: 'Нобивак Rabies', targets: ['rabies'] }
-
-async function overview() {
-  const response = await getHealth(request(tokenA, 'GET'), params(pet))
-  return HealthOverviewSchema.parse(await response.json())
-}
 
 async function create(body: unknown, key?: string, token = tokenA) {
   return createEvent(request(token, 'POST', body, key), params(pet))
@@ -101,7 +85,7 @@ describe('recording vaccinations', () => {
     expect(done.status).toBe('done')
     expect(done.items.map((i) => i.name)).toEqual([tricat.name, rabies.name])
 
-    const { events, writable } = await overview()
+    const { events, writable } = await overview(pet, tokenA)
     expect(writable).toContain('vaccinations')
     const planned = events.filter((e) => e.status === 'planned')
     expect(planned).toHaveLength(1)
@@ -120,7 +104,7 @@ describe('recording vaccinations', () => {
         { name: null, targets: ['felv'], next_on: null },
       ],
     })
-    const planned = (await overview()).events.filter((e) => e.status === 'planned').map((e) => e.date).sort()
+    const planned = (await overview(pet, tokenA)).events.filter((e) => e.status === 'planned').map((e) => e.date).sort()
     expect(planned).toEqual([day(364), day(1000)])
   })
 
@@ -204,7 +188,7 @@ describe('marking a plan done', () => {
     expect(done.status).toBe('done')
     expect(done.items.map((i) => i.id)).toEqual([first.id])
 
-    const { events } = await overview()
+    const { events } = await overview(pet, tokenA)
     const stillPlanned = events.find((e) => e.id === plan.id)!
     expect(stillPlanned.status).toBe('planned')
     expect(stillPlanned.items.map((i) => i.id)).toEqual([second.id])
@@ -282,7 +266,7 @@ describe('marking a plan done', () => {
     expect((await completeItem(request(tokenB, 'POST', { done_on: day(0) }), itemParams(pet, plan.items[0].id))).status).toBe(404)
     expect((await patchEvent(request(tokenB, 'PATCH', { date: day(20) }), eventParams(pet, plan.id))).status).toBe(404)
     expect((await deleteEvent(request(tokenB, 'DELETE'), eventParams(pet, plan.id))).status).toBe(404)
-    const { events } = await overview()
+    const { events } = await overview(pet, tokenA)
     expect(events.find((e) => e.id === plan.id)?.date).toBe(day(3))
   })
 })
@@ -320,7 +304,7 @@ describe('correcting, cancelling and listing', () => {
       expect(response.status).toBe(409)
       expect((await response.json()).error.code).toBe('record_done')
     }
-    const after = (await overview()).events
+    const after = (await overview(pet, tokenA)).events
     expect(after.find((e) => e.id === done.id)).toEqual(done)
     expect(after.filter((e) => e.status === 'planned')).toHaveLength(1)
   })
@@ -330,7 +314,7 @@ describe('correcting, cancelling and listing', () => {
       await (await create({ kind: 'vaccination', status: 'planned', date: day(3), items: [rabies] })).json(),
     )
     expect((await deleteEvent(request(tokenA, 'DELETE'), eventParams(pet, plan.id))).status).toBe(204)
-    expect((await overview()).events).toEqual([])
+    expect((await overview(pet, tokenA)).events).toEqual([])
   })
 
   it('marks the pet vaccinated once a vaccination is done, and gives back the owner’s answer when it goes (review 1)', async () => {
@@ -338,12 +322,12 @@ describe('correcting, cancelling and listing', () => {
     const done = HealthEventSchema.parse(
       await (await create({ kind: 'vaccination', status: 'done', date: day(-1), items: [rabies] })).json(),
     )
-    expect((await overview()).pet.vaccinated).toBe(true)
+    expect((await overview(pet, tokenA)).pet.vaccinated).toBe(true)
 
     // A plan alone says nothing about vaccination.
     await create({ kind: 'vaccination', status: 'planned', date: day(3), items: [rabies] })
     await deleteEvent(request(tokenA, 'DELETE'), eventParams(pet, done.id))
-    expect((await overview()).pet.vaccinated).toBe(false)
+    expect((await overview(pet, tokenA)).pet.vaccinated).toBe(false)
   })
 
   it('keeps "vaccinated" while records say so, whatever the form is saved with', async () => {

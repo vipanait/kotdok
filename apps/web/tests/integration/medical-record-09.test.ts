@@ -1,6 +1,4 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
-import { NextRequest } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
 import type { Client } from 'pg'
 import { VetSummarySchema } from '@lapka/contracts'
 import { GET as getSummary } from '@/app/(backend)/api/v1/pets/[id]/health/summary/route'
@@ -8,7 +6,7 @@ import { POST as createEvent } from '@/app/(backend)/api/v1/pets/[id]/health/eve
 import { POST as createVisit } from '@/app/(backend)/api/v1/pets/[id]/health/visits/route'
 import { POST as addWeight } from '@/app/(backend)/api/v1/pets/[id]/health/weights/route'
 import { POST as addMedications } from '@/app/(backend)/api/v1/pets/[id]/health/medications/route'
-import { CHECK_IDS, FIXTURE_PASSWORD, OWNER_A, PET_IDS, connect, seedFixtures } from './fixtures'
+import { CHECK_IDS, OWNER_A, PET_IDS, connect, seedFixtures, signIn, bearerRequest } from './fixtures'
 
 // MR-09: the summary for the vet, on the real database.
 
@@ -17,21 +15,8 @@ let token: string
 const cat: string = PET_IDS.aCat
 const dog: string = PET_IDS.aDog
 
-async function signIn(email: string): Promise<string> {
-  const client = createClient(process.env.TEST_SUPABASE_URL!, process.env.TEST_SUPABASE_ANON_KEY!, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  })
-  const { data, error } = await client.auth.signInWithPassword({ email, password: FIXTURE_PASSWORD })
-  if (error) throw error
-  return data.session!.access_token
-}
-
 function request(method = 'GET', body?: unknown) {
-  return new NextRequest('http://test.local/x', {
-    method,
-    headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  })
+  return bearerRequest('/x', { method, body }, token)
 }
 
 const params = (id: string) => ({ params: Promise.resolve({ id }) })

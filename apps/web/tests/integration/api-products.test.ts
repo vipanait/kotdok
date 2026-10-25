@@ -1,5 +1,4 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { NextRequest } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import type { Client } from 'pg'
 import {
@@ -18,39 +17,15 @@ import {
 import { GET as listChecks } from '@/app/(backend)/api/v1/checks/route'
 import { GET as getCheck } from '@/app/(backend)/api/v1/checks/[id]/route'
 import { GET as meRoute } from '@/app/(backend)/api/v1/me/route'
-import {
-  CHECK_IDS,
-  FIXTURE_PASSWORD,
-  OWNER_A,
-  OWNER_B,
-  PET_IDS,
-  connect,
-  seedFixtures,
-  type SeededFixtures,
-} from './fixtures'
+import { CHECK_IDS, OWNER_A, OWNER_B, PET_IDS, connect, seedFixtures, signIn, bearerRequest, type SeededFixtures } from './fixtures'
 
 let db: Client
 let seeded: SeededFixtures
 let tokenA: string
 let tokenB: string
 
-async function signIn(email: string): Promise<string> {
-  const client = createClient(
-    process.env.TEST_SUPABASE_URL!,
-    process.env.TEST_SUPABASE_ANON_KEY!,
-    { auth: { autoRefreshToken: false, persistSession: false } },
-  )
-  const { data, error } = await client.auth.signInWithPassword({ email, password: FIXTURE_PASSWORD })
-  if (error) throw error
-  return data.session!.access_token
-}
-
 function request(token: string, url = 'http://test.local/api/v1/pets', init: { method?: string; body?: unknown } = {}) {
-  return new NextRequest(url, {
-    method: init.method ?? 'GET',
-    headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
-    body: init.body === undefined ? undefined : JSON.stringify(init.body),
-  })
+  return bearerRequest(url, init, token)
 }
 
 const params = (id: string) => ({ params: Promise.resolve({ id }) })

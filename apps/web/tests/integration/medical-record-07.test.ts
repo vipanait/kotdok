@@ -1,16 +1,14 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { NextRequest } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
 import type { Client } from 'pg'
-import { DueItemSchema, HealthEventSchema, HealthOverviewSchema } from '@lapka/contracts'
-import { GET as getHealth } from '@/app/(backend)/api/v1/pets/[id]/health/route'
+import { DueItemSchema, HealthEventSchema } from '@lapka/contracts'
 import { POST as createVisit } from '@/app/(backend)/api/v1/pets/[id]/health/visits/route'
 import { PATCH as patchVisit } from '@/app/(backend)/api/v1/pets/[id]/health/visits/[eventId]/route'
 import { DELETE as deleteEvent } from '@/app/(backend)/api/v1/pets/[id]/health/events/[eventId]/route'
 import { POST as toMedication } from '@/app/(backend)/api/v1/pets/[id]/health/items/[itemId]/medication/route'
 import { PATCH as patchMedication } from '@/app/(backend)/api/v1/pets/[id]/health/medications/[medicationId]/route'
 import { GET as listDue } from '@/app/(backend)/api/v1/pets/due/route'
-import { CHECK_IDS, FIXTURE_PASSWORD, OWNER_A, PET_IDS, connect, seedFixtures } from './fixtures'
+import { CHECK_IDS, OWNER_A, PET_IDS, connect, seedFixtures, signIn, overview, bearerRequest } from './fixtures'
 
 // MR-07: vet visits, prescriptions and the courses they start, on the real database.
 
@@ -18,21 +16,8 @@ let db: Client
 let token: string
 const cat: string = PET_IDS.aCat
 
-async function signIn(email: string): Promise<string> {
-  const client = createClient(process.env.TEST_SUPABASE_URL!, process.env.TEST_SUPABASE_ANON_KEY!, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  })
-  const { data, error } = await client.auth.signInWithPassword({ email, password: FIXTURE_PASSWORD })
-  if (error) throw error
-  return data.session!.access_token
-}
-
 function request(method = 'GET', body?: unknown) {
-  return new NextRequest('http://test.local/x', {
-    method,
-    headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  })
+  return bearerRequest('/x', { method, body }, token)
 }
 
 const params = (id: string) => ({ params: Promise.resolve({ id }) })
@@ -40,10 +25,6 @@ const eventParams = (eventId: string) => ({ params: Promise.resolve({ id: cat, e
 
 function day(offset: number): string {
   return new Date(Date.now() + offset * 86_400_000).toISOString().slice(0, 10)
-}
-
-async function overview() {
-  return HealthOverviewSchema.parse(await (await getHealth(request(), params(cat))).json())
 }
 
 const doneVisit = {
@@ -95,7 +76,7 @@ describe('visits', () => {
       }),
       params(cat),
     )
-    const { medications, events } = await overview()
+    const { medications, events } = await overview(cat, token)
     expect(medications.map((m) => m.name).sort()).toEqual(['Лечебный корм', 'Фортифлора'])
     expect(medications.every((m) => m.started_on === day(-1))).toBe(true)
     const visit = events.find((e) => e.kind === 'visit')!
@@ -112,7 +93,7 @@ describe('visits', () => {
     const smecta = visit.items.find((i) => i.name === 'Смекта')!
     expect((await toMedication(request('POST'), { params: Promise.resolve({ id: cat, itemId: smecta.id }) })).status).toBe(201)
     await toMedication(request('POST'), { params: Promise.resolve({ id: cat, itemId: smecta.id }) })
-    expect((await overview()).medications.filter((m) => m.name === 'Смекта')).toHaveLength(1)
+    expect((await overview(cat, token)).medications.filter((m) => m.name === 'Смекта')).toHaveLength(1)
   })
 
   it('refuses another owner’s check and a check of another pet (MR-07.2)', async () => {
@@ -129,7 +110,7 @@ describe('visits', () => {
     const planned = await createVisit(request('POST', { status: 'planned', date: day(9), visit_kind: 'checkup', clinic: 'Айболит' }), params(cat))
     expect(planned.status).toBe(201)
     const plan = HealthEventSchema.parse(await planned.json())
-    expect((await overview()).medications).toEqual([])
+    expect((await overview(cat, token)).medications).toEqual([])
 
     const due = (await (await listDue(request(), undefined)).json()).map((row: unknown) => DueItemSchema.parse(row))
     expect(due.filter((row: { kind: string; pet_id: string }) => row.kind === 'visit' && row.pet_id === cat)).toHaveLength(1)
@@ -144,7 +125,7 @@ describe('visits', () => {
     expect(done.status).toBe(200)
     const after = HealthEventSchema.parse(await done.json())
     expect(after).toMatchObject({ status: 'done', diagnosis: 'Здорова' })
-    expect((await overview()).medications.map((m) => m.name)).toEqual(['Витамины'])
+    expect((await overview(cat, token)).medications.map((m) => m.name)).toEqual(['Витамины'])
   })
 
   it('refuses a done visit in the future and a plan in the past', async () => {
@@ -154,7 +135,7 @@ describe('visits', () => {
 
   it('keeps courses and the owner’s changes to them when the visit is deleted; a visit that happened is not corrected (MR-07.4, owner rule 26.09)', async () => {
     const visit = HealthEventSchema.parse(await (await createVisit(request('POST', doneVisit), params(cat))).json())
-    const fortiflora = (await overview()).medications.find((m) => m.name === 'Фортифлора')!
+    const fortiflora = (await overview(cat, token)).medications.find((m) => m.name === 'Фортифлора')!
     await patchMedication(request('PATCH', { dosage: '2 пакетика в день' }), { params: Promise.resolve({ id: cat, medicationId: fortiflora.id }) })
 
     // A visit that happened is history: its prescriptions are not rewritten, the courses stay as they are.
@@ -162,12 +143,12 @@ describe('visits', () => {
     const refused = await patchVisit(request('PATCH', { prescriptions: kept }), eventParams(visit.id))
     expect(refused.status).toBe(409)
     expect((await refused.json()).error.code).toBe('record_done')
-    let course = (await overview()).medications.find((m) => m.id === fortiflora.id)!
+    let course = (await overview(cat, token)).medications.find((m) => m.id === fortiflora.id)!
     expect(course.dosage).toBe('2 пакетика в день')
-    expect((await overview()).medications.find((m) => m.name === 'Лечебный корм')!.dosage).toBe('Постоянно')
+    expect((await overview(cat, token)).medications.find((m) => m.name === 'Лечебный корм')!.dosage).toBe('Постоянно')
 
     expect((await deleteEvent(request('DELETE'), eventParams(visit.id))).status).toBe(204)
-    const { medications } = await overview()
+    const { medications } = await overview(cat, token)
     course = medications.find((m) => m.id === fortiflora.id)!
     expect(course.dosage).toBe('2 пакетика в день')
     expect(medications.map((m) => m.name).sort()).toEqual(['Лечебный корм', 'Фортифлора'])
@@ -181,7 +162,7 @@ describe('visits', () => {
     const ask = () => toMedication(request('POST'), { params: Promise.resolve({ id: cat, itemId: smecta.id }) })
     const answers = await Promise.all([ask(), ask(), ask()])
     expect(answers.every((answer) => answer.status === 201)).toBe(true)
-    expect((await overview()).medications.filter((m) => m.name === 'Смекта')).toHaveLength(1)
+    expect((await overview(cat, token)).medications.filter((m) => m.name === 'Смекта')).toHaveLength(1)
   })
 
   it('a retried correction with the same key adds its new prescriptions once', async () => {
@@ -199,7 +180,7 @@ describe('visits', () => {
     const again = await patchVisit(keyed(body, 'visit-patch-1'), eventParams(plan.id))
     expect(again.status).toBe(200)
     expect(HealthEventSchema.parse(await again.json()).items.map((i) => i.name)).toEqual(['Витамины'])
-    expect((await overview()).medications.map((m) => m.name)).toEqual(['Витамины'])
+    expect((await overview(cat, token)).medications.map((m) => m.name)).toEqual(['Витамины'])
 
     const changed = await patchVisit(keyed({ ...body, diagnosis: 'Здорова' }, 'visit-patch-1'), eventParams(plan.id))
     expect(changed.status).toBe(409)

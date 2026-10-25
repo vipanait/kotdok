@@ -1,9 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { NextRequest } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
 import type { Client } from 'pg'
-import { HealthOverviewSchema, IDEMPOTENCY_KEY_HEADER, PetSchema, VetSummarySchema } from '@lapka/contracts'
-import { POST as createPet } from '@/app/(backend)/api/v1/pets/route'
+import { HealthOverviewSchema, IDEMPOTENCY_KEY_HEADER, VetSummarySchema } from '@lapka/contracts'
 import { DELETE as deletePet } from '@/app/(backend)/api/v1/pets/[id]/route'
 import { GET as getHealth } from '@/app/(backend)/api/v1/pets/[id]/health/route'
 import { GET as getSummary } from '@/app/(backend)/api/v1/pets/[id]/health/summary/route'
@@ -15,7 +13,7 @@ import { coursesPage } from '@/features/medical-record/medications/course-view'
 import { vetSummaryPage } from '@/features/medical-record/summary/summary-view'
 import { importantFacts } from '@/features/medical-record/view-model'
 import ru from '@/shared/i18n/dictionaries/ru'
-import { FIXTURE_PASSWORD, OWNER_A, OWNER_B, PET_IDS, connect, seedFixtures } from './fixtures'
+import { OWNER_A, OWNER_B, PET_IDS, connect, seedFixtures, signIn, newPet } from './fixtures'
 
 // MW-07: the summary for the vet against the real database, as the web page
 // builds it. It says what the saved record says — «Принимает сейчас» is the
@@ -27,15 +25,6 @@ let db: Client
 let tokenA: string
 let tokenB: string
 const created: string[] = []
-
-async function signIn(email: string): Promise<string> {
-  const client = createClient(process.env.TEST_SUPABASE_URL!, process.env.TEST_SUPABASE_ANON_KEY!, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  })
-  const { data, error } = await client.auth.signInWithPassword({ email, password: FIXTURE_PASSWORD })
-  if (error) throw error
-  return data.session!.access_token
-}
 
 function request(token: string, method = 'GET', body?: unknown, url = 'http://test.local/x') {
   const headers: Record<string, string> = {
@@ -56,14 +45,6 @@ function day(offset: number): string {
   return new Date(NOW + offset * 86_400_000).toISOString().slice(0, 10)
 }
 const TODAY = day(0)
-
-async function newPet(body: Record<string, unknown>): Promise<string> {
-  const response = await createPet(request(tokenA, 'POST', body), undefined)
-  expect(response.status).toBe(201)
-  const pet = PetSchema.parse(await response.json())
-  created.push(pet.id)
-  return pet.id
-}
 
 async function ok(response: Response) {
   expect(response.status, await response.clone().text()).toBeLessThan(300)
@@ -90,7 +71,7 @@ afterAll(async () => {
 
 describe('the summary for the vet (MW-07)', () => {
   it('says what the saved record says, «Принимает сейчас» included', async () => {
-    const pet = await newPet({ species: 'cat', name: 'Сводка', sex: 'female', neutered: true, allergies: ['Курица'], vaccinated: true })
+    const pet = await newPet({ species: 'cat', name: 'Сводка', sex: 'female', neutered: true, allergies: ['Курица'], vaccinated: true }, tokenA, created)
     await ok(await addWeight(request(tokenA, 'POST', { measured_on: day(-60), weight_kg: 4.5 }), params(pet)))
     await ok(await addWeight(request(tokenA, 'POST', { measured_on: day(-5), weight_kg: 4.2 }), params(pet)))
     await ok(
@@ -159,7 +140,7 @@ describe('the summary for the vet (MW-07)', () => {
   })
 
   it('shows an empty pet as not stated, never as an absence', async () => {
-    const pet = await newPet({ species: 'dog', name: 'Пустой' })
+    const pet = await newPet({ species: 'dog', name: 'Пустой' }, tokenA, created)
     const summary = VetSummarySchema.parse((await summaryOf(pet)).body)
     const page = vetSummaryPage(ru, 'ru', summary, TODAY)
     expect(page.pet).toEqual({ name: 'Пустой', meta: 'Собака', weight: 'Вес: не указано владельцем' })
@@ -188,7 +169,7 @@ describe('the owner’s day (MW-07 fix round 1)', () => {
   const LOCAL = day(1)
 
   it('counts «Принимает сейчас» and the year of visits from the owner’s day it is sent', async () => {
-    const pet = await newPet({ species: 'cat', name: 'Полночь' })
+    const pet = await newPet({ species: 'cat', name: 'Полночь' }, tokenA, created)
     await ok(
       await addMedications(
         request(tokenA, 'POST', { items: [{ name: 'Фортифлора', started_on: day(-10), ended_on: LOCAL }] }),
@@ -214,7 +195,7 @@ describe('the owner’s day (MW-07 fix round 1)', () => {
   })
 
   it('takes the owner’s day only while it is today somewhere on Earth', async () => {
-    const pet = await newPet({ species: 'dog', name: 'Часовой пояс' })
+    const pet = await newPet({ species: 'dog', name: 'Часовой пояс' }, tokenA, created)
     for (const given of [day(-1), TODAY, day(1)]) {
       expect(VetSummarySchema.parse((await summaryOf(pet, tokenA, given)).body).generated_on).toBe(given)
     }

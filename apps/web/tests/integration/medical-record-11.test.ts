@@ -1,5 +1,4 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
-import { NextRequest } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import type { Client } from 'pg'
 import { DueItemSchema, HealthOverviewSchema, PetSchema, VetSummarySchema } from '@lapka/contracts'
@@ -13,7 +12,7 @@ import { POST as createVisit } from '@/app/(backend)/api/v1/pets/[id]/health/vis
 import { POST as addMedications } from '@/app/(backend)/api/v1/pets/[id]/health/medications/route'
 import { GET as listDue } from '@/app/(backend)/api/v1/pets/due/route'
 import { createServiceClient } from '@/server/supabase/server'
-import { FIXTURE_PASSWORD, OWNER_A, OWNER_B, connect, seedFixtures, type SeededFixtures } from './fixtures'
+import { OWNER_A, OWNER_B, connect, seedFixtures, signIn, bearerRequest, type SeededFixtures } from './fixtures'
 
 // MR-11: the whole medical record as one path, two owners, and what deleting leaves behind.
 
@@ -48,21 +47,8 @@ let db: Client
 let seeded: SeededFixtures
 const tokens: Record<'a' | 'b', string> = { a: '', b: '' }
 
-async function signIn(email: string): Promise<string> {
-  const client = createClient(process.env.TEST_SUPABASE_URL!, process.env.TEST_SUPABASE_ANON_KEY!, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  })
-  const { data, error } = await client.auth.signInWithPassword({ email, password: FIXTURE_PASSWORD })
-  if (error) throw error
-  return data.session!.access_token
-}
-
 function request(who: 'a' | 'b', method = 'GET', body?: unknown, headers: Record<string, string> = {}) {
-  return new NextRequest('http://test.local/x', {
-    method,
-    headers: { authorization: `Bearer ${tokens[who]}`, 'content-type': 'application/json', ...headers },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  })
+  return bearerRequest('/x', { method, body, headers }, tokens[who])
 }
 
 const params = (id: string) => ({ params: Promise.resolve({ id }) })

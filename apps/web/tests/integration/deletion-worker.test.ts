@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import type { Client } from 'pg'
-import { randomUUID } from 'node:crypto'
+import { createHash, randomUUID } from 'node:crypto'
 import { createServiceClient } from '@/server/supabase/server'
 import {
   createDeletionWorkerDeps,
@@ -8,7 +8,7 @@ import {
   type DeletionWorkerDeps,
 } from '@/server/account/deletion-worker'
 import { readDeletionStatus } from '@/server/account/deletion-status'
-import { connect, seedFixtures, type SeededFixtures } from './fixtures'
+import { connect, seedFixtures, requestDeletion, type SeededFixtures } from './fixtures'
 
 /**
  * Stage 8/05 end to end: the real worker against the real database and Auth.
@@ -19,6 +19,7 @@ import { connect, seedFixtures, type SeededFixtures } from './fixtures'
 let db: Client
 let seeded: SeededFixtures
 const RECEIPT = 'a'.repeat(64)
+const RECEIPT_HASH = createHash('sha256').update(RECEIPT, 'utf8').digest('hex')
 
 beforeAll(async () => {
   db = await connect()
@@ -41,12 +42,6 @@ async function count(sql: string, params: unknown[] = []): Promise<number> {
   return Number(rows[0].n)
 }
 
-async function requestDeletion(userId: string, receipt = RECEIPT): Promise<void> {
-  const { createHash } = await import('node:crypto')
-  const hash = createHash('sha256').update(receipt, 'utf8').digest('hex')
-  await db.query(`select public.request_account_deletion($1, $2)`, [userId, hash])
-}
-
 function realDeps(): DeletionWorkerDeps {
   return { ...createDeletionWorkerDeps(createServiceClient()), log: () => {} }
 }
@@ -61,7 +56,7 @@ async function job(userId: string) {
 
 describe('the deletion worker against the real database', () => {
   it('deletes the account and completes the job', async () => {
-    await requestDeletion(seeded.ownerAId)
+    await requestDeletion(db, seeded.ownerAId, RECEIPT_HASH)
 
     await expect(processDeletionJob(realDeps(), seeded.ownerAId)).resolves.toBe('completed')
 
@@ -73,7 +68,7 @@ describe('the deletion worker against the real database', () => {
   })
 
   it('leaves the other owner signed in and whole', async () => {
-    await requestDeletion(seeded.ownerAId)
+    await requestDeletion(db, seeded.ownerAId, RECEIPT_HASH)
 
     await processDeletionJob(realDeps(), seeded.ownerAId)
 
@@ -82,7 +77,7 @@ describe('the deletion worker against the real database', () => {
   })
 
   it('resumes after the Auth step failed, without touching the data again', async () => {
-    await requestDeletion(seeded.ownerAId)
+    await requestDeletion(db, seeded.ownerAId, RECEIPT_HASH)
     const failing = { ...realDeps(), deleteAuthUser: async () => { throw new Error('auth down') } }
 
     await expect(processDeletionJob(failing, seeded.ownerAId)).resolves.toBe('retry')
@@ -98,7 +93,7 @@ describe('the deletion worker against the real database', () => {
   })
 
   it('leaves nothing half-deleted when the data step fails', async () => {
-    await requestDeletion(seeded.ownerAId)
+    await requestDeletion(db, seeded.ownerAId, RECEIPT_HASH)
     const deps = realDeps()
     const failing = {
       ...deps,
@@ -114,7 +109,7 @@ describe('the deletion worker against the real database', () => {
   })
 
   it('lets only one of two simultaneous runs do the work', async () => {
-    await requestDeletion(seeded.ownerAId)
+    await requestDeletion(db, seeded.ownerAId, RECEIPT_HASH)
 
     const results = await Promise.all([
       processDeletionJob(realDeps(), seeded.ownerAId),
@@ -125,7 +120,7 @@ describe('the deletion worker against the real database', () => {
   })
 
   it('stops at action_required after five failures and says so to the receipt', async () => {
-    await requestDeletion(seeded.ownerAId)
+    await requestDeletion(db, seeded.ownerAId, RECEIPT_HASH)
     const failing = { ...realDeps(), deleteAuthUser: async () => { throw new Error('down') } }
 
     const results = []

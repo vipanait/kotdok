@@ -6,26 +6,12 @@ import { ApiErrorEnvelopeSchema, PublicProfileSchema } from '@lapka/contracts'
 import { GET as healthRoute } from '@/app/(backend)/api/v1/health/route'
 import { GET as meRoute, PATCH as patchMeRoute } from '@/app/(backend)/api/v1/me/route'
 import { CSRF_COOKIE_NAME } from '@/server/security/csrf'
-import { FIXTURE_PASSWORD, OWNER_A, OWNER_B, connect, seedFixtures, type SeededFixtures } from './fixtures'
+import { FIXTURE_PASSWORD, OWNER_A, OWNER_B, connect, seedFixtures, signIn, type SeededFixtures } from './fixtures'
 
 let db: Client
 let seeded: SeededFixtures
 let tokenA: string
 let tokenB: string
-
-async function signIn(email: string): Promise<string> {
-  const client = createClient(
-    process.env.TEST_SUPABASE_URL!,
-    process.env.TEST_SUPABASE_ANON_KEY!,
-    { auth: { autoRefreshToken: false, persistSession: false } },
-  )
-  const { data, error } = await client.auth.signInWithPassword({
-    email,
-    password: FIXTURE_PASSWORD,
-  })
-  if (error) throw error
-  return data.session!.access_token
-}
 
 function request(headers: Record<string, string> = {}, init: { method?: string; body?: string } = {}) {
   return new NextRequest('http://test.local/api/v1/me', {
