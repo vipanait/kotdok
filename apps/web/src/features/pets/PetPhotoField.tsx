@@ -36,6 +36,8 @@ export default function PetPhotoField({
   // The preview's object URL lives as long as it is shown.
   useEffect(() => {
     if (change.kind !== 'set') {
+      // Drops the URL the cleanup has just revoked, so a later pick never shows it.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPreview(null)
       return
     }
