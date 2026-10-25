@@ -9,13 +9,16 @@ export default defineConfig([
   {
     rules: {
       // The React Compiler rules of eslint-plugin-react-hooks 7 find refs read
-      // during render, setState inside effects and a computed memo dependency
-      // list in code written before lint existed here. None of it is a
+      // during render, setState inside effects, a computed memo dependency
+      // list, refs written through hook arguments and memoization the compiler
+      // cannot keep, in code written before lint existed here. None of it is a
       // mechanical fix, so they report as warnings until the screens are
       // reworked; the list is in the pull request that added this file.
       'react-hooks/refs': 'warn',
       'react-hooks/set-state-in-effect': 'warn',
       'react-hooks/use-memo': 'warn',
+      'react-hooks/immutability': 'warn',
+      'react-hooks/preserve-manual-memoization': 'warn',
       // The code base writes Array<T> and ReadonlyArray<T>, as apps/web does.
       '@typescript-eslint/array-type': 'off',
     },
