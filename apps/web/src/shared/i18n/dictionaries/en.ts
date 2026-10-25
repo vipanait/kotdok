@@ -53,7 +53,7 @@ const en: Dictionary = {
       'Describe what is happening. Lapka helps you judge how urgent it is and get ready to talk to a vet.',
     checkSymptoms: 'Check symptoms',
     species: 'For cats and dogs',
-    offer: '2 free checks · No bank card needed',
+    offer: 'Free · No subscription, no ads',
     sloganLine1: 'Little paws.',
     sloganLine2: 'Big care.',
     stepsTitle: 'How Lapka works',
