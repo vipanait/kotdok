@@ -1,6 +1,6 @@
 import type { WeightMeasurement } from '@lapka/contracts'
 import type { Dictionary } from '@/i18n'
-import { ApiError, isKeyReused, weightTrend as trendOf } from '@lapka/shared'
+import { ApiError, isKeyReused, trendParts, weightTrend as trendOf, type TrendParts } from '@lapka/shared'
 
 /**
  * Weight history, worked out for the screen: reading what was typed and the
@@ -41,11 +41,13 @@ export function weightInput(t: Dictionary, kg: number): { unit: WeightUnit; text
  */
 export function weightTrend(t: Dictionary, weights: readonly WeightMeasurement[], today: string): string | null {
   const trend = trendOf(weights, today)
-  if (!trend) return null
+  return trend ? trendWords(t, trendParts(trend)) : null
+}
 
-  const span = trend.months >= 1 ? t.medicalRecord.months(trend.months) : t.medicalRecord.days(trend.days)
+/** The trend's parts (shared `trendParts`) in the app's words. */
+export function trendWords(t: Dictionary, trend: TrendParts): string {
+  const span = trend.span.kind === 'months' ? t.medicalRecord.months(trend.span.n) : t.medicalRecord.days(trend.span.n)
   if (trend.change === 0) return t.medicalRecord.noChange(span)
-
   return t.medicalRecord.trend(`${trend.change < 0 ? '−' : '+'}${t.decimal(Math.abs(trend.change))}`, span)
 }
 

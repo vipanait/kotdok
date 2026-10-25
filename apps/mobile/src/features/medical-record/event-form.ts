@@ -9,15 +9,15 @@ import {
 } from '@lapka/contracts'
 import {
   addInterval,
-  eventDayProblem,
-  eventTextProblems,
-  itemNameTooLong,
+  eventPatchItems,
+  eventProblems,
   nextDayProblem,
   productName,
+  readEventInput,
   suggestNextDay,
   suggestionInterval,
   toggleParasiteGroup,
-  tooManyItems,
+  type EventFields,
   type EventTextField,
   type Interval,
   type SupportedLocale,
@@ -231,9 +231,44 @@ export function nextDate(item: ItemDraft, recordDay: string, today: string = loc
   return day !== null && nextDayProblem(day, recordDay, today) === null ? day : undefined
 }
 
+/** «24.09.2026» as the shared reader takes it: a day, '' for none, or the text as typed (not a day). */
+const typedDay = (text: string) => (text.trim() === '' ? '' : (parseDayText(text) ?? text.trim()))
+
+/**
+ * The form as the shared reader takes it: the typed day as a day, each
+ * item's next-date choice as a day ('' for none; a custom day that is not
+ * after the record's, or no day at all, is left as typed so the reader
+ * names it).
+ */
+function fieldsOf(draft: EventDraft, withNext: boolean, today: string): EventFields {
+  const date = typedDay(draft.date)
+  return {
+    // A visit is saved by its own form; `readDraft` refuses it before this.
+    kind: draft.kind as EventFields['kind'],
+    status: draft.status,
+    date,
+    clinic: draft.clinic,
+    notes: draft.notes,
+    items: draft.items.map((item) => {
+      let next = ''
+      if (withNext) {
+        // «Через год» from a record day that is one; from a day that is not, nothing is suggested.
+        if (item.next === 'year') next = (/^\d{4}-\d{2}-\d{2}$/.test(date) ? suggestNextDay(date, itemInterval(item), today) : null) ?? ''
+        else if (item.next === 'custom') next = typedDay(item.nextText) || 'invalid'
+      }
+      return { key: item.key, id: item.id, name: item.name, targets: item.targets, productId: item.productId, next }
+    }),
+  }
+}
+
 /**
  * @param keptDate the record's current day when editing: an overdue plan may
  * keep it — only a new day has to be ahead (MR-03.3).
+ *
+ * What is wrong, and the body, are the shared reader's (`eventProblems`,
+ * `readEventInput`, the site's too); this only says the codes in the app's
+ * words. A new record is also checked against the contract before it is
+ * sent, as the site checks it.
  */
 export function readDraft(
   t: Dictionary,
@@ -245,53 +280,43 @@ export function readDraft(
   if (draft.kind === 'visit') throw new Error('a visit is saved by the visit form')
   const words = t.medicalRecord
   const errors: DraftErrors = {}
-
-  // The day rules are shared with the site (@lapka/shared `eventDayProblem`): done not after
-  // today, a plan not before it, an overdue plan may keep its own day.
-  const typed = parseDayText(draft.date)
-  const date =
-    typed !== null && eventDayProblem(typed, draft.status, localToday(now), keptDate ?? null) === null ? typed : null
-  if (!date) errors.date = draft.status === 'done' ? words.dateInvalid : words.plannedDateInvalid
-
+  const today = localToday(now)
+  const withNext = mode !== 'edit'
+  const fields = fieldsOf(draft, withNext, today)
+  const options = { keptDate: keptDate ?? null, withNext }
+  const problems = eventProblems(fields, today, options)
   const treatment = draft.kind === 'parasite'
-  if (draft.items.length === 0) errors.form = treatment ? words.productsRequired : words.itemsRequired
-  else if (tooManyItems(draft.items)) errors.form = words.eventItemsFull(HEALTH_EVENT_LIMITS.items)
 
-  const itemErrors: Record<string, string> = {}
-  const nextErrors: Record<string, string> = {}
-  const withNext = mode !== 'edit' && draft.status === 'done'
+  if (problems.date) errors.date = draft.status === 'done' ? words.dateInvalid : words.plannedDateInvalid
+  if (problems.items === 'none') errors.form = treatment ? words.productsRequired : words.itemsRequired
+  else if (problems.items === 'tooMany') errors.form = words.eventItemsFull(HEALTH_EVENT_LIMITS.items)
+  for (const [key, found] of Object.entries(problems.item ?? {})) {
+    if (found.empty) (errors.items ??= {})[key] = treatment ? words.itemEmptyTreatment : words.itemEmpty
+    else if (found.name === 'tooLong') (errors.items ??= {})[key] = words.tooLong(HEALTH_EVENT_LIMITS.itemName)
+    if (found.next) (errors.next ??= {})[key] = words.nextInvalid
+  }
+  for (const field of ['clinic', 'notes'] as const) if (problems[field]) errors[field] = words.tooLong(HEALTH_EVENT_LIMITS[field])
+  if (Object.keys(errors).length > 0) return { ok: false, errors }
 
-  const items = draft.items.map((item) => {
-    const name = item.name.trim()
-    if (name === '' && item.targets.length === 0) itemErrors[item.key] = treatment ? words.itemEmptyTreatment : words.itemEmpty
-    else if (itemNameTooLong(name)) itemErrors[item.key] = words.tooLong(HEALTH_EVENT_LIMITS.itemName)
-    let next_on: string | null = null
-    if (withNext && date) {
-      const next = nextDate(item, date, localToday(now))
-      if (next === undefined) nextErrors[item.key] = words.nextInvalid
-      else next_on = next
-    }
-    return {
-      ...(item.id ? { id: item.id } : {}),
-      name: name === '' ? null : name,
-      targets: item.targets,
-      product_id: item.productId,
-      next_on,
-    }
-  })
-
-  if (Object.keys(itemErrors).length > 0) errors.items = itemErrors
-  if (Object.keys(nextErrors).length > 0) errors.next = nextErrors
-  // The clinic and the note by the contract's lengths, as the site checks them (shared `eventTextProblems`).
-  for (const field of eventTextProblems(draft)) errors[field] = words.tooLong(HEALTH_EVENT_LIMITS[field])
-  if (Object.keys(errors).length > 0 || !date) return { ok: false, errors }
-
+  // A new record goes through the contract's schema too; a correction is
+  // sent as a patch (`changeHealthEvent`), checked by the server.
+  if (mode !== 'edit') {
+    const read = readEventInput(fields, today, options)
+    if (!read.ok) return { ok: false, errors: { form: words.saveEventFailed } }
+  }
+  const items: ItemInput[] = eventPatchItems(fields).map((item, index) => ({
+    ...(item.id ? { id: item.id } : {}),
+    name: item.name ?? null,
+    targets: item.targets,
+    product_id: item.product_id ?? null,
+    next_on: withNext && draft.status === 'done' && fields.items[index].next !== '' ? fields.items[index].next : null,
+  }))
   return {
     ok: true,
     value: {
       kind: draft.kind,
       status: draft.status,
-      date,
+      date: fields.date,
       clinic: draft.clinic.trim() === '' ? null : draft.clinic.trim(),
       notes: draft.notes.trim() === '' ? null : draft.notes.trim(),
       items,

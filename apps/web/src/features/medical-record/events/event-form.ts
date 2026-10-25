@@ -1,5 +1,4 @@
 import {
-  HealthEventInputSchema,
   HealthEventPatchSchema,
   ParasiteTargetSchema,
   VaccineTargetSchema,
@@ -14,15 +13,15 @@ import {
 import {
   ApiError,
   ApiTimeoutError,
-  eventDayProblem,
-  eventTextProblems,
-  itemNameTooLong,
-  nextDayProblem,
+  eventPatchItems,
+  eventProblems,
   productName,
+  readEventInput,
   suggestNextDay,
   suggestionInterval,
-  tooManyItems,
   type EventDayProblem,
+  type EventFields,
+  type EventReadOptions,
   type Interval,
   type NextDayProblem,
   type SupportedLocale,
@@ -218,18 +217,42 @@ export type EventProblems = {
 const trimmed = (text: string) => text.trim()
 const orNull = (text: string) => (text.trim() === '' ? null : text.trim())
 
-function itemProblems(item: ItemDraft, status: HealthEvent['status'], date: string, today: string): ItemProblems {
-  const problems: ItemProblems = {}
-  const name = trimmed(item.name)
-  if (itemNameTooLong(name)) problems.name = 'tooLong'
-  // The owner chose to type a name: it is what the item is.
-  if (item.source === 'manual' && name === '') problems.name = 'empty'
-  // «Без препарата» says only what it was against: at least one disease (contract: a name or a disease).
-  if (item.source === 'none' && item.targets.length === 0) problems.targets = 'empty'
-  if (status === 'done' && item.next !== '') {
-    const next = nextDayProblem(item.next, date || null, today)
-    if (next) problems.next = next
+/** The form as the shared readers take it. */
+function fieldsOf(draft: EventDraft): EventFields {
+  return {
+    kind: draft.kind,
+    status: draft.status,
+    date: draft.date,
+    clinic: draft.clinic,
+    notes: draft.notes,
+    items: draft.items.map((item) => ({ key: item.key, id: item.id, name: item.name, targets: item.targets, productId: item.productId, next: item.next })),
   }
+}
+
+/**
+ * What is wrong with the form: the shared rules (`eventProblems`, the
+ * phone's too), plus which field this form points at for an item that
+ * names nothing — the name the owner chose to type, the diseases of «Без
+ * препарата» — and a typed name left empty even beside chosen diseases.
+ */
+function commonProblems(draft: EventDraft, today: string, keptDate: string | null): EventProblems {
+  const { item: sharedItems, ...rest } = eventProblems(fieldsOf(draft), today, { keptDate, withNext: true })
+  const problems: EventProblems = { ...rest }
+  const byKey: Record<string, ItemProblems> = {}
+  for (const item of draft.items) {
+    const found = sharedItems?.[item.key] ?? {}
+    const own: ItemProblems = {}
+    if (found.name === 'tooLong') own.name = 'tooLong'
+    if (found.next) own.next = found.next
+    if (found.empty) {
+      if (item.source === 'none') own.targets = 'empty'
+      else own.name = 'empty'
+    }
+    // The owner chose to type a name: it is what the item is.
+    if (item.source === 'manual' && trimmed(item.name) === '') own.name = 'empty'
+    if (Object.keys(own).length > 0) byKey[item.key] = own
+  }
+  if (Object.keys(byKey).length > 0) problems.item = byKey
   return problems
 }
 
@@ -253,56 +276,17 @@ export type ReadPlanChange =
 
 const refused: ContractRefusal = { ok: false, rejected: true, problems: {} }
 
-function commonProblems(draft: EventDraft, today: string, keptDate: string | null): EventProblems {
-  const problems: EventProblems = {}
-  // An overdue plan may keep its own day; only a new day has to be ahead.
-  const date = eventDayProblem(draft.date, draft.status, today, keptDate)
-  if (date) problems.date = date
-
-  if (draft.items.length === 0) problems.items = 'none'
-  else if (tooManyItems(draft.items)) problems.items = 'tooMany'
-
-  const itemProblemsByKey: Record<string, ItemProblems> = {}
-  for (const item of draft.items) {
-    const found = itemProblems(item, draft.status, problems.date ? '' : draft.date, today)
-    if (Object.keys(found).length > 0) itemProblemsByKey[item.key] = found
-  }
-  if (Object.keys(itemProblemsByKey).length > 0) problems.item = itemProblemsByKey
-  for (const field of eventTextProblems(draft)) problems[field] = 'tooLong'
-  return problems
-}
-
 const hasProblems = (problems: EventProblems) => Object.keys(problems).length > 0
+
+const NEW_RECORD: EventReadOptions = { keptDate: null, withNext: true }
 
 /** The body of a new record, or what is wrong with the form. */
 export function readNewEvent(draft: EventDraft, today: string): ReadEvent {
   const problems = commonProblems(draft, today, null)
   if (hasProblems(problems)) return { ok: false, problems }
-  const input = HealthEventInputSchema.safeParse({
-    kind: draft.kind,
-    status: draft.status,
-    date: draft.date,
-    clinic: orNull(draft.clinic),
-    notes: orNull(draft.notes),
-    items: draft.items.map((item) => ({
-      name: orNull(item.name),
-      targets: item.targets,
-      product_id: item.productId,
-      ...(draft.status === 'done' ? { next_on: item.next === '' ? null : item.next } : {}),
-    })),
-  })
-  return input.success ? { ok: true, input: input.data } : refused
-}
-
-type PatchItem = NonNullable<HealthEventPatch['items']>[number]
-
-function patchItems(draft: EventDraft): PatchItem[] {
-  return draft.items.map((item) => ({
-    ...(item.id ? { id: item.id } : {}),
-    name: orNull(item.name),
-    targets: item.targets,
-    product_id: item.productId,
-  }))
+  const read = readEventInput(fieldsOf(draft), today, NEW_RECORD)
+  if (read.ok) return read
+  return read.rejected ? refused : { ok: false, problems: commonProblems(draft, today, null) }
 }
 
 /**
@@ -320,8 +304,8 @@ export function readPlanChange(plan: HealthEvent, draft: EventDraft, today: stri
   if (draft.date !== plan.date) patch.date = draft.date
   if (orNull(draft.clinic) !== orNull(before.clinic)) patch.clinic = orNull(draft.clinic)
   if (orNull(draft.notes) !== orNull(before.notes)) patch.notes = orNull(draft.notes)
-  const items = patchItems(draft)
-  if (JSON.stringify(items) !== JSON.stringify(patchItems(before))) patch.items = items
+  const items = eventPatchItems(fieldsOf(draft))
+  if (JSON.stringify(items) !== JSON.stringify(eventPatchItems(fieldsOf(before)))) patch.items = items
 
   if (Object.keys(patch).length === 0) return { ok: true, patch: null }
   const checked = HealthEventPatchSchema.safeParse(patch)
