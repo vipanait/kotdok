@@ -33,6 +33,7 @@ import {
   type NextChoice,
 } from '@/features/medical-record/event-form'
 import { useReminders } from '@/features/medical-record/reminders/ReminderProvider'
+import { useOverviewReader, useRecordChanged } from '@/features/medical-record/record-cache'
 import { useUnsavedChanges } from '@/features/unsaved/useUnsavedChanges'
 import { Button, IconButton, LinkButton } from '@/ui/Button'
 import { Banner, Card } from '@/ui/Card'
@@ -73,6 +74,8 @@ export default function EventForm() {
   const t = useText()
   const locale = useLocale()
   const reminders = useReminders()
+  const recordChanged = useRecordChanged()
+  const readOverview = useOverviewReader()
   const words = t.medicalRecord
 
   const [species, setSpecies] = useState<PetSpecies | null>(null)
@@ -96,7 +99,7 @@ export default function EventForm() {
   const load = useCallback(async () => {
     setError(null)
     try {
-      const overview = await withFreshSession((api) => api.getHealthOverview(petId, localToday()))
+      const overview = await readOverview(petId)
       setSpecies(overview.pet.species)
 
       let start: EventDraft
@@ -140,7 +143,7 @@ export default function EventForm() {
       setError(describeFailure(t, cause, words.loadEventFailed))
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps -- the kind of a new record is fixed by the route
-  }, [petId, mode, params.status, params.eventId, params.itemId, t, words.loadEventFailed])
+  }, [petId, mode, params.status, params.eventId, params.itemId, t, words.loadEventFailed, readOverview])
 
   useEffect(() => {
     void load()
@@ -234,7 +237,7 @@ export default function EventForm() {
         )
         const mismatch = completionMismatch(completion.input, saved, completion.itemId, events)
         if (mismatch) {
-          reminders.refresh()
+          void recordChanged(petId)
           const day = t.day(saved.date, true)
           // The item is done as first saved: this form cannot change it, so it
           // is closed, and the way out asks nothing.
@@ -243,9 +246,9 @@ export default function EventForm() {
           return
         }
       }
+      void recordChanged(petId)
       const plan = mode === 'edit' ? null : plannedItem(value)
       if (plan) reminders.planSaved(plan)
-      else reminders.refresh()
       unsaved.leave(then)
     } catch (cause) {
       // The first try was saved after all, with what it said then; the change

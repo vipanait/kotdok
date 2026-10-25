@@ -1,8 +1,10 @@
-import { useCallback, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { StyleSheet } from 'react-native'
-import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
+import { router, useLocalSearchParams } from 'expo-router'
 import type { Medication } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
+import { queryKeys } from '@/lib/query-keys'
+import { useCached } from '@/lib/query-cache'
 import { describeFailure } from '@/lib/errors'
 import { localToday } from '@/lib/calendar-day'
 import { useText } from '@/i18n'
@@ -13,7 +15,7 @@ import { Banner, Card } from '@/ui/Card'
 import { ConfirmDialog } from '@/ui/Dialog'
 import { Screen } from '@/ui/Screen'
 import { DoseTimes } from '@/features/medical-record/DoseTimes'
-import { useReminders } from '@/features/medical-record/reminders/ReminderProvider'
+import { useRecordChanged } from '@/features/medical-record/record-cache'
 import { DetailSkeleton } from '@/ui/Skeleton'
 import { Text } from '@/ui/Text'
 import { space } from '@/ui/theme'
@@ -27,34 +29,29 @@ export default function MedicationView() {
   const { id, medicationId } = useLocalSearchParams<{ id: string; medicationId: string }>()
   const t = useText()
   const words = t.medicalRecord.meds
-  const [course, setCourse] = useState<Medication | null>(null)
-  const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
+  // The pet's record through the cache shared by its screens: this course is one of its medications.
+  const record = useCached(queryKeys.overview(id), () => withFreshSession((api) => api.getHealthOverview(id, localToday())))
+  const found: Medication | null = useMemo(() => record.data?.medications.find((m) => m.id === medicationId) ?? null, [record.data, medicationId])
+  /** The course as the server answered an action here, until the record has been read again. */
+  const [answered, setCourse] = useState<Medication | null>(null)
+  useEffect(() => setCourse(null), [found])
+  const course = answered ?? found
+  const [actionError, setError] = useState<{ text: string; offline: boolean } | null>(null)
+  const error = actionError ?? (record.error ? describeFailure(t, record.error, t.errors.loadHealthFailed) : null)
   const [busy, setBusy] = useState(false)
   const [asking, setAsking] = useState(false)
-  const reminders = useReminders()
+  const changed = useRecordChanged()
   /** The day «Завершить курс» first sent, until the server answers it (`endCourse`). */
   const ending = useRef<{ day: string | null }>({ day: null })
 
-  const load = useCallback(async () => {
-    setError(null)
-    try {
-      const overview = await withFreshSession((api) => api.getHealthOverview(id, localToday()))
-      const found = overview.medications.find((m) => m.id === medicationId)
-      if (!found) {
-        router.back()
-        return
-      }
-      setCourse(found)
-    } catch (cause) {
-      setError(describeFailure(t, cause, t.errors.loadHealthFailed))
+  // Gone since the list was read, or deleted here: back to the list, once.
+  const leaving = useRef(false)
+  useEffect(() => {
+    if (record.data && !found && !leaving.current) {
+      leaving.current = true
+      router.back()
     }
-  }, [id, medicationId, t])
-
-  useFocusEffect(
-    useCallback(() => {
-      void load()
-    }, [load]),
-  )
+  }, [record.data, found])
 
   const today = localToday()
 
@@ -75,12 +72,12 @@ export default function MedicationView() {
       // Finished meanwhile, on another device: show it as it is now — read
       // only, which the screen then says in place of «Изменить».
       if (ended.kind === 'ended') setCourse(ended.course)
-      else void load()
+      else void record.reload()
     } catch (cause) {
       setError(describeFailure(t, cause, words.saveFailed))
     } finally {
       // Also when only the times went: their reminders go with them.
-      reminders.refresh()
+      void changed(id)
       setBusy(false)
     }
   }
@@ -90,8 +87,9 @@ export default function MedicationView() {
     try {
       await withFreshSession((api) => api.deleteMedication(id, medicationId, localToday()))
       // Its dose reminders go with it, not at the next start of the app.
-      reminders.refresh()
+      void changed(id)
       setAsking(false)
+      leaving.current = true
       router.back()
     } catch (cause) {
       setAsking(false)

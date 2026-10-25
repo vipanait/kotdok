@@ -4,6 +4,7 @@ import { router, useSegments } from 'expo-router'
 import type { FollowupCaseSummary } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
 import { useCached } from '@/lib/query-cache'
+import { queryKeys } from '@/lib/query-keys'
 import { useText } from '@/i18n'
 import { urgencyText } from '@/features/checks/urgency'
 import { Button, LinkButton } from '@/ui/Button'
@@ -15,7 +16,7 @@ import { askWhen, caseHref, checkDay, dueCards, isDue, tomorrowMorning } from '.
 
 /** The owner's open cases, shared by the pet list and every pet card. */
 export function useFollowups() {
-  return useCached(['followups'], () => withFreshSession((api) => api.listFollowups()))
+  return useCached(queryKeys.followups(), () => withFreshSession((api) => api.listFollowups()))
 }
 
 /**

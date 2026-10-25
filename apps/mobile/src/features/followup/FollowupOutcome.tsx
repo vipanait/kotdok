@@ -5,6 +5,7 @@ import type { FollowupCase, FollowupCheckinResult } from '@lapka/contracts'
 import { followupScheduleFor } from '@lapka/shared'
 import { withFreshSession } from '@/lib/api'
 import { useCached } from '@/lib/query-cache'
+import { queryKeys } from '@/lib/query-keys'
 import { describeFailure } from '@/lib/errors'
 import { useText } from '@/i18n'
 import { clinicSearchUrl, visitFormHref } from '@/features/checks/check-answers'
@@ -129,7 +130,7 @@ function KeepWatching({ nextDueAt, checkId }: { nextDueAt: string | null; checkI
   const t = useText()
   const words = t.followup
   // The home care of the check the case now follows; a failed read just leaves it out.
-  const check = useCached(['check', checkId ?? 'none'], () =>
+  const check = useCached(checkId ? queryKeys.check(checkId) : ['check', 'none'], () =>
     checkId ? withFreshSession((api) => api.getCheck(checkId)) : Promise.resolve(null),
   )
   return (
@@ -156,7 +157,7 @@ function SeeVet({ theCase, result, tab }: { theCase: FollowupCase; result: Follo
   const decision = result.checkin.decision
   const pet = theCase.pet_name
   const latest = theCase.checks.at(-1) ?? null
-  const me = useCached(['me'], () => withFreshSession((api) => api.getMe()))
+  const me = useCached(queryKeys.me(), () => withFreshSession((api) => api.getMe()))
   const credits = me.data?.credits ?? null
   // «Не прошло за N дней» counts the schedule the case was on.
   const finalHours = followupScheduleFor(theCase.current_urgency)?.slots.at(-1)?.afterHours ?? 48

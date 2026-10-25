@@ -1,8 +1,10 @@
-import { useCallback, useState } from 'react'
+import { useState } from 'react'
 import { Platform, StyleSheet, View } from 'react-native'
-import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
+import { router, useLocalSearchParams } from 'expo-router'
 import type { VetSummary } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
+import { queryKeys } from '@/lib/query-keys'
+import { useCached } from '@/lib/query-cache'
 import { localToday } from '@/lib/calendar-day'
 import { describeFailure } from '@/lib/errors'
 import { useText } from '@/i18n'
@@ -28,26 +30,15 @@ export default function VetSummaryScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const t = useText()
   const words = t.vetSummary
-  const [summary, setSummary] = useState<VetSummary | null>(null)
-  const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
+  // The owner's day: the server counts «принимает сейчас» and the year of
+  // visits from it. Through the cache, under the day: what the check screen
+  // read to say «учтём медкарту» is the same summary.
+  const record = useCached(queryKeys.summary(id, localToday()), () => withFreshSession((api) => api.getVetSummary(id, localToday())))
+  const summary: VetSummary | null = record.data
+  const error = record.error ? describeFailure(t, record.error, words.loadFailed) : null
+  const load = record.reload
   const [preparing, setPreparing] = useState(false)
   const [pdfFailed, setPdfFailed] = useState(false)
-
-  const load = useCallback(async () => {
-    setError(null)
-    try {
-      // The owner's day: the server counts «принимает сейчас» and the year of visits from it.
-      setSummary(await withFreshSession((api) => api.getVetSummary(id, localToday())))
-    } catch (cause) {
-      setError(describeFailure(t, cause, words.loadFailed))
-    }
-  }, [id, t, words.loadFailed])
-
-  useFocusEffect(
-    useCallback(() => {
-      void load()
-    }, [load]),
-  )
 
   const today = localToday()
   const shown = summary?.pet.id === id ? summary : null

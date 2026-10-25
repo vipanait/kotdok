@@ -5,6 +5,7 @@ import { withFreshSession } from '@/lib/api'
 import { useToday } from '@/lib/use-today'
 import { describeFailure } from '@/lib/errors'
 import { useCached } from '@/lib/query-cache'
+import { queryKeys } from '@/lib/query-keys'
 import { reviewAfterDoseGiven } from '@/features/review/store-review'
 import { useText } from '@/i18n'
 import { Button } from '@/ui/Button'
@@ -12,7 +13,7 @@ import { Banner, Card } from '@/ui/Card'
 import { Icon } from '@/ui/Icon'
 import { CONTROL_FONT_LIMIT, Text } from '@/ui/Text'
 import { TAP_TARGET, colour, shadow, space } from '@/ui/theme'
-import { useReminders } from './reminders/ReminderProvider'
+import { useRecordChanged } from './record-cache'
 import { todayDoses } from './reminders/doses'
 
 /** Narrower than this, or with a large system font, a row stacks: time, dose, action. */
@@ -29,12 +30,12 @@ const doseKey = (medicationId: string, slot: string) => `${medicationId}|${slot}
 export function TodayDoses({ petId, courses }: { petId: string; courses: readonly Medication[] }) {
   const t = useText()
   const words = t.today
-  const reminders = useReminders()
+  const changed = useRecordChanged()
   const { width, fontScale } = useWindowDimensions()
   // A name squeezed into a column a few letters wide reads as nothing; stack instead.
   const stacked = width < SIDE_BY_SIDE_MIN_WIDTH || fontScale > SIDE_BY_SIDE_MAX_FONT
   const today = useToday()
-  const record = useCached(['doses', petId, today], () => withFreshSession((api) => api.listDoses(petId, today, today)))
+  const record = useCached(queryKeys.doses(petId, today), () => withFreshSession((api) => api.listDoses(petId, today, today)))
   // A new day is a new list: read it, the cache only reads on focus.
   const reload = record.reload
   const firstDay = useRef(today)
@@ -71,8 +72,8 @@ export function TodayDoses({ petId, courses }: { petId: string; courses: readonl
     try {
       const body = { taken_on: today, slot }
       await withFreshSession((api) => given ? api.markDose(petId, course.id, body).then(() => undefined) : api.unmarkDose(petId, course.id, body))
-      await record.reload()
-      reminders.refresh()
+      // The mark stays until the list has been read again, then the phone drops the reminder.
+      await changed(petId)
       // After the tick is on screen; the rules ask from the second «Дали» on.
       if (given) void reviewAfterDoseGiven()
     } catch (cause) {

@@ -9,6 +9,7 @@ import { reminderStore, useReminders } from '@/features/medical-record/reminders
 import { permissionState } from '@/features/medical-record/reminders/notifications'
 import { withFreshSession } from '@/lib/api'
 import { useCached, useSeedCache } from '@/lib/query-cache'
+import { queryKeys } from '@/lib/query-keys'
 import { describeFailure } from '@/lib/errors'
 import { useAuth } from '@/providers/AuthProvider'
 import { dictionary, useLocale, useSetLocale, useText } from '@/i18n'
@@ -35,12 +36,12 @@ export default function Profile() {
   const update = runningUpdate(currentlyRunning)
   const { signOut } = useAuth()
   // The profile through the cache: shown at once, refreshed on every focus.
-  const me = useCached(['me'], async () => {
-    const value = await withFreshSession((api) => api.getMe())
-    // The account's own choice governs the interface from here on.
-    setLocale(value.locale)
-    return value
-  })
+  const me = useCached(queryKeys.me(), () => withFreshSession((api) => api.getMe()))
+  // The account's own choice governs the interface from here on.
+  const accountLocale = me.data?.locale
+  useEffect(() => {
+    if (accountLocale) setLocale(accountLocale)
+  }, [accountLocale, setLocale])
   const seed = useSeedCache()
   const profile = me.data
   const [notice, setNotice] = useState<string | null>(null)
@@ -92,7 +93,7 @@ export default function Profile() {
   async function changeLocale(locale: (typeof SUPPORTED_LOCALES)[number]) {
     setError(null)
     try {
-      seed([[['me'], await withFreshSession((api) => api.updateMe({ locale }))]])
+      seed([[queryKeys.me(), await withFreshSession((api) => api.updateMe({ locale }))]])
       setLocale(locale)
       // Reminder texts are written in the account's language.
       reminders.refresh()

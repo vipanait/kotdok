@@ -4,6 +4,8 @@ import { router, useLocalSearchParams } from 'expo-router'
 import { HISTORY_PAGE_SIZE_MAX, VISIT_KINDS, VISIT_LIMITS, type SymptomCheckRecord, type VisitKind } from '@lapka/contracts'
 import { ApiError } from '@lapka/shared'
 import { withFreshSession } from '@/lib/api'
+import { queryKeys } from '@/lib/query-keys'
+import { useCacheReader } from '@/lib/query-cache'
 import { describeFailure } from '@/lib/errors'
 import { localToday } from '@/lib/calendar-day'
 import { newRequestKey } from '@/lib/request-key'
@@ -23,6 +25,7 @@ import {
   type VisitErrors,
 } from '@/features/medical-record/visits'
 import { useReminders } from '@/features/medical-record/reminders/ReminderProvider'
+import { useOverviewReader, useRecordChanged } from '@/features/medical-record/record-cache'
 import { useUnsavedChanges } from '@/features/unsaved/useUnsavedChanges'
 import { Button, IconButton, LinkButton } from '@/ui/Button'
 import { Banner, Card } from '@/ui/Card'
@@ -62,6 +65,9 @@ export default function VisitForm() {
   const mode = params.mode === 'edit' ? 'edit' : params.mode === 'done' ? 'done' : 'new'
   const t = useText()
   const reminders = useReminders()
+  const recordChanged = useRecordChanged()
+  const readOverview = useOverviewReader()
+  const read = useCacheReader()
   const words = t.medicalRecord.visits
   const [initial, setInitial] = useState<VisitDraft | null>(null)
   const [draft, setDraft] = useState<VisitDraft | null>(null)
@@ -83,7 +89,8 @@ export default function VisitForm() {
   const nextKey = useRef(1)
 
   useEffect(() => {
-    withFreshSession((api) => api.listChecks({ pet_id: petId, limit: HISTORY_PAGE_SIZE_MAX }))
+    // The same page the visits screen shows, through its cache.
+    read(queryKeys.checks(petId, HISTORY_PAGE_SIZE_MAX), () => withFreshSession((api) => api.listChecks({ pet_id: petId, limit: HISTORY_PAGE_SIZE_MAX })))
       .then((page) => setLoadedChecks(page.items))
       .catch(() => setLoadedChecks([]))
 
@@ -98,7 +105,7 @@ export default function VisitForm() {
       setDraft(start)
       return
     }
-    withFreshSession((api) => api.getHealthOverview(petId, localToday()))
+    readOverview(petId)
       .then((overview) => {
         const visit = overview.events.find((event) => event.id === params.eventId && event.kind === 'visit')
         if (!visit) throw new Error('not found')
@@ -112,7 +119,7 @@ export default function VisitForm() {
         setDraft(start)
       })
       .catch((cause) => setError(describeFailure(t, cause, t.medicalRecord.loadEventFailed)))
-  }, [petId, mode, params.eventId, params.checkId, params.reason, params.plan, t])
+  }, [petId, mode, params.eventId, params.checkId, params.reason, params.plan, t, read, readOverview])
 
   const changed = draft !== null && initial !== null && JSON.stringify(draft) !== JSON.stringify(initial)
   const unsaved = useUnsavedChanges(changed)
@@ -149,8 +156,8 @@ export default function VisitForm() {
           localToday(),
         )
       })
+      void recordChanged(petId)
       if (value.status === 'planned' && mode === 'new') reminders.planSaved({ kind: 'visit', name: null, targets: [] })
-      else reminders.refresh()
       unsaved.leave(then)
     } catch (cause) {
       if (cause instanceof ApiError && cause.code === 'record_done') {

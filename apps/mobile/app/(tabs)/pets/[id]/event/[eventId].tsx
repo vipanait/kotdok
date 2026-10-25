@@ -1,12 +1,14 @@
-import { useCallback, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
-import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
+import { router, useLocalSearchParams } from 'expo-router'
 import type { HealthEvent } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
+import { queryKeys } from '@/lib/query-keys'
+import { useCached } from '@/lib/query-cache'
 import { describeFailure } from '@/lib/errors'
 import { localToday } from '@/lib/calendar-day'
 import { useText } from '@/i18n'
-import { useReminders } from '@/features/medical-record/reminders/ReminderProvider'
+import { useRecordChanged } from '@/features/medical-record/record-cache'
 import { dueLine, dueStatus, itemName, marksFromRow, targetList } from '@/features/medical-record/due'
 import { AddToCalendar } from '@/features/medical-record/AddToCalendar'
 import { Button, LinkButton } from '@/ui/Button'
@@ -28,44 +30,34 @@ import { colour, radius, space } from '@/ui/theme'
 export default function EventView() {
   const { id, eventId } = useLocalSearchParams<{ id: string; eventId: string }>()
   const t = useText()
-  const reminders = useReminders()
+  const changed = useRecordChanged()
   const words = t.medicalRecord
-  const [event, setEvent] = useState<HealthEvent | null>(null)
-  const [petName, setPetName] = useState('')
-  const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
+  // The pet's record through the cache shared by its screens: this record is one of its events.
+  const record = useCached(queryKeys.overview(id), () => withFreshSession((api) => api.getHealthOverview(id, localToday())))
+  const event: HealthEvent | null = useMemo(() => record.data?.events.find((e) => e.id === eventId) ?? null, [record.data, eventId])
+  const petName = record.data?.pet.name ?? ''
+  const [actionError, setError] = useState<{ text: string; offline: boolean } | null>(null)
+  const error = actionError ?? (record.error ? describeFailure(t, record.error, words.loadEventFailed) : null)
   const [asking, setAsking] = useState(false)
   const [busy, setBusy] = useState(false)
 
-  const load = useCallback(async () => {
-    setError(null)
-    try {
-      const overview = await withFreshSession((api) => api.getHealthOverview(id, localToday()))
-      const found = overview.events.find((e) => e.id === eventId)
-      // A record deleted elsewhere, or gone since the list was read: nothing
-      // left to show here, so back to the list.
-      if (!found) {
-        router.back()
-        return
-      }
-      setEvent(found)
-      setPetName(overview.pet.name)
-    } catch (cause) {
-      setError(describeFailure(t, cause, words.loadEventFailed))
+  // A record deleted elsewhere, or gone since the list was read: nothing left
+  // to show here, so back to the list — once, also when it was this screen that deleted it.
+  const leaving = useRef(false)
+  useEffect(() => {
+    if (record.data && !event && !leaving.current) {
+      leaving.current = true
+      router.back()
     }
-  }, [id, eventId, t, words.loadEventFailed])
-
-  useFocusEffect(
-    useCallback(() => {
-      void load()
-    }, [load]),
-  )
+  }, [record.data, event])
 
   async function remove() {
     setBusy(true)
     try {
       await withFreshSession((api) => api.deleteHealthEvent(id, eventId))
-      reminders.refresh()
+      void changed(id)
       setAsking(false)
+      leaving.current = true
       router.back()
     } catch (cause) {
       setAsking(false)
@@ -112,7 +104,7 @@ export default function EventView() {
       {error ? (
         <>
           <Banner text={error.text} tone="error" icon={error.offline ? 'wifi' : 'alert'} />
-          <Button title={t.common.retry} kind="secondary" onPress={() => void load()} />
+          <Button title={t.common.retry} kind="secondary" onPress={() => void record.reload()} />
         </>
       ) : !event ? (
         <DetailSkeleton />

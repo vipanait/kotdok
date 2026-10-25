@@ -13,6 +13,7 @@ import {
 import { ApiError, followupAsksVet } from '@lapka/shared'
 import { withFreshSession } from '@/lib/api'
 import { useCached } from '@/lib/query-cache'
+import { queryKeys } from '@/lib/query-keys'
 import { describeFailure } from '@/lib/errors'
 import { newRequestKey } from '@/lib/request-key'
 import { useText, type Dictionary } from '@/i18n'
@@ -42,7 +43,7 @@ export function Checkin({ caseId }: { caseId: string }) {
   const t = useText()
   const tab = (useSegments() as string[])[1]
   const { state: preset, from } = useLocalSearchParams<{ state?: string; from?: string }>()
-  const loaded = useCached(['followup', caseId], () => withFreshSession((api) => api.getFollowup(caseId)))
+  const loaded = useCached(queryKeys.followup(caseId), () => withFreshSession((api) => api.getFollowup(caseId)))
   const theCase = loaded.data
   const [result, setResult] = useState<FollowupCheckinResult | null>(null)
 

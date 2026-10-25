@@ -18,7 +18,7 @@ import {
   type CourseErrors,
 } from '@/features/medical-record/medications'
 import { useUnsavedChanges } from '@/features/unsaved/useUnsavedChanges'
-import { useReminders } from '@/features/medical-record/reminders/ReminderProvider'
+import { useOverviewReader, useRecordChanged } from '@/features/medical-record/record-cache'
 import { Button, IconButton, LinkButton } from '@/ui/Button'
 import { Banner, Card } from '@/ui/Card'
 import { DateField } from '@/ui/DateField'
@@ -54,6 +54,7 @@ export default function MedicationForm() {
   const [startOptional, setStartOptional] = useState(false)
   const requestKey = useRef(newRequestKey())
   const nextKey = useRef(1)
+  const readOverview = useOverviewReader()
 
   useEffect(() => {
     if (!editing) {
@@ -62,7 +63,7 @@ export default function MedicationForm() {
       setDrafts(start)
       return
     }
-    withFreshSession((api) => api.getHealthOverview(petId, localToday()))
+    readOverview(petId)
       .then((overview) => {
         const course = overview.medications.find((m) => m.id === medicationId)
         if (!course) throw new Error('not found')
@@ -75,11 +76,11 @@ export default function MedicationForm() {
         setDrafts([courseDraft(course)])
       })
       .catch((cause) => setError(describeFailure(t, cause, t.errors.loadHealthFailed)))
-  }, [editing, petId, medicationId, t])
+  }, [editing, petId, medicationId, t, readOverview])
 
   const changed = drafts !== null && initial !== null && JSON.stringify(drafts) !== JSON.stringify(initial)
   const unsaved = useUnsavedChanges(changed)
-  const reminders = useReminders()
+  const recordChanged = useRecordChanged()
 
   const change = (key: string, patch: Partial<CourseDraft>) =>
     setDrafts((current) => current?.map((draft) => (draft.key === key ? { ...draft, ...patch } : draft)) ?? current)
@@ -102,7 +103,7 @@ export default function MedicationForm() {
           : api.addMedications(petId, { items: read.value }, requestKey.current, localToday()),
       )
       // New dates move or end the course's dose reminders (FB-5).
-      if (editing) reminders.refresh()
+      void recordChanged(petId)
       unsaved.leave(then)
     } catch (cause) {
       if (cause instanceof ApiError && cause.code === 'conflict') {

@@ -6,6 +6,7 @@ import { nearestDueByPet } from '@lapka/shared'
 import { ageText } from '@/features/pets/pet-age'
 import { withFreshSession } from '@/lib/api'
 import { useCached } from '@/lib/query-cache'
+import { queryKeys } from '@/lib/query-keys'
 import { localToday } from '@/lib/calendar-day'
 import { describeFailure } from '@/lib/errors'
 import { useText, type Dictionary } from '@/i18n'
@@ -64,9 +65,9 @@ export default function Pets() {
   const t = useText()
   // Through the cache: the pets seen last time at once, refreshed each time the
   // list comes back into view (adding or editing a pet has to show it).
-  const list = useCached(['pets'], () => withFreshSession((api) => api.listPets()))
+  const list = useCached(queryKeys.pets(), () => withFreshSession((api) => api.listPets()))
   // A missing due line is not worth an error over the whole list.
-  const dueList = useCached(['due'], () => withFreshSession((api) => api.listDue()))
+  const dueList = useCached(queryKeys.due(), () => withFreshSession((api) => api.listDue()))
   // The list that is already on screen stays there on a failed refresh: a lost
   // connection is not a reason to forget the pets we last saw.
   const pets: Pet[] | null = list.data ?? (list.error ? [] : null)

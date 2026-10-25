@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import type { WeightMeasurement } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
+import { useRecordChanged } from './record-cache'
 import { newRequestKey } from '@/lib/request-key'
 import { describeFailure } from '@/lib/errors'
 import { dayInput, localToday, parseDayInput } from '@/lib/calendar-day'
@@ -44,6 +45,7 @@ export function WeightSheet({
   onSaved: () => void
 }) {
   const t = useText()
+  const changed = useRecordChanged()
   const words = t.medicalRecord
   const [weight, setWeight] = useState('')
   /** Grams for a newborn (FB-2/05); a stored weight opens in its own unit. */
@@ -99,6 +101,7 @@ export function WeightSheet({
           ? api.changeWeight(petId, editing.id, patch, requestKey.current)
           : api.addWeight(petId, { measured_on: parsedDay!, weight_kg: parsedWeight.value }, requestKey.current),
       )
+      void changed(petId)
       onSaved()
     } catch (cause) {
       const failure = weightSaveFailure(cause)
@@ -122,6 +125,7 @@ export function WeightSheet({
     setError(null)
     try {
       await withFreshSession((api) => api.deleteWeight(petId, editing.id))
+      void changed(petId)
       onSaved()
     } catch (cause) {
       setError(describeFailure(t, cause, words.deleteWeightFailed))
