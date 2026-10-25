@@ -4,6 +4,7 @@ import en from '@/shared/i18n/dictionaries/en'
 import CheckinScreen from '@/features/followup/CheckinScreen'
 import DecisionPanel from '@/features/followup/DecisionPanel'
 import FollowupBanners from '@/features/followup/FollowupBanners'
+import { PastEpisodesCard } from '@/features/followup/PetFollowupCards'
 import ReminderCard from '@/features/followup/ReminderCard'
 import { CASE, ORIGIN, OTHER_PET, PET, summary } from '../features/followup/demo-cases'
 import { render, tag, tags } from './static-render'
@@ -261,5 +262,30 @@ describe('the reminder on a result', () => {
     )
     expect(tags(html, 'h2').map((h) => h.text)).toEqual(['Check in on Murka later?'])
     expect(tags(html, 'p').map((p) => p.text)).toContain(en.followup.offerWatch24)
+  })
+})
+
+describe('«Перенесённые случаи» on the record', () => {
+  const episode = (n: number) => ({
+    case_id: `44444444-4444-4444-8444-00000000000${n}`,
+    origin_urgency: 'monitor' as const,
+    symptoms: `Случай ${n}`,
+    started_at: `2026-10-0${n}T06:00:00.000Z`,
+    closed_at: `2026-10-0${n + 1}T06:00:00.000Z`,
+    outcome: 'improved' as const,
+  })
+
+  it('lists three and offers the rest here, not a trip to the whole history', () => {
+    const html = render(<PastEpisodesCard episodes={[1, 2, 3, 4].map(episode)} />)
+    expect(tags(html, 'li')).toHaveLength(3)
+    const more = tag(html, 'button', (b) => b.text.includes('Все случаи'))
+    expect(more.text).toContain(words.episodesAll.replace('{n}', '4'))
+    expect(more.attrs['aria-expanded']).toBe('false')
+    expect(html).not.toContain('/checks?pet=')
+  })
+
+  it('needs no button for three or fewer, and draws nothing for none', () => {
+    expect(render(<PastEpisodesCard episodes={[1, 2, 3].map(episode)} />)).not.toContain('Все случаи')
+    expect(render(<PastEpisodesCard episodes={[]} />)).toBe('')
   })
 })

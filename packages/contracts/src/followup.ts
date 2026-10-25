@@ -111,6 +111,8 @@ export const FollowupCaseSummarySchema = z.object({
   origin_urgency: UrgencySchema,
   /** The latest check's urgency: a re-check may have changed it. */
   current_urgency: UrgencySchema,
+  /** When the check the schedule counts from was made: the origin, or the latest re-check. */
+  anchor_at: IsoDateTimeSchema,
   /** The latest check's first symptoms line, for context above the answers. */
   symptoms: z.string(),
   plan: FollowupPlanSchema,

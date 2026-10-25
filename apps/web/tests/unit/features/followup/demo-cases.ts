@@ -18,6 +18,7 @@ export function summary(patch: Partial<FollowupCaseSummary> = {}): FollowupCaseS
     origin_checked_at: '2026-10-23T06:00:00.000Z',
     origin_urgency: 'monitor',
     current_urgency: 'monitor',
+    anchor_at: '2026-10-23T06:00:00.000Z',
     symptoms: 'Второй день ест меньше обычного',
     plan: 'watch',
     status: 'active',

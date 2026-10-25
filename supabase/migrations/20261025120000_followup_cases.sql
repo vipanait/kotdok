@@ -135,7 +135,9 @@ create trigger pets_close_followup
  * The caller has checked the check is the user's, has a live pet, is young
  * enough and has a schedule; it passes the plan and the first question. Turning
  * on closes the pet's other open case as `superseded`. A closed case is left as
- * it is. Returns the case id.
+ * it is. Switching off keeps the question the case was waiting for, so
+ * switching on again resumes there — with its escalation — rather than
+ * starting over from the first question. Returns the case id.
  */
 create or replace function public.set_followup_enabled(
   p_user_id uuid,
@@ -189,12 +191,14 @@ begin
      where pet_id = v_case.pet_id and status = 'active' and id <> v_case.id;
 
     update public.followup_cases
-       set status = 'active', next_slot = p_next_slot, next_due_at = p_next_due_at,
+       set status = 'active',
+           next_slot = coalesce(v_case.next_slot, p_next_slot),
+           next_due_at = coalesce(v_case.next_due_at, p_next_due_at),
            enabled_at = coalesce(enabled_at, now()), updated_at = now()
      where id = v_case.id;
   elsif not p_enabled and v_case.status = 'active' then
     update public.followup_cases
-       set status = 'off', next_slot = null, next_due_at = null, updated_at = now()
+       set status = 'off', hidden_until = null, updated_at = now()
      where id = v_case.id;
   end if;
 
@@ -394,8 +398,12 @@ as $$
       join cases c on c.id = k.case_id
      order by k.case_id, k.created_at
   ),
+  -- A re-check «raised» the case when it came out more urgent than the first check.
   rechecks as (
-    select cc.case_id, max(case when s.urgency in ('emergency', 'urgent') then 1 else 0 end) as raised
+    select cc.case_id,
+           max(case when array_position(array['healthy', 'home_care', 'monitor', 'urgent', 'emergency'], s.urgency)
+                       > array_position(array['healthy', 'home_care', 'monitor', 'urgent', 'emergency'], c.origin_urgency)
+                    then 1 else 0 end) as raised
       from public.followup_case_checks cc
       join cases c on c.id = cc.case_id
       join public.symptom_checks s on s.id = cc.check_id
