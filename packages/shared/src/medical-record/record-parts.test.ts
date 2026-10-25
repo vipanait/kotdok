@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { HealthEvent, HealthOverview, Medication, Pet, WeightMeasurement } from '@lapka/contracts'
+import type { HealthOverview, Medication, Pet, WeightMeasurement } from '@lapka/contracts'
 import {
   coursePeriodParts,
   dayRef,
