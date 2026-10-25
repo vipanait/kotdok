@@ -30,6 +30,11 @@ describe('when a course is current', () => {
 })
 
 describe('the dates of a course (MR-06.4)', () => {
+  it('names a course that has not started yet, as the site does (shared `coursePeriodParts`)', () => {
+    expect(courseDates(ru, course({ started_on: '2026-11-03', ended_on: null, ongoing: false }), '2026-10-25')).toBe('Начнётся 3 ноября')
+    expect(courseDates(en, course({ started_on: '2026-11-03', ended_on: null, ongoing: false }), '2026-10-25')).toBe('Starts November 3')
+  })
+
   it('reads each kind of course differently', () => {
     expect(courseDates(ru, course({ started_on: '2026-08-02', ongoing: true }), TODAY)).toBe('с 2 августа · постоянно')
     expect(courseDates(ru, course({ started_on: '2026-08-02', ended_on: '2026-08-15' }), TODAY)).toBe('2–15 августа')

@@ -117,7 +117,7 @@ describe('the memo for whoever minds the pet (FB-3/02)', () => {
       notes: null,
     }
     expect(sitterMemo(ru, overview({ pet: bare, events: [], medications: [] }), TODAY)).toBe(
-      'Мурка — кот\n\nОтправлено из «Лапки»',
+      'Мурка — кошка\n\nОтправлено из «Лапки»',
     )
   })
 

@@ -1,5 +1,5 @@
 import type { HealthOverview, HealthSection, Medication } from '@lapka/contracts'
-import { canEndCourse, courseEditable, isCurrentCourse, splitCourses } from '@lapka/shared'
+import { canEndCourse, courseEditable, coursePeriodParts, isCurrentCourse, splitCourses } from '@lapka/shared'
 import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
 import { formatRange, recordDay } from '../view-model'
 import { medicalRecordHref } from '../routes'
@@ -22,16 +22,25 @@ import type { Drift } from '../held-record'
 export function coursePeriod(dict: Dictionary, course: Medication, today: string): string {
   const words = dict.medicalRecord
   const period = words.coursePeriod
-  const { started_on: start, ended_on: end } = course
-  if (start && end) return formatRange(words, start, end, today)
-  if (start) {
-    const day = recordDay(words, start, today)
-    if (start > today && !course.ongoing) return period.startsLater.replace('{day}', day)
-    return (course.ongoing ? period.sinceOngoing : period.since).replace('{day}', day)
+  const parts = coursePeriodParts(course, today)
+  switch (parts.kind) {
+    case 'range':
+      return formatRange(words, parts.from.day, parts.to.day, today)
+    case 'day':
+      return recordDay(words, parts.day.day, today)
+    case 'startsLater':
+      return period.startsLater.replace('{day}', recordDay(words, parts.day.day, today))
+    case 'since':
+      return (parts.ongoing ? period.sinceOngoing : period.since).replace('{day}', recordDay(words, parts.day.day, today))
+    case 'until':
+      return period.until.replace('{day}', recordDay(words, parts.day.day, today))
+    case 'ongoing':
+      return period.ongoing
+    case 'fromForm':
+      return period.fromForm
+    case 'noDates':
+      return period.noDates
   }
-  if (end) return period.until.replace('{day}', recordDay(words, end, today))
-  if (course.ongoing) return period.ongoing
-  return course.source === 'form' && !course.dosage ? period.fromForm : period.noDates
 }
 
 export type CourseCard = {
