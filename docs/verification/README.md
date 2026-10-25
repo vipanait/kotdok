@@ -21,18 +21,49 @@ PLANNED означает отсутствие принятого результ�
 | 10 | Сквозная приёмка | PLANNED | Ещё не создан | — |
 | 11 | Тестовая раздача и публикация | PLANNED | Ещё не создан | — |
 | 6 | Надёжный AI-анализ | PLANNED | Ещё не создан | — |
+| 6/01–6/03 | Фотографии через приватное хранилище | IN_PROGRESS | [stage-6-photos.md](stage-6-photos.md) | 23.09.2026 |
+| Веб-концепция 01 | Оформление сайта и кабинета | IN_PROGRESS | [web-concept-01.md](web-concept-01.md) | 23.09.2026 |
+| MR-01 | Медкарта: основа и переходы | IN_PROGRESS | [medical-record-01.md](medical-record-01.md) | 25.09.2026 |
+| MR-02 | Вес | IN_PROGRESS | [medical-record-02.md](medical-record-02.md) | 25.09.2026 |
+| MR-03 | Прививки и планы, ручной ввод | IN_PROGRESS | [medical-record-03.md](medical-record-03.md) | 25.09.2026 |
+| MR-04 | Справочник вакцин | IN_PROGRESS | [medical-record-04.md](medical-record-04.md) | 25.09.2026 |
+| MR-05 | Обработки от паразитов | IN_PROGRESS | [medical-record-05.md](medical-record-05.md) | 25.09.2026 |
+| MR-06 | Лекарства и синхронизация анкеты | IN_PROGRESS | [medical-record-06.md](medical-record-06.md) | 25.09.2026 |
+| MR-07 | Визиты к врачу | IN_PROGRESS | [medical-record-07.md](medical-record-07.md) | 25.09.2026 |
+| MR-08 | Локальные напоминания | PARTIAL | [medical-record-08.md](medical-record-08.md) | 25.09.2026 |
+| MR-09 | Сводка для врача и PDF | PARTIAL | [medical-record-09.md](medical-record-09.md) | 25.09.2026 |
+| MR-10 | Медкарта в проверке симптомов | IN_PROGRESS | [medical-record-10.md](medical-record-10.md) | 25.09.2026 |
+| MR-11 | Общая приёмка медкарты | IN_PROGRESS | [medical-record-11.md](medical-record-11.md) | 25.09.2026 |
+| MR, симулятор | Медкарта: сквозной прогон на симуляторе | DONE | [medical-record-e2e-simulator.md](medical-record-e2e-simulator.md) | 26.09.2026 |
+| MW-01 | Веб-медкарта: основа | DONE | [medical-record-web-01.md](medical-record-web-01.md) | 26.09.2026 |
+| MW-02 | Вес на сайте | DONE | [medical-record-web-02.md](medical-record-web-02.md) | 26.09.2026 |
+| MW-03 | Прививки и справочник на сайте | DONE | [medical-record-web-03.md](medical-record-web-03.md) | 26.09.2026 |
+| MW-04 | Обработки и выполнение сроков на сайте | DONE | [medical-record-web-04.md](medical-record-web-04.md) | 26.09.2026 |
+| MW-05 | Лекарства и курсы на сайте | DONE | [medical-record-web-05.md](medical-record-web-05.md) | 26.09.2026 |
+| MW-06 | Визиты и связь с проверкой на сайте | DONE | [medical-record-web-06.md](medical-record-web-06.md) | 26.09.2026 |
+| MW-07 | Сводка для врача и печать на сайте | DONE с оговоркой | [medical-record-web-07.md](medical-record-web-07.md) | 26.09.2026 |
+| MW-08 | Веб-медкарта: интеграция и общая приёмка | DONE с оговорками | [medical-record-web-08.md](medical-record-web-08.md) | 26.09.2026 |
+| MW-09 | Доработки после приёмки: сайт, телефон, сервер | DONE с оговорками | [medical-record-web-09.md](medical-record-web-09.md) | 27.09.2026 |
+| MW-01…09 | Веб-медкарта: итоговый отчёт | DONE с оговорками | [medical-record-web-final.md](medical-record-web-final.md) | 27.09.2026 |
 | 12 | Согласие на обработку персональных данных | IN_PROGRESS | [stage-12.md](stage-12.md) | 26.09.2026 |
 | FB-1 | Правки интерфейса по отзывам | IN_PROGRESS | [feedback-01.md](feedback-01.md) | 19.10.2026 |
+| Лендинг | Ссылки на скачивание приложения | DONE | [landing-app-download.md](landing-app-download.md) | 19.10.2026 |
 | FB-2 | Анкета и памятные даты | IN_PROGRESS | [feedback-02.md](feedback-02.md) | 20.10.2026 |
 | FB-3 | Календарь и памятка для передержки | IN_PROGRESS | [feedback-03.md](feedback-03.md) | 20.10.2026 |
 | FB-4 | Фото питомца | IN_PROGRESS | [feedback-04.md](feedback-04.md) | 20.10.2026 |
 | FB-5 | Напоминания о приёме лекарств | IN_PROGRESS | [feedback-05.md](feedback-05.md) | 20.10.2026 |
 | Дизайн 20.10 | Сроки и приём, иллюстрации, onboarding | IN_PROGRESS | [design-2026-10-20.md](design-2026-10-20.md) | 20.10.2026 |
+| Сроки | Блок «Сроки» в приложении: сначала просроченное | DONE | [mobile-due-priority.md](mobile-due-priority.md) | 20.10.2026 |
+| Шрифт | Межстрочный интервал при крупном системном шрифте | DONE | [font-scale-leading.md](font-scale-leading.md) | 20.10.2026 |
+| Выпуск 20.10 | Полная проверка выпуска на staging | DONE | [full-test-2026-10-20.md](full-test-2026-10-20.md) | 20.10.2026 |
 | PR #82 | Ревью релиза FB-2…FB-5 | DONE | [release-pr82-review.md](release-pr82-review.md) | 20.10.2026 |
+| FU, макеты сайта | Цикл наблюдения: проверка веб-макетов | DONE | [followup-loop-design-2026-10-25.md](followup-loop-design-2026-10-25.md) | 25.10.2026 |
+| FU, макеты приложения | Цикл наблюдения: проверка мобильных макетов | DONE | [followup-loop-mobile-design-2026-10-25.md](followup-loop-mobile-design-2026-10-25.md) | 25.10.2026 |
 | FU-01…04 | Цикл наблюдения: сервер, повторная проверка, статистика | IN_PROGRESS | [followup-01.md](followup-01.md) | 25.10.2026 |
 | FU-02, 03, 07 (сайт) | Цикл наблюдения на сайте | IN_PROGRESS | [followup-loop-web-implementation.md](followup-loop-web-implementation.md) | 25.10.2026 |
 | FU-05…07 (приложение) | Цикл наблюдения в приложении | IN_PROGRESS | [followup-loop-mobile-implementation.md](followup-loop-mobile-implementation.md) | 25.10.2026 |
 | FU-02…07 | Цикл наблюдения: сквозная проверка на сайте и в приложении | PASS с ограничениями | [followup-loop-e2e.md](followup-loop-e2e.md) | 25.10.2026 |
+| SEO-01…04, 06 | Статьи о симптомах и отравлениях, первая волна | IN_PROGRESS | [seo-symptom-pages-wave-1.md](seo-symptom-pages-wave-1.md) | 25.10.2026 |
 
 Этап 4 перечитан 9 сентября: прежний BLOCKED был написан до установки Xcode и не учитывал трёх последующих прогонов. После перепроверки на симуляторе и на настоящем планшете 4/02 и 4/04 закрыты, 4/01 и 4/03 остаются частичными — нужен физический iPhone (1.11) и выравнивание подтверждения почты на staging с продакшеном.
 
@@ -42,6 +73,6 @@ Android вернулся 9 сентября: владелец купил пла�
 
 Отдельно ведётся [журнал проверок безопасности](runs/security/20260906-111013Z.md).
 
-Фотографии выведены из объёма версии 10 сентября 2026 решением владельца и перенесены в [photos-next-version.md](../photos-next-version.md); загрузка в продукте была отключена и до этого, так что у пользователей ничего не меняется. Прежняя формулировка «дефект ломает продукт прямо сейчас» была неточной: функция отсутствует, а не сломана. Открытые вопросы — в [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md): нет отдельного тестового проекта Supabase, preview-деплои Vercel работают с боевыми ключами, не проверены лимиты выполнения и runtime worker, ни один ручной сценарий сайта не пройден.
+Фотографии выведены из объёма версии 10 сентября 2026 решением владельца и перенесены в [photos-next-version.md](../photos-next-version.md); загрузка в продукте была отключена и до этого, так что у пользователей ничего не меняется. Позже пункты 6/01–6/03 (фото через приватное хранилище) сделаны отдельной веткой, промежуточный отчёт — [stage-6-photos.md](stage-6-photos.md). Прежняя формулировка «дефект ломает продукт прямо сейчас» была неточной: функция отсутствует, а не сломана. Открытые вопросы — в [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md): нет отдельного тестового проекта Supabase, preview-деплои Vercel работают с боевыми ключами, не проверены лимиты выполнения и runtime worker, ни один ручной сценарий сайта не пройден.
 
 После каждого этапа обновить статус, ссылку на `stage-<номер>.md` и дату последнего прогона. При незавершённой работе сохранить промежуточный отчёт. Записи циклов проверки хранятся отдельно в `runs/stage-<номер>/<YYYYMMDD-HHMMSSZ>.md`, включая неудачные запуски: успешный запуск не перезаписывает неуспешный.
