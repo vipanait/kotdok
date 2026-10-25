@@ -35,7 +35,7 @@ function parseWith<T>(schema: { safeParse(value: unknown): { success: true; data
 }
 
 /** Keys left exactly as written: identifiers, and the texts search engines show. */
-const AS_WRITTEN = new Set(['slug', 'topic', 'related', 'url', 'kind', 'locale', 'species', 'bodySystem', 'level', 'status', 'draftedBy', 'reviewedBy', 'reviewedAt', 'nextReviewAt', 'metaTitle', 'metaDescription'])
+const AS_WRITTEN = new Set(['slug', 'topic', 'related', 'url', 'kind', 'locale', 'species', 'bodySystem', 'status', 'draftedBy', 'reviewedBy', 'reviewedAt', 'nextReviewAt', 'metaTitle', 'metaDescription'])
 
 /**
  * A non-breaking space after a one- or two-letter word, so a line never ends

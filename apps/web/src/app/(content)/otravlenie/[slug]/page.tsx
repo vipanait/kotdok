@@ -1,12 +1,11 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import ArticleFrame, { breadcrumbJsonLd, type Crumb } from '@/features/seo-content/components/ArticleFrame'
-import CheckCta, { SIGN_UP_HREF } from '@/features/seo-content/components/CheckCta'
+import CheckCta from '@/features/seo-content/components/CheckCta'
 import Disclaimer from '@/features/seo-content/components/Disclaimer'
 import { Byline, FaqSection, ListSection, RelatedSection, SourcesSection } from '@/features/seo-content/components/Sections'
-import UrgencyQuiz from '@/features/seo-content/components/UrgencyQuiz'
 import { isDraft, linkTo, pathOf, toxinPage, toxinPages, type PageLink } from '@/features/seo-content/load'
-import { articleJsonLd, quizOutcomes } from '@/features/seo-content/page-data'
+import { articleJsonLd } from '@/features/seo-content/page-data'
 import ru from '@/shared/i18n/dictionaries/ru'
 import { siteUrl } from '@/shared/seo'
 import { jsonLdScript, publicPageMetadata } from '@/shared/site-metadata'
@@ -94,8 +93,6 @@ export default async function ToxinArticle({ params }: Props) {
 
         <ListSection id="first-title" title="Что сделать сразу" items={page.firstSteps} ordered />
         <ListSection id="avoid-title" title="Чего не делать" items={page.avoid} />
-
-        <UrgencyQuiz questions={page.quiz} outcomes={quizOutcomes(ru)} signUpHref={SIGN_UP_HREF} />
 
         <ListSection id="vet-title" title="Что сказать врачу" items={page.tellVet} />
         <CheckCta />

@@ -2,16 +2,14 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import ArticleFrame, { breadcrumbJsonLd, type Crumb } from '@/features/seo-content/components/ArticleFrame'
-import CheckCta, { SIGN_UP_HREF } from '@/features/seo-content/components/CheckCta'
+import CheckCta from '@/features/seo-content/components/CheckCta'
 import Disclaimer from '@/features/seo-content/components/Disclaimer'
 import { Byline, FaqSection, ListSection, RelatedSection, SourcesSection } from '@/features/seo-content/components/Sections'
 import UrgencyLevels from '@/features/seo-content/components/UrgencyLevels'
-import UrgencyQuiz from '@/features/seo-content/components/UrgencyQuiz'
 import { counterpart, isDraft, linkTo, pathOf, symptomPage, symptomPages, type PageLink } from '@/features/seo-content/load'
-import { articleJsonLd, quizOutcomes, SPECIES_HUB } from '@/features/seo-content/page-data'
+import { articleJsonLd, SPECIES_HUB } from '@/features/seo-content/page-data'
 import { siteUrl } from '@/shared/seo'
 import { jsonLdScript, publicPageMetadata } from '@/shared/site-metadata'
-import ru from '@/shared/i18n/dictionaries/ru'
 
 // Only the slugs below exist; anything else is a 404, never a render on demand.
 export const dynamicParams = false
@@ -81,7 +79,7 @@ export default async function SymptomArticle({ params }: Props) {
 
         <UrgencyLevels signs={page.signs} />
 
-        <UrgencyQuiz questions={page.quiz} outcomes={quizOutcomes(ru)} signUpHref={SIGN_UP_HREF} />
+        <CheckCta species={page.species} />
 
         <section aria-labelledby="causes-title" className="article-section">
           <h2 id="causes-title">Возможные причины по возрасту</h2>
@@ -101,8 +99,6 @@ export default async function SymptomArticle({ params }: Props) {
         <ListSection id="vet-title" title="Что сказать врачу" items={page.tellVet}>
           <p>Врачу будет проще, если вы заранее ответите на эти вопросы — можно прямо в заметках телефона.</p>
         </ListSection>
-
-        <CheckCta species={page.species} />
 
         <FaqSection faq={page.faq} />
         <RelatedSection links={related} />

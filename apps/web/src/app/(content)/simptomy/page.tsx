@@ -13,7 +13,7 @@ import { URGENCY_KEYS, urgencyTitle } from '@/shared/utils/urgency'
 export const metadata: Metadata = publicPageMetadata({
   path: '/simptomy',
   title: 'Симптомы у кошек и собак: насколько это срочно',
-  description: 'Справочник симптомов у кошек и собак: когда ехать в клинику сразу, когда в течение суток, а когда можно наблюдать дома. Короткий тест «Это срочно?» на каждой странице.',
+  description: 'Справочник симптомов у кошек и собак: когда ехать в клинику сразу, когда в течение суток, а когда можно наблюдать дома, что сделать до визита и что сказать врачу.',
 })
 
 const crumbs: Crumb[] = [{ href: '/simptomy', name: 'Симптомы' }]

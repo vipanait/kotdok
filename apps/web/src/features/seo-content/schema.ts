@@ -4,10 +4,9 @@ import { z } from 'zod'
  * The articles under /simptomy and /otravlenie, as they are kept in
  * `apps/web/content/` — one JSON file per page (docs/plans/seo-symptom-pages).
  *
- * Structure rather than free text: the signs per urgency level, the questions
- * of «Это срочно?» with the level each one raises, the FAQ and the review
- * status are fields, so the page, its JSON-LD and the quiz are built from one
- * source and a test can see what is missing.
+ * Structure rather than free text: the signs per urgency level, the FAQ and
+ * the review status are fields, so the page and its JSON-LD are built from
+ * one source and a test can see what is missing.
  */
 
 export const SPECIES = ['cat', 'dog'] as const
@@ -63,12 +62,6 @@ const review = z.object({
   nextReviewAt: isoDate.optional(),
 })
 
-/** «Это срочно?»: a yes moves the answer up to this level. */
-const quizQuestion = z.object({
-  question: text,
-  level: z.enum(['emergency', 'urgent']),
-})
-
 const faqItem = z.object({ question: text, answer: text })
 const source = z.object({ title: text, url: z.url().optional() })
 
@@ -82,7 +75,6 @@ const common = {
   metaDescription: text.max(160),
   /** Under the H1: the answer a searcher came for, in two or three sentences. */
   shortAnswer: text,
-  quiz: z.array(quizQuestion).min(5).max(7),
   tellVet: z.array(text).min(3),
   faq: z.array(faqItem).min(3).max(5),
   related: z.array(slug).max(6),
@@ -136,7 +128,7 @@ export type ToxinPage = z.infer<typeof toxinPageSchema>
 export type ContentPage = SymptomPage | ToxinPage
 
 /** Keys whose values are identifiers or enum members, not prose. */
-const NOT_PROSE = new Set(['url', 'slug', 'related', 'review', 'kind', 'locale', 'species', 'topic', 'bodySystem', 'level'])
+const NOT_PROSE = new Set(['url', 'slug', 'related', 'review', 'kind', 'locale', 'species', 'topic', 'bodySystem'])
 
 /** Every prose string of a page, for the wording and similarity checks. */
 export function textsOf(page: ContentPage): string[] {

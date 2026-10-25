@@ -37,14 +37,6 @@ describe('the articles', () => {
     for (const page of pages) expect(forbiddenWordsIn(page), page.slug).toEqual([])
   })
 
-  it('ask at least one emergency question, and a symptom page one urgent question too', () => {
-    for (const page of pages) {
-      const levels = page.quiz.map(question => question.level)
-      expect(levels, page.slug).toContain('emergency')
-      if (page.kind === 'symptom') expect(levels, page.slug).toContain('urgent')
-    }
-  })
-
   it('point only at pages that exist, and not at themselves', () => {
     for (const page of pages) {
       for (const slug of page.related) {
