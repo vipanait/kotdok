@@ -62,7 +62,8 @@ import { Steps, SummaryCard } from '@/ui/Section'
 import { StepSlide } from '@/ui/StepSlide'
 import { FormSkeleton } from '@/ui/Skeleton'
 import { Text } from '@/ui/Text'
-import { colour, space } from '@/ui/theme'
+import { colour, radius, space } from '@/ui/theme'
+import { localDay } from '@/features/followup/followup-ui'
 
 /** How often to ask, and for how long before saying so. */
 const POLL_EVERY_MS = 1500
@@ -224,12 +225,35 @@ export default function NewCheck() {
    * is the one chosen, once the list confirms it is still there. The parameter
    * is then dropped, so it does not win over a later choice in the form.
    */
-  const { petId: askedPet } = useLocalSearchParams<{ petId?: string }>()
+  const { petId: askedPet, caseId: askedCase } = useLocalSearchParams<{ petId?: string; caseId?: string }>()
   useEffect(() => {
     if (!askedPet || !pets?.some((pet) => pet.id === askedPet)) return
     setForm((current) => ({ ...current, petId: askedPet }))
     router.setParams({ petId: undefined })
   }, [askedPet, pets])
+
+  /**
+   * A re-check «с учётом прошлой» (follow-up loop): opened from a case's
+   * outcome, it carries the case, and the analysis reads its previous check
+   * and answers. Only while that case's pet is the one chosen; «Не учитывать»
+   * drops it. It costs a check like any other.
+   */
+  const [recheck, setRecheck] = useState<{ caseId: string; petId: string; date: string; answers: number } | null>(null)
+  useEffect(() => {
+    if (!askedCase) return
+    router.setParams({ caseId: undefined })
+    void withFreshSession((api) => api.getFollowup(askedCase))
+      .then((theCase) =>
+        setRecheck({
+          caseId: theCase.id,
+          petId: theCase.pet_id,
+          date: t.day(localDay(new Date(theCase.checks.at(-1)?.created_at ?? theCase.origin_checked_at)), false),
+          answers: theCase.checkins.length,
+        }),
+      )
+      .catch(() => setRecheck(null))
+  }, [askedCase, t])
+  const recheckFor = recheck && recheck.petId === form.petId ? recheck : null
 
   function change(patch: Partial<CheckForm>) {
     setForm((current) => ({ ...current, ...patch }))
@@ -445,11 +469,16 @@ export default function NewCheck() {
         )
         uploaded.current = { key: key.current, photos, ids }
       }
-      const body = { ...checked.value, upload_ids: photos.length > 0 ? uploaded.current!.ids : [] }
+      const body = {
+        ...checked.value,
+        upload_ids: photos.length > 0 ? uploaded.current!.ids : [],
+        ...(recheckFor ? { followup_case_id: recheckFor.caseId } : {}),
+      }
       const accepted = await withFreshSession((api) => api.createCheck(key.current!, body, localToday()))
       jobId = accepted.job_id
       // Sent and charged: keeping it now would offer to send it a second time.
       finished.current = true
+      setRecheck(null)
       if (userId) rememberPendingCheck(userId, jobId)
       await forgetDraft()
     } catch (cause) {
@@ -593,11 +622,23 @@ export default function NewCheck() {
             </View>
           ) : null}
 
+          {recheckFor ? (
+            <View style={styles.recheck}>
+              <View style={styles.recheckText}>
+                <Text variant="bodyStrong">{t.followup.recheckContext(recheckFor.date, recheckFor.answers)}</Text>
+                <Text variant="caption" tone="muted">
+                  {t.followup.recheckCost}
+                </Text>
+              </View>
+              <LinkButton title={t.followup.recheckDrop} onPress={() => setRecheck(null)} />
+            </View>
+          ) : null}
+
           <Field
             label={t.check.symptoms}
             value={form.symptoms}
             onChangeText={(symptoms) => change({ symptoms })}
-            placeholder={t.check.symptomsPlaceholder}
+            placeholder={recheckFor ? t.followup.recheckPlaceholder : t.check.symptomsPlaceholder}
             error={symptomsError}
             multiline
           />
@@ -736,6 +777,17 @@ function Waiting({
 }
 
 const styles = StyleSheet.create({
+  recheck: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.row,
+    backgroundColor: colour.accentSoft,
+    borderRadius: radius.field,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    marginBottom: space.row,
+  },
+  recheckText: { flex: 1, gap: 2 },
   recordCaption: { marginTop: -8, marginBottom: 16 },
   summaryCopy: { flex: 1, minWidth: 0 },
   onlyPet: { marginBottom: space.row },
