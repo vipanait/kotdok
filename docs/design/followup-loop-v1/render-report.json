@@ -1,0 +1,372 @@
+{
+  "renders": [
+    {
+      "screen": "dashboard",
+      "width": 1440,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "result",
+      "width": 1440,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "urgent",
+      "width": 1440,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "mark",
+      "width": 1440,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "better",
+      "width": 1440,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "same",
+      "width": 1440,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "last",
+      "width": 1440,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "worse",
+      "width": 1440,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "visit",
+      "width": 1440,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "visited",
+      "width": 1440,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "timeline",
+      "width": 1440,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "history",
+      "width": 1440,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "record",
+      "width": 1440,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "repeat",
+      "width": 1440,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "error",
+      "width": 1440,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "closed",
+      "width": 1440,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "loading",
+      "width": 1440,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "zero",
+      "width": 1440,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "photo",
+      "width": 1440,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "dashboard",
+      "width": 390,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "result",
+      "width": 390,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "urgent",
+      "width": 390,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "mark",
+      "width": 390,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "better",
+      "width": 390,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "same",
+      "width": 390,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "last",
+      "width": 390,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "worse",
+      "width": 390,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "visit",
+      "width": 390,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "visited",
+      "width": 390,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "timeline",
+      "width": 390,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "history",
+      "width": 390,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "record",
+      "width": 390,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "repeat",
+      "width": 390,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "error",
+      "width": 390,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "closed",
+      "width": 390,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "loading",
+      "width": 390,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "zero",
+      "width": 390,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "photo",
+      "width": 390,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "dashboard",
+      "width": 320,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "result",
+      "width": 320,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "urgent",
+      "width": 320,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "mark",
+      "width": 320,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "better",
+      "width": 320,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "same",
+      "width": 320,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "last",
+      "width": 320,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "worse",
+      "width": 320,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "visit",
+      "width": 320,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "visited",
+      "width": 320,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "timeline",
+      "width": 320,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "history",
+      "width": 320,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "record",
+      "width": 320,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "repeat",
+      "width": 320,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "error",
+      "width": 320,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "closed",
+      "width": 320,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "loading",
+      "width": 320,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "zero",
+      "width": 320,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "photo",
+      "width": 320,
+      "overflow": false,
+      "fonts": true
+    },
+    {
+      "screen": "mark",
+      "width": 390,
+      "textScale": 2,
+      "overflow": false
+    },
+    {
+      "screen": "timeline",
+      "width": 390,
+      "textScale": 2,
+      "overflow": false
+    },
+    {
+      "screen": "dashboard",
+      "width": 390,
+      "textScale": 2,
+      "overflow": false
+    }
+  ],
+  "interaction": {
+    "save": "✓ Записано в медкарту",
+    "better": true,
+    "worse": true,
+    "visited": true,
+    "visitRequiresAnswer": true
+  },
+  "errors": []
+}
