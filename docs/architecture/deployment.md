@@ -57,12 +57,12 @@ Preview и Development переведены на этот проект 6 сен�
 
 | Переменная | Окружения | Тип |
 | --- | --- | --- |
-| `NEXT_PUBLIC_APP_URL` | Production, Preview, Development | Non-sensitive |
+| `NEXT_PUBLIC_APP_URL` | Production, Preview, Development | Non-sensitive — **код не читает с 10 сентября 2026** (ушла с платежами), можно удалить из проекта |
 | `NEXT_PUBLIC_SUPABASE_URL` | Production, Preview, Development | Non-sensitive |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Production, Preview, Development | Non-sensitive |
 | `SUPABASE_SERVICE_ROLE_KEY` | Production, Preview, Development | Non-sensitive |
 | `OPENAI_API_KEY` | Production, Preview, Development | Non-sensitive |
-| `DUMMY_WEBHOOK_SECRET` | Production, Preview | Sensitive |
+| `DUMMY_WEBHOOK_SECRET` | Production, Preview | Sensitive — **код не читает с 10 сентября 2026** (ушла с платежами), можно удалить из проекта |
 | `TELEGRAM_BOT_TOKEN` | Production, Preview | Sensitive |
 | `TELEGRAM_APPROVAL_CHAT_ID` | Production, Preview | Sensitive |
 | `TELEGRAM_WEBHOOK_SECRET` | Production, Preview | Sensitive |

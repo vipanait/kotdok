@@ -39,9 +39,6 @@ export interface DashboardData extends PetsOverview {
 
 const HISTORY_LIMIT = 3
 
-/** How many recent checks are scanned for each pet's latest one. */
-const LATEST_PER_PET_SCAN = 50
-
 /**
  * Every pet's due line from one read of all the owner's plans (`listDue`,
  * the same list the phone's pet list reads) — never a medical record per
@@ -80,14 +77,9 @@ export async function loadPetsOverview(userId: string, today: string): Promise<P
       .eq('user_id', userId)
       .is('deleted_at', null)
       .order('created_at', { ascending: true }),
-    service
-      .from('symptom_checks')
-      .select('pet_id, urgency, created_at')
-      .eq('user_id', userId)
-      .is('deleted_at', null)
-      .not('pet_id', 'is', null)
-      .order('created_at', { ascending: false })
-      .limit(LATEST_PER_PET_SCAN),
+    // Each pet's newest check, found in the database (`latest_checks_by_pet`):
+    // a window of the owner's newest checks would lose a pet checked rarely.
+    service.rpc('latest_checks_by_pet', { p_user_id: userId }),
     loadDueByPet(service, userId, today),
   ])
 
@@ -95,10 +87,8 @@ export async function loadPetsOverview(userId: string, today: string): Promise<P
   if (recentError) throw new Error(`recent pet checks: ${recentError.message}`)
 
   const latestChecksByPet: Record<string, PetLatestCheck> = {}
-  for (const row of recentPetChecks ?? []) {
-    const petId = row.pet_id as string | null
-    if (!petId || latestChecksByPet[petId]) continue
-    latestChecksByPet[petId] = {
+  for (const row of (recentPetChecks ?? []) as { pet_id: string; urgency: string; created_at: string }[]) {
+    latestChecksByPet[row.pet_id] = {
       urgency: row.urgency as string,
       // Stored without a zone; read as UTC so no clock shifts it.
       created_at: toUtcIso(row.created_at as string),

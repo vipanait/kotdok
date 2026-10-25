@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { User } from '@supabase/supabase-js'
 import { NextRequest } from 'next/server'
-import { GET as listPetsRoute, POST as createPetRoute } from '@/app/(backend)/api/pets/route'
+import { POST as createPetRoute } from '@/app/(backend)/api/pets/route'
 import { DELETE as deletePetRoute, PUT as updatePetRoute } from '@/app/(backend)/api/pets/[id]/route'
 import { getAuthUser } from '@/server/auth/get-auth-user'
 import { createServiceClient } from '@/server/supabase/server'
-import { createPet, listPets, softDeletePetAndChecks, updatePet } from '@/server/pets/pet-service'
+import { createPet, softDeletePetAndChecks, updatePet } from '@/server/pets/pet-service'
 import { owesConsent } from '@/server/consent/consent-service'
 import { CSRF_COOKIE_NAME, CSRF_HEADER_NAME } from '@/server/security/csrf'
 
@@ -14,7 +14,6 @@ vi.mock('@/server/supabase/server', () => ({ createServiceClient: vi.fn() }))
 vi.mock('@/server/consent/consent-service', () => ({ owesConsent: vi.fn() }))
 vi.mock('@/server/pets/pet-service', () => ({
   createPet: vi.fn(),
-  listPets: vi.fn(),
   softDeletePetAndChecks: vi.fn(),
   updatePet: vi.fn(),
 }))
@@ -63,37 +62,26 @@ describe('pets API routes', () => {
     vi.mocked(createServiceClient).mockReturnValue(serviceClient as never)
     vi.mocked(owesConsent).mockResolvedValue(false)
     vi.mocked(createPet).mockReset()
-    vi.mocked(listPets).mockReset()
     vi.mocked(softDeletePetAndChecks).mockReset()
     vi.mocked(updatePet).mockReset()
   })
 
-  it('returns 401 for unauthenticated pet lists', async () => {
+  it('returns 401 for an unauthenticated create', async () => {
     vi.mocked(getAuthUser).mockResolvedValue(null)
 
-    const response = await listPetsRoute()
+    const response = await createPetRoute(jsonRequest({ species: 'cat', name: 'Мурка' }))
 
     expect(response.status).toBe(401)
-    expect(listPets).not.toHaveBeenCalled()
+    expect(createPet).not.toHaveBeenCalled()
   })
 
   it('refuses an account that still owes consent', async () => {
     vi.mocked(owesConsent).mockResolvedValue(true)
 
-    const response = await listPetsRoute()
+    const response = await createPetRoute(jsonRequest({ species: 'cat', name: 'Мурка' }))
 
     expect(response.status).toBe(403)
-    expect(listPets).not.toHaveBeenCalled()
-  })
-
-  it('scopes pet lists by authenticated user id', async () => {
-    vi.mocked(listPets).mockResolvedValue({ ok: true, data: [{ id: 'pet-1' }] } as never)
-
-    const response = await listPetsRoute()
-
-    expect(response.status).toBe(200)
-    await expect(response.json()).resolves.toEqual([{ id: 'pet-1' }])
-    expect(listPets).toHaveBeenCalledWith(serviceClient, user.id)
+    expect(createPet).not.toHaveBeenCalled()
   })
 
   it('creates a pet for the authenticated user', async () => {
