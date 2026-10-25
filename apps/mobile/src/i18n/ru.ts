@@ -748,6 +748,7 @@ export const ru = {
     cardKicker: 'Пора отметить',
     cardTitle: (pet: string, date: string) => `Как ${pet} после проверки ${date}?`,
     cardBody: 'Отметьте, стало ли лучше. Это займёт меньше минуты.',
+    cardBodyVet: 'Расскажите, были ли у врача и как он сейчас.',
     cardEscalated: 'Советуем показаться врачу',
     cardAction: 'Отметить',
     hide: 'Скрыть до завтра',

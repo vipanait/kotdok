@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Image, Pressable, StyleSheet, View } from 'react-native'
 import { router, useLocalSearchParams, useSegments } from 'expo-router'
 import {
@@ -19,7 +19,7 @@ import { useText, type Dictionary } from '@/i18n'
 import { urgencyText } from '@/features/checks/urgency'
 import { Button, LinkButton } from '@/ui/Button'
 import { Banner, Card, UrgencyBadge } from '@/ui/Card'
-import { Field } from '@/ui/Field'
+import { Field, type FieldHandle } from '@/ui/Field'
 import { Icon } from '@/ui/Icon'
 import { Screen } from '@/ui/Screen'
 import { DetailSkeleton } from '@/ui/Skeleton'
@@ -122,6 +122,12 @@ function CheckinForm({
   const [state, setState] = useState<FollowupState | null>(preset)
   const [note, setNote] = useState('')
   const [noteOpen, setNoteOpen] = useState(false)
+  // Opened by a tap: the caret goes straight in. Reopened after a failed send, it does not.
+  const [noteAsked, setNoteAsked] = useState(false)
+  const noteField = useRef<FieldHandle | null>(null)
+  useEffect(() => {
+    if (noteAsked) noteField.current?.focus()
+  }, [noteAsked])
   const [contextOpen, setContextOpen] = useState(false)
   const [sending, setSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -233,12 +239,18 @@ function CheckinForm({
           hint={note.length >= COUNT_FROM ? words.noteCount(note.length, FOLLOWUP_NOTE_MAX) : undefined}
           multiline
           style={styles.note}
+          fieldRef={(field) => {
+            noteField.current = field
+          }}
         />
       ) : (
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={`${words.addNote}. ${words.noteLabel}`}
-          onPress={() => setNoteOpen(true)}
+          onPress={() => {
+            setNoteOpen(true)
+            setNoteAsked(true)
+          }}
           style={styles.addNote}
         >
           <Icon name="plus" size={18} color={colour.accent} />

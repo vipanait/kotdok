@@ -60,7 +60,7 @@ function DueCard({ item }: { item: FollowupCaseSummary }) {
         {words.cardTitle(item.pet_name, checkDay(t, item.origin_checked_at))}
       </Text>
       <Text tone={escalated ? 'danger' : 'muted'} style={styles.dueBody}>
-        {escalated ? words.cardEscalated : words.cardBody}
+        {escalated ? words.cardEscalated : item.next_slot === 'vet' ? words.cardBodyVet : words.cardBody}
       </Text>
       <Button
         title={words.cardAction}

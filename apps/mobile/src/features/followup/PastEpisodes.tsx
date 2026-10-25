@@ -24,7 +24,8 @@ export function usePastEpisodes(petId: string) {
 export function episodeLine(t: Dictionary, episode: PastEpisode): string {
   const from = t.day(localDay(new Date(episode.started_at)), false)
   const to = t.day(localDay(new Date(episode.closed_at)), false)
-  return [episode.symptoms, t.followup.episodeLine(from, to), t.followup.status[episode.outcome]].filter(Boolean).join(' · ')
+  const symptoms = episode.symptoms.replace(/[.\s]+$/, '')
+  return [symptoms, t.followup.episodeLine(from, to), t.followup.status[episode.outcome]].filter(Boolean).join(' · ')
 }
 
 /** The episodes a vet summary lists: closed in the last six months. */
