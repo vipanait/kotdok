@@ -1,4 +1,5 @@
-import { UuidSchema, type DueItem, type MedicationDose } from '@lapka/contracts'
+import { UuidSchema, type DueItem, type FollowupCaseSummary, type MedicationDose } from '@lapka/contracts'
+import { planFollowupReminders } from '@/features/followup/followup-reminders'
 import type { Dictionary } from '@/i18n'
 import { REMINDER_LIMIT, planReminders, reminderMoment, type PlannedReminder, type ReminderSettings } from './schedule'
 import { planDoseReminders, planDoseRenewal, type DoseCourse } from './doses'
@@ -9,7 +10,7 @@ export type Notifier = {
   cancelAll(): Promise<void>
   /** Takes delivered notifications off the lock screen and the list. */
   dismissAll(): Promise<void>
-  schedule(reminder: PlannedReminder, data: { petId: string; userId: string }): Promise<void>
+  schedule(reminder: PlannedReminder, data: { petId: string; userId: string; kind?: string; caseId?: string }): Promise<void>
 }
 
 export type ReminderAccount = {
@@ -20,6 +21,8 @@ export type ReminderAccount = {
     /** Courses with times, and the doses given in the week ahead (FB-5); none from an older caller. */
     courses?: DoseCourse[]
     doses?: MedicationDose[]
+    /** Open follow-up cases after a check; none from an older caller. */
+    followups?: FollowupCaseSummary[]
   }>
 }
 
@@ -52,9 +55,13 @@ export function createReminderSync(deps: {
       if (mine === generation) await deps.notifier.cancelAll()
       return
     }
-    const { due, pets, courses = [], doses = [] } = await account.load()
+    const { due, pets, courses = [], doses = [], followups = [] } = await account.load()
     if (mine !== generation) return
     const now = deps.now?.() ?? new Date()
+    // «Как Мурка?» first: at most one per pet, and the reason a check was
+    // worth watching does not wait behind a vaccination due next month.
+    const asked = planFollowupReminders(deps.t(), followups, now)
+    const room = REMINDER_LIMIT - asked.length
     // Both by when they fire, within the phone's limit: a due date tomorrow
     // is not pushed out by a dose next week. At the same moment a dose comes
     // first — a medicine missed matters more than a reminder of a date.
@@ -63,13 +70,13 @@ export function createReminderSync(deps: {
       .sort((a, b) => a.at - b.at || a.order - b.order)
       .map(({ reminder }) => reminder)
     // One place kept for «откройте Лапку», when the doses run on past what the phone holds.
-    const kept = sorted.slice(0, REMINDER_LIMIT - 1)
+    const kept = sorted.slice(0, room - 1)
     const renewal = planDoseRenewal(deps.t(), courses, doses, now, kept)
-    const plan = renewal ? [...kept, renewal] : sorted.slice(0, REMINDER_LIMIT)
+    const plan = [...asked, ...(renewal ? [...kept, renewal] : sorted.slice(0, room))]
     await deps.notifier.cancelAll()
     for (const reminder of plan) {
       if (mine !== generation) return
-      await deps.notifier.schedule(reminder, { petId: reminder.petId, userId: account.userId })
+      await deps.notifier.schedule(reminder, { petId: reminder.petId, userId: account.userId, ...reminder.data })
     }
   }
 
@@ -111,9 +118,13 @@ export type ReminderSync = ReturnType<typeof createReminderSync>
  * since, a deleted pet, data that is not ours — goes to the pet list.
  */
 export function openTarget(data: unknown, userId: string, pets: readonly { id: string }[]): string {
-  const value = (data ?? {}) as { petId?: unknown; userId?: unknown }
+  const value = (data ?? {}) as { petId?: unknown; userId?: unknown; kind?: unknown; caseId?: unknown }
   if (typeof value.petId !== 'string' || !UuidSchema.safeParse(value.petId).success) return '/pets'
   if (value.userId !== userId) return '/pets'
   if (!pets.some((pet) => pet.id === value.petId)) return '/pets'
+  // «Как Мурка?»: straight to the answer; a case closed meanwhile says so there.
+  if (value.kind === 'followup' && typeof value.caseId === 'string' && UuidSchema.safeParse(value.caseId).success) {
+    return `/pets/${value.petId}/case/${value.caseId}/checkin?from=notification`
+  }
   return `/pets/${value.petId}`
 }

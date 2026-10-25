@@ -78,7 +78,13 @@ export function ReminderProvider({ children }: { children: ReactNode }) {
         userId,
         load: () =>
           withFreshSession(async (api) => {
-            const [due, pets] = await Promise.all([api.listDue(), api.listPets()])
+            const [due, pets, followups] = await Promise.all([
+              api.listDue(),
+              api.listPets(),
+              // A server without the follow-up loop yet, or a failure of it,
+              // must not cost the other reminders.
+              api.listFollowups().then((list) => list.items, () => []),
+            ])
             // The courses given at set times, and the doses given in the week ahead (FB-5).
             const today = localToday()
             const records = await Promise.all(
@@ -104,6 +110,7 @@ export function ReminderProvider({ children }: { children: ReactNode }) {
               pets: pets.map((pet) => ({ id: pet.id, name: pet.name })),
               courses: records.flatMap((record) => record.courses),
               doses: records.flatMap((record) => record.doses),
+              followups,
             }
           }),
       })

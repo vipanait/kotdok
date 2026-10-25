@@ -9,6 +9,7 @@ import { dictionary, useText } from '@/i18n'
 import { urgencyText, type UrgencyLevel } from '@/features/checks/urgency'
 import { checkAnswers, formatCheckedAt, offersVisit, photoObservations, visitFormHref, clinicSearchUrl, offersClinicSearch } from '@/features/checks/check-answers'
 import { ResultFeedback } from '@/features/checks/ResultFeedback'
+import { FollowupOffer } from '@/features/followup/FollowupOffer'
 import { reviewAfterCheck } from '@/features/review/store-review'
 import { Button, LinkButton } from '@/ui/Button'
 import { Banner, UrgencyCard } from '@/ui/Card'
@@ -80,6 +81,9 @@ export function CheckResult({ id }: { id: string }) {
   const level = urgencyText(t, check.urgency)
   const answers = checkAnswers(t, check.full_response)
   const seenInPhotos = photoObservations(check.full_response)
+  // «Напомнить, как …?»: before the advice when watching at home is the plan,
+  // after the visit when the plan is a vet — it must not compete with the clinic.
+  const followupFirst = check.urgency === 'monitor' || check.urgency === 'home_care'
 
   return (
     <Screen title={check.pet_name ?? t.result.fallbackTitle} onBack={() => router.back()} scroll>
@@ -124,6 +128,8 @@ export function CheckResult({ id }: { id: string }) {
         <Banner text={check.species_specific_warning} tone="note" />
       ) : null}
 
+      {followupFirst ? <FollowupOffer check={check} /> : null}
+
       {seenInPhotos ? <Bullets title={t.result.photoObservations} items={[seenInPhotos]} /> : null}
 
       <Bullets title={t.result.causes} items={check.possible_causes} />
@@ -149,6 +155,8 @@ export function CheckResult({ id }: { id: string }) {
           />
         </View>
       ) : null}
+
+      {followupFirst ? null : <FollowupOffer check={check} />}
 
       <ResultFeedback checkId={check.id} />
 
