@@ -50,15 +50,29 @@ function toProductContract(row: ProductRow): HealthProduct {
 }
 
 /**
- * Products for one species and kind, popular first, filtered by a query the
- * way the phone filters it: case, «ё» and keyboard layout do not matter.
+ * The rows of one species and kind stay in memory for an hour. The combobox
+ * asks on every keystroke, and the catalogue is static: products are added
+ * by migration, not by owners, so nothing invalidates this on a write — a
+ * new product is seen within the hour, or at the next deploy.
  */
-export async function listCatalog(
+const CATALOG_TTL_MS = 60 * 60_000
+const catalog = new Map<string, { rows: ProductRow[]; readAt: number }>()
+
+/** Drops what is remembered, for a test that changes the table between reads. */
+export function forgetCatalog(): void {
+  catalog.clear()
+}
+
+async function readCatalog(
   supabase: SupabaseService,
   species: PetSpecies,
   kind: HealthProduct['kind'],
-  query: string,
-): Promise<WeightResult<HealthProduct[]>> {
+): Promise<WeightResult<ProductRow[]>> {
+  const unverified = includeUnverified()
+  const key = `${species}:${kind}:${unverified ? 'all' : 'verified'}`
+  const kept = catalog.get(key)
+  if (kept && Date.now() - kept.readAt <= CATALOG_TTL_MS) return { ok: true, data: kept.rows }
+
   let request = supabase
     .from('health_products')
     .select('id, kind, name, name_en, manufacturer, aliases, species, form, targets, interval_value, interval_unit, popularity')
@@ -68,14 +82,32 @@ export async function listCatalog(
     .order('popularity', { ascending: true, nullsFirst: false })
     .order('name', { ascending: true })
     .limit(CATALOG_LIMIT)
-  if (!includeUnverified()) request = request.eq('verified', true)
+  if (!unverified) request = request.eq('verified', true)
 
   const { data, error } = await request
   if (error) return { ok: false, reason: 'storage_error', message: error.message }
 
+  const rows = data as ProductRow[]
+  catalog.set(key, { rows, readAt: Date.now() })
+  return { ok: true, data: rows }
+}
+
+/**
+ * Products for one species and kind, popular first, filtered by a query the
+ * way the phone filters it: case, «ё» and keyboard layout do not matter.
+ */
+export async function listCatalog(
+  supabase: SupabaseService,
+  species: PetSpecies,
+  kind: HealthProduct['kind'],
+  query: string,
+): Promise<WeightResult<HealthProduct[]>> {
+  const rows = await readCatalog(supabase, species, kind)
+  if (!rows.ok) return rows
+
   return {
     ok: true,
-    data: (data as ProductRow[])
+    data: rows.data
       .filter((row) =>
         matchesCatalog({ name: row.name, name_en: row.name_en, manufacturer: row.manufacturer, aliases: row.aliases ?? [] }, query),
       )

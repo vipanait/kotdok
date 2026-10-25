@@ -13,7 +13,7 @@ import { loadHistoryCases } from '@/server/checks/load-followup-pages'
 import Illustration from '@/components/ui/Illustration'
 import { formatMonthHeading, monthKey } from '@/features/symptom-check/check-options'
 import { requireCabinet } from '@/components/cabinet/require-cabinet'
-import { loadCheckHistory, loadCheckPets } from '@/server/checks/load-check-pages'
+import { loadCheckHistory, loadCheckPet } from '@/server/checks/load-check-pages'
 import { getDictionary } from '@/server/i18n/get-dictionary'
 import { getLocale } from '@/server/i18n/get-locale'
 import { getTimeZone } from '@/server/i18n/get-time-zone'
@@ -58,7 +58,7 @@ export default async function ChecksPage({ searchParams }: { searchParams: Promi
   const cabinet = await requireCabinet(`/login?next=${encodeURIComponent(petId ? `/checks?pet=${petId}` : '/checks')}`)
   if (petId !== null && !UuidSchema.safeParse(petId).success) notFound()
 
-  const pet = petId ? (await loadCheckPets(cabinet.user.id)).find(entry => entry.id === petId) ?? null : null
+  const pet = petId ? await loadCheckPet(cabinet.user.id, petId) : null
   if (petId && !pet) notFound()
 
   return (

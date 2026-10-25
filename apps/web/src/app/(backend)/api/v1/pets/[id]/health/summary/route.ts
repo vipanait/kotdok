@@ -1,10 +1,11 @@
-import { UuidSchema, VetSummaryQuerySchema } from '@lapka/contracts'
+import { VetSummaryQuerySchema } from '@lapka/contracts'
 import { createServiceClient } from '@/server/supabase/server'
 import { getVetSummary } from '@/server/medical-record/summary-service'
 import { clientToday } from '@/server/medical-record/weight-service'
-import { apiError, apiSuccess } from '@/server/api/response'
+import { apiSuccess } from '@/server/api/response'
 import { presentPet } from '@/server/pets/pet-contract'
 import { serviceFailureResponse } from '@/server/api/failure-response'
+import { readUuidParam } from '@/server/api/request'
 import { withApiAuth, type ApiContext } from '@/server/api/with-api-auth'
 
 type Params = { params: Promise<{ id: string }> }
@@ -18,12 +19,13 @@ type Params = { params: Promise<{ id: string }> }
  */
 export const GET = withApiAuth(async (request, context: ApiContext, params: Params) => {
   const { id } = await params.params
-  if (!UuidSchema.safeParse(id).success) return apiError(context.requestId, 'not_found', 'No such resource')
+  const refused = readUuidParam(id, context)
+  if (refused) return refused
 
   const query = VetSummaryQuerySchema.safeParse({ today: request.nextUrl.searchParams.get('today') ?? undefined })
   const today = clientToday(query.success ? query.data.today : undefined)
   const result = await getVetSummary(createServiceClient(), context.account.userId, id, today)
   if (!result.ok) return serviceFailureResponse(context.requestId, result.reason)
 
-  return apiSuccess(context.requestId, { ...result.data, pet: await presentPet(request, createServiceClient(), result.data.pet, context.account.userId) })
+  return apiSuccess(context.requestId, { ...result.data, pet: await presentPet(request, createServiceClient(), result.data.pet, result.avatar_path ?? null) })
 })

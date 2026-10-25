@@ -11,7 +11,6 @@ import { CHECK_IDS, FIXTURE_PASSWORD, OWNER_A, connect, seedFixtures, type Seede
 vi.mock('@/server/extra-check/telegram', () => ({
   sendExtraCheckRequestToTelegram: vi.fn(async () => ({ chatId: 1, messageId: 2 })),
   getTelegramApprovalChatId: () => '1',
-  getTelegramWebhookSecret: () => 'secret',
   isTelegramWebhookAuthorized: () => true,
   isApprovalChat: () => true,
 }))

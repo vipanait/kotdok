@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { ConsentInputSchema } from '@lapka/contracts'
 import { createServiceClient } from '@/server/supabase/server'
 import { apiError, apiNoContent, apiSuccess } from '@/server/api/response'
+import { readJson } from '@/server/api/request'
 import { withApiAuth, type ApiContext } from '@/server/api/with-api-auth'
 import { consentStatus, recordConsent } from '@/server/consent/consent-service'
 
@@ -13,17 +14,8 @@ export const GET = withApiAuth(
 
 export const POST = withApiAuth(
   async (request: NextRequest, context: ApiContext) => {
-    let body: unknown
-    try {
-      body = await request.json()
-    } catch {
-      return apiError(context.requestId, 'bad_request', 'Body is not valid JSON')
-    }
-
-    const parsed = ConsentInputSchema.safeParse(body)
-    if (!parsed.success) {
-      return apiError(context.requestId, 'bad_request', 'Body does not match the contract')
-    }
+    const parsed = await readJson(request, ConsentInputSchema, context)
+    if (!parsed.ok) return parsed.response
 
     const result = await recordConsent(createServiceClient(), context.account.userId, parsed.data)
     if (!result.ok) {

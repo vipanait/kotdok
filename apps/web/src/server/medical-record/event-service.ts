@@ -10,11 +10,11 @@ import {
   type HealthEvent,
   type HealthEventInput,
   type HealthEventPatch,
+  type PetSpecies,
 } from '@lapka/contracts'
 import type { createServiceClient } from '@/server/supabase/server'
 import { RECORD_DONE_SQLSTATE, type WeightResult } from './weight-service'
 import { productsFitPet } from './catalog-service'
-import { getPet } from '@/server/pets/pet-service'
 
 type SupabaseService = ReturnType<typeof createServiceClient>
 type Result<T> = WeightResult<T>
@@ -160,11 +160,20 @@ async function checkProducts(
   const ids = productIds.filter((id): id is string => typeof id === 'string')
   if (ids.length === 0) return { ok: true, data: null }
 
-  const pet = await getPet(supabase, userId, petId)
-  if (!pet.ok) return { ok: false, reason: pet.reason === 'account_deleting' ? 'account_deleting' : pet.reason === 'not_found' ? 'not_found' : 'storage_error' }
   const productKind = PRODUCT_KIND[kind]
   if (!productKind) return { ok: false, reason: 'bad_product' }
-  const fits = await productsFitPet(supabase, ids, pet.data.species, productKind)
+  // Only the species: the whole pet form is not needed to say whether a
+  // product fits, and the write itself checks the owner under the pet's lock.
+  const { data: pet, error } = await supabase
+    .from('pets')
+    .select('species')
+    .eq('id', petId)
+    .eq('user_id', userId)
+    .is('deleted_at', null)
+    .maybeSingle()
+  if (error) return { ok: false, reason: 'storage_error', message: error.message }
+  if (!pet) return { ok: false, reason: 'not_found' }
+  const fits = await productsFitPet(supabase, ids, pet.species as PetSpecies, productKind)
   if (!fits.ok) return fits
   return fits.data ? { ok: true, data: null } : { ok: false, reason: 'bad_product' }
 }

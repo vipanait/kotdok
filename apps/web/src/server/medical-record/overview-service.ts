@@ -3,6 +3,7 @@ import 'server-only'
 import type { HealthOverview, HealthSection } from '@lapka/contracts'
 import type { createServiceClient } from '@/server/supabase/server'
 import { getPet, type PetResult } from '@/server/pets/pet-service'
+import type { Pet } from '@/shared/types'
 import { toPetContract } from '@/server/pets/pet-contract'
 import { isCurrentCourse } from '@lapka/shared'
 import { listWeights, utcToday } from './weight-service'
@@ -29,8 +30,10 @@ export async function getHealthOverview(
   userId: string,
   petId: string,
   today: string = utcToday(),
-): Promise<PetResult<HealthOverview>> {
-  const pet = await getPet(supabase, userId, petId)
+  /** The pet's row when the caller has just read it (the analysis), so it is not read twice. */
+  loaded?: Pet,
+): Promise<PetResult<HealthOverview> & { avatar_path?: string | null }> {
+  const pet = loaded ? { ok: true as const, data: loaded } : await getPet(supabase, userId, petId)
   if (!pet.ok) return pet
 
   const [weights, events, medications] = await Promise.all([
@@ -54,6 +57,9 @@ export async function getHealthOverview(
 
   return {
     ok: true,
+    // The stored path of the photo, beside the record rather than in it: the
+    // route signs it for a client that reads photos, and it never leaves.
+    avatar_path: pet.data.avatar_path ?? null,
     data: {
       pet: medications.data.length > 0 ? { ...form, medications: names } : form,
       writable: [...WRITABLE_SECTIONS],

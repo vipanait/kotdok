@@ -285,16 +285,18 @@ export async function updatePet(
     if (!updated) return { ok: false, reason: 'not_found' }
   }
 
-  const synced = await supabase.rpc('sync_pet_vaccinated', { p_pet_id: petId })
+  // The two syncs together: one writes the pet's `vaccinated`, the other the
+  // courses (and, through `sync_pet_medications`, the pet's list); each takes
+  // only the pet's row lock, so they queue on it and cannot deadlock. The
+  // medicines only when the body speaks about them: sanitizePet fills an
+  // absent list with [], and a partial update must not end every course.
+  const before = Array.isArray(body.medications_before) ? (body.medications_before as string[]) : null
+  const [synced, medicines] = await Promise.all([
+    supabase.rpc('sync_pet_vaccinated', { p_pet_id: petId }),
+    'medications' in body ? syncFormMedications(supabase, userId, petId, sanitized.medications, formDay(body), before) : null,
+  ])
   if (synced.error) return { ok: false, reason: 'storage_error', message: synced.error.message }
-
-  // Only when the body speaks about medicines: sanitizePet fills an absent
-  // list with [], and a partial update must not end every course.
-  if ('medications' in body) {
-    const before = Array.isArray(body.medications_before) ? (body.medications_before as string[]) : null
-    const medicines = await syncFormMedications(supabase, userId, petId, sanitized.medications, formDay(body), before)
-    if (!medicines.ok) return { ok: false, reason: 'storage_error', message: medicines.message }
-  }
+  if (medicines && !medicines.ok) return { ok: false, reason: 'storage_error', message: medicines.message }
 
   return getPet(supabase, userId, petId)
 }
@@ -320,21 +322,22 @@ export async function softDeletePetAndChecks(
   if (deletedPet.error) return { ok: false, reason: 'storage_error', message: deletedPet.error.message }
   if (!deletedPet.data) return { ok: false, reason: 'not_found' }
 
-  const checks = await supabase
-    .from('symptom_checks')
-    .update({ deleted_at: now })
-    .eq('pet_id', petId)
-    .eq('user_id', userId)
-    .is('deleted_at', null)
+  // The photo goes with the pet (FB-4); the row keeps no path to it. Its
+  // checks and its photo are two separate clean-ups of a pet already gone.
+  const avatarPath = (deletedPet.data as Pet).avatar_path ?? null
+  const [checks] = await Promise.all([
+    supabase
+      .from('symptom_checks')
+      .update({ deleted_at: now })
+      .eq('pet_id', petId)
+      .eq('user_id', userId)
+      .is('deleted_at', null),
+    avatarPath
+      ? supabase.from('pets').update({ avatar_path: null }).eq('id', petId).then(() => removeDeletedPetAvatar(supabase, avatarPath))
+      : null,
+  ])
 
   if (checks.error) return { ok: false, reason: 'storage_error', message: checks.error.message }
-
-  // The photo goes with the pet (FB-4); the row keeps no path to it.
-  const avatarPath = (deletedPet.data as Pet).avatar_path ?? null
-  if (avatarPath) {
-    await supabase.from('pets').update({ avatar_path: null }).eq('id', petId)
-    await removeDeletedPetAvatar(supabase, avatarPath)
-  }
 
   return { ok: true, data: deletedPet.data as Pet }
 }

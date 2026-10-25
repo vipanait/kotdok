@@ -143,6 +143,7 @@ async function runJob(
     pain_signs: input.pain_signs,
     today: input.today,
     followupCaseId: input.followup_case_id,
+    jobId,
   })
 
   if (outcome.ok) {
@@ -178,10 +179,13 @@ async function finish(
   jobId: string,
   patch: { status: 'completed' | 'failed'; check_id?: string; error_code?: ErrorCode },
 ): Promise<void> {
+  // Only a job still running: one the reader closed as dead (and refunded,
+  // `fail_stale_check_job`) stays closed.
   const { error } = await supabase
     .from('check_jobs')
     .update({ ...patch, updated_at: new Date().toISOString() })
     .eq('id', jobId)
+    .eq('status', 'processing')
 
   // The analysis itself is done either way, so this must not throw. But a job
   // left saying `processing` is one a client polls until it gives up, with no
@@ -192,13 +196,27 @@ async function finish(
 }
 
 /**
+ * How long a job may say `processing` before it is taken to have died: the
+ * analysis runs inside its request, and `maxDuration` on the route ends that
+ * request after three minutes. Past this, nothing is going to close the job.
+ */
+export const PROCESSING_STALE_MS = 5 * 60_000
+
+/**
  * @returns the job, or null when it is not this person's or does not exist —
  *   the two are deliberately indistinguishable, so job ids cannot be probed.
+ *
+ * A job left `processing` past `PROCESSING_STALE_MS` is closed as failed
+ * with `internal_error`, and the credit its analysis reserved is given back
+ * (`closeStaleJob`): the function that owned it is gone (the platform ended
+ * it, or it crashed between the analysis and `finish`), a phone would
+ * otherwise poll for minutes for nothing, and its retry must not cost twice.
  */
 export async function getCheckJob(
   supabase: SupabaseService,
   userId: string,
   jobId: string,
+  now: Date = new Date(),
 ): Promise<CheckJobRecord | null> {
   const { data } = await supabase
     .from('check_jobs')
@@ -209,12 +227,36 @@ export async function getCheckJob(
 
   if (!data) return null
 
+  const updatedAt = toUtcIso(data.updated_at)
+  const looksStale = data.status === 'processing' && now.getTime() - new Date(updatedAt).getTime() > PROCESSING_STALE_MS
+  const stale = looksStale && (await closeStaleJob(supabase, userId, jobId))
+
   return {
     job_id: data.id,
-    status: data.status,
+    status: stale ? 'failed' : data.status,
     check_id: data.check_id ?? null,
-    error_code: (data.error_code as ErrorCode | null) ?? null,
+    error_code: stale ? 'internal_error' : ((data.error_code as ErrorCode | null) ?? null),
     created_at: toUtcIso(data.created_at),
-    updated_at: toUtcIso(data.updated_at),
+    updated_at: updatedAt,
   }
+}
+
+/**
+ * Closes a job that looks dead, returning the credit its analysis reserved.
+ * The database decides, under the job's lock and by its own clock, so two
+ * polls at once refund once. True when the job is failed now. A failure to
+ * close it still says true: the phone must stop waiting either way, and the
+ * next poll tries again.
+ */
+async function closeStaleJob(supabase: SupabaseService, userId: string, jobId: string): Promise<boolean> {
+  const { data, error } = await supabase.rpc('fail_stale_check_job', {
+    p_user_id: userId,
+    p_job_id: jobId,
+    p_stale_after_seconds: PROCESSING_STALE_MS / 1000,
+  })
+  if (error) {
+    console.error(`could not close stale check job ${jobId}:`, error.message)
+    return true
+  }
+  return data === 'failed'
 }

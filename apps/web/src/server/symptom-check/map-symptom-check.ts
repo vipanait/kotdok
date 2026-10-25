@@ -6,21 +6,21 @@ import {
   type Urgency,
 } from '@lapka/contracts'
 
-const CHECK_SELECT = `
-  id,
-  symptoms_input,
-  urgency,
-  urgency_reason,
-  possible_causes,
-  species_specific_warning,
-  home_care_steps,
-  vet_questions,
-  full_response,
-  created_at,
-  locale,
-  pet_id,
-  pets ( name, species )
-`
+const CHECK_COLUMNS = [
+  'id',
+  'symptoms_input',
+  'urgency',
+  'urgency_reason',
+  'possible_causes',
+  'species_specific_warning',
+  'home_care_steps',
+  'vet_questions',
+  'full_response',
+  'created_at',
+  'locale',
+  'pet_id',
+  'pets ( name, species )',
+]
 
 type PetJoin = { name: string | null; species: string | null } | null
 
@@ -33,7 +33,7 @@ type CheckRow = {
   species_specific_warning: string | null
   home_care_steps: unknown
   vet_questions: unknown
-  full_response: Record<string, unknown> | null
+  full_response?: Record<string, unknown> | null
   created_at: string
   locale: string
   pet_id: string | null
@@ -63,8 +63,14 @@ function toUrgency(value: string): Urgency {
   return parsed.success ? parsed.data : 'monitor'
 }
 
-export function symptomCheckSelect() {
-  return CHECK_SELECT
+/**
+ * The columns a check is read with. A list of checks does not need the model's
+ * whole answer: `fullResponse: false` leaves that column out, and the record
+ * carries `full_response: null`.
+ */
+export function symptomCheckSelect(options: { fullResponse?: boolean } = {}): string {
+  const columns = options.fullResponse === false ? CHECK_COLUMNS.filter((column) => column !== 'full_response') : CHECK_COLUMNS
+  return columns.join(', ')
 }
 
 export function mapSymptomCheckRow(row: CheckRow): SymptomCheckRecord {
@@ -79,7 +85,7 @@ export function mapSymptomCheckRow(row: CheckRow): SymptomCheckRecord {
     species_specific_warning: row.species_specific_warning,
     home_care_steps: toStringArray(row.home_care_steps),
     vet_questions: toStringArray(row.vet_questions),
-    full_response: row.full_response,
+    full_response: row.full_response ?? null,
     created_at: row.created_at,
     // Rows written before the column existed were all produced by a prompt
     // hard-coded to Russian, and the migration backfilled them as such; this

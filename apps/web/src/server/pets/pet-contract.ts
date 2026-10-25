@@ -79,10 +79,12 @@ export async function presentPets(request: Request, supabase: SupabaseService, r
   return pets.map((pet) => petFor(request, pet))
 }
 
-/** A pet already in the published shape (the record, the summary) with its photo signed. */
-export async function presentPet<T extends PetContract>(request: Request, supabase: SupabaseService, pet: T, userId: string): Promise<T> {
+/**
+ * A pet already in the published shape (the record, the summary) with its
+ * photo signed from `avatarPath`, the stored path the service read with it.
+ */
+export async function presentPet<T extends PetContract>(request: Request, supabase: SupabaseService, pet: T, avatarPath: string | null): Promise<T> {
   if (!reads(request, PET_AVATAR_FEATURE)) return petFor(request, pet)
-  const { data } = await supabase.from('pets').select('avatar_path').eq('id', pet.id).eq('user_id', userId).maybeSingle()
-  const [url] = await signAvatars(supabase, [(data?.avatar_path as string | null) ?? null])
+  const [url] = await signAvatars(supabase, [avatarPath])
   return petFor(request, { ...pet, avatar_url: url })
 }

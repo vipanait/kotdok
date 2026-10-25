@@ -4,12 +4,12 @@ import {
   FollowupCheckinResultSchema,
   IDEMPOTENCY_KEY_HEADER,
   IdempotencyKeySchema,
-  UuidSchema,
 } from '@lapka/contracts'
 import { createServiceClient } from '@/server/supabase/server'
 import { recordFollowupCheckin } from '@/server/followup/followup-service'
 import { apiError, apiSuccess } from '@/server/api/response'
 import { serviceOrRateFailureResponse } from '@/server/api/failure-response'
+import { readJson, readUuidParam } from '@/server/api/request'
 import { withApiAuth, type ApiContext } from '@/server/api/with-api-auth'
 
 type Params = { params: Promise<{ caseId: string }> }
@@ -23,19 +23,14 @@ type Params = { params: Promise<{ caseId: string }> }
  */
 export const POST = withApiAuth(async (request: NextRequest, context: ApiContext, params: Params) => {
   const { caseId } = await params.params
-  if (!UuidSchema.safeParse(caseId).success) return apiError(context.requestId, 'not_found', 'No such resource')
+  const refused = readUuidParam(caseId, context)
+  if (refused) return refused
 
   const key = IdempotencyKeySchema.safeParse(request.headers.get(IDEMPOTENCY_KEY_HEADER))
   if (!key.success) return apiError(context.requestId, 'bad_request', 'Idempotency-Key is required')
 
-  let body: unknown
-  try {
-    body = await request.json()
-  } catch {
-    return apiError(context.requestId, 'bad_request', 'Body is not valid JSON')
-  }
-  const parsed = FollowupCheckinInputSchema.safeParse(body)
-  if (!parsed.success) return apiError(context.requestId, 'bad_request', 'Body does not match the contract')
+  const parsed = await readJson(request, FollowupCheckinInputSchema, context)
+  if (!parsed.ok) return parsed.response
 
   const result = await recordFollowupCheckin(createServiceClient(), context.account.userId, caseId, parsed.data, key.data)
   if (!result.ok) return serviceOrRateFailureResponse(context.requestId, result.reason)

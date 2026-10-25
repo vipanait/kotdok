@@ -3,20 +3,12 @@ import { FeedbackInputSchema } from '@lapka/contracts'
 import { createServiceClient } from '@/server/supabase/server'
 import { submitFeedback } from '@/server/feedback/feedback-service'
 import { apiError, apiNoContent } from '@/server/api/response'
+import { readJson } from '@/server/api/request'
 import { withApiAuth, type ApiContext } from '@/server/api/with-api-auth'
 
 export const POST = withApiAuth(async (request: NextRequest, context: ApiContext) => {
-  let body: unknown
-  try {
-    body = await request.json()
-  } catch {
-    return apiError(context.requestId, 'bad_request', 'Body is not valid JSON')
-  }
-
-  const parsed = FeedbackInputSchema.safeParse(body)
-  if (!parsed.success) {
-    return apiError(context.requestId, 'bad_request', 'Body does not match the contract')
-  }
+  const parsed = await readJson(request, FeedbackInputSchema, context)
+  if (!parsed.ok) return parsed.response
 
   const result = await submitFeedback(createServiceClient(), context.account.userId, {
     checkId: parsed.data.check_id,

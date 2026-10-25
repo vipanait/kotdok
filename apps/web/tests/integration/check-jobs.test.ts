@@ -159,4 +159,109 @@ describe('check jobs', () => {
 
     await expect(getCheckJob(supabase, fixtures.ownerBId, mine.jobId)).resolves.toBeNull()
   })
+
+  it('tells the analysis which job it runs for, so the credit it reserves belongs to that job', async () => {
+    const supabase = service() as never
+    let seen: string | undefined
+    const watching: Analyse = async (client, input) => {
+      seen = input.jobId
+      return succeeds(CHECK_IDS.aFirst)(client, input)
+    }
+
+    const outcome = await createCheckJob(supabase, request(fixtures.ownerAId), watching)
+
+    if (!outcome.ok) throw new Error('setup failed')
+    expect(seen).toBe(outcome.jobId)
+  })
+})
+
+describe('a job whose analysis died', () => {
+  const STALE = "now() - interval '6 minutes'"
+
+  async function processingJob(userId: string): Promise<string> {
+    const { rows } = await db.query(
+      `insert into public.check_jobs (user_id, status) values ($1, 'processing') returning id`,
+      [userId],
+    )
+    return rows[0].id as string
+  }
+
+  async function credits(userId: string): Promise<number> {
+    const { rows } = await db.query('select credits from public.profiles where id = $1', [userId])
+    return rows[0].credits as number
+  }
+
+  it('reserves the credit and records it on the job in one step', async () => {
+    const supabase = service()
+    const before = await credits(fixtures.ownerAId)
+    const jobId = await processingJob(fixtures.ownerAId)
+
+    const { data, error } = await supabase.rpc('reserve_check_job_credit', { p_user_id: fixtures.ownerAId, p_job_id: jobId })
+
+    expect(error).toBeNull()
+    expect(await credits(fixtures.ownerAId)).toBe(before - 1)
+    const { rows } = await db.query('select usage_ledger_id from public.check_jobs where id = $1', [jobId])
+    expect(rows[0].usage_ledger_id).toBe((data as { ledger_id: string }).ledger_id)
+  })
+
+  it('gives its credit back once, however many polls find it at the same time', async () => {
+    const supabase = service()
+    const before = await credits(fixtures.ownerAId)
+    const jobId = await processingJob(fixtures.ownerAId)
+    await supabase.rpc('reserve_check_job_credit', { p_user_id: fixtures.ownerAId, p_job_id: jobId })
+    await db.query(`update public.check_jobs set updated_at = ${STALE} where id = $1`, [jobId])
+
+    const reads = await Promise.all([1, 2, 3].map(() => getCheckJob(supabase as never, fixtures.ownerAId, jobId)))
+    const again = await getCheckJob(supabase as never, fixtures.ownerAId, jobId)
+
+    for (const read of [...reads, again]) expect(read).toMatchObject({ status: 'failed', error_code: 'internal_error' })
+    expect(await credits(fixtures.ownerAId)).toBe(before)
+    const { rows } = await db.query(
+      `select count(*)::int as refunds from public.credit_ledger where user_id = $1 and reason = 'refund'`,
+      [fixtures.ownerAId],
+    )
+    expect(rows[0].refunds).toBe(1)
+  })
+
+  it('closes a dead job that never reserved a credit without giving one', async () => {
+    const supabase = service()
+    const before = await credits(fixtures.ownerAId)
+    const jobId = await processingJob(fixtures.ownerAId)
+    await db.query(`update public.check_jobs set updated_at = ${STALE} where id = $1`, [jobId])
+
+    const read = await getCheckJob(supabase as never, fixtures.ownerAId, jobId)
+
+    expect(read).toMatchObject({ status: 'failed', error_code: 'internal_error' })
+    expect(await credits(fixtures.ownerAId)).toBe(before)
+    const { rows } = await db.query('select status from public.check_jobs where id = $1', [jobId])
+    expect(rows[0].status).toBe('failed')
+  })
+
+  it('leaves a job that is still within its time alone', async () => {
+    const supabase = service()
+    const jobId = await processingJob(fixtures.ownerAId)
+    await supabase.rpc('reserve_check_job_credit', { p_user_id: fixtures.ownerAId, p_job_id: jobId })
+
+    const read = await getCheckJob(supabase as never, fixtures.ownerAId, jobId)
+
+    expect(read).toMatchObject({ status: 'processing' })
+    const { rows } = await db.query('select status from public.check_jobs where id = $1', [jobId])
+    expect(rows[0].status).toBe('processing')
+  })
+
+  it('never closes someone else’s job', async () => {
+    const supabase = service()
+    const jobId = await processingJob(fixtures.ownerAId)
+    await db.query(`update public.check_jobs set updated_at = ${STALE} where id = $1`, [jobId])
+
+    const { data } = await supabase.rpc('fail_stale_check_job', {
+      p_user_id: fixtures.ownerBId,
+      p_job_id: jobId,
+      p_stale_after_seconds: 300,
+    })
+
+    expect(data).toBeNull()
+    const { rows } = await db.query('select status from public.check_jobs where id = $1', [jobId])
+    expect(rows[0].status).toBe('processing')
+  })
 })

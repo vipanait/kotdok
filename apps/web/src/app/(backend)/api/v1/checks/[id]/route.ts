@@ -1,8 +1,9 @@
-import { FOLLOWUP_FEATURE, UuidSchema } from '@lapka/contracts'
+import { FOLLOWUP_FEATURE } from '@lapka/contracts'
 import { createServiceClient } from '@/server/supabase/server'
 import { getCheck } from '@/server/checks/check-history-service'
-import { apiError, apiSuccess } from '@/server/api/response'
+import { apiSuccess } from '@/server/api/response'
 import { serviceFailureResponse } from '@/server/api/failure-response'
+import { readUuidParam } from '@/server/api/request'
 import { withApiAuth, type ApiContext } from '@/server/api/with-api-auth'
 import { reads } from '@/server/pets/pet-contract'
 import { withCaseLinks } from '@/server/followup/followup-service'
@@ -11,9 +12,8 @@ type Params = { params: Promise<{ id: string }> }
 
 export const GET = withApiAuth(async (request, context: ApiContext, params: Params) => {
   const { id } = await params.params
-  if (!UuidSchema.safeParse(id).success) {
-    return apiError(context.requestId, 'not_found', 'No such resource')
-  }
+  const refused = readUuidParam(id, context)
+  if (refused) return refused
 
   const result = await getCheck(createServiceClient(), context.account.userId, id)
   if (!result.ok) return serviceFailureResponse(context.requestId, result.reason)
