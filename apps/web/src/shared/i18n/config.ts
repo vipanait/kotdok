@@ -1,4 +1,7 @@
-import { SUPPORTED_LOCALES, type SupportedLocale } from '@lapka/shared'
+// From the one module, not the barrel: `@lapka/shared` re-exports the API
+// client, which pulls every contract schema and zod along, and this file is
+// imported by the public header — so the landing page used to ship all of it.
+import { SUPPORTED_LOCALES, type SupportedLocale } from '@lapka/shared/locale'
 
 export const locales = SUPPORTED_LOCALES
 export type Locale = SupportedLocale

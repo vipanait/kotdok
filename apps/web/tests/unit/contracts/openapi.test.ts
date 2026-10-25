@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { parse, stringify } from 'yaml'
 import { validate } from '@readme/openapi-parser'
-import { buildOpenApiDocument } from '@lapka/contracts'
+import { buildOpenApiDocument } from '@lapka/contracts/openapi'
 
 // docs/api/openapi.yaml is generated from the contract schemas, so the document
 // cannot describe a shape the code does not enforce. Update it with:

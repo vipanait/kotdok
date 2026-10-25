@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import PublicFooter from '@/components/site/PublicFooter'
 import PublicHeader from '@/components/site/PublicHeader'
-import { getAuthUser } from '@/server/auth/get-auth-user'
+import { isSignedIn } from '@/server/auth/signed-in'
 import { getDictionary } from '@/server/i18n/get-dictionary'
 import { getLocale } from '@/server/i18n/get-locale'
 
@@ -23,13 +23,13 @@ export default async function LegalDocument({
   /** Under the document, outside it: a link onwards. */
   after?: ReactNode
 }) {
-  const [locale, user] = await Promise.all([getLocale(), getAuthUser()])
+  const [locale, signedIn] = await Promise.all([getLocale(), isSignedIn()])
   const dict = await getDictionary(locale)
   const t = dict.legal
 
   return (
     <>
-      <PublicHeader dict={dict} account={user ? 'cabinet' : 'sign-in'} />
+      <PublicHeader dict={dict} account={signedIn ? 'cabinet' : 'sign-in'} />
       <main className="reading legal">
         <div className="eyebrow">{t.eyebrow}</div>
         <div lang="ru">

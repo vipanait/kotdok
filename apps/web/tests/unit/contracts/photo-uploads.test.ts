@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import {
-  CheckCreateInputSchema,
-  PHOTO_LIMITS,
-  UploadRequestSchema,
-  buildOpenApiDocument,
-} from '@lapka/contracts'
+import { CheckCreateInputSchema, PHOTO_LIMITS, UploadRequestSchema } from '@lapka/contracts'
+import { buildOpenApiDocument } from '@lapka/contracts/openapi'
 
 const ID = (n: number) => `00000000-0000-4000-8000-00000000000${n}`
 const check = (upload_ids: string[]) =>
