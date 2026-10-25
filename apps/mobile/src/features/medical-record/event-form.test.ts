@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { HEALTH_EVENT_LIMITS, type HealthEvent } from '@lapka/contracts'
 import { ru } from '@/i18n/ru'
-import { blankItem, canAddItem, draftFromEvent, draftChanged, nextDate, pickProduct, plannedItem, readDraft, renameItem, toggleGroup, toggleTarget, warnsDoneIsFinal, type EventDraft, type ItemDraft } from './event-form'
+import { saveSummary } from './due'
+import { blankDraft, blankItem, canAddItem, completionRequest, draftFromEvent, draftChanged, eventPatch, formStart, formSummary, nextChoices, nextDate, pickProduct, plannedItem, readDraft, renameItem, toggleGroup, toggleTarget, warnsDoneIsFinal, type EventDraft, type ItemDraft } from './event-form'
 
 const NOW = new Date(2026, 8, 24, 12, 0) // 24 Sept 2026, local
 
@@ -309,5 +310,159 @@ describe('day rules shared with the site (MW-03 fix round 1)', () => {
     expect(nextDate(custom('25.09.2027'), '2026-09-24', '2026-09-24')).toBe('2027-09-25')
     expect(nextDate(custom('24.09.2026'), '2026-09-24', '2026-09-24')).toBeUndefined()
     expect(nextDate(custom('20.09.2026'), '2026-09-10', '2026-09-24')).toBeUndefined()
+  })
+})
+
+describe('opening the record form', () => {
+  const planned = (overrides: Partial<HealthEvent> = {}): HealthEvent => ({
+    id: 'e1',
+    kind: 'vaccination',
+    status: 'planned',
+    date: '2026-10-01',
+    clinic: 'Айболит',
+    notes: 'натощак',
+    items: [
+      { id: 'i1', name: 'Нобивак Rabies', targets: ['rabies'], source_item_id: null, product_id: null, interval: null, instructions: null, medication_id: null },
+      { id: 'i2', name: null, targets: ['panleukopenia'], source_item_id: null, product_id: null, interval: null, instructions: null, medication_id: null },
+    ],
+    visit_kind: null,
+    reason: null,
+    diagnosis: null,
+    check_id: null,
+    ...overrides,
+  })
+
+  it('starts a new record of the kind the address says, with one empty item', () => {
+    expect(formStart([], { mode: 'new', kind: 'parasite', status: 'planned' }, NOW)).toEqual({
+      state: 'open',
+      kind: 'parasite',
+      draft: { ...blankDraft('planned', NOW, 'parasite'), items: [blankItem('new-0', 'parasite')] },
+    })
+  })
+
+  it('starts a new record as done today, and as a vaccination when no kind is said', () => {
+    const start = formStart([], { mode: 'new', kind: null }, NOW)
+    expect(start).toMatchObject({ state: 'open', kind: 'vaccination', draft: { status: 'done', date: '24.09.2026' } })
+  })
+
+  it('opens a plan to correct with its own day kept', () => {
+    const event = planned({ kind: 'parasite' })
+    expect(formStart([event], { mode: 'edit', kind: null, eventId: 'e1' }, NOW)).toEqual({
+      state: 'open',
+      kind: 'parasite',
+      draft: draftFromEvent(event),
+      keptDate: '2026-10-01',
+    })
+  })
+
+  it('locks a record that was done, named after its own kind', () => {
+    expect(formStart([planned({ status: 'done', kind: 'parasite' })], { mode: 'edit', kind: 'vaccination', eventId: 'e1' }, NOW)).toEqual({
+      state: 'locked',
+      kind: 'parasite',
+    })
+  })
+
+  it('marks one planned item done today, with the plan’s clinic and note and the rest counted', () => {
+    const event = planned()
+    const start = formStart([event], { mode: 'complete', kind: null, itemId: 'i2' }, NOW)
+    expect(start).toEqual({
+      state: 'open',
+      kind: 'vaccination',
+      draft: {
+        kind: 'vaccination',
+        status: 'done',
+        date: '24.09.2026',
+        items: [{ ...draftFromEvent({ ...event, items: [event.items[1]] }).items[0], next: 'year' }],
+        clinic: 'Айболит',
+        notes: 'натощак',
+      },
+      source: { event, others: 1 },
+    })
+  })
+
+  it('finds nothing for a record or an item that is not there', () => {
+    expect(formStart([planned()], { mode: 'edit', kind: null, eventId: 'gone' }, NOW)).toBeNull()
+    expect(formStart([planned()], { mode: 'complete', kind: null, itemId: 'gone' }, NOW)).toBeNull()
+  })
+})
+
+describe('what a save sends', () => {
+  const value = {
+    kind: 'vaccination' as const,
+    status: 'done' as const,
+    date: '2026-09-24',
+    clinic: null,
+    notes: null,
+    items: [{ id: 'i1', name: 'Нобивак Rabies', targets: ['rabies' as const], product_id: null, next_on: '2027-09-24' }],
+  }
+
+  it('sends «Сделано» with the plan’s texts cleared when the fields were emptied', () => {
+    expect(completionRequest(value, 'i1')).toEqual({
+      itemId: 'i1',
+      input: { done_on: '2026-09-24', next_on: '2027-09-24', clinic: '', notes: '' },
+    })
+    expect(completionRequest({ ...value, items: [], clinic: 'Айболит', notes: 'x' }, 'i1').input).toEqual({
+      done_on: '2026-09-24',
+      next_on: null,
+      clinic: 'Айболит',
+      notes: 'x',
+    })
+  })
+
+  it('sends a correction without next dates, and its day only when it moved', () => {
+    expect(eventPatch(value, '2026-09-24')).toEqual({
+      clinic: null,
+      notes: null,
+      items: [{ id: 'i1', name: 'Нобивак Rabies', targets: ['rabies'], product_id: null }],
+    })
+    expect(eventPatch({ ...value, items: [{ ...value.items[0], id: undefined }] }, '2026-09-20')).toEqual({
+      date: '2026-09-24',
+      clinic: null,
+      notes: null,
+      items: [{ name: 'Нобивак Rabies', targets: ['rabies'], product_id: null }],
+    })
+  })
+})
+
+describe('the next-date choices', () => {
+  const item: ItemDraft = { ...blankItem('a'), name: 'Нобивак Rabies', targets: ['rabies'] }
+  const words = ru.medicalRecord
+  const spoken = words.catalog.interval.year(1)
+
+  it('names the suggested day a year on, or a dash before the record has a day', () => {
+    expect(nextChoices(ru, item, '2026-09-24', '2026-09-24')).toEqual([
+      { value: 'year', label: words.catalog.nextIn(spoken, ru.day('2027-09-24', true)) },
+      { value: 'custom', label: words.nextCustom },
+      { value: 'none', label: words.nextNone },
+    ])
+    expect(nextChoices(ru, item, null, '2026-09-24')[0].label).toBe(words.catalog.nextIn(spoken, '—'))
+  })
+
+  it('says the suggested day has passed for an old record', () => {
+    expect(nextChoices(ru, item, '2024-09-01', '2026-09-24')[0].label).toBe(words.nextPassed)
+  })
+})
+
+describe('the note above «Сохранить»', () => {
+  const done = draft()
+
+  it('says what a done record plans next', () => {
+    expect(formSummary(ru, { draft: done, mode: 'new', recordDay: '2026-09-24', others: 0 }, '2026-09-24')).toBe(
+      saveSummary(ru, ['2027-09-24'], '2026-09-24'),
+    )
+  })
+
+  it('adds what becomes of the rest of the plan when one item is marked, and only then', () => {
+    const base = saveSummary(ru, ['2027-09-24'], '2026-09-24')
+    expect(formSummary(ru, { draft: done, mode: 'complete', recordDay: '2026-09-24', others: 2 }, '2026-09-24')).toBe(
+      `${base} ${ru.medicalRecord.summaryComplete(2)}`,
+    )
+    expect(formSummary(ru, { draft: done, mode: 'new', recordDay: '2026-09-24', others: 2 }, '2026-09-24')).toBe(base)
+  })
+
+  it('says nothing for a plan, a correction, or a day not yet typed', () => {
+    expect(formSummary(ru, { draft: draft({ status: 'planned' }), mode: 'new', recordDay: null, others: 0 }, '2026-09-24')).toBeNull()
+    expect(formSummary(ru, { draft: done, mode: 'edit', recordDay: '2026-09-24', others: 0 }, '2026-09-24')).toBeNull()
+    expect(formSummary(ru, { draft: done, mode: 'new', recordDay: null, others: 0 }, '2026-09-24')).toBeNull()
   })
 })

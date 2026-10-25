@@ -1,52 +1,25 @@
-import { useEffect, useRef, useState } from 'react'
-import { Pressable, StyleSheet, View } from 'react-native'
+import { StyleSheet } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
-import { HISTORY_PAGE_SIZE_MAX, VISIT_KINDS, VISIT_LIMITS, type SymptomCheckRecord, type VisitKind } from '@lapka/contracts'
-import { ApiError } from '@lapka/shared'
-import { withFreshSession } from '@/lib/api'
-import { queryKeys } from '@/lib/query-keys'
-import { useCacheReader } from '@/lib/query-cache'
-import { describeFailure } from '@/lib/errors'
+import { VISIT_KINDS, VISIT_LIMITS, type VisitKind } from '@lapka/contracts'
 import { localToday } from '@/lib/calendar-day'
-import { newRequestKey } from '@/lib/request-key'
 import { useText } from '@/i18n'
-import { urgencyText } from '@/features/checks/urgency'
-import {
-  blankVisit,
-  canAddPrescription,
-  dateOnSwitch,
-  firstVisitError,
-  readVisit,
-  recentChecks,
-  visitDraftFrom,
-  visitLocked,
-  warnsHeldIsFinal,
-  type VisitDraft,
-  type VisitErrors,
-} from '@/features/medical-record/visits'
-import { useReminders } from '@/features/medical-record/reminders/ReminderProvider'
-import { useOverviewReader, useRecordChanged } from '@/features/medical-record/record-cache'
-import { useUnsavedChanges } from '@/features/unsaved/useUnsavedChanges'
-import { Button, IconButton, LinkButton } from '@/ui/Button'
-import { Banner, Card } from '@/ui/Card'
+import { canAddPrescription, dateOnSwitch, warnsHeldIsFinal } from '@/features/medical-record/visits'
+import { PrescriptionCard } from '@/features/medical-record/PrescriptionCard'
+import { useVisitForm, type VisitFormParams } from '@/features/medical-record/use-visit-form'
+import { Button, LinkButton } from '@/ui/Button'
+import { Banner } from '@/ui/Card'
 import { DateField } from '@/ui/DateField'
 import { SaveChangesDialog } from '@/ui/Dialog'
-import { Field, Segment, Select, type FieldHandle } from '@/ui/Field'
+import { Field, Segment, Select } from '@/ui/Field'
 import { Screen } from '@/ui/Screen'
 import { FormSkeleton } from '@/ui/Skeleton'
 import { Text } from '@/ui/Text'
-import { TAP_TARGET, colour, space } from '@/ui/theme'
+import { space } from '@/ui/theme'
 
-type Params = {
+type Params = VisitFormParams & {
   id: string
   /** edit or done (a plan that happened); new when absent */
   mode?: string
-  eventId?: string
-  /** From a check result: link it, «Болезнь», its first line as the reason. */
-  checkId?: string
-  reason?: string
-  /** From the first steps (FB-2/04): `planned` with kind `checkup` opens a plan of a checkup. */
-  plan?: string
 }
 
 /**
@@ -57,118 +30,17 @@ type Params = {
  * rule of 26 September 2026) — its form does not open, and a `record_done`
  * answer locks the form. Saving a visit that happened warns first that it
  * cannot be changed afterwards. Texts longer than the contract keeps are
- * said at their fields before anything is sent.
+ * said at their fields before anything is sent. What it holds and how it
+ * saves is `useVisitForm`; this draws it.
  */
 export default function VisitForm() {
   const params = useLocalSearchParams<Params>()
   const petId = params.id
   const mode = params.mode === 'edit' ? 'edit' : params.mode === 'done' ? 'done' : 'new'
+  const form = useVisitForm(petId, mode, params)
+  const { draft, errors, error, busy, locked, unsaved, input, change } = form
   const t = useText()
-  const reminders = useReminders()
-  const recordChanged = useRecordChanged()
-  const readOverview = useOverviewReader()
-  const read = useCacheReader()
   const words = t.medicalRecord.visits
-  const [initial, setInitial] = useState<VisitDraft | null>(null)
-  const [draft, setDraft] = useState<VisitDraft | null>(null)
-  const [keptDate, setKeptDate] = useState<string | undefined>(undefined)
-  /** This pet's latest checks as loaded; which of them the form offers is worked out when drawn. */
-  const [loadedChecks, setLoadedChecks] = useState<SymptomCheckRecord[]>([])
-  const [errors, setErrors] = useState<VisitErrors>({})
-  const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
-  const [busy, setBusy] = useState(false)
-  /** A visit that happened: nothing here can change it. */
-  const [locked, setLocked] = useState(false)
-  const requestKey = useRef(newRequestKey())
-  /** The form's text inputs by field (`firstVisitError`'s names), to move to the first error. */
-  const inputs = useRef(new Map<string, FieldHandle>())
-  const input = (field: string) => (node: FieldHandle | null) => {
-    if (node) inputs.current.set(field, node)
-    else inputs.current.delete(field)
-  }
-  const nextKey = useRef(1)
-
-  useEffect(() => {
-    // The same page the visits screen shows, through its cache.
-    read(queryKeys.checks(petId, HISTORY_PAGE_SIZE_MAX), () => withFreshSession((api) => api.listChecks({ pet_id: petId, limit: HISTORY_PAGE_SIZE_MAX })))
-      .then((page) => setLoadedChecks(page.items))
-      .catch(() => setLoadedChecks([]))
-
-    if (mode === 'new') {
-      const start = blankVisit(params.plan === 'checkup' ? 'planned' : 'done')
-      if (params.checkId) {
-        start.checkId = params.checkId
-        start.visitKind = 'illness'
-        start.reason = params.reason ?? ''
-      }
-      setInitial(start)
-      setDraft(start)
-      return
-    }
-    readOverview(petId)
-      .then((overview) => {
-        const visit = overview.events.find((event) => event.id === params.eventId && event.kind === 'visit')
-        if (!visit) throw new Error('not found')
-        if (visitLocked(visit)) {
-          setLocked(true)
-          return
-        }
-        const start = visitDraftFrom(visit, mode === 'done' ? 'done' : undefined)
-        setKeptDate(visit.date)
-        setInitial(start)
-        setDraft(start)
-      })
-      .catch((cause) => setError(describeFailure(t, cause, t.medicalRecord.loadEventFailed)))
-  }, [petId, mode, params.eventId, params.checkId, params.reason, params.plan, t, read, readOverview])
-
-  const changed = draft !== null && initial !== null && JSON.stringify(draft) !== JSON.stringify(initial)
-  const unsaved = useUnsavedChanges(changed)
-  const change = (patch: Partial<VisitDraft>) => setDraft((current) => (current ? { ...current, ...patch } : current))
-
-  async function save(then: () => void = () => router.back()) {
-    if (!draft) return
-    const read = readVisit(t, draft, mode, new Date(), keptDate)
-    if (!read.ok) {
-      setErrors(read.errors)
-      // As on the site: the first field to correct, brought into view with the keyboard up.
-      const first = firstVisitError(read.errors, draft)
-      if (first) inputs.current.get(first)?.focus()
-      return
-    }
-    setErrors({})
-    setBusy(true)
-    setError(null)
-    try {
-      const value = read.value
-      await withFreshSession<unknown>((api) => {
-        if (mode === 'new') return api.createVisit(petId, value, requestKey.current, localToday())
-        const { status, date, ...rest } = value
-        return api.changeVisit(
-          petId,
-          params.eventId!,
-          {
-            ...rest,
-            ...(mode === 'done' ? { status: 'done' as const } : {}),
-            ...(status === 'done' || date !== keptDate ? { date } : {}),
-            ...(status === 'planned' ? { diagnosis: undefined, prescriptions: undefined } : {}),
-          },
-          requestKey.current,
-          localToday(),
-        )
-      })
-      void recordChanged(petId)
-      if (value.status === 'planned' && mode === 'new') reminders.planSaved({ kind: 'visit', name: null, targets: [] })
-      unsaved.leave(then)
-    } catch (cause) {
-      if (cause instanceof ApiError && cause.code === 'record_done') {
-        // Marked «Был» meanwhile (another device): history now, nothing to save.
-        unsaved.leave(() => setLocked(true))
-      } else if (cause instanceof ApiError && cause.code === 'conflict') setError({ text: t.medicalRecord.alreadySaved, offline: false })
-      else setError(describeFailure(t, cause, t.medicalRecord.saveEventFailed))
-    } finally {
-      setBusy(false)
-    }
-  }
 
   if (!draft || locked) {
     return (
@@ -185,26 +57,12 @@ export default function VisitForm() {
     )
   }
 
-  const done = draft.status === 'done'
-  // Checks of the last 30 days (a visit follows a check soon after it), and
-  // the one the visit was opened with however old: a plan linked to it, or a
-  // new visit written from that check's result.
-  const checks = recentChecks(loadedChecks, new Date(), initial?.checkId ?? null)
-  const checkOptions = checks.map((check) => ({
-    value: check.id,
-    label: words.checkLine(urgencyText(t, check.urgency).label, t.day(localToday(new Date(check.created_at)), false)),
-  }))
-  // A link to an older check stays selectable, not silently dropped.
-  if (draft.checkId && !checkOptions.some((option) => option.value === draft.checkId)) {
-    checkOptions.unshift({ value: draft.checkId, label: words.linkedCheck })
-  }
-
   return (
     <Screen
       title={words.visitTitle}
       onBack={() => router.back()}
       scroll
-      dock={<Button title={t.common.save} onPress={() => void save()} busy={busy} />}
+      dock={<Button title={t.common.save} onPress={() => void form.save()} busy={busy} />}
     >
       {mode === 'new' ? (
         <Segment
@@ -236,13 +94,7 @@ export default function VisitForm() {
         error={errors.date}
         fieldRef={input('date')}
       />
-      <Field
-        label={t.medicalRecord.clinic}
-        value={draft.clinic}
-        onChangeText={(clinic) => change({ clinic })}
-        error={errors.clinic}
-        fieldRef={input('clinic')}
-      />
+      <Field label={t.medicalRecord.clinic} value={draft.clinic} onChangeText={(clinic) => change({ clinic })} error={errors.clinic} fieldRef={input('clinic')} />
       <Field
         label={words.reason}
         value={draft.reason}
@@ -253,7 +105,7 @@ export default function VisitForm() {
         fieldRef={input('reason')}
       />
 
-      {done ? (
+      {draft.status === 'done' ? (
         <>
           <Field
             label={words.diagnosis}
@@ -267,69 +119,20 @@ export default function VisitForm() {
             {words.prescriptions}
           </Text>
           {draft.prescriptions.map((item) => (
-            <Card key={item.key} outlined style={styles.card}>
-              <View style={styles.head}>
-                <View style={styles.fill}>
-                  <Field
-                    label={words.prescription}
-                    value={item.name}
-                    onChangeText={(name) =>
-                      change({ prescriptions: draft.prescriptions.map((p) => (p.key === item.key ? { ...p, name } : p)) })
-                    }
-                    autoCorrect={false}
-                    error={errors.prescriptions?.[item.key]}
-                    fieldRef={input(`prescription:${item.key}`)}
-                  />
-                </View>
-                <IconButton
-                  icon="close"
-                  label={words.removePrescription}
-                  onPress={() => change({ prescriptions: draft.prescriptions.filter((p) => p.key !== item.key) })}
-                />
-              </View>
-              <Field
-                label={words.instructions}
-                value={item.instructions}
-                onChangeText={(instructions) =>
-                  change({ prescriptions: draft.prescriptions.map((p) => (p.key === item.key ? { ...p, instructions } : p)) })
-                }
-                error={errors.instructions?.[item.key]}
-                fieldRef={input(`instructions:${item.key}`)}
-              />
-              {item.inMedicines ? (
-                <Text variant="label" tone="muted">
-                  {words.inMedicines}
-                </Text>
-              ) : !item.id ? (
-                <Pressable
-                  accessibilityRole="checkbox"
-                  accessibilityState={{ checked: item.toMedicines }}
-                  accessibilityLabel={words.toMedicines}
-                  onPress={() =>
-                    change({
-                      prescriptions: draft.prescriptions.map((p) => (p.key === item.key ? { ...p, toMedicines: !p.toMedicines } : p)),
-                    })
-                  }
-                  style={styles.toggle}
-                >
-                  <Text style={styles.fill}>{words.toMedicines}</Text>
-                  <View style={[styles.box, item.toMedicines ? styles.boxOn : null]}>
-                    {item.toMedicines ? <Text style={styles.tick}>✓</Text> : null}
-                  </View>
-                </Pressable>
-              ) : null}
-            </Card>
+            <PrescriptionCard
+              key={item.key}
+              item={item}
+              nameError={errors.prescriptions?.[item.key]}
+              instructionsError={errors.instructions?.[item.key]}
+              fieldRef={input}
+              onChange={(patch) =>
+                change({ prescriptions: draft.prescriptions.map((p) => (p.key === item.key ? { ...p, ...patch } : p)) })
+              }
+              onRemove={() => change({ prescriptions: draft.prescriptions.filter((p) => p.key !== item.key) })}
+            />
           ))}
           {canAddPrescription(draft) ? (
-            <LinkButton
-              title={words.addPrescription}
-              align="left"
-              onPress={() =>
-                change({
-                  prescriptions: [...draft.prescriptions, { key: `new-${nextKey.current++}`, name: '', instructions: '', toMedicines: true }],
-                })
-              }
-            />
+            <LinkButton title={words.addPrescription} align="left" onPress={form.addPrescription} />
           ) : (
             <Text variant="caption" tone="muted" style={styles.heading}>
               {words.prescriptionsFull(VISIT_LIMITS.prescriptions)}
@@ -338,10 +141,10 @@ export default function VisitForm() {
         </>
       ) : null}
 
-      {checkOptions.length > 0 ? (
+      {form.checkOptions.length > 0 ? (
         <Select
           label={words.check}
-          options={checkOptions}
+          options={form.checkOptions}
           value={draft.checkId}
           onChange={(checkId) => change({ checkId })}
           noneLabel={words.noCheck}
@@ -369,7 +172,7 @@ export default function VisitForm() {
         onSave={() => {
           const next = unsaved.pending
           unsaved.stay()
-          if (next) void save(next)
+          if (next) void form.save(next)
         }}
         onDiscard={() => unsaved.pending && unsaved.leave(unsaved.pending)}
         onStay={unsaved.stay}
@@ -380,12 +183,5 @@ export default function VisitForm() {
 
 const styles = StyleSheet.create({
   heading: { marginBottom: space.row },
-  card: { padding: 16 },
-  head: { flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
-  fill: { flex: 1 },
-  toggle: { flexDirection: 'row', alignItems: 'center', minHeight: TAP_TARGET },
-  box: { width: 28, height: 28, borderRadius: 6, borderWidth: 2, borderColor: colour.line, alignItems: 'center', justifyContent: 'center' },
-  boxOn: { backgroundColor: colour.accent, borderColor: colour.accent },
-  tick: { color: colour.surface, fontWeight: '700' },
   gap: { marginTop: space.row },
 })

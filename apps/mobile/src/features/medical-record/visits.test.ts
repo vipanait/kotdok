@@ -1,9 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import { VISIT_LIMITS, type HealthEvent } from '@lapka/contracts'
 import { ru } from '@/i18n/ru'
+import { localToday } from '@/lib/calendar-day'
+import { urgencyText } from '@/features/checks/urgency'
 import { dueItems, itemTitle } from './due'
 import {
   blankVisit,
+  checkChoices,
+  newVisitDraft,
+  visitPatch,
   dateOnSwitch,
   canAddPrescription,
   firstVisitError,
@@ -237,5 +242,86 @@ describe('switching a new visit between «Уже был» and «Запланир
     expect(dateOnSwitch('03.10.2026', 'done', NOW)).toBe(blankVisit('done', NOW).date)
     expect(dateOnSwitch('20.09.2026', 'planned', NOW)).toBe('')
     expect(dateOnSwitch('', 'done', NOW)).toBe(blankVisit('done', NOW).date)
+  })
+})
+
+describe('opening a new visit', () => {
+  it('is a visit that happened, or a plan of a checkup when the first steps asked for one', () => {
+    expect(newVisitDraft({}, NOW)).toEqual(blankVisit('done', NOW))
+    expect(newVisitDraft({ plan: 'checkup' }, NOW)).toEqual(blankVisit('planned', NOW))
+  })
+
+  it('comes from a check result as an illness, linked to the check, with its first line as the reason', () => {
+    expect(newVisitDraft({ checkId: 'c1', reason: 'Рвота' }, NOW)).toEqual({
+      ...blankVisit('done', NOW),
+      checkId: 'c1',
+      visitKind: 'illness',
+      reason: 'Рвота',
+    })
+    expect(newVisitDraft({ checkId: 'c1' }, NOW).reason).toBe('')
+  })
+})
+
+describe('what changing a visit sends', () => {
+  const value = {
+    status: 'planned' as const,
+    date: '2026-10-01',
+    visit_kind: 'checkup' as const,
+    clinic: 'Айболит',
+    notes: null,
+    reason: null,
+    diagnosis: null,
+    check_id: null,
+    prescriptions: [],
+  }
+
+  it('leaves out a plan’s unchanged day, its diagnosis and prescriptions', () => {
+    expect(visitPatch(value, 'edit', '2026-10-01')).toEqual({
+      visit_kind: 'checkup',
+      clinic: 'Айболит',
+      notes: null,
+      reason: null,
+      check_id: null,
+      diagnosis: undefined,
+      prescriptions: undefined,
+    })
+    expect(visitPatch(value, 'edit', '2026-09-30')).toMatchObject({ date: '2026-10-01' })
+  })
+
+  it('marks a plan as held with its day, diagnosis and prescriptions', () => {
+    const held = { ...value, status: 'done' as const, date: '2026-09-24', diagnosis: 'Здоров' }
+    expect(visitPatch(held, 'done', '2026-09-24')).toEqual({
+      visit_kind: 'checkup',
+      clinic: 'Айболит',
+      notes: null,
+      reason: null,
+      diagnosis: 'Здоров',
+      check_id: null,
+      prescriptions: [],
+      status: 'done',
+      date: '2026-09-24',
+    })
+  })
+})
+
+describe('the checks a visit may link to', () => {
+  const recent = { id: 'recent', urgency: 'monitor' as const, created_at: new Date(2026, 8, 20, 12, 0).toISOString() }
+  const old = { id: 'old', urgency: 'urgent' as const, created_at: new Date(2026, 6, 1, 12, 0).toISOString() }
+  const line = (check: typeof recent | typeof old) =>
+    ru.medicalRecord.visits.checkLine(urgencyText(ru, check.urgency).label, ru.day(localToday(new Date(check.created_at)), false))
+
+  it('offers the last 30 days, by urgency and day', () => {
+    expect(checkChoices(ru, [recent, old], { linked: null, chosen: null }, NOW)).toEqual([{ value: 'recent', label: line(recent) }])
+  })
+
+  it('keeps the check the visit opened with, however old', () => {
+    expect(checkChoices(ru, [recent, old], { linked: 'old', chosen: 'old' }, NOW).map((c) => c.value)).toEqual(['recent', 'old'])
+  })
+
+  it('keeps a chosen check that is not in the page as «Связанная проверка», first', () => {
+    expect(checkChoices(ru, [recent], { linked: null, chosen: 'gone' }, NOW)).toEqual([
+      { value: 'gone', label: ru.medicalRecord.visits.linkedCheck },
+      { value: 'recent', label: line(recent) },
+    ])
   })
 })

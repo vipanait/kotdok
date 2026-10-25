@@ -1,4 +1,4 @@
-import { VISIT_LIMITS, type HealthEvent, type VisitInput, type VisitKind } from '@lapka/contracts'
+import { VISIT_LIMITS, type HealthEvent, type VisitInput, type VisitKind, type VisitPatch } from '@lapka/contracts'
 import {
   heldVisitDay,
   linkableChecks,
@@ -10,6 +10,7 @@ import {
 } from '@lapka/shared'
 import type { Dictionary } from '@/i18n'
 import { dayInput, localToday, parseDayText } from '@/lib/calendar-day'
+import { urgencyText, type UrgencyLevel } from '@/features/checks/urgency'
 
 /**
  * The visit form (M9) as text fields, and turning it into a request. A plan
@@ -217,4 +218,61 @@ export function visitSummary(t: Dictionary, events: readonly HealthEvent[], toda
   const day = t.day(last.date, last.date.slice(0, 4) !== today.slice(0, 4))
   const what = last.diagnosis ?? (last.visit_kind ? t.medicalRecord.visits.kinds[last.visit_kind].split(' ')[0] : null)
   return what ? t.medicalRecord.visits.last(day, what) : t.medicalRecord.visits.lastDay(day)
+}
+
+/**
+ * A new visit as the form opens it: one that happened, or a plan of a
+ * checkup when the first steps asked for one (FB-2/04). From a check's
+ * result it is an illness, linked to that check, with the check's first
+ * line as the reason (§7.22).
+ */
+export function newVisitDraft(
+  from: { plan?: string; checkId?: string; reason?: string },
+  now: Date = new Date(),
+): VisitDraft {
+  const start = blankVisit(from.plan === 'checkup' ? 'planned' : 'done', now)
+  if (from.checkId) {
+    start.checkId = from.checkId
+    start.visitKind = 'illness'
+    start.reason = from.reason ?? ''
+  }
+  return start
+}
+
+/**
+ * A plan changed, or marked «Был» (`mode` done), as sent: its day when it
+ * happened or moved — an overdue plan keeps its own — and no diagnosis or
+ * prescriptions while it is still a plan.
+ */
+export function visitPatch(value: VisitInput, mode: 'edit' | 'done', keptDate: string | undefined): VisitPatch {
+  const { status, date, ...rest } = value
+  return {
+    ...rest,
+    ...(mode === 'done' ? { status: 'done' as const } : {}),
+    ...(status === 'done' || date !== keptDate ? { date } : {}),
+    ...(status === 'planned' ? { diagnosis: undefined, prescriptions: undefined } : {}),
+  }
+}
+
+/**
+ * The checks the form offers to link, each by its urgency and day: those of
+ * the last 30 days (a visit follows a check soon after it), and the one the
+ * visit was opened with however old (`linked`). A chosen check that is not
+ * among them stays selectable as «Связанная проверка», not silently dropped.
+ */
+export function checkChoices(
+  t: Dictionary,
+  checks: ReadonlyArray<{ id: string; created_at: string; urgency: UrgencyLevel }>,
+  ids: { linked: string | null; chosen: string | null },
+  now: Date = new Date(),
+): Array<{ value: string; label: string }> {
+  const words = t.medicalRecord.visits
+  const options = recentChecks(checks, now, ids.linked).map((check) => ({
+    value: check.id,
+    label: words.checkLine(urgencyText(t, check.urgency).label, t.day(localToday(new Date(check.created_at)), false)),
+  }))
+  if (ids.chosen && !options.some((option) => option.value === ids.chosen)) {
+    options.unshift({ value: ids.chosen, label: words.linkedCheck })
+  }
+  return options
 }
