@@ -9,6 +9,7 @@
 export * from './api-client'
 export * from './datetime'
 export * from './locale'
+export * from './followup/rules'
 export * from './medical-record/calendar-link'
 export * from './medical-record/catalog-search'
 export * from './medical-record/course-entry'

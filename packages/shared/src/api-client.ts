@@ -54,6 +54,15 @@ import {
   type AvatarGrantRequest,
   MedicationDoseSchema,
   type MedicationDoseInput,
+  FOLLOWUP_FEATURE,
+  CheckFollowupSchema,
+  FollowupCaseListSchema,
+  FollowupCaseSchema,
+  FollowupCaseSummarySchema,
+  FollowupCheckinResultSchema,
+  PastEpisodeListSchema,
+  type FollowupCheckinInput,
+  type FollowupEnableInput,
 } from '@lapka/contracts'
 import { z } from 'zod'
 
@@ -213,10 +222,11 @@ export function createApiClient(options: ApiClientOptions) {
     request: RequestOptions = {},
   ): Promise<T> {
     // What this client can read: the server sends the pet's dates only to
-    // those that say so, since older builds refuse unknown keys (FB-2).
+    // those that say so, since older builds refuse unknown keys (FB-2). The
+    // same goes for the follow-up case on a check.
     const headers: Record<string, string> = {
       accept: 'application/json',
-      [FEATURES_HEADER]: `${PET_DATES_FEATURE},${PET_AVATAR_FEATURE}`,
+      [FEATURES_HEADER]: `${PET_DATES_FEATURE},${PET_AVATAR_FEATURE},${FOLLOWUP_FEATURE}`,
       ...request.headers,
     }
 
@@ -450,6 +460,29 @@ export function createApiClient(options: ApiClientOptions) {
     sendFeedback: (body: FeedbackInput) => call<void>('/feedback', null, { method: 'POST', body }),
 
     getCheckFeedback: (checkId: string) => call(`/checks/${checkId}/feedback`, CheckFeedbackSchema),
+
+    // The follow-up loop after a check (docs/plans/followup-loop/README.md).
+    getCheckFollowup: (checkId: string) => call(`/checks/${checkId}/followup`, CheckFollowupSchema),
+    setCheckFollowup: (checkId: string, body: FollowupEnableInput) =>
+      call(`/checks/${checkId}/followup`, CheckFollowupSchema, { method: 'PUT', body }),
+    listFollowups: () => call('/followups', FollowupCaseListSchema, { query: { status: 'active' } }),
+    getFollowup: (caseId: string) => call(`/followups/${caseId}`, FollowupCaseSchema),
+    /** The key is made once per form, so a retry after a lost response is the same answer. */
+    sendFollowupCheckin: (caseId: string, idempotencyKey: string, body: FollowupCheckinInput) =>
+      call(`/followups/${caseId}/checkins`, FollowupCheckinResultSchema, {
+        method: 'POST',
+        body,
+        headers: { [IDEMPOTENCY_KEY_HEADER]: idempotencyKey },
+      }),
+    dismissFollowup: (caseId: string) =>
+      call(`/followups/${caseId}/dismiss`, FollowupCaseSummarySchema, { method: 'POST' }),
+    snoozeFollowup: (caseId: string, until: string) =>
+      call(`/followups/${caseId}/snooze`, FollowupCaseSummarySchema, { method: 'POST', body: { until } }),
+    saveFollowupToRecord: (caseId: string) =>
+      call(`/followups/${caseId}/record`, FollowupCaseSummarySchema, { method: 'PUT' }),
+    removeFollowupFromRecord: (caseId: string) =>
+      call(`/followups/${caseId}/record`, FollowupCaseSummarySchema, { method: 'DELETE' }),
+    listPastEpisodes: (petId: string) => call(`/pets/${petId}/health/episodes`, PastEpisodeListSchema),
 
     /**
      * Asks for a proof that the person authenticated a moment ago.

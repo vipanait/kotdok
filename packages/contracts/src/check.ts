@@ -1,5 +1,19 @@
 import { z } from 'zod'
 import { IsoDateTimeSchema, LocaleSchema, PetSpeciesSchema, UrgencySchema, UuidSchema } from './primitives'
+import { FollowupOutcomeSchema, FollowupStatusSchema } from './followup'
+
+/**
+ * The follow-up case a check belongs to. Served only to a client that sends
+ * `followup` in `X-Lapka-Features`: installed builds read the check strictly.
+ */
+export const CheckCaseLinkSchema = z.object({
+  case_id: UuidSchema,
+  kind: z.enum(['origin', 'recheck']),
+  status: FollowupStatusSchema,
+  outcome: FollowupOutcomeSchema.nullable(),
+})
+
+export type CheckCaseLink = z.infer<typeof CheckCaseLinkSchema>
 
 /**
  * A stored symptom check as history and the result screen show it.
@@ -28,6 +42,8 @@ export const SymptomCheckRecordSchema = z.strictObject({
   pet_id: UuidSchema.nullable(),
   pet_name: z.string().nullable(),
   pet_species: PetSpeciesSchema.nullable(),
+  /** Only with the `followup` feature; `null` when the check is in no case. */
+  followup: CheckCaseLinkSchema.nullable().optional(),
 })
 
 export type SymptomCheckRecord = z.infer<typeof SymptomCheckRecordSchema>
