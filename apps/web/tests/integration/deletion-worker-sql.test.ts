@@ -91,6 +91,33 @@ async function rowsOf(userId: string): Promise<Record<string, number>> {
 }
 
 describe('delete_account_data', () => {
+  it('deletes an account whose vet visit was recorded from a check, with a course from its prescription', async () => {
+    const { rows: [check] } = await db.query<{ id: string; pet_id: string }>(
+      `select id, pet_id from public.symptom_checks where user_id = $1 and pet_id is not null and deleted_at is null limit 1`,
+      [seeded.ownerAId],
+    )
+    const { rows: [visit] } = await db.query<{ id: string }>(
+      `insert into public.pet_health_events (user_id, pet_id, kind, status, event_date, check_id)
+       values ($1, $2, 'visit', 'done', current_date, $3) returning id`,
+      [seeded.ownerAId, check!.pet_id, check!.id],
+    )
+    const { rows: [item] } = await db.query<{ id: string }>(
+      `insert into public.pet_health_items (event_id, user_id, pet_id, name) values ($1, $2, $3, 'Нефростоп') returning id`,
+      [visit!.id, seeded.ownerAId, check!.pet_id],
+    )
+    await db.query(
+      `insert into public.pet_medications (user_id, pet_id, name, started_on, visit_item_id) values ($1, $2, 'Нефростоп', current_date, $3)`,
+      [seeded.ownerAId, check!.pet_id, item!.id],
+    )
+    await requestDeletion(seeded.ownerAId)
+
+    await db.query(`select public.delete_account_data($1)`, [seeded.ownerAId])
+
+    expect(await count(`select count(*) n from public.pet_health_events where user_id = $1`, [seeded.ownerAId])).toBe(0)
+    expect(await count(`select count(*) n from public.pet_medications where user_id = $1`, [seeded.ownerAId])).toBe(0)
+    expect((await rowsOf(seeded.ownerAId)).checks).toBe(0)
+  })
+
   it('refuses an account that has not requested deletion', async () => {
     const before = await rowsOf(seeded.ownerAId)
 
