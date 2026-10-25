@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { defaultOgImages } from '@/shared/site-metadata'
 import LandingContent from '@/components/LandingContent'
 import { getLocale } from '@/server/i18n/get-locale'
 import { getDictionary } from '@/server/i18n/get-dictionary'
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
   description:
     'Когда с питомцем что-то не так, важно быстро понять, насколько срочная ситуация. Короткий опрос подскажет, нужно ли наблюдать, записаться к врачу или действовать срочно.',
   alternates: { canonical: '/' },
-  openGraph: { url: '/' },
+  openGraph: { url: '/', images: defaultOgImages },
 }
 
 export default async function Home() {

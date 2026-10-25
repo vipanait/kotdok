@@ -41,3 +41,32 @@ export function buildContentSecurityPolicy(options: {
     ...(dev ? [] : ['upgrade-insecure-requests']),
   ].join('; ')
 }
+
+/**
+ * The policy of the static articles (`app/(content)`: symptoms, poisonings).
+ *
+ * They are prerendered once and served from the CDN, so there is no request to
+ * draw a nonce for, and Next always writes its route data as inline scripts.
+ * Those scripts are let through with `'unsafe-inline'` — on these paths only.
+ * What makes that acceptable is what the pages are: text from the repository,
+ * nothing a visitor typed or put in the URL is ever written into them, no
+ * sign-in, no form, no third-party script. A change that puts user input on
+ * one of them needs this policy rethought first.
+ */
+export function buildStaticContentSecurityPolicy(options: { dev: boolean }): string {
+  const { dev } = options
+
+  return [
+    "default-src 'self'",
+    `script-src 'self' 'unsafe-inline'${dev ? " 'unsafe-eval'" : ''}`,
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data:",
+    "font-src 'self' data:",
+    "connect-src 'self'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "frame-ancestors 'none'",
+    ...(dev ? [] : ['upgrade-insecure-requests']),
+  ].join('; ')
+}

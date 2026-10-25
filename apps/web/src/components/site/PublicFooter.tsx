@@ -8,6 +8,7 @@ export default function PublicFooter({ dict }: { dict: Dictionary }) {
     <footer className="public-footer">
       <span>{t.tagline}</span>
       <div className="row">
+        <Link href="/simptomy">{t.symptoms}</Link>
         <Link href="/legal">{t.terms}</Link>
         <Link href="/account-deletion">{t.accountDeletion}</Link>
         <LocaleSwitch />

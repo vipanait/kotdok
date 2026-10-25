@@ -1,0 +1,78 @@
+/* Articles about symptoms and poisonings, app/(content) — additions to the design system. */
+@layer components {
+  .article h1 { margin-bottom: 14px; }
+  .article .short-answer { font-size: 18px; line-height: 1.55; color: var(--text); }
+  .article .article-section { margin-top: 36px; }
+  .article .article-section > h2 { margin-top: 0; }
+
+  .crumbs ol { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 18px; font-size: 13px; color: var(--muted); }
+  .crumbs li + li::before { content: '›'; margin-right: 6px; color: var(--line); }
+  .crumbs a { color: var(--green); }
+
+  .byline { margin: 0 0 18px; font-size: 13px; }
+  .reading .byline { margin-bottom: 18px; }
+  .draft-mark { color: var(--red); }
+  .pair-link { margin-top: -8px; font-size: 14px; }
+
+  .article-disclaimer { margin: 18px 0; }
+  .reading p.footnote.article-disclaimer { margin-top: 32px; font-size: 12px; }
+
+  .article-list { margin: 0; padding-left: 22px; list-style: disc; color: var(--muted); }
+  ol.article-list { list-style: decimal; }
+  .article-list li { margin: 8px 0; padding-left: 4px; }
+  .article-list li::marker { color: var(--green); }
+
+  .levels { display: grid; gap: 12px; }
+  .reading .card.level { margin-top: 0; padding: 18px 20px; border-left: 4px solid var(--signal); }
+  .reading .card.level + .card.level { margin-top: 0; }
+  .reading > .card.level, .reading .toxin-alert { margin: 20px 0; }
+  .level-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .level-head strong { color: var(--signal); font-size: 15px; }
+  .level ul, .causes ul { margin: 0; padding-left: 20px; list-style: disc; color: var(--muted); font-size: 15px; }
+  .level li, .causes li { margin: 5px 0; }
+  .level p { margin: 0; }
+
+  .reading .causes { margin-top: 14px; gap: 12px; }
+  .reading .causes .card { margin-top: 0; padding: 18px; }
+  .causes h3 { margin-bottom: 8px; font-size: 16px; }
+  .causes .small { margin: 10px 0 4px; color: var(--text); font-weight: 700; }
+
+  .reading .quiz { margin-top: 36px; }
+  .quiz-questions { margin: 18px 0 0; display: grid; gap: 14px; counter-reset: q; }
+  .quiz-questions li { counter-increment: q; }
+  .quiz-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px 18px; }
+  .quiz-question { color: var(--text); font-weight: 600; }
+  .quiz-question::before { content: counter(q) '. '; color: var(--green); }
+  .quiz .segmented button { min-width: 64px; }
+  .quiz-result-slot:empty { display: none; }
+  .quiz-result-slot { margin-top: 20px; }
+  .quiz-result { padding: 18px 20px; border-radius: 16px; background: var(--tint); }
+  .quiz-result h3 { margin: 10px 0 6px; color: var(--signal); font-size: 20px; }
+  .reading .quiz-result p { margin: 0 0 8px; color: var(--text); }
+  .reading .quiz-result .footnote { margin: 8px 0 0; color: var(--muted); }
+  .quiz-reset { margin-top: 12px; font-size: 13px; }
+
+  .reading .cta { background: var(--mint); border-color: transparent; }
+  .cta-actions { flex-wrap: wrap; gap: 14px 20px; margin-top: 6px; }
+
+  .reading .faq { margin-top: 0; padding-top: 6px; padding-bottom: 6px; }
+
+  .related { display: flex; flex-wrap: wrap; gap: 8px 22px; }
+  .sources ul { margin: 0; padding-left: 20px; list-style: disc; font-size: 13px; color: var(--muted); }
+
+  .hub-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 0; }
+  .reading .hub-item { display: flex; flex-direction: column; gap: 6px; height: 100%; margin-top: 0; padding: 18px; transition: border-color .15s; }
+  .hub-item:hover { border-color: var(--green); }
+  .hub-item strong { color: var(--green); font-size: 17px; }
+  .hub-item span { color: var(--muted); font-size: 14px; line-height: 1.45; }
+  .reading .hub-species { margin: 24px 0 0; gap: 12px; }
+
+  .level-legend { display: grid; gap: 10px; margin: 0; }
+  .level-legend li { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; color: var(--muted); font-size: 15px; }
+
+  @media (max-width: 760px) {
+    .hub-list { grid-template-columns: minmax(0, 1fr); }
+    .article .short-answer { font-size: 17px; }
+    .quiz-row { grid-template-columns: minmax(0, 1fr); }
+  }
+}
