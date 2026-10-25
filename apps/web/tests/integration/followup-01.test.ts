@@ -126,7 +126,7 @@ describe('the offer on a result (FU-01.2)', () => {
     const id = await check('urgent')
     const off = CheckFollowupSchema.parse(await (await enable(tokenA, id, false)).json())
     expect(off.case?.status).toBe('off')
-    const list = FollowupCaseListSchema.parse(await (await listFollowups(request(tokenA))).json())
+    const list = FollowupCaseListSchema.parse(await (await listFollowups(request(tokenA), {} as never)).json())
     expect(list.items).toEqual([])
   })
 
@@ -140,7 +140,7 @@ describe('the offer on a result (FU-01.2)', () => {
     await enable(tokenA, second)
     const { rows } = await db.query(`select status, outcome from public.followup_cases where origin_check_id = $1`, [first])
     expect(rows).toEqual([{ status: 'closed', outcome: 'superseded' }])
-    const list = FollowupCaseListSchema.parse(await (await listFollowups(request(tokenA))).json())
+    const list = FollowupCaseListSchema.parse(await (await listFollowups(request(tokenA), {} as never)).json())
     expect(list.items.map((item) => item.origin_check_id)).toEqual([second])
   })
 })
@@ -219,7 +219,7 @@ describe('isolation (FU-01.4)', () => {
     expect((await dismiss(request(tokenB, 'POST'), caseParams(caseId))).status).toBe(404)
     expect((await snooze(request(tokenB, 'POST', { until: new Date(Date.now() + HOUR).toISOString() }), caseParams(caseId))).status).toBe(404)
     expect((await record(request(tokenB, 'PUT'), caseParams(caseId))).status).toBe(404)
-    expect(FollowupCaseListSchema.parse(await (await listFollowups(request(tokenB))).json()).items).toEqual([])
+    expect(FollowupCaseListSchema.parse(await (await listFollowups(request(tokenB), {} as never)).json()).items).toEqual([])
   })
 
   it('keeps the tables out of reach of a user token', async () => {
@@ -303,9 +303,9 @@ describe('the case on a check (FU-01.6)', () => {
     const featured = await (await getCheck(request(tokenA, 'GET', undefined, { 'X-Lapka-Features': 'pet-dates,followup' }), idParams(id))).json()
     expect(SymptomCheckRecordSchema.parse(featured).followup).toMatchObject({ case_id: await caseOf(id), kind: 'origin', status: 'active' })
 
-    const plainList = await (await listChecks(request(tokenA))).json()
+    const plainList = await (await listChecks(request(tokenA), {} as never)).json()
     expect(plainList.items.every((item: object) => !('followup' in item))).toBe(true)
-    const list = await (await listChecks(request(tokenA, 'GET', undefined, { 'X-Lapka-Features': 'followup' }))).json()
+    const list = await (await listChecks(request(tokenA, 'GET', undefined, { 'X-Lapka-Features': 'followup' }), {} as never)).json()
     expect(list.items.find((item: { id: string }) => item.id === id).followup.kind).toBe('origin')
   })
 })
