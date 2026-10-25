@@ -55,6 +55,40 @@ export const siteMetadata: Metadata = {
 }
 
 /**
+ * The metadata of a public page, in one call: canonical, Open Graph with the
+ * site's preview picture, Twitter card. Setting `openGraph` by hand replaces
+ * the whole object and drops the pictures (which is how the home page once
+ * lost its card), so pages go through here instead. A segment with its own
+ * `opengraph-image.tsx` says `picture: 'own'`: naming the site's picture here
+ * would win over the file.
+ */
+export function publicPageMetadata({
+  path,
+  title,
+  description,
+  type = 'website',
+  picture = 'site',
+  robots,
+}: {
+  path: string
+  title: string
+  description: string
+  type?: 'website' | 'article'
+  picture?: 'site' | 'own'
+  robots?: Metadata['robots']
+}): Metadata {
+  const site = picture === 'site'
+  return {
+    title,
+    description,
+    alternates: { canonical: path },
+    openGraph: { type, url: path, title, description, ...(site ? { images: defaultOgImages } : {}) },
+    twitter: { title, description, ...(site ? { images: defaultTwitterImages } : {}) },
+    ...(robots ? { robots } : {}),
+  }
+}
+
+/**
  * Structured data for a `<script type="application/ld+json">`. `<` becomes its
  * escape so no string in the data can close the script (Next's JSON-LD guide).
  */

@@ -1,15 +1,14 @@
 import type { Metadata } from 'next'
-import { defaultOgImages } from '@/shared/site-metadata'
+import { publicPageMetadata } from '@/shared/site-metadata'
 import Link from 'next/link'
 import ArticleFrame, { type Crumb } from '@/features/seo-content/components/ArticleFrame'
 import Disclaimer from '@/features/seo-content/components/Disclaimer'
 
-export const metadata: Metadata = {
+export const metadata: Metadata = publicPageMetadata({
+  path: '/o-materialah',
   title: 'Как мы готовим материалы',
   description: 'Как появляются статьи Лапки о симптомах и отравлениях у кошек и собак, на какие правила они опираются и почему не заменяют ветеринарного врача.',
-  alternates: { canonical: '/o-materialah' },
-  openGraph: { url: '/o-materialah', images: defaultOgImages },
-}
+})
 
 const crumbs: Crumb[] = [{ href: '/o-materialah', name: 'О материалах' }]
 

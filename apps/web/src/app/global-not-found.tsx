@@ -13,9 +13,11 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 /**
- * A URL no route matches. With two root layouts there is no single one to
- * render the 404 inside, so this page brings its own document around the same
- * content as `(frontend)/not-found.tsx`.
+ * A URL no route matches, and an article slug that is not published: with
+ * `dynamicParams = false` an unknown slug never reaches its segment, so it
+ * lands here too. With two root layouts there is no single one to render the
+ * 404 inside, so this page brings its own document around
+ * `(frontend)/not-found.tsx`.
  */
 export default async function GlobalNotFound() {
   const locale = await getLocale()

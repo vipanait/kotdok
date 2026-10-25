@@ -1,7 +1,7 @@
 import { readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { allContent } from '@/features/seo-content/load'
+import { allContent, pathOf } from '@/features/seo-content/load'
 import { forbiddenWordsIn, RESERVED_SLUGS, textsOf, type ContentPage } from '@/features/seo-content/schema'
 import robots from '@/app/robots'
 
@@ -28,7 +28,7 @@ describe('the articles', () => {
     const disallowed = [robots().rules].flat().flatMap(rule => [rule.disallow ?? []].flat())
     for (const page of pages) {
       expect(RESERVED_SLUGS as readonly string[], page.slug).not.toContain(page.slug)
-      const path = page.kind === 'symptom' ? `/simptomy/${page.slug}` : `/otravlenie/${page.slug}`
+      const path = pathOf(page)
       for (const prefix of disallowed) expect(path.startsWith(prefix), `${path} vs ${prefix}`).toBe(false)
     }
   })

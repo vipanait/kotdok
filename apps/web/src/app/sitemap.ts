@@ -1,13 +1,13 @@
 import type { MetadataRoute } from 'next'
-import { symptomPages, toxinPages } from '@/features/seo-content/load'
-import type { ContentPage } from '@/features/seo-content/schema'
+import { pathOf, publishedPages } from '@/features/seo-content/load'
+import type { ContentPage, SymptomPage } from '@/features/seo-content/schema'
 import { siteUrl } from '@/shared/seo'
 
 const lastModified = new Date('2026-05-02')
 
-/** When an article last changed in substance: its last review, else today's build. */
+/** When an article last changed in substance: its last review (a published page always has one). */
 function changed(page: ContentPage): Date {
-  return page.review.reviewedAt ? new Date(page.review.reviewedAt) : new Date()
+  return new Date(page.review.reviewedAt!)
 }
 
 /** The newest change among the pages a hub lists. */
@@ -16,10 +16,11 @@ function newest(pages: ContentPage[]): Date {
 }
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  // Only what is published: in production the loaders return nothing else, and
-  // a draft visible on a preview must not leak into a sitemap built there.
-  const symptoms = symptomPages().filter(page => page.review.status === 'published')
-  const toxins = toxinPages().filter(page => page.review.status === 'published')
+  // Only what is published: a draft visible on a preview must not leak into a
+  // sitemap built there.
+  const published = publishedPages()
+  const symptoms = published.filter((page): page is SymptomPage => page.kind === 'symptom')
+  const toxins = published.filter(page => page.kind === 'toxin')
 
   return [
     {
@@ -42,14 +43,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     ...symptoms.map(page => ({
-      url: `${siteUrl}/simptomy/${page.slug}`,
+      url: `${siteUrl}${pathOf(page)}`,
       lastModified: changed(page),
       changeFrequency: 'monthly' as const,
       priority: 0.7,
     })),
     { url: `${siteUrl}/otravlenie`, lastModified: newest(toxins), changeFrequency: 'monthly', priority: 0.7 },
     ...toxins.map(page => ({
-      url: `${siteUrl}/otravlenie/${page.slug}`,
+      url: `${siteUrl}${pathOf(page)}`,
       lastModified: changed(page),
       changeFrequency: 'monthly' as const,
       priority: 0.7,

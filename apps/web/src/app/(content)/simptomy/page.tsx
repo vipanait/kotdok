@@ -7,15 +7,14 @@ import { EmergencySigns } from '@/features/seo-content/components/EmergencySigns
 import { symptomPages } from '@/features/seo-content/load'
 import ru from '@/shared/i18n/dictionaries/ru'
 import { siteUrl } from '@/shared/seo'
-import { defaultOgImages, jsonLdScript, organizationJsonLd } from '@/shared/site-metadata'
+import { jsonLdScript, organizationJsonLd, publicPageMetadata } from '@/shared/site-metadata'
 import { URGENCY_KEYS, urgencyTitle } from '@/shared/utils/urgency'
 
-export const metadata: Metadata = {
+export const metadata: Metadata = publicPageMetadata({
+  path: '/simptomy',
   title: 'Симптомы у кошек и собак: насколько это срочно',
   description: 'Справочник симптомов у кошек и собак: когда ехать в клинику сразу, когда в течение суток, а когда можно наблюдать дома. Короткий тест «Это срочно?» на каждой странице.',
-  alternates: { canonical: '/simptomy' },
-  openGraph: { url: '/simptomy', images: defaultOgImages },
-}
+})
 
 const crumbs: Crumb[] = [{ href: '/simptomy', name: 'Симптомы' }]
 

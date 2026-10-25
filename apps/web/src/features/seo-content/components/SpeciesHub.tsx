@@ -3,7 +3,7 @@ import ArticleFrame, { breadcrumbJsonLd, type Crumb } from './ArticleFrame'
 import CheckCta from './CheckCta'
 import Disclaimer from './Disclaimer'
 import { EmergencySigns } from './EmergencySigns'
-import { symptomPages } from '../load'
+import { pathOf, symptomPages } from '../load'
 import { SPECIES_HUB } from '../page-data'
 import { BODY_SYSTEMS, type BodySystem, type Species } from '../schema'
 import { siteUrl } from '@/shared/seo'
@@ -54,13 +54,18 @@ export default function SpeciesHub({ species }: { species: Species }) {
       <h1>{TITLES[species].h1}</h1>
       <p className="short-answer">{TITLES[species].lead}</p>
       <EmergencySigns species={species} />
+      <nav aria-label="Разделы" className="hub-anchors">
+        {groups.map(group => (
+          <a key={group.system} href={`#group-${group.system}`} className="chip static">{BODY_SYSTEM_TITLES[group.system]}</a>
+        ))}
+      </nav>
       {groups.map(group => (
-        <section key={group.system} className="article-section" aria-labelledby={`group-${group.system}`}>
+        <section key={group.system} className="article-section species-hub" aria-labelledby={`group-${group.system}`}>
           <h2 id={`group-${group.system}`}>{BODY_SYSTEM_TITLES[group.system]}</h2>
           <ul className="hub-list">
             {group.pages.map(page => (
               <li key={page.slug}>
-                <Link href={`/simptomy/${page.slug}`} className="card hub-item">
+                <Link href={pathOf(page)} className="card hub-item">
                   <strong>{page.name}</strong>
                   <span>{page.metaDescription}</span>
                 </Link>

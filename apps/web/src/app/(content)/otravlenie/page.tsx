@@ -3,18 +3,17 @@ import Link from 'next/link'
 import ArticleFrame, { breadcrumbJsonLd, type Crumb } from '@/features/seo-content/components/ArticleFrame'
 import CheckCta from '@/features/seo-content/components/CheckCta'
 import Disclaimer from '@/features/seo-content/components/Disclaimer'
-import { toxinPages } from '@/features/seo-content/load'
+import { pathOf, toxinPages } from '@/features/seo-content/load'
 import ru from '@/shared/i18n/dictionaries/ru'
 import { siteUrl } from '@/shared/seo'
-import { defaultOgImages, jsonLdScript, organizationJsonLd } from '@/shared/site-metadata'
+import { jsonLdScript, organizationJsonLd, publicPageMetadata } from '@/shared/site-metadata'
 import { urgencyTitle } from '@/shared/utils/urgency'
 
-export const metadata: Metadata = {
+export const metadata: Metadata = publicPageMetadata({
+  path: '/otravlenie',
   title: 'Отравления у кошек и собак: что делать',
   description: 'Лилии, шоколад, виноград и изюм, ксилит, парацетамол, антифриз: чем опасны для кошек и собак, какие признаки отравления и что сделать сразу.',
-  alternates: { canonical: '/otravlenie' },
-  openGraph: { url: '/otravlenie', images: defaultOgImages },
-}
+})
 
 const crumbs: Crumb[] = [{ href: '/otravlenie', name: 'Отравления' }]
 
@@ -47,7 +46,7 @@ export default function Poisonings() {
       <ul className="hub-list">
         {pages.map(page => (
           <li key={page.slug}>
-            <Link href={`/otravlenie/${page.slug}`} className="card hub-item">
+            <Link href={pathOf(page)} className="card hub-item">
               <strong>{page.name}</strong>
               <span>{page.metaDescription}</span>
             </Link>

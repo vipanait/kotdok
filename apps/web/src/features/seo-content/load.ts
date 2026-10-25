@@ -34,13 +34,37 @@ function parseWith<T>(schema: { safeParse(value: unknown): { success: true; data
   }
 }
 
+/** Keys left exactly as written: identifiers, and the texts search engines show. */
+const AS_WRITTEN = new Set(['slug', 'topic', 'related', 'url', 'kind', 'locale', 'species', 'bodySystem', 'level', 'status', 'draftedBy', 'reviewedBy', 'reviewedAt', 'nextReviewAt', 'metaTitle', 'metaDescription'])
+
+/**
+ * A non-breaking space after a one- or two-letter word, so a line never ends
+ * with «в» or «не» — the one typographic rule a narrow phone screen makes
+ * visible on every page.
+ */
+export function typeset(text: string): string {
+  // A lookbehind, not a group: «и не пьёт» has two short words in a row, and a
+  // consumed space before the second one would leave it hanging.
+  return text.replace(/(?<=^|[\s(«])([вксоуиа]|на|не|но|по|за|из|от|до|ни|же|бы|ли|при|для|без|или)\s+/gi, '$1\u00a0')
+}
+
+function typesetDeep<T>(value: T, key?: string): T {
+  if (key && AS_WRITTEN.has(key)) return value
+  if (typeof value === 'string') return typeset(value) as T
+  if (Array.isArray(value)) return value.map(item => typesetDeep(item)) as T
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, typesetDeep(v, k)])) as T
+  }
+  return value
+}
+
 let cache: { symptoms: SymptomPage[]; toxins: ToxinPage[] } | null = null
 
 /** Every page in the repository, drafts included, each checked against its schema. */
 export function allContent(): { symptoms: SymptomPage[]; toxins: ToxinPage[] } {
   cache ??= {
-    symptoms: readAll('symptoms', parseWith<SymptomPage>(symptomPageSchema)),
-    toxins: readAll('toxins', parseWith<ToxinPage>(toxinPageSchema)),
+    symptoms: readAll('symptoms', parseWith<SymptomPage>(symptomPageSchema)).map(page => typesetDeep(page)),
+    toxins: readAll('toxins', parseWith<ToxinPage>(toxinPageSchema)).map(page => typesetDeep(page)),
   }
   return cache
 }
@@ -57,6 +81,17 @@ export function isVisible(page: ContentPage): boolean {
 
 export function isDraft(page: ContentPage): boolean {
   return page.review.status !== 'published'
+}
+
+/** The site path of an article: the one place the two prefixes are spelled out. */
+export function pathOf(page: ContentPage): string {
+  return page.kind === 'symptom' ? `/simptomy/${page.slug}` : `/otravlenie/${page.slug}`
+}
+
+/** What production shows, whatever the environment: for the sitemap. */
+export function publishedPages(): ContentPage[] {
+  const { symptoms, toxins } = allContent()
+  return [...symptoms, ...toxins].filter(page => page.review.status === 'published')
 }
 
 export function symptomPages(species?: Species): SymptomPage[] {
@@ -82,11 +117,8 @@ export interface PageLink {
 
 /** Where a slug in `related` points, if that page is on the site. */
 export function linkTo(slug: string): PageLink | undefined {
-  const symptom = symptomPage(slug)
-  if (symptom) return { href: `/simptomy/${symptom.slug}`, name: symptom.title }
-  const toxin = toxinPage(slug)
-  if (toxin) return { href: `/otravlenie/${toxin.slug}`, name: toxin.title }
-  return undefined
+  const page = symptomPage(slug) ?? toxinPage(slug)
+  return page && { href: pathOf(page), name: page.title }
 }
 
 /** The same topic for the other species, if there is a page for it. */

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
+import PublicFooter from '@/components/site/PublicFooter'
 import PublicHeader from '@/components/site/PublicHeader'
 import ru from '@/shared/i18n/dictionaries/ru'
 
@@ -9,9 +10,8 @@ export interface Crumb {
 }
 
 /**
- * Header, breadcrumbs and footer of an article. The header is the site's own;
- * the footer has no language switch, because these pages are Russian only and
- * read no cookie.
+ * Header, breadcrumbs and footer of an article: the site's own header and
+ * footer, the footer in its articles variant.
  */
 export default function ArticleFrame({ crumbs, children }: { crumbs?: Crumb[]; children: ReactNode }) {
   return (
@@ -32,15 +32,7 @@ export default function ArticleFrame({ crumbs, children }: { crumbs?: Crumb[]; c
         )}
         {children}
       </main>
-      <footer className="public-footer">
-        <span>{ru.site.tagline}</span>
-        <div className="row">
-          <Link href="/simptomy">Симптомы</Link>
-          <Link href="/otravlenie">Отравления</Link>
-          <Link href="/o-materialah">О материалах</Link>
-          <Link href="/legal">{ru.site.terms}</Link>
-        </div>
-      </footer>
+      <PublicFooter dict={ru} variant="articles" />
     </>
   )
 }

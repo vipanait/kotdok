@@ -135,11 +135,14 @@ export type SymptomPage = z.infer<typeof symptomPageSchema>
 export type ToxinPage = z.infer<typeof toxinPageSchema>
 export type ContentPage = SymptomPage | ToxinPage
 
-/** Every string of a page, for the wording checks. */
+/** Keys whose values are identifiers or enum members, not prose. */
+const NOT_PROSE = new Set(['url', 'slug', 'related', 'review', 'kind', 'locale', 'species', 'topic', 'bodySystem', 'level'])
+
+/** Every prose string of a page, for the wording and similarity checks. */
 export function textsOf(page: ContentPage): string[] {
   const out: string[] = []
   const walk = (value: unknown, key?: string) => {
-    if (key === 'url' || key === 'slug' || key === 'related' || key === 'review') return
+    if (key && NOT_PROSE.has(key)) return
     if (typeof value === 'string') out.push(value)
     else if (Array.isArray(value)) value.forEach(item => walk(item))
     else if (value && typeof value === 'object') {

@@ -19,7 +19,8 @@ describe('the article paths', () => {
       expect(matched(`/${segment}`), segment).toBe(false)
       expect(matched(`/${segment}/rvota-u-koshki`), segment).toBe(false)
     }
-    for (const path of ['/', '/register', '/login', '/pets/new', '/check', '/legal', '/dashboard']) {
+    // A path that only starts with one of the words is the app's, like any other.
+    for (const path of ['/', '/register', '/login', '/pets/new', '/check', '/legal', '/dashboard', '/simptomy-foo', '/otravlenie2']) {
       expect(matched(path), path).toBe(true)
     }
   })

@@ -84,5 +84,5 @@ function withCsp(response: NextResponse, csp: string): NextResponse {
 export const config = {
   // The static articles (`CONTENT_SEGMENTS`) are left out: they are the same
   // for everybody, need no session, and get their policy from next.config.ts.
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|api|simptomy|otravlenie|o-materialah).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|api|(?:simptomy|otravlenie|o-materialah)(?:/|$)).*)'],
 }

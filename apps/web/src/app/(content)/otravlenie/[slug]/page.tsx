@@ -2,14 +2,14 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import ArticleFrame, { breadcrumbJsonLd, type Crumb } from '@/features/seo-content/components/ArticleFrame'
 import CheckCta, { SIGN_UP_HREF } from '@/features/seo-content/components/CheckCta'
-import Disclaimer, { ARTICLE_NOTICE } from '@/features/seo-content/components/Disclaimer'
+import Disclaimer from '@/features/seo-content/components/Disclaimer'
 import { Byline, FaqSection, ListSection, RelatedSection, SourcesSection } from '@/features/seo-content/components/Sections'
 import UrgencyQuiz from '@/features/seo-content/components/UrgencyQuiz'
-import { isDraft, linkTo, toxinPage, toxinPages, type PageLink } from '@/features/seo-content/load'
+import { isDraft, linkTo, pathOf, toxinPage, toxinPages, type PageLink } from '@/features/seo-content/load'
 import { articleJsonLd, quizOutcomes } from '@/features/seo-content/page-data'
 import ru from '@/shared/i18n/dictionaries/ru'
 import { siteUrl } from '@/shared/seo'
-import { jsonLdScript } from '@/shared/site-metadata'
+import { jsonLdScript, publicPageMetadata } from '@/shared/site-metadata'
 import { urgencyTitle } from '@/shared/utils/urgency'
 
 export const dynamicParams = false
@@ -23,15 +23,14 @@ type Props = { params: Promise<{ slug: string }> }
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const page = toxinPage((await params).slug)
   if (!page) return {}
-  const path = `/otravlenie/${page.slug}`
-  return {
+  return publicPageMetadata({
+    path: pathOf(page),
     title: page.metaTitle,
     description: page.metaDescription,
-    alternates: { canonical: path },
-    openGraph: { type: 'article', url: path, title: page.metaTitle, description: page.metaDescription },
-    twitter: { title: page.metaTitle, description: page.metaDescription },
+    type: 'article',
+    picture: 'own',
     ...(isDraft(page) ? { robots: { index: false, follow: false } } : {}),
-  }
+  })
 }
 
 const SPECIES_TITLES = { cat: 'Кошки', dog: 'Собаки' } as const
@@ -42,7 +41,7 @@ export default async function ToxinArticle({ params }: Props) {
 
   const crumbs: Crumb[] = [
     { href: '/otravlenie', name: 'Отравления' },
-    { href: `/otravlenie/${page.slug}`, name: page.name },
+    { href: pathOf(page), name: page.name },
   ]
   const related = page.related.map(linkTo).filter((link): link is PageLink => !!link)
   const emergency = ru.urgency.emergency
@@ -57,7 +56,6 @@ export default async function ToxinArticle({ params }: Props) {
         <header>
           <div className="eyebrow">Отравления</div>
           <h1>{page.title}</h1>
-          <Byline reviewedAt={page.review.reviewedAt} draft={isDraft(page)} />
         </header>
 
         <div className="card level emergency toxin-alert">
@@ -69,6 +67,9 @@ export default async function ToxinArticle({ params }: Props) {
         </div>
 
         <p className="short-answer">{page.shortAnswer}</p>
+        <div className="article-meta">
+          <Byline reviewedAt={page.review.reviewedAt} draft={isDraft(page)} />
+        </div>
         <Disclaimer />
 
         <ListSection id="where-title" title="Где встречается" items={page.whereFound} />
@@ -94,12 +95,7 @@ export default async function ToxinArticle({ params }: Props) {
         <ListSection id="first-title" title="Что сделать сразу" items={page.firstSteps} ordered />
         <ListSection id="avoid-title" title="Чего не делать" items={page.avoid} />
 
-        <UrgencyQuiz
-          questions={page.quiz}
-          outcomes={quizOutcomes(ru)}
-          notice={`${ARTICLE_NOTICE} ${ru.check.disclaimerFallback}`}
-          signUpHref={SIGN_UP_HREF}
-        />
+        <UrgencyQuiz questions={page.quiz} outcomes={quizOutcomes(ru)} signUpHref={SIGN_UP_HREF} />
 
         <ListSection id="vet-title" title="Что сказать врачу" items={page.tellVet} />
         <CheckCta />

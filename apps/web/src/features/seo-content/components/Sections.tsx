@@ -62,12 +62,11 @@ export function SourcesSection({ sources }: { sources: { title: string; url?: st
   )
 }
 
-const MONTHS = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря']
+const DATE = new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
 
-/** «25 октября 2026» from an ISO date, without a time zone to drift through. */
+/** «25 октября 2026» from a `YYYY-MM-DD` date; read as UTC so no zone shifts the day. */
 export function russianDate(iso: string): string {
-  const [year, month, day] = iso.split('-').map(Number)
-  return `${day} ${MONTHS[month - 1]} ${year}`
+  return DATE.format(new Date(`${iso}T00:00:00Z`)).replace(/\s*г\.$/, '')
 }
 
 /**

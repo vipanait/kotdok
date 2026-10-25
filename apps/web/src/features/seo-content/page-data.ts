@@ -3,6 +3,7 @@ import { siteUrl } from '@/shared/seo'
 import { organizationId, organizationJsonLd } from '@/shared/site-metadata'
 import { urgencyTitle } from '@/shared/utils/urgency'
 import type { Crumb } from './components/ArticleFrame'
+import { pathOf } from './load'
 import type { QuizOutcome } from './quiz'
 import type { ContentPage, Species } from './schema'
 
@@ -15,10 +16,6 @@ export const SPECIES_HUB: Record<Species, { href: string; name: string; eyebrow:
 export function quizOutcomes(dict: Dictionary): Record<QuizOutcome, { label: string; action: string }> {
   const of = (key: QuizOutcome) => ({ label: urgencyTitle(dict.urgency[key].label), action: dict.urgency[key].action })
   return { emergency: of('emergency'), urgent: of('urgent'), monitor: of('monitor') }
-}
-
-function pathOf(page: ContentPage): string {
-  return page.kind === 'symptom' ? `/simptomy/${page.slug}` : `/otravlenie/${page.slug}`
 }
 
 /**
