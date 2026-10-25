@@ -23,6 +23,8 @@
   .legal-mail:hover { text-decoration: underline; text-underline-offset: 3px; }
   .legal-next { margin-top: 18px; }
 
+  .not-found-actions { justify-content: center; flex-wrap: wrap; gap: 12px; }
+
   /* ---------- Account deletion: /account-deletion ---------- */
 
   .deletion > .banner { margin-bottom: 8px; }

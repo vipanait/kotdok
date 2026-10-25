@@ -1,16 +1,16 @@
 import type { Metadata } from 'next'
+import { publicPageMetadata } from '@/shared/site-metadata'
 import LandingContent from '@/components/LandingContent'
 import { getLocale } from '@/server/i18n/get-locale'
 import { getDictionary } from '@/server/i18n/get-dictionary'
 import { createClient } from '@/server/supabase/server'
 
-export const metadata: Metadata = {
+export const metadata: Metadata = publicPageMetadata({
+  path: '/',
   title: 'Экстренная проверка симптомов кошки',
   description:
     'Когда с питомцем что-то не так, важно быстро понять, насколько срочная ситуация. Короткий опрос подскажет, нужно ли наблюдать, записаться к врачу или действовать срочно.',
-  alternates: { canonical: '/' },
-  openGraph: { url: '/' },
-}
+})
 
 export default async function Home() {
   const locale = await getLocale()
