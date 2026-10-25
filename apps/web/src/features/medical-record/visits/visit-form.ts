@@ -1,4 +1,4 @@
-import type { HealthEvent, VisitInput, VisitKind, VisitPatch } from '@lapka/contracts'
+import type { HealthEvent, VisitKind, VisitPatch } from '@lapka/contracts'
 import {
   heldVisitDay,
   planFields,
