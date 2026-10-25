@@ -698,6 +698,7 @@ export const en: Dictionary = {
     cardKicker: 'Time to check in',
     cardTitle: (pet: string, date: string) => `How is ${pet} after the ${date} check?`,
     cardBody: 'Let us know if things have improved. It takes less than a minute.',
+    cardBodyVet: 'Tell us whether you saw a vet and how things are now.',
     cardEscalated: 'A vet visit is recommended',
     cardAction: 'Check in',
     hide: 'Hide until tomorrow',

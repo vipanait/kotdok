@@ -144,7 +144,7 @@ function KeepWatching({ nextDueAt, checkId }: { nextDueAt: string | null; checkI
       {check.data && check.data.home_care_steps.length > 0 ? (
         <Bullets title={words.keepHomeCare} items={check.data.home_care_steps} />
       ) : null}
-      <Button title={words.ok} onPress={() => router.back()} />
+      <Button title={words.ok} onPress={() => router.back()} style={styles.after} />
     </View>
   )
 }
@@ -223,5 +223,6 @@ const styles = StyleSheet.create({
   cardBody: { marginTop: 8, marginBottom: space.row },
   advice: { borderRadius: radius.card, padding: 20, marginBottom: space.block, borderWidth: 1, borderColor: colour.line },
   next: { marginTop: space.row },
+  after: { marginTop: space.block },
   recheck: { marginTop: space.block, gap: 4 },
 })
