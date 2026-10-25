@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildContentSecurityPolicy } from '@/server/security/csp'
+import { buildContentSecurityPolicy, buildStaticContentSecurityPolicy } from '@/server/security/csp'
 
 const options = { nonce: 'r4nd0m', supabaseOrigin: 'https://project.supabase.co', dev: false }
 
@@ -59,5 +59,24 @@ describe('the content security policy', () => {
 
     expect(policy).not.toContain('\n')
     expect(policy).not.toContain('  ')
+  })
+})
+
+describe('the policy of the static articles', () => {
+  it('runs no script from elsewhere and loads nothing from Supabase', () => {
+    const policy = buildStaticContentSecurityPolicy({ dev: false })
+
+    // Next writes the route data of a prerendered page as inline scripts and
+    // there is no request to draw a nonce for; the pages carry no user input.
+    expect(directive(policy, 'script-src').split(' ').slice(1)).toEqual(["'self'", "'unsafe-inline'"])
+    expect(directive(policy, 'connect-src')).toBe("connect-src 'self'")
+    expect(policy).not.toContain('supabase')
+    expect(policy).toContain("frame-ancestors 'none'")
+    expect(policy).toContain("object-src 'none'")
+  })
+
+  it('allows eval only while developing, like the app’s policy', () => {
+    expect(buildStaticContentSecurityPolicy({ dev: false })).not.toContain("'unsafe-eval'")
+    expect(directive(buildStaticContentSecurityPolicy({ dev: true }), 'script-src')).toContain("'unsafe-eval'")
   })
 })

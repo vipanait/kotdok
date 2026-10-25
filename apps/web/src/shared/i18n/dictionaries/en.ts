@@ -19,6 +19,8 @@ const en: Dictionary = {
     signIn: 'Sign in',
     toAccount: 'My account',
     tagline: 'Lapka · Small paws. Big care',
+    // The articles are Russian only; the link says so.
+    symptoms: 'Symptoms (in Russian)',
     terms: 'Terms',
     accountDeletion: 'Delete account',
     language: 'Site language',
