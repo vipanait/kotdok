@@ -7,6 +7,7 @@ import { StatusBar } from 'expo-status-bar'
 import { AuthProvider } from '@/providers/AuthProvider'
 import { UpdatePrompt } from '@/features/updates/UpdatePrompt'
 import { ReminderProvider } from '@/features/medical-record/reminders/ReminderProvider'
+import { noteLaunch } from '@/features/review/store-review'
 import { LocaleProvider, dictionary } from '@/i18n'
 import { parseAuthLink } from '@/lib/auth-links'
 import { redeemAuthLink, type LinkAuth } from '@/features/auth/redeem-link'
@@ -88,6 +89,8 @@ function useAuthLinks() {
 
 export default function RootLayout() {
   useAuthLinks()
+  // The first day the app runs is never a day to ask for a rating.
+  useEffect(noteLaunch, [])
 
   // The two faces the design is drawn in. Holding the first frame until they
   // land avoids the flash where every heading is the system font and then
