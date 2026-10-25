@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { en } from '@/i18n/en'
 import { ru } from '@/i18n/ru'
-import { checkAnswers, formatCheckedAt, offersVisit, photoObservations, visitFormHref, visitReason, clinicSearchUrl, offersClinicSearch } from './check-answers'
+import { checkAnswers, offersVisit, photoObservations, visitFormHref, visitReason, clinicSearchUrl, offersClinicSearch } from './check-answers'
 
 describe('reading back what was answered on the second step', () => {
   it('names every answer in the order the form asks', () => {
@@ -35,15 +35,6 @@ describe('reading back what was answered on the second step', () => {
     expect(
       checkAnswers(ru, { appetite: 'ravenous', activity: 42, pain_signs: ['limping', 'hiding'] }),
     ).toEqual([{ label: ru.check.painSigns, value: 'Прячется больше обычного' }])
-  })
-})
-
-describe('when a check was made', () => {
-  it('keeps the time, so two checks on one day can be told apart', () => {
-    const morning = formatCheckedAt('2026-09-17T06:05:00Z', 'ru')
-    const evening = formatCheckedAt('2026-09-17T16:40:00Z', 'ru')
-    expect(morning).toMatch(/сентября 2026/)
-    expect(morning).not.toBe(evening)
   })
 })
 

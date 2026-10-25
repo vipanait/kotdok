@@ -1,9 +1,7 @@
 import { WEIGHT_MAX_KG, type WeightInput, type WeightMeasurement, type WeightPatch } from '@lapka/contracts'
 import {
-  ApiError,
-  ApiTimeoutError,
   WEIGHT_MIN_KG,
-  isKeyReused,
+  apiFailure,
   newWeightInput,
   weightCorrection,
   type WeightFormProblems,
@@ -64,26 +62,22 @@ export type SaveFailure =
   | 'failed'
 
 export function saveFailure(error: unknown): SaveFailure {
-  if (isKeyReused(error)) return 'alreadySaved'
-  if (error instanceof ApiError) {
-    switch (error.code) {
-      case 'conflict':
-        return 'dayTaken'
-      case 'bad_request':
-        return 'rejected'
-      case 'not_found':
-        return 'gone'
-      case 'unauthorized':
-        return 'signedOut'
-      case 'account_deleting':
-        return 'deleting'
-      default:
-        return 'failed'
-    }
+  const failure = apiFailure(error)
+  switch (failure) {
+    case 'keyReused':
+      return 'alreadySaved'
+    // Any other 409 of a weight is its day already taken.
+    case 'conflict':
+      return 'dayTaken'
+    case 'rejected':
+    case 'gone':
+    case 'signedOut':
+    case 'deleting':
+    case 'offline':
+      return failure
+    default:
+      return 'failed'
   }
-  // fetch rejects with a TypeError when there is no network; the client's own timeout is ApiTimeoutError.
-  if (error instanceof TypeError || error instanceof ApiTimeoutError) return 'offline'
-  return 'failed'
 }
 
 /** The banner under the fields for a failed save; a taken day is said at the date field instead. */

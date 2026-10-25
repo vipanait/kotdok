@@ -5,7 +5,8 @@ import Icon from '@/components/ui/Icon'
 import ResultFeedback from '@/features/symptom-check/ResultFeedback'
 import ReminderCard from '@/features/followup/ReminderCard'
 import { offerPlacement } from '@/features/followup/followup-view'
-import { checkOptions, formatCheckDateTime } from '@/features/symptom-check/check-options'
+import { formatDateTime } from '@lapka/shared'
+import { checkOptions } from '@/features/symptom-check/check-options'
 import type { Locale } from '@/shared/i18n/config'
 import type { Dictionary } from '@/shared/i18n/dictionaries/ru'
 import type { CheckPet } from '@/shared/types'
@@ -95,7 +96,7 @@ export default function CheckResultContent({ check, dict, locale, timeZone, pet,
   const petSpecies = pet?.species ?? check.pet_species
   const petLine = (pet && petSummary(pet, dict, locale))
     || (petSpecies === 'dog' ? t.speciesDog : petSpecies === 'cat' ? t.speciesCat : '')
-  const when = formatCheckDateTime(check.created_at, locale, timeZone)
+  const when = formatDateTime(check.created_at, locale, { timeZone })
   const newCheckHref = pet ? `/check?pet=${pet.id}` : '/check'
   // «Записать визит к врачу» (spec §7.22): a saved result of a pet that is still there, any urgency
   // but «Всё в порядке». The visit form gets this check's real id and links it.

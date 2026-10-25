@@ -8,7 +8,7 @@
  * reworded upstream message must not silently turn back into English here.
  */
 
-import { ApiContractError, ApiError, ApiTimeoutError } from '@lapka/shared'
+import { ApiContractError, ApiError, ApiTimeoutError, apiFailure } from '@lapka/shared'
 import { isKnownErrorCode, type ErrorCode } from '@lapka/contracts'
 import type { Dictionary } from '@/i18n'
 import { PhotoUploadError } from '@/features/checks/photo-upload'
@@ -38,7 +38,7 @@ export class AppError extends Error {
  */
 export function failureKind(cause: unknown): AppError['kind'] | null {
   if (cause instanceof AppError) return cause.kind
-  if (cause instanceof ApiError && cause.code === 'insufficient_credits') return 'insufficient_credits'
+  if (apiFailure(cause) === 'noCredits') return 'insufficient_credits'
   return null
 }
 
@@ -133,11 +133,6 @@ export function submitCheckMessage(t: Dictionary, cause: unknown, hadPhotos: boo
     return t.errors.photosRejected
   }
   return errorMessage(t, cause, t.errors.submitCheckFailed)
-}
-
-/** No connection at all, which is worth saying differently from a rejection. */
-export function isOffline(cause: unknown): boolean {
-  return cause instanceof TypeError || (cause instanceof Error && cause.name === 'AbortError')
 }
 
 /**

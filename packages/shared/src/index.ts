@@ -7,6 +7,7 @@
 // import Next.js, a server SDK or anything from the DOM.
 
 export * from './api-client'
+export * from './api-failure'
 export * from './datetime'
 export * from './locale'
 export * from './followup/rules'
