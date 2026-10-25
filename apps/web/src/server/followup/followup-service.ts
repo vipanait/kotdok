@@ -704,7 +704,7 @@ export async function caseLinksOf(
   if (checkIds.length === 0) return { ok: true, data: links }
   const { data, error } = await supabase
     .from('followup_case_checks')
-    .select('check_id, kind, followup_cases!inner(id, status, outcome)')
+    .select('check_id, kind, followup_cases!inner(id, status, outcome, escalation)')
     .eq('user_id', userId)
     .in('check_id', checkIds)
     .neq('followup_cases.status', 'off')
@@ -712,13 +712,14 @@ export async function caseLinksOf(
   for (const row of data as unknown as {
     check_id: string
     kind: 'origin' | 'recheck'
-    followup_cases: { id: string; status: CheckCaseLink['status']; outcome: CheckCaseLink['outcome'] }
+    followup_cases: { id: string; status: CheckCaseLink['status']; outcome: CheckCaseLink['outcome']; escalation: NonNullable<CheckCaseLink['escalation']> }
   }[]) {
     links.set(row.check_id, {
       case_id: row.followup_cases.id,
       kind: row.kind,
       status: row.followup_cases.status,
       outcome: row.followup_cases.outcome,
+      escalation: row.followup_cases.escalation,
     })
   }
   return { ok: true, data: links }

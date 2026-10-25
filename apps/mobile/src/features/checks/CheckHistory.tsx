@@ -181,7 +181,7 @@ export function CheckHistory({
               </Text>
               {inCase ? (
                 <Text variant="label" tone="accent" style={styles.caseStatus}>
-                  {caseStatusWord(ui, { status: inCase.status, outcome: inCase.outcome, escalation: 'none' })}
+                  {caseStatusWord(ui, { status: inCase.status, outcome: inCase.outcome, escalation: inCase.escalation ?? 'none' })}
                 </Text>
               ) : null}
               <Text variant="caption" tone="faint" style={styles.cardDate}>
