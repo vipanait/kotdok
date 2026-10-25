@@ -1,3 +1,4 @@
+import type { PetCreateInput, PetUpdateInput } from '@lapka/contracts'
 import type { Pet, PetSizeClass, PetSpecies, PetWalkActivity } from '@/shared/types'
 import type { PetDatesValue } from '@/features/pets/pet-dates-form'
 
@@ -62,21 +63,22 @@ export function parseDecimal(value: string): number | null {
   return Number.isFinite(n) ? n : null
 }
 
+/** What «Сохранить» sends through the shared client: a new pet, or a change to this one. */
+export type PetFormRequest =
+  | { kind: 'create'; body: PetCreateInput }
+  | { kind: 'update'; petId: string; body: PetUpdateInput }
+
 /**
- * The request «Сохранить» sends: POST /api/pets for a new pet, PUT
- * /api/pets/<id> for an edit. With the fields, what the record needs to read
- * the form the way the phone's form is read (pet-service): the owner's own
- * day for a weight or a medicine the form adds or removes — not the server's
- * UTC one — and, on an edit, the weight and the list as the form was opened
- * (an older pet's missing list is the empty one the form shows), so saving
- * an untouched weight is not a new measurement and a course added meanwhile
- * elsewhere is not ended.
+ * The request «Сохранить» sends — `createPet` for a new pet, `updatePet` for
+ * an edit, the same v1 calls the phone makes. With the fields, what the
+ * record needs to read the form the way the phone's form is read
+ * (pet-service): the owner's own day for a weight or a medicine the form
+ * adds or removes — not the server's UTC one — and, on an edit, the weight
+ * and the list as the form was opened (an older pet's missing list is the
+ * empty one the form shows), so saving an untouched weight is not a new
+ * measurement and a course added meanwhile elsewhere is not ended.
  */
-export function petFormRequest(
-  pet: Pet | undefined,
-  fields: PetFormFields,
-  today: string,
-): { url: string; method: 'POST' | 'PUT'; body: PetFormValues & Record<string, unknown> } {
+export function petFormRequest(pet: Pet | undefined, fields: PetFormFields, today: string): PetFormRequest {
   const dog = fields.species === 'dog'
   const values: PetFormValues = {
     species: fields.species,
@@ -99,11 +101,11 @@ export function petFormRequest(
     medications: listOf(fields.medications, pet?.medications),
     notes: fields.notes.trim() || null,
   }
-  const recordContext = {
-    weight_measured_on: today,
-    ...(pet ? { weight_kg_before: pet.weight_kg, medications_before: pet.medications ?? [] } : {}),
-  }
   return pet
-    ? { url: `/api/pets/${pet.id}`, method: 'PUT', body: { ...values, ...recordContext } }
-    : { url: '/api/pets', method: 'POST', body: { ...values, ...recordContext } }
+    ? {
+        kind: 'update',
+        petId: pet.id,
+        body: { ...values, weight_measured_on: today, weight_kg_before: pet.weight_kg, medications_before: pet.medications ?? [] },
+      }
+    : { kind: 'create', body: { ...values, weight_measured_on: today } }
 }

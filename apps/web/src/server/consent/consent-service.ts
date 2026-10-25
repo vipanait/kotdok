@@ -1,8 +1,8 @@
 import 'server-only'
 
 import { PD_CONSENT_VERSION, type ConsentInput, type ConsentStatus } from '@lapka/contracts'
-import { loadAccount, type AccountContext } from '@/server/auth/account-state'
-import { createServiceClient } from '@/server/supabase/server'
+import type { AccountContext } from '@/server/auth/account-state'
+import type { createServiceClient } from '@/server/supabase/server'
 
 type SupabaseService = ReturnType<typeof createServiceClient>
 
@@ -34,12 +34,3 @@ export async function recordConsent(
   return error ? { ok: false, reason: 'failed' } : { ok: true }
 }
 
-/**
- * For the site's cookie-authenticated routes: the rule `withApiAuth` applies,
- * for the route to answer in its own `{ error }` shape. An account that cannot
- * be read is left to the route's own handling.
- */
-export async function owesConsent(userId: string): Promise<boolean> {
-  const account = await loadAccount(createServiceClient(), userId)
-  return account.ok && account.account.pdConsentRequired
-}

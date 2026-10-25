@@ -3,16 +3,17 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { SYMPTOMS_MAX, SYMPTOMS_MIN, type SymptomCheckView } from '@lapka/contracts'
+import { SYMPTOMS_MAX, SYMPTOMS_MIN } from '@lapka/contracts'
 import { localToday } from '@lapka/shared'
 import { useLocale, useTranslations } from '@/components/LocaleProvider'
 import PetAvatar from '@/components/PetAvatar'
 import Icon from '@/components/ui/Icon'
 import Illustration from '@/components/ui/Illustration'
-import CheckResultContent from '@/features/symptom-check/CheckResultContent'
 import { checkOptions, type CheckOption } from '@/features/symptom-check/check-options'
-import { csrfHeaders } from '@/shared/security/csrf-client'
-import type { CheckPet, SymptomCheckResult } from '@/shared/types'
+import { browserApi } from '@/features/api/browser-api'
+import { useSaveKey } from '@/features/forms/save-key'
+import { checkCreateBody, keySpent, submitFailure, waitForCheck } from '@/features/symptom-check/check-submit'
+import type { CheckPet } from '@/shared/types'
 import { petHealthFacts, petSummary } from '@/shared/utils/pet-summary'
 
 interface Props {
@@ -41,15 +42,15 @@ export type RecheckContext = {
 
 type Phase = 'form' | 'loading' | 'error'
 
-type CheckResponse = SymptomCheckResult & { credits_remaining: number; check_id?: string }
+const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms))
 
 /**
  * The symptom check: pet, description, optional follow-up answers.
  *
  * Everything typed lives here, above the form, so the waiting and error
- * states can replace the form without losing a word of it. A result is shown
- * on its own page; the form only renders one itself if the answer came back
- * without an id.
+ * states can replace the form without losing a word of it. The check goes
+ * the way the phone's does — accepted as a job, polled until the result
+ * exists (`check-submit.ts`) — and the result is shown on its own page.
  */
 export default function CheckForm({ pets, initialPetId, credits: initialCredits, photos = {}, recheck = null }: Props) {
   const router = useRouter()
@@ -76,7 +77,6 @@ export default function CheckForm({ pets, initialPetId, credits: initialCredits,
   const [creditsRefused, setCreditsRefused] = useState(false)
   const [formError, setFormError] = useState('')
   const [failure, setFailure] = useState('')
-  const [inlineResult, setInlineResult] = useState<SymptomCheckView | null>(null)
 
   const inFlight = useRef(false)
   const statusHeading = useRef<HTMLHeadingElement>(null)
@@ -107,149 +107,77 @@ export default function CheckForm({ pets, initialPetId, credits: initialCredits,
     }
   }, [phase])
 
+  // One Idempotency-Key per logical check: a retry after «нет связи» finds
+  // the job the first try may have made; a refusal spends the key.
+  const saveKey = useSaveKey()
+
   async function submit() {
     if (inFlight.current || noCredits || tooShort) return
     inFlight.current = true
     setFormError('')
     setPhase('loading')
 
-    let res: Response
     try {
-      res = await fetch('/api/symptom-check', {
-        method: 'POST',
-        headers: csrfHeaders({ 'Content-Type': 'application/json' }),
-        body: JSON.stringify({
-          symptoms,
-          pet_id: petId || undefined,
-          appetite: appetite || undefined,
-          activity: activity || undefined,
-          duration: duration || undefined,
-          stool: stool || undefined,
-          pain_signs: painSigns.length ? painSigns : undefined,
-          // The owner's day the pet's medical record is read on for the analysis.
-          today: localToday(),
-          // A re-check: the server adds the case's previous check and answers.
-          ...(linkedCase ? { followup_case_id: linkedCase.caseId } : {}),
-        }),
-      })
-    } catch {
-      inFlight.current = false
-      setFailure(t.errorOffline)
-      setPhase('error')
-      return
-    }
-
-    let data: unknown = null
-    try {
-      data = await res.json()
-    } catch {
-      // A gateway error page is not JSON; the status says enough.
-    }
-
-    if (!res.ok) {
-      if (res.status === 401) {
+      const api = browserApi()
+      const accepted = await api.createCheck(
+        saveKey.current(),
+        checkCreateBody({ petId, symptoms, appetite, activity, duration, stool, painSigns }, linkedCase?.caseId ?? null),
+        // The owner's day the pet's medical record is read on for the analysis.
+        localToday(),
+      )
+      const checkId = await waitForCheck(accepted.job_id, { getJob: api.getCheckJob, sleep })
+      saveKey.renew()
+      // Keep the waiting screen (and the guard) until the result page opens.
+      router.push(`/check/${checkId}`)
+      router.refresh()
+    } catch (error) {
+      if (keySpent(error)) saveKey.renew()
+      const failure = submitFailure(error, linkedCase !== null)
+      if (failure === 'signedOut') {
         // Stay on the waiting screen while the sign-in page loads.
         router.push(`/login?next=${encodeURIComponent(`/check?pet=${petId}`)}`)
         return
       }
       inFlight.current = false
-      if (res.status === 402) {
-        setCredits(0)
-        setCreditsRefused(true)
-        setPhase('form')
-      } else if (res.status === 400) {
-        setFormError(
-          t.errorInvalid.replace('{min}', String(SYMPTOMS_MIN)).replace('{max}', String(SYMPTOMS_MAX)),
-        )
-        setPhase('form')
-      } else if (res.status === 404) {
-        setFormError(t.errorPetMissing)
-        setPhase('form')
-      } else if (res.status === 409 && linkedCase) {
-        // The case cannot take a re-check any more; nothing was charged. The
-        // owner decides whether to send it as a new check.
-        setRecheckKept(false)
-        setFormError(dict.followup.recheckRefused)
-        setPhase('form')
-      } else {
-        setFailure(res.status === 429 ? t.errorBusy : t.errorText)
-        setPhase('error')
+      switch (failure) {
+        case 'noCredits':
+          setCredits(0)
+          setCreditsRefused(true)
+          setPhase('form')
+          break
+        case 'invalid':
+          setFormError(t.errorInvalid.replace('{min}', String(SYMPTOMS_MIN)).replace('{max}', String(SYMPTOMS_MAX)))
+          setPhase('form')
+          break
+        case 'petMissing':
+          setFormError(t.errorPetMissing)
+          setPhase('form')
+          break
+        case 'recheckRefused':
+          // The case cannot take a re-check any more; nothing was charged. The
+          // owner decides whether to send it as a new check.
+          setRecheckKept(false)
+          setFormError(dict.followup.recheckRefused)
+          setPhase('form')
+          break
+        case 'busy':
+          setFailure(t.errorBusy)
+          setPhase('error')
+          break
+        case 'offline':
+          setFailure(t.errorOffline)
+          setPhase('error')
+          break
+        default:
+          setFailure(t.errorText)
+          setPhase('error')
       }
-      return
     }
-
-    const result = data as CheckResponse
-    if (result.check_id) {
-      // Keep the waiting screen (and the guard) until the result page opens.
-      router.push(`/check/${result.check_id}`)
-      router.refresh()
-      return
-    }
-
-    inFlight.current = false
-    setCredits(result.credits_remaining)
-    setInlineResult(toView(result))
-    setPhase('form')
-    router.refresh()
-  }
-
-  function toView(result: CheckResponse): SymptomCheckView {
-    return {
-      id: null,
-      symptoms_input: symptoms,
-      urgency: result.urgency,
-      urgency_reason: result.urgency_reason,
-      possible_causes: result.possible_causes,
-      species_specific_warning: result.species_specific_warning ?? null,
-      home_care_steps: result.home_care_steps,
-      vet_questions: result.vet_questions,
-      // The answer has just come back in the language this page is read in.
-      locale,
-      full_response: {
-        appetite: result.appetite ?? null,
-        activity: result.activity ?? null,
-        duration: result.duration ?? null,
-        stool: result.stool ?? null,
-        pain_signs: result.pain_signs ?? [],
-        photo_observations: result.photo_observations ?? null,
-        additional_pet_info_needed: result.additional_pet_info_needed,
-        has_photo: result.has_photo,
-        disclaimer: result.disclaimer,
-      },
-      created_at: new Date().toISOString(),
-      pet_id: pet?.id ?? null,
-      pet_name: pet?.name ?? null,
-      pet_species: pet?.species ?? null,
-    }
-  }
-
-  function startOver() {
-    setInlineResult(null)
-    setSymptoms('')
-    setAppetite('')
-    setActivity('')
-    setDuration('')
-    setStool('')
-    setPainSigns([])
-    returningToForm.current = true
-    setPhase('form')
   }
 
   function backToForm() {
     returningToForm.current = true
     setPhase('form')
-  }
-
-  if (inlineResult) {
-    return (
-      <CheckResultContent
-        check={inlineResult}
-        dict={dict}
-        locale={locale}
-        pet={pet}
-        onNewCheck={startOver}
-      />
-    )
   }
 
   if (phase === 'loading') {

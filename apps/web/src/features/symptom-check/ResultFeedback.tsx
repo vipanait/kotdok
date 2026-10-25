@@ -1,9 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import type { FeedbackRating } from '@lapka/contracts'
 import { useTranslations } from '@/components/LocaleProvider'
-import type { FeedbackRating } from '@/shared/types'
-import { csrfHeaders } from '@/shared/security/csrf-client'
+import { browserApi } from '@/features/api/browser-api'
 
 type Stage = 'loading' | 'ask' | 'comment' | 'done' | 'hidden'
 
@@ -25,12 +25,10 @@ export default function ResultFeedback({ checkId }: { checkId: string }) {
 
   useEffect(() => {
     let cancelled = false
-    fetch(`/api/feedback?check_id=${encodeURIComponent(checkId)}`)
-      .then(async res => {
-        if (cancelled) return
-        if (!res.ok) { setStage('hidden'); return }
-        const data = await res.json() as { rating: FeedbackRating | null }
-        setStage(data.rating ? 'done' : 'ask')
+    browserApi()
+      .getCheckFeedback(checkId)
+      .then(data => {
+        if (!cancelled) setStage(data.rating ? 'done' : 'ask')
       })
       // Asking is optional; a failure to learn the state hides the block
       // rather than putting an error under someone's result.
@@ -42,12 +40,7 @@ export default function ResultFeedback({ checkId }: { checkId: string }) {
     setSending(true)
     setError('')
     try {
-      const res = await fetch('/api/feedback', {
-        method: 'POST',
-        headers: csrfHeaders({ 'Content-Type': 'application/json' }),
-        body: JSON.stringify({ check_id: checkId, rating: nextRating, comment: nextComment }),
-      })
-      if (!res.ok) { setError(t.errorGeneric); return false }
+      await browserApi().sendFeedback({ check_id: checkId, rating: nextRating, ...(nextComment === undefined ? {} : { comment: nextComment }) })
       return true
     } catch {
       setError(t.errorGeneric)

@@ -2,7 +2,9 @@
 
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
+import { ApiError } from '@lapka/shared'
 import { useTranslations } from '@/components/LocaleProvider'
+import { browserApi } from '@/features/api/browser-api'
 import { csrfHeaders } from '@/shared/security/csrf-client'
 
 type Stage =
@@ -64,24 +66,18 @@ export default function DeleteAccountForm() {
     focusNext.current = 'status'
     setStage({ kind: 'working' })
     try {
-      const proof = await fetch('/api/account-deletion/reauth', {
-        method: 'POST',
-        headers: csrfHeaders({ 'Content-Type': 'application/json' }),
-        body: '{}',
-      })
-
-      if (proof.status === 401) {
+      const api = browserApi()
+      let token: string
+      try {
+        // The proof that the person signed in a moment ago (POST /auth/reauth):
+        // an old session is sent to sign in again, not told it failed.
+        token = (await api.requestReauth({ operation: 'account_deletion' })).token
+      } catch (error) {
         focusNext.current = 'status'
-        setStage({ kind: 'reauth' })
+        const stale = error instanceof ApiError && (error.code === 'reauth_required' || error.code === 'unauthorized')
+        setStage(stale ? { kind: 'reauth' } : { kind: 'failed' })
         return
       }
-      if (!proof.ok) {
-        focusNext.current = 'status'
-        setStage({ kind: 'failed' })
-        return
-      }
-
-      const { token } = (await proof.json()) as { token: string }
 
       const bytes = new Uint8Array(32)
       crypto.getRandomValues(bytes)
@@ -94,20 +90,12 @@ export default function DeleteAccountForm() {
         // just lose the way to check the status later, and the page says so.
       }
 
-      const response = await fetch('/api/account-deletion', {
-        method: 'POST',
-        headers: csrfHeaders({ 'Content-Type': 'application/json' }),
-        body: JSON.stringify({ receipt_secret: receipt, reauth_token: token }),
-      })
+      await api.requestAccountDeletion({ receipt_secret: receipt, reauth_token: token })
 
       focusNext.current = 'status'
-      if (response.status === 202) {
-        setStage({ kind: 'accepted', receipt })
-        // The cabinet is closed from now on; drop the page's links to it.
-        router.refresh()
-      } else {
-        setStage({ kind: 'failed' })
-      }
+      setStage({ kind: 'accepted', receipt })
+      // The cabinet is closed from now on; drop the page's links to it.
+      router.refresh()
     } catch {
       // No answer at all (the network, most likely). Same as a refusal: say so
       // and offer to try again, rather than spinning forever.

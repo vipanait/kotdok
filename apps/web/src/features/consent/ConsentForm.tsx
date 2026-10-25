@@ -4,10 +4,11 @@ import Link from 'next/link'
 import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { PD_CONSENT_VERSION } from '@lapka/contracts'
+import { ApiError } from '@lapka/shared'
 import { useTranslations } from '@/components/LocaleProvider'
 import SignOutForm from '@/features/auth/SignOutForm'
 import ConsentCheckbox, { ConsentTerms } from '@/features/consent/ConsentCheckbox'
-import { csrfHeaders } from '@/shared/security/csrf-client'
+import { browserApi } from '@/features/api/browser-api'
 
 /**
  * The consent a new account still owes — signed up through a provider from the
@@ -32,18 +33,17 @@ export default function ConsentForm({ next }: { next: string }) {
     }
 
     setLoading(true); setError('')
-    const response = await fetch('/api/consent', {
-      method: 'POST',
-      headers: csrfHeaders({ 'Content-Type': 'application/json' }),
-      body: JSON.stringify({ version: PD_CONSENT_VERSION }),
-    }).catch(() => null)
-
-    // The session ran out while the page was open: sign in again and come back.
-    if (response?.status === 401) {
-      router.replace(`/login?next=${encodeURIComponent(`/consent?next=${encodeURIComponent(next)}`)}`)
-      return
+    try {
+      // Consent given here is from the web; the same call the apps make.
+      await browserApi().giveConsent({ version: PD_CONSENT_VERSION, source: 'web' })
+    } catch (error) {
+      // The session ran out while the page was open: sign in again and come back.
+      if (error instanceof ApiError && error.code === 'unauthorized') {
+        router.replace(`/login?next=${encodeURIComponent(`/consent?next=${encodeURIComponent(next)}`)}`)
+        return
+      }
+      setError(t.errorFailed); setLoading(false); return
     }
-    if (!response?.ok) { setError(t.errorFailed); setLoading(false); return }
     router.replace(next); router.refresh()
   }
 
