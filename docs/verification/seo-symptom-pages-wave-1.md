@@ -86,4 +86,21 @@ npm run build --workspace=@lapka/web       # 217 статических стра
 4. SEO-00 (Вебмастер, Search Console, редирект `www`), SEO-05 (аналитика воронки), SEO-07 — не начаты.
 5. Спорные медицинские места из раздела «Ревью статей» — решение владельца; страницы можно вернуть в `agent_reviewed`, чтобы не публиковать конкретную.
 
-Решение о приёмке и дата: ожидает владельца.
+## Production, 25 октября 2026
+
+PR vipanait/kotdok#88 слит владельцем (squash) 25 октября 2026 около 14:05 МСК; Vercel выкатил main за ~1 минуту. Проверка боевого домена через ru-proxy под UA YandexBot, Googlebot (smartphone) и Chrome — результат одинаков для всех трёх:
+
+| Адрес | Код | Заметки |
+|---|---|---|
+| `/`, `/simptomy`, `/simptomy/koshki`, `/simptomy/sobaki`, `/otravlenie`, `/o-materialah` | 200 | статьи и хабы `x-vercel-cache: HIT`/`PRERENDER`, TTFB 0,75–1,5 с через прокси |
+| `/simptomy/rvota-u-koshki`, `/simptomy/vzdutie-zhivota-u-sobaki`, `/otravlenie/liliya` | 200 | CSP без nonce, canonical и своя OG-картинка (200, image/png, 104 КБ), один блок JSON-LD |
+| `/sitemap.xml` | 200 | 62 `<loc>` |
+| `/robots.txt`, `/yandex_10acef97a3f92788.html` | 200 | файл подтверждения Вебмастера на месте |
+| `/simptomy/net-takoy` | 404 | `noindex, nofollow` |
+| `https://www.lapka.my/simptomy` | 308 → `https://lapka.my/simptomy` | редирект настроен владельцем в Vercel → Domains 25 октября (SEO-00.4) |
+
+Ни одного `x-vercel-mitigated`, ни одной страницы Security Checkpoint; `server: nginx/1.28.3`. Главная, `/register` и `/api/v1/health` отвечают как раньше (200, nonce-CSP у главной).
+
+Не сделано на момент отчёта: подтверждение в Яндекс.Вебмастере и Search Console, отправка sitemap, «Проверка ответа сервера» настоящим роботом (SEO-00.1–00.3, 00.5), Lighthouse и validator.schema.org.
+
+Решение о приёмке и дата: слито в production владельцем 25 октября 2026.
