@@ -1692,6 +1692,13 @@ components:
                         - superseded
                         - pet_deleted
                     - type: "null"
+                escalation:
+                  type: string
+                  enum:
+                    - none
+                    - see_vet
+                    - see_vet_today
+                    - clinic_now
               required:
                 - case_id
                 - kind
