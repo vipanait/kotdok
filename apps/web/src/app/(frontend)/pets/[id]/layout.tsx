@@ -1,4 +1,5 @@
 import { headers } from 'next/headers'
+import DictionarySlice from '@/components/DictionarySlice'
 import { openPetPage } from '@/components/cabinet/open-pet-page'
 import { PAGE_PATH_HEADER, petReturnPath } from '@/server/security/page-path'
 
@@ -30,5 +31,6 @@ export default async function PetLayout({
 }) {
   const { id } = await params
   await openPetPage(id, petReturnPath(id, (await headers()).get(PAGE_PATH_HEADER)))
-  return children
+  // The medical record's texts, for the screens of this pet only.
+  return <DictionarySlice route="pets/[id]">{children}</DictionarySlice>
 }
