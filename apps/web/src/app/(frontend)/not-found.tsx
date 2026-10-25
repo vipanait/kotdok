@@ -13,8 +13,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 /**
- * Every unmatched URL and every `notFound()` of the site. A signed-in visitor
- * is offered the cabinet, anybody else the home page.
+ * Every unmatched URL and every `notFound()` of the site, including an
+ * article slug that does not exist (`app/global-not-found.tsx` renders this
+ * for those). A signed-in visitor is offered the cabinet, anybody else the
+ * home page; the articles are a link away for both.
  */
 export default async function NotFound() {
   const [locale, user] = await Promise.all([getLocale(), getAuthUser()])
@@ -30,9 +32,12 @@ export default async function NotFound() {
           <div className="eyebrow">{t.notFoundEyebrow}</div>
           <h1>{t.notFoundTitle}</h1>
           <p>{t.notFoundText}</p>
-          <Link href={user ? '/dashboard' : '/'} className="btn primary">
-            {user ? t.toAccount : t.toHome}
-          </Link>
+          <div className="row not-found-actions">
+            <Link href={user ? '/dashboard' : '/'} className="btn primary">
+              {user ? t.toAccount : t.toHome}
+            </Link>
+            <Link href="/simptomy" className="btn secondary">{dict.site.symptoms}</Link>
+          </div>
         </div>
       </main>
       <PublicFooter dict={dict} />

@@ -17,6 +17,7 @@ const ru = {
     signIn: 'Войти',
     toAccount: 'Личный кабинет',
     tagline: 'Лапка · Маленькие лапки. Большая забота',
+    symptoms: 'Симптомы',
     terms: 'Условия',
     accountDeletion: 'Удаление аккаунта',
     language: 'Язык сайта',
