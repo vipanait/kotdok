@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server'
 import {
   CheckCreateInputSchema,
+  FOLLOWUP_FEATURE,
   CheckHistoryQuerySchema,
   IDEMPOTENCY_KEY_HEADER,
   IdempotencyKeySchema,
@@ -11,6 +12,8 @@ import { createCheckJob } from '@/server/checks/check-job-service'
 import { requestToday } from '@/server/medical-record/weight-service'
 import { apiError, apiSuccess } from '@/server/api/response'
 import { serviceFailureResponse } from '@/server/api/failure-response'
+import { reads } from '@/server/pets/pet-contract'
+import { withCaseLinks } from '@/server/followup/followup-service'
 import { withApiAuth, type ApiContext } from '@/server/api/with-api-auth'
 
 export const GET = withApiAuth(async (request: NextRequest, context: ApiContext) => {
@@ -40,8 +43,11 @@ export const GET = withApiAuth(async (request: NextRequest, context: ApiContext)
     cursor: parsed.data.cursor,
   })
   if (!result.ok) return serviceFailureResponse(context.requestId, result.reason)
+  if (!reads(request, FOLLOWUP_FEATURE)) return apiSuccess(context.requestId, result.data)
 
-  return apiSuccess(context.requestId, result.data)
+  const linked = await withCaseLinks(createServiceClient(), context.account.userId, result.data.items)
+  if (!linked.ok) return serviceFailureResponse(context.requestId, 'storage_error')
+  return apiSuccess(context.requestId, { ...result.data, items: linked.data })
 })
 
 /**
