@@ -8,20 +8,8 @@
  * live in the components layer: a Tailwind utility on the same element wins.
  */
 
+/* The colours are in tokens.css, rendered from the shared design tokens. */
 :root {
-  --bg: #FBF6EE;
-  --paper: #FFFFFF;
-  --soft: #F3EBDD;
-  --line: #E7DDCF;
-  --text: #1F1B15;
-  --muted: #6E675B;
-  --green: #0B6B5E;
-  --green-hover: #095349;
-  --mint: #DDEFEB;
-  --orange: #EB8124;
-  --red: #A32B1C;
-  --red-tint: #FBE1DC;
-
   --font-display: var(--font-nunito), 'Nunito', system-ui, sans-serif;
   --font-body: var(--font-manrope), 'Manrope', system-ui, sans-serif;
 }
@@ -32,7 +20,7 @@
   --color-card: var(--paper);
   --color-text: var(--text);
   --color-text-muted: var(--muted);
-  --color-text-faint: var(--muted);
+  --color-text-faint: var(--faint);
   --color-hairline: var(--line);
   --color-accent: var(--green);
   --color-accent-hover: var(--green-hover);
@@ -432,13 +420,7 @@
   .terms input { margin-top: 4px; width: 16px; height: 16px; flex-shrink: 0; accent-color: var(--green); }
   .terms a { text-decoration: underline; }
 
-  /* ---------- Urgency ---------- */
-
-  .emergency { --signal: #A32B1C; --tint: #FBE1DC; }
-  .urgent { --signal: #A8501B; --tint: #FCE9D8; }
-  .monitor { --signal: #7A6000; --tint: #FAF0D2; }
-  .home_care { --signal: #0A5F54; --tint: #DDEFEB; }
-  .healthy { --signal: #1F6E45; --tint: #DCEEE2; }
+  /* ---------- Urgency (the level classes set --signal and --tint in tokens.css) ---------- */
 
   .badge {
     display: inline-flex;

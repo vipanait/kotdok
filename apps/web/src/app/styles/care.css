@@ -37,7 +37,7 @@
   .welcome-start-options { display: grid; gap: 22px; align-content: start; }
   .welcome-option { padding: 30px; }
   .welcome-option h2 { margin-bottom: 12px; }
-  .welcome-option p { margin-bottom: 18px; color: #5B5346; }
+  .welcome-option p { margin-bottom: 18px; color: var(--muted); }
   .welcome-option.is-check { background: var(--mint); border-color: #C4DFD8; }
   .welcome-skip { justify-self: start; min-height: 44px; }
 

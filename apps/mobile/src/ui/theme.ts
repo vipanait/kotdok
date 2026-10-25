@@ -1,69 +1,18 @@
 /**
- * The design system, transcribed from the concept's stylesheet.
+ * The design system as the screens read it.
  *
- * One place for the values so a screen never invents a colour or a radius.
- * Names follow the design rather than the code that came before it, so a
- * reviewer can hold the two side by side.
- *
- * Source: docs/design/mobile-concept-v1/style.css
+ * The colours and the faces are the shared design tokens (@lapka/shared
+ * `tokens.ts`, from docs/design/mobile-design-spec.md §4): the site renders
+ * its stylesheet from the same values, so a colour corrected there changes
+ * here too. Only what is a measurement in points stays in this file.
  */
 
-export const colour = {
-  /** Page background: the cream the whole app sits on. */
-  canvas: '#FBF6EE',
-  /** Cards and sheets. */
-  surface: '#FFFFFF',
-  /** Filled areas inside a card — segment tracks, summary blocks. */
-  soft: '#F3EBDD',
-  line: '#E8DECB',
+import { due, font, palette, urgency } from '@lapka/shared'
 
-  text: '#1F1B15',
-  muted: '#5B5346',
-  faint: '#767062',
+export { due, font, urgency }
 
-  /** Actions. Deliberately not the logo's orange: see below. */
-  accent: '#0B6B5E',
-  accentText: '#0A5F54',
-  accentSoft: '#DDEFEB',
-
-  danger: '#A32B1C',
-  dangerSoft: '#FBE1DC',
-
-  disabled: '#EDE7DE',
-  disabledText: '#6E675B',
-} as const
-
-/**
- * Urgency has its own scale, and it owns the whole red-to-amber range.
- *
- * The site makes orange both the brand and the alarm, so "Save" shouts as
- * loudly as "СРОЧНО". Here the accent moved to teal and these five are the only
- * place warm colours appear — which is what lets a red badge mean something.
- */
-export const urgency = {
-  emergency: { signal: '#A32B1C', background: '#FBE1DC' },
-  urgent: { signal: '#A8501B', background: '#FCE9D8' },
-  monitor: { signal: '#7A6000', background: '#FAF0D2' },
-  home_care: { signal: '#0A5F54', background: '#DDEFEB' },
-  healthy: { signal: '#1F6E45', background: '#DCEEE2' },
-} as const
-
-/**
- * The «Напоминания» card (due priority design, 20 October 2026). A missed date is a
- * calm terracotta line and word — not the urgency scale, which stays the only
- * alarm: it says a day passed, not that the pet is in danger.
- */
-export const due = {
-  overdue: '#A44836',
-  iconBox: '#F4F0E8',
-  date: '#716B61',
-} as const
-
-export const font = {
-  /** Headings. Softer than the body face, which is the point. */
-  display: 'Nunito',
-  body: 'Manrope',
-} as const
+/** The palette under the name every screen imports it by. */
+export const colour = palette
 
 export const type = {
   h1: { fontFamily: font.display, fontSize: 30, lineHeight: 36, fontWeight: '700' },

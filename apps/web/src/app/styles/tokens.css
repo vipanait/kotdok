@@ -1,0 +1,31 @@
+/* Generated from packages/shared/src/tokens.ts by `npm run tokens:update --workspace @lapka/web`. */
+/* Do not edit by hand: the test that writes it fails when the two disagree. */
+
+:root {
+  --bg: #FBF6EE;
+  --paper: #FFFFFF;
+  --soft: #F3EBDD;
+  --line: #E8DECB;
+  --text: #1F1B15;
+  --muted: #5B5346;
+  --faint: #767062;
+  --green: #0B6B5E;
+  --green-hover: #095349;
+  --green-text: #0A5F54;
+  --mint: #DDEFEB;
+  --orange: #EB8124;
+  --red: #A32B1C;
+  --red-tint: #FBE1DC;
+  --disabled: #EDE7DE;
+  --disabled-text: #6E675B;
+
+  --due-overdue: #A44836;
+  --due-icon-box: #F4F0E8;
+  --due-date: #716B61;
+}
+
+.emergency { --signal: #A32B1C; --tint: #FBE1DC; }
+.urgent { --signal: #A8501B; --tint: #FCE9D8; }
+.monitor { --signal: #7A6000; --tint: #FAF0D2; }
+.home_care { --signal: #0A5F54; --tint: #DDEFEB; }
+.healthy { --signal: #1F6E45; --tint: #DCEEE2; }

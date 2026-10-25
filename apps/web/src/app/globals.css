@@ -1,5 +1,6 @@
 @import "tailwindcss";
 /* The design system first; each area's additions after it, so they win ties. */
+@import "./styles/tokens.css";
 @import "./styles/design-system.css";
 @import "./styles/auth.css";
 @import "./styles/cabinet.css";

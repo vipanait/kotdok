@@ -13,7 +13,8 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:integration": "vitest run --config vitest.integration.config.mts",
-    "openapi:update": "vitest run tests/unit/contracts/openapi.test.ts -u"
+    "openapi:update": "vitest run tests/unit/contracts/openapi.test.ts -u",
+    "tokens:update": "vitest run tests/unit/styles/tokens.test.ts -u"
   },
   "dependencies": {
     "@lapka/contracts": "*",
