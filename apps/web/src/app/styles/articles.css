@@ -61,6 +61,7 @@
   .quiz-result h3 { margin: 10px 0 6px; color: var(--signal); font-size: 20px; }
   .reading .quiz-result p { margin: 0 0 8px; color: var(--text); }
   .reading .quiz-result p.small { margin: 8px 0 0; color: var(--muted); font-size: 13px; }
+  .quiz-result .btn { margin: 4px 0 6px; }
   .quiz-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; margin-top: 14px; }
   .reading .quiz-foot p { margin: 0; }
   .quiz-reset { font-size: 14px; }
