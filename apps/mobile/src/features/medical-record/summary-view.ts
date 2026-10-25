@@ -31,6 +31,8 @@ export type SummaryView = {
   /** Oldest first, for the chart. */
   chart: { day: string; kg: number; label: string }[]
   checks: string[][]
+  /** «Перенесённые случаи» of the last six months, one line each; left out when there are none. */
+  episodes?: string[]
   footer: string
 }
 

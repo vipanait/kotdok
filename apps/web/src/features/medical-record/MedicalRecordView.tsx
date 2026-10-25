@@ -13,6 +13,7 @@ import WeightChart from './WeightChart'
 import TodayDoses from './TodayDoses'
 import { useTodayDoses } from './doses/use-today-doses'
 import { checkDayOf } from './visits/visit-view'
+import { ActiveCaseCard, PastEpisodesCard, usePetFollowup } from '@/features/followup/PetFollowupCards'
 import {
   dueBlock,
   recordDay,
@@ -61,6 +62,8 @@ export default function MedicalRecordView({
   const facts = importantFacts(dict, overview, today)
   const addable = addableRecordTypes(overview.writable)
   const doses = useTodayDoses(petId, overview.medications, today)
+  // The open follow-up case and «Перенесённые случаи» (FU-07): additions that never block the record.
+  const followup = usePetFollowup(petId)
 
   return (
     <div className="health-page">
@@ -98,6 +101,8 @@ export default function MedicalRecordView({
 
       <div className="care-columns record-columns">
         <div>
+          <ActiveCaseCard item={followup.active} />
+
           {doses.rows.length > 0 && <TodayDoses title={words.doses.title} doses={doses} today={today} headingId="health-today-title" />}
 
           {due.rows.length > 0 && <DueCard petId={petId} due={due} dict={dict} />}
@@ -137,6 +142,8 @@ export default function MedicalRecordView({
               </Link>
             </section>
           )}
+
+          <PastEpisodesCard episodes={followup.episodes} />
 
           <nav className="card share-care" aria-labelledby="health-share-title">
             <h2 id="health-share-title">{words.share.title}</h2>

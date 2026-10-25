@@ -12,6 +12,7 @@ import { medicalRecordHref } from '../routes'
 import WeightChart from '../WeightChart'
 import { vetSummaryPage, type SummaryPart, type VetSummaryPage } from './summary-view'
 import { useVetSummary } from './use-vet-summary'
+import { VetSummaryEpisodes } from '@/features/followup/PetFollowupCards'
 
 /**
  * `/pets/[id]/vet-summary`: «Для врача», read through the v1 API. The same
@@ -46,7 +47,15 @@ export default function VetSummaryScreen({ petId }: { petId: string }) {
     )
   }
 
-  return <VetSummaryView page={page} dict={dict} onPrint={() => window.print()} notice={<StaleNotice state={state} reload={reload} />} />
+  return (
+    <VetSummaryView
+      page={page}
+      dict={dict}
+      onPrint={() => window.print()}
+      notice={<StaleNotice state={state} reload={reload} />}
+      episodes={<VetSummaryEpisodes petId={petId} />}
+    />
+  )
 }
 
 /**
@@ -73,12 +82,15 @@ export function VetSummaryView({
   dict,
   onPrint,
   notice = null,
+  episodes = null,
 }: {
   page: VetSummaryPage
   dict: Dictionary
   onPrint: () => void
   /** The data could not be refreshed: under the head, as on the record's pages. */
   notice?: React.ReactNode
+  /** «Перенесённые случаи за 6 месяцев» (FU-07), after the checks. */
+  episodes?: React.ReactNode
 }) {
   const words = dict.medicalRecord.vetSummary
   return (
@@ -147,6 +159,8 @@ export function VetSummaryView({
         </section>
 
         <ChecksCard page={page} dict={dict} />
+
+        {episodes}
 
         <p className="vet-summary-footer">{page.footer}</p>
       </div>

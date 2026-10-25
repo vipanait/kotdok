@@ -9,6 +9,7 @@ import { useText } from '@/i18n'
 import { sharePdf } from '@/features/medical-record/share-flow'
 import { nativeShare } from '@/features/medical-record/share-summary'
 import { summaryHtml } from '@/features/medical-record/summary-html'
+import { episodeLine, summaryEpisodes, usePastEpisodes } from '@/features/followup/PastEpisodes'
 import { summaryFileName, summaryView } from '@/features/medical-record/summary-view'
 import { WeightChart } from '@/features/medical-record/WeightChart'
 import { Button, LinkButton } from '@/ui/Button'
@@ -50,7 +51,10 @@ export default function VetSummaryScreen() {
 
   const today = localToday()
   const shown = summary?.pet.id === id ? summary : null
-  const view = shown ? summaryView(t, shown, today) : null
+  // Closed cases the owner kept, of the last six months (follow-up loop).
+  const episodes = usePastEpisodes(id)
+  const episodeLines = summaryEpisodes(episodes.data?.items ?? []).map((episode) => episodeLine(t, episode))
+  const view = shown ? { ...summaryView(t, shown, today), episodes: episodeLines } : null
 
   async function send() {
     if (!view || preparing) return
@@ -178,6 +182,17 @@ export default function VetSummaryScreen() {
               <Text tone="muted">{words.noChecks}</Text>
             )}
           </Card>
+
+          {episodeLines.length > 0 ? (
+            <Card outlined style={styles.card}>
+              <Text variant="h2">{t.followup.summaryTitle}</Text>
+              {episodeLines.map((line) => (
+                <Text key={line} style={styles.line}>
+                  {line}
+                </Text>
+              ))}
+            </Card>
+          ) : null}
 
           <Text variant="label" tone="muted" style={styles.footer}>
             {view.footer}

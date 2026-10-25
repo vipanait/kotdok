@@ -142,6 +142,7 @@ async function runJob(
     stool: input.stool ?? null,
     pain_signs: input.pain_signs,
     today: input.today,
+    followupCaseId: input.followup_case_id,
   })
 
   if (outcome.ok) {

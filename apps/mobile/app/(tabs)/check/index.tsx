@@ -62,7 +62,10 @@ import { Steps, SummaryCard } from '@/ui/Section'
 import { StepSlide } from '@/ui/StepSlide'
 import { FormSkeleton } from '@/ui/Skeleton'
 import { Text } from '@/ui/Text'
-import { colour, space } from '@/ui/theme'
+import { colour, radius, space } from '@/ui/theme'
+import { localDay } from '@/features/followup/followup-ui'
+import { takeRecheck, type RecheckRequest } from '@/features/followup/recheck-request'
+import { ApiError } from '@lapka/shared'
 
 /** How often to ask, and for how long before saying so. */
 const POLL_EVERY_MS = 1500
@@ -231,6 +234,34 @@ export default function NewCheck() {
     router.setParams({ petId: undefined })
   }, [askedPet, pets])
 
+  /**
+   * A re-check «с учётом прошлой» (follow-up loop): asked for from a case's
+   * outcome (`takeRecheck`, on the way in), it carries the case, and the
+   * analysis reads its previous check and answers. Only while that case's pet
+   * is the one chosen; «Не учитывать» drops it. It costs a check like any other.
+   */
+  const [recheck, setRecheck] = useState<{ caseId: string; petId: string; date: string; answers: number } | null>(null)
+  const openRecheck = useCallback(
+    ({ caseId, petId }: RecheckRequest) => {
+      // The case's plaque lives on the first step; a form left on the second
+      // would send the previous description about it unseen.
+      setStep(1)
+      setForm((current) => ({ ...current, petId }))
+      void withFreshSession((api) => api.getFollowup(caseId))
+        .then((theCase) =>
+          setRecheck({
+            caseId: theCase.id,
+            petId: theCase.pet_id,
+            date: t.day(localDay(new Date(theCase.checks.at(-1)?.created_at ?? theCase.origin_checked_at)), false),
+            answers: theCase.checkins.length,
+          }),
+        )
+        .catch(() => setRecheck(null))
+    },
+    [t],
+  )
+  const recheckFor = recheck && recheck.petId === form.petId ? recheck : null
+
   function change(patch: Partial<CheckForm>) {
     setForm((current) => ({ ...current, ...patch }))
     // Retired by editing the description, the one field it is about: a red
@@ -318,6 +349,9 @@ export default function NewCheck() {
       // the fields while they are still on screen, in the moment the result is
       // being opened.
       if (finished.current) startFresh()
+      // After the emptying, or it would undo the pet the re-check is about.
+      const asked = takeRecheck()
+      if (asked) openRecheck(asked)
 
       const done = takeFinishedCheck(userId)
       if (done) {
@@ -331,7 +365,7 @@ export default function NewCheck() {
         focused.current = false
         void keepDraft()
       }
-    }, [keepDraft, startFresh, userId, watch]),
+    }, [keepDraft, openRecheck, startFresh, userId, watch]),
   )
 
   /**
@@ -445,11 +479,16 @@ export default function NewCheck() {
         )
         uploaded.current = { key: key.current, photos, ids }
       }
-      const body = { ...checked.value, upload_ids: photos.length > 0 ? uploaded.current!.ids : [] }
+      const body = {
+        ...checked.value,
+        upload_ids: photos.length > 0 ? uploaded.current!.ids : [],
+        ...(recheckFor ? { followup_case_id: recheckFor.caseId } : {}),
+      }
       const accepted = await withFreshSession((api) => api.createCheck(key.current!, body, localToday()))
       jobId = accepted.job_id
       // Sent and charged: keeping it now would offer to send it a second time.
       finished.current = true
+      setRecheck(null)
       if (userId) rememberPendingCheck(userId, jobId)
       await forgetDraft()
     } catch (cause) {
@@ -457,8 +496,13 @@ export default function NewCheck() {
       if (!next.keepKey) key.current = null
       if (!next.keepUploads) uploaded.current = null
       if (!onScreen.current) return
+      // The case can no longer take a re-check (another pet, closed too long
+      // ago): nothing was charged. The link is dropped, so the next send goes
+      // as a new check — said so, instead of refusing the same way again.
+      const caseRefused = recheckFor !== null && cause instanceof ApiError && cause.code === 'conflict'
+      if (caseRefused) setRecheck(null)
       setFailure({
-        text: submitCheckMessage(t, cause, photos.length > 0),
+        text: caseRefused ? t.followup.recheckRefused : submitCheckMessage(t, cause, photos.length > 0),
         kind: failureKind(cause),
       })
       setWaiting(false)
@@ -593,11 +637,23 @@ export default function NewCheck() {
             </View>
           ) : null}
 
+          {recheckFor ? (
+            <View style={styles.recheck}>
+              <View style={styles.recheckText}>
+                <Text variant="bodyStrong">{t.followup.recheckContext(recheckFor.date, recheckFor.answers)}</Text>
+                <Text variant="caption" tone="muted">
+                  {t.followup.recheckCost}
+                </Text>
+              </View>
+              <LinkButton title={t.followup.recheckDrop} onPress={() => setRecheck(null)} />
+            </View>
+          ) : null}
+
           <Field
             label={t.check.symptoms}
             value={form.symptoms}
             onChangeText={(symptoms) => change({ symptoms })}
-            placeholder={t.check.symptomsPlaceholder}
+            placeholder={recheckFor ? t.followup.recheckPlaceholder : t.check.symptomsPlaceholder}
             error={symptomsError}
             multiline
           />
@@ -736,6 +792,17 @@ function Waiting({
 }
 
 const styles = StyleSheet.create({
+  recheck: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.row,
+    backgroundColor: colour.accentSoft,
+    borderRadius: radius.field,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    marginBottom: space.row,
+  },
+  recheckText: { flex: 1, gap: 2 },
   recordCaption: { marginTop: -8, marginBottom: 16 },
   summaryCopy: { flex: 1, minWidth: 0 },
   onlyPet: { marginBottom: space.row },

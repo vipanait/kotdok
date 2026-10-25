@@ -36,6 +36,18 @@ import {
   WeightPatchSchema,
 } from './medical-record'
 import { VetSummarySchema } from './vet-summary'
+import {
+  CheckFollowupSchema,
+  FOLLOWUP_FEATURE,
+  FollowupCaseListSchema,
+  FollowupCaseSchema,
+  FollowupCaseSummarySchema,
+  FollowupCheckinInputSchema,
+  FollowupCheckinResultSchema,
+  FollowupEnableInputSchema,
+  FollowupSnoozeInputSchema,
+  PastEpisodeListSchema,
+} from './followup'
 import { CheckHistoryPageSchema, SymptomCheckRecordSchema } from './check'
 import { CheckFeedbackSchema, ExtraCheckRequestStatusSchema, FeedbackInputSchema } from './credits'
 import {
@@ -105,6 +117,15 @@ const COMPONENTS: Array<[string, z.ZodType]> = [
   ['ExtraCheckRequestStatus', ExtraCheckRequestStatusSchema],
   ['FeedbackInput', FeedbackInputSchema],
   ['CheckFeedback', CheckFeedbackSchema],
+  ['CheckFollowup', CheckFollowupSchema],
+  ['FollowupEnableInput', FollowupEnableInputSchema],
+  ['FollowupCaseSummary', FollowupCaseSummarySchema],
+  ['FollowupCase', FollowupCaseSchema],
+  ['FollowupCaseList', FollowupCaseListSchema],
+  ['FollowupCheckinInput', FollowupCheckinInputSchema],
+  ['FollowupCheckinResult', FollowupCheckinResultSchema],
+  ['FollowupSnoozeInput', FollowupSnoozeInputSchema],
+  ['PastEpisodeList', PastEpisodeListSchema],
   ['ReauthRequest', ReauthRequestSchema],
   ['ReauthProof', ReauthProofSchema],
   ['AccountDeletionRequest', AccountDeletionRequestSchema],
@@ -284,8 +305,9 @@ const featuresParam = {
   required: false,
   description:
     `Comma-separated features the client reads. \`${PET_DATES_FEATURE}\`: the pet's birth_date, birth_date_approx and ` +
-    `adopted_on. \`${PET_AVATAR_FEATURE}\`: the pet's avatar_url, a link signed for an hour. Without them those fields are left out.`,
-  schema: { type: 'string', example: `${PET_DATES_FEATURE},${PET_AVATAR_FEATURE}` },
+    `adopted_on. \`${PET_AVATAR_FEATURE}\`: the pet's avatar_url, a link signed for an hour. \`${FOLLOWUP_FEATURE}\`: a ` +
+    `check's followup (the case it belongs to). Without them those fields are left out.`,
+  schema: { type: 'string', example: `${PET_DATES_FEATURE},${PET_AVATAR_FEATURE},${FOLLOWUP_FEATURE}` },
 }
 
 const medicationIdParam = { name: 'medication_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }
@@ -422,6 +444,13 @@ export function buildOpenApiDocument(): Record<string, unknown> {
             '(the owner\'s day), when the pet has any courses.',
           parameters: [listDayParam],
           responses: { '200': json('HealthOverview', 'The medical record'), ...commonErrors('not_found') },
+        },
+      },
+      '/pets/{id}/health/episodes': {
+        parameters: [idParam],
+        get: {
+          summary: '«Перенесённые случаи»: closed follow-up cases the owner kept, newest first',
+          responses: { '200': json('PastEpisodeList', 'The episodes'), ...commonErrors('not_found') },
         },
       },
       '/pets/{id}/health/summary': {
@@ -752,6 +781,7 @@ export function buildOpenApiDocument(): Record<string, unknown> {
               schema: { type: 'integer', minimum: 1, maximum: 50, default: 20 },
             },
             { name: 'cursor', in: 'query', required: false, schema: { type: 'string' } },
+            featuresParam,
           ],
           responses: {
             '200': json('CheckHistoryPage', 'One page of history'),
@@ -798,7 +828,7 @@ export function buildOpenApiDocument(): Record<string, unknown> {
         },
       },
       '/checks/{id}': {
-        parameters: [idParam],
+        parameters: [idParam, featuresParam],
         get: {
           summary: 'A stored result, including checks made before v1',
           responses: {
@@ -814,6 +844,106 @@ export function buildOpenApiDocument(): Record<string, unknown> {
           responses: {
             '200': json('CheckFeedback', 'The rating, or null'),
             ...commonErrors('not_found'),
+          },
+        },
+      },
+      '/checks/{id}/followup': {
+        parameters: [idParam],
+        get: {
+          summary: 'Whether the result may offer a follow-up, and the case the check belongs to',
+          description:
+            'An offer only for a check younger than twelve hours, with a pet, not healthy, and not a re-check of a case. ' +
+            '`case` may be `off`: offered and switched off.',
+          responses: {
+            '200': json('CheckFollowup', 'Offer and case'),
+            ...commonErrors('not_found'),
+          },
+        },
+        put: {
+          summary: 'Switch the follow-up of a check on or off',
+          description:
+            'Creates the case on first use; repeating changes nothing. Switching on closes the pet\'s other open case ' +
+            '(`superseded`). 409 when the check cannot be followed.',
+          requestBody: body('FollowupEnableInput'),
+          responses: {
+            '200': json('CheckFollowup', 'Offer and case after the change'),
+            ...commonErrors('bad_request', 'not_found', 'conflict'),
+          },
+        },
+      },
+      '/followups': {
+        get: {
+          summary: 'Open follow-up cases, earliest question first',
+          description: 'The phone builds its local notifications from this list. Only `status=active` is served.',
+          parameters: [{ name: 'status', in: 'query', required: false, schema: { type: 'string', enum: ['active'] } }],
+          responses: {
+            '200': json('FollowupCaseList', 'Open cases'),
+            ...commonErrors('bad_request'),
+          },
+        },
+      },
+      '/followups/{case_id}': {
+        parameters: [{ ...idParam, name: 'case_id' }],
+        get: {
+          summary: 'One case with its timeline: checks, answers and linked visits',
+          responses: {
+            '200': json('FollowupCase', 'The case'),
+            ...commonErrors('not_found'),
+          },
+        },
+      },
+      '/followups/{case_id}/checkins': {
+        parameters: [{ ...idParam, name: 'case_id' }],
+        post: {
+          summary: 'Answer «how is the pet?»; a fixed rule decides what comes next',
+          description:
+            'The same Idempotency-Key returns the stored answer (200) instead of a second one (201). `vet_visited` is ' +
+            'required when the case asks about the vet (`next_slot = vet`) and refused otherwise. 409 for a closed case.',
+          parameters: [{ ...idempotencyParam, required: true }],
+          requestBody: body('FollowupCheckinInput'),
+          responses: {
+            '201': json('FollowupCheckinResult', 'Stored, with the decision'),
+            '200': json('FollowupCheckinResult', 'Already stored under this key'),
+            ...commonErrors('bad_request', 'not_found', 'conflict'),
+          },
+        },
+      },
+      '/followups/{case_id}/dismiss': {
+        parameters: [{ ...idParam, name: 'case_id' }],
+        post: {
+          summary: 'Stop reminding: close an open case with no medical outcome',
+          responses: {
+            '200': json('FollowupCaseSummary', 'The closed case'),
+            ...commonErrors('not_found', 'conflict'),
+          },
+        },
+      },
+      '/followups/{case_id}/snooze': {
+        parameters: [{ ...idParam, name: 'case_id' }],
+        post: {
+          summary: 'Hide an open case until the client\'s tomorrow morning (at most 48 hours ahead)',
+          requestBody: body('FollowupSnoozeInput'),
+          responses: {
+            '200': json('FollowupCaseSummary', 'The case'),
+            ...commonErrors('bad_request', 'not_found', 'conflict'),
+          },
+        },
+      },
+      '/followups/{case_id}/record': {
+        parameters: [{ ...idParam, name: 'case_id' }],
+        put: {
+          summary: 'Keep a closed case in the health record («Перенесённые случаи»)',
+          description: 'Repeating it changes nothing. 409 while the case is open.',
+          responses: {
+            '200': json('FollowupCaseSummary', 'The case'),
+            ...commonErrors('not_found', 'conflict'),
+          },
+        },
+        delete: {
+          summary: 'Take a case out of the health record',
+          responses: {
+            '200': json('FollowupCaseSummary', 'The case'),
+            ...commonErrors('not_found', 'conflict'),
           },
         },
       },

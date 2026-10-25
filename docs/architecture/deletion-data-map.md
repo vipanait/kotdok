@@ -35,6 +35,10 @@
 | `public.extra_check_requests.granted_ledger_id` → `credit_ledger` | запись баланса | **NO ACTION** |
 | `public.transaction_status_events.transaction_id` → `transactions` | транзакция | CASCADE |
 | `public.check_jobs.check_id` → `symptom_checks` | проверка | CASCADE |
+| `public.followup_cases.user_id`, `public.followup_case_checks.user_id`, `public.followup_checkins.user_id` → `auth.users` | Auth | CASCADE |
+| `public.followup_cases.origin_check_id`, `public.followup_case_checks.check_id` → `symptom_checks` | проверка | CASCADE |
+| `public.followup_cases.pet_id` → `pets` | питомец | CASCADE |
+| `public.followup_case_checks.case_id`, `public.followup_checkins.case_id` → `followup_cases` | случай | CASCADE |
 
 Отсюда единственный допустимый порядок в `public`:
 
@@ -55,6 +59,14 @@
 `check_jobs` → `extra_check_requests` → `credit_ledger` (в архив) → `retired.transaction_status_events`
 и `retired.transactions` (в архив) → `retired.credit_transactions` (в архив) → `symptom_checks` →
 `pets` → `profiles` (`user_feedback` каскадом) → `auth.users` отдельным шагом обработчика.
+
+**Уточнение 25 октября 2026.** Ссылки `pet_health_events.check_id`, `pet_medications.visit_item_id` и
+`pet_health_items.source_item_id` — **SET NULL**, то есть UPDATE, который защита от поздних записей
+запрещает аккаунту в статусе `deleting`. Аккаунт с визитом, записанным из результата проверки, не
+удалялся: шаг `data` падал при каждой попытке. Миграция `20261025110000_delete_account_with_linked_visits.sql`
+удаляет медкарту раньше проверок: … → `retired.credit_transactions` (в архив) → `pet_medications` →
+`pet_health_items` → `pet_health_events` → `symptom_checks` (`followup_*` уходят каскадом) → `pets` → …
+Удаление защитой не проверяется, поэтому обнулять становится нечего. Тест — `deletion-worker-sql.test.ts`. Задачи, которые до исправления дошли до `action_required` с `data_step_failed`, та же миграция возвращает в работу (`reopen_stuck_data_deletions()`): cron доделает их со следующим запуском.
 
 Обратный порядок не работает нигде: `credit_ledger` держит и проверки, и
 транзакции одновременно, поэтому он обязан уйти раньше обеих.
@@ -82,10 +94,11 @@
 | `payment_methods` | Токен способа оплаты у провайдера, маска карты | Удаляется (каскад от `auth.users`) | — | Токен провайдера — не бухгалтерская запись; сумма и факт платежа остаются в архиве без него | — |
 | `packages` | Тарифы. Данных о человеке нет | Не трогается | — | — | — |
 | `vet_knowledge` | Справочник и эмбеддинги. Данных о человеке нет | Не трогается | — | — | — |
+| `followup_cases`, `followup_case_checks`, `followup_checkins` | Цикл наблюдения после проверки (25 октября 2026): срочность и расписание вопросов, ответы «лучше / так же / хуже», был ли у врача, заметка владельца, исход, отметка «в медкарте» | Удаляются каскадом вместе с `symptom_checks` и от `auth.users`; ни одной ссылки SET NULL | — | — | — |
 | `api_rate_limits` | Счётчики по имени корзины, без идентификатора человека | Не трогается | — | Корзины общие, не пользовательские | — |
 
 Неклассифицированных пользовательских данных в `public` нет: перечислены все
-четырнадцать таблиц схемы.
+таблицы схемы, включая три таблицы цикла наблюдения.
 
 ## 3. Supabase Auth
 

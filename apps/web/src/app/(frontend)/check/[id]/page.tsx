@@ -3,6 +3,7 @@ import CabinetShell from '@/components/cabinet/CabinetShell'
 import CheckResultContent from '@/features/symptom-check/CheckResultContent'
 import { requireCabinet } from '@/components/cabinet/require-cabinet'
 import { loadCheckResult } from '@/server/checks/load-check-pages'
+import { loadResultFollowup } from '@/server/checks/load-followup-pages'
 import { getDictionary } from '@/server/i18n/get-dictionary'
 import { getLocale } from '@/server/i18n/get-locale'
 import { getTimeZone } from '@/server/i18n/get-time-zone'
@@ -19,12 +20,24 @@ export default async function CheckResultPage({ params }: { params: Promise<{ id
   const loaded = await loadCheckResult(cabinet.user.id, id)
   if (!loaded) notFound()
 
-  const [locale, timeZone] = await Promise.all([getLocale(), getTimeZone()])
+  const [locale, timeZone, followup] = await Promise.all([
+    getLocale(),
+    getTimeZone(),
+    // The reminder card or the case of a re-check; a check without a pet has neither.
+    loaded.pet ? loadResultFollowup(cabinet.user.id, id) : Promise.resolve(null),
+  ])
   const dict = await getDictionary(locale)
 
   return (
     <CabinetShell cabinet={cabinet} active="history" crumb={dict.check.resultCrumb}>
-      <CheckResultContent check={loaded.check} pet={loaded.pet} dict={dict} locale={locale} timeZone={timeZone} />
+      <CheckResultContent
+        check={loaded.check}
+        pet={loaded.pet}
+        dict={dict}
+        locale={locale}
+        timeZone={timeZone}
+        followup={followup}
+      />
     </CabinetShell>
   )
 }

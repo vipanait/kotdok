@@ -11,6 +11,7 @@ import { describeFailure } from '@/lib/errors'
 import { useText, type Dictionary } from '@/i18n'
 import { listDueLine } from '@/features/medical-record/due'
 import { Welcome } from '@/features/onboarding/Welcome'
+import { FollowupDueCards } from '@/features/followup/FollowupCards'
 import { onboardingStore, resumeOnce, settle } from '@/features/onboarding/store'
 import type { OnboardingGoal, OnboardingState } from '@/features/onboarding/onboarding-store'
 import { useAuth } from '@/providers/AuthProvider'
@@ -206,6 +207,8 @@ export default function Pets() {
           data={pets}
           keyExtractor={(pet) => pet.id}
           showsVerticalScrollIndicator={false}
+          // «Как Мурка после проверки?» when a question has come; nothing otherwise.
+          ListHeaderComponent={<FollowupDueCards />}
           renderItem={({ item }) => (
             <Card
               onPress={() => router.push(`/pets/${item.id}`)}

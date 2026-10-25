@@ -1661,6 +1661,51 @@ components:
                 - cat
                 - dog
             - type: "null"
+        followup:
+          anyOf:
+            - type: object
+              properties:
+                case_id:
+                  type: string
+                  format: uuid
+                  pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                kind:
+                  type: string
+                  enum:
+                    - origin
+                    - recheck
+                status:
+                  type: string
+                  enum:
+                    - off
+                    - active
+                    - closed
+                outcome:
+                  anyOf:
+                    - type: string
+                      enum:
+                        - improved
+                        - vet_seen
+                        - unresolved
+                        - dismissed
+                        - expired
+                        - superseded
+                        - pet_deleted
+                    - type: "null"
+                escalation:
+                  type: string
+                  enum:
+                    - none
+                    - see_vet
+                    - see_vet_today
+                    - clinic_now
+              required:
+                - case_id
+                - kind
+                - status
+                - outcome
+              additionalProperties: false
+            - type: "null"
       required:
         - id
         - symptoms_input
@@ -1762,6 +1807,10 @@ components:
               - touch_sensitive
               - hiding
               - vocalizing
+        followup_case_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
       required:
         - symptoms
         - upload_ids
@@ -1947,6 +1996,649 @@ components:
             - type: "null"
       required:
         - rating
+      additionalProperties: false
+    CheckFollowup:
+      type: object
+      properties:
+        offer:
+          anyOf:
+            - type: object
+              properties:
+                plan:
+                  type: string
+                  enum:
+                    - watch
+                    - vet
+                default_enabled:
+                  type: boolean
+                first_due_at:
+                  type: string
+                  format: date-time
+                  pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+                due_at:
+                  type: array
+                  items:
+                    type: string
+                    format: date-time
+                    pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+                replaces:
+                  anyOf:
+                    - type: object
+                      properties:
+                        case_id:
+                          type: string
+                          format: uuid
+                          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                        origin_checked_at:
+                          type: string
+                          format: date-time
+                          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+                      required:
+                        - case_id
+                        - origin_checked_at
+                      additionalProperties: false
+                    - type: "null"
+              required:
+                - plan
+                - default_enabled
+                - first_due_at
+                - due_at
+                - replaces
+              additionalProperties: false
+            - type: "null"
+        case:
+          anyOf:
+            - $ref: "#/components/schemas/FollowupCaseSummary"
+            - type: "null"
+        role:
+          anyOf:
+            - type: string
+              enum:
+                - origin
+                - recheck
+            - type: "null"
+      required:
+        - offer
+        - case
+        - role
+      additionalProperties: false
+    FollowupEnableInput:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        via:
+          type: string
+          enum:
+            - mobile
+            - web
+      required:
+        - enabled
+        - via
+      additionalProperties: false
+    FollowupCaseSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        pet_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        pet_name:
+          type: string
+        pet_species:
+          type: string
+          enum:
+            - cat
+            - dog
+        origin_check_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        origin_checked_at:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+        origin_urgency:
+          type: string
+          enum:
+            - emergency
+            - urgent
+            - monitor
+            - home_care
+            - healthy
+        current_urgency:
+          type: string
+          enum:
+            - emergency
+            - urgent
+            - monitor
+            - home_care
+            - healthy
+        anchor_at:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+        symptoms:
+          type: string
+        plan:
+          type: string
+          enum:
+            - watch
+            - vet
+        status:
+          type: string
+          enum:
+            - off
+            - active
+            - closed
+        next_slot:
+          anyOf:
+            - type: string
+              enum:
+                - mid
+                - final
+                - vet
+                - extra
+            - type: "null"
+        next_due_at:
+          anyOf:
+            - type: string
+              format: date-time
+              pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+            - type: "null"
+        escalation:
+          type: string
+          enum:
+            - none
+            - see_vet
+            - see_vet_today
+            - clinic_now
+        outcome:
+          anyOf:
+            - type: string
+              enum:
+                - improved
+                - vet_seen
+                - unresolved
+                - dismissed
+                - expired
+                - superseded
+                - pet_deleted
+            - type: "null"
+        hidden_until:
+          anyOf:
+            - type: string
+              format: date-time
+              pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+            - type: "null"
+        saved_to_record_at:
+          anyOf:
+            - type: string
+              format: date-time
+              pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+            - type: "null"
+        checkin_count:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+        closed_at:
+          anyOf:
+            - type: string
+              format: date-time
+              pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+            - type: "null"
+        created_at:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+      required:
+        - id
+        - pet_id
+        - pet_name
+        - pet_species
+        - origin_check_id
+        - origin_checked_at
+        - origin_urgency
+        - current_urgency
+        - anchor_at
+        - symptoms
+        - plan
+        - status
+        - next_slot
+        - next_due_at
+        - escalation
+        - outcome
+        - hidden_until
+        - saved_to_record_at
+        - checkin_count
+        - closed_at
+        - created_at
+      additionalProperties: false
+    FollowupCase:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        pet_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        pet_name:
+          type: string
+        pet_species:
+          type: string
+          enum:
+            - cat
+            - dog
+        origin_check_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        origin_checked_at:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+        origin_urgency:
+          type: string
+          enum:
+            - emergency
+            - urgent
+            - monitor
+            - home_care
+            - healthy
+        current_urgency:
+          type: string
+          enum:
+            - emergency
+            - urgent
+            - monitor
+            - home_care
+            - healthy
+        anchor_at:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+        symptoms:
+          type: string
+        plan:
+          type: string
+          enum:
+            - watch
+            - vet
+        status:
+          type: string
+          enum:
+            - off
+            - active
+            - closed
+        next_slot:
+          anyOf:
+            - type: string
+              enum:
+                - mid
+                - final
+                - vet
+                - extra
+            - type: "null"
+        next_due_at:
+          anyOf:
+            - type: string
+              format: date-time
+              pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+            - type: "null"
+        escalation:
+          type: string
+          enum:
+            - none
+            - see_vet
+            - see_vet_today
+            - clinic_now
+        outcome:
+          anyOf:
+            - type: string
+              enum:
+                - improved
+                - vet_seen
+                - unresolved
+                - dismissed
+                - expired
+                - superseded
+                - pet_deleted
+            - type: "null"
+        hidden_until:
+          anyOf:
+            - type: string
+              format: date-time
+              pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+            - type: "null"
+        saved_to_record_at:
+          anyOf:
+            - type: string
+              format: date-time
+              pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+            - type: "null"
+        checkin_count:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+        closed_at:
+          anyOf:
+            - type: string
+              format: date-time
+              pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+            - type: "null"
+        created_at:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+        checks:
+          type: array
+          items:
+            type: object
+            properties:
+              check_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              kind:
+                type: string
+                enum:
+                  - origin
+                  - recheck
+              urgency:
+                type: string
+                enum:
+                  - emergency
+                  - urgent
+                  - monitor
+                  - home_care
+                  - healthy
+              symptoms:
+                type: string
+              created_at:
+                type: string
+                format: date-time
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+            required:
+              - check_id
+              - kind
+              - urgency
+              - symptoms
+              - created_at
+            additionalProperties: false
+        checkins:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              slot:
+                type: string
+                enum:
+                  - mid
+                  - final
+                  - vet
+                  - extra
+              vet_visited:
+                type:
+                  - boolean
+                  - "null"
+              state:
+                type: string
+                enum:
+                  - better
+                  - same
+                  - worse
+              note:
+                type:
+                  - string
+                  - "null"
+              decision:
+                type: string
+                enum:
+                  - close_improved
+                  - keep_watching
+                  - see_vet
+                  - see_vet_today
+                  - clinic_now
+                  - vet_seen
+              created_at:
+                type: string
+                format: date-time
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+            required:
+              - id
+              - slot
+              - vet_visited
+              - state
+              - note
+              - decision
+              - created_at
+            additionalProperties: false
+        visits:
+          type: array
+          items:
+            type: object
+            properties:
+              event_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              check_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              status:
+                type: string
+                enum:
+                  - planned
+                  - done
+              date:
+                type: string
+                format: date
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+              clinic:
+                type:
+                  - string
+                  - "null"
+            required:
+              - event_id
+              - check_id
+              - status
+              - date
+              - clinic
+            additionalProperties: false
+      required:
+        - id
+        - pet_id
+        - pet_name
+        - pet_species
+        - origin_check_id
+        - origin_checked_at
+        - origin_urgency
+        - current_urgency
+        - anchor_at
+        - symptoms
+        - plan
+        - status
+        - next_slot
+        - next_due_at
+        - escalation
+        - outcome
+        - hidden_until
+        - saved_to_record_at
+        - checkin_count
+        - closed_at
+        - created_at
+        - checks
+        - checkins
+        - visits
+      additionalProperties: false
+    FollowupCaseList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/FollowupCaseSummary"
+      required:
+        - items
+      additionalProperties: false
+    FollowupCheckinInput:
+      type: object
+      properties:
+        vet_visited:
+          type: boolean
+        state:
+          type: string
+          enum:
+            - better
+            - same
+            - worse
+        note:
+          type: string
+          maxLength: 500
+        source:
+          type: string
+          enum:
+            - notification
+            - pets_list
+            - pet_card
+            - web_banner
+            - timeline
+            - result
+      required:
+        - state
+        - source
+      additionalProperties: false
+    FollowupCheckinResult:
+      type: object
+      properties:
+        checkin:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+              pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+            slot:
+              type: string
+              enum:
+                - mid
+                - final
+                - vet
+                - extra
+            vet_visited:
+              type:
+                - boolean
+                - "null"
+            state:
+              type: string
+              enum:
+                - better
+                - same
+                - worse
+            note:
+              type:
+                - string
+                - "null"
+            decision:
+              type: string
+              enum:
+                - close_improved
+                - keep_watching
+                - see_vet
+                - see_vet_today
+                - clinic_now
+                - vet_seen
+            created_at:
+              type: string
+              format: date-time
+              pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+          required:
+            - id
+            - slot
+            - vet_visited
+            - state
+            - note
+            - decision
+            - created_at
+          additionalProperties: false
+        case:
+          $ref: "#/components/schemas/FollowupCaseSummary"
+      required:
+        - checkin
+        - case
+      additionalProperties: false
+    FollowupSnoozeInput:
+      type: object
+      properties:
+        until:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+      required:
+        - until
+      additionalProperties: false
+    PastEpisodeList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              case_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              origin_urgency:
+                type: string
+                enum:
+                  - emergency
+                  - urgent
+                  - monitor
+                  - home_care
+                  - healthy
+              symptoms:
+                type: string
+              started_at:
+                type: string
+                format: date-time
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+              closed_at:
+                type: string
+                format: date-time
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+              outcome:
+                type: string
+                enum:
+                  - improved
+                  - vet_seen
+                  - unresolved
+                  - dismissed
+                  - expired
+                  - superseded
+                  - pet_deleted
+            required:
+              - case_id
+              - origin_urgency
+              - symptoms
+              - started_at
+              - closed_at
+              - outcome
+            additionalProperties: false
+      required:
+        - items
       additionalProperties: false
     ReauthRequest:
       type: object
@@ -2386,10 +3078,11 @@ paths:
         required: false
         description: "Comma-separated features the client reads. `pet-dates`: the pet's birth_date,
           birth_date_approx and adopted_on. `pet-avatar`: the pet's avatar_url, a link signed for an
-          hour. Without them those fields are left out."
+          hour. `followup`: a check's followup (the case it belongs to). Without them those fields
+          are left out."
         schema:
           type: string
-          example: pet-dates,pet-avatar
+          example: pet-dates,pet-avatar,followup
     get:
       summary: Own pets
       responses:
@@ -2823,6 +3516,75 @@ paths:
                   code: internal_error
                   message: Unexpected server error
                   request_id: 01J000000000000000000000
+  /pets/{id}/health/episodes:
+    parameters:
+      - *a2
+    get:
+      summary: "«Перенесённые случаи»: closed follow-up cases the owner kept, newest first"
+      responses:
+        "200":
+          description: The episodes
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PastEpisodeList"
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
+                  request_id: 01J000000000000000000000
+        "404":
+          description: No such resource for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: not_found
+                  message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
   /pets/{id}/health/summary:
     parameters:
       - *a2
@@ -2922,7 +3684,7 @@ paths:
           name: Idempotency-Key
           in: header
           required: false
-          schema:
+          schema: &a7
             type: string
             minLength: 8
             maxLength: 200
@@ -5058,6 +5820,7 @@ paths:
           required: false
           schema:
             type: string
+        - *a1
       responses:
         "200":
           description: One page of history
@@ -5283,6 +6046,7 @@ paths:
   /checks/{id}:
     parameters:
       - *a2
+      - *a1
     get:
       summary: A stored result, including checks made before v1
       responses:
@@ -5395,6 +6159,779 @@ paths:
                 error:
                   code: not_found
                   message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
+  /checks/{id}/followup:
+    parameters:
+      - *a2
+    get:
+      summary: Whether the result may offer a follow-up, and the case the check belongs to
+      description: "An offer only for a check younger than twelve hours, with a pet, not healthy, and not
+        a re-check of a case. `case` may be `off`: offered and switched off."
+      responses:
+        "200":
+          description: Offer and case
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckFollowup"
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
+                  request_id: 01J000000000000000000000
+        "404":
+          description: No such resource for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: not_found
+                  message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
+    put:
+      summary: Switch the follow-up of a check on or off
+      description: Creates the case on first use; repeating changes nothing. Switching on closes the pet's
+        other open case (`superseded`). 409 when the check cannot be followed.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FollowupEnableInput"
+      responses:
+        "200":
+          description: Offer and case after the change
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckFollowup"
+        "400":
+          description: Request body or query is invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: bad_request
+                  message: Request body or query is invalid
+                  request_id: 01J000000000000000000000
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
+                  request_id: 01J000000000000000000000
+        "404":
+          description: No such resource for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: not_found
+                  message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "409":
+          description: Same idempotency key with different data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: conflict
+                  message: Same idempotency key with different data
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
+  /followups:
+    get:
+      summary: Open follow-up cases, earliest question first
+      description: The phone builds its local notifications from this list. Only `status=active` is served.
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - active
+      responses:
+        "200":
+          description: Open cases
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FollowupCaseList"
+        "400":
+          description: Request body or query is invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: bad_request
+                  message: Request body or query is invalid
+                  request_id: 01J000000000000000000000
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
+  /followups/{case_id}:
+    parameters:
+      - name: case_id
+        in: path
+        required: true
+        schema: *a6
+    get:
+      summary: "One case with its timeline: checks, answers and linked visits"
+      responses:
+        "200":
+          description: The case
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FollowupCase"
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
+                  request_id: 01J000000000000000000000
+        "404":
+          description: No such resource for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: not_found
+                  message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
+  /followups/{case_id}/checkins:
+    parameters:
+      - name: case_id
+        in: path
+        required: true
+        schema: *a6
+    post:
+      summary: Answer «how is the pet?»; a fixed rule decides what comes next
+      description: The same Idempotency-Key returns the stored answer (200) instead of a second one (201).
+        `vet_visited` is required when the case asks about the vet (`next_slot = vet`) and refused
+        otherwise. 409 for a closed case.
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema: *a7
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FollowupCheckinInput"
+      responses:
+        "200":
+          description: Already stored under this key
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FollowupCheckinResult"
+        "201":
+          description: Stored, with the decision
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FollowupCheckinResult"
+        "400":
+          description: Request body or query is invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: bad_request
+                  message: Request body or query is invalid
+                  request_id: 01J000000000000000000000
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
+                  request_id: 01J000000000000000000000
+        "404":
+          description: No such resource for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: not_found
+                  message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "409":
+          description: Same idempotency key with different data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: conflict
+                  message: Same idempotency key with different data
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
+  /followups/{case_id}/dismiss:
+    parameters:
+      - name: case_id
+        in: path
+        required: true
+        schema: *a6
+    post:
+      summary: "Stop reminding: close an open case with no medical outcome"
+      responses:
+        "200":
+          description: The closed case
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FollowupCaseSummary"
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
+                  request_id: 01J000000000000000000000
+        "404":
+          description: No such resource for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: not_found
+                  message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "409":
+          description: Same idempotency key with different data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: conflict
+                  message: Same idempotency key with different data
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
+  /followups/{case_id}/snooze:
+    parameters:
+      - name: case_id
+        in: path
+        required: true
+        schema: *a6
+    post:
+      summary: Hide an open case until the client's tomorrow morning (at most 48 hours ahead)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FollowupSnoozeInput"
+      responses:
+        "200":
+          description: The case
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FollowupCaseSummary"
+        "400":
+          description: Request body or query is invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: bad_request
+                  message: Request body or query is invalid
+                  request_id: 01J000000000000000000000
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
+                  request_id: 01J000000000000000000000
+        "404":
+          description: No such resource for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: not_found
+                  message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "409":
+          description: Same idempotency key with different data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: conflict
+                  message: Same idempotency key with different data
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
+  /followups/{case_id}/record:
+    parameters:
+      - name: case_id
+        in: path
+        required: true
+        schema: *a6
+    put:
+      summary: Keep a closed case in the health record («Перенесённые случаи»)
+      description: Repeating it changes nothing. 409 while the case is open.
+      responses:
+        "200":
+          description: The case
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FollowupCaseSummary"
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
+                  request_id: 01J000000000000000000000
+        "404":
+          description: No such resource for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: not_found
+                  message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "409":
+          description: Same idempotency key with different data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: conflict
+                  message: Same idempotency key with different data
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
+    delete:
+      summary: Take a case out of the health record
+      responses:
+        "200":
+          description: The case
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FollowupCaseSummary"
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
+                  request_id: 01J000000000000000000000
+        "404":
+          description: No such resource for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: not_found
+                  message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "409":
+          description: Same idempotency key with different data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: conflict
+                  message: Same idempotency key with different data
                   request_id: 01J000000000000000000000
         "429":
           description: Too many requests

@@ -33,6 +33,8 @@ export type PlannedReminder = {
   minute?: number
   title: string
   body: string
+  /** Where a tap leads besides the pet: a follow-up case (`kind: followup`). */
+  data?: { kind: 'followup'; caseId: string }
 }
 
 type Phase = 'today' | 'before' | 'overdue'
