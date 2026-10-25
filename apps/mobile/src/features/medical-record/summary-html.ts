@@ -195,6 +195,9 @@ export function summaryHtml(
     ...(view.weights.length > 0 ? [chart(view.chart), table(words.weightColumns, view.weights, ['50%', '50%'])] : [empty(words.noWeights)]),
     heading(words.checks),
     view.checks.length > 0 ? table(words.checkColumns, view.checks, ['18%', '22%', '60%']) : empty(words.noChecks),
+    ...(view.episodes && view.episodes.length > 0
+      ? [heading(t.followup.summaryTitle), ...view.episodes.map((line) => `<p>${escapeHtml(line)}</p>`)]
+      : []),
     footerInFlow ? `<p class="flow-only flow-footer">${escapeHtml(view.footer)}</p>` : '',
   ].filter((block) => block !== '')
 

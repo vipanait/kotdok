@@ -1,12 +1,15 @@
 import { Suspense } from 'react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { UuidSchema, type SymptomCheckRecord } from '@lapka/contracts'
+import { UuidSchema } from '@lapka/contracts'
 import type { CabinetUser } from '@/server/cabinet/load-cabinet'
 import Icon from '@/components/ui/Icon'
 import CabinetShell from '@/components/cabinet/CabinetShell'
 import CabinetSkeleton from '@/components/cabinet/CabinetSkeleton'
-import HistoryRows from '@/components/cabinet/HistoryRows'
+import { HistoryRow, historyWhen } from '@/components/cabinet/HistoryRows'
+import CaseHistoryRow from '@/features/followup/CaseHistoryRow'
+import { entryChecks, groupHistory, type HistoryEntry } from '@/features/followup/followup-view'
+import { loadHistoryCases } from '@/server/checks/load-followup-pages'
 import Illustration from '@/components/ui/Illustration'
 import { formatMonthHeading, monthKey } from '@/features/symptom-check/check-options'
 import { requireCabinet } from '@/components/cabinet/require-cabinet'
@@ -19,14 +22,23 @@ import { privatePageMetadata } from '@/server/i18n/page-metadata'
 
 export const generateMetadata = privatePageMetadata(d => d.history.title)
 
-/** Newest first in, newest month first out, rows keeping their order. */
-function groupByMonth(checks: SymptomCheckRecord[], timeZone: string) {
-  const groups: { key: string; first: string; checks: SymptomCheckRecord[] }[] = []
-  for (const check of checks) {
-    const key = monthKey(check.created_at, timeZone)
+/** When a history row happened: a check's own time, a case's newest check. */
+function entryAt(entry: HistoryEntry): string {
+  return entry.kind === 'check' ? entry.check.created_at : entry.checks[0]!.created_at
+}
+
+/**
+ * Newest first in, newest month first out, rows keeping their order. A case
+ * is one row (FU-07), in the month of its newest check.
+ */
+function groupByMonth(entries: HistoryEntry[], timeZone: string) {
+  const groups: { key: string; first: string; entries: HistoryEntry[] }[] = []
+  for (const entry of entries) {
+    const at = entryAt(entry)
+    const key = monthKey(at, timeZone)
     const last = groups[groups.length - 1]
-    if (last?.key === key) last.checks.push(check)
-    else groups.push({ key, first: check.created_at, checks: [check] })
+    if (last?.key === key) last.entries.push(entry)
+    else groups.push({ key, first: at, entries: [entry] })
   }
   return groups
 }
@@ -64,6 +76,10 @@ async function ChecksHistory({ cabinet, pet }: { cabinet: CabinetUser; pet: { id
   ])
   const dict = await getDictionary(locale)
   const t = dict.history
+  // The checks of a follow-up case are one row; a check in no case stays as it was.
+  const cases = await loadHistoryCases(cabinet.user.id, checks)
+  const entries = groupHistory(checks, cases.links)
+  const formatWhen = historyWhen(locale, timeZone)
 
   return (
     <CabinetShell cabinet={cabinet} active="history" crumb={t.crumb}>
@@ -91,13 +107,30 @@ async function ChecksHistory({ cabinet, pet }: { cabinet: CabinetUser; pet: { id
             <Link href={pet ? `/check?pet=${pet.id}` : '/check'} className="btn primary">{t.emptyAction}</Link>
           </div>
         ) : (
-          groupByMonth(checks, timeZone).map(group => (
+          groupByMonth(entries, timeZone).map(group => (
             <section key={group.key} className="history-month" aria-labelledby={`month-${group.key}`}>
               <div className="section-head">
                 <h2 id={`month-${group.key}`}>{formatMonthHeading(group.first, locale, timeZone)}</h2>
-                <span className="small muted">{formatCount(t.count, group.checks.length, locale)}</span>
+                <span className="small muted">{formatCount(t.count, entryChecks(group.entries), locale)}</span>
               </div>
-              <HistoryRows checks={group.checks} dict={dict} locale={locale} timeZone={timeZone} />
+              <div>
+                {group.entries.map(entry =>
+                  entry.kind === 'check' ? (
+                    <HistoryRow key={entry.check.id} check={entry.check} dict={dict} formatWhen={formatWhen} />
+                  ) : (
+                    <CaseHistoryRow
+                      key={entry.caseId}
+                      caseId={entry.caseId}
+                      link={entry.link}
+                      checks={entry.checks}
+                      checkins={cases.checkins.get(entry.caseId) ?? 0}
+                      dict={dict}
+                      locale={locale}
+                      timeZone={timeZone}
+                    />
+                  ),
+                )}
+              </div>
             </section>
           ))
         )}

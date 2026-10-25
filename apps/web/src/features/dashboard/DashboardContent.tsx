@@ -4,6 +4,8 @@ import HistoryRows from '@/components/cabinet/HistoryRows'
 import Icon from '@/components/ui/Icon'
 import { creditsState } from '@/features/credits/credits-state'
 import MyPetsSection from '@/features/dashboard/MyPetsSection'
+import FollowupBanners from '@/features/followup/FollowupBanners'
+import { dueBanners } from '@/features/followup/followup-view'
 import Welcome from '@/features/onboarding/Welcome'
 import { showWelcome, type OnboardingState } from '@/shared/onboarding/onboarding-state'
 import PetSavedBanner from '@/features/pets/PetSavedBanner'
@@ -36,8 +38,10 @@ export default async function DashboardContent({ cabinet, data, petSaved, today,
   const dict = await getDictionary(locale)
   const t = dict.dashboard
 
-  const { pets, checks, latestChecksByPet, dueByPet, photosByPet, latestRequestStatus } = data
+  const { pets, checks, latestChecksByPet, dueByPet, photosByPet, latestRequestStatus, followups } = data
   const state = creditsState(cabinet.credits, latestRequestStatus)
+  // «Пора отметить»: open cases whose question has come and that were not hidden (В-2).
+  const due = dueBanners(followups, new Date())
 
   // A new account: the choice of a path, not an empty overview (design `welcome`).
   if (!petSaved && showWelcome(onboarding, { pets: pets.length, checks: checks.length })) {
@@ -97,6 +101,8 @@ export default async function DashboardContent({ cabinet, data, petSaved, today,
         </>
       ) : (
         <>
+          {due.length > 0 && <FollowupBanners cases={due} photosByPet={photosByPet} timeZone={timeZone} />}
+
           {state === 'ready' ? (
             <section className="welcome-panel" aria-labelledby="welcome-title">
               <div>

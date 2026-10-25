@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import { ActivityIndicator, FlatList, Image, StyleSheet, View } from 'react-native'
-import { router } from 'expo-router'
+import { router, useSegments } from 'expo-router'
 import type { SymptomCheckRecord } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
 import { useCached, useSeedCache } from '@/lib/query-cache'
 import { describeFailure } from '@/lib/errors'
 import { dictionary, useLocale, useText } from '@/i18n'
 import { urgencyText } from '@/features/checks/urgency'
+import { caseHref, caseStatusWord, oneRowPerCase } from '@/features/followup/followup-ui'
 import { Button } from '@/ui/Button'
 import { Banner, Card, UrgencyBadge } from '@/ui/Card'
 import { ListSkeleton } from '@/ui/Skeleton'
@@ -45,6 +46,7 @@ export function CheckHistory({
 }) {
   const ui = useText()
   const locale = useLocale()
+  const tab = (useSegments() as string[])[1]
 
   /** "Мурка · Кот", or as much of it as the record carries. */
   function heading(check: SymptomCheckRecord): string {
@@ -76,8 +78,9 @@ export function CheckHistory({
     seed([...(first.data?.items ?? []), ...(more?.items ?? [])].map((check) => [['check', check.id], check] as const))
   }, [first.data, more, seed])
 
+  // A case's checks and answers are one row that opens its timeline.
   const items: SymptomCheckRecord[] | null = first.data
-    ? [...first.data.items, ...(more?.items ?? [])]
+    ? oneRowPerCase([...first.data.items, ...(more?.items ?? [])])
     : first.error
       ? []
       : null
@@ -154,10 +157,11 @@ export function CheckHistory({
           // The badge is written in the language the analysis was, so the word
           // and the sentences it summarises never disagree.
           const level = urgencyText(dictionary(item.locale), item.urgency)
+          const inCase = item.followup && item.pet_id ? item.followup : null
           return (
             <Card
               outlined
-              onPress={() => router.push(resultHref(item.id))}
+              onPress={() => router.push((inCase ? caseHref(tab, item.pet_id!, inCase.case_id) : resultHref(item.id)) as never)}
               accessibilityLabel={`${heading(item)}, ${level.label}, ${formatDate(item.created_at, locale)}`}
             >
               <UrgencyBadge level={item.urgency} label={level.label} />
@@ -175,6 +179,11 @@ export function CheckHistory({
               <Text tone="muted" numberOfLines={1}>
                 {item.symptoms_input}
               </Text>
+              {inCase ? (
+                <Text variant="label" tone="accent" style={styles.caseStatus}>
+                  {caseStatusWord(ui, { status: inCase.status, outcome: inCase.outcome, escalation: inCase.escalation ?? 'none' })}
+                </Text>
+              ) : null}
               <Text variant="caption" tone="faint" style={styles.cardDate}>
                 {formatDate(item.created_at, locale)}
               </Text>
@@ -191,6 +200,7 @@ const styles = StyleSheet.create({
   cardName: { flexShrink: 1 },
   cardSpecies: { flexShrink: 0 },
   cardDate: { marginTop: space.row, textAlign: 'right' },
+  caseStatus: { marginTop: 4 },
   empty: { flex: 1, justifyContent: 'center' },
   emptyArt: { width: 228, height: 228, alignSelf: 'center', marginBottom: 8 },
   emptyTitle: { marginBottom: space.row },

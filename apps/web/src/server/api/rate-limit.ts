@@ -29,6 +29,11 @@ export const RATE_LIMITS = {
    * after). Checks are scarce, so this only stops hammering the endpoint.
    */
   feedback_submit: { limit: 30, windowSeconds: 24 * 60 * 60 },
+  /**
+   * Follow-up writes: switching a reminder, answering, hiding, dismissing.
+   * Cheap, but each one rewrites a phone's notifications.
+   */
+  followup_write: { limit: 60, windowSeconds: 60 * 60 },
   /** Pollable without a session, so it is limited by receipt, not by user. */
   deletion_status: { limit: 60, windowSeconds: 60 * 60 },
 } as const

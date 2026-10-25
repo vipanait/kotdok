@@ -53,6 +53,11 @@ export const CheckCreateInputSchema = z.strictObject({
   duration: z.enum(DURATION_VALUES).nullable().optional(),
   stool: z.enum(STOOL_VALUES).nullable().optional(),
   pain_signs: z.array(z.enum(PAIN_SIGNS)).max(PAIN_SIGNS.length).default([]),
+  /**
+   * A paid re-check «с учётом прошлой» (follow-up loop, FU-03): the case whose
+   * previous check and answers the analysis reads. Same pet, same owner.
+   */
+  followup_case_id: UuidSchema.optional(),
 })
 
 /** What a client sends: the defaulted lists may be omitted. */

@@ -29,6 +29,10 @@ PLANNED означает отсутствие принятого результ�
 | FB-5 | Напоминания о приёме лекарств | IN_PROGRESS | [feedback-05.md](feedback-05.md) | 20.10.2026 |
 | Дизайн 20.10 | Сроки и приём, иллюстрации, onboarding | IN_PROGRESS | [design-2026-10-20.md](design-2026-10-20.md) | 20.10.2026 |
 | PR #82 | Ревью релиза FB-2…FB-5 | DONE | [release-pr82-review.md](release-pr82-review.md) | 20.10.2026 |
+| FU-01…04 | Цикл наблюдения: сервер, повторная проверка, статистика | IN_PROGRESS | [followup-01.md](followup-01.md) | 25.10.2026 |
+| FU-02, 03, 07 (сайт) | Цикл наблюдения на сайте | IN_PROGRESS | [followup-loop-web-implementation.md](followup-loop-web-implementation.md) | 25.10.2026 |
+| FU-05…07 (приложение) | Цикл наблюдения в приложении | IN_PROGRESS | [followup-loop-mobile-implementation.md](followup-loop-mobile-implementation.md) | 25.10.2026 |
+| FU-02…07 | Цикл наблюдения: сквозная проверка на сайте и в приложении | PASS с ограничениями | [followup-loop-e2e.md](followup-loop-e2e.md) | 25.10.2026 |
 
 Этап 4 перечитан 9 сентября: прежний BLOCKED был написан до установки Xcode и не учитывал трёх последующих прогонов. После перепроверки на симуляторе и на настоящем планшете 4/02 и 4/04 закрыты, 4/01 и 4/03 остаются частичными — нужен физический iPhone (1.11) и выравнивание подтверждения почты на staging с продакшеном.
 

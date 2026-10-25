@@ -16,6 +16,8 @@ import {
 import { AddRecordSheet, type AddChoice } from '@/features/medical-record/AddRecordSheet'
 import { daysTogether, isBirthday, togetherMilestone } from '@lapka/shared'
 import { DueList } from '@/features/medical-record/DueList'
+import { PetFollowup } from '@/features/followup/FollowupCards'
+import { PastEpisodes } from '@/features/followup/PastEpisodes'
 import { TodayDoses } from '@/features/medical-record/TodayDoses'
 import { sitterMemo } from '@/features/medical-record/sitter-memo'
 import { doneRoute, recordRoute, dueItems } from '@/features/medical-record/due'
@@ -274,6 +276,9 @@ export default function MedicalRecord() {
         </View>
       ) : null}
 
+      {/* The case after a check, when one is open: its next question comes before the day's doses. */}
+      <PetFollowup petId={id} />
+
       {/* FB-5/04: today's doses first, the one thing on the card that is due by the hour. */}
       <TodayDoses petId={id} courses={shown.medications} />
 
@@ -330,6 +335,8 @@ export default function MedicalRecord() {
           </View>
         ))}
       </Card>
+
+      <PastEpisodes petId={id} />
 
       {forVet}
       {/* FB-3/02: what a sitter needs, as text for Telegram or anywhere. */}

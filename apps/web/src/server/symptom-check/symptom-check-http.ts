@@ -2,7 +2,7 @@ import 'server-only'
 
 import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
-import { ERROR_STATUS } from '@lapka/contracts'
+import { ERROR_STATUS, UuidSchema } from '@lapka/contracts'
 import { createServiceClient } from '@/server/supabase/server'
 import { getAuthUser } from '@/server/auth/get-auth-user'
 import { owesConsent } from '@/server/consent/consent-service'
@@ -63,6 +63,8 @@ async function parseRequest(request: NextRequest): Promise<ParsedRequest> {
   const duration: string | null = body.duration || null
   const stool: string | null = body.stool || null
   const painSignsRaw: unknown = body.pain_signs ?? null
+  // A re-check of a follow-up case (FU-03); anything but a uuid is ignored.
+  const followupCaseId = UuidSchema.safeParse(body.followup_case_id)
 
   if (!symptoms || symptoms.trim().length < 3) {
     return { ok: false, response: badRequest('Опишите симптомы (минимум 3 символа)') }
@@ -82,6 +84,7 @@ async function parseRequest(request: NextRequest): Promise<ParsedRequest> {
       // The owner's day the pet's record is read on; the server's UTC day
       // when it is missing or outside the days around the server's.
       today: clientToday(body.today),
+      ...(followupCaseId.success ? { followupCaseId: followupCaseId.data } : {}),
     },
   }
 }

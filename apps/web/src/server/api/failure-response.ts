@@ -36,3 +36,9 @@ export function serviceFailureResponse(requestId: string, reason: ServiceFailure
       return apiError(requestId, 'internal_error', 'Storage is unavailable')
   }
 }
+
+/** The shared mapping, plus the rate limit some services report as a reason. */
+export function serviceOrRateFailureResponse(requestId: string, reason: ServiceFailure | 'too_many_requests'): NextResponse {
+  if (reason === 'too_many_requests') return apiError(requestId, 'rate_limited', 'Too many requests')
+  return serviceFailureResponse(requestId, reason)
+}

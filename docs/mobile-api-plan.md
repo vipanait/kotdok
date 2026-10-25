@@ -789,3 +789,9 @@ Apple допускает Individual enrollment; в публичном App Store 
 - [ ] **WEB-20.10/10.** Права, узкие экраны, клавиатура, тесты и сборка проверены — кроме масштаба 200% и синхронизации с запущенным приложением (см. отчёт).
 
 Отчёт: `docs/verification/web-update-2026-10-20/report.md`.
+
+## Цикл наблюдения после проверки
+
+Добавлен 25 октября 2026. После проверки симптомов приложение спрашивает, как питомец («Лучше / Так же / Хуже»), и по правилу без вызова модели закрывает случай, советует наблюдать дальше или показаться врачу. Решения владельца: напоминание по умолчанию для `monitor` и `home_care`; фото отметок — отдельным этапом в приватном бакете Supabase; закрытые случаи — в блоке медкарты «Перенесённые случаи»; первыми выходят сервер и веб. План этапов FU-01…FU-09 с критериями приёмки — [plans/followup-loop/README.md](plans/followup-loop/README.md), задание дизайнеру — [agent-instructions/2026-10-25-followup-loop-design.md](agent-instructions/2026-10-25-followup-loop-design.md). Отчёт каждого этапа — `docs/verification/followup-NN.md`.
+
+Состояние на 25 октября 2026: FU-01…FU-07 реализованы на ветке `claude/followup-loop-plan-303d94` (не влита), FU-08 и FU-09 не начаты. Отчёты: [followup-01.md](verification/followup-01.md), [сайт](verification/followup-loop-web-implementation.md), [приложение](verification/followup-loop-mobile-implementation.md).
