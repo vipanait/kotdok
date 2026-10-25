@@ -64,6 +64,7 @@ import { FormSkeleton } from '@/ui/Skeleton'
 import { Text } from '@/ui/Text'
 import { colour, radius, space } from '@/ui/theme'
 import { localDay } from '@/features/followup/followup-ui'
+import { ApiError } from '@lapka/shared'
 
 /** How often to ask, and for how long before saying so. */
 const POLL_EVERY_MS = 1500
@@ -486,8 +487,13 @@ export default function NewCheck() {
       if (!next.keepKey) key.current = null
       if (!next.keepUploads) uploaded.current = null
       if (!onScreen.current) return
+      // The case can no longer take a re-check (another pet, closed too long
+      // ago): nothing was charged. The link is dropped, so the next send goes
+      // as a new check — said so, instead of refusing the same way again.
+      const caseRefused = recheckFor !== null && cause instanceof ApiError && cause.code === 'conflict'
+      if (caseRefused) setRecheck(null)
       setFailure({
-        text: submitCheckMessage(t, cause, photos.length > 0),
+        text: caseRefused ? t.followup.recheckRefused : submitCheckMessage(t, cause, photos.length > 0),
         kind: failureKind(cause),
       })
       setWaiting(false)

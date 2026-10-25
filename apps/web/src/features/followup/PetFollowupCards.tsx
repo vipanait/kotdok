@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 import Link from 'next/link'
 import type { FollowupCaseSummary, PastEpisode } from '@lapka/contracts'
 import { useLocale, useTranslations } from '@/components/LocaleProvider'
@@ -95,25 +95,32 @@ function EpisodeRow({ episode, dict, locale }: { episode: PastEpisode; dict: Dic
   )
 }
 
-/** «Перенесённые случаи»: three at most, then «Все случаи · N»; nothing at all when there are none. */
-export function PastEpisodesCard({ petId, episodes }: { petId: string; episodes: PastEpisode[] }) {
+/**
+ * «Перенесённые случаи»: three at most, then «Все случаи · N» opens the rest
+ * right here — they are the N saved cases, not the whole history of checks.
+ * Nothing at all when there are none.
+ */
+export function PastEpisodesCard({ episodes }: { episodes: PastEpisode[] }) {
   const dict = useTranslations()
   const locale = useLocale()
   const words = dict.followup
+  const listId = useId()
+  const [expanded, setExpanded] = useState(false)
   if (episodes.length === 0) return null
+  const shown = expanded ? episodes : episodes.slice(0, EPISODE_LIMIT)
   return (
     <section className="card followup-episodes" aria-labelledby="followup-episodes-title">
       <h2 id="followup-episodes-title">{words.episodesTitle}</h2>
-      <ul>
-        {episodes.slice(0, EPISODE_LIMIT).map((episode) => (
+      <ul id={listId}>
+        {shown.map((episode) => (
           <EpisodeRow key={episode.case_id} episode={episode} dict={dict} locale={locale} />
         ))}
       </ul>
-      {episodes.length > EPISODE_LIMIT && (
-        <Link href={`/checks?pet=${petId}`} className="link">
+      {episodes.length > EPISODE_LIMIT && !expanded && (
+        <button type="button" className="link" aria-controls={listId} aria-expanded={false} onClick={() => setExpanded(true)}>
           {words.episodesAll.replace('{n}', String(episodes.length))}
-          <Icon name="arrow" />
-        </Link>
+          <Icon name="chevron" />
+        </button>
       )}
       <p className="small followup-episodes-note">{words.episodesNote}</p>
     </section>

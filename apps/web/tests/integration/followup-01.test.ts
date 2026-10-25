@@ -145,6 +145,22 @@ describe('the offer on a result (FU-01.2)', () => {
   })
 })
 
+describe('switching off and on again', () => {
+  it('resumes the question the case was waiting for, escalation included', async () => {
+    const id = await check('monitor', 1)
+    await enable(tokenA, id)
+    const caseId = await caseOf(id)
+    await postCheckin(request(tokenA, 'POST', { state: 'worse', source: 'timeline' }, { 'Idempotency-Key': 'key-00000010' }), caseParams(caseId))
+
+    const off = CheckFollowupSchema.parse(await (await enable(tokenA, id, false)).json())
+    expect(off.case).toMatchObject({ status: 'off' })
+    expect(FollowupCaseListSchema.parse(await (await listFollowups(request(tokenA), {} as never)).json()).items).toEqual([])
+
+    const on = CheckFollowupSchema.parse(await (await enable(tokenA, id)).json())
+    expect(on.case).toMatchObject({ status: 'active', next_slot: 'vet', escalation: 'see_vet_today', checkin_count: 1 })
+  })
+})
+
 describe('answers (FU-01.3)', () => {
   it('stores an answer once per Idempotency-Key and reports what the rule decided', async () => {
     const id = await check('monitor', 1)

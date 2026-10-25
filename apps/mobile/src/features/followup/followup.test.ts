@@ -25,6 +25,7 @@ function summary(overrides: Partial<FollowupCaseSummary> = {}): FollowupCaseSumm
     origin_checked_at: at(25, 9),
     origin_urgency: 'monitor',
     current_urgency: 'monitor',
+    anchor_at: at(25, 9),
     symptoms: 'рвота',
     plan: 'watch',
     status: 'active',
@@ -104,10 +105,22 @@ describe('notifications for open cases', () => {
     expect(vet!.body).toBe('Как Мурка? Расскажите, были ли у врача')
   })
 
+  it('plans every question still ahead, not only the pending one', () => {
+    const planned = planFollowupReminders(ru, [summary()], NOW)
+    expect(planned.map((r) => [r.id.split('-').at(-1), r.day, r.hour])).toEqual([
+      ['mid', '2026-10-26', 9],
+      ['final', '2026-10-27', 9],
+    ])
+    // Past the first question, only the second is left; a vet question stands alone.
+    expect(planFollowupReminders(ru, [summary({ next_slot: 'final', next_due_at: at(27, 9) })], NOW)).toHaveLength(1)
+    expect(planFollowupReminders(ru, [summary({ next_slot: 'vet', next_due_at: at(26, 14) })], NOW)).toHaveLength(1)
+  })
+
   it('waits for a hidden case, and does not ring a question that already passed', () => {
     const [hidden] = planFollowupReminders(ru, [summary({ next_due_at: at(25, 11), hidden_until: at(26, 9) })], NOW)
     expect(hidden).toMatchObject({ day: '2026-10-26', hour: 9 })
-    expect(planFollowupReminders(ru, [summary({ next_due_at: at(25, 11) })], NOW)).toEqual([])
+    // The pending question passed and rang; the second one is still to come.
+    expect(planFollowupReminders(ru, [summary({ next_due_at: at(25, 11) })], NOW).map((r) => r.id.split('-').at(-1))).toEqual(['final'])
   })
 
   it('come first within the phone’s limit, and open the answer for its owner only', async () => {
@@ -127,6 +140,7 @@ describe('notifications for open cases', () => {
     await sync.run({ userId: 'user-a', load: async () => ({ due: [], pets: [{ id: PET, name: 'Мурка' }], courses, doses: [], followups: [late] }) })
 
     expect(scheduled.size).toBe(64)
+    expect(scheduled.has(`lapka-followup-${CASE}-final`)).toBe(true)
     const data = scheduled.get(`lapka-followup-${CASE}-mid`)
     expect(data).toEqual({ petId: PET, userId: 'user-a', kind: 'followup', caseId: CASE })
     expect(openTarget(data, 'user-a', [{ id: PET }])).toBe(`/pets/${PET}/case/${CASE}/checkin?from=notification`)

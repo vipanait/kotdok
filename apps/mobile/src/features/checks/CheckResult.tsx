@@ -84,6 +84,8 @@ export function CheckResult({ id }: { id: string }) {
   // «Напомнить, как …?»: before the advice when watching at home is the plan,
   // after the visit when the plan is a vet — it must not compete with the clinic.
   const followupFirst = check.urgency === 'monitor' || check.urgency === 'home_care'
+  // Nothing to offer or to show for a healthy pet or a check without one: no request either.
+  const followup = check.pet_id !== null && check.urgency !== 'healthy' ? <FollowupOffer check={check} /> : null
 
   return (
     <Screen title={check.pet_name ?? t.result.fallbackTitle} onBack={() => router.back()} scroll>
@@ -128,7 +130,7 @@ export function CheckResult({ id }: { id: string }) {
         <Banner text={check.species_specific_warning} tone="note" />
       ) : null}
 
-      {followupFirst ? <FollowupOffer check={check} /> : null}
+      {followupFirst ? followup : null}
 
       {seenInPhotos ? <Bullets title={t.result.photoObservations} items={[seenInPhotos]} /> : null}
 
@@ -156,7 +158,7 @@ export function CheckResult({ id }: { id: string }) {
         </View>
       ) : null}
 
-      {followupFirst ? null : <FollowupOffer check={check} />}
+      {followupFirst ? null : followup}
 
       <ResultFeedback checkId={check.id} />
 

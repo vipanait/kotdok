@@ -143,7 +143,7 @@ export default function MedicalRecordView({
             </section>
           )}
 
-          <PastEpisodesCard petId={petId} episodes={followup.episodes} />
+          <PastEpisodesCard episodes={followup.episodes} />
 
           <nav className="card share-care" aria-labelledby="health-share-title">
             <h2 id="health-share-title">{words.share.title}</h2>

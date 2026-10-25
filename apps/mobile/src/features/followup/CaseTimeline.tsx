@@ -20,13 +20,15 @@ import { askWhen, caseHref, caseStatusWord, localDay } from './followup-ui'
 
 type Event = {
   at: string
+  /** How the moment reads: a visit has a day only, the rest a day and a time. */
+  when: string
   title: string
   body?: string
   link?: { title: string; href: string }
 }
 
 /** «23 октября · 09:00» on the phone's clock. */
-function stamp(t: Dictionary, iso: string): string {
+export function stamp(t: Dictionary, iso: string): string {
   const moment = new Date(iso)
   const time = `${String(moment.getHours()).padStart(2, '0')}:${String(moment.getMinutes()).padStart(2, '0')}`
   return `${t.day(localDay(moment), false)} · ${time}`
@@ -40,25 +42,29 @@ export function timelineEvents(t: Dictionary, theCase: FollowupCase, tab: string
   const events: Event[] = [
     ...theCase.checks.map((check) => ({
       at: check.created_at,
+      when: stamp(t, check.created_at),
       title: check.kind === 'origin' ? words.eventCheck : words.eventRecheck,
       body: check.kind === 'origin' ? check.symptoms : urgencyText(t, check.urgency).label,
       link: { title: words.openResult, href: checkHref(check.check_id) },
     })),
     ...theCase.checkins.map((checkin) => ({
       at: checkin.created_at,
+      when: stamp(t, checkin.created_at),
       title: words[checkin.state],
       body: [checkin.vet_visited === null ? null : words.vetSaid(checkin.vet_visited), checkin.note].filter(Boolean).join('. ') || undefined,
     })),
     ...theCase.visits.map((visit) => ({
-      // A visit has a day, not a moment: noon keeps it on that day in any zone.
+      // A visit has a day, not a moment: noon sorts it among the day's
+      // events, but only the day is shown — no time was ever given.
       at: `${visit.date}T12:00:00`,
+      when: t.day(visit.date, false),
       title: visit.status === 'done' ? words.eventVisit : words.eventVisitPlanned,
       body: visit.clinic ?? undefined,
       link: { title: words.openVisit, href: `/pets/${theCase.pet_id}/visit/${visit.event_id}` },
     })),
   ]
   if (theCase.status === 'closed' && theCase.closed_at) {
-    events.push({ at: theCase.closed_at, title: words.eventClosed, body: caseStatusWord(t, theCase) })
+    events.push({ at: theCase.closed_at, when: stamp(t, theCase.closed_at), title: words.eventClosed, body: caseStatusWord(t, theCase) })
   }
   return events.sort((a, b) => new Date(a.at).getTime() - new Date(b.at).getTime())
 }
@@ -139,7 +145,7 @@ export function CaseTimeline({ caseId }: { caseId: string }) {
             </View>
             <View style={styles.eventText}>
               <Text variant="caption" tone="faint">
-                {stamp(t, event.at)}
+                {event.when}
               </Text>
               <Text variant="h3">{event.title}</Text>
               {event.body ? <Text tone="muted">{event.body}</Text> : null}

@@ -797,6 +797,7 @@ export const en: Dictionary = {
     recheckDrop: "Don't include",
     recheckPlaceholder: 'What has changed since the last check?',
     recheckCost: 'Submitting uses 1 check',
+    recheckRefused: "This check can no longer join the previous case. Send it as a new check, without the previous one.",
   },
 
   reminders: {

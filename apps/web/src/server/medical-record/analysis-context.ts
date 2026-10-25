@@ -25,11 +25,13 @@ const ENTRY_MAX = 400
  * U+2029, U+0085) are escaped too, so a note cannot open a line of its own
  * that reads like an instruction.
  */
-function quoted(text: string): string {
+export function quotedOwnerText(text: string, max: number = OWNER_TEXT_MAX): string {
   const letters = Array.from(text.trim())
-  const cut = letters.length > OWNER_TEXT_MAX ? `${letters.slice(0, OWNER_TEXT_MAX).join('')}…` : letters.join('')
+  const cut = letters.length > max ? `${letters.slice(0, max).join('')}…` : letters.join('')
   return JSON.stringify(cut).replace(/[\u2028\u2029\u0085]/g, (mark) => `\\u${mark.charCodeAt(0).toString(16).padStart(4, '0')}`)
 }
+
+const quoted = (text: string) => quotedOwnerText(text)
 
 function due(next: string | null, today: string): string {
   if (!next) return ''

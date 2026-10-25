@@ -86,34 +86,11 @@ export function offerPlacement(urgency: Urgency): 'top' | 'bottom' | null {
   return null
 }
 
-/**
- * The banners of the overview: open cases whose question has come and that
- * were not hidden until later, the earliest question first, one per pet.
- */
-export function dueBanners(cases: FollowupCaseSummary[], now: Date): FollowupCaseSummary[] {
-  const seen = new Set<string>()
-  return cases
-    .filter((item) => item.status === 'active' && item.next_due_at !== null)
-    .filter((item) => new Date(item.next_due_at!).getTime() <= now.getTime())
-    .filter((item) => item.hidden_until === null || new Date(item.hidden_until).getTime() <= now.getTime())
-    .sort((a, b) => a.next_due_at!.localeCompare(b.next_due_at!))
-    .filter((item) => {
-      if (seen.has(item.pet_id)) return false
-      seen.add(item.pet_id)
-      return true
-    })
-}
+// Which cases are due, one per pet, and «скрыть до завтра»: shared with the phone.
+export { dueCases as dueBanners, tomorrowMorning } from '@lapka/shared'
 
 /** How many banners the overview shows before «Ещё N случаев». */
 export const BANNER_LIMIT = 2
-
-/** «Скрыть до завтра»: 09:00 of the next day on the browser's clock. */
-export function tomorrowMorning(now: Date): Date {
-  const next = new Date(now.getTime())
-  next.setDate(next.getDate() + 1)
-  next.setHours(9, 0, 0, 0)
-  return next
-}
 
 /** «23 октября» / «October 23». */
 export function formatDay(iso: string | Date, locale: Locale, timeZone?: string): string {
