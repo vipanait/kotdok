@@ -5,6 +5,7 @@ import { withFreshSession } from '@/lib/api'
 import { useToday } from '@/lib/use-today'
 import { describeFailure } from '@/lib/errors'
 import { useCached } from '@/lib/query-cache'
+import { reviewAfterDoseGiven } from '@/features/review/store-review'
 import { useText } from '@/i18n'
 import { Button } from '@/ui/Button'
 import { Banner, Card } from '@/ui/Card'
@@ -72,6 +73,8 @@ export function TodayDoses({ petId, courses }: { petId: string; courses: readonl
       await withFreshSession((api) => given ? api.markDose(petId, course.id, body).then(() => undefined) : api.unmarkDose(petId, course.id, body))
       await record.reload()
       reminders.refresh()
+      // After the tick is on screen; the rules ask from the second «Дали» on.
+      if (given) void reviewAfterDoseGiven()
     } catch (cause) {
       setError(describeFailure(t, cause, words.failed).text)
     } finally {
