@@ -47,7 +47,7 @@
 | `npm run test --workspace=@lapka/web` | 74 файла, 641 тест |
 | `cd apps/web && npx vitest run --config vitest.integration.config.mts tests/integration/followup-01.test.ts tests/integration/followup-03.test.ts tests/integration/deletion-worker-sql.test.ts tests/integration/schema.test.ts tests/integration/check-jobs.test.ts tests/integration/medical-record-10.test.ts` | все прошли |
 
-Полный интеграционный набор целиком не запускался.
+Полный интеграционный набор `npm run test:integration --workspace=@lapka/web` после всех изменений ветки: 52 файла, 523 теста, все прошли (25 октября, 13:11).
 
 ## Что не сделано и ограничения
 
