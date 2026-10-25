@@ -4,6 +4,7 @@ import { fontVariables } from "../fonts";
 import { getLocale } from "@/server/i18n/get-locale";
 import { getDictionary } from "@/server/i18n/get-dictionary";
 import { LocaleProvider } from "@/components/LocaleProvider";
+import { coreOf } from "@/shared/i18n/slices";
 import TimeZoneCookie from "@/components/TimeZoneCookie";
 import { siteUrl } from "@/shared/seo";
 import { jsonLdScript, organizationId, organizationJsonLd, siteMetadata } from "@/shared/site-metadata";
@@ -54,7 +55,8 @@ export default async function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: jsonLdScript(jsonLd) }}
         />
-        <LocaleProvider locale={locale} dict={dict}>
+        {/* The core only: each route group adds its own slice (shared/i18n/slices.ts). */}
+        <LocaleProvider locale={locale} dict={coreOf(dict)}>
           {children}
           <TimeZoneCookie />
         </LocaleProvider>

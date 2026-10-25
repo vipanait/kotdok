@@ -3,6 +3,7 @@ import './globals.css'
 import { fontVariables } from './fonts'
 import NotFound from './(frontend)/not-found'
 import { LocaleProvider } from '@/components/LocaleProvider'
+import { coreOf } from '@/shared/i18n/slices'
 import { getDictionary } from '@/server/i18n/get-dictionary'
 import { getLocale } from '@/server/i18n/get-locale'
 import { siteMetadata } from '@/shared/site-metadata'
@@ -26,7 +27,7 @@ export default async function GlobalNotFound() {
   return (
     <html lang={locale} className={fontVariables}>
       <body>
-        <LocaleProvider locale={locale} dict={dict}>
+        <LocaleProvider locale={locale} dict={coreOf(dict)}>
           <NotFound />
         </LocaleProvider>
       </body>
