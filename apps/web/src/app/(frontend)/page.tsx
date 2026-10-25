@@ -3,7 +3,7 @@ import { publicPageMetadata } from '@/shared/site-metadata'
 import LandingContent from '@/components/LandingContent'
 import { getLocale } from '@/server/i18n/get-locale'
 import { getDictionary } from '@/server/i18n/get-dictionary'
-import { createClient } from '@/server/supabase/server'
+import { isSignedIn } from '@/server/auth/signed-in'
 
 export const metadata: Metadata = publicPageMetadata({
   path: '/',
@@ -16,8 +16,9 @@ export default async function Home() {
   const locale = await getLocale()
   const dict = await getDictionary(locale)
 
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  // Only for the header's button and the call to action: the token in the
+  // cookie says enough, without a second trip to Auth after the proxy's.
+  const signedIn = await isSignedIn()
 
-  return <LandingContent signedIn={!!user} dict={dict} />
+  return <LandingContent signedIn={signedIn} dict={dict} />
 }

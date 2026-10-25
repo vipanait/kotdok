@@ -102,6 +102,7 @@ const REQUIRED_FUNCTIONS = [
   'handle_new_user',
   'health_event_by_key',
   'insert_health_items',
+  'latest_checks_by_pet',
   'link_followup_recheck',
   'lock_own_pet',
   'mark_deletion_step',

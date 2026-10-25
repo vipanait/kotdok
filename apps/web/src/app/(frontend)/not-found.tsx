@@ -3,7 +3,7 @@ import Link from 'next/link'
 import PublicFooter from '@/components/site/PublicFooter'
 import PublicHeader from '@/components/site/PublicHeader'
 import Illustration from '@/components/ui/Illustration'
-import { getAuthUser } from '@/server/auth/get-auth-user'
+import { isSignedIn } from '@/server/auth/signed-in'
 import { getDictionary } from '@/server/i18n/get-dictionary'
 import { getLocale } from '@/server/i18n/get-locale'
 
@@ -19,13 +19,13 @@ export async function generateMetadata(): Promise<Metadata> {
  * home page; the articles are a link away for both.
  */
 export default async function NotFound() {
-  const [locale, user] = await Promise.all([getLocale(), getAuthUser()])
+  const [locale, signedIn] = await Promise.all([getLocale(), isSignedIn()])
   const dict = await getDictionary(locale)
   const t = dict.errors
 
   return (
     <>
-      <PublicHeader dict={dict} account={user ? 'cabinet' : 'sign-in'} />
+      <PublicHeader dict={dict} account={signedIn ? 'cabinet' : 'sign-in'} />
       <main className="reading error-page">
         <div className="empty">
           <Illustration name="welcome-pets" size={210} eager />
@@ -33,8 +33,8 @@ export default async function NotFound() {
           <h1>{t.notFoundTitle}</h1>
           <p>{t.notFoundText}</p>
           <div className="row not-found-actions">
-            <Link href={user ? '/dashboard' : '/'} className="btn primary">
-              {user ? t.toAccount : t.toHome}
+            <Link href={signedIn ? '/dashboard' : '/'} className="btn primary">
+              {signedIn ? t.toAccount : t.toHome}
             </Link>
             <Link href="/simptomy" className="btn secondary">{dict.site.symptoms}</Link>
           </div>

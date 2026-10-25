@@ -124,7 +124,6 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'dummy-anon-key' }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-role-key' }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY || 'dummy-openai-key' }}
-          DUMMY_WEBHOOK_SECRET: ${{ secrets.DUMMY_WEBHOOK_SECRET || 'dummy-ci-secret' }}
 
   mobile:
     needs: changes

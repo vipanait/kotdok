@@ -34,6 +34,8 @@ const ADAPTERS = new Set([
   'api/with-api-auth.ts',
   'auth/auth-callback.ts',
   'auth/get-auth-user.ts',
+  // Reads the session cookie to say whether anyone is signed in, for public pages.
+  'auth/signed-in.ts',
   'auth/sign-out.ts',
   'i18n/get-locale.ts',
   'i18n/get-time-zone.ts',

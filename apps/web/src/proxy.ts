@@ -82,7 +82,14 @@ function withCsp(response: NextResponse, csp: string): NextResponse {
 }
 
 export const config = {
-  // The static articles (`CONTENT_SEGMENTS`) are left out: they are the same
-  // for everybody, need no session, and get their policy from next.config.ts.
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|api|(?:simptomy|otravlenie|o-materialah)(?:/|$)).*)'],
+  // Every match costs a round trip to Supabase Auth (`getUser` above), so
+  // only pages are matched. Left out: the API; the metadata routes (robots,
+  // sitemap, manifest, icons, the social images); everything served from
+  // `public/`; the OAuth return, which makes its own client; and the static
+  // articles (`CONTENT_SEGMENTS`), the same for everybody and given their
+  // policy by next.config.ts. `tests/server/security/proxy-matcher.test.ts`
+  // and `content-paths.test.ts` hold the list to this.
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|api|auth/callback(?:/|$)|robots\\.txt$|sitemap\\.xml$|manifest\\.webmanifest$|icon\\.svg$|apple-icon\\.png$|opengraph-image|twitter-image|web-app-manifest-|images/|yandex_[0-9a-f]+\\.html$|(?:simptomy|otravlenie|o-materialah)(?:/|$)).*)',
+  ],
 }

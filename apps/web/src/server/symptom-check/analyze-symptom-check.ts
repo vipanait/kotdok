@@ -21,8 +21,24 @@ type SupabaseService = ReturnType<typeof createServiceClient>
  */
 let openaiClient: OpenAI | null = null
 
+/**
+ * How long one call to the model may take, and how many times it is tried.
+ *
+ * The SDK's own defaults are ten minutes and three attempts, which is longer
+ * than the function is allowed to run (`maxDuration` on the check routes): the
+ * platform would end the function first, and the `catch` that gives the credit
+ * back would never run. Two attempts of a minute each fit inside it, with room
+ * for the database and the photos; the phone stops polling after three minutes.
+ */
+export const OPENAI_TIMEOUT_MS = 60_000
+export const OPENAI_MAX_RETRIES = 1
+
 function openai(): OpenAI {
-  openaiClient ??= new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  openaiClient ??= new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+    timeout: OPENAI_TIMEOUT_MS,
+    maxRetries: OPENAI_MAX_RETRIES,
+  })
   return openaiClient
 }
 
