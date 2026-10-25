@@ -375,6 +375,35 @@ describe('the job lifecycle functions', () => {
     expect(leased.rows.map((row) => row.id)).toEqual([seeded.ownerAId])
   })
 
+  it('reopens jobs that gave up on the data step, and only those (25 October fix)', async () => {
+    await requestDeletion(seeded.ownerAId)
+    await requestDeletion(seeded.ownerBId)
+    await db.query(
+      `update public.deletion_jobs set status = 'action_required', attempts = 5, error_code = 'data_step_failed',
+         progress = '{"photos": true}'::jsonb where user_id = $1`,
+      [seeded.ownerAId],
+    )
+    await db.query(
+      `update public.deletion_jobs set status = 'action_required', attempts = 5, error_code = 'auth_step_failed',
+         progress = '{"photos": true, "data": true}'::jsonb where user_id = $1`,
+      [seeded.ownerBId],
+    )
+
+    const { rows } = await db.query<{ n: number }>(`select public.reopen_stuck_data_deletions() as n`)
+    expect(rows[0]!.n).toBe(1)
+
+    const { rows: jobs } = await db.query<{ user_id: string; status: string; attempts: number; error_code: string | null }>(
+      `select user_id, status, attempts, error_code from public.deletion_jobs where user_id = any($1) order by user_id = $2 desc`,
+      [[seeded.ownerAId, seeded.ownerBId], seeded.ownerAId],
+    )
+    expect(jobs[0]).toMatchObject({ status: 'in_progress', attempts: 0, error_code: null })
+    expect(jobs[1]).toMatchObject({ status: 'action_required', attempts: 5, error_code: 'auth_step_failed' })
+
+    // The reopened job is due again for the cron.
+    const { rows: due } = await db.query<{ id: string }>(`select public.due_deletion_jobs(10) as id`)
+    expect(due.map((row) => row.id)).toContain(seeded.ownerAId)
+  })
+
   it('is callable by the service role only', async () => {
     const { rows } = await db.query<{ proname: string; anon: boolean; authed: boolean; service: boolean }>(
       `select p.proname,

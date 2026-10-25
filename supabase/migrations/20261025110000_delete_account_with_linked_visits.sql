@@ -77,3 +77,36 @@ begin
   delete from public.profiles where id = p_user_id;
 end;
 $$;
+
+/**
+ * Gives the deletions this bug stopped another round.
+ *
+ * After five failed attempts a job turns `action_required` and the cron leaves
+ * it alone, so an account that hit this before the fix would stay undeleted
+ * after it too. Only jobs whose `data` step failed and never finished are
+ * reopened: the attempts start over, and the next run resumes after the steps
+ * already done. A job that fails again for another reason comes back to
+ * `action_required` after five more tries, as before. Returns how many were
+ * reopened; run once below, and safe to run again.
+ */
+create or replace function public.reopen_stuck_data_deletions()
+returns integer
+language sql
+security definer
+set search_path = public
+as $$
+  with reopened as (
+    update public.deletion_jobs
+       set status = 'in_progress', attempts = 0, error_code = null, lease_until = null, updated_at = now()
+     where status = 'action_required'
+       and error_code = 'data_step_failed'
+       and not (progress ? 'data')
+    returning 1
+  )
+  select count(*)::integer from reopened;
+$$;
+
+revoke all on function public.reopen_stuck_data_deletions() from public, anon, authenticated;
+grant execute on function public.reopen_stuck_data_deletions() to service_role;
+
+select public.reopen_stuck_data_deletions();
