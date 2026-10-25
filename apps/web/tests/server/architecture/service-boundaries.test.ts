@@ -30,6 +30,7 @@ const ADAPTERS = new Set([
   'account/deletion-after.ts',
   'api/bearer-auth.ts',
   'api/failure-response.ts',
+  'api/request.ts',
   'api/response.ts',
   'api/with-api-auth.ts',
   'auth/auth-callback.ts',

@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { PublicProfileSchema, ProfileUpdateInputSchema } from '@lapka/contracts'
 import { createServiceClient } from '@/server/supabase/server'
 import { apiError, apiSuccess } from '@/server/api/response'
+import { readJson } from '@/server/api/request'
 import { withApiAuth, type ApiContext } from '@/server/api/with-api-auth'
 import type { AccountContext } from '@/server/auth/account-state'
 
@@ -32,17 +33,8 @@ export const GET = withApiAuth(
 )
 
 export const PATCH = withApiAuth(async (request: NextRequest, context: ApiContext) => {
-  let body: unknown
-  try {
-    body = await request.json()
-  } catch {
-    return apiError(context.requestId, 'bad_request', 'Body is not valid JSON')
-  }
-
-  const parsed = ProfileUpdateInputSchema.safeParse(body)
-  if (!parsed.success) {
-    return apiError(context.requestId, 'bad_request', 'Body does not match the contract')
-  }
+  const parsed = await readJson(request, ProfileUpdateInputSchema, context)
+  if (!parsed.ok) return parsed.response
 
   const { error } = await createServiceClient()
     .from('profiles')

@@ -6,6 +6,7 @@ import { presentPets } from '@/server/pets/pet-contract'
 import { apiError, apiSuccess } from '@/server/api/response'
 import { serviceFailureResponse } from '@/server/api/failure-response'
 import { isFutureDay } from '@/server/medical-record/weight-service'
+import { readJson } from '@/server/api/request'
 import { withApiAuth, type ApiContext } from '@/server/api/with-api-auth'
 
 export const GET = withApiAuth(async (request, context: ApiContext) => {
@@ -17,21 +18,15 @@ export const GET = withApiAuth(async (request, context: ApiContext) => {
 })
 
 export const POST = withApiAuth(async (request: NextRequest, context: ApiContext) => {
-  let body: unknown
-  try {
-    body = await request.json()
-  } catch {
-    return apiError(context.requestId, 'bad_request', 'Body is not valid JSON')
-  }
-
   // The schema is strict, so a user_id or id in the body is an error rather
   // than something this handler has to remember to strip.
-  const parsed = PetCreateInputSchema.safeParse(body)
+  const parsed = await readJson(request, PetCreateInputSchema, context)
+  if (!parsed.ok) return parsed.response
   // A weighing day ahead of every time zone is a wrong clock, and it would stay
   // the newest measurement for ever.
   // So is a birth or a home day ahead of every time zone (FB-2/01).
-  const days = parsed.success ? [parsed.data.weight_measured_on, parsed.data.birth_date, parsed.data.adopted_on] : []
-  if (!parsed.success || days.some((day) => day != null && isFutureDay(day))) {
+  const days = [parsed.data.weight_measured_on, parsed.data.birth_date, parsed.data.adopted_on]
+  if (days.some((day) => day != null && isFutureDay(day))) {
     return apiError(context.requestId, 'bad_request', 'Body does not match the contract')
   }
 

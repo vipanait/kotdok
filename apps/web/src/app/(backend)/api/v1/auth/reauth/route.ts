@@ -3,6 +3,7 @@ import { ReauthProofSchema, ReauthRequestSchema } from '@lapka/contracts'
 import { createServiceClient } from '@/server/supabase/server'
 import { apiError, apiSuccess } from '@/server/api/response'
 import { readBearerToken } from '@/server/api/bearer-auth'
+import { readJson } from '@/server/api/request'
 import { withApiAuth, type ApiContext } from '@/server/api/with-api-auth'
 import { authenticatedAt, isFresh, issueReauthProof } from '@/server/auth/reauth'
 
@@ -19,17 +20,8 @@ import { authenticatedAt, isFresh, issueReauthProof } from '@/server/auth/reauth
  * signed in but must prove it is you.
  */
 export const POST = withApiAuth(async (request: NextRequest, context: ApiContext) => {
-  let body: unknown
-  try {
-    body = await request.json()
-  } catch {
-    return apiError(context.requestId, 'bad_request', 'Body is not valid JSON')
-  }
-
-  const parsed = ReauthRequestSchema.safeParse(body)
-  if (!parsed.success) {
-    return apiError(context.requestId, 'bad_request', 'Body does not match the contract')
-  }
+  const parsed = await readJson(request, ReauthRequestSchema, context)
+  if (!parsed.ok) return parsed.response
 
   // Safe to read without verifying: `withApiAuth` has already had Supabase
   // check this exact token. See the note in `server/auth/reauth.ts`.

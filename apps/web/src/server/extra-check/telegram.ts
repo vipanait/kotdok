@@ -29,12 +29,6 @@ export function getTelegramApprovalChatId(): string {
   return chatId
 }
 
-export function getTelegramWebhookSecret(): string {
-  const secret = process.env.TELEGRAM_WEBHOOK_SECRET
-  if (!secret) throw new Error('telegram_webhook_secret_missing')
-  return secret
-}
-
 /**
  * Does this request carry the secret Telegram was told to send?
  *

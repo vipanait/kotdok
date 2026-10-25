@@ -1,10 +1,10 @@
-import { UuidSchema } from '@lapka/contracts'
 import { createServiceClient } from '@/server/supabase/server'
 import { getHealthOverview } from '@/server/medical-record/overview-service'
 import { requestToday } from '@/server/medical-record/weight-service'
-import { apiError, apiSuccess } from '@/server/api/response'
+import { apiSuccess } from '@/server/api/response'
 import { presentPet } from '@/server/pets/pet-contract'
 import { serviceFailureResponse } from '@/server/api/failure-response'
+import { readUuidParam } from '@/server/api/request'
 import { withApiAuth, type ApiContext } from '@/server/api/with-api-auth'
 
 type Params = { params: Promise<{ id: string }> }
@@ -18,10 +18,11 @@ type Params = { params: Promise<{ id: string }> }
 export const GET = withApiAuth(async (request, context: ApiContext, params: Params) => {
   const { id } = await params.params
   // A malformed id is answered like a missing pet, as on /pets/{id}.
-  if (!UuidSchema.safeParse(id).success) return apiError(context.requestId, 'not_found', 'No such resource')
+  const refused = readUuidParam(id, context)
+  if (refused) return refused
 
   const result = await getHealthOverview(createServiceClient(), context.account.userId, id, requestToday(request.nextUrl))
   if (!result.ok) return serviceFailureResponse(context.requestId, result.reason)
 
-  return apiSuccess(context.requestId, { ...result.data, pet: await presentPet(request, createServiceClient(), result.data.pet, context.account.userId) })
+  return apiSuccess(context.requestId, { ...result.data, pet: await presentPet(request, createServiceClient(), result.data.pet, result.avatar_path ?? null) })
 })

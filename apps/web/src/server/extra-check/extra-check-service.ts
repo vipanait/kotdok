@@ -54,31 +54,56 @@ export async function readExtraCheckRequestStatus(
   return (data?.status ?? null) as 'pending' | 'approved' | 'rejected' | null
 }
 
-export async function submitExtraCheckRequest(userId: string): Promise<{ requestId: string }> {
+/** Why a request for a free extra check was not made. */
+export type SubmitExtraCheckFailure =
+  | 'rate_limited'
+  /** The database raised it: one request at a time. */
+  | 'pending_request_exists'
+  /** The database raised it: the balance is not empty yet. */
+  | 'credits_remaining'
+  | 'account_deleting'
+  | 'profile_not_found'
+  /** The reviewers could not be told; the pending row is gone again. */
+  | 'telegram_dispatch_failed'
+  | 'storage_error'
+
+export type SubmitExtraCheckResult =
+  | { ok: true; requestId: string }
+  /** `message` is the driver's or Telegram's words, for the log only. */
+  | { ok: false; reason: SubmitExtraCheckFailure; message?: string }
+
+const RAISED_BY_RPC = new Set<SubmitExtraCheckFailure>(['pending_request_exists', 'credits_remaining', 'profile_not_found'])
+
+/**
+ * Asks the reviewers for one more check. Returns what happened rather than
+ * throwing: the route maps the reasons to its codes, so nothing here has to
+ * be string-matched out of an error message.
+ */
+export async function submitExtraCheckRequest(userId: string): Promise<SubmitExtraCheckResult> {
   const supabase = createServiceClient()
 
   // Same guard every service goes through: a missing or deleting account may
-  // not start new work. The route maps these to the codes it already returns.
+  // not start new work.
   const account = await loadAccount(supabase, userId)
   if (!account.ok) {
-    throw new Error(account.reason === 'account_deleting' ? 'account_deleting' : 'profile_not_found')
+    return { ok: false, reason: account.reason === 'account_deleting' ? 'account_deleting' : 'profile_not_found' }
   }
 
   const rate = await consumeRateLimit(supabase, 'extra_check_request', userId)
-  if (!rate.allowed) throw new Error('rate_limited')
+  if (!rate.allowed) return { ok: false, reason: 'rate_limited' }
 
   const { data, error } = await supabase.rpc('create_extra_check_request', {
     p_user_id: userId,
   })
 
   if (error) {
-    throw new Error(getErrorCode(error))
+    // The function raises its refusals by name; anything else is the storage.
+    const raised = getErrorCode(error) as SubmitExtraCheckFailure
+    return RAISED_BY_RPC.has(raised) ? { ok: false, reason: raised } : { ok: false, reason: 'storage_error', message: error.message }
   }
 
   const requestId = (data as { request_id?: string } | null)?.request_id
-  if (!requestId) {
-    throw new Error('extra_check_request_not_created')
-  }
+  if (!requestId) return { ok: false, reason: 'storage_error', message: 'extra_check_request_not_created' }
 
   try {
     const previousRequestsCount = await loadPreviousRequestsCount(supabase, userId, requestId)
@@ -100,17 +125,20 @@ export async function submitExtraCheckRequest(userId: string): Promise<{ request
       throw new Error(updateError.message)
     }
   } catch (errorDuringTelegram) {
+    // A request the reviewers never saw must not sit there as pending.
     await supabase
       .from('extra_check_requests')
       .delete()
       .eq('id', requestId)
       .eq('status', 'pending')
-    throw new Error(
-      `telegram_dispatch_failed:${errorDuringTelegram instanceof Error ? errorDuringTelegram.message : String(errorDuringTelegram)}`,
-    )
+    return {
+      ok: false,
+      reason: 'telegram_dispatch_failed',
+      message: errorDuringTelegram instanceof Error ? errorDuringTelegram.message : String(errorDuringTelegram),
+    }
   }
 
-  return { requestId }
+  return { ok: true, requestId }
 }
 
 export async function resolveExtraCheckRequest(input: {

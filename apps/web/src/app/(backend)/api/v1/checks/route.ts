@@ -14,6 +14,7 @@ import { apiError, apiSuccess } from '@/server/api/response'
 import { serviceFailureResponse } from '@/server/api/failure-response'
 import { reads } from '@/server/pets/pet-contract'
 import { withCaseLinks } from '@/server/followup/followup-service'
+import { readJson } from '@/server/api/request'
 import { withApiAuth, type ApiContext } from '@/server/api/with-api-auth'
 
 /**
@@ -78,17 +79,8 @@ export const POST = withApiAuth(async (request: NextRequest, context: ApiContext
   // The analysis allowance is spent inside analyzeSymptomCheck, which the site
   // calls too. Spending it here as well charged the phone twice per check.
 
-  let body: unknown
-  try {
-    body = await request.json()
-  } catch {
-    return apiError(context.requestId, 'bad_request', 'Body is not valid JSON')
-  }
-
-  const parsed = CheckCreateInputSchema.safeParse(body)
-  if (!parsed.success) {
-    return apiError(context.requestId, 'bad_request', 'Body does not match the contract')
-  }
+  const parsed = await readJson(request, CheckCreateInputSchema, context)
+  if (!parsed.ok) return parsed.response
 
   const idempotencyKey = request.headers.get(IDEMPOTENCY_KEY_HEADER)
   if (idempotencyKey !== null && !IdempotencyKeySchema.safeParse(idempotencyKey).success) {

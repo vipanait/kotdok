@@ -1,9 +1,10 @@
 import { NextRequest } from 'next/server'
-import { AvatarConfirmSchema, AvatarGrantRequestSchema, UuidSchema } from '@lapka/contracts'
+import { AvatarConfirmSchema, AvatarGrantRequestSchema } from '@lapka/contracts'
 import { createServiceClient } from '@/server/supabase/server'
 import { consumeRateLimit } from '@/server/api/rate-limit'
 import { apiError, apiSuccess } from '@/server/api/response'
 import { serviceFailureResponse } from '@/server/api/failure-response'
+import { readJson, readUuidParam } from '@/server/api/request'
 import { withApiAuth, type ApiContext } from '@/server/api/with-api-auth'
 import { confirmAvatar, grantAvatar, removeAvatar, type AvatarFailure } from '@/server/pets/avatar-service'
 import { getPet } from '@/server/pets/pet-service'
@@ -16,19 +17,6 @@ type Params = { params: Promise<{ id: string }> }
  * PUT names what was written and makes it the pet's photo, DELETE removes it.
  * PUT and DELETE answer with the pet, its new photo already signed.
  */
-
-async function readPetId(params: Params): Promise<string | null> {
-  const { id } = await params.params
-  return UuidSchema.safeParse(id).success ? id : null
-}
-
-async function readBody(request: NextRequest): Promise<unknown> {
-  try {
-    return await request.json()
-  } catch {
-    return undefined
-  }
-}
 
 function failure(requestId: string, reason: AvatarFailure) {
   if (reason === 'unsupported_media_type') return apiError(requestId, 'unsupported_media_type', 'The file is not a JPEG, PNG or WebP picture')
@@ -46,10 +34,11 @@ async function answerWithPet(request: NextRequest, context: ApiContext, petId: s
 }
 
 export const POST = withApiAuth(async (request: NextRequest, context: ApiContext, params: Params) => {
-  const petId = await readPetId(params)
-  if (!petId) return apiError(context.requestId, 'not_found', 'No such resource')
-  const parsed = AvatarGrantRequestSchema.safeParse(await readBody(request))
-  if (!parsed.success) return apiError(context.requestId, 'bad_request', 'Body does not match the contract')
+  const { id: petId } = await params.params
+  const refused = readUuidParam(petId, context)
+  if (refused) return refused
+  const parsed = await readJson(request, AvatarGrantRequestSchema, context)
+  if (!parsed.ok) return parsed.response
 
   const supabase = createServiceClient()
   const rate = await consumeRateLimit(supabase, 'upload_create', context.account.userId)
@@ -61,10 +50,11 @@ export const POST = withApiAuth(async (request: NextRequest, context: ApiContext
 })
 
 export const PUT = withApiAuth(async (request: NextRequest, context: ApiContext, params: Params) => {
-  const petId = await readPetId(params)
-  if (!petId) return apiError(context.requestId, 'not_found', 'No such resource')
-  const parsed = AvatarConfirmSchema.safeParse(await readBody(request))
-  if (!parsed.success) return apiError(context.requestId, 'bad_request', 'Body does not match the contract')
+  const { id: petId } = await params.params
+  const refused = readUuidParam(petId, context)
+  if (refused) return refused
+  const parsed = await readJson(request, AvatarConfirmSchema, context)
+  if (!parsed.ok) return parsed.response
 
   const supabase = createServiceClient()
   const rate = await consumeRateLimit(supabase, 'avatar_confirm', context.account.userId)
@@ -76,8 +66,9 @@ export const PUT = withApiAuth(async (request: NextRequest, context: ApiContext,
 })
 
 export const DELETE = withApiAuth(async (request: NextRequest, context: ApiContext, params: Params) => {
-  const petId = await readPetId(params)
-  if (!petId) return apiError(context.requestId, 'not_found', 'No such resource')
+  const { id: petId } = await params.params
+  const refused = readUuidParam(petId, context)
+  if (refused) return refused
 
   const result = await removeAvatar(createServiceClient(), context.account.userId, petId)
   if (!result.ok) return failure(context.requestId, result.reason)

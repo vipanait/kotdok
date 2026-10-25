@@ -3,6 +3,7 @@ import 'server-only'
 import type { VetSummary } from '@lapka/contracts'
 import { summaryRecords } from '@lapka/shared'
 import type { createServiceClient } from '@/server/supabase/server'
+import type { Pet } from '@/shared/types'
 import { getHealthOverview } from './overview-service'
 import { summarise } from './summary-service'
 import { utcToday } from './weight-service'
@@ -220,10 +221,12 @@ export async function loadAnalysisContext(
   userId: string,
   petId: string,
   today: string = utcToday(),
+  /** The pet's row when the caller has just read it, so the record does not read it again. */
+  pet?: Pet,
 ): Promise<LoadedContext> {
   try {
     // The overview, not the full summary: the checks are not part of the context.
-    const overview = await getHealthOverview(supabase, userId, petId, today)
+    const overview = await getHealthOverview(supabase, userId, petId, today, pet)
     if (!overview.ok) throw new Error(`${overview.reason}${overview.message ? `: ${overview.message}` : ''}`)
     const summary = { data: summarise({ ...overview.data, checks: [], today }) }
     const { text } = analysisContext(summary.data, today)

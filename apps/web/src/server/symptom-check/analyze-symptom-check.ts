@@ -338,7 +338,7 @@ export async function analyzeSymptomCheck(
       verifiedPetId = pet.id
       species = sanitizeSpecies(pet.species)
       // The record of this pet only (MR-10): if it cannot be read, the form alone.
-      const record = await loadAnalysisContext(supabase, input.userId, pet.id, input.today)
+      const record = await loadAnalysisContext(supabase, input.userId, pet.id, input.today, pet as Pet)
       medicalRecord = record.status
       const profile = record.medications ? { ...pet, medications: record.medications } : pet
       petContext = `\n\nPET PROFILE: ${describePetProfile(profile, species)}${record.text ? `\n\n${record.text}` : ''}`

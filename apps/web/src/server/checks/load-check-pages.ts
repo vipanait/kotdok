@@ -63,16 +63,42 @@ export async function loadCheckResult(
   return { check, pet: (pet as CheckPet | null) ?? null }
 }
 
-/** Every saved result of this user — or, with `petId`, of that one pet — newest first. */
+/** One of the owner's live pets by id, as the history page names it; null when it is not theirs. */
+export async function loadCheckPet(userId: string, petId: string): Promise<{ id: string; name: string } | null> {
+  const { data, error } = await createServiceClient()
+    .from('pets')
+    .select('id, name')
+    .eq('id', petId)
+    .eq('user_id', userId)
+    .is('deleted_at', null)
+    .maybeSingle()
+  if (error) throw new Error(`Could not load the pet: ${error.message}`)
+  return (data as { id: string; name: string } | null) ?? null
+}
+
+/**
+ * The most checks the history page lists. A page of rows, not an archive:
+ * nobody is near it (checks are credits), and the API pages its history.
+ */
+export const CHECK_HISTORY_LIMIT = 200
+
+/**
+ * The newest saved results of this user — or, with `petId`, of that one pet —
+ * newest first, at most `CHECK_HISTORY_LIMIT`, each without the model's full
+ * answer: the page lists them and links to each.
+ */
 export async function loadCheckHistory(userId: string, petId: string | null = null): Promise<SymptomCheckRecord[]> {
   const service = createServiceClient()
   let query = service
     .from('symptom_checks')
-    .select(symptomCheckSelect())
+    .select(symptomCheckSelect({ fullResponse: false }))
     .eq('user_id', userId)
     .is('deleted_at', null)
   if (petId) query = query.eq('pet_id', petId)
-  const { data, error } = await query.order('created_at', { ascending: false })
+  const { data, error } = await query
+    .order('created_at', { ascending: false })
+    .order('id', { ascending: false })
+    .limit(CHECK_HISTORY_LIMIT)
   // A failed read must reach the error page, not pass for an empty history.
   if (error) throw new Error(`Could not load check history: ${error.message}`)
   return (data ?? []).map(toRecord)

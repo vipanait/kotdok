@@ -1,9 +1,10 @@
-import { CalendarDateSchema, UuidSchema } from '@lapka/contracts'
+import { CalendarDateSchema } from '@lapka/contracts'
 import { daysBetween } from '@lapka/shared'
 import { createServiceClient } from '@/server/supabase/server'
 import { listDoses } from '@/server/medical-record/dose-service'
 import { apiError, apiSuccess } from '@/server/api/response'
 import { serviceFailureResponse } from '@/server/api/failure-response'
+import { readUuidParam } from '@/server/api/request'
 import { withApiAuth, type ApiContext } from '@/server/api/with-api-auth'
 
 type Params = { params: Promise<{ id: string }> }
@@ -11,7 +12,8 @@ type Params = { params: Promise<{ id: string }> }
 /** A pet's «дали» between `?from` and `?to` (FB-5), at most 31 days. */
 export const GET = withApiAuth(async (request, context: ApiContext, params: Params) => {
   const { id } = await params.params
-  if (!UuidSchema.safeParse(id).success) return apiError(context.requestId, 'not_found', 'No such resource')
+  const refused = readUuidParam(id, context)
+  if (refused) return refused
 
   const from = CalendarDateSchema.safeParse(request.nextUrl.searchParams.get('from'))
   const to = CalendarDateSchema.safeParse(request.nextUrl.searchParams.get('to'))

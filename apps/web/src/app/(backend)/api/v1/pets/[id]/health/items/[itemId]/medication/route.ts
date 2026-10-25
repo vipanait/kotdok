@@ -1,9 +1,9 @@
-import { UuidSchema } from '@lapka/contracts'
 import { createServiceClient } from '@/server/supabase/server'
 import { prescriptionToMedication } from '@/server/medical-record/visit-service'
 import { requestToday } from '@/server/medical-record/weight-service'
-import { apiError, apiSuccess } from '@/server/api/response'
+import { apiSuccess } from '@/server/api/response'
 import { serviceFailureResponse } from '@/server/api/failure-response'
+import { readUuidParam } from '@/server/api/request'
 import { withApiAuth, type ApiContext } from '@/server/api/with-api-auth'
 
 type Params = { params: Promise<{ id: string; itemId: string }> }
@@ -15,9 +15,8 @@ type Params = { params: Promise<{ id: string; itemId: string }> }
  */
 export const POST = withApiAuth(async (request, context: ApiContext, params: Params) => {
   const { id, itemId } = await params.params
-  if (!UuidSchema.safeParse(id).success || !UuidSchema.safeParse(itemId).success) {
-    return apiError(context.requestId, 'not_found', 'No such resource')
-  }
+  const refused = readUuidParam(id, context) ?? readUuidParam(itemId, context)
+  if (refused) return refused
 
   const result = await prescriptionToMedication(createServiceClient(), context.account.userId, id, itemId, requestToday(request.nextUrl))
   if (!result.ok) return serviceFailureResponse(context.requestId, result.reason)

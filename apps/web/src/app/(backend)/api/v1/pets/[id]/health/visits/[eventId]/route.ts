@@ -1,11 +1,12 @@
 import { NextRequest } from 'next/server'
-import { IDEMPOTENCY_KEY_HEADER, UuidSchema, VisitPatchSchema } from '@lapka/contracts'
+import { IDEMPOTENCY_KEY_HEADER, VisitPatchSchema } from '@lapka/contracts'
 import { createServiceClient } from '@/server/supabase/server'
 import { readEvent } from '@/server/medical-record/event-service'
 import { updateVisit } from '@/server/medical-record/visit-service'
 import { isFutureDay, isPastDay, readIdempotencyKey, requestToday } from '@/server/medical-record/weight-service'
 import { apiError, apiSuccess } from '@/server/api/response'
 import { serviceFailureResponse } from '@/server/api/failure-response'
+import { readJson, readUuidParam } from '@/server/api/request'
 import { withApiAuth, type ApiContext } from '@/server/api/with-api-auth'
 
 type Params = { params: Promise<{ id: string; eventId: string }> }
@@ -24,19 +25,11 @@ type Params = { params: Promise<{ id: string; eventId: string }> }
  */
 export const PATCH = withApiAuth(async (request: NextRequest, context: ApiContext, params: Params) => {
   const { id, eventId } = await params.params
-  if (!UuidSchema.safeParse(id).success || !UuidSchema.safeParse(eventId).success) {
-    return apiError(context.requestId, 'not_found', 'No such resource')
-  }
+  const refused = readUuidParam(id, context) ?? readUuidParam(eventId, context)
+  if (refused) return refused
 
-  let body: unknown
-  try {
-    body = await request.json()
-  } catch {
-    return apiError(context.requestId, 'bad_request', 'Body is not valid JSON')
-  }
-
-  const parsed = VisitPatchSchema.safeParse(body)
-  if (!parsed.success) return apiError(context.requestId, 'bad_request', 'Body does not match the contract')
+  const parsed = await readJson(request, VisitPatchSchema, context)
+  if (!parsed.ok) return parsed.response
   const key = readIdempotencyKey(request.headers, IDEMPOTENCY_KEY_HEADER)
   if (!key.ok) return apiError(context.requestId, 'bad_request', 'Idempotency-Key is not valid')
 

@@ -1,19 +1,14 @@
 import { NextRequest } from 'next/server'
-import { MedicationPatchSchema, UuidSchema } from '@lapka/contracts'
+import { MedicationPatchSchema } from '@lapka/contracts'
 import { createServiceClient } from '@/server/supabase/server'
 import { changeMedication, deleteMedication } from '@/server/medical-record/medication-service'
 import { clientToday, requestToday } from '@/server/medical-record/weight-service'
 import { apiError, apiNoContent, apiSuccess } from '@/server/api/response'
 import { serviceFailureResponse } from '@/server/api/failure-response'
+import { readJson, readUuidParam } from '@/server/api/request'
 import { withApiAuth, type ApiContext } from '@/server/api/with-api-auth'
 
 type Params = { params: Promise<{ id: string; medicationId: string }> }
-
-async function readIds(params: Params): Promise<{ petId: string; medicationId: string } | null> {
-  const { id, medicationId } = await params.params
-  if (!UuidSchema.safeParse(id).success || !UuidSchema.safeParse(medicationId).success) return null
-  return { petId: id, medicationId }
-}
 
 /**
  * A correction, or «Завершить курс»: `{ ended_on: today, ongoing: false }`.
@@ -29,24 +24,18 @@ async function readIds(params: Params): Promise<{ petId: string; medicationId: s
  * older than the parameter.
  */
 export const PATCH = withApiAuth(async (request: NextRequest, context: ApiContext, params: Params) => {
-  const ids = await readIds(params)
-  if (!ids) return apiError(context.requestId, 'not_found', 'No such resource')
+  const { id, medicationId } = await params.params
+  const refused = readUuidParam(id, context) ?? readUuidParam(medicationId, context)
+  if (refused) return refused
 
-  let body: unknown
-  try {
-    body = await request.json()
-  } catch {
-    return apiError(context.requestId, 'bad_request', 'Body is not valid JSON')
-  }
-
-  const parsed = MedicationPatchSchema.safeParse(body)
-  if (!parsed.success) return apiError(context.requestId, 'bad_request', 'Body does not match the contract')
+  const parsed = await readJson(request, MedicationPatchSchema, context)
+  if (!parsed.ok) return parsed.response
 
   const given = request.nextUrl.searchParams.get('today')
   const now = new Date()
   const ownerToday = given !== null && clientToday(given, now) === given ? given : null
 
-  const result = await changeMedication(createServiceClient(), context.account.userId, ids.petId, ids.medicationId, parsed.data, now, ownerToday)
+  const result = await changeMedication(createServiceClient(), context.account.userId, id, medicationId, parsed.data, now, ownerToday)
   if (!result.ok) {
     if (result.reason === 'bad_range') return apiError(context.requestId, 'bad_request', 'The end is before the start')
     if (result.reason === 'record_done') return apiError(context.requestId, 'record_done', 'A finished course cannot be changed')
@@ -57,10 +46,11 @@ export const PATCH = withApiAuth(async (request: NextRequest, context: ApiContex
 
 /** The pet form's list follows, counted from the owner's `?today=` (`requestToday`). */
 export const DELETE = withApiAuth(async (request: NextRequest, context: ApiContext, params: Params) => {
-  const ids = await readIds(params)
-  if (!ids) return apiError(context.requestId, 'not_found', 'No such resource')
+  const { id, medicationId } = await params.params
+  const refused = readUuidParam(id, context) ?? readUuidParam(medicationId, context)
+  if (refused) return refused
 
-  const result = await deleteMedication(createServiceClient(), context.account.userId, ids.petId, ids.medicationId, requestToday(request.nextUrl))
+  const result = await deleteMedication(createServiceClient(), context.account.userId, id, medicationId, requestToday(request.nextUrl))
   if (!result.ok) {
     if (result.reason === 'bad_range') return apiError(context.requestId, 'bad_request', 'The end is before the start')
     return serviceFailureResponse(context.requestId, result.reason)

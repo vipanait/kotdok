@@ -61,7 +61,7 @@ describe('extra-check-service', () => {
 
     const result = await submitExtraCheckRequest('user-1')
 
-    expect(result).toEqual({ requestId: 'req-1' })
+    expect(result).toEqual({ ok: true, requestId: 'req-1' })
     expect(rpc).toHaveBeenCalledWith('create_extra_check_request', { p_user_id: 'user-1' })
     expect(sendExtraCheckRequestToTelegram).toHaveBeenCalledWith({
       requestId: 'req-1',
@@ -93,20 +93,67 @@ describe('extra-check-service', () => {
     vi.mocked(createServiceClient).mockReturnValue({ rpc, from } as never)
     vi.mocked(sendExtraCheckRequestToTelegram).mockRejectedValue(new Error('network_error'))
 
-    await expect(submitExtraCheckRequest('user-2')).rejects.toThrow('telegram_dispatch_failed:network_error')
+    await expect(submitExtraCheckRequest('user-2')).resolves.toEqual({
+      ok: false,
+      reason: 'telegram_dispatch_failed',
+      message: 'network_error',
+    })
     expect(remove).toHaveBeenCalled()
   })
 
-  it('passes through conflict errors from create rpc', async () => {
+  it.each(['pending_request_exists', 'credits_remaining', 'profile_not_found'] as const)(
+    'names the refusal the create rpc raised: %s',
+    async (raised) => {
+      const rpc = vi.fn(async (name: string) =>
+        name === 'consume_rate_limit' ? allowedRateLimit : { data: null, error: { message: raised } },
+      )
+      const from = vi.fn(() => activeProfile('user-3'))
+      vi.mocked(createServiceClient).mockReturnValue({ rpc, from } as never)
+
+      await expect(submitExtraCheckRequest('user-3')).resolves.toEqual({ ok: false, reason: raised })
+    },
+  )
+
+  it('reports any other database failure as a storage error, with the driver message for the log', async () => {
     const rpc = vi.fn(async (name: string) =>
-      name === 'consume_rate_limit'
-        ? allowedRateLimit
-        : { data: null, error: { message: 'pending_request_exists' } },
+      name === 'consume_rate_limit' ? allowedRateLimit : { data: null, error: { message: 'connection reset' } },
     )
     const from = vi.fn(() => activeProfile('user-3'))
     vi.mocked(createServiceClient).mockReturnValue({ rpc, from } as never)
 
-    await expect(submitExtraCheckRequest('user-3')).rejects.toThrow('pending_request_exists')
+    await expect(submitExtraCheckRequest('user-3')).resolves.toEqual({
+      ok: false,
+      reason: 'storage_error',
+      message: 'connection reset',
+    })
+  })
+
+  it('refuses before any work when the allowance is spent', async () => {
+    const rpc = vi.fn(async () => ({
+      data: { allowed: false, remaining: 0, reset_at: '2026-09-06T13:00:00.000Z' },
+      error: null,
+    }))
+    const from = vi.fn(() => activeProfile('user-4'))
+    vi.mocked(createServiceClient).mockReturnValue({ rpc, from } as never)
+
+    await expect(submitExtraCheckRequest('user-4')).resolves.toEqual({ ok: false, reason: 'rate_limited' })
+    expect(rpc).toHaveBeenCalledTimes(1)
+  })
+
+  it('refuses an account that is being deleted', async () => {
+    const builder = {
+      select: vi.fn(() => builder),
+      eq: vi.fn(() => builder),
+      maybeSingle: vi.fn(async () => ({
+        data: { id: 'user-5', status: 'deleting', role: 'user', locale: 'ru', credits: 0 },
+        error: null,
+      })),
+    }
+    const rpc = vi.fn()
+    vi.mocked(createServiceClient).mockReturnValue({ rpc, from: vi.fn(() => builder) } as never)
+
+    await expect(submitExtraCheckRequest('user-5')).resolves.toEqual({ ok: false, reason: 'account_deleting' })
+    expect(rpc).not.toHaveBeenCalled()
   })
 
   it('resolves request through rpc', async () => {

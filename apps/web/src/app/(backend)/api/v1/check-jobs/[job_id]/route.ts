@@ -1,8 +1,8 @@
 import { NextRequest } from 'next/server'
-import { UuidSchema } from '@lapka/contracts'
 import { createServiceClient } from '@/server/supabase/server'
 import { getCheckJob } from '@/server/checks/check-job-service'
 import { apiError, apiSuccess } from '@/server/api/response'
+import { readUuidParam } from '@/server/api/request'
 import { withApiAuth, type ApiContext } from '@/server/api/with-api-auth'
 
 type Params = { params: Promise<{ job_id: string }> }
@@ -17,12 +17,11 @@ type Params = { params: Promise<{ job_id: string }> }
 export const GET = withApiAuth<Params>(
   async (_request: NextRequest, context: ApiContext, params: Params) => {
     const { job_id: jobId } = await params.params
-    if (!UuidSchema.safeParse(jobId).success) {
-      return apiError(context.requestId, 'not_found', 'Задача не найдена')
-    }
+    const refused = readUuidParam(jobId, context)
+    if (refused) return refused
 
     const job = await getCheckJob(createServiceClient(), context.account.userId, jobId)
-    if (!job) return apiError(context.requestId, 'not_found', 'Задача не найдена')
+    if (!job) return apiError(context.requestId, 'not_found', 'No such resource')
 
     return apiSuccess(context.requestId, job)
   },

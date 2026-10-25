@@ -6,6 +6,7 @@ import {
 } from '@lapka/contracts'
 import { createServiceClient } from '@/server/supabase/server'
 import { apiError, apiSuccess } from '@/server/api/response'
+import { readJson } from '@/server/api/request'
 import { withApiAuth, type ApiContext } from '@/server/api/with-api-auth'
 import { requestAccountDeletion } from '@/server/account/deletion-service'
 import { scheduleDeletionProcessing } from '@/server/account/deletion-after'
@@ -24,17 +25,8 @@ import { scheduleDeletionProcessing } from '@/server/account/deletion-after'
  * Requests racing each other do reach it, and the database gives them one job.
  */
 export const POST = withApiAuth(async (request: NextRequest, context: ApiContext) => {
-  let body: unknown
-  try {
-    body = await request.json()
-  } catch {
-    return apiError(context.requestId, 'bad_request', 'Body is not valid JSON')
-  }
-
-  const parsed = AccountDeletionRequestSchema.safeParse(body)
-  if (!parsed.success) {
-    return apiError(context.requestId, 'bad_request', 'Body does not match the contract')
-  }
+  const parsed = await readJson(request, AccountDeletionRequestSchema, context)
+  if (!parsed.ok) return parsed.response
 
   const outcome = await requestAccountDeletion(createServiceClient(), {
     userId: context.account.userId,

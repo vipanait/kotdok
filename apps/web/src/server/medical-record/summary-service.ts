@@ -139,24 +139,28 @@ export async function getVetSummary(
   userId: string,
   petId: string,
   today: string = utcToday(),
-): Promise<PetResult<VetSummary>> {
+): Promise<PetResult<VetSummary> & { avatar_path?: string | null }> {
   // The pet form's list of medicines counted from the same day as the rest.
-  const overview = await getHealthOverview(supabase, userId, petId, today)
+  // The checks are read alongside the record: neither needs the other, and
+  // a pet that is not the caller's shows in the overview's answer.
+  const [overview, { data: checks, error }] = await Promise.all([
+    getHealthOverview(supabase, userId, petId, today),
+    supabase
+      .from('symptom_checks')
+      .select('id, created_at, urgency, symptoms_input')
+      .eq('user_id', userId)
+      .eq('pet_id', petId)
+      .is('deleted_at', null)
+      .order('created_at', { ascending: false })
+      .order('id', { ascending: false })
+      .limit(CHECKS_SHOWN),
+  ])
   if (!overview.ok) return overview
-
-  const { data: checks, error } = await supabase
-    .from('symptom_checks')
-    .select('id, created_at, urgency, symptoms_input')
-    .eq('user_id', userId)
-    .eq('pet_id', petId)
-    .is('deleted_at', null)
-    .order('created_at', { ascending: false })
-    .order('id', { ascending: false })
-    .limit(CHECKS_SHOWN)
   if (error) return { ok: false, reason: 'storage_error', message: error.message }
 
   return {
     ok: true,
+    avatar_path: overview.avatar_path,
     data: summarise({
       pet: overview.data.pet,
       weights: overview.data.weights,

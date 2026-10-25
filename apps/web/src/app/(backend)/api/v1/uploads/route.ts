@@ -3,6 +3,7 @@ import { UploadRequestSchema } from '@lapka/contracts'
 import { createServiceClient } from '@/server/supabase/server'
 import { consumeRateLimit } from '@/server/api/rate-limit'
 import { apiError, apiSuccess } from '@/server/api/response'
+import { readJson } from '@/server/api/request'
 import { withApiAuth, type ApiContext } from '@/server/api/with-api-auth'
 import { grantUploads } from '@/server/uploads/photo-storage'
 
@@ -14,17 +15,8 @@ import { grantUploads } from '@/server/uploads/photo-storage'
  * back, then names the upload ids when it creates the check.
  */
 export const POST = withApiAuth(async (request: NextRequest, context: ApiContext) => {
-  let body: unknown
-  try {
-    body = await request.json()
-  } catch {
-    return apiError(context.requestId, 'bad_request', 'Body is not valid JSON')
-  }
-
-  const parsed = UploadRequestSchema.safeParse(body)
-  if (!parsed.success) {
-    return apiError(context.requestId, 'bad_request', 'Body does not match the contract')
-  }
+  const parsed = await readJson(request, UploadRequestSchema, context)
+  if (!parsed.ok) return parsed.response
 
   const supabase = createServiceClient()
   const rate = await consumeRateLimit(supabase, 'upload_create', context.account.userId)
