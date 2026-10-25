@@ -1,192 +1,57 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
-import {
-  ActivityIndicator,
-  AppState,
-  BackHandler,
-  Image,
-  StyleSheet,
-  useWindowDimensions,
-  View,
-} from 'react-native'
-import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
-import * as ImagePicker from 'expo-image-picker'
-import {
-  ACTIVITY_VALUES,
-  APPETITE_VALUES,
-  DURATION_VALUES,
-  PAIN_SIGNS,
-  PHOTO_LIMITS,
-  STOOL_VALUES,
-  type Pet,
-} from '@lapka/contracts'
-import { summaryRecords } from '@lapka/shared'
-import { localToday } from '@/lib/calendar-day'
+import { useCallback, useState } from 'react'
+import { router, useFocusEffect } from 'expo-router'
+import type { Pet } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
-import { useCacheReader, useCached, useInvalidate } from '@/lib/query-cache'
+import { useCached } from '@/lib/query-cache'
 import { queryKeys } from '@/lib/query-keys'
-import { AppError, describeFailure, errorMessage, failureKind, submitCheckMessage } from '@/lib/errors'
-import { preparePhoto, putPhoto } from '@/lib/photo-io'
-import { useText, type Dictionary } from '@/i18n'
+import { describeFailure } from '@/lib/errors'
+import { useText } from '@/i18n'
 import { useAuth } from '@/providers/AuthProvider'
-import { draftStorage } from '@/lib/supabase'
-import {
-  DRAFT_KEY,
-  shouldKeepDraft,
-  parseDraft,
-  serialiseDraft,
-  type CheckDraft,
-} from '@/features/checks/check-draft'
-import {
-  forgetPendingCheck,
-  pendingCheck,
-  rememberFinishedCheck,
-  rememberPendingCheck,
-  takeFinishedCheck,
-} from '@/features/checks/pending-check'
-import {
-  afterFailedSend,
-  emptyCheckForm,
-  formToCheckInput,
-  newIdempotencyKey,
-  refusalLifted,
-  toggleSign,
-  type CheckForm,
-} from '@/features/checks/check-form'
+import { pendingCheck, takeFinishedCheck } from '@/features/checks/pending-check'
+import { emptyCheckForm, formToCheckInput, type CheckForm } from '@/features/checks/check-form'
 import { addPhotos, type PickedPhoto } from '@/features/checks/photos'
-import { uploadPhotos } from '@/features/checks/photo-upload'
-import { Button, LinkButton } from '@/ui/Button'
+import { pickPhotos } from '@/features/checks/pick-photos'
+import { useCheckDraft } from '@/features/checks/use-check-draft'
+import { useCheckSubmission, useLiftedRefusal } from '@/features/checks/use-check-submission'
+import { usePetChoice, useRecordCaption } from '@/features/checks/use-check-pet'
+import { useRecheck } from '@/features/checks/use-recheck'
+import { useCheckSteps } from '@/features/checks/use-check-steps'
+import { CheckDescribeStep } from '@/features/checks/CheckDescribeStep'
+import { CheckDetailsStep } from '@/features/checks/CheckDetailsStep'
+import { CheckNeedPet } from '@/features/checks/CheckNeedPet'
+import { CheckWaiting } from '@/features/checks/CheckWaiting'
+import { takeRecheck } from '@/features/followup/recheck-request'
+import { Button } from '@/ui/Button'
 import { Banner } from '@/ui/Card'
-import { Chips, Field, Segment, Select } from '@/ui/Field'
-import { PhotoStrip } from '@/ui/PhotoStrip'
 import { Screen } from '@/ui/Screen'
-import { Steps, SummaryCard } from '@/ui/Section'
-import { StepSlide } from '@/ui/StepSlide'
 import { FormSkeleton } from '@/ui/Skeleton'
-import { Text } from '@/ui/Text'
-import { colour, radius, space } from '@/ui/theme'
-import { localDay } from '@/features/followup/followup-ui'
-import { takeRecheck, type RecheckRequest } from '@/features/followup/recheck-request'
-import { ApiError } from '@lapka/shared'
 
-/** How often to ask, and for how long before saying so. */
-const POLL_EVERY_MS = 1500
-const GIVE_UP_AFTER_MS = 3 * 60 * 1000
-
+/**
+ * The symptom check in two steps. The draft and the send live in hooks; this
+ * screen ties them to the tab's comings and goings and draws the step.
+ */
 export default function NewCheck() {
   const t = useText()
-  // The illustration is the first thing to give ground on a small screen: the
-  // heading and the button below it are what the screen is for. 360 is the
-  // width the concept's narrow artboard is drawn at.
-  const narrow = useWindowDimensions().width <= 360
-  const [form, setForm] = useState<CheckForm>(emptyCheckForm())
+  const { session } = useAuth()
+  const userId = session?.user.id ?? null
+  const { form, setForm, step, setStep, finished, keepDraft, forgetDraft } = useCheckDraft(userId)
   // Not part of the draft: picked photos are cache files that may not survive
   // a restart, and the draft lives in the keychain, which is for small values.
   const [photos, setPhotos] = useState<PickedPhoto[]>([])
-  // «Учтём медкарту» only when this pet's record has something in it; unknown is no.
-  const [withRecord, setWithRecord] = useState<string | null>(null)
-  const [step, setStep] = useState<1 | 2>(1)
   const [symptomsError, setSymptomsError] = useState<string | null>(null)
-  const [failure, setFailure] = useState<{ text: string; kind: AppError['kind'] | null } | null>(
-    null,
-  )
-  const [waiting, setWaiting] = useState(false)
-  const { session } = useAuth()
-  const userId = session?.user.id ?? null
-
-  /**
-   * The draft, read once and written back at the moments a phone can take the
-   * app away: leaving the screen, and going to the background. Writing on every
-   * keystroke would put the keychain in the typing path for no gain.
-   */
-  const latest = useRef<CheckDraft>({ form, step })
-  latest.current = { form, step }
-
-  /**
-   * Whether this question is done with — sent, or abandoned by pressing Cancel.
-   *
-   * Anything else that takes somebody off this screen is an interruption, and
-   * the draft is here for those: describing symptoms is work, and losing it to
-   * a mistyped tap is not forgiven.
-   */
-  const finished = useRef(false)
-
-  const keepDraft = useCallback(async () => {
-    if (!userId) return
-
-    const { form: current, step: at } = latest.current
-
-    if (!shouldKeepDraft({ finished: finished.current, form: current })) {
-      await draftStorage.removeItem(DRAFT_KEY)
-      return
-    }
-    await draftStorage.setItem(DRAFT_KEY, serialiseDraft(userId, { form: current, step: at }))
-  }, [userId])
-
-  const forgetDraft = useCallback(async () => {
-    await draftStorage.removeItem(DRAFT_KEY)
-  }, [])
-
-  // Restored once per account. A draft belonging to whoever used the phone
-  // before is refused inside `parseDraft`, not here.
-  const restored = useRef(false)
-  useEffect(() => {
-    if (!userId || restored.current) return
-    restored.current = true
-
-    void draftStorage.getItem(DRAFT_KEY).then((raw) => {
-      const draft = parseDraft(raw, userId)
-      if (!draft) return
-      setForm(draft.form)
-      setStep(draft.step)
-    })
-  }, [userId])
-
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', (state) => {
-      if (state !== 'active') void keepDraft()
-    })
-    return () => subscription.remove()
-  }, [keepDraft])
-
-  // Kept across renders so a retry after a lost answer reuses the same key and
-  // is not charged a second time.
-  const key = useRef<string | null>(null)
-
-  // Photos already in storage for this key. A retry after a lost answer sends
-  // the same ids again, so the server can recognise the request it already took.
-  const uploaded = useRef<{ key: string; photos: PickedPhoto[]; ids: string[] } | null>(null)
+  const { recheckFor, openRecheck, dropRecheck } = useRecheck(t, form.petId, setForm, setStep)
+  const submission = useCheckSubmission({ t, userId, finished, forgetDraft, dropRecheck })
+  const { waiting, failure, focused, watch, reset } = submission
 
   /** Empties the screen so the next check starts where a first one would. */
   const startFresh = useCallback(() => {
     finished.current = false
-    key.current = null
-    uploaded.current = null
+    reset()
     setForm(emptyCheckForm())
     setPhotos([])
     setStep(1)
     setSymptomsError(null)
-    setFailure(null)
-    setWaiting(false)
-  }, [])
-
-  /** Whether this tab is the one in front, which is not the same as mounted. */
-  const focused = useRef(false)
-
-  /**
-   * Whether this screen still exists.
-   *
-   * Leaving the tab takes it apart, and the loop asking whether the answer has
-   * arrived goes with it. Nothing may be shown after that: the state it would
-   * set belongs to a screen that is gone. What was being waited for is in
-   * `pending-check`, and the wait resumes on the way back in.
-   */
-  const onScreen = useRef(true)
-  useEffect(
-    () => () => {
-      onScreen.current = false
-    },
-    [],
-  )
+  }, [finished, reset, setForm, setStep])
 
   // The pets through the cache shared with the pet list, refreshed on every
   // focus: the tab keeps this screen alive, so a person who adds their first
@@ -197,73 +62,11 @@ export default function NewCheck() {
   // lie when the pets exist and the network does not. With pets already in
   // hand, a failed refresh keeps the form.
   const petsError = petList.error && !pets ? describeFailure(t, petList.error, t.errors.loadPetsFailed) : null
-  const loadPets = petList.reload
   // The balance, through the profile's cache: an empty one is said on the first
   // step, before the form is filled in for a check that cannot be sent.
   const me = useCached(queryKeys.me(), () => withFreshSession((api) => api.getMe()))
-  const read = useCacheReader()
-  const invalidate = useInvalidate()
   const balance = me.data
-  const reloadBalance = me.reload
-
-  // The check is about one animal; starting on the first one saves a tap for
-  // the many people who own exactly one. A draft can name a pet that has since
-  // been deleted, on this phone or another: falling back to the first keeps
-  // the form usable instead of failing at the very end.
-  // Also whenever the form loses its pet: an emptied form (after a finished
-  // check or «Начать заново») gets the first one again, even when the cached
-  // list it is chosen from has not changed.
-  // A draft whose animal is gone goes back to the first step: its description
-  // was written about someone else, and the second step showed it only as a
-  // line under the new name (a check refused for the balance, Tom deleted, Rex
-  // added — Rex opened on step 2 with Tom's symptoms).
-  useEffect(() => {
-    if (!pets) return
-    const stillThere = pets.some((pet) => pet.id === form.petId)
-    if (stillThere || pets.length === 0) return
-    if (form.petId !== null) setStep(1)
-    setForm((current) => ({ ...current, petId: pets[0].id }))
-  }, [pets, form.petId])
-
-  /**
-   * A pet named by the screen that opened the form — one pet's empty history —
-   * is the one chosen, once the list confirms it is still there. The parameter
-   * is then dropped, so it does not win over a later choice in the form.
-   */
-  const { petId: askedPet } = useLocalSearchParams<{ petId?: string }>()
-  useEffect(() => {
-    if (!askedPet || !pets?.some((pet) => pet.id === askedPet)) return
-    setForm((current) => ({ ...current, petId: askedPet }))
-    router.setParams({ petId: undefined })
-  }, [askedPet, pets])
-
-  /**
-   * A re-check «с учётом прошлой» (follow-up loop): asked for from a case's
-   * outcome (`takeRecheck`, on the way in), it carries the case, and the
-   * analysis reads its previous check and answers. Only while that case's pet
-   * is the one chosen; «Не учитывать» drops it. It costs a check like any other.
-   */
-  const [recheck, setRecheck] = useState<{ caseId: string; petId: string; date: string; answers: number } | null>(null)
-  const openRecheck = useCallback(
-    ({ caseId, petId }: RecheckRequest) => {
-      // The case's plaque lives on the first step; a form left on the second
-      // would send the previous description about it unseen.
-      setStep(1)
-      setForm((current) => ({ ...current, petId }))
-      void withFreshSession((api) => api.getFollowup(caseId))
-        .then((theCase) =>
-          setRecheck({
-            caseId: theCase.id,
-            petId: theCase.pet_id,
-            date: t.day(localDay(new Date(theCase.checks.at(-1)?.created_at ?? theCase.origin_checked_at)), false),
-            answers: theCase.checkins.length,
-          }),
-        )
-        .catch(() => setRecheck(null))
-    },
-    [t],
-  )
-  const recheckFor = recheck && recheck.petId === form.petId ? recheck : null
+  usePetChoice(pets, form.petId, setForm, setStep)
 
   function change(patch: Partial<CheckForm>) {
     setForm((current) => ({ ...current, ...patch }))
@@ -271,79 +74,6 @@ export default function NewCheck() {
     // «хотя бы 3 символа» under a paragraph reads as the paragraph being wrong.
     if ('symptoms' in patch) setSymptomsError(null)
   }
-
-  const waitForResult = useCallback(async (jobId: string) => {
-    const deadline = Date.now() + GIVE_UP_AFTER_MS
-
-    while (Date.now() < deadline) {
-      const job = await withFreshSession((api) => api.getCheckJob(jobId))
-      // The screen is gone; the job is remembered and the wait picks up again
-      // when this tab is next opened.
-      if (!onScreen.current) return
-
-      if (job.status === 'completed' && job.check_id) {
-        // Pushed, not replaced. Replacing put the result *in place of* the
-        // form, so the tab had nothing else in it: coming back to «Проверка»
-        // reopened last week's answer and there was no way to start another
-        // check from here at all. Pushed, the form stays underneath — back and
-        // the tab bar both return to it, and it empties itself on the way in.
-        //
-        // Only while this tab is in front. A person who was told they could
-        // leave must not be pulled out of wherever they went; the answer waits
-        // for them here.
-        if (focused.current) {
-          forgetPendingCheck()
-          // `fresh`: just answered, so the result may ask for a rating (store-review).
-          router.push({ pathname: '/check/[id]', params: { id: job.check_id, fresh: '1' } })
-        } else if (userId) {
-          rememberFinishedCheck(userId, job.check_id)
-        }
-        return
-      }
-      if (job.status === 'failed') {
-        // The key is spent. It names a question the server has already answered
-        // — with a refusal — and reusing it would hand back that same refusal
-        // for ever, even once the reason for it is gone. A lost answer is the
-        // opposite case and deliberately keeps its key: there the job may well
-        // have succeeded.
-        key.current = null
-        throw job.error_code === 'insufficient_credits'
-          ? new AppError(t.errors.insufficientCredits, 'insufficient_credits')
-          : new AppError(t.errors.analysisFailed, 'analysis_failed')
-      }
-
-      await new Promise((resolve) => setTimeout(resolve, POLL_EVERY_MS))
-      if (!onScreen.current) return
-    }
-
-    // The work is still going; the answer will be in the history when it lands.
-    throw new AppError(t.errors.analysisSlow, 'still_running')
-  }, [t, userId])
-
-  /**
-   * Waiting for an answer, however that wait started — sending the check, or
-   * coming back to this tab while one is still running.
-   */
-  const watch = useCallback(
-    async (jobId: string) => {
-      setWaiting(true)
-      setFailure(null)
-      try {
-        await waitForResult(jobId)
-      } catch (cause) {
-        // Whatever went wrong, it is no longer worth waiting for: a failed job
-        // answers the same way for ever, and a slow one is in the history.
-        forgetPendingCheck()
-        if (!onScreen.current) return
-        setFailure({
-          text: errorMessage(t, cause, t.errors.submitCheckFailed),
-          kind: failureKind(cause),
-        })
-        setWaiting(false)
-      }
-    },
-    [t, waitForResult],
-  )
 
   useFocusEffect(
     useCallback(() => {
@@ -368,56 +98,11 @@ export default function NewCheck() {
         focused.current = false
         void keepDraft()
       }
-    }, [keepDraft, openRecheck, startFresh, userId, watch]),
+    }, [focused, finished, keepDraft, openRecheck, startFresh, userId, watch]),
   )
 
-  /**
-   * A refusal for the balance waits for an extra check, which is granted by
-   * hand, minutes or hours later. Nothing else takes the refusal down: it
-   * stayed on screen with the check already on the balance until the app was
-   * restarted. So the balance is asked again on the way back — to the tab, or
-   * to the app from the background, which does not refocus the tab — and a
-   * check on it puts the form back, still filled in.
-   */
-  const shortOfChecks = failure?.kind === 'insufficient_credits'
-  useFocusEffect(
-    useCallback(() => {
-      if (!shortOfChecks) return
-      let current = true
-      const recheck = () =>
-        void reloadBalance().then((refresh) => {
-          if (current && onScreen.current && refusalLifted(refresh)) setFailure(null)
-        })
-      recheck()
-      const subscription = AppState.addEventListener('change', (state) => {
-        if (state === 'active') recheck()
-      })
-      return () => {
-        current = false
-        subscription.remove()
-      }
-    }, [shortOfChecks, reloadBalance]),
-  )
-
-  /** Which side the step now on screen came in from; null when it simply appeared. */
-  const enteredFrom = useRef<'left' | 'right' | null>(null)
-  function goTo(next: 1 | 2) {
-    enteredFrom.current = next === 2 ? 'right' : 'left'
-    setStep(next)
-  }
-
-  // Android's back on the second step returns to the first, like the arrow,
-  // instead of leaving the tab.
-  useFocusEffect(
-    useCallback(() => {
-      if (step !== 2) return
-      const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
-        goTo(1)
-        return true
-      })
-      return () => subscription.remove()
-    }, [step]),
-  )
+  useLiftedRefusal(submission, me.reload)
+  const { from, goTo } = useCheckSteps(step, setStep)
 
   function next() {
     const input = formToCheckInput(t, form)
@@ -429,35 +114,6 @@ export default function NewCheck() {
     goTo(2)
   }
 
-  async function pickPhotos(source: 'camera' | 'library') {
-    const left = PHOTO_LIMITS.maxFiles - photos.length
-    if (left <= 0) return
-    // Only the camera asks. The library opens the system picker, which hands
-    // over just the photos chosen and needs no access to the rest — asking for
-    // the whole library would be asking for far more than the check uses.
-    if (source === 'camera') {
-      const permission = await ImagePicker.requestCameraPermissionsAsync()
-      // A refusal is an answer, not an error: the check works without photos.
-      if (!permission.granted) return
-    }
-    const result =
-      source === 'camera'
-        ? await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 1 })
-        : await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ['images'],
-            allowsMultipleSelection: true,
-            selectionLimit: left,
-            quality: 1,
-          })
-    if (result.canceled) return
-    setPhotos((current) =>
-      addPhotos(
-        current,
-        result.assets.map(({ uri, width, height }) => ({ uri, width, height })),
-      ),
-    )
-  }
-
   async function submit() {
     const checked = formToCheckInput(t, form)
     if (!checked.ok) {
@@ -465,93 +121,21 @@ export default function NewCheck() {
       goTo(1)
       return
     }
-
-    key.current ??= newIdempotencyKey()
-    setWaiting(true)
-    setFailure(null)
-    let jobId: string
-    try {
-      const sameUpload =
-        uploaded.current?.key === key.current && uploaded.current.photos === photos
-      if (photos.length > 0 && !sameUpload) {
-        const ids = await withFreshSession((api) =>
-          uploadPhotos(
-            { prepare: preparePhoto, requestUploads: api.requestUploads, put: putPhoto },
-            photos,
-          ),
-        )
-        uploaded.current = { key: key.current, photos, ids }
-      }
-      const body = {
-        ...checked.value,
-        upload_ids: photos.length > 0 ? uploaded.current!.ids : [],
-        ...(recheckFor ? { followup_case_id: recheckFor.caseId } : {}),
-      }
-      const accepted = await withFreshSession((api) => api.createCheck(key.current!, body, localToday()))
-      jobId = accepted.job_id
-      // Charged and in the histories: the balance, the lists and the cases read again.
-      void invalidate([queryKeys.me(), queryKeys.allChecks(), queryKeys.followups()])
-      // Sent and charged: keeping it now would offer to send it a second time.
-      finished.current = true
-      setRecheck(null)
-      if (userId) rememberPendingCheck(userId, jobId)
-      await forgetDraft()
-    } catch (cause) {
-      const next = afterFailedSend(cause)
-      if (!next.keepKey) key.current = null
-      if (!next.keepUploads) uploaded.current = null
-      if (!onScreen.current) return
-      // The case can no longer take a re-check (another pet, closed too long
-      // ago): nothing was charged. The link is dropped, so the next send goes
-      // as a new check — said so, instead of refusing the same way again.
-      const caseRefused = recheckFor !== null && cause instanceof ApiError && cause.code === 'conflict'
-      if (caseRefused) setRecheck(null)
-      setFailure({
-        text: caseRefused ? t.followup.recheckRefused : submitCheckMessage(t, cause, photos.length > 0),
-        kind: failureKind(cause),
-      })
-      setWaiting(false)
-      return
-    }
-
-    await watch(jobId)
+    await submission.submit(checked.value, photos, recheckFor?.caseId ?? null)
   }
 
-  // «Учтём медкарту»: by the rule the server includes the record by, read
-  // again whenever the screen comes back (a record may have been added).
   // Before any early return: hooks run in the same order on every render.
-  useFocusEffect(
-    useCallback(() => {
-      const petId = form.petId
-      if (!petId) return
-      let current = true
-      const today = localToday()
-      read(queryKeys.summary(petId, today), () => withFreshSession((api) => api.getVetSummary(petId, today)))
-        .then((summary) => {
-          if (current) setWithRecord(summaryRecords(summary) > 0 ? petId : null)
-        })
-        .catch(() => {
-          if (current) setWithRecord(null)
-        })
-      return () => {
-        current = false
-      }
-    }, [form.petId, read]),
-  )
+  const withRecord = useRecordCaption(form.petId)
 
   if (waiting || failure) {
-    return <Waiting t={t} failure={failure} onRetry={() => void submit()} />
+    return <CheckWaiting failure={failure} onRetry={() => void submit()} />
   }
 
   if (petsError) {
     return (
       <Screen title={t.check.title}>
-        <Banner
-          text={petsError.text}
-          tone="error"
-          icon={petsError.offline ? 'wifi' : 'alert'}
-        />
-        <Button title={t.common.retry} kind="secondary" onPress={() => void loadPets()} />
+        <Banner text={petsError.text} tone="error" icon={petsError.offline ? 'wifi' : 'alert'} />
+        <Button title={t.common.retry} kind="secondary" onPress={() => void petList.reload()} />
       </Screen>
     )
   }
@@ -564,115 +148,37 @@ export default function NewCheck() {
     )
   }
 
-  /**
-   * A check is about an animal, not about symptoms in the abstract.
-   *
-   * The analysis leans on species, age and chronic conditions; without a pet it
-   * would answer in generalities and still cost a check from the balance. So
-   * the form is not offered at all — the way out is to add the pet.
-   */
   if (pets.length === 0) {
     return (
       <Screen title={t.check.title} scroll centered>
-        {/* Decorative: the heading below already says what the screen is for,
-            and a screen reader announcing two kittens helps nobody. */}
-        <Image
-          source={require('../../../assets/art/welcome-pets.png')}
-          style={[styles.emptyArt, narrow ? styles.emptyArtNarrow : null]}
-          resizeMode="contain"
-          accessible={false}
-        />
-        <Text variant="h2" center style={styles.emptyTitle}>
-          {t.check.needPetTitle}
-        </Text>
-        <Text tone="muted" center style={styles.emptyCopy}>
-          {t.check.needPetBody}
-        </Text>
-        <Button title={t.pets.add} onPress={() => router.push('/check/new-pet')} />
+        <CheckNeedPet />
       </Screen>
     )
   }
 
-  const chosen = pets.find((pet) => pet.id === form.petId)
-
+  // One `Screen` across both steps, as the steps slide in and out under it.
   if (step === 1) {
+    // Only the way on in the dock. This is a tab: the tab bar is the way out, and leaving keeps the draft.
     return (
-      <Screen
-        title={t.check.title}
-        scroll
-        // Only the way on. This is a tab: the tab bar is the way out, and leaving
-        // keeps the draft.
-        dock={<Button title={t.common.next} onPress={next} />}
-      >
-        <StepSlide key="step-1" from={enteredFrom.current}>
-          <Steps current={1} of={2} label={t.check.step} />
-
-          {/* Right under the steps, where a choice is looked for. With several
-              animals, a sheet rather than a row of names, which stops fitting
-              as soon as somebody has a few. With one there is nothing to
-              choose: a quiet line, not its name in the middle of the screen,
-              the most valuable place on it (FB-1/05). */}
-          {pets.length > 1 ? (
-            <Select
-              label={t.check.pet}
-              allowNone={false}
-              options={pets.map((pet) => ({ value: pet.id, label: pet.name }))}
-              value={form.petId}
-              onChange={(petId) => change({ petId })}
-            />
-          ) : (
-            <Text variant="h3" style={styles.onlyPet}>
-              {t.check.forPet(chosen?.name ?? pets[0].name)}
-            </Text>
-          )}
-          {withRecord !== null && withRecord === form.petId ? (
-            <Text variant="caption" tone="muted" style={styles.recordCaption}>
-              {t.check.recordCaption}
-            </Text>
-          ) : null}
-
-          {/* Said before the form is filled in, not after: with nothing on the
-              balance both steps ended in «Не хватает проверок». The form stays
-              usable — a request granted while it is open is a check to send. */}
-          {balance?.credits === 0 ? (
-            <View style={styles.noChecks}>
-              <Banner text={t.check.noChecksLeft} tone="note" />
-              {balance.capabilities.extra_check_request ? (
-                <LinkButton title={t.profile.extraRequest} align="left" onPress={() => router.push('/check/extra-check')} />
-              ) : null}
-            </View>
-          ) : null}
-
-          {recheckFor ? (
-            <View style={styles.recheck}>
-              <View style={styles.recheckText}>
-                <Text variant="bodyStrong">{t.followup.recheckContext(recheckFor.date, recheckFor.answers)}</Text>
-                <Text variant="caption" tone="muted">
-                  {t.followup.recheckCost}
-                </Text>
-              </View>
-              <LinkButton title={t.followup.recheckDrop} onPress={() => setRecheck(null)} />
-            </View>
-          ) : null}
-
-          <Field
-            label={t.check.symptoms}
-            value={form.symptoms}
-            onChangeText={(symptoms) => change({ symptoms })}
-            placeholder={recheckFor ? t.followup.recheckPlaceholder : t.check.symptomsPlaceholder}
-            error={symptomsError}
-            multiline
-          />
-
-          <PhotoStrip
-            t={t}
-            photos={photos}
-            onAdd={(source) => void pickPhotos(source)}
-            onRemove={(index) => setPhotos((current) => current.filter((_, i) => i !== index))}
-          />
-
-          <Banner text={t.check.symptomsHint} />
-        </StepSlide>
+      <Screen title={t.check.title} scroll dock={<Button title={t.common.next} onPress={next} />}>
+        <CheckDescribeStep
+          pets={pets}
+          form={form}
+          photos={photos}
+          from={from}
+          withRecord={withRecord !== null && withRecord === form.petId}
+          noChecks={balance?.credits === 0 ? { canRequest: balance.capabilities.extra_check_request } : null}
+          recheck={recheckFor}
+          symptomsError={symptomsError}
+          onChange={change}
+          onDropRecheck={dropRecheck}
+          onAddPhotos={(source) =>
+            void pickPhotos(source, photos.length).then((picked) => {
+              if (picked) setPhotos((current) => addPhotos(current, picked))
+            })
+          }
+          onRemovePhoto={(index) => setPhotos((current) => current.filter((_, i) => i !== index))}
+        />
       </Screen>
     )
   }
@@ -686,140 +192,14 @@ export default function NewCheck() {
       scroll
       dock={<Button title={t.check.submit} onPress={() => void submit()} />}
     >
-      <StepSlide key="step-2" from={enteredFrom.current}>
-        <Steps current={2} of={2} label={t.check.step} />
-
-        <SummaryCard>
-          <View style={styles.summaryCopy}>
-            <Text variant="h3">{chosen?.name ?? t.check.noPet}</Text>
-            <Text variant="label" tone="muted" numberOfLines={1}>
-              {form.symptoms}
-            </Text>
-            {photos.length > 0 ? (
-              <Text variant="caption" tone="faint">
-                {t.check.photoCount(photos.length)}
-              </Text>
-            ) : null}
-          </View>
-          <LinkButton title={t.check.change} onPress={() => goTo(1)} />
-        </SummaryCard>
-
-        <Banner text={t.check.optionalHint} />
-
-        <Segment
-          label={t.check.appetite}
-          options={APPETITE_VALUES.map((value) => ({ value, label: t.appetite[value] }))}
-          value={form.appetite}
-          onChange={(appetite) => change({ appetite })}
-        />
-        <Segment
-          label={t.check.activity}
-          options={ACTIVITY_VALUES.map((value) => ({ value, label: t.activity[value] }))}
-          value={form.activity}
-          onChange={(activity) => change({ activity })}
-        />
-        <Segment
-          label={t.check.duration}
-          options={DURATION_VALUES.map((value) => ({ value, label: t.duration[value] }))}
-          value={form.duration}
-          onChange={(duration) => change({ duration })}
-        />
-        <Select
-          label={t.check.stool}
-          options={STOOL_VALUES.map((value) => ({ value, label: t.stool[value] }))}
-          value={form.stool}
-          onChange={(stool) => change({ stool })}
-        />
-        <Chips
-          label={t.check.painSigns}
-          options={PAIN_SIGNS.map((value) => ({ value, label: t.pain[value] }))}
-          values={form.painSigns}
-          onToggle={(sign) => change({ painSigns: toggleSign(form.painSigns, sign) })}
-        />
-      </StepSlide>
-    </Screen>
-  )
-}
-
-/**
- * The minute the analysis takes.
- *
- * When it goes wrong the way out depends on why: an empty balance needs a
- * request, a slow answer will arrive in the history on its own, and anything
- * else is worth trying again. Offering all three would make the person choose
- * between explanations they do not have.
- */
-function Waiting({
-  t,
-  failure,
-  onRetry,
-}: {
-  t: Dictionary
-  failure: { text: string; kind: AppError['kind'] | null } | null
-  onRetry: () => void
-}) {
-  const recovery =
-    failure?.kind === 'insufficient_credits'
-      ? { title: t.check.requestCheck, onPress: () => router.push('/check/extra-check') }
-      : failure?.kind === 'still_running'
-        ? { title: t.check.openHistory, onPress: () => router.push('/check/history') }
-        : { title: t.check.tryAgain, onPress: onRetry }
-
-  return (
-    <Screen
-      centered
-      dock={
-        failure ? (
-          <>
-            <Button title={recovery.title} onPress={recovery.onPress} />
-            <LinkButton title={t.common.toPets} onPress={() => router.replace('/pets')} />
-          </>
-        ) : null
-      }
-    >
-      <Text variant="h1" center style={styles.waitingTitle}>
-        {t.check.waitingTitle}
-      </Text>
-      <Image
-        source={require('../../../assets/art/pets-together.png')}
-        style={styles.waitingArt}
-        resizeMode="contain"
-        accessible={false}
+      <CheckDetailsStep
+        petName={pets.find((pet) => pet.id === form.petId)?.name ?? null}
+        form={form}
+        photoCount={photos.length}
+        from={from}
+        onChange={change}
+        onBack={() => goTo(1)}
       />
-      {/* The spinner stops once there is nothing left to wait for. */}
-      {failure ? null : <ActivityIndicator color={colour.accent} style={styles.spinner} />}
-      {failure ? (
-        <Banner text={failure.text} tone="error" />
-      ) : (
-        <Banner text={t.check.waitingBody} />
-      )}
     </Screen>
   )
 }
-
-const styles = StyleSheet.create({
-  recheck: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: space.row,
-    backgroundColor: colour.accentSoft,
-    borderRadius: radius.field,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    marginBottom: space.row,
-  },
-  recheckText: { flex: 1, gap: 2 },
-  recordCaption: { marginTop: -8, marginBottom: 16 },
-  summaryCopy: { flex: 1, minWidth: 0 },
-  onlyPet: { marginBottom: space.row },
-  noChecks: { marginBottom: space.block },
-  // The pair stands rather than sits, so it needs the height; a narrow phone
-  // gets the smaller one, which leaves the button above the fold.
-  emptyArt: { width: 228, height: 228, alignSelf: 'center', marginBottom: 8 },
-  emptyArtNarrow: { width: 160, height: 160 },
-  emptyTitle: { marginBottom: space.row },
-  emptyCopy: { marginBottom: 24, alignSelf: 'center', maxWidth: 310 },
-  waitingTitle: { marginBottom: 24 },
-  waitingArt: { width: 216, height: 216, alignSelf: 'center', marginBottom: space.section },
-  spinner: { marginBottom: 24 },
-})
