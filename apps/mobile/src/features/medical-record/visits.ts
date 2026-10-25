@@ -1,12 +1,11 @@
 import { VISIT_LIMITS, type HealthEvent, type VisitInput, type VisitKind } from '@lapka/contracts'
 import {
-  eventDayProblem,
   heldVisitDay,
   linkableChecks,
   prescriptionAddable,
-  prescriptionProblems,
   visitEditable,
-  visitTextProblems,
+  visitProblems,
+  visitValue,
   type VisitTextField,
 } from '@lapka/shared'
 import type { Dictionary } from '@/i18n'
@@ -188,55 +187,25 @@ export function readVisit(
 ): ReadVisit {
   const words = t.medicalRecord
   const errors: VisitErrors = {}
-  const done = draft.status === 'done'
 
-  // The day rules are shared with the site: done not after today, a plan not before it, an
-  // overdue plan being changed may keep its own day.
+  // The problems and the body are the shared reader's (`visitProblems`, `visitValue`, the site's too):
+  // the day rules, the lengths, a plan's hidden diagnosis and prescriptions not read.
   const typed = parseDayText(draft.date)
+  const fields = { ...draft, date: typed ?? draft.date.trim() }
   const kept = mode === 'edit' ? (keptDate ?? null) : null
-  const date = typed !== null && eventDayProblem(typed, draft.status, localToday(now), kept) === null ? typed : null
-  if (!date) errors.date = draft.status === 'done' ? words.dateInvalid : words.plannedDateInvalid
+  const problems = visitProblems(fields, localToday(now), kept)
 
-  // A plan sends no diagnosis, so whatever the hidden field holds is not read.
-  const long = visitTextProblems({
-    clinic: draft.clinic,
-    reason: draft.reason,
-    notes: draft.notes,
-    ...(done ? { diagnosis: draft.diagnosis } : {}),
-  })
-  for (const field of long) errors[field] = words.tooLong(VISIT_LIMITS[field])
-
-  const prescriptionErrors: Record<string, string> = {}
-  const instructionErrors: Record<string, string> = {}
-  const prescriptions = done
-    ? draft.prescriptions.map((item) => {
-        const found = prescriptionProblems(item)
-        if (found.name === 'empty') prescriptionErrors[item.key] = words.visits.nameRequired
-        else if (found.name === 'tooLong') prescriptionErrors[item.key] = words.tooLong(VISIT_LIMITS.prescriptionName)
-        if (found.instructions) instructionErrors[item.key] = words.tooLong(VISIT_LIMITS.instructions)
-        return item.id
-          ? { id: item.id, name: item.name.trim(), instructions: clean(item.instructions) }
-          : { name: item.name.trim(), instructions: clean(item.instructions), add_to_medications: item.toMedicines }
-      })
-    : []
-  if (Object.keys(prescriptionErrors).length > 0) errors.prescriptions = prescriptionErrors
-  if (Object.keys(instructionErrors).length > 0) errors.instructions = instructionErrors
-  if (Object.keys(errors).length > 0 || !date) return { ok: false, errors }
-
-  return {
-    ok: true,
-    value: {
-      status: draft.status,
-      date,
-      visit_kind: draft.visitKind,
-      clinic: clean(draft.clinic),
-      notes: clean(draft.notes),
-      reason: clean(draft.reason),
-      diagnosis: done ? clean(draft.diagnosis) : null,
-      check_id: draft.checkId,
-      prescriptions,
-    },
+  if (problems.date) errors.date = draft.status === 'done' ? words.dateInvalid : words.plannedDateInvalid
+  for (const field of problems.texts ?? []) errors[field] = words.tooLong(VISIT_LIMITS[field])
+  for (const [key, found] of Object.entries(problems.prescription ?? {})) {
+    if (found.name === 'empty') (errors.prescriptions ??= {})[key] = words.visits.nameRequired
+    else if (found.name === 'tooLong') (errors.prescriptions ??= {})[key] = words.tooLong(VISIT_LIMITS.prescriptionName)
+    if (found.instructions) (errors.instructions ??= {})[key] = words.tooLong(VISIT_LIMITS.instructions)
   }
+  if (Object.keys(errors).length > 0) return { ok: false, errors }
+
+  const value = visitValue(fields)
+  return { ok: true, value: { ...value, diagnosis: value.diagnosis ?? null, prescriptions: value.prescriptions ?? [] } }
 }
 
 /** «Последний — 2 августа, гастрит»: the last visit that happened and what it found. */
