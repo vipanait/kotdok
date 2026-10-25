@@ -116,6 +116,7 @@ const REQUIRED_FUNCTIONS = [
   'refuse_credit_change_for_inactive_account',
   'refuse_write_for_inactive_account',
   'remember_weight_key',
+  'reopen_stuck_data_deletions',
   'request_account_deletion',
   'resolve_extra_check_request',
   'search_vet_knowledge',

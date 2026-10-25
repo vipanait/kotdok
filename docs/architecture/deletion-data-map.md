@@ -66,7 +66,7 @@
 удалялся: шаг `data` падал при каждой попытке. Миграция `20261025110000_delete_account_with_linked_visits.sql`
 удаляет медкарту раньше проверок: … → `retired.credit_transactions` (в архив) → `pet_medications` →
 `pet_health_items` → `pet_health_events` → `symptom_checks` (`followup_*` уходят каскадом) → `pets` → …
-Удаление защитой не проверяется, поэтому обнулять становится нечего. Тест — `deletion-worker-sql.test.ts`.
+Удаление защитой не проверяется, поэтому обнулять становится нечего. Тест — `deletion-worker-sql.test.ts`. Задачи, которые до исправления дошли до `action_required` с `data_step_failed`, та же миграция возвращает в работу (`reopen_stuck_data_deletions()`): cron доделает их со следующим запуском.
 
 Обратный порядок не работает нигде: `credit_ledger` держит и проверки, и
 транзакции одновременно, поэтому он обязан уйти раньше обеих.
