@@ -3,6 +3,7 @@ import { router, useLocalSearchParams } from 'expo-router'
 import type { Medication } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
 import { useCached } from '@/lib/query-cache'
+import { queryKeys } from '@/lib/query-keys'
 import { describeFailure } from '@/lib/errors'
 import { localToday } from '@/lib/calendar-day'
 import { useText } from '@/i18n'
@@ -24,7 +25,7 @@ export default function Medications() {
 
   // The pet's record through the cache, shared by every screen of this pet:
   // the last one at once, a fresh one each time the screen comes into view.
-  const record = useCached(['overview', id], () => withFreshSession((api) => api.getHealthOverview(id, localToday())))
+  const record = useCached(queryKeys.overview(id), () => withFreshSession((api) => api.getHealthOverview(id, localToday())))
   const overview = record.data
   const error = record.error ? describeFailure(t, record.error, t.errors.loadHealthFailed) : null
   const load = record.reload

@@ -4,6 +4,7 @@ import { router, useFocusEffect, useLocalSearchParams, useSegments } from 'expo-
 import * as Clipboard from 'expo-clipboard'
 import { withFreshSession } from '@/lib/api'
 import { useCached } from '@/lib/query-cache'
+import { queryKeys } from '@/lib/query-keys'
 import { describeFailure } from '@/lib/errors'
 import { dictionary, useText } from '@/i18n'
 import { urgencyText, type UrgencyLevel } from '@/features/checks/urgency'
@@ -32,7 +33,7 @@ export function CheckResult({ id }: { id: string }) {
   const tab = (useSegments() as string[])[1]
   // A finished check does not change, so the cached one is shown at once;
   // the history has usually put it there already (see CheckHistory).
-  const result = useCached(['check', id], () => withFreshSession((api) => api.getCheck(id)))
+  const result = useCached(queryKeys.check(id), () => withFreshSession((api) => api.getCheck(id)))
   const check = result.data
   const error = result.error ? describeFailure(ui, result.error, ui.common.offline) : null
   const load = result.reload

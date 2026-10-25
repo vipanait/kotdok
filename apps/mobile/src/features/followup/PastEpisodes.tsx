@@ -3,6 +3,7 @@ import { router, useSegments } from 'expo-router'
 import type { PastEpisode } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
 import { useCached } from '@/lib/query-cache'
+import { queryKeys } from '@/lib/query-keys'
 import { useText, type Dictionary } from '@/i18n'
 import { urgencyText } from '@/features/checks/urgency'
 import { LinkButton } from '@/ui/Button'
@@ -17,7 +18,7 @@ const ON_CARD = 3
 const SUMMARY_DAYS = 183
 
 export function usePastEpisodes(petId: string) {
-  return useCached(['episodes', petId], () => withFreshSession((api) => api.listPastEpisodes(petId)))
+  return useCached(queryKeys.episodes(petId), () => withFreshSession((api) => api.listPastEpisodes(petId)))
 }
 
 /** «Рвота · 23–25 октября · Стало лучше». */

@@ -4,6 +4,7 @@ import { router, useLocalSearchParams } from 'expo-router'
 import { HISTORY_PAGE_SIZE_MAX, type HealthEvent, type SymptomCheckRecord } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
 import { useCached } from '@/lib/query-cache'
+import { queryKeys } from '@/lib/query-keys'
 import { describeFailure } from '@/lib/errors'
 import { localToday } from '@/lib/calendar-day'
 import { useText } from '@/i18n'
@@ -24,12 +25,12 @@ export default function Visits() {
   const words = t.medicalRecord.visits
   // The pet's record through the cache, shared by every screen of this pet:
   // the last one at once, a fresh one each time the screen comes into view.
-  const record = useCached(['overview', id], () => withFreshSession((api) => api.getHealthOverview(id, localToday())))
+  const record = useCached(queryKeys.overview(id), () => withFreshSession((api) => api.getHealthOverview(id, localToday())))
   const overview = record.data
   const error = record.error ? describeFailure(t, record.error, t.errors.loadHealthFailed) : null
   const load = record.reload
   // The checks visits follow, for their badge; a visit still shows without them.
-  const linked = useCached(['checks', id, HISTORY_PAGE_SIZE_MAX], () =>
+  const linked = useCached(queryKeys.checks(id, HISTORY_PAGE_SIZE_MAX), () =>
     withFreshSession((api) => api.listChecks({ pet_id: id, limit: HISTORY_PAGE_SIZE_MAX })),
   )
   const checks = useMemo<ReadonlyMap<string, SymptomCheckRecord>>(

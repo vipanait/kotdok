@@ -22,7 +22,8 @@ import {
 import { summaryRecords } from '@lapka/shared'
 import { localToday } from '@/lib/calendar-day'
 import { withFreshSession } from '@/lib/api'
-import { useCached } from '@/lib/query-cache'
+import { useCacheReader, useCached, useInvalidate } from '@/lib/query-cache'
+import { queryKeys } from '@/lib/query-keys'
 import { AppError, describeFailure, errorMessage, failureKind, submitCheckMessage } from '@/lib/errors'
 import { preparePhoto, putPhoto } from '@/lib/photo-io'
 import { useText, type Dictionary } from '@/i18n'
@@ -190,7 +191,7 @@ export default function NewCheck() {
   // The pets through the cache shared with the pet list, refreshed on every
   // focus: the tab keeps this screen alive, so a person who adds their first
   // pet and comes back here must not still be told to add one.
-  const petList = useCached(['pets'], () => withFreshSession((api) => api.listPets()))
+  const petList = useCached(queryKeys.pets(), () => withFreshSession((api) => api.listPets()))
   const pets: Pet[] | null = petList.data
   // Deliberately not an empty list on failure: "add a pet first" would be a
   // lie when the pets exist and the network does not. With pets already in
@@ -199,7 +200,9 @@ export default function NewCheck() {
   const loadPets = petList.reload
   // The balance, through the profile's cache: an empty one is said on the first
   // step, before the form is filled in for a check that cannot be sent.
-  const me = useCached(['me'], () => withFreshSession((api) => api.getMe()))
+  const me = useCached(queryKeys.me(), () => withFreshSession((api) => api.getMe()))
+  const read = useCacheReader()
+  const invalidate = useInvalidate()
   const balance = me.data
   const reloadBalance = me.reload
 
@@ -486,6 +489,8 @@ export default function NewCheck() {
       }
       const accepted = await withFreshSession((api) => api.createCheck(key.current!, body, localToday()))
       jobId = accepted.job_id
+      // Charged and in the histories: the balance, the lists and the cases read again.
+      void invalidate([queryKeys.me(), queryKeys.allChecks(), queryKeys.followups()])
       // Sent and charged: keeping it now would offer to send it a second time.
       finished.current = true
       setRecheck(null)
@@ -520,7 +525,8 @@ export default function NewCheck() {
       const petId = form.petId
       if (!petId) return
       let current = true
-      withFreshSession((api) => api.getVetSummary(petId))
+      const today = localToday()
+      read(queryKeys.summary(petId, today), () => withFreshSession((api) => api.getVetSummary(petId, today)))
         .then((summary) => {
           if (current) setWithRecord(summaryRecords(summary) > 0 ? petId : null)
         })
@@ -530,7 +536,7 @@ export default function NewCheck() {
       return () => {
         current = false
       }
-    }, [form.petId]),
+    }, [form.petId, read]),
   )
 
   if (waiting || failure) {

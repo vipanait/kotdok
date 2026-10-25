@@ -9,6 +9,7 @@ import { Chips, Field } from '@/ui/Field'
 import { Icon } from '@/ui/Icon'
 import { Text } from '@/ui/Text'
 import { CONTROL_HEIGHT, colour, radius, space } from '@/ui/theme'
+import { useRecordChanged } from './record-cache'
 import { useReminders } from './reminders/ReminderProvider'
 import { addTime, editTime, readTime, toggleTime } from './dose-times'
 
@@ -27,6 +28,7 @@ export function DoseTimes({ petId, course, onChanged }: { petId: string; course:
   const t = useText()
   const words = t.doseTimes
   const reminders = useReminders()
+  const changed = useRecordChanged()
   const [custom, setCustom] = useState('')
   const [invalid, setInvalid] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -43,8 +45,8 @@ export function DoseTimes({ petId, course, onChanged }: { petId: string; course:
     try {
       onChanged(await withFreshSession((api) => api.setMedicationTimes(petId, course.id, next)))
       // A time added is the moment to ask whether to notify; one taken off only reschedules.
+      void changed(petId)
       if (next.length > times.length) reminders.timesSaved(course.name)
-      else reminders.refresh()
       return true
     } catch (cause) {
       setError(describeFailure(t, cause, words.failed).text)

@@ -5,6 +5,7 @@ import type { FollowupCase } from '@lapka/contracts'
 import { ApiError } from '@lapka/shared'
 import { withFreshSession } from '@/lib/api'
 import { useCached } from '@/lib/query-cache'
+import { queryKeys } from '@/lib/query-keys'
 import { describeFailure } from '@/lib/errors'
 import { useText, type Dictionary } from '@/i18n'
 import { urgencyText } from '@/features/checks/urgency'
@@ -74,7 +75,7 @@ export function CaseTimeline({ caseId }: { caseId: string }) {
   const t = useText()
   const words = t.followup
   const tab = (useSegments() as string[])[1]
-  const loaded = useCached(['followup', caseId], () => withFreshSession((api) => api.getFollowup(caseId)))
+  const loaded = useCached(queryKeys.followup(caseId), () => withFreshSession((api) => api.getFollowup(caseId)))
   const theCase = loaded.data
   const changed = useFollowupChanged()
   const [confirming, setConfirming] = useState(false)

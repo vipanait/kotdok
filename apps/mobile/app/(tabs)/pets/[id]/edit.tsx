@@ -7,7 +7,7 @@ import { withFreshSession } from '@/lib/api'
 import { localToday } from '@/lib/calendar-day'
 import { describeFailure } from '@/lib/errors'
 import { useText } from '@/i18n'
-import { useReminders } from '@/features/medical-record/reminders/ReminderProvider'
+import { useRecordChanged, useOverviewReader } from '@/features/medical-record/record-cache'
 import { PetPhotoPicker } from '@/features/pets/PetPhotoPicker'
 import { PetFields } from '@/features/pets/PetFields'
 import {
@@ -30,7 +30,8 @@ import { space } from '@/ui/theme'
 export default function EditPet() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const t = useText()
-  const reminders = useReminders()
+  const changed = useRecordChanged()
+  const readOverview = useOverviewReader()
   const [form, setForm] = useState<PetForm | null>(null)
   /** The pet as last read, for its photo, which saves on its own (FB-4). */
   const [pet, setPet] = useState<Pet | null>(null)
@@ -49,7 +50,7 @@ export default function EditPet() {
     try {
       // The record, not just the pet: the form points to the weight history
       // when there is one.
-      const overview = await withFreshSession((api) => api.getHealthOverview(id, localToday()))
+      const overview = await readOverview(id)
       const { pet } = overview
       setPet(pet)
       setForm(petToForm(pet, localToday()))
@@ -60,7 +61,7 @@ export default function EditPet() {
     } catch (cause) {
       setError(describeFailure(t, cause, t.errors.loadPetFailed))
     }
-  }, [id, t])
+  }, [id, t, readOverview])
 
   useEffect(() => {
     void load()
@@ -102,7 +103,7 @@ export default function EditPet() {
         }),
       )
       // The name in a reminder, and the «vaccinated» plan, may have changed.
-      reminders.refresh()
+      void changed(id)
       unsaved.leave(then)
     } catch (cause) {
       setError(describeFailure(t, cause, t.errors.saveChangesFailed))
@@ -116,7 +117,7 @@ export default function EditPet() {
     setError(null)
     try {
       await withFreshSession((api) => api.deletePet(id))
-      reminders.refresh()
+      void changed(null)
       setAsking(false)
       // Past the medical record too: it belonged to the pet that is now gone.
       unsaved.leave(() => router.dismissTo('/pets'))

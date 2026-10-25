@@ -5,6 +5,7 @@ import type { CheckFollowup, SymptomCheckRecord } from '@lapka/contracts'
 import { followupScheduleFor } from '@lapka/shared'
 import { withFreshSession } from '@/lib/api'
 import { useCached } from '@/lib/query-cache'
+import { queryKeys } from '@/lib/query-keys'
 import { useText } from '@/i18n'
 import { askPermission, permissionState, type PermissionState } from '@/features/medical-record/reminders/notifications'
 import { Button, LinkButton } from '@/ui/Button'
@@ -26,7 +27,7 @@ export function FollowupOffer({ check }: { check: SymptomCheckRecord }) {
   const t = useText()
   const words = t.followup
   const tab = (useSegments() as string[])[1]
-  const loaded = useCached(['check-followup', check.id], () => withFreshSession((api) => api.getCheckFollowup(check.id)))
+  const loaded = useCached(queryKeys.checkFollowup(check.id), () => withFreshSession((api) => api.getCheckFollowup(check.id)))
   const [state, setState] = useState<CheckFollowup | null>(null)
   const current = state ?? loaded.data
   const [saving, setSaving] = useState(false)

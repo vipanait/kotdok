@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
-import { useAuth } from '@/providers/AuthProvider'
+import { useInvalidate } from '@/lib/query-cache'
+import { queryKeys } from '@/lib/query-keys'
 import { useReminders } from '@/features/medical-record/reminders/ReminderProvider'
 
 /**
@@ -8,14 +8,10 @@ import { useReminders } from '@/features/medical-record/reminders/ReminderProvid
  * the phone's notifications are rebuilt from the server's list.
  */
 export function useFollowupChanged() {
-  const client = useQueryClient()
-  const { session } = useAuth()
-  const userId = session?.user.id ?? null
+  const invalidate = useInvalidate()
   const reminders = useReminders()
   return useCallback(() => {
-    for (const key of ['followups', 'followup', 'check-followup', 'episodes', 'checks']) {
-      void client.invalidateQueries({ queryKey: [userId, key] })
-    }
+    void invalidate([queryKeys.followups(), ['followup'], ['check-followup'], ['episodes'], queryKeys.allChecks()])
     reminders.refresh()
-  }, [client, userId, reminders])
+  }, [invalidate, reminders])
 }

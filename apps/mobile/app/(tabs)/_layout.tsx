@@ -7,6 +7,8 @@ import { PD_CONSENT_VERSION } from '@lapka/contracts'
 import { consentSettled, consentSource, settleConsent } from '@/features/consent/consent-gate'
 import { guardTabSwitch } from '@/features/unsaved/tab-guard'
 import { openConsentScreen, setConsentRequiredHandler, withFreshSession } from '@/lib/api'
+import { queryKeys } from '@/lib/query-keys'
+import { useCacheReader } from '@/lib/query-cache'
 import { consentMemory } from '@/lib/supabase'
 import { ArrivalSkeleton } from '@/features/auth/ArrivalSkeleton'
 import { useAuth } from '@/providers/AuthProvider'
@@ -33,6 +35,7 @@ export default function TabsLayout() {
   const t = useText()
   const setLocale = useSetLocale()
   const insets = useSafeAreaInsets()
+  const read = useCacheReader()
 
   /**
    * The account's language, asked for once on the way in.
@@ -44,10 +47,10 @@ export default function TabsLayout() {
    */
   useEffect(() => {
     if (!session) return
-    void withFreshSession((api) => api.getMe())
+    void read(queryKeys.me(), () => withFreshSession((api) => api.getMe()))
       .then((me) => setLocale(me.locale))
       .catch(() => {})
-  }, [session, setLocale])
+  }, [session, setLocale, read])
 
   /**
    * Consent to personal data processing, settled once per signed-in user before

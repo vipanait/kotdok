@@ -3,6 +3,7 @@ import { ActivityIndicator, Linking, StyleSheet, View } from 'react-native'
 import * as ImagePicker from 'expo-image-picker'
 import type { Pet } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
+import { useRecordChanged } from '@/features/medical-record/record-cache'
 import { describeFailure } from '@/lib/errors'
 import { prepareAvatar, putPhoto } from '@/lib/photo-io'
 import { useText } from '@/i18n'
@@ -18,6 +19,7 @@ import { uploadAvatar } from './pet-avatar'
  */
 export function PetPhotoPicker({ pet, onChanged }: { pet: Pet; onChanged: (pet: Pet) => void }) {
   const t = useText()
+  const changed = useRecordChanged()
   const words = t.petPhoto
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -64,6 +66,8 @@ export function PetPhotoPicker({ pet, onChanged }: { pet: Pet; onChanged: (pet: 
         ),
       )
       onChanged(updated)
+      // The list and the record show the photo too.
+      void changed(pet.id)
     } catch (cause) {
       setError(describeFailure(t, cause, words.failed).text)
     } finally {
@@ -76,6 +80,7 @@ export function PetPhotoPicker({ pet, onChanged }: { pet: Pet; onChanged: (pet: 
     setError(null)
     try {
       onChanged(await withFreshSession((api) => api.removeAvatar(pet.id)))
+      void changed(pet.id)
     } catch (cause) {
       setError(describeFailure(t, cause, words.failed).text)
     } finally {

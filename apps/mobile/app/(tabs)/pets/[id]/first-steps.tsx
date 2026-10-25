@@ -15,7 +15,7 @@ import {
   type LastVisit,
   type VaccineChoice,
 } from '@/features/pets/first-steps'
-import { useReminders } from '@/features/medical-record/reminders/ReminderProvider'
+import { useRecordChanged } from '@/features/medical-record/record-cache'
 import { Button, LinkButton } from '@/ui/Button'
 import { Banner, Card } from '@/ui/Card'
 import { DateField } from '@/ui/DateField'
@@ -38,7 +38,7 @@ export default function FirstSteps() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const t = useText()
   const words = t.firstSteps
-  const reminders = useReminders()
+  const changed = useRecordChanged()
   const [pet, setPet] = useState<Pet | null>(null)
   const [draft, setDraft] = useState<FirstStepsDraft>({ vaccines: [], dates: {}, lastVisit: null })
   const [wrongDate, setWrongDate] = useState<VaccineTarget | null>(null)
@@ -104,7 +104,7 @@ export default function FirstSteps() {
         await withFreshSession((api) => api.createHealthEvent(id, rest, key))
         for (const item of items) sent.current.add(`${event.date}:${item.targets.join()}`)
       }
-      reminders.refresh()
+      void changed(id)
       if (read.offerCheckup) setOffer(true)
       else toPet()
     } catch (cause) {

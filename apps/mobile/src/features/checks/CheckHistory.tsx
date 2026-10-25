@@ -4,6 +4,7 @@ import { router, useSegments } from 'expo-router'
 import type { SymptomCheckRecord } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
 import { useCached, useSeedCache } from '@/lib/query-cache'
+import { queryKeys } from '@/lib/query-keys'
 import { describeFailure } from '@/lib/errors'
 import { dictionary, useLocale, useText } from '@/i18n'
 import { urgencyText } from '@/features/checks/urgency'
@@ -61,7 +62,7 @@ export function CheckHistory({
   // The first page through the cache, so the history opens on what it showed
   // last time; refreshed on every focus (a check made a moment ago has to be
   // here on return). Further pages are this screen's own.
-  const first = useCached(['checks', petId ?? 'all'], () => withFreshSession((api) => api.listChecks({ pet_id: petId })))
+  const first = useCached(queryKeys.checks(petId ?? null), () => withFreshSession((api) => api.listChecks({ pet_id: petId })))
   const [more, setMore] = useState<{ items: SymptomCheckRecord[]; cursor: string | null } | null>(null)
   const [moreError, setMoreError] = useState<{ text: string; offline: boolean } | null>(null)
   const [loadingMore, setLoadingMore] = useState(false)
@@ -75,7 +76,7 @@ export function CheckHistory({
   // Each row is the whole check: opening it needs no second request.
   const seed = useSeedCache()
   useEffect(() => {
-    seed([...(first.data?.items ?? []), ...(more?.items ?? [])].map((check) => [['check', check.id], check] as const))
+    seed([...(first.data?.items ?? []), ...(more?.items ?? [])].map((check) => [queryKeys.check(check.id), check] as const))
   }, [first.data, more, seed])
 
   // A case's checks and answers are one row that opens its timeline.

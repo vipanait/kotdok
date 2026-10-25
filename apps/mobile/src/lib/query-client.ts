@@ -1,6 +1,8 @@
 import { File, Paths } from 'expo-file-system'
 import { QueryClient } from '@tanstack/react-query'
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
+import { STALE_MS } from './query-freshness'
+import { persisted } from './query-keys'
 
 /**
  * What the app last loaded, shown at once when a screen opens again.
@@ -11,9 +13,10 @@ import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persi
  * the background; the screen's own rules about errors stay as they were (a
  * failed refresh leaves the last answer on screen, with the error banner).
  *
- * Fetching is driven by focus, not by mount: the screens already reloaded
- * every time they came back into view, and that is what keeps the cached copy
- * honest after a form saves and goes back.
+ * An answer is shown for half a minute without asking again (`STALE_MS`):
+ * a screen left and come back to shows what it showed. A save marks what it
+ * moved (`useRecordChanged`), so that is read again at once; anything older
+ * is read again on focus (`useCached`).
  */
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -21,7 +24,7 @@ export const queryClient = new QueryClient({
       // The screens say what failed and offer «Повторить»; a silent retry would
       // only make that wait three times longer.
       retry: false,
-      staleTime: 0,
+      staleTime: STALE_MS,
       // Kept a day in memory and on disk, so the first screen after a restart
       // is not blank either.
       gcTime: 24 * 60 * 60 * 1000,
@@ -58,13 +61,19 @@ const fileStorage = {
 export const cachePersister = createAsyncStoragePersister({ storage: fileStorage, throttleTime: 1000 })
 
 /**
- * Whatever has an answer is kept on disk, also when its latest refresh failed:
- * a refresh that did not get through is no reason to forget what was there.
+ * The lists and the records are kept on disk, also when their latest refresh
+ * failed: a refresh that did not get through is no reason to forget what was
+ * there. Not the checks, each with the model's whole answer, nor a day's
+ * doses and summaries (`persisted`): the file is rewritten whole after every
+ * change, on the JavaScript thread.
  */
 export const persistOptions = {
   persister: cachePersister,
   maxAge: 24 * 60 * 60 * 1000,
-  dehydrateOptions: { shouldDehydrateQuery: (query: { state: { data: unknown } }) => query.state.data !== undefined },
+  dehydrateOptions: {
+    shouldDehydrateQuery: (query: { queryKey: readonly unknown[]; state: { data: unknown } }) =>
+      query.state.data !== undefined && persisted(query.queryKey),
+  },
 }
 
 /** Dropped with the session: the next account on this phone must not see this one's pets. */

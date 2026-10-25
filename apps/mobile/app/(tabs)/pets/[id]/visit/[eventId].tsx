@@ -1,13 +1,15 @@
-import { useCallback, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
-import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
+import { router, useLocalSearchParams } from 'expo-router'
 import type { HealthEvent } from '@lapka/contracts'
 import { prescriptionAddable } from '@lapka/shared'
 import { withFreshSession } from '@/lib/api'
+import { queryKeys } from '@/lib/query-keys'
+import { useCached } from '@/lib/query-cache'
 import { describeFailure } from '@/lib/errors'
 import { localToday } from '@/lib/calendar-day'
 import { useText } from '@/i18n'
-import { useReminders } from '@/features/medical-record/reminders/ReminderProvider'
+import { useRecordChanged } from '@/features/medical-record/record-cache'
 import { dueLine, dueStatus, marksFromRow } from '@/features/medical-record/due'
 import { heldNote } from '@/features/medical-record/visits'
 import { AddToCalendar } from '@/features/medical-record/AddToCalendar'
@@ -29,42 +31,35 @@ import { colour, space } from '@/ui/theme'
 export default function VisitView() {
   const { id, eventId } = useLocalSearchParams<{ id: string; eventId: string }>()
   const t = useText()
-  const reminders = useReminders()
+  const changed = useRecordChanged()
   const words = t.medicalRecord.visits
-  const [visit, setVisit] = useState<HealthEvent | null>(null)
-  const [petName, setPetName] = useState('')
-  const [error, setError] = useState<{ text: string; offline: boolean } | null>(null)
+  // The pet's record through the cache shared by its screens: this visit is one of its events.
+  const record = useCached(queryKeys.overview(id), () => withFreshSession((api) => api.getHealthOverview(id, localToday())))
+  const visit: HealthEvent | null = useMemo(
+    () => record.data?.events.find((event) => event.id === eventId && event.kind === 'visit') ?? null,
+    [record.data, eventId],
+  )
+  const petName = record.data?.pet.name ?? ''
+  const [actionError, setError] = useState<{ text: string; offline: boolean } | null>(null)
+  const error = actionError ?? (record.error ? describeFailure(t, record.error, t.medicalRecord.loadEventFailed) : null)
   const [asking, setAsking] = useState(false)
   const [busy, setBusy] = useState(false)
 
-  const load = useCallback(async () => {
-    setError(null)
-    try {
-      const overview = await withFreshSession((api) => api.getHealthOverview(id, localToday()))
-      const found = overview.events.find((event) => event.id === eventId && event.kind === 'visit')
-      if (!found) {
-        router.back()
-        return
-      }
-      setVisit(found)
-      setPetName(overview.pet.name)
-    } catch (cause) {
-      setError(describeFailure(t, cause, t.medicalRecord.loadEventFailed))
+  // Gone since the list was read, or deleted here: back to the list, once.
+  const leaving = useRef(false)
+  useEffect(() => {
+    if (record.data && !visit && !leaving.current) {
+      leaving.current = true
+      router.back()
     }
-  }, [id, eventId, t])
-
-  useFocusEffect(
-    useCallback(() => {
-      void load()
-    }, [load]),
-  )
+  }, [record.data, visit])
 
   async function toMedicines(itemId: string) {
     if (busy) return
     setBusy(true)
     try {
       await withFreshSession((api) => api.prescriptionToMedication(id, itemId, localToday()))
-      await load()
+      await changed(id)
     } catch (cause) {
       setError(describeFailure(t, cause, t.medicalRecord.saveEventFailed))
     } finally {
@@ -76,8 +71,9 @@ export default function VisitView() {
     setBusy(true)
     try {
       await withFreshSession((api) => api.deleteHealthEvent(id, eventId))
-      reminders.refresh()
+      void changed(id)
       setAsking(false)
+      leaving.current = true
       router.back()
     } catch (cause) {
       setAsking(false)
