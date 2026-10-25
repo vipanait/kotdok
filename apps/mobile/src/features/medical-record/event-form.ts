@@ -1,5 +1,14 @@
-import { HEALTH_EVENT_LIMITS, type HealthEvent, type HealthEventInput, type HealthProduct, type HealthTarget } from '@lapka/contracts'
 import {
+  HEALTH_EVENT_LIMITS,
+  type CompleteItemInput,
+  type HealthEvent,
+  type HealthEventInput,
+  type HealthEventPatch,
+  type HealthProduct,
+  type HealthTarget,
+} from '@lapka/contracts'
+import {
+  addInterval,
   eventDayProblem,
   eventTextProblems,
   itemNameTooLong,
@@ -15,6 +24,7 @@ import {
 } from '@lapka/shared'
 import type { Dictionary } from '@/i18n'
 import { dayInput, localToday, parseDayText } from '@/lib/calendar-day'
+import { saveSummary } from './due'
 
 /**
  * The record form — vaccinations and treatments — as text fields, and turning it into a request. No
@@ -287,4 +297,136 @@ export function readDraft(
       items,
     },
   }
+}
+
+/**
+ * How the form opens, from the pet's record: a new record of the kind the
+ * address says, a plan to correct (its own day kept, MR-03.3), «Сделано» on
+ * one planned item, or — for something done — locked, since history is read
+ * and deleted, never corrected (owner rule of 26 September 2026; the server
+ * refuses it as record_done). Null when the record or the item is not there.
+ */
+export type FormStart =
+  | { state: 'locked'; kind: HealthEvent['kind'] }
+  | {
+      state: 'open'
+      kind: HealthEvent['kind']
+      draft: EventDraft
+      /** A plan being corrected: its current day, which it may keep while overdue. */
+      keptDate?: string
+      /** «Сделано»: the plan the item belongs to, and how many other items stay planned. */
+      source?: { event: HealthEvent; others: number }
+    }
+
+export function formStart(
+  events: readonly HealthEvent[],
+  request: { mode: FormMode; kind: HealthEvent['kind'] | null; status?: string; eventId?: string; itemId?: string },
+  now: Date = new Date(),
+): FormStart | null {
+  if (request.mode === 'new') {
+    const kind = request.kind ?? 'vaccination'
+    const draft = blankDraft(request.status === 'planned' ? 'planned' : 'done', now, kind)
+    draft.items = [blankItem('new-0', kind)]
+    return { state: 'open', kind, draft }
+  }
+  if (request.mode === 'edit') {
+    const event = events.find((e) => e.id === request.eventId)
+    if (!event) return null
+    // The screen is named after the record itself, locked or not, whatever the address said.
+    if (event.status === 'done') return { state: 'locked', kind: event.kind }
+    return { state: 'open', kind: event.kind, draft: draftFromEvent(event), keptDate: event.date }
+  }
+  const event = events.find((e) => e.items.some((item) => item.id === request.itemId))
+  const item = event?.items.find((i) => i.id === request.itemId)
+  if (!event || !item) return null
+  return {
+    state: 'open',
+    kind: event.kind,
+    draft: {
+      kind: event.kind,
+      status: 'done',
+      date: dayInput(localToday(now)),
+      items: [{ ...draftFromEvent({ ...event, items: [item] }).items[0], next: 'year' }],
+      // Both start as the plan's own: what the fields hold is what the done
+      // record gets, and a field emptied here clears the plan's text.
+      clinic: event.clinic ?? '',
+      notes: event.notes ?? '',
+    },
+    source: { event, others: event.items.length - 1 },
+  }
+}
+
+type ReadValue = Extract<ReadDraft, { ok: true }>['value']
+
+/** «Сделано» on one planned item, as sent. */
+export function completionRequest(value: ReadValue, itemId: string): { itemId: string; input: CompleteItemInput } {
+  return {
+    itemId,
+    input: {
+      done_on: value.date,
+      next_on: value.items[0]?.next_on ?? null,
+      // '' is "sent empty" and clears the plan's text; null would keep
+      // it (the contract's rule since MW-09, CompleteItemInputSchema).
+      clinic: value.clinic ?? '',
+      notes: value.notes ?? '',
+    },
+  }
+}
+
+/** A plan corrected, as sent: no next dates, and its day only when it moved. */
+export function eventPatch(value: ReadValue, keptDate: string | undefined): HealthEventPatch {
+  return {
+    // Only a new day: an overdue plan's own day would be refused as past.
+    ...(value.date !== keptDate ? { date: value.date } : {}),
+    clinic: value.clinic,
+    notes: value.notes,
+    items: value.items.map(({ id, name, targets, product_id }) => ({ ...(id ? { id } : {}), name, targets, product_id })),
+  }
+}
+
+/**
+ * «Следующая»: the suggested day by the item's interval — or that it has
+ * passed for an old record, or a dash before the record has a day — a day of
+ * one's own, or none.
+ */
+export function nextChoices(
+  t: Dictionary,
+  item: ItemDraft,
+  recordDay: string | null,
+  today: string = localToday(),
+): Array<{ value: NextChoice; label: string }> {
+  const words = t.medicalRecord
+  const interval = itemInterval(item)
+  const spoken = words.catalog.interval[interval.unit](interval.value)
+  const suggested = recordDay ? addInterval(recordDay, interval) : null
+  return [
+    {
+      value: 'year',
+      label: !suggested
+        ? words.catalog.nextIn(spoken, '—')
+        : suggested >= today
+          ? words.catalog.nextIn(spoken, t.day(suggested, true))
+          : words.nextPassed,
+    },
+    { value: 'custom', label: words.nextCustom },
+    { value: 'none', label: words.nextNone },
+  ]
+}
+
+/**
+ * The note above «Сохранить» on a done record: what it plans next. Marking
+ * one item of a plan says what becomes of the rest, in the same words
+ * (FB-1/02). Nothing for a plan, a correction, or a day not yet typed.
+ */
+export function formSummary(
+  t: Dictionary,
+  form: { draft: EventDraft; mode: FormMode; recordDay: string | null; others: number },
+  today: string = localToday(),
+): string | null {
+  const { draft, mode, recordDay } = form
+  if (mode === 'edit' || draft.status !== 'done' || !recordDay) return null
+  const days = draft.items.map((item) => nextDate(item, recordDay, today) ?? null)
+  const done = saveSummary(t, days, today)
+  const others = mode === 'complete' ? form.others : 0
+  return others > 0 ? `${done} ${t.medicalRecord.summaryComplete(others)}` : done
 }
