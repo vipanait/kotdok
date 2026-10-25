@@ -178,8 +178,9 @@ export const ru = {
     form: 'Анкета',
     fromForm: 'Из анкеты',
     animal: {
-      cat: { male: 'Кот', female: 'Кошка' },
-      dog: { male: 'Собака', female: 'Собака' },
+      /** `unknown`: the species word, as on the site — never the form's «Сука». */
+      cat: { male: 'Кот', female: 'Кошка', unknown: 'Кошка' },
+      dog: { male: 'Собака', female: 'Собака', unknown: 'Собака' },
     },
     /** Under a kilogram in grams: a newborn is «85 г», not «0,085 кг» (FB-2/05). */
     weight: (kg: number) => (kg < 1 ? `${Math.round(kg * 1000)} г` : `${decimal(kg)} кг`),
@@ -315,15 +316,8 @@ export const ru = {
     next: 'Следующая',
     nextYear: (day: string) => `Через год — ${day}`,
     parasiteGroups: { fleas: 'Блохи', ticks: 'Клещи', worms: 'Глисты' },
-    parasiteTitle: {
-      fleasTicks: 'Блохи и клещи',
-      worms: 'Глисты',
-      all: 'Блохи, клещи и глисты',
-      fleas: 'Блохи',
-      ticks: 'Клещи',
-      fleasWorms: 'Блохи и глисты',
-      ticksWorms: 'Клещи и глисты',
-    },
+    /** Between the last two groups of a title: «Блохи, клещи и глисты» (shared `itemNameParts`). */
+    and: 'и',
     parasitesTitle: 'Паразиты',
     treatmentTitle: 'Обработка от паразитов',
     products: 'Препараты',
@@ -358,6 +352,8 @@ export const ru = {
       note: 'Дозировку назначает врач. Мы только помогаем не забыть.',
       since: (day: string) => `с ${day}`,
       sinceOngoing: (day: string) => `с ${day} · постоянно`,
+      /** Not started yet (shared `coursePeriodParts`), as the site says it. */
+      startsLater: (day: string) => `Начнётся ${day}`,
       ongoingOnly: 'постоянно',
       range: (from: string, to: string) => `${from} – ${to}`,
       /** «2–15 августа»: the month once, after the second number. */

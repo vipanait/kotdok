@@ -13,3 +13,5 @@ npm workspaces: `apps/web` (Next.js), `apps/mobile` (Expo), `packages/contracts`
 `packages/*` must stay portable: no Next.js, no server SDKs, no DOM.
 
 The roadmap is `docs/mobile-api-plan.md`. Every stage has numbered acceptance criteria and needs a report under `docs/verification/`; a stage is not closed without one.
+
+Images, PDFs, fonts and archives under `docs/` are gitignored: keep them next to the md or html that links to them, but never commit them (`git add -f` included). Reports and mockups reference them by relative path; they exist only on the owner's machine.

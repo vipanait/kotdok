@@ -65,3 +65,18 @@ next-env.d.ts
 # already sit in docs/design/mobile-concept-v1/assets/, zipped for hand-off.
 # 11 MB of exact duplicates is not worth carrying in history.
 docs/design/**/lapka-transparent-assets.zip
+
+# Binaries under docs/ — design mockups, verification screenshots, store art,
+# PDFs, fonts, archives — live on disk only. They were cut from the whole
+# history on 25 October 2026 (341 MB of .git down to 13 MB); the md and html
+# that link to them keep working locally, not on GitHub.
+/docs/**/*.png
+/docs/**/*.PNG
+/docs/**/*.jpg
+/docs/**/*.jpeg
+/docs/**/*.webp
+/docs/**/*.gif
+/docs/**/*.pdf
+/docs/**/*.ttf
+/docs/**/*.otf
+/docs/**/*.zip

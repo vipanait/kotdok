@@ -1,5 +1,5 @@
 import { MEDICATION_LIMITS, type Medication, type MedicationPatch, type MedicationsInput } from '@lapka/contracts'
-import { ApiError, courseProblems, courseValue, endCoursePatch, endsByToday } from '@lapka/shared'
+import { ApiError, courseProblems, coursePeriodParts, courseValue, endCoursePatch, endsByToday } from '@lapka/shared'
 import type { Dictionary } from '@/i18n'
 import { dayInput, dayParts, localToday, parseDayText } from '@/lib/calendar-day'
 
@@ -17,31 +17,34 @@ import { dayInput, dayParts, localToday, parseDayText } from '@/lib/calendar-day
  */
 export function courseDates(t: Dictionary, course: Medication, today: string): string {
   const words = t.medicalRecord.meds
-  if (!course.started_on && !course.ended_on) {
-    if (course.ongoing) return words.ongoingOnly
-    return course.source === 'form' && !course.dosage ? words.fromForm : words.noDates
+  // What the dates say is the shared rule (`coursePeriodParts`), the site's too.
+  const parts = coursePeriodParts(course, today)
+  switch (parts.kind) {
+    case 'range': {
+      if (parts.sameMonth && !parts.from.withYear) {
+        // «2–15 августа», «August 2–15»: the month once, where the language puts it.
+        return words.rangeInMonth(
+          { date: dayParts(parts.from.day).date, day: t.day(parts.from.day, false) },
+          { date: dayParts(parts.to.day).date, day: t.day(parts.to.day, false) },
+        )
+      }
+      return words.range(t.day(parts.from.day, parts.from.withYear), t.day(parts.to.day, parts.to.withYear))
+    }
+    case 'day':
+      return t.day(parts.day.day, parts.day.withYear)
+    case 'startsLater':
+      return words.startsLater(t.day(parts.day.day, parts.day.withYear))
+    case 'since':
+      return (parts.ongoing ? words.sinceOngoing : words.since)(t.day(parts.day.day, parts.day.withYear))
+    case 'until':
+      return words.range('…', t.day(parts.day.day, parts.day.withYear))
+    case 'ongoing':
+      return words.ongoingOnly
+    case 'fromForm':
+      return words.fromForm
+    case 'noDates':
+      return words.noDates
   }
-  const year = today.slice(0, 4)
-  if (course.started_on && !course.ended_on) {
-    const from = t.day(course.started_on, course.started_on.slice(0, 4) !== year)
-    return course.ongoing ? words.sinceOngoing(from) : words.since(from)
-  }
-  if (!course.started_on && course.ended_on) return words.range('…', t.day(course.ended_on, course.ended_on.slice(0, 4) !== year))
-
-  // A one-day course: its day, once.
-  if (course.started_on === course.ended_on) return t.day(course.ended_on!, course.ended_on!.slice(0, 4) !== year)
-
-  const start = dayParts(course.started_on!)
-  const end = dayParts(course.ended_on!)
-  const withYear = start.year !== end.year || String(end.year) !== year
-  if (start.year === end.year && start.month === end.month && !withYear) {
-    // «2–15 августа», «August 2–15»: the month once, where the language puts it.
-    return words.rangeInMonth(
-      { date: start.date, day: t.day(course.started_on!, false) },
-      { date: end.date, day: t.day(course.ended_on!, false) },
-    )
-  }
-  return words.range(t.day(course.started_on!, withYear), t.day(course.ended_on!, withYear))
 }
 
 export type CourseDraft = {

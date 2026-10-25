@@ -1,5 +1,6 @@
 import type { DueItem, HealthEvent, HealthItem, PetSpecies } from '@lapka/contracts'
-import { addMonths, coreVaccinations, dueEntries, dueName, dueTiming, parasiteCovers, parasiteGroups, type DueTone } from '@lapka/shared'
+import type { ParasiteGroup } from '@lapka/contracts'
+import { addMonths, coreVaccinations, dueEntries, dueName, dueStatusParts, dueTitleParts, itemNameParts, parasiteCovers, type DueTone } from '@lapka/shared'
 import type { Dictionary } from '@/i18n'
 
 /**
@@ -29,19 +30,30 @@ function day(t: Dictionary, date: string, today: string): string {
 
 export function dueStatus(t: Dictionary, date: string, today: string): DueStatus {
   const words = t.medicalRecord.due
-  const shown = day(t, date, today)
-  const timing = dueTiming(date, today)
+  // Which words a date gets is the shared rule (`dueStatusParts`), the site's too.
+  const parts = dueStatusParts(date, today)
+  const shown = t.day(parts.day.day, parts.day.withYear)
 
-  if (timing.tone === 'overdue') {
-    // «Просрочено на 83 дня» stops meaning anything; the date says it better.
-    if (timing.longOverdue) return { tone: 'overdue', text: words.overdueSince(shown), day: shown, dated: true }
-    const late = -timing.days
-    return { tone: 'overdue', text: late === 1 ? words.overdueYesterday : words.overdueDays(late), day: shown }
+  if (parts.tone === 'overdue') {
+    switch (parts.since.kind) {
+      // «Просрочено на 83 дня» stops meaning anything; the date says it better.
+      case 'long':
+        return { tone: 'overdue', text: words.overdueSince(shown), day: shown, dated: true }
+      case 'yesterday':
+        return { tone: 'overdue', text: words.overdueYesterday, day: shown }
+      case 'days':
+        return { tone: 'overdue', text: words.overdueDays(parts.since.days), day: shown }
+    }
   }
-  if (timing.tone === 'later') return { tone: 'later', text: null, day: shown }
-  if (timing.days === 0) return { tone: 'soon', text: words.today, day: shown }
-  if (timing.days === 1) return { tone: 'soon', text: words.tomorrow, day: shown }
-  return { tone: 'soon', text: words.inDays(timing.days), day: shown }
+  if (parts.tone === 'later') return { tone: 'later', text: null, day: shown }
+  switch (parts.when.kind) {
+    case 'today':
+      return { tone: 'soon', text: words.today, day: shown }
+    case 'tomorrow':
+      return { tone: 'soon', text: words.tomorrow, day: shown }
+    case 'inDays':
+      return { tone: 'soon', text: words.inDays(parts.when.days), day: shown }
+  }
 }
 
 export type DueGroup = { tone: DueTone; rows: Array<{ due: Due; status: DueStatus }> }
@@ -104,50 +116,61 @@ function targetName(t: Dictionary, code: string): string {
   return (t.medicalRecord.targets as Record<string, string>)[code] ?? code
 }
 
-/** «Блохи и клещи», «Глисты», «Блохи, клещи и глисты». */
-function parasiteTitle(t: Dictionary, targets: readonly string[]): string | null {
-  const groups = parasiteGroups(targets)
-  const words = t.medicalRecord.parasiteTitle
-  const fleas = groups.includes('fleas')
-  const ticks = groups.includes('ticks')
-  const worms = groups.includes('worms')
-  if (fleas && ticks && worms) return words.all
-  if (fleas && ticks) return words.fleasTicks
-  if (fleas && worms) return words.fleasWorms
-  if (ticks && worms) return words.ticksWorms
-  if (fleas) return words.fleas
-  if (ticks) return words.ticks
-  if (worms) return words.worms
-  return null
+/** «Блохи и клещи», «Глисты», «Блохи, клещи и глисты»: the groups joined as the site joins them. */
+export function groupsTitle(t: Dictionary, groups: readonly ParasiteGroup[]): string {
+  const names = groups.map((group) => t.medicalRecord.parasiteGroups[group])
+  const joined = names.length > 1 ? `${names.slice(0, -1).join(', ')} ${t.medicalRecord.and} ${names[names.length - 1]}` : (names[0] ?? '')
+  return joined.charAt(0).toUpperCase() + joined.slice(1).toLowerCase()
 }
 
 /**
  * What a due row is called: the disease for a single one («Бешенство»),
- * «Комплексная прививка» for several, the owner's own name otherwise.
+ * «Комплексная прививка» for several, the owner's own name otherwise — by
+ * the shared rule (`dueTitleParts`), the site's too.
  */
 export function itemTitle(
   t: Dictionary,
   item: Pick<HealthItem, 'name' | 'targets'>,
   kind: HealthEvent['kind'] = 'vaccination',
 ): string {
-  if (kind === 'visit') return t.medicalRecord.visits.dueTitle
-  if (kind === 'parasite') return parasiteTitle(t, item.targets) ?? item.name ?? t.medicalRecord.noProduct
-  if (item.targets.length === 1) return targetName(t, item.targets[0])
-  if (item.targets.length > 1) return t.medicalRecord.complexVaccination
-  return item.name ?? t.medicalRecord.noProduct
+  const parts = dueTitleParts(kind, kind === 'visit' ? null : item, null)
+  switch (parts.kind) {
+    case 'visit':
+      return t.medicalRecord.visits.dueTitle
+    case 'parasiteGroups':
+      return groupsTitle(t, parts.groups)
+    case 'target':
+      return targetName(t, parts.target)
+    case 'complexVaccination':
+      return t.medicalRecord.complexVaccination
+    case 'name':
+      return parts.name
+    case 'noProduct':
+      return t.medicalRecord.noProduct
+  }
 }
 
-/** A vaccine as a record lists it: its name, or what it was against. */
-export function itemName(t: Dictionary, item: Pick<HealthItem, 'name' | 'targets'>): string {
-  return item.name ?? targetList(t, item.targets)
+/** A vaccine as a record lists it: its name, or what it was against (shared `itemNameParts`). */
+export function itemName(t: Dictionary, item: Pick<HealthItem, 'name' | 'targets'>, kind: HealthEvent['kind'] = 'vaccination'): string {
+  const parts = itemNameParts(kind, item)
+  switch (parts.kind) {
+    case 'name':
+      return parts.name
+    case 'parasiteGroups':
+      return targetList(t, parts.groups)
+    case 'targets':
+      return targetList(t, parts.targets)
+    case 'noProduct':
+      return t.medicalRecord.noProduct
+  }
 }
 
-/** «Панлейкопения, калицивироз, ринотрахеит». */
+/** «Панлейкопения, калицивироз, ринотрахеит»; parasite groups by their words. */
 export function targetList(t: Dictionary, targets: readonly string[]): string {
-  const parasites = parasiteGroups(targets)
+  const parts = itemNameParts('parasite', { name: null, targets })
   const names =
-    parasites.length > 0
-      ? parasites.map((group) => t.medicalRecord.parasiteGroups[group])
+    parts.kind === 'parasiteGroups'
+      ? parts.groups.map((group) => t.medicalRecord.parasiteGroups[group])
       : targets.map((code) => targetName(t, code))
   return names.map((name, index) => (index === 0 ? name : name.toLowerCase())).join(', ')
 }
@@ -216,7 +239,7 @@ export type ParasiteStatus = {
  * in both — it is still one item and one plan.
  */
 export function parasiteStatuses(t: Dictionary, events: readonly HealthEvent[], today: string): ParasiteStatus[] {
-  const titles = { fleasTicks: t.medicalRecord.parasiteTitle.fleasTicks, worms: t.medicalRecord.parasiteTitle.worms }
+  const titles = { fleasTicks: groupsTitle(t, ['fleas', 'ticks']), worms: groupsTitle(t, ['worms']) }
   return parasiteCovers(events).map(({ cover, last, next }) => {
     const status = next ? dueStatus(t, next.event.date, today) : null
     return {
