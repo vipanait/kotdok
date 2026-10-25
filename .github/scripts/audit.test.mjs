@@ -36,3 +36,14 @@ test('moderate and low advisories stay below the line, as with --audit-level=hig
   const report = { vulnerabilities: { uuid: { via: [advisory('https://github.com/advisories/GHSA-m', 'moderate')] } } }
   assert.deepEqual(blockingAdvisories(report, accepted), [])
 })
+
+test('an advisory accepted for some paths fails the job once a copy elsewhere is vulnerable', () => {
+  const scoped = [{ url: 'https://github.com/advisories/GHSA-scoped', package: 'zod', paths: ['node_modules/a/node_modules/zod'] }]
+  const report = (nodes) => ({
+    vulnerabilities: { zod: { nodes, via: [advisory('https://github.com/advisories/GHSA-scoped', 'high', 'scoped')] } },
+  })
+  assert.deepEqual(blockingAdvisories(report(['node_modules/a/node_modules/zod']), scoped), [])
+  assert.deepEqual(blockingAdvisories(report(['node_modules/a/node_modules/zod', 'node_modules/zod']), scoped), [
+    { package: 'zod', severity: 'high', title: 'scoped', url: 'https://github.com/advisories/GHSA-scoped' },
+  ])
+})

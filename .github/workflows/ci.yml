@@ -71,9 +71,10 @@ jobs:
         with:
           node-version: 24
 
-      # The same threshold, with two high advisories that have no fixed release
-      # accepted by id (braces, node-forge — Expo build tooling only). The list,
-      # the reasons and the review dates are in the script.
+      # The same threshold, with three high advisories that have no fixed release
+      # accepted by id (braces, node-forge, and zod 3 inside @expo/cli — Expo
+      # build tooling only). The list, the reasons and the review dates are in
+      # the script.
       - name: Audit dependencies
         run: node .github/scripts/audit.mjs
 
