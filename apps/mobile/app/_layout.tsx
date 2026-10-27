@@ -111,6 +111,7 @@ export default function RootLayout() {
             <StatusBar style="dark" />
             <Stack screenOptions={stackOptions}>
               <Stack.Screen name="index" options={arrivalOptions} />
+              <Stack.Screen name="intro" options={arrivalOptions} />
               <Stack.Screen name="sign-in" options={arrivalOptions} />
               <Stack.Screen name="(tabs)" options={arrivalOptions} />
               <Stack.Screen name="consent" options={arrivalOptions} />

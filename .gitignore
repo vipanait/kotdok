@@ -80,3 +80,6 @@ docs/design/**/lapka-transparent-assets.zip
 /docs/**/*.ttf
 /docs/**/*.otf
 /docs/**/*.zip
+
+# Brainstorm companion sessions
+.superpowers/

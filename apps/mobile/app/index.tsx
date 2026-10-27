@@ -1,5 +1,7 @@
 import { Redirect } from 'expo-router'
 import { useAuth } from '@/providers/AuthProvider'
+import { firstDestination } from '@/features/onboarding/first-destination'
+import { isFirstLaunch } from '@/features/updates/first-launch'
 import { BootScreen } from '@/ui/BootScreen'
 
 /**
@@ -12,5 +14,5 @@ export default function Index() {
 
   if (loading) return <BootScreen />
 
-  return <Redirect href={session ? '/pets' : '/sign-in'} />
+  return <Redirect href={firstDestination({ signedIn: Boolean(session), firstLaunch: isFirstLaunch() })} />
 }
