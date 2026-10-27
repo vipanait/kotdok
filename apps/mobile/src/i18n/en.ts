@@ -627,6 +627,18 @@ export const en: Dictionary = {
     later: 'Later',
   },
 
+  intro: {
+    title: 'Your pet’s health helper',
+    body: 'For cats and dogs',
+    check: 'Check symptoms',
+    checkBody: 'Describe what is wrong — we say how soon a vet is needed',
+    record: 'Health record',
+    recordBody: 'Vaccinations, treatments and visits in one place — with reminders',
+    track: 'Follow the changes',
+    trackBody: 'Check history and a “how is it going?” a couple of days later',
+    signIn: 'Sign in',
+  },
+
   doseTimes: {
     title: 'Remind me to give it',
     custom: 'Your own time',
