@@ -92,6 +92,9 @@ docs/design/**/lapka-transparent-assets.zip
 /docs/**/*.otf
 /docs/**/*.zip
 
+# Brainstorm companion sessions
+.superpowers/
+
 # --- supabase/.gitignore ---
 supabase/.branches
 supabase/.temp
