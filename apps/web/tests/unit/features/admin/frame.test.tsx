@@ -44,6 +44,12 @@ describe('a statistics tile', () => {
     expect(render(<StatTile label="x" value="5" change={{ kind: 'flat', value: 0, unit: 'percent' }} />)).toContain('без изменений')
   })
 
+  it('can carry a change and a note together', () => {
+    const html = render(<StatTile label="Сбои" value="1,2%" change={{ kind: 'up', value: 1, unit: 'points' }} note="analysis_failed: 2" />)
+    expect(html).toContain('▲ 1 п.п.')
+    expect(html).toContain('analysis_failed: 2')
+  })
+
   it('can carry a note instead of a change', () => {
     const html = render(<StatTile label="Аккаунтов" value="1 284" note="+142 за период" />)
     expect(html).toContain('+142 за период')
