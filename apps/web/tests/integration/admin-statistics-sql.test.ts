@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import type { Client } from 'pg'
-import { connect, requestDeletion, seedFixtures } from './fixtures'
+import { PET_IDS, connect, requestDeletion, seedFixtures } from './fixtures'
 
 /**
  * The admin statistics, counted in SQL (docs/superpowers/specs/2026-11-05-admin-dashboard-design.md).
@@ -94,6 +94,9 @@ const ADMIN_FUNCTIONS = [
   `admin_overview_stats(now(), 30)`,
   `admin_activity(now() - interval '1 day', now())`,
   `admin_users_stats(now(), 30)`,
+  `admin_checks_stats(now(), 30)`,
+  `admin_check_feed(now(), 30, 'all', 50)`,
+  `admin_check_row(null::public.symptom_checks)`,
 ]
 
 beforeAll(async () => {
@@ -273,12 +276,127 @@ describe('admin_users_stats', () => {
   })
 })
 
+async function feed(fn: string, filter: string, limit: number): Promise<{ rows: Row[]; has_more: boolean }> {
+  const { rows } = await db.query<{ r: { rows: Row[]; has_more: boolean } }>(
+    `select public.${fn}($1::timestamptz, 30, $2, $3) as r`,
+    [NOW, filter, limit],
+  )
+  return rows[0]!.r
+}
+
+describe('admin_checks_stats', () => {
+  it('splits checks by species, with unknown for a check without a pet', async () => {
+    await insertCheck(db, { userId: ownerA, petId: PET_IDS.aCat, at: '2026-11-01 10:00' })
+    await insertCheck(db, { userId: ownerA, petId: PET_IDS.aDog, at: '2026-11-01 10:00' })
+    await insertCheck(db, { userId: ownerA, petId: null, at: '2026-11-01 10:00' })
+    const r = await call('admin_checks_stats')
+    expect(r.species).toEqual({ cat: 1, dog: 1, unknown: 1 })
+    expect((r.per_user as Row).cur).toEqual({ num: 3, den: 1 })
+  })
+
+  it('counts every questionnaire answer, unanswered included', async () => {
+    await insertCheck(db, { userId: ownerA, at: '2026-11-01 10:00' })
+    await insertCheck(db, {
+      userId: ownerA,
+      at: '2026-11-01 11:00',
+      answers: { appetite: 'none', activity: 'lethargic', duration: '2-3days', stool: 'bloody', pain_signs: ['tense', 'hiding'] },
+    })
+    const answers = (await call('admin_checks_stats')).answers as Record<string, Row>
+    expect(answers.total).toBe(2)
+    expect(answers.appetite).toEqual({ normal: 0, reduced: 0, none: 1, unanswered: 1 })
+    expect(answers.duration).toEqual({ today: 0, '2-3days': 1, '4-7days': 0, 'week+': 0, unanswered: 1 })
+    expect(answers.pain).toEqual({ tense: 1, hunched: 0, grimace: 0, touch_sensitive: 0, hiding: 1, vocalizing: 0, any: 1 })
+  })
+
+  it('splits checks by urgency per Moscow day', async () => {
+    await insertCheck(db, { userId: ownerA, urgency: 'urgent', at: '2026-11-04 21:30' })
+    await insertCheck(db, { userId: ownerA, urgency: 'healthy', at: '2026-11-05 08:00' })
+    const r = await call('admin_checks_stats')
+    expect(day(r, '2026-11-05')).toEqual({ date: '2026-11-05', emergency: 0, urgent: 1, monitor: 0, home_care: 0, healthy: 1 })
+  })
+
+  it('counts failures by code and approved extra checks', async () => {
+    await insertJob(db, { userId: ownerA, at: '2026-11-01T10:00:00Z', status: 'failed', errorCode: 'analysis_failed' })
+    await insertJob(db, { userId: ownerA, at: '2026-11-01T11:00:00Z', status: 'failed', errorCode: 'analysis_failed' })
+    await insertJob(db, { userId: ownerA, at: '2026-11-01T12:00:00Z' })
+    await db.query(
+      `insert into public.extra_check_requests (user_id, status, created_at)
+       values ($1, 'approved', timestamptz '2026-11-02 10:00+00'), ($1, 'rejected', timestamptz '2026-11-02 11:00+00')`,
+      [ownerA],
+    )
+    const r = await call('admin_checks_stats')
+    expect((r.failures as Row).cur).toEqual({ num: 2, den: 3 })
+    expect(r.failure_codes).toEqual({ analysis_failed: 2 })
+    expect((r.extra_requests as Row).cur).toBe(2)
+    expect(r.extra_approved).toBe(1)
+  })
+})
+
+describe('admin_check_feed', () => {
+  it('shows the newest checks first, without deleted ones', async () => {
+    await insertCheck(db, { userId: ownerA, at: '2026-11-01 10:00', symptoms: 'old' })
+    await insertCheck(db, { userId: ownerA, at: '2026-11-03 10:00', symptoms: 'new' })
+    await insertCheck(db, { userId: ownerA, at: '2026-11-04 10:00', symptoms: 'gone', deleted: true })
+    const r = await feed('admin_check_feed', 'all', 50)
+    expect(r.rows.map((row) => row.symptoms)).toEqual(['new', 'old'])
+    expect(r.has_more).toBe(false)
+  })
+
+  it('filters urgent and disliked checks', async () => {
+    await insertCheck(db, { userId: ownerA, urgency: 'emergency', at: '2026-11-01 10:00', symptoms: 'emergency' })
+    await insertCheck(db, { userId: ownerA, urgency: 'urgent', at: '2026-11-01 11:00', symptoms: 'urgent' })
+    const calm = await insertCheck(db, { userId: ownerA, urgency: 'monitor', at: '2026-11-01 12:00', symptoms: 'calm' })
+    await insertFeedback(db, { userId: ownerA, checkId: calm, rating: 'disliked', comment: 'не помогло', at: '2026-11-02T10:00:00Z' })
+    expect((await feed('admin_check_feed', 'urgent', 50)).rows.map((row) => row.symptoms)).toEqual(['urgent', 'emergency'])
+    const disliked = await feed('admin_check_feed', 'disliked', 50)
+    expect(disliked.rows.map((row) => row.symptoms)).toEqual(['calm'])
+    expect(disliked.rows[0]).toMatchObject({ rating: 'disliked', comment: 'не помогло' })
+  })
+
+  it('treats an unknown filter as all', async () => {
+    await insertCheck(db, { userId: ownerA, at: '2026-11-01 10:00' })
+    expect((await feed('admin_check_feed', '<script>', 50)).rows).toHaveLength(1)
+  })
+
+  it('reports has_more and clamps the limit', async () => {
+    for (const at of ['2026-11-01 10:00', '2026-11-01 11:00', '2026-11-01 12:00']) await insertCheck(db, { userId: ownerA, at })
+    const two = await feed('admin_check_feed', 'all', 2)
+    expect(two.rows).toHaveLength(2)
+    expect(two.has_more).toBe(true)
+    expect((await feed('admin_check_feed', 'all', 9999)).rows).toHaveLength(3)
+    expect((await feed('admin_check_feed', 'all', 0)).rows).toHaveLength(1)
+  })
+
+  it('carries the pet species and age but nothing that identifies the owner', async () => {
+    await db.query(`update public.pets set birth_date = date '2023-06-01', age_years = 9 where id = $1`, [PET_IDS.aCat])
+    await insertCheck(db, {
+      userId: ownerA,
+      petId: PET_IDS.aCat,
+      at: '2026-11-01 10:00',
+      answers: { appetite: 'reduced', pain_signs: ['grimace'] },
+    })
+    const [row] = (await feed('admin_check_feed', 'all', 50)).rows
+    expect(row).toMatchObject({
+      species: 'cat',
+      pet_age_years: 3,
+      urgency: 'monitor',
+      possible_causes: ['cause'],
+      answers: { appetite: 'reduced', activity: null, duration: null, stool: null, pain_signs: ['grimace'] },
+      rating: null,
+      comment: null,
+    })
+    expect(Object.keys(row!)).not.toEqual(expect.arrayContaining(['user_id']))
+    expect(JSON.stringify(row)).not.toContain(ownerA)
+    expect(JSON.stringify(row)).not.toContain('Мурка')
+  })
+})
+
 describe('access', () => {
   it.each(ADMIN_FUNCTIONS)('denies %s to authenticated', async (expression) => {
     await db.query('begin')
     try {
       await db.query('set local role authenticated')
-      await expect(db.query(`select * from public.${expression}`)).rejects.toThrow(/permission denied/)
+      await expect(db.query(`select public.${expression}`)).rejects.toThrow(/permission denied/)
     } finally {
       await db.query('rollback')
     }

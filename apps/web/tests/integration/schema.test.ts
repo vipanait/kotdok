@@ -74,6 +74,9 @@ const REQUIRED_TABLES = [
 
 const REQUIRED_FUNCTIONS = [
   'admin_activity',
+  'admin_check_feed',
+  'admin_check_row',
+  'admin_checks_stats',
   'admin_followup_statistics',
   'admin_metric',
   'admin_msk_date',
