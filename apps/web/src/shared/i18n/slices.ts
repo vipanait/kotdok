@@ -24,7 +24,8 @@ export const ROUTE_SLICES = {
   'pets/[id]': ['medicalRecord', 'followup'],
   check: ['check', 'followup'],
   checks: ['check', 'followup'],
-  admin: ['admin'],
+  /** The statistics; `check` names the questionnaire's answers in the feeds. */
+  admin: ['admin', 'check'],
   'account-deletion': ['deletion'],
   credits: ['credits'],
 } as const satisfies Record<string, readonly Namespace[]>
