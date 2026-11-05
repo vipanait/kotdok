@@ -4,7 +4,12 @@ import { PAGE_PATH_HEADER } from '@/server/security/page-path'
 
 // The session is not what is tested here: a signed-in visitor, no network.
 vi.mock('@supabase/ssr', () => ({
-  createServerClient: vi.fn(() => ({ auth: { getUser: async () => ({ data: { user: { id: 'user-1' } } }) } })),
+  createServerClient: vi.fn(() => ({
+    auth: {
+      getUser: async () => ({ data: { user: { id: 'user-1' } } }),
+      getClaims: async () => ({ data: { claims: { sub: 'user-1' } }, error: null }),
+    },
+  })),
 }))
 
 const { proxy } = await import('@/proxy')
