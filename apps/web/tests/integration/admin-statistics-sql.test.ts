@@ -97,6 +97,8 @@ const ADMIN_FUNCTIONS = [
   `admin_checks_stats(now(), 30)`,
   `admin_check_feed(now(), 30, 'all', 50)`,
   `admin_check_row(null::public.symptom_checks)`,
+  `admin_feedback_stats(now(), 30)`,
+  `admin_feedback_feed(now(), 30, 'all', 50)`,
 ]
 
 beforeAll(async () => {
@@ -388,6 +390,70 @@ describe('admin_check_feed', () => {
     expect(Object.keys(row!)).not.toEqual(expect.arrayContaining(['user_id']))
     expect(JSON.stringify(row)).not.toContain(ownerA)
     expect(JSON.stringify(row)).not.toContain('Мурка')
+  })
+})
+
+describe('admin_feedback_stats', () => {
+  it('counts a changed rating at the time it was changed', async () => {
+    const check = await insertCheck(db, { userId: ownerA, at: '2026-09-20 10:00' })
+    await insertFeedback(db, { userId: ownerA, checkId: check, rating: 'liked', at: '2026-09-26T10:00:00Z', updatedAt: '2026-11-03T10:00:00Z' })
+    const r = await call('admin_feedback_stats')
+    // The only rating was first given on 26 September, after the previous window began.
+    expect(r.ratings).toEqual({ cur: 1, prev: null })
+    expect((r.liked as Row).cur).toEqual({ num: 1, den: 1 })
+  })
+
+  it('counts the share of checks with a rating, comments and daily ratings', async () => {
+    const rated = await insertCheck(db, { userId: ownerA, at: '2026-11-01 10:00' })
+    await insertCheck(db, { userId: ownerA, at: '2026-11-01 11:00' })
+    await insertFeedback(db, { userId: ownerA, checkId: rated, rating: 'disliked', comment: 'мимо', at: '2026-11-04T21:30:00Z' })
+    await insertFeedback(db, { userId: ownerB, rating: 'liked', comment: '   ', at: '2026-11-02T10:00:00Z' })
+    const r = await call('admin_feedback_stats')
+    expect((r.rated_checks as Row).cur).toEqual({ num: 1, den: 2 })
+    expect((r.with_comment as Row).cur).toBe(1)
+    expect(day(r, '2026-11-05')).toEqual({ date: '2026-11-05', liked: 0, disliked: 1 })
+  })
+
+  it('splits ratings by urgency only for ratings tied to a check', async () => {
+    const urgent = await insertCheck(db, { userId: ownerA, urgency: 'urgent', at: '2026-11-01 10:00' })
+    await insertFeedback(db, { userId: ownerA, checkId: urgent, rating: 'liked', at: '2026-11-02T10:00:00Z' })
+    await insertFeedback(db, { userId: ownerB, rating: 'disliked', at: '2026-11-02T10:00:00Z' })
+    const r = await call('admin_feedback_stats')
+    expect((r.ratings as Row).cur).toBe(2)
+    expect((r.by_urgency as Row).urgent).toEqual({ liked: 1, rated: 1 })
+    expect((r.by_urgency as Row).monitor).toEqual({ liked: 0, rated: 0 })
+  })
+})
+
+describe('admin_feedback_feed', () => {
+  it('lists non-empty comments newest first, with their check', async () => {
+    const check = await insertCheck(db, { userId: ownerA, urgency: 'urgent', at: '2026-11-01 10:00', symptoms: 'хромает' })
+    await insertFeedback(db, { userId: ownerA, checkId: check, rating: 'disliked', comment: 'не то', at: '2026-11-03T10:00:00Z' })
+    await insertFeedback(db, { userId: ownerB, rating: 'liked', comment: 'спасибо', at: '2026-11-02T10:00:00Z' })
+    await insertFeedback(db, { userId: ownerB, rating: 'liked', comment: '   ', at: '2026-11-04T10:00:00Z' })
+    const r = await feed('admin_feedback_feed', 'all', 50)
+    expect(r.rows.map((row) => row.comment)).toEqual(['не то', 'спасибо'])
+    expect((r.rows[0]!.check as Row)).toMatchObject({ urgency: 'urgent', symptoms: 'хромает' })
+    expect(r.rows[1]!.check).toBeNull()
+  })
+
+  it('filters by rating and hides the check of a deleted check', async () => {
+    const gone = await insertCheck(db, { userId: ownerA, at: '2026-11-01 10:00', deleted: true })
+    await insertFeedback(db, { userId: ownerA, checkId: gone, rating: 'disliked', comment: 'плохо', at: '2026-11-03T10:00:00Z' })
+    await insertFeedback(db, { userId: ownerB, rating: 'liked', comment: 'хорошо', at: '2026-11-02T10:00:00Z' })
+    const disliked = await feed('admin_feedback_feed', 'disliked', 50)
+    expect(disliked.rows.map((row) => row.comment)).toEqual(['плохо'])
+    expect(disliked.rows[0]!.check).toBeNull()
+    expect((await feed('admin_feedback_feed', 'liked', 50)).rows.map((row) => row.comment)).toEqual(['хорошо'])
+  })
+
+  it('reports has_more', async () => {
+    for (const at of ['2026-11-01T10:00:00Z', '2026-11-02T10:00:00Z']) {
+      await insertFeedback(db, { userId: ownerB, rating: 'liked', comment: at, at })
+    }
+    const one = await feed('admin_feedback_feed', 'all', 1)
+    expect(one.rows).toHaveLength(1)
+    expect(one.has_more).toBe(true)
   })
 })
 

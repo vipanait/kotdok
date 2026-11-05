@@ -77,6 +77,8 @@ const REQUIRED_FUNCTIONS = [
   'admin_check_feed',
   'admin_check_row',
   'admin_checks_stats',
+  'admin_feedback_feed',
+  'admin_feedback_stats',
   'admin_followup_statistics',
   'admin_metric',
   'admin_msk_date',
