@@ -1,24 +1,5 @@
 export type AdminStatisticsPeriod = 7 | 30 | 90
 
-export interface AdminStatisticsTotals {
-  registeredUsers: number
-  symptomCheckUsers: number
-  symptomChecks: number
-  symptomChecksCat: number
-  symptomChecksDog: number
-  petsTotal: number
-  petsCat: number
-  petsDog: number
-}
-
-export interface AdminStatisticsDailyPoint {
-  date: string
-  registrations: number
-  symptomChecks: number
-  symptomChecksCat: number
-  symptomChecksDog: number
-}
-
 /** One urgency of the follow-up loop, over cases whose first check falls in the period. */
 export interface AdminFollowupRow {
   urgency: 'emergency' | 'urgent' | 'monitor' | 'home_care'
@@ -54,13 +35,6 @@ export interface AdminFollowupStatistics {
   rows: AdminFollowupRow[]
   /** Where first answers came from: notification, pets_list, web_banner… */
   firstSource: Record<string, number>
-}
-
-export interface AdminStatistics {
-  days: AdminStatisticsPeriod
-  totals: AdminStatisticsTotals
-  daily: AdminStatisticsDailyPoint[]
-  followup: AdminFollowupStatistics
 }
 
 // --- The dashboard tabs, counted in SQL (supabase/migrations/20261105120*) ---

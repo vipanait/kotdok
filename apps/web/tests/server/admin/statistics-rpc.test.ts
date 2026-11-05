@@ -6,6 +6,7 @@ import {
   getAdminFeedbackFeed,
   getAdminOverview,
   getAdminUsers,
+  mapFollowupStatistics,
   normalizeAdminStatisticsPeriod,
   normalizeCheckFeedFilter,
   normalizeFeedbackFeedFilter,
@@ -183,6 +184,19 @@ describe('admin statistics over SQL', () => {
     const feed = await getAdminCheckFeed(90, 'urgent', 50, NOW)
     expect(rpc).toHaveBeenCalledWith('admin_check_feed', { p_now: '2026-05-02T12:00:00.000Z', p_days: 90, p_filter: 'urgent', p_limit: 50 })
     expect(feed).toEqual({ rows: [], hasMore: false })
+  })
+
+  it('maps the follow-up aggregates in the order of the scale, with every urgency present', () => {
+    const mapped = mapFollowupStatistics({
+      by_urgency: [
+        { urgency: 'home_care', offered: 12, enabled: 11, answered: 9, first_worse: 3, any_worse: 4, median_hours_to_better: 30.25 },
+      ],
+      first_source: { notification: 6, web_banner: 3 },
+    })
+    expect(mapped.rows.map(row => row.urgency)).toEqual(['monitor', 'home_care', 'urgent', 'emergency'])
+    expect(mapped.rows[1]).toMatchObject({ offered: 12, enabled: 11, answered: 9, firstWorse: 3, anyWorse: 4, medianHoursToBetter: 30.3 })
+    expect(mapped.rows[0]).toMatchObject({ offered: 0, medianHoursToBetter: null })
+    expect(mapped.firstSource).toEqual({ notification: 6, web_banner: 3 })
   })
 
   it('throws when a function fails', async () => {

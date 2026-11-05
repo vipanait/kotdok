@@ -1,40 +1,30 @@
-import { redirect } from 'next/navigation'
 import CabinetShell from '@/components/cabinet/CabinetShell'
-import AdminStatisticsClient from '@/features/admin/AdminStatisticsClient'
-import { loadAdminUser } from '@/server/auth/admin-user'
-import { getAdminStatistics, normalizeAdminStatisticsPeriod } from '@/server/admin/statistics'
-import { requireCabinet } from '@/components/cabinet/require-cabinet'
+import AdminFrame from '@/features/admin/AdminFrame'
+import OverviewTab from '@/features/admin/OverviewTab'
+import { loadAdminPage, type AdminSearchParams } from './load-admin-page'
+import { getAdminFeedbackFeed, getAdminOverview } from '@/server/admin/statistics'
 import { getDictionary } from '@/server/i18n/get-dictionary'
 import { getLocale } from '@/server/i18n/get-locale'
 import { privatePageMetadata } from '@/server/i18n/page-metadata'
 
 export const generateMetadata = privatePageMetadata(d => d.shell.statistics)
 
-export default async function AdminStatisticsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ days?: string | string[] }>
-}) {
-  const params = await searchParams
-  const days = normalizeAdminStatisticsPeriod(params.days)
-  const signIn = `/login?next=${encodeURIComponent(`/admin/statistics?days=${days}`)}`
+/** How many comments the overview shows. */
+const LATEST_COMMENTS = 3
 
-  const admin = await loadAdminUser()
-  if (!admin.ok) {
-    redirect(admin.reason === 'signed_out' ? signIn : '/dashboard')
-  }
-
-  // The frame's own view of the visitor. It is null only for somebody signed
-  // out in between, or whose account deletion has started: neither may stay.
-  const cabinet = await requireCabinet(signIn)
-
-  const locale = await getLocale()
-  const dict = await getDictionary(locale)
-  const statistics = await getAdminStatistics(days)
+export default async function AdminOverviewPage({ searchParams }: { searchParams: Promise<AdminSearchParams> }) {
+  const { cabinet, days } = await loadAdminPage('overview', searchParams)
+  const dict = await getDictionary(await getLocale())
+  const [overview, comments] = await Promise.all([
+    getAdminOverview(days),
+    getAdminFeedbackFeed(days, 'all', LATEST_COMMENTS),
+  ])
 
   return (
     <CabinetShell cabinet={cabinet} crumb={dict.admin.statistics.crumb}>
-      <AdminStatisticsClient statistics={statistics} />
+      <AdminFrame tab="overview" days={days}>
+        <OverviewTab overview={overview} comments={comments.rows} />
+      </AdminFrame>
     </CabinetShell>
   )
 }
