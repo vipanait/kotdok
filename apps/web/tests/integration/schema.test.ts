@@ -79,6 +79,7 @@ const REQUIRED_FUNCTIONS = [
   'admin_msk_date',
   'admin_overview_stats',
   'admin_ratio',
+  'admin_users_stats',
   'apply_symptom_check_usage',
   'archive_account_financials',
   'backfill_pet_medications',

@@ -93,6 +93,7 @@ function day(r: Row, date: string): Row {
 const ADMIN_FUNCTIONS = [
   `admin_overview_stats(now(), 30)`,
   `admin_activity(now() - interval '1 day', now())`,
+  `admin_users_stats(now(), 30)`,
 ]
 
 beforeAll(async () => {
@@ -201,6 +202,74 @@ describe('admin_overview_stats', () => {
     )
     const r = await call('admin_overview_stats')
     expect((r.extra_requests as Row).cur).toBe(1)
+  })
+})
+
+describe('admin_users_stats', () => {
+  it('counts active accounts and the ones added in the period', async () => {
+    let r = await call('admin_users_stats')
+    expect(r.accounts).toEqual({ total: 2, added: 2 })
+    await requestDeletion(db, ownerB)
+    r = await call('admin_users_stats')
+    expect(r.accounts).toEqual({ total: 1, added: 1 })
+  })
+
+  it('counts activation only for registrations at least seven days old', async () => {
+    await insertCheck(db, { userId: ownerA, at: '2026-10-22 10:00' })
+    await insertCheck(db, { userId: ownerB, at: '2026-11-02 10:00' })
+    const r = await call('admin_users_stats')
+    expect((r.activation as Row).cur).toEqual({ num: 1, den: 1 })
+  })
+
+  it('does not count a first check made after the seven days', async () => {
+    await insertCheck(db, { userId: ownerA, at: '2026-10-28 10:00' })
+    const r = await call('admin_users_stats')
+    expect((r.activation as Row).cur).toEqual({ num: 0, den: 1 })
+  })
+
+  it('counts returns as people with a second check', async () => {
+    // The fixture gives B two checks in May (the ledger holds on to them); this
+    // case needs B with one, so they move to A, who returns either way.
+    await db.query(`update public.symptom_checks set user_id = $1 where user_id = $2`, [ownerA, ownerB])
+    await insertCheck(db, { userId: ownerA, at: '2026-11-01 10:00' })
+    await insertCheck(db, { userId: ownerA, at: '2026-11-02 10:00' })
+    await insertCheck(db, { userId: ownerB, at: '2026-11-02 10:00' })
+    const r = await call('admin_users_stats')
+    expect((r.returning as Row).cur).toEqual({ num: 1, den: 2 })
+  })
+
+  it('averages daily active people over the days of the period', async () => {
+    await insertCheck(db, { userId: ownerA, at: '2026-11-01 10:00' })
+    await insertCheck(db, { userId: ownerA, at: '2026-11-01 12:00' })
+    await insertCheck(db, { userId: ownerA, at: '2026-11-02 10:00' })
+    await insertCheck(db, { userId: ownerB, at: '2026-11-02 10:00' })
+    const r = await call('admin_users_stats')
+    expect((r.dau_avg as Row).cur).toBeCloseTo(3 / 30, 5)
+    expect(day(r, '2026-11-02').active).toBe(2)
+    expect(day(r, '2026-11-01').registrations).toBe(1)
+  })
+
+  it('counts the sign-in method by the earliest identity, and the language', async () => {
+    await db.query(
+      `insert into auth.identities (provider_id, user_id, identity_data, provider, created_at, updated_at)
+       values ('apple-sub-a', $1, '{"sub": "apple-sub-a"}'::jsonb, 'apple', timestamptz '2026-01-01 00:00+00', timestamptz '2026-01-01 00:00+00')`,
+      [ownerA],
+    )
+    const r = await call('admin_users_stats')
+    expect(r.providers).toEqual({ apple: 1, email: 1 })
+    expect(r.locales).toEqual({ ru: 1, en: 1 })
+  })
+
+  it('builds eight weekly cohorts and leaves unfinished weeks empty', async () => {
+    await insertCheck(db, { userId: ownerA, at: '2026-10-22 10:00' })
+    const r = await call('admin_users_stats')
+    const cohorts = r.cohorts as Row[]
+    expect(cohorts).toHaveLength(8)
+    expect(cohorts[0]).toEqual({ week_start: '2026-09-14', size: 0, active: [0, 0, 0, 0, 0] })
+    expect(cohorts.find((c) => c.week_start === '2026-10-19')).toEqual({ week_start: '2026-10-19', size: 1, active: [1, 0, null, null, null] })
+    // B registered on Sunday 1 November: the week of 26 October, which has ended.
+    expect(cohorts.find((c) => c.week_start === '2026-10-26')).toEqual({ week_start: '2026-10-26', size: 1, active: [0, null, null, null, null] })
+    expect(cohorts.at(-1)).toEqual({ week_start: '2026-11-02', size: 0, active: [null, null, null, null, null] })
   })
 })
 
