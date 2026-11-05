@@ -73,7 +73,12 @@ const REQUIRED_TABLES = [
 ]
 
 const REQUIRED_FUNCTIONS = [
+  'admin_activity',
   'admin_followup_statistics',
+  'admin_metric',
+  'admin_msk_date',
+  'admin_overview_stats',
+  'admin_ratio',
   'apply_symptom_check_usage',
   'archive_account_financials',
   'backfill_pet_medications',
