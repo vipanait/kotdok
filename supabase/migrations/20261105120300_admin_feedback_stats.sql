@@ -47,6 +47,9 @@ begin
   since as (
     select
       (select min(created_at) from public.user_feedback) as feedback,
+      -- A rating could be tied to a check only from 23 September: before that
+      -- no check could be rated, and a share of rated checks would show growth.
+      (select min(created_at) from public.user_feedback where symptom_check_id is not null) as tied_feedback,
       (select min(created_at) at time zone 'UTC' from public.symptom_checks) as checks
   ),
   days as (
@@ -76,7 +79,7 @@ begin
       (select count(*) from checks where at >= v_cur_from and at < p_now),
       (select count(*) filter (where rated) from checks where at >= v_prev_from and at < v_cur_from),
       (select count(*) from checks where at >= v_prev_from and at < v_cur_from),
-      coalesce(since.checks <= v_prev_from and since.feedback <= v_prev_from, false)),
+      coalesce(since.checks <= v_prev_from and since.tied_feedback <= v_prev_from, false)),
     'with_comment', public.admin_metric(
       (select count(*) from cur where commented), (select count(*) from prev where commented),
       coalesce(since.feedback <= v_prev_from, false)),

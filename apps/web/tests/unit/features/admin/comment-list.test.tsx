@@ -44,6 +44,12 @@ describe('the comment list', () => {
     expect(tag(html, 'a', (a) => a.text === 'Показать ещё').attrs.href).toBe('/admin/statistics/feedback?days=30&filter=liked&shown=100')
   })
 
+  it('stops offering more at the 500-row ceiling', () => {
+    const html = render(<CommentList rows={[withoutCheck]} controls={{ days: 90, filter: 'all', shown: 500, hasMore: true }} />)
+    expect(html).not.toContain('Показать ещё')
+    expect(html).toContain('Показаны первые 500')
+  })
+
   it('has no filters on the overview', () => {
     const html = render(<CommentList rows={[withoutCheck]} />)
     expect(html).not.toContain('Показать ещё')

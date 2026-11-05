@@ -78,6 +78,15 @@ async function insertJob(
   )
 }
 
+/** The synthetic people of the load test, with their checks. */
+async function removeLoadUsers(): Promise<void> {
+  await db.query(
+    `delete from public.symptom_checks where user_id in (select id from auth.users where email like 'load-%@fixture.local')`,
+  )
+  await db.query(`delete from public.profiles where id in (select id from auth.users where email like 'load-%@fixture.local')`)
+  await db.query(`delete from auth.users where email like 'load-%@fixture.local'`)
+}
+
 async function call(fn: string, days = 30, now = NOW): Promise<Row> {
   const { rows } = await db.query<{ r: Row }>(`select public.${fn}($1::timestamptz, $2) as r`, [now, days])
   return rows[0]!.r
@@ -265,6 +274,40 @@ describe('admin_users_stats', () => {
     expect(r.locales).toEqual({ ru: 1, en: 1 })
   })
 
+  it('counts activation over registrations that have had their seven days, even for a seven-day period', async () => {
+    await db.query(`update public.profiles set created_at = timestamp '2026-10-25 09:00' where id = $1`, [ownerB])
+    await insertCheck(db, { userId: ownerB, at: '2026-10-26 10:00' })
+    const r = await call('admin_users_stats', 7)
+    expect((r.activation as Row).cur).toEqual({ num: 1, den: 1 })
+  })
+
+  it('stays fast with thousands of people and tens of thousands of checks', async () => {
+    await db.query(
+      `insert into auth.users (instance_id, id, aud, role, email, created_at, updated_at)
+       select '00000000-0000-0000-0000-000000000000', gen_random_uuid(), 'authenticated', 'authenticated',
+              'load-' || n || '@fixture.local', now(), now()
+       from generate_series(1, 3000) n`,
+    )
+    await db.query(
+      `update public.profiles p set created_at = timestamp '2026-11-05 00:00' - (random() * interval '120 days')
+       from auth.users u where u.id = p.id and u.email like 'load-%'`,
+    )
+    await db.query(
+      `insert into public.symptom_checks (user_id, symptoms_input, urgency, created_at)
+       select p.id, 'x', 'monitor', timestamp '2026-11-05 00:00' - (random() * interval '120 days')
+       from public.profiles p join auth.users u on u.id = p.id and u.email like 'load-%'
+       cross join generate_series(1, 10)`,
+    )
+    try {
+      const started = Date.now()
+      await call('admin_users_stats', 90)
+      expect(Date.now() - started).toBeLessThan(2000)
+    } finally {
+      // The fixture reset deletes auth users one by one through the API; 3000 of them would outlast its timeout.
+      await removeLoadUsers()
+    }
+  })
+
   it('builds eight weekly cohorts and leaves unfinished weeks empty', async () => {
     await insertCheck(db, { userId: ownerA, at: '2026-10-22 10:00' })
     const r = await call('admin_users_stats')
@@ -412,6 +455,18 @@ describe('admin_feedback_stats', () => {
     expect((r.rated_checks as Row).cur).toEqual({ num: 1, den: 2 })
     expect((r.with_comment as Row).cur).toBe(1)
     expect(day(r, '2026-11-05')).toEqual({ date: '2026-11-05', liked: 0, disliked: 1 })
+  })
+
+  it('has no previous share of rated checks before ratings could be tied to a check', async () => {
+    // An old product-level rating makes user_feedback older than the window; ratings
+    // tied to a check only began on 1 November here, after the previous window.
+    await insertFeedback(db, { userId: ownerB, rating: 'liked', at: '2026-06-01T10:00:00Z' })
+    const check = await insertCheck(db, { userId: ownerA, at: '2026-11-01 10:00' })
+    await insertCheck(db, { userId: ownerA, at: '2026-09-20 10:00' })
+    await insertFeedback(db, { userId: ownerA, checkId: check, rating: 'liked', at: '2026-11-01T11:00:00Z' })
+    const r = await call('admin_feedback_stats')
+    expect((r.rated_checks as Row).cur).toEqual({ num: 1, den: 1 })
+    expect((r.rated_checks as Row).prev).toBeNull()
   })
 
   it('splits ratings by urgency only for ratings tied to a check', async () => {

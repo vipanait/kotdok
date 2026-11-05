@@ -2,6 +2,8 @@ import 'server-only'
 
 import { createServiceClient } from '@/server/supabase/server'
 import {
+  ADMIN_FEED_MAX,
+  ADMIN_FEED_STEP,
   ADMIN_URGENCIES,
   type AdminCheckFeedFilter,
   type AdminCheckRow,
@@ -33,8 +35,8 @@ const DEFAULT_PERIOD: AdminStatisticsPeriod = 30
 const ALLOWED_PERIODS = [7, 30, 90] as const
 const DAY_MS = 24 * 60 * 60 * 1000
 
-export const FEED_STEP = 50
-const FEED_MAX = 500
+const FEED_STEP = ADMIN_FEED_STEP
+const FEED_MAX = ADMIN_FEED_MAX
 
 /** How many feed rows to show: a multiple of 50, from 50 to 500. */
 export function normalizeFeedShown(value: unknown): number {

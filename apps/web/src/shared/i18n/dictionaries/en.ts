@@ -559,6 +559,7 @@ const en: Dictionary = {
         filtersLabel: 'Which checks to show',
         filters: { all: 'all', urgent: 'emergency and urgent', disliked: 'with 👎' },
         showMore: 'Show more',
+        feedCeiling: 'Showing the first 500. To see the rest, shorten the period or pick a filter.',
         emptyFeed: 'No checks.',
         speciesIcon: { cat: '🐈', dog: '🐕' },
         ageYears: '{n} y',

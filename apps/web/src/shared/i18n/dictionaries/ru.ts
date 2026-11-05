@@ -570,6 +570,7 @@ const ru = {
         filtersLabel: 'Какие проверки показать',
         filters: { all: 'все', urgent: 'экстренно и срочно', disliked: 'с 👎' },
         showMore: 'Показать ещё',
+        feedCeiling: 'Показаны первые 500. Чтобы увидеть остальные, сократите период или выберите фильтр.',
         emptyFeed: 'Проверок нет.',
         speciesIcon: { cat: '🐈', dog: '🐕' },
         ageYears: '{n} г.',

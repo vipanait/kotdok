@@ -166,5 +166,9 @@ export interface AdminFeed<T> {
   hasMore: boolean
 }
 
+/** Feeds grow by this many rows per «Показать ещё», up to the ceiling. */
+export const ADMIN_FEED_STEP = 50
+export const ADMIN_FEED_MAX = 500
+
 export type AdminCheckFeedFilter = 'all' | 'urgent' | 'disliked'
 export type AdminFeedbackFeedFilter = 'all' | 'disliked' | 'liked'

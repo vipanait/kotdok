@@ -5,10 +5,10 @@ import { useLocale, useTranslations } from '@/components/LocaleProvider'
 import type { AdminFeedbackFeedFilter, AdminFeedbackRow, AdminStatisticsPeriod } from '@/shared/types/admin'
 import CheckDetails from './CheckDetails'
 import { formatMoment } from './format'
+import { ADMIN_FEED_MAX as FEED_MAX, ADMIN_FEED_STEP as FEED_STEP } from '@/shared/types/admin'
 import { adminTabHref } from './tabs'
 
 const FILTERS: AdminFeedbackFeedFilter[] = ['all', 'disliked', 'liked']
-const STEP = 50
 const EXCERPT = 60
 
 export interface CommentListControls {
@@ -75,11 +75,12 @@ export default function CommentList({ rows, controls }: { rows: AdminFeedbackRow
         </ul>
       )}
 
-      {controls?.hasMore && (
-        <Link className="button secondary admin-more" href={feedbackHref(controls.days, controls.filter, controls.shown + STEP)} scroll={false}>
+      {controls?.hasMore && controls.shown < FEED_MAX && (
+        <Link className="button secondary admin-more" href={feedbackHref(controls.days, controls.filter, controls.shown + FEED_STEP)} scroll={false}>
           {d.checks.showMore}
         </Link>
       )}
+      {controls?.hasMore && controls.shown >= FEED_MAX && <p className="small muted admin-more">{d.checks.feedCeiling}</p>}
     </>
   )
 }

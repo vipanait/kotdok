@@ -5,11 +5,11 @@ import { useLocale, useTranslations } from '@/components/LocaleProvider'
 import type { AdminCheckFeedFilter, AdminCheckRow, AdminFeed, AdminStatisticsPeriod } from '@/shared/types/admin'
 import CheckDetails from './CheckDetails'
 import { formatMoment, formatNumber } from './format'
+import { ADMIN_FEED_MAX as FEED_MAX, ADMIN_FEED_STEP as FEED_STEP } from '@/shared/types/admin'
 import { adminTabHref } from './tabs'
 
 const FILTERS: AdminCheckFeedFilter[] = ['all', 'urgent', 'disliked']
 const EXCERPT = 80
-const STEP = 50
 
 function feedHref(days: AdminStatisticsPeriod, filter: AdminCheckFeedFilter, shown?: number): string {
   const extra: Record<string, string> = {}
@@ -60,11 +60,12 @@ export default function CheckFeed({
         </div>
       )}
 
-      {feed.hasMore && (
-        <Link className="button secondary admin-more" href={feedHref(days, filter, shown + STEP)} scroll={false}>
+      {feed.hasMore && shown < FEED_MAX && (
+        <Link className="button secondary admin-more" href={feedHref(days, filter, shown + FEED_STEP)} scroll={false}>
           {t.showMore}
         </Link>
       )}
+      {feed.hasMore && shown >= FEED_MAX && <p className="small muted admin-more">{t.feedCeiling}</p>}
     </section>
   )
 }

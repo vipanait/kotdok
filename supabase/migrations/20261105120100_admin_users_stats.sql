@@ -2,8 +2,10 @@
 --
 -- Rules shared with the other admin functions are in
 -- 20261105120000_admin_overview_stats.sql. Definitions specific to this tab:
--- * activation: of the people who registered in the window and have had their
---   seven days already, the share who made a check within those seven days;
+-- * activation: of the people who registered in the window that ended seven
+--   days ago — `[now - N - 7d, now - 7d)`, so every one of them has had their
+--   seven days and a seven-day period is not always empty — the share who
+--   made a check within seven days of registering;
 -- * returns: of the people with a check in the window, the share with at least
 --   two checks made before the window ended;
 -- * sign-in method: the provider of a person's earliest identity, which is
@@ -11,6 +13,10 @@
 -- * cohorts: the last eight Moscow weeks (Monday to Sunday) of registration,
 --   whatever the period, and for weeks 0..4 after it the number of the cohort
 --   who did anything. A week that has not ended yet is null.
+--
+-- Everything is counted in one pass per source, grouped by person: a
+-- correlated subquery per person over every check grows with people × checks
+-- and took tens of seconds on 3000 people and 30 000 checks.
 
 create or replace function public.admin_users_stats(p_now timestamptz, p_days integer)
 returns jsonb
@@ -24,10 +30,13 @@ declare
   v_cur_from constant timestamptz := p_now - v_len;
   v_prev_from constant timestamptz := p_now - 2 * v_len;
   v_week constant interval := interval '7 days';
-  v_today constant date := public.admin_msk_date(p_now);
-  v_first_day constant date := public.admin_msk_date(p_now) - (p_days - 1);
-  v_this_week constant date := date_trunc('week', public.admin_msk_date(p_now))::date;
-  v_first_cohort constant date := date_trunc('week', public.admin_msk_date(p_now))::date - 49;
+  v_act_until constant timestamptz := p_now - interval '7 days';
+  v_act_cur_from constant timestamptz := p_now - interval '7 days' - v_len;
+  v_act_prev_from constant timestamptz := p_now - interval '7 days' - 2 * v_len;
+  v_today constant date := (p_now at time zone 'Europe/Moscow')::date;
+  v_first_day constant date := (p_now at time zone 'Europe/Moscow')::date - (p_days - 1);
+  v_this_week constant date := date_trunc('week', (p_now at time zone 'Europe/Moscow'))::date;
+  v_first_cohort constant date := date_trunc('week', (p_now at time zone 'Europe/Moscow'))::date - 49;
   v_since_profiles timestamptz;
   v_since_checks timestamptz;
   v_result jsonb;
@@ -41,14 +50,25 @@ begin
     from public.profiles
     where status = 'active' and created_at at time zone 'UTC' < p_now
   ),
-  checks as (
-    select s.user_id, s.created_at at time zone 'UTC' as at
-    from public.symptom_checks s join people p on p.id = s.user_id
+  -- Per person: the first check since registering, and enough counts to
+  -- answer "two checks before the window ended" for both windows.
+  per_person as (
+    select
+      s.user_id,
+      min(s.created_at at time zone 'UTC') filter (where s.created_at at time zone 'UTC' >= p.at) as first_at,
+      count(*) as before_now,
+      count(*) filter (where s.created_at at time zone 'UTC' < v_cur_from) as before_cur,
+      bool_or(s.created_at at time zone 'UTC' >= v_cur_from) as in_cur,
+      bool_or(s.created_at at time zone 'UTC' >= v_prev_from and s.created_at at time zone 'UTC' < v_cur_from) as in_prev
+    from public.symptom_checks s
+    join people p on p.id = s.user_id
+    where s.created_at at time zone 'UTC' < p_now
+    group by s.user_id, p.at
   ),
   -- Activity from the start of the earliest cohort or the previous window,
   -- whichever is earlier, as (person, Moscow date).
   activity as (
-    select distinct a.user_id, public.admin_msk_date(a.at) as date, a.at
+    select distinct a.user_id, (a.at at time zone 'Europe/Moscow')::date as date, a.at
     from public.admin_activity(
       least(v_prev_from, (v_first_cohort::timestamp at time zone 'Europe/Moscow'), (v_first_day::timestamp at time zone 'Europe/Moscow')),
       p_now
@@ -58,7 +78,7 @@ begin
     select d::date as date from generate_series(v_first_day, v_today, interval '1 day') d
   ),
   daily_registrations as (
-    select public.admin_msk_date(at) as date, count(*) as n from people group by 1
+    select (at at time zone 'Europe/Moscow')::date as date, count(*) as n from people group by 1
   ),
   daily_active as (
     select date, count(distinct user_id) as n from activity group by 1
@@ -66,18 +86,10 @@ begin
   activation as (
     select
       p.at,
-      exists (select 1 from checks c where c.user_id = p.id and c.at >= p.at and c.at < p.at + v_week) as activated
+      coalesce(pp.first_at >= p.at and pp.first_at < p.at + v_week, false) as activated
     from people p
-    where p.at >= v_prev_from and p.at + v_week <= p_now
-  ),
-  checkers as (
-    select
-      w.name,
-      c.user_id,
-      (select count(*) from checks c2 where c2.user_id = c.user_id and c2.at < w.until) >= 2 as returned
-    from (values ('cur', v_cur_from, p_now), ('prev', v_prev_from, v_cur_from)) as w(name, since, until)
-    join checks c on c.at >= w.since and c.at < w.until
-    group by w.name, w.until, c.user_id
+    left join per_person pp on pp.user_id = p.id
+    where p.at >= v_act_prev_from and p.at < v_act_until
   ),
   first_identity as (
     select distinct on (i.user_id) i.provider
@@ -87,21 +99,32 @@ begin
   cohort_weeks as (
     select w::date as week_start from generate_series(v_first_cohort, v_this_week, interval '7 days') w
   ),
+  members as (
+    select id, date_trunc('week', (at at time zone 'Europe/Moscow'))::date as week_start
+    from people
+    where (at at time zone 'Europe/Moscow')::date >= v_first_cohort
+  ),
+  member_sizes as (
+    select week_start, count(*) as n from members group by week_start
+  ),
+  member_weeks as (
+    select m.week_start, (a.date - m.week_start) / 7 as k, count(distinct m.id) as n
+    from members m
+    join activity a on a.user_id = m.id
+    where a.date >= m.week_start and a.date < m.week_start + 35
+    group by m.week_start, (a.date - m.week_start) / 7
+  ),
   cohorts as (
     select
       cw.week_start,
-      (select count(*) from people p
-        where public.admin_msk_date(p.at) >= cw.week_start and public.admin_msk_date(p.at) < cw.week_start + 7) as size,
+      coalesce(ms.n, 0) as size,
       (select jsonb_agg(
-        case when cw.week_start + 7 * (k + 1) > v_today then null else (
-          select count(distinct a.user_id)
-          from activity a join people p on p.id = a.user_id
-          where public.admin_msk_date(p.at) >= cw.week_start and public.admin_msk_date(p.at) < cw.week_start + 7
-            and a.date >= cw.week_start + 7 * k and a.date < cw.week_start + 7 * (k + 1)
-        ) end
-        order by k)
-       from generate_series(0, 4) k) as active
+         case when cw.week_start + 7 * (wk.n + 1) > v_today then null else coalesce(mw.n, 0) end
+         order by wk.n)
+       from generate_series(0, 4) as wk(n)
+       left join member_weeks mw on mw.week_start = cw.week_start and mw.k = wk.n) as active
     from cohort_weeks cw
+    left join member_sizes ms on ms.week_start = cw.week_start
   )
   select jsonb_build_object(
     'accounts', jsonb_build_object(
@@ -109,9 +132,9 @@ begin
       'added', (select count(*) from people where at >= v_cur_from)
     ),
     'dau_avg', jsonb_build_object(
-      'cur', (select count(*) from (select distinct user_id, date from activity where at >= v_cur_from and at < p_now) x)::numeric / p_days,
+      'cur', (select count(distinct (user_id, date)) from activity where at >= v_cur_from and at < p_now)::numeric / p_days,
       'prev', case when coalesce(v_since_checks <= v_prev_from, false) then
-        (select count(*) from (select distinct user_id, date from activity where at >= v_prev_from and at < v_cur_from) x)::numeric / p_days
+        (select count(distinct (user_id, date)) from activity where at >= v_prev_from and at < v_cur_from)::numeric / p_days
       end
     ),
     'active_7d', public.admin_metric(
@@ -119,16 +142,16 @@ begin
       (select count(distinct user_id) from activity where at >= p_now - 2 * v_week and at < p_now - v_week),
       coalesce(v_since_checks <= p_now - 2 * v_week, false)),
     'activation', public.admin_ratio(
-      (select count(*) filter (where activated) from activation where at >= v_cur_from),
-      (select count(*) from activation where at >= v_cur_from),
-      (select count(*) filter (where activated) from activation where at < v_cur_from),
-      (select count(*) from activation where at < v_cur_from),
-      coalesce(v_since_profiles <= v_prev_from, false)),
+      (select count(*) filter (where activated) from activation where at >= v_act_cur_from),
+      (select count(*) from activation where at >= v_act_cur_from),
+      (select count(*) filter (where activated) from activation where at < v_act_cur_from),
+      (select count(*) from activation where at < v_act_cur_from),
+      coalesce(v_since_profiles <= v_act_prev_from, false)),
     'returning', public.admin_ratio(
-      (select count(*) filter (where returned) from checkers where name = 'cur'),
-      (select count(*) from checkers where name = 'cur'),
-      (select count(*) filter (where returned) from checkers where name = 'prev'),
-      (select count(*) from checkers where name = 'prev'),
+      (select count(*) filter (where before_now >= 2) from per_person where in_cur),
+      (select count(*) from per_person where in_cur),
+      (select count(*) filter (where before_cur >= 2) from per_person where in_prev),
+      (select count(*) from per_person where in_prev),
       coalesce(v_since_checks <= v_prev_from, false)),
     'daily', (
       select coalesce(jsonb_agg(jsonb_build_object(

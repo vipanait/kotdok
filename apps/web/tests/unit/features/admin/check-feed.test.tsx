@@ -54,6 +54,12 @@ describe('the check feed', () => {
     expect(tags(html, 'a').some((a) => a.attrs.href === '/admin/statistics/checks?days=30')).toBe(true)
   })
 
+  it('stops offering more at the 500-row ceiling and says how to see the rest', () => {
+    const html = render(<CheckFeed feed={{ rows: [row], hasMore: true }} filter="all" days={90} shown={500} />)
+    expect(html).not.toContain('Показать ещё')
+    expect(html).toContain('Показаны первые 500')
+  })
+
   it('carries nothing that identifies the owner', () => {
     const html = render(<CheckFeed feed={{ rows: [{ ...row, id: 'c2' }], hasMore: false }} filter="all" days={30} shown={50} />)
     expect(html).not.toContain(OWNER_ID)
