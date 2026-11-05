@@ -1,5 +1,5 @@
 // `npm audit --audit-level=high`, minus advisories that were looked at and
-// accepted because no fixed release exists.
+// accepted because no fixed release can be installed.
 //
 // Each entry names one advisory, why it is accepted and when to look again.
 // Anything else at high or critical still fails the job, including a new
@@ -12,18 +12,12 @@ import { pathToFileURL } from 'node:url'
 
 export const ACCEPTED = [
   {
-    url: 'https://github.com/advisories/GHSA-vfj7-8cjw-p6xm',
-    package: 'braces',
+    url: 'https://github.com/advisories/GHSA-qr28-fpjm-wq7f',
+    package: 'decode-uri-component',
+    paths: ['node_modules/decode-uri-component'],
     reason:
-      'Every published version is affected (<=3.0.3). Reached only through Metro (micromatch in @expo/metro-file-map) at build time; never in the app bundle.',
-    review: '2026-11-04',
-  },
-  {
-    url: 'https://github.com/advisories/GHSA-86w9-cpqp-85rv',
-    package: 'node-forge',
-    reason:
-      'Every published version is affected (<=1.4.0). Reached only through @expo/cli and the expo-updates code-signing tooling on a developer machine or CI; never in the app bundle.',
-    review: '2026-11-04',
+      'Fixed only in 0.5.1, which is ESM-only; query-string 7.1.3 (the last 7.x, pinned by expo-router 57) requires ^0.2.2 and calls it as a CommonJS function, and query-string 10 drops it but uses v-flag regexes that Hermes cannot run. Unlike the others this one IS in the app bundle: expo-router parses route query strings with it. Availability only: a crafted URL of hundreds of KB that the user opens can stall the JS thread until the app is restarted; no data is exposed, and the web server never loads it. expo-router 58 (SDK 58) no longer depends on query-string.',
+    review: '2026-11-25',
   },
   {
     url: 'https://github.com/advisories/GHSA-mrhx-c7xc-m3w5',
