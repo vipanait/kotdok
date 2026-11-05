@@ -143,8 +143,9 @@
 
   .admin-tabs {
     display: flex;
-    flex-wrap: wrap;
     gap: 4px 20px;
+    overflow-x: auto;
+    scrollbar-width: none;
     margin: 6px 0 4px;
     border-bottom: 1px solid var(--line);
   }
@@ -155,6 +156,7 @@
     margin-bottom: -1px;
     border-bottom: 3px solid transparent;
     font-weight: 700;
+    white-space: nowrap;
     color: var(--muted);
   }
   .admin-tabs a:hover { color: var(--text); }
@@ -164,7 +166,7 @@
   .admin-change-note { margin: 10px 0 16px; }
   .admin-footnote { margin-top: 28px; }
 
-  .admin-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
+  .admin-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
   .admin-tile strong { margin-top: 6px; font-size: 28px; }
   .admin-tile-change { display: block; margin-top: 4px; font-size: 13px; font-weight: 700; color: var(--muted); }
   .admin-tile-change.is-up { color: var(--green); }
@@ -175,6 +177,11 @@
 
   .admin-card-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px 16px; margin-bottom: 12px; }
   .admin-card-head h2 { margin: 0; }
+  /* Filters keep their size and go to their own line; on a phone they scroll within themselves. */
+  .admin-card-head > .segmented,
+  .admin-filters { flex: none; max-width: 100%; overflow-x: auto; }
+  .admin-card-head > .segmented a,
+  .admin-filters a { white-space: nowrap; }
 
   .admin-comments { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
   .admin-comment-text { overflow-wrap: anywhere; }
@@ -229,8 +236,8 @@
 
   .admin-filters { margin: 4px 0 14px; }
   .admin-comments .admin-feed-row { border-bottom: 0; }
-  .admin-comment-summary { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 2px 10px; align-items: baseline; cursor: default; }
-  details > .admin-comment-summary { cursor: pointer; list-style: none; padding: 0; }
+  .admin-comments .admin-comment-summary { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 2px 10px; align-items: baseline; padding: 0; cursor: default; }
+  .admin-comments details > .admin-comment-summary { cursor: pointer; list-style: none; }
   details > .admin-comment-summary::-webkit-details-marker { display: none; }
   .admin-comment-about { grid-column: 2 / -1; }
   .admin-comments > li { padding-bottom: 10px; border-bottom: 1px solid var(--line); }
@@ -238,8 +245,12 @@
   .admin-comments .admin-check-details { margin-top: 10px; }
 
   @media (max-width: 760px) {
-    .admin-comment-summary { grid-template-columns: 28px minmax(0, 1fr); }
-    .admin-comment-summary time { grid-column: 2; }
+    .admin-tabs { gap: 4px 12px; }
+    .admin-tabs a { font-size: 14px; }
+    .admin-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .admin-tile strong { font-size: 22px; }
+    .admin-comments .admin-comment-summary { grid-template-columns: 28px minmax(0, 1fr); }
+    .admin-comments .admin-comment-summary time { grid-column: 2; }
     .admin-feed-row summary { grid-template-columns: auto auto 1fr; }
     .admin-feed-text { grid-column: 1 / -1; }
     .admin-check-details { grid-template-columns: 1fr; }
