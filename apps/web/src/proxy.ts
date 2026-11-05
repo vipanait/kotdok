@@ -58,19 +58,31 @@ export async function proxy(request: NextRequest) {
     }
   )
 
-  const { data: { user } } = await supabase.auth.getUser()
+  // The proxy runs in the Vercel region nearest the visitor, not next to
+  // Supabase, so a call to Auth here costs a round trip across the world on
+  // every page. The session token is checked locally instead (`getClaims`:
+  // ES256, keys cached per instance; it still refreshes an expired session).
+  // That only gates the page: every cabinet page asks Auth who the caller is
+  // itself (`requireCabinet`, `loadAdminUser`). The way out of sign-in still
+  // asks Auth: on a token whose session was revoked, /login → /dashboard →
+  // /login would loop until the token expired.
+  const path = request.nextUrl.pathname
+  const isSignInPage = path === '/login' || path === '/register'
 
-  const protectedPaths = ['/dashboard', '/cats', '/pets', '/check', '/credits', '/admin', '/consent']
-  const isProtected = protectedPaths.some(p => request.nextUrl.pathname.startsWith(p))
-
-  if (!user && isProtected) {
-    const loginUrl = new URL('/login', request.url)
-    loginUrl.searchParams.set('next', `${request.nextUrl.pathname}${request.nextUrl.search}`)
-    return withCsp(NextResponse.redirect(loginUrl), csp)
+  if (isSignInPage) {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) return withCsp(NextResponse.redirect(new URL('/dashboard', request.url)), csp)
+    return withCsp(supabaseResponse, csp)
   }
 
-  if (user && (request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/register')) {
-    return withCsp(NextResponse.redirect(new URL('/dashboard', request.url)), csp)
+  const protectedPaths = ['/dashboard', '/cats', '/pets', '/check', '/credits', '/admin', '/consent']
+  const isProtected = protectedPaths.some(p => path.startsWith(p))
+  const { data: claims } = await supabase.auth.getClaims()
+
+  if (!claims?.claims && isProtected) {
+    const loginUrl = new URL('/login', request.url)
+    loginUrl.searchParams.set('next', `${path}${request.nextUrl.search}`)
+    return withCsp(NextResponse.redirect(loginUrl), csp)
   }
 
   return withCsp(supabaseResponse, csp)
@@ -82,8 +94,8 @@ function withCsp(response: NextResponse, csp: string): NextResponse {
 }
 
 export const config = {
-  // Every match costs a round trip to Supabase Auth (`getUser` above), so
-  // only pages are matched. Left out: the API; the metadata routes (robots,
+  // Every match reads the session (and on /login and /register asks Auth over
+  // the network), so only pages are matched. Left out: the API; the metadata routes (robots,
   // sitemap, manifest, icons, the social images); everything served from
   // `public/`; the OAuth return, which makes its own client; and the static
   // articles (`CONTENT_SEGMENTS`), the same for everybody and given their
