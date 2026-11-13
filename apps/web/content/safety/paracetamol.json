@@ -1,0 +1,122 @@
+{
+  "slug": "paracetamol",
+  "category": "medicine",
+  "name": {
+    "ru": "Парацетамол",
+    "en": "Paracetamol"
+  },
+  "aliases": {
+    "ru": [
+      "ацетаминофен",
+      "панадол",
+      "эффералган",
+      "тайленол"
+    ],
+    "en": [
+      "acetaminophen",
+      "tylenol",
+      "panadol"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Для кошки безопасного количества парацетамола нет.",
+        "en": "Dangerous. There is no safe amount of paracetamol for a cat."
+      },
+      "why": {
+        "ru": "Печень кошки почти не может обезвредить парацетамол. Он нарушает перенос кислорода кровью, разрушает эритроциты и может повредить печень. Признаки появляются в течение нескольких часов.",
+        "en": "A cat’s liver can hardly break paracetamol down. It stops the blood carrying oxygen, destroys red blood cells and can damage the liver. Signs appear within a few hours."
+      },
+      "signs": {
+        "ru": [
+          "коричневые или синюшные дёсны",
+          "частое, тяжёлое дыхание",
+          "отёк морды и лап",
+          "слабость, рвота",
+          "тёмная моча"
+        ],
+        "en": [
+          "brown or bluish gums",
+          "fast, laboured breathing",
+          "swelling of the face and paws",
+          "weakness, vomiting",
+          "dark urine"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Собаки переносят парацетамол лучше кошек, но он может повредить им печень и кровь.",
+        "en": "Dangerous. Dogs tolerate paracetamol better than cats, but it can harm their liver and blood."
+      },
+      "why": {
+        "ru": "Запас безопасности у собак узкий: насколько опасно в вашем случае, зависит от количества и веса собаки, и это оценит врач. Парацетамол часто входит в порошки от простуды и гриппа — проверьте состав.",
+        "en": "Dogs have a narrow margin of safety: how dangerous it is in your case depends on the amount and the dog’s weight, and the vet will judge. Paracetamol is often part of cold and flu remedies, so check the ingredients."
+      },
+      "signs": {
+        "ru": [
+          "рвота, отказ от еды",
+          "боль в животе",
+          "коричневые или бледные дёсны",
+          "частое дыхание",
+          "желтушность слизистых позже"
+        ],
+        "en": [
+          "vomiting, not eating",
+          "belly pain",
+          "brown or pale gums",
+          "fast breathing",
+          "yellowish gums later on"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно и скажите, какое лекарство он получил",
+      "Возьмите упаковку или блистер: врачу важны название, состав и сколько таблеток не хватает",
+      "Проверьте, не было ли парацетамола в составе порошка от простуды",
+      "Уберите все лекарства туда, куда питомец не доберётся"
+    ],
+    "en": [
+      "Call a vet clinic right away, even if your pet seems fine, and say which medicine it got",
+      "Take the box or blister pack: the vet needs the name, the ingredients and how many tablets are missing",
+      "Check whether a cold or flu remedy had paracetamol in it",
+      "Put all medicines out of your pet’s reach"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не давайте другие лекарства для людей «в помощь»: они тоже опасны",
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не скрывайте от врача, что дали лекарство сами: от этого зависит помощь"
+    ],
+    "en": [
+      "Do not give other human medicines “to help”: they are dangerous too",
+      "Do not induce vomiting unless a vet tells you to",
+      "Tell the vet if you gave the medicine yourself: the right help depends on it"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — Acetaminophen",
+      "url": "https://www.petpoisonhelpline.com/poison/acetaminophen/"
+    },
+    {
+      "title": "MSD Veterinary Manual — отравления обезболивающими для людей"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  },
+  "toxinSlug": "paracetamol"
+}

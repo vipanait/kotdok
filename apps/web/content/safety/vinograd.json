@@ -1,0 +1,129 @@
+{
+  "slug": "vinograd",
+  "category": "food",
+  "name": {
+    "ru": "Виноград и изюм",
+    "en": "Grapes and raisins"
+  },
+  "aliases": {
+    "ru": [
+      "виноград",
+      "изюм",
+      "виноградина",
+      "виноградинку",
+      "изюминка",
+      "изюминку",
+      "кишмиш",
+      "коринка",
+      "султанина"
+    ],
+    "en": [
+      "grapes",
+      "grape",
+      "raisins",
+      "raisin",
+      "sultanas",
+      "currants"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. Описаны случаи отказа почек у кошек после винограда и изюма; данных мало, поэтому считаем опасным любое количество.",
+        "en": "Not safe. Kidney failure in cats after grapes or raisins has been reported; evidence is limited, so treat any amount as dangerous."
+      },
+      "why": {
+        "ru": "Подробно отравление изучено у собак. У кошек есть только отдельные сообщения об отказе почек, опубликованных описаний случаев нет. Раз безопасного количества никто не знает, мы ставим более строгий вердикт.",
+        "en": "The poisoning is well described in dogs. In cats there are only anecdotal reports of kidney failure and no published case reports. As nobody knows a safe amount, we give the stricter verdict."
+      },
+      "signs": {
+        "ru": [
+          "рвота или понос в первые часы",
+          "вялость, отказ от еды",
+          "сильная жажда",
+          "мало мочи или её нет"
+        ],
+        "en": [
+          "vomiting or diarrhoea in the first hours",
+          "lethargy, not eating",
+          "strong thirst",
+          "little or no urine"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. Виноград и изюм могут вызвать отказ почек у собаки; безопасного количества нет.",
+        "en": "Not safe. Grapes and raisins can cause kidney failure in dogs; there is no safe amount."
+      },
+      "why": {
+        "ru": "Почему одни собаки тяжело отравляются, а другие нет, до конца не известно; от размера и породы это надёжно не зависит. То, что собака раньше ела виноград без последствий, ничего не гарантирует.",
+        "en": "Why some dogs are badly poisoned and others are not is still unclear, and size or breed does not reliably predict it. A dog that ate grapes before without trouble is not safe next time."
+      },
+      "signs": {
+        "ru": [
+          "рвота или понос в первые 6–12 часов",
+          "вялость, слабость, отказ от еды",
+          "боль в животе",
+          "сильная жажда",
+          "мало мочи или её нет через 1–3 дня"
+        ],
+        "en": [
+          "vomiting or diarrhoea within 6–12 hours",
+          "lethargy, weakness, not eating",
+          "belly pain",
+          "strong thirst",
+          "little or no urine after 1–3 days"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Уберите остатки винограда, изюма или выпечки",
+      "Прикиньте, сколько могло быть съедено и когда; если это была выпечка, сохраните упаковку",
+      "Оставьте доступ к воде"
+    ],
+    "en": [
+      "Call a vet clinic right away, even if your pet seems fine",
+      "Put away the rest of the grapes, raisins or baking",
+      "Work out roughly how much was eaten and when; keep the packaging if it was a baked product",
+      "Leave water available"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не ждите признаков: почки могут пострадать раньше",
+      "Не давайте молоко, масло, уголь и другие «антидоты» из интернета"
+    ],
+    "en": [
+      "Do not induce vomiting unless a vet tells you to",
+      "Do not wait for signs: the kidneys may be harmed first",
+      "Do not give milk, oil, charcoal or other home “antidotes” from the internet"
+    ]
+  },
+  "toxinSlug": "vinograd-izyum",
+  "sources": [
+    {
+      "title": "Merck Veterinary Manual — Grape, Raisin, and Tamarind Toxicosis in Dogs",
+      "url": "https://www.merckvetmanual.com/toxicology/food-hazards/raisins-and-grapes"
+    },
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

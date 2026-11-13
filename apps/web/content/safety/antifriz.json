@@ -1,0 +1,118 @@
+{
+  "slug": "antifriz",
+  "category": "household",
+  "name": {
+    "ru": "Антифриз",
+    "en": "Antifreeze"
+  },
+  "aliases": {
+    "ru": [
+      "тосол",
+      "этиленгликоль",
+      "охлаждающая жидкость",
+      "незамерзайка"
+    ],
+    "en": [
+      "ethylene glycol",
+      "coolant",
+      "engine coolant"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Для кошки опасно любое количество антифриза — хватает слизать капли с лап.",
+        "en": "Dangerous. Any amount of antifreeze is dangerous to a cat — licking drops off its paws is enough."
+      },
+      "why": {
+        "ru": "Этиленгликоль в антифризе повреждает почки. Кошки к нему чувствительнее собак, и помощь работает в основном в первые несколько часов. Признаки могут ослабнуть через полдня — это не выздоровление.",
+        "en": "The ethylene glycol in antifreeze damages the kidneys. Cats are more sensitive to it than dogs, and treatment works mainly in the first few hours. Signs may ease after half a day — that is not recovery."
+      },
+      "signs": {
+        "ru": [
+          "шаткая походка, как у пьяного",
+          "рвота",
+          "сильная жажда",
+          "вялость",
+          "мало мочи или её нет позже"
+        ],
+        "en": [
+          "wobbly, drunken walking",
+          "vomiting",
+          "strong thirst",
+          "lethargy",
+          "little or no urine later"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Собаки охотно лакают сладкий антифриз, а опасно любое количество.",
+        "en": "Dangerous. Dogs readily lap up sweet-tasting antifreeze, and any amount is dangerous."
+      },
+      "why": {
+        "ru": "Этиленгликоль повреждает почки. У собак время на помощь чуть больше, чем у кошек, но тоже исчисляется часами. Через полдня–сутки собаке может стать будто бы лучше — в это время страдают почки.",
+        "en": "Ethylene glycol damages the kidneys. Dogs have slightly more time for treatment than cats, but it is still a matter of hours. After half a day to a day a dog may seem better — that is when the kidneys are being harmed."
+      },
+      "signs": {
+        "ru": [
+          "шаткая походка, как у пьяного",
+          "рвота",
+          "сильная жажда и частое мочеиспускание",
+          "вялость",
+          "мало мочи или её нет позже"
+        ],
+        "en": [
+          "wobbly, drunken walking",
+          "vomiting",
+          "strong thirst and frequent urination",
+          "lethargy",
+          "little or no urine later"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, лучше круглосуточную, и скажите, что питомец мог лизнуть антифриз",
+      "Если лапы или шерсть в жидкости, оботрите их влажной тканью в перчатках — не дольше пары минут",
+      "Возьмите канистру или сфотографируйте этикетку с составом",
+      "Уберите канистры и засыпьте лужу песком"
+    ],
+    "en": [
+      "Call a vet clinic right away, ideally a 24-hour one, and say your pet may have licked antifreeze",
+      "If the paws or fur are wet with it, wipe them with a damp cloth wearing gloves — no longer than a couple of minutes",
+      "Take the container or a photo of the label with the ingredients",
+      "Put containers away and cover the puddle with sand"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте молоко, масло, алкоголь и другие «антидоты» из интернета",
+      "Не успокаивайтесь, если питомцу стало лучше: это может быть мнимое улучшение"
+    ],
+    "en": [
+      "Do not induce vomiting unless a vet tells you to",
+      "Do not give milk, oil, alcohol or other home “antidotes” from the internet",
+      "Do not relax if your pet seems better: it may be a false recovery"
+    ]
+  },
+  "toxinSlug": "antifriz",
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — Antifreeze Poisoning in Dogs & Cats (Ethylene Glycol Poisoning)"
+    },
+    {
+      "title": "MSD Veterinary Manual — отравление этиленгликолем у животных"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

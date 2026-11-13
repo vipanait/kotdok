@@ -1,0 +1,107 @@
+{
+  "slug": "moloko",
+  "category": "food",
+  "name": {
+    "ru": "Молоко",
+    "en": "Milk"
+  },
+  "aliases": {
+    "ru": [
+      "коровье молоко",
+      "сливки",
+      "молочко",
+      "сгущенка"
+    ],
+    "en": [
+      "cow's milk",
+      "cows milk",
+      "cream",
+      "dairy"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Многие взрослые кошки плохо переваривают молоко, и от него бывает понос.",
+        "en": "With caution. Many adult cats digest milk poorly, and it can cause diarrhoea."
+      },
+      "why": {
+        "ru": "После отлучения от матери у кошек мало фермента, который расщепляет молочный сахар. Молоко — не замена воде и не нужно для здоровья. Сливки и сгущёнка ещё и очень жирные или сладкие.",
+        "en": "After weaning, cats have little of the enzyme that breaks down milk sugar. Milk is no substitute for water and is not needed for health. Cream and condensed milk are also very fatty or sweet."
+      },
+      "signs": {
+        "ru": [
+          "понос",
+          "вздутие, урчание в животе",
+          "рвота"
+        ],
+        "en": [
+          "diarrhoea",
+          "bloating, gurgling belly",
+          "vomiting"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Многие собаки плохо переносят молоко: от него бывают понос и вздутие.",
+        "en": "With caution. Many dogs do not tolerate milk well: it can cause diarrhoea and bloating."
+      },
+      "why": {
+        "ru": "У взрослых собак мало фермента, который расщепляет молочный сахар. Жирные молочные продукты могут навредить поджелудочной железе. Если давать — немного и не регулярно.",
+        "en": "Adult dogs have little of the enzyme that breaks down milk sugar. Fatty dairy foods can harm the pancreas. If you give any, a little and not regularly."
+      },
+      "signs": {
+        "ru": [
+          "понос",
+          "вздутие, газы",
+          "рвота"
+        ],
+        "en": [
+          "diarrhoea",
+          "bloating, wind",
+          "vomiting"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Оставьте доступ к чистой воде",
+      "Наблюдайте за питомцем сутки",
+      "Если понос или рвота не проходят, есть кровь или питомец вялый — проверьте симптомы или позвоните в клинику"
+    ],
+    "en": [
+      "Leave fresh water available",
+      "Watch your pet for a day",
+      "If diarrhoea or vomiting goes on, there is blood or your pet is lethargic, check the symptoms or call a clinic"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не давайте молоко снова, если от него был понос",
+      "Не давайте лекарства без назначения врача"
+    ],
+    "en": [
+      "Do not give milk again if it caused diarrhoea",
+      "Do not give any medicine unless a vet tells you to"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

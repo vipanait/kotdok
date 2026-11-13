@@ -1,0 +1,133 @@
+{
+  "slug": "shokolad",
+  "category": "food",
+  "name": {
+    "ru": "Шоколад",
+    "en": "Chocolate"
+  },
+  "aliases": {
+    "ru": [
+      "шоколадка",
+      "шоколадку",
+      "какао",
+      "горький шоколад",
+      "молочный шоколад",
+      "белый шоколад",
+      "шоколадные конфеты",
+      "шоколадная паста"
+    ],
+    "en": [
+      "dark chocolate",
+      "milk chocolate",
+      "white chocolate",
+      "cocoa",
+      "cocoa powder",
+      "chocolate candy"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. Шоколад ядовит для кошек, и из-за небольшого веса опасным может оказаться даже немного.",
+        "en": "Not safe. Chocolate is poisonous to cats, and because cats are small even a little can be dangerous."
+      },
+      "why": {
+        "ru": "В шоколаде есть теобромин и кофеин. Они действуют на сердце и нервную систему. Сладкого вкуса кошки не чувствуют и едят шоколад редко, но могут слизать какао, крем или шоколадную пасту.",
+        "en": "Chocolate contains theobromine and caffeine, which act on the heart and the nervous system. Cats cannot taste sweetness and rarely eat chocolate, but they may lick cocoa, frosting or chocolate spread."
+      },
+      "signs": {
+        "ru": [
+          "рвота и понос",
+          "беспокойство, частое дыхание",
+          "сильная жажда",
+          "дрожь",
+          "учащённое сердцебиение",
+          "судороги"
+        ],
+        "en": [
+          "vomiting and diarrhoea",
+          "restlessness, fast breathing",
+          "strong thirst",
+          "tremors",
+          "racing heartbeat",
+          "seizures"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. Шоколад — одно из самых частых отравлений у собак; чем он темнее, тем опаснее.",
+        "en": "Not safe. Chocolate is one of the most common poisonings in dogs; the darker it is, the more dangerous."
+      },
+      "why": {
+        "ru": "Теобромин и кофеин из шоколада собака выводит медленно, и они действуют на сердце и нервную систему. Горький шоколад и какао-порошок опаснее молочного; в белом шоколаде теобромина мало, но жирное может навредить поджелудочной железе. Сколько опасно именно вашей собаке, оценит врач.",
+        "en": "Dogs clear the theobromine and caffeine in chocolate slowly, and both act on the heart and the nervous system. Dark chocolate and cocoa powder are worse than milk chocolate; white chocolate has little theobromine, but its fat can harm the pancreas. A vet will judge how much is dangerous for your dog."
+      },
+      "signs": {
+        "ru": [
+          "рвота и понос",
+          "беспокойство, возбуждение",
+          "сильная жажда и частое мочеиспускание",
+          "дрожь",
+          "учащённое или неровное сердцебиение",
+          "судороги"
+        ],
+        "en": [
+          "vomiting and diarrhoea",
+          "restlessness, hyperactivity",
+          "strong thirst and frequent urination",
+          "tremors",
+          "fast or irregular heartbeat",
+          "seizures"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Уберите остатки шоколада",
+      "Сохраните упаковку или сфотографируйте её: врачу важны вид шоколада и состав",
+      "Прикиньте, сколько могло быть съедено и когда"
+    ],
+    "en": [
+      "Call a vet clinic right away, even if your pet seems fine",
+      "Put the rest of the chocolate away",
+      "Keep the wrapper or take a photo of it: the vet needs the type of chocolate and the ingredients",
+      "Work out roughly how much was eaten and when"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте молоко, масло, уголь и другие «антидоты» из интернета",
+      "Не ждите признаков: они появляются через несколько часов"
+    ],
+    "en": [
+      "Do not induce vomiting unless a vet tells you to",
+      "Do not give milk, oil, charcoal or other home “antidotes” from the internet",
+      "Do not wait for signs: they appear hours later"
+    ]
+  },
+  "toxinSlug": "shokolad",
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    },
+    {
+      "title": "MSD Veterinary Manual — отравление шоколадом (метилксантинами) у животных"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

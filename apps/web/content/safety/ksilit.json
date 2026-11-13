@@ -1,0 +1,130 @@
+{
+  "slug": "ksilit",
+  "category": "food",
+  "name": {
+    "ru": "Ксилит",
+    "en": "Xylitol"
+  },
+  "aliases": {
+    "ru": [
+      "е967",
+      "e967",
+      "жвачка без сахара",
+      "жевательная резинка",
+      "жвачка",
+      "жвачку",
+      "березовый сахар"
+    ],
+    "en": [
+      "sugar free gum",
+      "chewing gum",
+      "gum",
+      "birch sugar",
+      "e967"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. Данных о ксилите у кошек мало, поэтому считаем его опасным, как для собак.",
+        "en": "Not safe. There is little data on xylitol in cats, so treat it as dangerous, as it is for dogs."
+      },
+      "why": {
+        "ru": "Ксилит хорошо изучен как яд для собак. У кошек сведений мало, и сказать, какое количество для них безопасно, нельзя — в таких случаях мы ставим более строгий вердикт. Ксилит бывает в жвачке без сахара, конфетах, выпечке, зубной пасте и некоторых сиропах.",
+        "en": "Xylitol is well known as a poison for dogs. For cats there is little information and no known safe amount, so we give the stricter verdict. Xylitol is found in sugar-free gum, sweets, baking, toothpaste and some syrups."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "вялость, слабость",
+          "шаткая походка",
+          "дрожь",
+          "судороги"
+        ],
+        "en": [
+          "vomiting",
+          "lethargy, weakness",
+          "wobbly walking",
+          "tremors",
+          "seizures"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. Ксилит может за минуты обрушить сахар в крови собаки и повредить печень.",
+        "en": "Not safe. Xylitol can crash a dog’s blood sugar within minutes and damage the liver."
+      },
+      "why": {
+        "ru": "У собаки ксилит вызывает резкий выброс инсулина, и сахар в крови падает — иногда через 10–60 минут. Повреждение печени может проявиться через сутки и позже. Сколько ксилита в жвачке или конфете, по упаковке не посчитать.",
+        "en": "In dogs xylitol triggers a surge of insulin and blood sugar drops, sometimes within 10–60 minutes. Liver damage may show a day or more later. The amount of xylitol in gum or sweets cannot be worked out from the label."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "вялость, слабость",
+          "шаткая походка",
+          "дрожь",
+          "судороги",
+          "желтушность слизистых позже"
+        ],
+        "en": [
+          "vomiting",
+          "lethargy, weakness",
+          "wobbly walking",
+          "tremors",
+          "seizures",
+          "yellowish gums later on"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Найдите упаковку и проверьте состав; возьмите её с собой",
+      "Прикиньте, сколько могло быть съедено и когда",
+      "Уберите остатки жвачки и сладостей"
+    ],
+    "en": [
+      "Call a vet clinic right away, even if your pet seems fine",
+      "Find the packaging, check the ingredients and take it with you",
+      "Work out roughly how much was eaten and when",
+      "Put away the rest of the gum and sweets"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не вливайте в рот сладкое или воду, если питомец ослаб или без сознания: он может захлебнуться",
+      "Не давайте лекарства без назначения врача"
+    ],
+    "en": [
+      "Do not induce vomiting unless a vet tells you to",
+      "Do not pour sweet drinks or water into the mouth of a weak or unconscious pet: it may choke",
+      "Do not give any medicine unless a vet tells you to"
+    ]
+  },
+  "toxinSlug": "ksilit",
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — Xylitol",
+      "url": "https://www.petpoisonhelpline.com/poison/xylitol/"
+    },
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

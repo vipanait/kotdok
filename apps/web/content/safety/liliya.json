@@ -1,0 +1,123 @@
+{
+  "slug": "liliya",
+  "category": "plant",
+  "name": {
+    "ru": "Лилия",
+    "en": "Lily"
+  },
+  "aliases": {
+    "ru": [
+      "лилии",
+      "лилию",
+      "лилейник",
+      "королевская лилия",
+      "тигровая лилия",
+      "пасхальная лилия",
+      "восточная лилия"
+    ],
+    "en": [
+      "lilies",
+      "easter lily",
+      "tiger lily",
+      "asiatic lily",
+      "oriental lily",
+      "daylily",
+      "lilium"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Для кошки ядовиты все части лилии и лилейника, даже пыльца и вода из вазы.",
+        "en": "Dangerous. Every part of a lily or daylily is poisonous to cats, even the pollen and the water in the vase."
+      },
+      "why": {
+        "ru": "Хватает нескольких укусов листа или лепестка или пыльцы, слизанной с шерсти. Без быстрой помощи отравление может привести к отказу почек за один–три дня. В первые часы кошка может выглядеть здоровой.",
+        "en": "A few bites of a leaf or petal, or pollen licked off the fur, is enough. Without prompt treatment it can lead to kidney failure within one to three days. In the first hours the cat may look well."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "отказ от еды",
+          "вялость",
+          "сильная жажда, потом мало мочи"
+        ],
+        "en": [
+          "vomiting",
+          "not eating",
+          "lethargy",
+          "strong thirst, then little urine"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Настоящие лилии для собак не считаются ядовитыми, но могут расстроить желудок.",
+        "en": "With caution. True lilies are not considered poisonous to dogs, but they can upset the stomach."
+      },
+      "why": {
+        "ru": "Отказа почек, как у кошек, лилии у собак не вызывают. Но лилиями называют и другие растения — ландыш, каллу, спатифиллум, — а они для собак опасны. Если не уверены, что это настоящая лилия, позвоните в клинику.",
+        "en": "Lilies do not cause kidney failure in dogs as they do in cats. But other plants are also called lilies — lily of the valley, calla, peace lily — and these are harmful to dogs. If you are not sure it was a true lily, call a clinic."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "отказ от еды"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "not eating"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Если это кошка — сразу позвоните в клинику, не дожидаясь признаков",
+      "Уберите букет и вазу туда, куда питомец не доберётся",
+      "Если на шерсти или мордочке пыльца, сотрите её влажной тканью",
+      "Возьмите кусочек растения или сфотографируйте его"
+    ],
+    "en": [
+      "If it is a cat, call a clinic right away without waiting for signs",
+      "Move the bouquet and the vase out of reach",
+      "Wipe any pollen off the fur or face with a damp cloth",
+      "Take a piece of the plant or a photo of it"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте молоко, масло, уголь и другие «антидоты» из интернета",
+      "Не откладывайте звонок до утра, если кошка кажется бодрой"
+    ],
+    "en": [
+      "Do not induce vomiting unless a vet tells you to",
+      "Do not give milk, oil, charcoal or other home “antidotes” from the internet",
+      "Do not put off the call till morning because the cat seems fine"
+    ]
+  },
+  "toxinSlug": "liliya",
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Easter Lily",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/easter-lily"
+    },
+    {
+      "title": "MSD Veterinary Manual — отравление лилиями у кошек"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}
