@@ -87,6 +87,16 @@
 
   .result-answers { margin: 12px 0 0; }
 
+  /* The materials the analysis relied on (SRC-01): titles as links, the
+     publisher under each. A long title wraps instead of widening the card. */
+  .result-sources { margin-top: 20px; }
+  /* Not the bulleted list of the result: `.result-layout ul` and `li` are undone here. */
+  .result-layout .result-sources ul { margin: 10px 0 0; padding: 0; list-style: none; display: grid; gap: 12px; }
+  .result-layout .result-sources li { margin: 0; padding: 0; display: grid; gap: 2px; overflow-wrap: anywhere; }
+  .result-sources a { color: var(--green); text-decoration: underline; text-underline-offset: 3px; }
+  .result-sources a:hover { color: var(--green-hover); }
+  .result-sources .footnote { margin-top: 12px; }
+
   .result-disclaimer { margin-top: 20px; }
 
   /* ---------- Feedback ---------- */
