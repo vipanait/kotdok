@@ -14,6 +14,9 @@ import { petSummary } from '@/shared/utils/pet-summary'
 import { CLINIC_URGENCIES, VET_URGENCIES, urgencyTitle } from '@/shared/utils/urgency'
 import { medicalRecordHref } from '@/features/medical-record/routes'
 import { clinicSearchUrl } from '@/features/symptom-check/clinic-search'
+import CheckQuestions from '@/features/symptom-check/CheckQuestions'
+import type { QuestionWords } from '@/features/symptom-check/check-questions-view'
+import type { CheckQuestionThread } from '@lapka/contracts'
 
 
 interface Props {
@@ -35,6 +38,8 @@ interface Props {
    * not be read, and for a result shown inside the form.
    */
   followup?: CheckFollowup | null
+  /** Questions about a saved result (CQ-02), with the words of the check's language. */
+  questions?: { thread: CheckQuestionThread; words: QuestionWords } | null
 }
 
 function stringList(value: unknown): string[] {
@@ -54,7 +59,7 @@ function text(value: unknown): string | null {
  * Every text is the service's answer or the dictionary's; a block exists only
  * when its data does.
  */
-export default function CheckResultContent({ check, dict, locale, timeZone, pet, onNewCheck, followup }: Props) {
+export default function CheckResultContent({ check, dict, locale, timeZone, pet, onNewCheck, followup, questions }: Props) {
   const t = dict.check
   const urgency = check.urgency
   const level = dict.urgency[urgency]
@@ -230,6 +235,8 @@ export default function CheckResultContent({ check, dict, locale, timeZone, pet,
               </Link>
             )}
           </section>
+
+          {check.id && questions && <CheckQuestions checkId={check.id} urgency={urgency} locale={check.locale} petId={pet?.id ?? null} petName={petName ?? null} followupCase={followup?.case ?? null} initial={questions.thread} words={questions.words} timeZone={timeZone} />}
 
           {placement === 'bottom' && reminder}
         </div>

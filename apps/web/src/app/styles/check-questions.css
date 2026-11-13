@@ -1,0 +1,78 @@
+/*
+ * «Уточнить по этой проверке» under a result (CQ-02): the thread, the plate
+ * under an alarming answer, the suggestions and the field. Built from the
+ * design system's card, chips, input and buttons; the plate takes its colours
+ * from the urgency classes (tokens.css).
+ */
+@layer components {
+  .check-questions { margin-top: 18px; }
+  .check-questions h2 { margin-bottom: 4px; }
+  .check-questions-note { color: var(--muted); }
+
+  .check-questions-thread {
+    list-style: none;
+    margin: 16px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 18px;
+  }
+
+  .check-questions-thread > li { display: grid; gap: 4px; }
+  .check-questions-who { color: var(--muted); font-weight: 700; }
+  .check-questions-who:not(:first-child) { margin-top: 8px; }
+
+  .check-questions-question,
+  .check-questions-answer {
+    margin: 0;
+    color: var(--text);
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+  }
+
+  .check-questions-question { font-weight: 600; }
+  .check-questions-waiting { color: var(--muted); font-style: italic; }
+
+  .check-questions-alert {
+    margin-top: 10px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    background: var(--tint);
+  }
+
+  .check-questions-alert > p {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin: 0;
+    font-weight: 700;
+    color: var(--signal);
+  }
+
+  .check-questions-alert-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .check-questions-suggestions { margin-top: 16px; }
+  .check-questions-suggestions .chip { max-width: 100%; overflow-wrap: anywhere; text-align: left; }
+
+  .check-questions-form {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: end;
+    margin-top: 14px;
+  }
+
+  .check-questions-form textarea.input { min-height: 0; resize: vertical; }
+
+  @media (max-width: 560px) {
+    .check-questions-form { grid-template-columns: 1fr; }
+    .check-questions-form .btn { width: 100%; }
+  }
+
+  .check-questions-error { margin-top: 12px; }
+  .check-questions-footnote { margin-top: 12px; }
+}
