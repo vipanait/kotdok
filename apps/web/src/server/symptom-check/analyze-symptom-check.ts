@@ -33,6 +33,9 @@ let openaiClient: OpenAI | null = null
 export const OPENAI_TIMEOUT_MS = 60_000
 export const OPENAI_MAX_RETRIES = 1
 
+/** The model the analysis asks, and an answer to a question about a check with it. */
+export const ANALYSIS_MODEL = 'gpt-5.4'
+
 export function openai(): OpenAI {
   openaiClient ??= new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
@@ -425,7 +428,7 @@ export async function analyzeSymptomCheck(
     }
 
     const completion = await openai().chat.completions.create({
-      model: 'gpt-5.4',
+      model: ANALYSIS_MODEL,
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userContent },

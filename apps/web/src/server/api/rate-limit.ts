@@ -34,6 +34,12 @@ export const RATE_LIMITS = {
    * Cheap, but each one rewrites a phone's notifications.
    */
   followup_write: { limit: 60, windowSeconds: 60 * 60 },
+  /**
+   * A question about a check (CQ-01) costs a model call and no credit. A check
+   * takes three, so this is some six checks' worth an hour: it only stops a
+   * loop of retries.
+   */
+  check_question_create: { limit: 20, windowSeconds: 60 * 60 },
   /** Pollable without a session, so it is limited by receipt, not by user. */
   deletion_status: { limit: 60, windowSeconds: 60 * 60 },
 } as const
