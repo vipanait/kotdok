@@ -11,6 +11,7 @@ import { urgencyText, type UrgencyLevel } from '@/features/checks/urgency'
 import { formatDateTime } from '@lapka/shared'
 import { checkAnswers, offersVisit, photoObservations, visitFormHref, clinicSearchUrl, offersClinicSearch } from '@/features/checks/check-answers'
 import { ResultFeedback } from '@/features/checks/ResultFeedback'
+import { CheckQuestions } from '@/features/checks/CheckQuestions'
 import { FollowupOffer } from '@/features/followup/FollowupOffer'
 import { reviewAfterCheck } from '@/features/review/store-review'
 import { Button, LinkButton } from '@/ui/Button'
@@ -161,6 +162,8 @@ export function CheckResult({ id }: { id: string }) {
       ) : null}
 
       {followupFirst ? null : followup}
+
+      <CheckQuestions check={check} />
 
       <ResultFeedback checkId={check.id} />
 

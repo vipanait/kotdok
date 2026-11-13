@@ -664,6 +664,36 @@ export const en: Dictionary = {
     body: (pet: string, what: string) => `${pet}: time for ${what}`,
   },
 
+  // Questions after a result (CQ-03). The block speaks the language of the check.
+  checkQuestions: {
+    title: 'Ask about this check',
+    remaining: (n: number, limit: number) => `${n} ${n === 1 ? 'question' : 'questions'} of ${limit} left`,
+    until: (when: string) => `until ${when}`,
+    youAsked: 'You asked',
+    lapka: 'Lapka',
+    suggestions: {
+      emergency: ['What should I do on the way to the clinic?', 'What should I bring?', 'What should I tell the vet first?'],
+      urgent: ['What should I do until the visit?', 'Can I feed and give water?', 'What should worry me before the visit?'],
+      watch: ['What should I watch over the next day?', 'Can I feed as usual?', 'When is it definitely time for a vet?'],
+      healthy: ['When does this stop being normal?', 'Should I change anything in care?', 'What is worth checking at a routine visit?'],
+    },
+    fieldLabel: 'Your question',
+    placeholder: 'Your question…',
+    ask: 'Ask',
+    answering: 'Lapka is answering…',
+    note: 'Lapka does not diagnose or prescribe treatment.',
+    closedLimit: 'No questions are left for this check. If something has changed, make a new check.',
+    closedExpired: 'Questions can be asked within 48 hours of the check.',
+    failed: 'Could not answer. The question was not used up — please try again.',
+    tooShort: 'Write a question of at least three characters.',
+    tooOften: 'Too many questions in a row. Please try later.',
+    alertToday: 'This changes the picture. Have your pet seen by a vet today.',
+    alertTodayNamed: (name: string) => `This changes the picture. Have ${name} seen by a vet today.`,
+    alertNow: 'This may be dangerous. Go to a clinic now.',
+    findClinic: 'Find a clinic',
+    clinicSearchQuery: 'veterinary clinic',
+    recheck: 'Check again',
+  },
   followup: {
     at: (dayIso: string, time: string, relation: 'today' | 'tomorrow' | null) =>
       relation === 'today' ? `today at ${time}` : relation === 'tomorrow' ? `tomorrow at ${time}` : `${en.day(dayIso, false)} at ${time}`,

@@ -27,6 +27,8 @@ export const queryKeys = {
   followups: () => ['followups'] as const,
   followup: (caseId: string) => ['followup', caseId] as const,
   checkFollowup: (checkId: string) => ['check-followup', checkId] as const,
+  /** Questions about one result (CQ-03). */
+  checkQuestions: (checkId: string) => ['check-questions', checkId] as const,
   episodes: (petId: string) => ['episodes', petId] as const,
 }
 
