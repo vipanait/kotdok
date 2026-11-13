@@ -1,5 +1,5 @@
-import { useCallback, useState } from 'react'
-import { router, useFocusEffect } from 'expo-router'
+import { useCallback, useEffect, useState } from 'react'
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
 import type { Pet } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
 import { useCached } from '@/lib/query-cache'
@@ -11,6 +11,7 @@ import { pendingCheck, takeFinishedCheck } from '@/features/checks/pending-check
 import { emptyCheckForm, formToCheckInput, type CheckForm } from '@/features/checks/check-form'
 import { addPhotos, type PickedPhoto } from '@/features/checks/photos'
 import { pickPhotos } from '@/features/checks/pick-photos'
+import { prefillDecision } from '@/features/checks/check-draft'
 import { useCheckDraft } from '@/features/checks/use-check-draft'
 import { useCheckSubmission, useLiftedRefusal } from '@/features/checks/use-check-submission'
 import { usePetChoice, useRecordCaption } from '@/features/checks/use-check-pet'
@@ -23,8 +24,12 @@ import { CheckWaiting } from '@/features/checks/CheckWaiting'
 import { takeRecheck } from '@/features/followup/recheck-request'
 import { Button } from '@/ui/Button'
 import { Banner } from '@/ui/Card'
+import { ConfirmDialog } from '@/ui/Dialog'
 import { Screen } from '@/ui/Screen'
 import { FormSkeleton } from '@/ui/Skeleton'
+
+/** A description begun elsewhere, and the pet it is about (when it still exists). */
+type HandedOver = { text: string; petId: string | null }
 
 /**
  * The symptom check in two steps. The draft and the send live in hooks; this
@@ -34,7 +39,7 @@ export default function NewCheck() {
   const t = useText()
   const { session } = useAuth()
   const userId = session?.user.id ?? null
-  const { form, setForm, step, setStep, finished, keepDraft, forgetDraft } = useCheckDraft(userId)
+  const { form, setForm, step, setStep, finished, keepDraft, forgetDraft, draftRead } = useCheckDraft(userId)
   // Not part of the draft: picked photos are cache files that may not survive
   // a restart, and the draft lives in the keychain, which is for small values.
   const [photos, setPhotos] = useState<PickedPhoto[]>([])
@@ -67,6 +72,63 @@ export default function NewCheck() {
   const me = useCached(queryKeys.me(), () => withFreshSession((api) => api.getMe()))
   const balance = me.data
   usePetChoice(pets, form.petId, setForm, setStep)
+
+  /**
+   * «Проверить симптомы» on a «Можно ли?» card: the pet and «Съел(а): …».
+   *
+   * Taken once the stored draft has been read and the pets are known, and the
+   * parameters dropped at once, so coming back to the tab does not hand the
+   * text over again. Decided a render later, against the form as it stands
+   * after anything this focus emptied. A draft somebody began is replaced
+   * only when they say so.
+   */
+  const { prefill, petId: prefillPet } = useLocalSearchParams<{ prefill?: string; petId?: string }>()
+  const [handed, setHanded] = useState<HandedOver | null>(null)
+  const [replacing, setReplacing] = useState<HandedOver | null>(null)
+  useEffect(() => {
+    if (!prefill || !draftRead || !pets) return
+    setHanded({ text: prefill, petId: prefillPet && pets.some((pet) => pet.id === prefillPet) ? prefillPet : null })
+    router.setParams({ prefill: undefined, petId: undefined })
+  }, [prefill, prefillPet, draftRead, pets])
+
+  const applyHandOver = useCallback(
+    (given: HandedOver, replace: boolean) => {
+      // A check already sent is done with: empty the screen as its next focus would.
+      if (replace || finished.current) startFresh()
+      setForm((current) => ({
+        ...current,
+        petId: given.petId ?? current.petId,
+        symptoms: current.symptoms.startsWith(given.text) ? current.symptoms : given.text,
+      }))
+    },
+    [finished, setForm, startFresh],
+  )
+
+  useEffect(() => {
+    if (!handed) return
+    setHanded(null)
+    const decision = prefillDecision(finished.current ? emptyCheckForm() : form, handed.text)
+    if (decision === 'apply') applyHandOver(handed, false)
+    else if (decision === 'ask') setReplacing(handed)
+    // The form is read as it is now, once per hand-over; its later edits are not a reason to decide again.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [handed])
+
+  const replaceDialog = (
+    <ConfirmDialog
+      visible={replacing !== null}
+      title={t.safety.replaceTitle}
+      message={t.safety.replaceBody}
+      confirmTitle={t.safety.replace}
+      cancelTitle={t.safety.keep}
+      confirmKind="primary"
+      onConfirm={() => {
+        if (replacing) applyHandOver(replacing, true)
+        setReplacing(null)
+      }}
+      onCancel={() => setReplacing(null)}
+    />
+  )
 
   function change(patch: Partial<CheckForm>) {
     setForm((current) => ({ ...current, ...patch }))
@@ -179,6 +241,7 @@ export default function NewCheck() {
           }
           onRemovePhoto={(index) => setPhotos((current) => current.filter((_, i) => i !== index))}
         />
+        {replaceDialog}
       </Screen>
     )
   }
@@ -200,6 +263,7 @@ export default function NewCheck() {
         onChange={change}
         onBack={() => goTo(1)}
       />
+      {replaceDialog}
     </Screen>
   )
 }

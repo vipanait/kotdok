@@ -17,6 +17,9 @@ describe('query keys', () => {
     expect(persisted(['user-1', 'overview', 'pet-1'])).toBe(true)
     expect(persisted(['user-1', 'me'])).toBe(true)
     expect(persisted(['user-1', 'followups'])).toBe(true)
+    // The «Можно ли?» index, so suggestions work offline; an entry is read fresh each time.
+    expect(persisted(['user-1', ...queryKeys.safetyIndex()])).toBe(true)
+    expect(persisted(['user-1', ...queryKeys.safetyItem('vinograd', null)])).toBe(false)
     expect(persisted(['user-1', 'checks', 'all'])).toBe(false)
     expect(persisted(['user-1', 'check', 'c-1'])).toBe(false)
     expect(persisted(['user-1', 'doses', 'pet-1', '2026-10-25'])).toBe(false)

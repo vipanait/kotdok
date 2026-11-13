@@ -22,7 +22,7 @@ const TAB_BAR_HEIGHT = 49
 const TAB_BAR_TOP = 8
 
 /**
- * The three places the app goes: the pets, a check, and the account.
+ * The four places the app goes: the pets, a check, «Можно ли?» and the account.
  *
  * Everything behind a sign-in lives here, and the guard is on the group rather
  * than repeated on each screen — a screen that forgets it would otherwise call
@@ -180,6 +180,13 @@ export default function TabsLayout() {
         options={{
           title: t.tabs.check,
           tabBarIcon: ({ color }) => <Icon name="checkup" color={String(color)} />,
+        }}
+      />
+      <Tabs.Screen
+        name="safety"
+        options={{
+          title: t.tabs.safety,
+          tabBarIcon: ({ color }) => <Icon name="bowl" color={String(color)} />,
         }}
       />
       <Tabs.Screen

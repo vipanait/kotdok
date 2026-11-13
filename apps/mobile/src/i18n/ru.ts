@@ -1083,7 +1083,77 @@ export const ru = {
     expired: 'Сессия истекла. Войдите ещё раз.',
   },
 
-  tabs: { pets: 'Питомцы', check: 'Проверка', profile: 'Профиль' },
+  /** «Можно ли это питомцу» (docs/superpowers/specs/2026-11-13-pet-safety-design.md, «Приложение»). */
+  safety: {
+    title: 'Можно ли это питомцу?',
+    search: 'Что питомец съел или может съесть',
+    searchPlaceholder: 'Виноград, лилия, ибупрофен',
+    clear: 'Очистить',
+    subject: 'Для кого',
+    choosePet: 'Выбрать питомца',
+    speciesSwitch: { cat: 'Кошка', dog: 'Собака' },
+    recent: 'Недавние',
+    popular: 'Часто спрашивают',
+    categories: { food: 'Продукты', plant: 'Растения', medicine: 'Лекарства', household: 'Быт' },
+    comingSoon: 'Справочник скоро появится',
+    comingSoonBody: 'А пока можно спросить ИИ. Его ответ будет помечен.',
+    loadFailed: 'Не удалось загрузить справочник',
+    notInReference: (query: string) => `«${query}» нет в справочнике`,
+    askAi: 'Спросить ИИ',
+    aiLimit: 'до 10 ответов ИИ в сутки',
+    aiRemaining: (left: number) => `осталось ${left} из 10 на сегодня`,
+    asking: 'ИИ отвечает…',
+    aiBadge: 'Ответ ИИ, не из справочника',
+    unrecognized: 'Не удалось понять, что это. Назовите продукт, растение или вещество.',
+    newQuestion: 'Новый вопрос',
+    rateLimited: 'На сегодня ответы ИИ закончились. Справочник работает как обычно.',
+    askFailed: 'Не получилось ответить. Попробуйте ещё раз.',
+    forPet: (pet: string, species: 'cat' | 'dog') => {
+      const cases = nameCase(pet)
+      return `для ${cases ? cases.genitive : pet} (${species === 'cat' ? 'кошка' : 'собака'})`
+    },
+    forSpecies: { cat: 'для кошек', dog: 'для собак' },
+    otherSpecies: { cat: 'Для кошек', dog: 'Для собак' },
+    verdict: {
+      can: 'Можно',
+      nonToxic: 'Безопасно',
+      caution: 'С осторожностью',
+      lowRisk: 'Малый риск',
+      cannot: 'Нельзя',
+      dangerous: 'Опасно',
+      noData: 'Нет данных',
+    },
+    medicineLine: 'Лекарства для людей не давайте питомцу без назначения врача',
+    allergy: (pet: string, allergy: string) => {
+      const cases = nameCase(pet)
+      return `У ${cases ? cases.genitive : pet} в анкете указана аллергия: ${allergy}`
+    },
+    chronic: (pet: string) => {
+      const cases = nameCase(pet)
+      return `У ${cases ? cases.genitive : pet} указаны хронические болезни. Новые продукты лучше сначала обсудить с врачом.`
+    },
+    why: 'Почему',
+    signs: 'Признаки',
+    ifEaten: (pet: string | null) => (pet ? `Если ${pet} уже съел(а)` : 'Если питомец уже съел'),
+    callNow: 'Сразу позвоните в клинику, не ждите признаков.',
+    watch: 'Наблюдайте. Если появятся признаки — проверьте симптомы.',
+    firstSteps: 'Что сделать',
+    avoid: 'Чего не делать',
+    checkSymptoms: 'Проверить симптомы',
+    checkCost: 'Проверка расходует 1 кредит',
+    addPetToCheck: 'Добавьте питомца, чтобы проверить симптомы',
+    sources: 'Источники',
+    preparedByAi: 'Подготовлено ИИ по ветеринарным источникам. Ветеринар текст не проверял.',
+    loading: 'Загружаем…',
+    gone: 'Этой записи больше нет',
+    toSearch: 'К поиску',
+    replaceTitle: 'Заменить начатое описание?',
+    replaceBody: 'На форме проверки уже есть описание, которое вы начали. Его можно заменить или оставить как есть.',
+    replace: 'Заменить',
+    keep: 'Оставить',
+  },
+
+  tabs: { pets: 'Питомцы', check: 'Проверка', safety: 'Можно ли?', profile: 'Профиль' },
 
   urgency: vocab.ru.urgency,
 

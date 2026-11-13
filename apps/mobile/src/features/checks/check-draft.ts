@@ -44,6 +44,21 @@ export function isWorthKeeping(form: CheckForm): boolean {
 }
 
 /**
+ * What to do with the start of a description handed over by another tab
+ * («Проверить симптомы» on a «Можно ли?» card).
+ *
+ * `ignore` when there is nothing to hand over. `apply` over a form with
+ * nothing in it worth keeping, or one whose description already starts with
+ * the same words (the person came back from the same card). Anything else
+ * is somebody's half-written check, and replacing it is asked first.
+ */
+export function prefillDecision(current: CheckForm, prefill: string): 'apply' | 'ask' | 'ignore' {
+  if (!prefill) return 'ignore'
+  if (!isWorthKeeping(current) || current.symptoms.startsWith(prefill)) return 'apply'
+  return 'ask'
+}
+
+/**
  * Whether the draft on screen is still worth storing.
  *
  * `finished` is the half that was missing and cost people their next check. It

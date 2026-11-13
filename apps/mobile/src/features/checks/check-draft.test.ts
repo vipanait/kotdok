@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { PAIN_SIGNS, SYMPTOMS_MAX } from '@lapka/contracts'
 import { emptyCheckForm, type CheckForm } from './check-form'
-import { DRAFT_KEY, isWorthKeeping, parseDraft, serialiseDraft, shouldKeepDraft } from './check-draft'
+import { DRAFT_KEY, isWorthKeeping, parseDraft, prefillDecision, serialiseDraft, shouldKeepDraft } from './check-draft'
 
 const ME = 'user-1'
 const SOMEONE_ELSE = 'user-2'
@@ -108,5 +108,29 @@ describe('whether a draft survives leaving the screen', () => {
   it('drops an empty form either way', () => {
     expect(shouldKeepDraft({ finished: false, form: emptyCheckForm() })).toBe(false)
     expect(shouldKeepDraft({ finished: true, form: emptyCheckForm() })).toBe(false)
+  })
+})
+
+describe('a description handed over from «Можно ли?»', () => {
+  const prefill = 'Съел(а): виноград. '
+
+  it('goes straight in over an empty form', () => {
+    expect(prefillDecision(emptyCheckForm(), prefill)).toBe('apply')
+    expect(prefillDecision(emptyCheckForm(A_PET), prefill)).toBe('apply')
+  })
+
+  it('asks before replacing a description already begun', () => {
+    expect(prefillDecision({ ...emptyCheckForm(), symptoms: 'хромает' }, prefill)).toBe('ask')
+    // Answers chosen on the second step are work too.
+    expect(prefillDecision({ ...emptyCheckForm(), appetite: 'reduced' }, prefill)).toBe('ask')
+  })
+
+  it('needs no question when the description already starts with it', () => {
+    expect(prefillDecision({ ...emptyCheckForm(), symptoms: 'Съел(а): виноград. рвота' }, prefill)).toBe('apply')
+  })
+
+  it('does nothing without a text', () => {
+    expect(prefillDecision(emptyCheckForm(), '')).toBe('ignore')
+    expect(prefillDecision({ ...emptyCheckForm(), symptoms: 'хромает' }, '')).toBe('ignore')
   })
 })
