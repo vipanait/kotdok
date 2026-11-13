@@ -26,7 +26,7 @@ function raw(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   }
 }
 
-const ru: { grounded: boolean; locale: 'ru' | 'en'; query?: string } = { grounded: true, locale: 'ru', query: 'питахайя' }
+const ru: { grounded: boolean; locale: 'ru' | 'en'; query?: string; cached?: boolean } = { grounded: true, locale: 'ru', query: 'питахайя' }
 
 function guarded(input: unknown, ctx = ru) {
   const result = guardAiAnswer(input, ctx)
@@ -192,6 +192,91 @@ describe('guardAiAnswer', () => {
       expect(guarded(raw({ title: 'Таблетки' }), { grounded: true, locale: 'ru', query: 'таблетки' }).title).toBe(
         SAFETY_NO_DATA.ru.title,
       )
+    })
+  })
+
+  describe('text and verdict always agree (after SAFE-04)', () => {
+    it('replaces the model’s text when an ungrounded «safe» becomes «unknown»', () => {
+      const answer = guarded(raw({ verdict: 'safe', if_eaten: 'none', summary: 'Use caution: a little is fine.' }), {
+        grounded: false,
+        locale: 'en',
+      })
+      expect(answer.verdict).toBe('unknown')
+      expect(answer.summary).toBe(SAFETY_NO_DATA.en.summary)
+      expect(answer.why).toBe(SAFETY_NO_DATA.en.why)
+      // Signs and title are the model's, filtered as usual.
+      expect(answer.signs).toEqual(['понос'])
+      expect(answer.title).toBe('Питахайя')
+    })
+
+    it('gives a household «safe» the no-data text', () => {
+      const answer = guarded(raw({ category: 'household', verdict: 'safe', if_eaten: 'none' }))
+      expect(answer).toMatchObject({ verdict: 'unknown', summary: SAFETY_NO_DATA.ru.summary, why: SAFETY_NO_DATA.ru.why })
+    })
+
+    it('gives a medicine the model called «caution» the danger text', () => {
+      const answer = guarded(raw({ category: 'medicine', verdict: 'caution' }))
+      expect(answer).toMatchObject({
+        verdict: 'danger',
+        if_eaten: 'call_now',
+        summary: SAFETY_DANGER_STANDARD.ru.summary,
+        why: SAFETY_DANGER_STANDARD.ru.why,
+      })
+    })
+
+    it('keeps the model’s text when the verdict is its own and the text is clean', () => {
+      const answer = guarded(raw())
+      expect(answer).toMatchObject({ verdict: 'caution', summary: raw().summary, why: raw().why, signs: ['понос'] })
+      const danger = guarded(raw({ category: 'medicine', verdict: 'danger', summary: 'Токсичен для собак.' }))
+      expect(danger.summary).toBe('Токсичен для собак.')
+    })
+
+    it.each([
+      ['Судя по базе знаний, мякоть не ядовита.', 'ru'],
+      ['В контексте нет сведений.', 'ru'],
+      ['Фрагмент говорит, что опасно.', 'ru'],
+      ['The provided knowledge base says it is mild.', 'en'],
+      ['Based on the provided context, it is mild.', 'en'],
+      ['The context does not mention it.', 'en'],
+      ['One fragment notes mild upset.', 'en'],
+    ] as const)('never shows the model talking about its context: %s', (summary, locale) => {
+      const danger = guarded(raw({ verdict: 'danger', summary }), { grounded: true, locale })
+      expect(danger).toMatchObject({ verdict: 'danger', if_eaten: 'call_now', summary: SAFETY_DANGER_STANDARD[locale].summary })
+      const unknown = guarded(raw({ verdict: 'unknown', why: summary }), { grounded: true, locale })
+      expect(unknown).toMatchObject({ verdict: 'unknown', summary: SAFETY_NO_DATA[locale].summary, why: SAFETY_NO_DATA[locale].why })
+    })
+
+    it('drops only the context sentence from a «caution» answer, keeping its verdict', () => {
+      const answer = guarded(raw({ summary: 'Кусочек мякоти обычно не вредит. Это следует из базы знаний.' }))
+      expect(answer).toMatchObject({ verdict: 'caution', summary: 'Кусочек мякоти обычно не вредит.' })
+      // Nothing left of the summary: no verdict without an answer.
+      const empty = guarded(raw({ summary: 'Согласно контексту, это допустимо.' }))
+      expect(empty).toMatchObject({ verdict: 'unknown', summary: SAFETY_NO_DATA.ru.summary })
+    })
+
+    it('drops a sign or a title that talks about the context', () => {
+      const answer = guarded(raw({ signs: ['вялость', 'фрагмент не уточняет'], title: 'Питахайя (из контекста)' }))
+      expect(answer.signs).toEqual(['вялость'])
+      expect(answer.title).toBe('Питахайя')
+      expect(answer.verdict).toBe('caution')
+    })
+
+    it('treats a cached answer the guard lowered, saved before this rule, as changed', () => {
+      // As cached before: the model said «caution», a guard lowered it, the text stayed.
+      const stored = { ...raw({ verdict: 'unknown', summary: 'Use caution: a little is fine.' }), if_eaten: 'watch' }
+      const answer = guarded(stored, { grounded: true, locale: 'en', cached: true })
+      expect(answer).toMatchObject({ verdict: 'unknown', summary: SAFETY_NO_DATA.en.summary })
+
+      // Saved after it, with the model's verdict recorded: a model's own «unknown» keeps its text.
+      const own = guarded({ ...raw({ verdict: 'unknown' }), model_verdict: 'unknown' }, { grounded: true, locale: 'ru', cached: true })
+      expect(own.summary).toBe(raw().summary)
+      const lowered = guarded({ ...raw({ verdict: 'unknown' }), model_verdict: 'safe' }, { grounded: true, locale: 'ru', cached: true })
+      expect(lowered.summary).toBe(SAFETY_NO_DATA.ru.summary)
+    })
+
+    it('records the model’s own verdict for the cache', () => {
+      expect(guarded(raw({ category: 'medicine', verdict: 'caution' })).model_verdict).toBe('caution')
+      expect(guarded(raw()).model_verdict).toBe('caution')
     })
   })
 

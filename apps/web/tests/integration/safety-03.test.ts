@@ -196,6 +196,36 @@ describe('POST /api/v1/safety/ask', () => {
     expect(model.calls).toBe(0)
   })
 
+  it('makes text and verdict agree for a fresh answer and for one cached before the rule (after SAFE-04)', async () => {
+    // As found in the simulator: an English account, a lowered verdict, the model's «use caution» and its context talk.
+    knowledge = []
+    model.answer = fruit({
+      title: 'Dragon fruit',
+      verdict: 'safe',
+      summary: 'Use caution. The provided knowledge base says a little is fine.',
+      why: 'Low risk.',
+      signs: ['diarrhoea'],
+    })
+    const fresh = await answer({ query: 'dragon fruit', species: 'dog' }, tokenB)
+    expect(fresh).toMatchObject({ source: 'ai', verdict: 'unknown', summary: 'There is no reliable information about this. Do not give it to your pet.', signs: ['diarrhoea'] })
+    const { rows } = await db.query(`select answer->>'model_verdict' as said from public.safety_ai_answers`)
+    expect(rows).toEqual([{ said: 'safe' }])
+
+    // A row cached before `model_verdict` was kept: the guard had lowered the verdict and left the text.
+    const legacy = { ...fruit({ title: 'Kiwano', verdict: 'unknown', summary: 'Use caution: a little is fine.' }), if_eaten: 'watch' }
+    await db.query(
+      `insert into public.safety_ai_answers (query_key, species, locale, answer, model) values ('kiwano', 'dog', 'en', $1, 'gpt-5.4')`,
+      [JSON.stringify(legacy)],
+    )
+    const cached = await answer({ query: 'kiwano', species: 'dog' }, tokenB)
+    expect(cached).toMatchObject({ source: 'ai', verdict: 'unknown', title: 'Kiwano', remaining_today: null })
+    if (cached.source !== 'ai') throw new Error('expected an AI answer')
+    expect(cached.summary).not.toMatch(/caution/i)
+    expect(model.calls).toBe(1)
+    // The system prompt forbids the talk about context in the first place.
+    expect(String(model.requests[0]!.messages.find(m => m.role === 'system')!.content)).toMatch(/Never mention CONTEXT/)
+  })
+
   it('gives the reference entry over a cached answer that names it (an entry published after the answer)', async () => {
     const cached = { ...fruit({ canonical_name_ru: 'изюм', canonical_name_en: 'raisins', title: 'Изюм' }), if_eaten: 'watch' }
     await db.query(

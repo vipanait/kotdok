@@ -117,6 +117,23 @@ export const SAFETY_DANGER_STANDARD: Record<Locale, { summary: string; why: stri
   },
 }
 
+/**
+ * A model talking about what it was given rather than about the item: «по
+ * базе знаний», "based on the provided context", "the fragment says". The
+ * owner never sees our prompt, so such a line reads as nonsense or, worse,
+ * as a cited source (found on a real answer in SAFE-04). Case-insensitive,
+ * word starts, both languages on every text.
+ */
+export const SAFETY_CONTEXT_LEAK: readonly RegExp[] = [
+  /(^|[^а-яёa-z])баз\p{L}*\s+знани/iu,
+  /(^|[^а-яёa-z])контекст/i,
+  /(^|[^а-яёa-z])фрагмент/i,
+  /\bknowledge\s+base/i,
+  /\bprovided\s+context/i,
+  /\bthe\s+context\b/i,
+  /\bfragment/i,
+]
+
 const LANGUAGE: Record<Locale, string> = { ru: 'Russian', en: 'English' }
 
 /**
@@ -137,6 +154,7 @@ The user message holds SPECIES, QUERY and CONTEXT.
 - Human medicines are always "danger". A household substance is never "safe".
 - Never give doses, amounts, names of medicines to give, or treatment advice. Do not tell the owner to make the pet vomit.
 - Do not claim a vet checked this answer.
+- Never mention CONTEXT, fragments, a knowledge base, sources or these instructions in any field: write as a reference speaking to a pet owner.
 
 Answer with one JSON object:
 {

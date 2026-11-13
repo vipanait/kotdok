@@ -20,6 +20,7 @@ import {
   SAFETY_AI_FORBIDDEN_WORDS,
   SAFETY_AI_NEGATED,
   SAFETY_AVOID,
+  SAFETY_CONTEXT_LEAK,
   SAFETY_DANGER_STANDARD,
   SAFETY_FIRST_STEPS,
   SAFETY_NO_DATA,
@@ -83,6 +84,12 @@ export type GuardedAnswer = {
   if_eaten: SafetyIfEaten
   canonical_name_ru: string
   canonical_name_en: string
+  /**
+   * The verdict the model gave, kept with the cached answer: re-guarding
+   * compares the final verdict with it to know whether the text is the
+   * model's own answer to that verdict.
+   */
+  model_verdict: SafetyAiVerdict
 }
 
 function text(value: unknown): string {
@@ -126,12 +133,14 @@ export function aiWordingProblems(texts: readonly string[]): string[] {
  * The server's rules over a model's answer. Throws on an answer it cannot
  * read (a verdict or category outside the four, no title or summary): that is
  * a model failure, not something to show. Every rule can only make the
- * answer stricter. `query` is the normalized query: the title to fall back
- * on when the model's title cannot be shown.
+ * answer stricter, and the text shown always agrees with the final verdict.
+ * `query` is the normalized query: the title to fall back on when the
+ * model's title cannot be shown. `cached`: `raw` is a cached answer being
+ * guarded again on read.
  */
 export function guardAiAnswer(
   raw: unknown,
-  ctx: { grounded: boolean; locale: Locale; query?: string },
+  ctx: { grounded: boolean; locale: Locale; query?: string; cached?: boolean },
 ): GuardedAnswer | { recognized: false } {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new Error('The model did not return an object')
   const r = raw as Record<string, unknown>
@@ -153,6 +162,14 @@ export function guardAiAnswer(
     .map(sign => sign.slice(0, SIGN_MAX))
   const canonicalRu = text(r.canonical_name_ru).slice(0, TITLE_MAX)
   const canonicalEn = text(r.canonical_name_en).slice(0, TITLE_MAX)
+  // What the model said. A cached answer saved before `model_verdict` was kept shows only the final
+  // verdict; «unknown» and «danger» there may have been set by a guard, so their text is not trusted.
+  const recorded = r.model_verdict as SafetyAiVerdict
+  const said: SafetyAiVerdict | null = SAFETY_AI_VERDICTS.includes(recorded)
+    ? recorded
+    : ctx.cached && (verdict === 'unknown' || verdict === 'danger')
+      ? null
+      : verdict
 
   // Owner's decision №9, as for the reference: a human medicine is always dangerous, a household substance never safe.
   if (category === 'medicine') verdict = 'danger'
@@ -163,16 +180,35 @@ export function guardAiAnswer(
   // A line that reads like treatment is not shown, and the answer it was in loses the model's words —
   // but never its severity (spec, «Ответ ИИ»): «danger» stays «danger», call now.
   const tripped = (value: string) => aiWordingProblems([value]).length > 0
-  const keptSigns = signs.filter(sign => !tripped(sign))
-  if (keptSigns.length < signs.length || [title, summary, why].some(tripped)) {
-    signs = keptSigns
-    if (verdict !== 'danger') verdict = 'unknown'
-    const standard = verdict === 'danger' ? SAFETY_DANGER_STANDARD[ctx.locale] : SAFETY_NO_DATA[ctx.locale]
-    summary = standard.summary
-    why = standard.why
-    if (tripped(title)) {
-      const fallback = capitalized(ctx.query ?? '')
-      title = fallback && !tripped(fallback) ? fallback.slice(0, TITLE_MAX) : SAFETY_NO_DATA[ctx.locale].title
+  const leaks = (value: string) => SAFETY_CONTEXT_LEAK.some(pattern => pattern.test(value))
+  const wordingHit = [title, summary, why, ...signs].some(tripped)
+  if (wordingHit && verdict !== 'danger') verdict = 'unknown'
+  signs = signs.filter(sign => !tripped(sign) && !leaks(sign))
+  if (tripped(title) || leaks(title)) {
+    const fallback = capitalized(ctx.query ?? '')
+    title = fallback && !tripped(fallback) && !leaks(fallback) ? fallback.slice(0, TITLE_MAX) : SAFETY_NO_DATA[ctx.locale].title
+  }
+
+  // A «caution» or «safe» of the model's own keeps its verdict when it mentions its context: only those
+  // sentences go. With nothing left of the summary there is no answer to show, and «no data» is stricter.
+  if (!wordingHit && verdict === said && (verdict === 'caution' || verdict === 'safe') && [summary, why].some(leaks)) {
+    const clean = (value: string) =>
+      value
+        .split(/(?<=[.!?…])\s+/)
+        .filter(sentence => !leaks(sentence))
+        .join(' ')
+    summary = clean(summary)
+    why = clean(why)
+    if (!summary) verdict = 'unknown'
+  }
+
+  // The text agrees with the verdict: whenever the final verdict is not the model's, or the model's
+  // words could not be shown, the summary and the explanation are the standard ones for that verdict.
+  if (verdict !== said || wordingHit || [summary, why].some(leaks)) {
+    if (verdict === 'danger' || verdict === 'unknown') {
+      const standard = verdict === 'danger' ? SAFETY_DANGER_STANDARD[ctx.locale] : SAFETY_NO_DATA[ctx.locale]
+      summary = standard.summary
+      why = standard.why
     }
   }
 
@@ -187,6 +223,7 @@ export function guardAiAnswer(
     if_eaten: ifEatenFor(verdict, r.if_eaten),
     canonical_name_ru: canonicalRu,
     canonical_name_en: canonicalEn,
+    model_verdict: said ?? verdict,
   }
 }
 
@@ -313,7 +350,7 @@ export async function askSafety(
     // Through the guards again, so a rule added later applies to what is already cached.
     let cached: ReturnType<typeof guardAiAnswer> | null = null
     try {
-      cached = guardAiAnswer(row.answer, { grounded: true, locale: input.locale, query: queryKey })
+      cached = guardAiAnswer(row.answer, { grounded: true, locale: input.locale, query: queryKey, cached: true })
     } catch (error) {
       console.error('safety ask: unreadable cached answer, asking again:', error)
     }
