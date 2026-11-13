@@ -44,6 +44,11 @@ describe('matchSafety', () => {
     expect(matchSafety(index, 'рос').exact).toBeNull()
   })
 
+  it('does not stretch a five-letter query onto a four-letter term', () => {
+    // «риска» is one edit from «риск», but «риск» is too short to forgive a typo against.
+    expect(matchSafety([item('risk', 'Риск')], 'риска').exact).toBeNull()
+  })
+
   it('suggests entries whose word starts with the query', () => {
     expect(matchSafety(index, 'шок').suggestions.map(i => i.slug)).toEqual(['shokolad'])
   })
@@ -56,7 +61,7 @@ describe('matchSafety', () => {
 
   it('suggests no more than eight entries', () => {
     expect(SAFETY_SUGGESTIONS_MAX).toBe(8)
-    expect(matchSafety(bigIndex, 'а').suggestions.length).toBeLessThanOrEqual(8)
+    expect(matchSafety(bigIndex, 'а').suggestions).toHaveLength(8)
   })
 
   it('orders suggestions: exact, name start, alias start, anywhere; by name inside a group', () => {

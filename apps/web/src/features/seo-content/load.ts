@@ -74,7 +74,7 @@ export function allContent(): { symptoms: SymptomPage[]; toxins: ToxinPage[] } {
  * Vercel preview and the dev server show drafts too, marked and `noindex`, so
  * a text can be read in place before it is published.
  */
-export function isVisible(page: ContentPage): boolean {
+export function isVisible(page: { review: { status: ContentPage['review']['status'] } }): boolean {
   if (page.review.status === 'published') return true
   return process.env.VERCEL_ENV === 'preview' || process.env.NODE_ENV === 'development'
 }

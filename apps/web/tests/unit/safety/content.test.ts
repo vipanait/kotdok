@@ -119,6 +119,19 @@ describe('the safety entries', () => {
     }
   })
 
+  it('have as many signs, first steps and don’ts in English as in Russian', () => {
+    for (const entry of entries) {
+      const lists = {
+        ...Object.fromEntries(SPECIES.map(species => [`bySpecies.${species}.signs`, entry.bySpecies[species].signs])),
+        firstSteps: entry.firstSteps,
+        avoid: entry.avoid,
+      }
+      for (const [field, list] of Object.entries(lists)) {
+        expect(list.en.length, `${entry.slug} ${field}`).toBe(list.ru.length)
+      }
+    }
+  })
+
   it('give each name and alias to one entry only', () => {
     for (const locale of LOCALES) {
       const owner = new Map<string, string>()

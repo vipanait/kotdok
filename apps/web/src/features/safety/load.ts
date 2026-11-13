@@ -3,7 +3,7 @@ import 'server-only'
 import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import type { SafetyIndexItem } from '@lapka/shared'
-import { typeset } from '@/features/seo-content/load'
+import { isVisible, typeset } from '@/features/seo-content/load'
 import type { Locale } from '@/shared/i18n/config'
 import { safetyEntrySchema, type SafetyEntry } from './schema'
 
@@ -53,15 +53,7 @@ export function allEntries(): SafetyEntry[] {
   return cache
 }
 
-/**
- * The same rule as `isVisible` for the articles: production shows published
- * entries only, a Vercel preview and the dev server show drafts too.
- */
-function isVisible(entry: SafetyEntry): boolean {
-  if (entry.review.status === 'published') return true
-  return process.env.VERCEL_ENV === 'preview' || process.env.NODE_ENV === 'development'
-}
-
+/** The articles' rule: production shows published entries only, a preview and the dev server drafts too. */
 export function visibleEntries(): SafetyEntry[] {
   return allEntries().filter(isVisible)
 }

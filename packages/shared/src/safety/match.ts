@@ -50,8 +50,8 @@ function levenshtein(a: string, b: string): number {
 }
 
 /**
- * The same words but one, and that one at most one edit away and at least
- * five letters long in the query.
+ * The same words but one, and that one exactly one edit away and at least
+ * five letters long on both sides, so «риска» does not land on «риск».
  */
 function isTypoOf(query: string, term: string): boolean {
   const queryWords = query.split(' ')
@@ -60,7 +60,7 @@ function isTypoOf(query: string, term: string): boolean {
   const differing = queryWords.flatMap((word, i) => (word === termWords[i] ? [] : [[word, termWords[i]]]))
   if (differing.length !== 1) return false
   const [word, target] = differing[0]
-  return word.length >= TYPO_MIN_LENGTH && levenshtein(word, target) === 1
+  return word.length >= TYPO_MIN_LENGTH && target.length >= TYPO_MIN_LENGTH && levenshtein(word, target) === 1
 }
 
 /** Whether a word of `term` (or a run of words) starts with the query. */
@@ -96,7 +96,7 @@ export function matchSafety(
     name: normalizeSafetyQuery(item.name),
     aliases: item.aliases.map(normalizeSafetyQuery),
   }))
-  const byName = (a: SafetyIndexItem, b: SafetyIndexItem) => a.name.localeCompare(b.name)
+  const byName = (a: SafetyIndexItem, b: SafetyIndexItem) => a.name.localeCompare(b.name, 'ru')
 
   const exact =
     terms.find(t => t.name === q || t.aliases.includes(q))?.item ??
