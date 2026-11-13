@@ -6,6 +6,7 @@ import { DRAFT_KEY, isWorthKeeping, parseDraft, prefillDecision, serialiseDraft,
 const ME = 'user-1'
 const SOMEONE_ELSE = 'user-2'
 const A_PET = '11111111-1111-4111-8111-000000000001'
+const OTHER_PET = '11111111-1111-4111-8111-000000000002'
 
 const typed = () => ({ ...emptyCheckForm(A_PET), symptoms: 'вялый второй день' })
 
@@ -127,6 +128,22 @@ describe('a description handed over from «Можно ли?»', () => {
 
   it('needs no question when the description already starts with it', () => {
     expect(prefillDecision({ ...emptyCheckForm(), symptoms: 'Съел(а): виноград. рвота' }, prefill)).toBe('apply')
+  })
+
+  it('asks when the description already begun is about another pet', () => {
+    const begun = { ...emptyCheckForm(A_PET), symptoms: 'Съел(а): виноград. рвота' }
+
+    expect(prefillDecision(begun, prefill, A_PET)).toBe('apply')
+    // Same words, other animal: switching the pet under a written description is not ours to do.
+    expect(prefillDecision(begun, prefill, OTHER_PET)).toBe('ask')
+  })
+
+  it('asks before touching a begun description for a pet that is gone', () => {
+    // The pet named by the card was deleted: the id matches nobody on the form.
+    expect(prefillDecision({ ...emptyCheckForm(A_PET), symptoms: 'хромает' }, prefill, 'gone')).toBe('ask')
+    expect(prefillDecision({ ...emptyCheckForm(A_PET), symptoms: 'Съел(а): виноград. ' }, prefill, 'gone')).toBe('ask')
+    // An empty form has nothing to lose: the text goes in, the pet stays the one shown.
+    expect(prefillDecision(emptyCheckForm(A_PET), prefill, 'gone')).toBe('apply')
   })
 
   it('does nothing without a text', () => {

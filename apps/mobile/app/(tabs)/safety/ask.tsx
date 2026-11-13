@@ -62,7 +62,10 @@ export default function SafetyAsk() {
       noteAiRemaining(userId, result.remaining_today)
       setPhase(result.source === 'ai' ? { kind: 'ai', answer: result } : { kind: 'unrecognized' })
     } catch (cause) {
-      setPhase({ kind: cause instanceof ApiError && cause.code === 'rate_limited' ? 'limited' : 'failed' })
+      const limited = cause instanceof ApiError && cause.code === 'rate_limited'
+      // Refused for the limit: none left today, whatever the last answer said.
+      if (limited) noteAiRemaining(userId, 0)
+      setPhase({ kind: limited ? 'limited' : 'failed' })
     }
   }, [petId, query, species, userId])
 

@@ -1,47 +1,32 @@
-import { useCallback, useEffect, useState, useSyncExternalStore } from 'react'
+import { useCallback, useEffect, useSyncExternalStore } from 'react'
 import { draftStorage } from '@/lib/supabase'
-import { RECENT_KEY, addRecent, parseRecent, serialiseRecent } from './recent'
+import { createRecentStore } from './recent'
 
 /**
  * What the «Можно ли?» tab remembers on this phone, apart from the server's
  * answers: the recent queries (kept across restarts), and for this launch
  * the pet chosen last and the AI answers left today.
  *
- * The recent queries go where the check draft goes — the keychain store that
- * signing out empties — because what someone asked about their pet is theirs.
- * The plain AsyncStorage the plan named is not installed in this app, and
- * adding a native module for ten short strings is not worth a new build.
+ * The recent queries go where the check draft goes — the keychain store
+ * whose `alwaysClear` names their key, so signing out removes them — because
+ * what someone asked about their pet is theirs. The plain AsyncStorage the
+ * plan named is not installed in this app, and adding a native module for ten
+ * short strings is not worth a new build. The pet and the remainder live in
+ * memory only, tied to the account.
  */
+const recentStore = createRecentStore(draftStorage)
+
 export function useRecentQueries(userId: string | null) {
-  const [recent, setRecent] = useState<string[]>([])
-
   useEffect(() => {
-    if (!userId) return
-    let current = true
-    void draftStorage
-      .getItem(RECENT_KEY)
-      .then((raw) => {
-        if (current) setRecent(parseRecent(raw, userId))
-      })
-      .catch(() => {})
-    return () => {
-      current = false
-    }
+    if (userId) void recentStore.load(userId)
   }, [userId])
-
+  const recent = useSyncExternalStore(recentStore.subscribe, () => recentStore.get(userId))
   const remember = useCallback(
     (query: string) => {
-      if (!userId) return
-      setRecent((list) => {
-        const next = addRecent(list, query)
-        // A lost write is only a shorter list next time.
-        void draftStorage.setItem(RECENT_KEY, serialiseRecent(userId, next)).catch(() => {})
-        return next
-      })
+      if (userId) void recentStore.remember(userId, query)
     },
     [userId],
   )
-
   return { recent, remember }
 }
 

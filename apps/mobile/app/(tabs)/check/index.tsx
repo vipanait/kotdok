@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
 import type { Pet } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
@@ -27,9 +27,6 @@ import { Banner } from '@/ui/Card'
 import { ConfirmDialog } from '@/ui/Dialog'
 import { Screen } from '@/ui/Screen'
 import { FormSkeleton } from '@/ui/Skeleton'
-
-/** A description begun elsewhere, and the pet it is about (when it still exists). */
-type HandedOver = { text: string; petId: string | null }
 
 /**
  * The symptom check in two steps. The draft and the send live in hooks; this
@@ -76,59 +73,33 @@ export default function NewCheck() {
   /**
    * «Проверить симптомы» on a «Можно ли?» card: the pet and «Съел(а): …».
    *
-   * Taken once the stored draft has been read and the pets are known, and the
-   * parameters dropped at once, so coming back to the tab does not hand the
-   * text over again. Decided a render later, against the form as it stands
-   * after anything this focus emptied. A draft somebody began is replaced
-   * only when they say so.
+   * Nothing is copied into state: the parameters are the pending hand-over,
+   * read once the stored draft has been read and the pets are known, and
+   * decided against the form as it is on this render — so a form emptied by
+   * this focus is seen as empty. A begun draft, or one about another pet, is
+   * replaced only when the person says so. The parameters are dropped once
+   * it is settled, so coming back to the tab does not hand the text over again.
    */
   const { prefill, petId: prefillPet } = useLocalSearchParams<{ prefill?: string; petId?: string }>()
-  const [handed, setHanded] = useState<HandedOver | null>(null)
-  const [replacing, setReplacing] = useState<HandedOver | null>(null)
-  useEffect(() => {
-    if (!prefill || !draftRead || !pets) return
-    setHanded({ text: prefill, petId: prefillPet && pets.some((pet) => pet.id === prefillPet) ? prefillPet : null })
+  const handedOver = prefill && draftRead && pets ? { text: prefill, petId: prefillPet || null } : null
+  const handOverDecision = handedOver ? prefillDecision(form, handedOver.text, handedOver.petId) : null
+
+  function settleHandOver() {
     router.setParams({ prefill: undefined, petId: undefined })
-  }, [prefill, prefillPet, draftRead, pets])
+  }
 
-  const applyHandOver = useCallback(
-    (given: HandedOver, replace: boolean) => {
-      // A check already sent is done with: empty the screen as its next focus would.
-      if (replace || finished.current) startFresh()
-      setForm((current) => ({
-        ...current,
-        petId: given.petId ?? current.petId,
-        symptoms: current.symptoms.startsWith(given.text) ? current.symptoms : given.text,
-      }))
-    },
-    [finished, setForm, startFresh],
-  )
-
-  useEffect(() => {
-    if (!handed) return
-    setHanded(null)
-    const decision = prefillDecision(finished.current ? emptyCheckForm() : form, handed.text)
-    if (decision === 'apply') applyHandOver(handed, false)
-    else if (decision === 'ask') setReplacing(handed)
-    // The form is read as it is now, once per hand-over; its later edits are not a reason to decide again.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [handed])
-
-  const replaceDialog = (
-    <ConfirmDialog
-      visible={replacing !== null}
-      title={t.safety.replaceTitle}
-      message={t.safety.replaceBody}
-      confirmTitle={t.safety.replace}
-      cancelTitle={t.safety.keep}
-      confirmKind="primary"
-      onConfirm={() => {
-        if (replacing) applyHandOver(replacing, true)
-        setReplacing(null)
-      }}
-      onCancel={() => setReplacing(null)}
-    />
-  )
+  /** The text in, and the card's pet chosen while it still exists — a deleted one is not swapped for another. */
+  function takeHandOver() {
+    if (!handedOver) return
+    const { text, petId } = handedOver
+    const known = petId && pets?.some((pet) => pet.id === petId) ? petId : null
+    setForm((current) => ({
+      ...current,
+      petId: known ?? current.petId,
+      symptoms: current.symptoms.startsWith(text) ? current.symptoms : text,
+    }))
+    settleHandOver()
+  }
 
   function change(patch: Partial<CheckForm>) {
     setForm((current) => ({ ...current, ...patch }))
@@ -161,6 +132,34 @@ export default function NewCheck() {
         void keepDraft()
       }
     }, [focused, finished, keepDraft, openRecheck, startFresh, userId, watch]),
+  )
+
+  // After the focus effect, so a form it empties is not filled first and then
+  // emptied; a check just sent waits for that emptying, and the next render
+  // takes it. Taken once per hand-over: the parameters go away a moment later.
+  const takenHandOver = useRef<string | null>(null)
+  const handOverKey = handedOver ? `${handedOver.petId ?? ''}|${handedOver.text}` : null
+  useEffect(() => {
+    if (handOverKey === null) takenHandOver.current = null
+    if (handOverDecision !== 'apply' || finished.current || takenHandOver.current === handOverKey) return
+    takenHandOver.current = handOverKey
+    takeHandOver()
+  })
+
+  const replaceDialog = (
+    <ConfirmDialog
+      visible={handOverDecision === 'ask'}
+      title={t.safety.replaceTitle}
+      message={t.safety.replaceBody}
+      confirmTitle={t.safety.replace}
+      cancelTitle={t.safety.keep}
+      confirmKind="primary"
+      onConfirm={() => {
+        startFresh()
+        takeHandOver()
+      }}
+      onCancel={settleHandOver}
+    />
   )
 
   useLiftedRefusal(submission, me.reload)

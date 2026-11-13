@@ -42,3 +42,56 @@ export function parseRecent(raw: string | null, userId: string): string[] {
   if (record.userId !== userId || !Array.isArray(record.queries)) return []
   return record.queries.filter((query): query is string => typeof query === 'string' && query.trim().length > 0).slice(0, RECENT_MAX)
 }
+
+type Storage = {
+  getItem(key: string): Promise<string | null>
+  setItem(key: string, value: string): Promise<void>
+}
+
+const NONE: readonly string[] = []
+
+/**
+ * One list for the whole app, so every screen that remembers a query sees
+ * the others' — a list per screen let the search overwrite a query the AI
+ * screen had just stored. Read once per account; a remember waits for that
+ * read, so nothing remembered early is lost under what was stored. The
+ * write happens after the list changes, never inside a state update.
+ */
+export function createRecentStore(storage: Storage) {
+  let state: { userId: string; queries: readonly string[] } | null = null
+  let reading: { userId: string; done: Promise<void> } | null = null
+  const listeners = new Set<() => void>()
+  const emit = () => listeners.forEach((listener) => listener())
+
+  function load(userId: string): Promise<void> {
+    if (reading?.userId === userId) return reading.done
+    const done = storage
+      .getItem(RECENT_KEY)
+      .catch(() => null)
+      .then((raw) => {
+        state = { userId, queries: parseRecent(raw, userId) }
+        emit()
+      })
+    reading = { userId, done }
+    return done
+  }
+
+  return {
+    load,
+    get: (userId: string | null): readonly string[] => (userId && state?.userId === userId ? state.queries : NONE),
+    subscribe(listener: () => void): () => void {
+      listeners.add(listener)
+      return () => {
+        listeners.delete(listener)
+      }
+    },
+    async remember(userId: string, query: string): Promise<void> {
+      await load(userId)
+      const queries = addRecent(state?.userId === userId ? state.queries : [], query)
+      state = { userId, queries }
+      emit()
+      // A lost write is only a shorter list next launch.
+      await storage.setItem(RECENT_KEY, serialiseRecent(userId, queries)).catch(() => {})
+    },
+  }
+}
