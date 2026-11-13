@@ -363,3 +363,68 @@ describe('what the client says it can read (FB-2 release)', () => {
     expect(seen[0]['X-Lapka-Features']).toBe('pet-dates,pet-avatar,followup')
   })
 })
+
+describe('questions about a check', () => {
+  const check = '11111111-1111-4111-8111-000000000009'
+  const item = {
+    id: '11111111-1111-4111-8111-000000000010',
+    question: 'Можно ли кормить?',
+    answer: 'Понемногу.',
+    alert: 'none',
+    off_topic: false,
+    created_at: '2026-11-13T10:00:00.000Z',
+  }
+  const thread = { items: [item], limit: 3, remaining: 2, open_until: '2026-11-15T09:00:00.000Z', closed: null }
+
+  it('reads the thread of a check', async () => {
+    const seen: string[] = []
+    const fetch: FetchLike = async (url) => {
+      seen.push(String(url))
+      return ok(thread)
+    }
+    const api = createApiClient({ baseUrl: BASE, fetch })
+    await expect(api.getCheckQuestions(check)).resolves.toEqual(thread)
+    expect(seen).toEqual([`${BASE}/api/v1/checks/${check}/questions`])
+  })
+
+  it('asks with the key, the question and the owner’s day', async () => {
+    const seen: { url: string; method?: string; key?: string; body?: unknown }[] = []
+    const fetch: FetchLike = async (url, init) => {
+      const headers = (init?.headers ?? {}) as Record<string, string>
+      seen.push({ url: String(url), method: init?.method, key: headers['Idempotency-Key'], body: JSON.parse(String(init?.body)) })
+      return ok({ item, thread })
+    }
+    const api = createApiClient({ baseUrl: BASE, fetch })
+    await expect(api.askCheckQuestion(check, 'key-12345678', { question: 'Можно ли кормить?' }, '2026-11-13')).resolves.toEqual({ item, thread })
+    expect(seen).toEqual([
+      {
+        url: `${BASE}/api/v1/checks/${check}/questions?today=2026-11-13`,
+        method: 'POST',
+        key: 'key-12345678',
+        body: { question: 'Можно ли кормить?' },
+      },
+    ])
+  })
+
+  it('waits for an answer longer than the client waits for anything else', async () => {
+    // The model may take a minute; the client's own deadline here is far shorter.
+    const armed: number[] = []
+    // No Node or DOM types in this package: the timer is reached the way the client reaches it.
+    const timers = globalThis as unknown as { setTimeout: (handler: () => void, ms?: number) => unknown }
+    const real = timers.setTimeout
+    timers.setTimeout = (handler, ms) => {
+      armed.push(ms ?? 0)
+      // Armed far off, so neither deadline fires while the answer is read.
+      return real(handler, 60_000)
+    }
+    try {
+      const api = createApiClient({ baseUrl: BASE, fetch: async () => ok({ item, thread }), timeoutMs: 20 })
+      await api.askCheckQuestion(check, 'key-12345678', { question: 'Можно ли кормить?' })
+      await api.getCheckQuestions(check).catch(() => null)
+    } finally {
+      timers.setTimeout = real
+    }
+    expect(armed).toEqual([75_000, 20])
+  })
+})
+

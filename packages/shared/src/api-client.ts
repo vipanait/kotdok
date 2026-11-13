@@ -55,6 +55,9 @@ import {
   MedicationDoseSchema,
   type MedicationDoseInput,
   FOLLOWUP_FEATURE,
+  CheckQuestionResultSchema,
+  CheckQuestionThreadSchema,
+  type CheckQuestionInput,
   CheckFollowupSchema,
   FollowupCaseListSchema,
   FollowupCaseSchema,
@@ -166,6 +169,9 @@ const platform = globalThis as {
 /** Long enough for a cold serverless start, short enough to not look frozen. */
 export const DEFAULT_TIMEOUT_MS = 30_000
 
+/** A question about a check waits for the model: two attempts of 30 s on a route allowed 90. */
+export const CHECK_QUESTION_TIMEOUT_MS = 75_000
+
 export type ApiClientOptions = {
   /** Origin of the API, without the version segment. */
   baseUrl: string
@@ -190,6 +196,8 @@ type RequestOptions = {
   anonymous?: boolean
   /** The caller no longer wants the answer: the request is aborted. */
   signal?: AbortSignalLike
+  /** This call's own deadline, for the few that wait on the model; the client's otherwise. */
+  timeoutMs?: number
 }
 
 /**
@@ -236,7 +244,7 @@ export function createApiClient(options: ApiClientOptions) {
     }
     if (request.body !== undefined) headers['content-type'] = 'application/json'
 
-    const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS
+    const timeoutMs = request.timeoutMs ?? options.timeoutMs ?? DEFAULT_TIMEOUT_MS
     const controller = platform.AbortController ? new platform.AbortController() : null
     let timedOut = false
     const timer =
@@ -462,6 +470,17 @@ export function createApiClient(options: ApiClientOptions) {
     getCheckFeedback: (checkId: string) => call(`/checks/${checkId}/feedback`, CheckFeedbackSchema),
 
     // The follow-up loop after a check (docs/plans/followup-loop/README.md).
+    // Questions about one result (CQ-01). Asking waits for the model's answer.
+    getCheckQuestions: (checkId: string) => call(`/checks/${checkId}/questions`, CheckQuestionThreadSchema),
+    /** The key is made once per question text, so a retry after a lost response gets the same answer. */
+    askCheckQuestion: (checkId: string, idempotencyKey: string, body: CheckQuestionInput, today?: string) =>
+      call(`/checks/${checkId}/questions`, CheckQuestionResultSchema, {
+        method: 'POST',
+        body,
+        query: { today },
+        headers: { [IDEMPOTENCY_KEY_HEADER]: idempotencyKey },
+        timeoutMs: CHECK_QUESTION_TIMEOUT_MS,
+      }),
     getCheckFollowup: (checkId: string) => call(`/checks/${checkId}/followup`, CheckFollowupSchema),
     setCheckFollowup: (checkId: string, body: FollowupEnableInput) =>
       call(`/checks/${checkId}/followup`, CheckFollowupSchema, { method: 'PUT', body }),
