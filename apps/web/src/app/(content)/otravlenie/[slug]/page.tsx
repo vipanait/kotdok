@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import ArticleFrame, { breadcrumbJsonLd, type Crumb } from '@/features/seo-content/components/ArticleFrame'
 import CheckCta from '@/features/seo-content/components/CheckCta'
@@ -6,6 +7,9 @@ import Disclaimer from '@/features/seo-content/components/Disclaimer'
 import { Byline, FaqSection, ListSection, RelatedSection, SourcesSection } from '@/features/seo-content/components/Sections'
 import { isDraft, linkTo, pathOf, toxinPage, toxinPages, type PageLink } from '@/features/seo-content/load'
 import { articleJsonLd } from '@/features/seo-content/page-data'
+import { entryForToxin } from '@/features/safety/load'
+import { safetyHeading } from '@/features/safety/SafetyArticle'
+import { safetyPath } from '@/shared/content-paths'
 import ru from '@/shared/i18n/dictionaries/ru'
 import { siteUrl } from '@/shared/seo'
 import { jsonLdScript, publicPageMetadata } from '@/shared/site-metadata'
@@ -44,6 +48,8 @@ export default async function ToxinArticle({ params }: Props) {
   ]
   const related = page.related.map(linkTo).filter((link): link is PageLink => !!link)
   const emergency = ru.urgency.emergency
+  // The «Можно ли» entry on the same thing, if it is on the site: the short answer per species.
+  const entry = entryForToxin(page.slug)
 
   return (
     <ArticleFrame crumbs={crumbs}>
@@ -68,6 +74,11 @@ export default async function ToxinArticle({ params }: Props) {
         <p className="short-answer">{page.shortAnswer}</p>
         <div className="article-meta">
           <Byline reviewedAt={page.review.reviewedAt} draft={isDraft(page)} />
+          {entry && (
+            <p className="pair-link">
+              Коротко для кошек и собак: <Link href={safetyPath(entry.slug)} className="link">{safetyHeading(entry)}</Link>
+            </p>
+          )}
         </div>
         <Disclaimer />
 

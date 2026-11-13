@@ -29,4 +29,11 @@ describe('shared vocabulary', () => {
     expect(Object.keys(vocab.ru.urgency)).toEqual(['emergency', 'urgent', 'monitor', 'home_care', 'healthy'])
     expect(vocab.en.urgency.healthy.label).toBe('ALL GOOD')
   })
+
+  it('captions the «Можно ли» verdicts as the spec table does, for the app and the site alike', () => {
+    expect(vocab.ru.safetyVerdict).toMatchObject({ can: 'Можно', nonToxic: 'Безопасно', caution: 'С осторожностью', lowRisk: 'Малый риск', cannot: 'Нельзя', dangerous: 'Опасно' })
+    expect(vocab.en.safetyVerdict).toMatchObject({ can: 'Safe to eat', nonToxic: 'Non-toxic', lowRisk: 'Low risk', cannot: 'Not safe', dangerous: 'Dangerous' })
+    expect(vocab.ru.safetyMedicineLine).toBe('Лекарства для людей не давайте питомцу без назначения врача')
+    expect(vocab.en.safetyMedicineLine).toBe('Do not give human medicines to a pet unless a vet prescribes them')
+  })
 })

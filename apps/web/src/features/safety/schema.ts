@@ -81,6 +81,12 @@ export const safetyEntrySchema = z
     slug,
     category: z.enum(SAFETY_CATEGORIES),
     name: localized,
+    /**
+     * The name in the accusative, lower case, for the site's question
+     * «Можно ли кошкам и собакам <titleRu>?». Without it the page asks
+     * «<Название>: можно ли кошкам и собакам».
+     */
+    titleRu: text.optional(),
     /** Other names and word forms the entry is found by; allergen foods also in the accusative («курицу»). */
     aliases: localizedList,
     bySpecies: z.object({ cat: section, dog: section }),

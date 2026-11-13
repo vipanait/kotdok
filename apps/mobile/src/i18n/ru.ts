@@ -1094,7 +1094,7 @@ export const ru = {
     speciesSwitch: { cat: 'Кошка', dog: 'Собака' },
     recent: 'Недавние',
     popular: 'Часто спрашивают',
-    categories: { food: 'Продукты', plant: 'Растения', medicine: 'Лекарства', household: 'Быт' },
+    categories: vocab.ru.safetyCategories,
     comingSoon: 'Справочник скоро появится',
     comingSoonBody: 'А пока можно спросить ИИ. Его ответ будет помечен.',
     loadFailed: 'Не удалось загрузить справочник',
@@ -1114,16 +1114,8 @@ export const ru = {
     },
     forSpecies: { cat: 'для кошек', dog: 'для собак' },
     otherSpecies: { cat: 'Для кошек', dog: 'Для собак' },
-    verdict: {
-      can: 'Можно',
-      nonToxic: 'Безопасно',
-      caution: 'С осторожностью',
-      lowRisk: 'Малый риск',
-      cannot: 'Нельзя',
-      dangerous: 'Опасно',
-      noData: 'Нет данных',
-    },
-    medicineLine: 'Лекарства для людей не давайте питомцу без назначения врача',
+    verdict: vocab.ru.safetyVerdict,
+    medicineLine: vocab.ru.safetyMedicineLine,
     allergy: (pet: string, allergy: string) => {
       const cases = nameCase(pet)
       return `У ${cases ? cases.genitive : pet} в анкете указана аллергия: ${allergy}`

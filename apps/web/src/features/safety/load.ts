@@ -5,6 +5,7 @@ import { join } from 'node:path'
 import type { SafetyIndexItem } from '@lapka/contracts'
 import { isVisible, typeset } from '@/features/seo-content/load'
 import type { Locale } from '@/shared/i18n/config'
+export { safetyPath } from '@/shared/content-paths'
 import { safetyEntrySchema, type SafetyEntry } from './schema'
 
 /**
@@ -65,6 +66,11 @@ export function publishedEntries(): SafetyEntry[] {
 
 export function entryBySlug(slug: string): SafetyEntry | undefined {
   return visibleEntries().find(entry => entry.slug === slug)
+}
+
+/** The visible entry that the /otravlenie page with this slug is about, for its back-link. */
+export function entryForToxin(toxinSlug: string): SafetyEntry | undefined {
+  return visibleEntries().find(entry => entry.toxinSlug === toxinSlug)
 }
 
 /** The light list the search runs on, in one language: for the API and the site hub. */

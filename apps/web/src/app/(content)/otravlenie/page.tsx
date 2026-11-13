@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { visibleEntries } from '@/features/safety/load'
 import ArticleFrame, { breadcrumbJsonLd, type Crumb } from '@/features/seo-content/components/ArticleFrame'
 import CheckCta from '@/features/seo-content/components/CheckCta'
 import Disclaimer from '@/features/seo-content/components/Disclaimer'
@@ -54,6 +55,10 @@ export default function Poisonings() {
         ))}
       </ul>
       <p><Link href="/simptomy" className="link">Все симптомы у кошек и собак</Link></p>
+      {/* Linked once the reference has something to show: production keeps drafts out. */}
+      {visibleEntries().length > 0 && (
+        <p><Link href="/mozhno-li" className="link">Можно ли кошке или собаке: продукты, растения, лекарства</Link></p>
+      )}
       <CheckCta />
       <Disclaimer compact />
     </ArticleFrame>
