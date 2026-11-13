@@ -42,6 +42,7 @@ const SERVICE_ONLY_TABLES = new Set([
   'pet_weight_requests',
   'photo_uploads',
   'reauth_proofs',
+  'safety_ai_answers',
   'vet_knowledge',
 ])
 
@@ -67,6 +68,7 @@ const REQUIRED_TABLES = [
   'photo_uploads',
   'profiles',
   'reauth_proofs',
+  'safety_ai_answers',
   'symptom_checks',
   'user_feedback',
   'vet_knowledge',

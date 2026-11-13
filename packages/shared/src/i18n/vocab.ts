@@ -1,4 +1,5 @@
-import type { Urgency } from '@lapka/contracts'
+import type { SafetyCategory, Urgency } from '@lapka/contracts'
+import type { SafetyVerdictLabelKey } from '../safety/labels'
 
 /**
  * The words of the domain both apps say the same way, kept once. Each app's
@@ -18,6 +19,11 @@ export type Vocabulary = {
   urgency: Record<Urgency, { label: string; action: string }>
   /** In the genitive where the language has one: «23 сентября». */
   months: string[]
+  /** The «Можно ли» captions, the same in the app and on the site; the key comes from `verdictLabelKey`. */
+  safetyVerdict: Record<SafetyVerdictLabelKey, string>
+  safetyCategories: Record<SafetyCategory, string>
+  /** The line under a medicine's verdict. */
+  safetyMedicineLine: string
 }
 
 const ru: Vocabulary = {
@@ -61,6 +67,17 @@ const ru: Vocabulary = {
     healthy: { label: 'ВСЁ В ПОРЯДКЕ', action: 'Ничего делать не нужно' },
   },
   months: ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'],
+  safetyVerdict: {
+    can: 'Можно',
+    nonToxic: 'Безопасно',
+    caution: 'С осторожностью',
+    lowRisk: 'Малый риск',
+    cannot: 'Нельзя',
+    dangerous: 'Опасно',
+    noData: 'Нет данных',
+  },
+  safetyCategories: { food: 'Продукты', plant: 'Растения', medicine: 'Лекарства', household: 'Быт' },
+  safetyMedicineLine: 'Лекарства для людей не давайте питомцу без назначения врача',
 }
 
 const en: Vocabulary = {
@@ -104,6 +121,17 @@ const en: Vocabulary = {
     healthy: { label: 'ALL GOOD', action: 'No action needed' },
   },
   months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+  safetyVerdict: {
+    can: 'Safe to eat',
+    nonToxic: 'Non-toxic',
+    caution: 'With caution',
+    lowRisk: 'Low risk',
+    cannot: 'Not safe',
+    dangerous: 'Dangerous',
+    noData: 'No data',
+  },
+  safetyCategories: { food: 'Food', plant: 'Plants', medicine: 'Medicines', household: 'Household' },
+  safetyMedicineLine: 'Do not give human medicines to a pet unless a vet prescribes them',
 }
 
 export const vocab = { ru, en } as const

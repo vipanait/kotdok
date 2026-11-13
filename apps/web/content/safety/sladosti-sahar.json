@@ -1,0 +1,119 @@
+{
+  "slug": "sladosti-sahar",
+  "category": "food",
+  "name": {
+    "ru": "Сладости и сахар",
+    "en": "Sweets and sugar"
+  },
+  "titleRu": "сладости и сахар",
+  "aliases": {
+    "ru": [
+      "сладости",
+      "сладкое",
+      "сахар",
+      "сахарный песок",
+      "печенье",
+      "пирожное",
+      "торт",
+      "вафли",
+      "варенье",
+      "мармелад"
+    ],
+    "en": [
+      "sweets",
+      "candy",
+      "sugar",
+      "sugary food",
+      "cookies",
+      "biscuits",
+      "cake",
+      "pastry",
+      "jam"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Сладкое кошке не нужно. Главная опасность — состав: ксилит, шоколад, изюм.",
+        "en": "With caution. A cat does not need sweets. The real danger is the ingredients: xylitol, chocolate, raisins."
+      },
+      "why": {
+        "ru": "Пользы от сладкого кошке нет. Главная опасность — состав: подсластитель ксилит, шоколад, изюм и орехи в выпечке. В выпечке ещё много жира, а жирное может вызвать рвоту и понос. Проверьте этикетку; про ксилит и шоколад есть отдельные статьи.",
+        "en": "Sweets do a cat no good. The real danger is the ingredients: the sweetener xylitol, and chocolate, raisins or nuts in baked goods. Baked goods are also fatty, and fatty food can cause vomiting and diarrhoea. Check the label; xylitol and chocolate have their own entries."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Сладкое давать не стоит. Ксилит и шоколад в составе опасны.",
+        "en": "With caution. Sweets are best avoided. Xylitol and chocolate in the ingredients are dangerous."
+      },
+      "why": {
+        "ru": "Пользы от сладкого собаке нет. Главная опасность — состав: ксилит (бывает в конфетах, жвачке, джемах, сиропах) резко снижает сахар в крови у собак, а шоколад, изюм и орехи в выпечке тоже опасны. В выпечке ещё много жира, а жирное может вызвать рвоту и понос. Про ксилит и шоколад есть отдельные статьи.",
+        "en": "Sweets do a dog no good. The real danger is the ingredients: xylitol (found in candy, gum, jams and syrups) sharply drops a dog's blood sugar, and chocolate, raisins and nuts in baked goods are dangerous too. Baked goods are also fatty, and fatty food can cause vomiting and diarrhoea. Xylitol and chocolate have their own entries."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Прочитайте состав: нет ли ксилита, шоколада, изюма",
+      "Если есть ксилит, шоколад или изюм — сразу позвоните в клинику",
+      "Если их нет — оставьте воду и наблюдайте за питомцем сутки"
+    ],
+    "en": [
+      "Read the label for xylitol, chocolate or raisins",
+      "If xylitol, chocolate or raisins are there, call a clinic at once",
+      "If not, leave water available and watch your pet for a day"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не давайте сладкое «в награду»",
+      "Не давайте лекарства без назначения врача"
+    ],
+    "en": [
+      "Do not give sweets as a reward",
+      "Do not give any medicine unless a vet tells you to"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    },
+    {
+      "title": "Pet Poison Helpline — Xylitol",
+      "url": "https://www.petpoisonhelpline.com/poison/xylitol/"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

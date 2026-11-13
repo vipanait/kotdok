@@ -1,0 +1,124 @@
+{
+  "slug": "aromadiffuzory",
+  "category": "household",
+  "name": {
+    "ru": "Ароматические диффузоры",
+    "en": "Aroma diffusers"
+  },
+  "titleRu": "ароматические диффузоры",
+  "aliases": {
+    "ru": [
+      "аромадиффузор",
+      "диффузор",
+      "аромалампа",
+      "ароматический диффузор",
+      "увлажнитель с эфирными маслами",
+      "аромадиффузора"
+    ],
+    "en": [
+      "diffuser",
+      "aroma diffuser",
+      "essential oil diffuser",
+      "oil diffuser",
+      "scent diffuser",
+      "reed diffuser"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно, если кошка слизала жидкость из диффузора или масло попало на шерсть: это то же эфирное масло. Работающий диффузор в недоступном месте — меньший риск.",
+        "en": "Dangerous if a cat licks the liquid from a diffuser or gets oil on its coat: it is the same essential oil. A running diffuser out of reach is a smaller risk."
+      },
+      "why": {
+        "ru": "Кошки — среди самых уязвимых к эфирным маслам животных. Проглоченное масло опаснее всего, вдыхание — наименее опасно, но сильный для питомца запах может раздражать дыхательные пути. Недолгая работа диффузора там, куда питомец не добирается, обычно не проблема; кошкам с болезнями дыхания лучше обходиться без него.",
+        "en": "Cats are among the animals most at risk from essential oils. Swallowed oil is the riskiest, inhaled the least, but a scent that is strong for a pet can irritate the airways. Running a diffuser briefly where the pet cannot reach it is usually not a problem; cats with breathing problems are better off without one."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "рвота",
+          "вялость, шаткая походка",
+          "кашель, затруднённое дыхание",
+          "раздражение кожи или рта"
+        ],
+        "en": [
+          "drooling",
+          "vomiting",
+          "lethargy, wobbly walking",
+          "coughing, laboured breathing",
+          "irritation of skin or mouth"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно, если собака вылакала жидкость из диффузора или погрызла флакон: это эфирное масло. Работающий диффузор в недоступном месте — меньший риск.",
+        "en": "Dangerous if a dog laps the liquid from a diffuser or chews the bottle: it is essential oil. A running diffuser out of reach is a smaller risk."
+      },
+      "why": {
+        "ru": "Проглоченное эфирное масло опаснее всего, вдыхание — наименее опасно. Недолгая работа диффузора там, куда собака не добирается, обычно не проблема, но собакам с болезнями дыхания лучше обходиться без него. Жидкость и флакон держите так, чтобы их нельзя было опрокинуть.",
+        "en": "Swallowed essential oil is the riskiest, inhaled the least. Running a diffuser briefly where the dog cannot reach it is usually not a problem, but dogs with breathing problems are better off without one. Keep the liquid and the bottle where they cannot be knocked over."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "рвота",
+          "вялость, шаткая походка",
+          "кашель, затруднённое дыхание"
+        ],
+        "en": [
+          "drooling",
+          "vomiting",
+          "lethargy, wobbly walking",
+          "coughing, laboured breathing"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Если питомец лакал жидкость или она попала на шерсть, сразу позвоните в ветеринарную клинику",
+      "Выключите диффузор, проветрите комнату и выведите питомца на свежий воздух",
+      "Сохраните флакон или сфотографируйте этикетку: важны название масла и его крепость"
+    ],
+    "en": [
+      "If your pet lapped the liquid or it got on the coat, call a vet clinic right away",
+      "Switch the diffuser off, air the room and take your pet into fresh air",
+      "Keep the bottle or photograph the label: the name and strength of the oil matter"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не оставляйте диффузор там, где питомец может его опрокинуть",
+      "Не включайте диффузор в закрытой комнате, где заперт питомец"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not leave a diffuser where your pet can knock it over",
+      "Do not run a diffuser in a closed room where your pet is shut in"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — Essential Oils",
+      "url": "https://www.petpoisonhelpline.com/uncategorized/essential-oils/"
+    },
+    {
+      "title": "ASPCA — Is the Latest Home Trend Harmful to Your Pets? What You Need to Know!",
+      "url": "https://www.aspca.org/news/latest-home-trend-harmful-your-pets-what-you-need-know"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

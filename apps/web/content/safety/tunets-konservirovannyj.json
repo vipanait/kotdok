@@ -1,0 +1,119 @@
+{
+  "slug": "tunets-konservirovannyj",
+  "category": "food",
+  "name": {
+    "ru": "Консервированный тунец",
+    "en": "Canned tuna"
+  },
+  "titleRu": "консервированного тунца",
+  "aliases": {
+    "ru": [
+      "тунец",
+      "тунца",
+      "тунцу",
+      "консервы тунец",
+      "тунец в масле",
+      "тунец в собственном соку",
+      "тунец из банки",
+      "рыба тунец"
+    ],
+    "en": [
+      "tuna",
+      "canned tuna",
+      "tuna in oil",
+      "tuna in brine",
+      "tuna in water"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Кусочек тунца из банки изредка — можно, но кормом он быть не должен.",
+        "en": "With caution. A piece of canned tuna now and then is fine, but it must not be a regular food."
+      },
+      "why": {
+        "ru": "У кошек, которых кормили большим количеством консервированного тунца, развивался недостаток витамина Е и болезнь жировой ткани (желтожировая болезнь). В тунце в рассоле много соли, а в маринаде бывают лук и специи. Если и предлагать, то тунец в собственном соку без соли, изредка.",
+        "en": "Cats fed large amounts of canned tuna have developed vitamin E deficiency and a disease of body fat (yellow fat disease). Tuna in brine is high in salt, and marinades can contain onion and spices. If you offer any, tuna in its own juice with no salt, now and then."
+      },
+      "signs": {
+        "ru": [
+          "сильная жажда и частое мочеиспускание",
+          "рвота, понос",
+          "вялость, отказ от еды, болезненный живот — при частом кормлении тунцом"
+        ],
+        "en": [
+          "heavy thirst and frequent urination",
+          "vomiting, diarrhoea",
+          "lethargy, refusing food, a tender belly — with frequent tuna feeding"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Немного тунца из банки изредка — можно, но без масла, соли и специй.",
+        "en": "With caution. A little canned tuna now and then is fine, but without oil, salt and spices."
+      },
+      "why": {
+        "ru": "Риск — в соли, жире и приправах. В тунце в рассоле много соли, в маринаде бывают лук и чеснок, а от жирной еды бывают рвота, понос и воспаление поджелудочной железы. Если и предлагать, то немного тунца в собственном соку без соли, изредка.",
+        "en": "The risk is salt, fat and seasoning. Tuna in brine is high in salt, marinades can contain onion and garlic, and fatty food can cause vomiting, diarrhoea and inflammation of the pancreas. If you offer any, a little tuna in its own juice with no salt, now and then."
+      },
+      "signs": {
+        "ru": [
+          "сильная жажда и частое мочеиспускание",
+          "рвота, понос",
+          "вялость, дрожь",
+          "судороги — при большом количестве соли"
+        ],
+        "en": [
+          "heavy thirst and frequent urination",
+          "vomiting, diarrhoea",
+          "lethargy, tremors",
+          "seizures — with a large amount of salt"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите остатки и убедитесь, что питомец больше не достаёт до них",
+      "Понаблюдайте за питомцем сутки; при рвоте, поносе, вялости или вздутом животе позвоните в клинику",
+      "Если съедено много или питомец маленький, позвоните в клинику сразу"
+    ],
+    "en": [
+      "Put away the leftovers so your pet cannot reach more",
+      "Watch your pet for a day; call a clinic if there is vomiting, diarrhoea, lethargy or a swollen belly",
+      "If a lot was eaten or your pet is small, call a clinic straight away"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не давайте тунец в масле, с луком, чесноком и специями",
+      "Не вызывайте рвоту сами — только по указанию врача"
+    ],
+    "en": [
+      "Do not give tuna in oil, or with onion, garlic or spices",
+      "Do not make your pet vomit unless a vet tells you to"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Merck Veterinary Manual — Nutritional Requirements of Small Animals",
+      "url": "https://www.merckvetmanual.com/management-and-nutrition/nutrition-small-animals/nutritional-requirements-of-small-animals"
+    },
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

@@ -1,0 +1,121 @@
+{
+  "slug": "ibuprofen",
+  "category": "medicine",
+  "name": {
+    "ru": "Ибупрофен",
+    "en": "Ibuprofen"
+  },
+  "titleRu": "ибупрофен",
+  "aliases": {
+    "ru": [
+      "нурофен",
+      "адвил"
+    ],
+    "en": [
+      "advil",
+      "motrin",
+      "nurofen"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Ибупрофен для кошки ядовит: кошки к нему чувствительнее собак.",
+        "en": "Dangerous. Ibuprofen is poisonous to cats, which are more sensitive to it than dogs."
+      },
+      "why": {
+        "ru": "Ибупрофен — обезболивающее для людей. У животных он может вызвать язвы желудка и кишечника и повредить почки, а кошкам вредит уже вдвое меньшее количество, чем собакам. Что делать, решает врач по тому, сколько и когда было съедено.",
+        "en": "Ibuprofen is a human painkiller. In animals it can cause stomach and gut ulcers and damage the kidneys, and cats are harmed by half the amount that harms dogs. The vet decides what to do from how much was taken and when."
+      },
+      "signs": {
+        "ru": [
+          "рвота, иногда с кровью",
+          "понос, иногда с кровью",
+          "отказ от еды, боль в животе",
+          "сначала много мочи, потом мало",
+          "вялость, шаткость, судороги"
+        ],
+        "en": [
+          "vomiting, sometimes with blood",
+          "diarrhoea, sometimes with blood",
+          "not eating, belly pain",
+          "more urine at first, then little",
+          "lethargy, wobbliness, seizures"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Ибупрофен для собак ядовит, даже если человеку он привычен.",
+        "en": "Dangerous. Ibuprofen is poisonous to dogs, however familiar it is to people."
+      },
+      "why": {
+        "ru": "У собак ибупрофен может вызвать язвы желудка и кишечника, а при большем количестве — повредить почки и нервную систему. Насколько опасно в вашем случае, зависит от количества и веса собаки; это оценит врач.",
+        "en": "In dogs ibuprofen can cause stomach and gut ulcers and, in larger amounts, damage the kidneys and the nervous system. How dangerous it is in your case depends on the amount and the dog’s weight; the vet will judge."
+      },
+      "signs": {
+        "ru": [
+          "рвота, иногда с кровью",
+          "понос, иногда с кровью",
+          "отказ от еды, боль в животе",
+          "сначала много мочи, потом мало",
+          "вялость, шаткость, судороги"
+        ],
+        "en": [
+          "vomiting, sometimes with blood",
+          "diarrhoea, sometimes with blood",
+          "not eating, belly pain",
+          "more urine at first, then little",
+          "lethargy, wobbliness, seizures"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно, и скажите, какое лекарство он получил",
+      "Возьмите упаковку или блистер: врачу важны название, состав и сколько таблеток не хватает",
+      "Запишите, когда и сколько могло быть съедено",
+      "Уберите все лекарства туда, куда питомец не доберётся"
+    ],
+    "en": [
+      "Call a vet clinic right away, even if your pet seems fine, and say which medicine it got",
+      "Take the box or blister pack: the vet needs the name, the ingredients and how many tablets are missing",
+      "Note when and how much may have been taken",
+      "Put all medicines out of your pet’s reach"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не давайте другие лекарства для людей «в помощь»: они тоже опасны",
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не скрывайте от врача, что дали лекарство сами: от этого зависит помощь"
+    ],
+    "en": [
+      "Do not give other human medicines “to help”: they are dangerous too",
+      "Do not make your pet vomit unless a vet tells you to",
+      "Tell the vet if you gave the medicine yourself: the right help depends on it"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — Ibuprofen",
+      "url": "https://www.petpoisonhelpline.com/poison/ibuprofen/"
+    },
+    {
+      "title": "Merck Veterinary Manual — Poisoning from Human Over-the-Counter Drugs",
+      "url": "https://www.merckvetmanual.com/special-pet-topics/poisoning/poisoning-from-human-over-the-counter-drugs"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

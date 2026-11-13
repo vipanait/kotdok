@@ -1,0 +1,130 @@
+{
+  "slug": "kolbasa-sosiski",
+  "category": "food",
+  "name": {
+    "ru": "Колбаса и сосиски",
+    "en": "Sausage and hot dogs"
+  },
+  "titleRu": "колбасу и сосиски",
+  "aliases": {
+    "ru": [
+      "колбаса",
+      "колбасу",
+      "колбасы",
+      "сосиска",
+      "сосиски",
+      "сосиску",
+      "сардельки",
+      "сардельку",
+      "ветчина",
+      "ветчину",
+      "сервелат",
+      "копчёности",
+      "бекон",
+      "салями",
+      "мясные деликатесы"
+    ],
+    "en": [
+      "sausage",
+      "sausages",
+      "hot dog",
+      "hot dogs",
+      "salami",
+      "ham",
+      "bacon",
+      "deli meat",
+      "luncheon meat"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Колбаса и сосиски — солёные и жирные, кошкам они не подходят; случайный кусочек обычно не страшен.",
+        "en": "With caution. Sausage and hot dogs are salty and fatty and not suitable for cats; one stray piece is usually not serious."
+      },
+      "why": {
+        "ru": "В колбасе и сосисках много соли и жира, а в составе бывают лук и чеснок, опасные для кошек. От избытка соли бывают жажда и частое мочеиспускание, а при большом количестве — рвота, понос, угнетённость, дрожь и судороги. От жирной еды бывают рвота, понос и воспаление поджелудочной железы.",
+        "en": "Sausage and hot dogs are high in salt and fat and can contain onion and garlic, which are dangerous for cats. Too much salt causes thirst and frequent urination, and a large amount can cause vomiting, diarrhoea, low mood, tremors and seizures. Fatty food can cause vomiting, diarrhoea and inflammation of the pancreas."
+      },
+      "signs": {
+        "ru": [
+          "сильная жажда и частое мочеиспускание",
+          "рвота, понос",
+          "вялость, дрожь",
+          "судороги — при большом количестве соли"
+        ],
+        "en": [
+          "heavy thirst and frequent urination",
+          "vomiting, diarrhoea",
+          "lethargy, tremors",
+          "seizures — with a large amount of salt"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Колбаса и сосиски — солёные и жирные; случайный кусочек обычно не страшен, но кормом они не станут.",
+        "en": "With caution. Sausage and hot dogs are salty and fatty; one stray piece is usually not serious, but they are no substitute for food."
+      },
+      "why": {
+        "ru": "В колбасе и сосисках много соли и жира, а в составе бывают лук и чеснок, опасные для собак. От избытка соли бывают жажда и частое мочеиспускание, а при большом количестве — рвота, понос, угнетённость, дрожь и судороги. От жирной еды бывают рвота, понос и воспаление поджелудочной железы.",
+        "en": "Sausage and hot dogs are high in salt and fat and can contain onion and garlic, which are dangerous for dogs. Too much salt causes thirst and frequent urination, and a large amount can cause vomiting, diarrhoea, low mood, tremors and seizures. Fatty food can cause vomiting, diarrhoea and inflammation of the pancreas."
+      },
+      "signs": {
+        "ru": [
+          "сильная жажда и частое мочеиспускание",
+          "рвота, понос",
+          "вялость, дрожь",
+          "судороги — при большом количестве соли"
+        ],
+        "en": [
+          "heavy thirst and frequent urination",
+          "vomiting, diarrhoea",
+          "lethargy, tremors",
+          "seizures — with a large amount of salt"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите остатки колбасы и упаковку",
+      "Проследите, чтобы у питомца была свежая вода, и понаблюдайте за ним сутки",
+      "Если съедено много, есть рвота, сильная жажда или вялость, позвоните в клинику"
+    ],
+    "en": [
+      "Put away the leftover sausage and packaging",
+      "Leave fresh water available and watch your pet for a day",
+      "If a lot was eaten, or there is vomiting, heavy thirst or lethargy, call a clinic"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не давайте колбасу с луком, чесноком и специями",
+      "Не ждите, если появились дрожь или судороги: это срочно",
+      "Не вызывайте рвоту сами — только по указанию врача"
+    ],
+    "en": [
+      "Do not give sausage with onion, garlic or spices",
+      "Do not wait if tremors or seizures appear: that is urgent",
+      "Do not make your pet vomit unless a vet tells you to"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

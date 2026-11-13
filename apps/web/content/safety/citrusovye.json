@@ -1,0 +1,125 @@
+{
+  "slug": "citrusovye",
+  "category": "food",
+  "name": {
+    "ru": "Цитрусовые",
+    "en": "Citrus fruits"
+  },
+  "titleRu": "цитрусовые",
+  "aliases": {
+    "ru": [
+      "апельсин",
+      "апельсины",
+      "мандарин",
+      "мандарины",
+      "лимон",
+      "лимоны",
+      "грейпфрут",
+      "лайм",
+      "помело",
+      "клементин",
+      "мандаринку",
+      "цитрус"
+    ],
+    "en": [
+      "orange",
+      "oranges",
+      "tangerine",
+      "mandarin",
+      "lemon",
+      "lime",
+      "grapefruit",
+      "clementine",
+      "citrus"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Мякоть съедобна, но кожура, листья и семена вредны; кошке цитрусы не нужны.",
+        "en": "With caution. The flesh is edible, but peel, leaves and seeds are harmful; a cat does not need citrus."
+      },
+      "why": {
+        "ru": "В стеблях, листьях, кожуре, мякоти и семенах цитрусовых есть лимонная кислота и эфирные масла. От небольшого кусочка мякоти обычно бывает разве что лёгкое расстройство желудка, а от кожуры и частей растения в заметном количестве — рвота, понос и угнетённость. На коже от них бывает раздражение.",
+        "en": "Citrus stems, leaves, peel, flesh and seeds contain citric acid and essential oils. A small bite of flesh usually causes no more than a mild stomach upset, while a significant amount of peel or plant can cause vomiting, diarrhoea and low mood. On the skin they can cause irritation."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "вялость, угнетённость"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "lethargy, low mood"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Немного мякоти без кожуры и косточек — изредка; кожура и листья вредны.",
+        "en": "With caution. A little flesh without peel or seeds, now and then; peel and leaves are harmful."
+      },
+      "why": {
+        "ru": "В стеблях, листьях, кожуре, мякоти и семенах цитрусовых есть лимонная кислота и эфирные масла. От небольшого кусочка мякоти обычно бывает разве что лёгкое расстройство желудка, а от кожуры и частей растения в заметном количестве — рвота, понос и угнетённость. На коже от них бывает раздражение.",
+        "en": "Citrus stems, leaves, peel, flesh and seeds contain citric acid and essential oils. A small piece of flesh usually causes no more than a mild stomach upset, while a significant amount of peel or plant can cause vomiting, diarrhoea and low mood. On the skin they can cause irritation."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "вялость, угнетённость"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "lethargy, low mood"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите остатки и убедитесь, что питомец больше не достаёт до них",
+      "Понаблюдайте за питомцем сутки; при рвоте, поносе, вялости или вздутом животе позвоните в клинику",
+      "Если съедено много или питомец маленький, позвоните в клинику сразу"
+    ],
+    "en": [
+      "Put away the leftovers so your pet cannot reach more",
+      "Watch your pet for a day; call a clinic if there is vomiting, diarrhoea, lethargy or a swollen belly",
+      "If a lot was eaten or your pet is small, call a clinic straight away"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не давайте кожуру, цедру, листья и цитрусовые масла",
+      "Не вызывайте рвоту сами — только по указанию врача"
+    ],
+    "en": [
+      "Do not give peel, zest, leaves or citrus oils",
+      "Do not make your pet vomit unless a vet tells you to"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Orange",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/orange"
+    },
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "slug": "grechka",
+  "category": "food",
+  "name": {
+    "ru": "Гречка",
+    "en": "Buckwheat"
+  },
+  "titleRu": "гречку",
+  "aliases": {
+    "ru": [
+      "гречневая каша",
+      "гречку варёную",
+      "гречку вареную",
+      "каша гречневая",
+      "гречневую кашу",
+      "гречка варёная",
+      "гречка вареная",
+      "гречневая крупа"
+    ],
+    "en": [
+      "buckwheat groats",
+      "cooked buckwheat",
+      "buckwheat porridge",
+      "kasha"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Немного варёной гречки без соли и масла — изредка.",
+        "en": "With caution. A little boiled buckwheat with no salt or butter, now and then."
+      },
+      "why": {
+        "ru": "Растение гречихи ASPCA относит к ядовитым для кошек и собак: оно повышает чувствительность кожи к солнцу. О варёной крупе прямых данных в ветеринарных справочниках нет. Кошке нужна мясная еда; если угощать, то немного хорошо проваренной крупы, без соли, масла, лука и чеснока, изредка.",
+        "en": "The ASPCA lists the buckwheat plant as toxic to cats and dogs: it makes the skin sensitive to sunlight. Veterinary references have no direct data on cooked buckwheat groats. A cat needs a meat diet; if you share any, only a little well-cooked buckwheat with no salt, butter, onion or garlic, rarely."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Немного варёной гречки без соли и масла — изредка.",
+        "en": "With caution. A little boiled buckwheat with no salt or butter, now and then."
+      },
+      "why": {
+        "ru": "Растение гречихи ASPCA относит к ядовитым для кошек и собак: оно повышает чувствительность кожи к солнцу. О варёной крупе прямых данных в ветеринарных справочниках нет. Если угощать, то немного хорошо проваренной крупы, без соли, масла, лука и чеснока, изредка и не вместо корма.",
+        "en": "The ASPCA lists the buckwheat plant as toxic to cats and dogs: it makes the skin sensitive to sunlight. Veterinary references have no direct data on cooked buckwheat groats. If you share any, only a little well-cooked buckwheat with no salt, butter, onion or garlic, rarely and not instead of dog food."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Оставьте доступ к чистой воде",
+      "Наблюдайте за питомцем сутки",
+      "Если появились рвота, понос или вялость — проверьте симптомы или позвоните в клинику"
+    ],
+    "en": [
+      "Leave fresh water available",
+      "Watch your pet for a day",
+      "If vomiting, diarrhoea or lethargy appear, check the symptoms or call a clinic"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не давайте кашу или гарнир с солью, маслом, луком или чесноком",
+      "Не давайте лекарства без назначения врача"
+    ],
+    "en": [
+      "Do not give porridge or side dishes with salt, butter, onion or garlic",
+      "Do not give any medicine unless a vet tells you to"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Toxic and Non-Toxic Plants — Buckwheat",
+      "url": "https://www.aspca.org/pet-care/animal-poison-control/toxic-and-non-toxic-plants/buckwheat"
+    },
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

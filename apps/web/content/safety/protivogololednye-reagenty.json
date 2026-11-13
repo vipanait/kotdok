@@ -1,0 +1,139 @@
+{
+  "slug": "protivogololednye-reagenty",
+  "category": "household",
+  "name": {
+    "ru": "Противогололёдные реагенты",
+    "en": "De-icing salts and ice melts"
+  },
+  "titleRu": "противогололёдные реагенты",
+  "aliases": {
+    "ru": [
+      "противогололёдный реагент",
+      "противогололёдная соль",
+      "соль на дороге",
+      "техническая соль",
+      "реагент на улице",
+      "антигололёд",
+      "хлорид кальция",
+      "хлористый кальций",
+      "дорожная соль"
+    ],
+    "en": [
+      "ice melt",
+      "de-icer",
+      "deicer",
+      "road salt",
+      "rock salt",
+      "de-icing salt",
+      "calcium chloride",
+      "salt on sidewalk"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Чаще всего реагент слизывают с лап, и это даёт расстройство желудка, но много соли из реагента может вызвать дрожь и судороги.",
+        "en": "Dangerous. Most often de-icer is licked off the paws and causes a stomach upset, but a lot of salt from it can cause tremors and seizures."
+      },
+      "why": {
+        "ru": "Реагенты — это соли: хлориды натрия, калия, кальция и магния, иногда мочевина. Безвредных среди них нет. Они раздражают кожу лап, рот и желудок; хлорид кальция раздражает сильнее всего и может вызвать язвы во рту. Если съесть много, в крови повышается натрий, и это опасно для нервной системы. Отдельных данных о кошках мало, поэтому оценка строгая.",
+        "en": "De-icers are salts: sodium, potassium, calcium and magnesium chlorides, sometimes urea. None of them is harmless. They irritate the paw skin, mouth and stomach; calcium chloride is the harshest and can cause mouth sores. Eating a lot raises sodium in the blood, which is dangerous for the nervous system. There is little cat-specific data, so the rating is strict."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "рвота, понос",
+          "покраснение, сухость или трещины на подушечках лап",
+          "язвочки во рту",
+          "сильная жажда",
+          "шаткая походка, дрожь",
+          "судороги"
+        ],
+        "en": [
+          "drooling",
+          "vomiting, diarrhoea",
+          "red, dry or cracked paw pads",
+          "mouth sores",
+          "strong thirst",
+          "wobbly walking, tremors",
+          "seizures"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Слизанный с лап реагент обычно расстраивает желудок, а гранулы из мешка или много солёного снега могут вызвать судороги.",
+        "en": "Dangerous. De-icer licked off the paws usually upsets the stomach, while granules from the bag or a lot of salty slush can cause seizures."
+      },
+      "why": {
+        "ru": "Реагенты — это соли: хлориды натрия, калия, кальция и магния, иногда мочевина. Безвредных среди них нет, в том числе среди «безопасных для животных». Они раздражают кожу лап, рот и желудок; хлорид кальция раздражает сильнее всего и может вызвать язвы во рту. Если съесть много, в крови повышается натрий, и это опасно для нервной системы.",
+        "en": "De-icers are salts: sodium, potassium, calcium and magnesium chlorides, sometimes urea. None of them is harmless, including the “pet-safe” ones. They irritate the paw skin, mouth and stomach; calcium chloride is the harshest and can cause mouth sores. Eating a lot raises sodium in the blood, which is dangerous for the nervous system."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "рвота, понос",
+          "покраснение, сухость или трещины на подушечках лап",
+          "язвочки во рту",
+          "сильная жажда",
+          "шаткая походка, дрожь",
+          "судороги"
+        ],
+        "en": [
+          "drooling",
+          "vomiting, diarrhoea",
+          "red, dry or cracked paw pads",
+          "mouth sores",
+          "strong thirst",
+          "wobbly walking, tremors",
+          "seizures"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Позвоните в ветеринарную клинику, если питомец ел реагент или снег с ним, особенно из мешка",
+      "Сразу после прогулки протрите лапы и шерсть влажной тканью и не давайте питомцу их вылизывать",
+      "Сохраните упаковку или запомните название реагента"
+    ],
+    "en": [
+      "Call a vet clinic if your pet ate de-icer or slush with it, especially from the bag",
+      "Right after the walk, wipe the paws and fur with a damp cloth and keep your pet from licking them",
+      "Keep the packaging or note the name of the de-icer"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не позволяйте питомцу есть снег и слякоть на обработанных дорожках",
+      "Не оставляйте мешок с реагентом там, где питомец его достанет"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not let your pet eat snow or slush on treated paths",
+      "Do not leave a bag of de-icer where your pet can reach it"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA — Keeping Pets Safe during Winter: The Dangers of Ice Melts",
+      "url": "https://www.aspca.org/news/keeping-pets-safe-during-winter-dangers-ice-melts"
+    },
+    {
+      "title": "Pet Poison Helpline — Is there really a “safe” ice melt?",
+      "url": "https://www.petpoisonhelpline.com/uncategorized/really-safe-ice-melt/"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

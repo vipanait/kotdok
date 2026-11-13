@@ -1,0 +1,125 @@
+{
+  "slug": "zamiokulkas",
+  "category": "plant",
+  "name": {
+    "ru": "Замиокулькас",
+    "en": "ZZ plant"
+  },
+  "titleRu": "замиокулькас",
+  "aliases": {
+    "ru": [
+      "замиокулькаса",
+      "долларовое дерево",
+      "zz растение",
+      "замиокулькас замиелистный"
+    ],
+    "en": [
+      "zz plant",
+      "zamioculcas",
+      "zamioculcas zamiifolia",
+      "zanzibar gem",
+      "eternity plant"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Замиокулькас ядовит для кошек и собак: раздражает рот и желудок.",
+        "en": "With caution. ZZ plant is poisonous to cats and dogs: it irritates the mouth and stomach."
+      },
+      "why": {
+        "ru": "ASPCA относит замиокулькас к растениям с нерастворимыми кристаллами оксалата кальция. При жевании они раздражают рот: бывают слюнотечение, позывы на рвоту, рвота, понос и отказ от еды, питомец трясёт головой и трёт мордочку лапой. Редко, после большого количества, бывает сильная боль в животе или отёк горла, из-за которого трудно дышать. По Merck, обычно всё проходит без последствий. Если питомцу трудно дышать или ему стало хуже, позвоните в клинику.",
+        "en": "The ASPCA puts ZZ plant among plants with insoluble calcium oxalate crystals. Chewing them irritates the mouth: drooling, retching, vomiting, diarrhoea and loss of appetite are possible, and a pet may shake its head and paw at its mouth. Rarely, after a large amount, there can be strong belly pain or throat swelling that makes breathing hard. According to Merck, most pets recover fully. If your pet has trouble breathing or is getting worse, call a clinic."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "питомец трёт мордочку лапой",
+          "рвота",
+          "понос",
+          "отказ от еды"
+        ],
+        "en": [
+          "drooling",
+          "pawing at the mouth",
+          "vomiting",
+          "diarrhoea",
+          "not eating"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Замиокулькас ядовит для кошек и собак: раздражает рот и желудок.",
+        "en": "With caution. ZZ plant is poisonous to cats and dogs: it irritates the mouth and stomach."
+      },
+      "why": {
+        "ru": "ASPCA относит замиокулькас к растениям с нерастворимыми кристаллами оксалата кальция. При жевании они раздражают рот: бывают слюнотечение, позывы на рвоту, рвота, понос и отказ от еды, питомец трясёт головой и трёт мордочку лапой. Редко, после большого количества, бывает сильная боль в животе или отёк горла, из-за которого трудно дышать. По Merck, обычно всё проходит без последствий. Если питомцу трудно дышать или ему стало хуже, позвоните в клинику.",
+        "en": "The ASPCA puts ZZ plant among plants with insoluble calcium oxalate crystals. Chewing them irritates the mouth: drooling, retching, vomiting, diarrhoea and loss of appetite are possible, and a pet may shake its head and paw at its mouth. Rarely, after a large amount, there can be strong belly pain or throat swelling that makes breathing hard. According to Merck, most pets recover fully. If your pet has trouble breathing or is getting worse, call a clinic."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "питомец трёт мордочку лапой",
+          "рвота",
+          "понос",
+          "отказ от еды"
+        ],
+        "en": [
+          "drooling",
+          "pawing at the mouth",
+          "vomiting",
+          "diarrhoea",
+          "not eating"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите растение туда, куда питомец не доберётся",
+      "Уберите остатки растения из пасти и протрите мордочку влажной тканью",
+      "Понаблюдайте за питомцем несколько часов",
+      "Если появились признаки или вы не уверены в растении, позвоните в клинику"
+    ],
+    "en": [
+      "Move the plant out of the pet's reach",
+      "Remove any plant pieces from the mouth and wipe the face with a damp cloth",
+      "Watch the pet for several hours",
+      "If signs appear or you are not sure about the plant, call a clinic"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте молоко, масло, уголь и другие «антидоты» из интернета",
+      "Не ждите, пока станет хуже, если питомец вялый или его рвёт"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give milk, oil, charcoal or other home “antidotes” from the internet",
+      "Do not wait for things to get worse if the pet is lethargic or vomiting"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA — These Houseplants Can Cause Trouble for Your Pets",
+      "url": "https://www.aspca.org/news/these-houseplants-can-cause-trouble-your-pets"
+    },
+    {
+      "title": "MSD Veterinary Manual — Houseplants and Ornamentals Toxic to Animals",
+      "url": "https://www.merckvetmanual.com/toxicology/poisonous-plants/houseplants-and-ornamentals-toxic-to-animals"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

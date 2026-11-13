@@ -1,0 +1,132 @@
+{
+  "slug": "zhelezo-multivitaminy",
+  "category": "medicine",
+  "name": {
+    "ru": "Препараты железа и мультивитамины",
+    "en": "Iron supplements and multivitamins"
+  },
+  "titleRu": "препараты железа и мультивитамины",
+  "aliases": {
+    "ru": [
+      "препараты железа",
+      "железо в таблетках",
+      "добавки железа",
+      "мультивитамины",
+      "витамины для людей",
+      "витаминный комплекс",
+      "сорбифер",
+      "мальтофер",
+      "ферретаб"
+    ],
+    "en": [
+      "iron supplement",
+      "iron pills",
+      "iron tablets",
+      "multivitamin",
+      "multivitamins",
+      "ferrous sulfate",
+      "prenatal vitamins"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Железо и мультивитамины для людей опасны для кошек.",
+        "en": "Dangerous. Human iron supplements and multivitamins are dangerous to cats."
+      },
+      "why": {
+        "ru": "Много железа раздражает желудок и кишечник, а затем может повредить печень. В мультивитаминах опасны прежде всего железо и витамины A и D; остальное чаще вызывает лишь расстройство желудка, но по упаковке это не оценить. Что делать, решает врач.",
+        "en": "Too much iron irritates the stomach and gut and can then damage the liver. In multivitamins the main risks are iron and vitamins A and D; the rest usually causes only a stomach upset, but you cannot judge that from the box. The vet decides what to do."
+      },
+      "signs": {
+        "ru": [
+          "рвота, иногда с кровью",
+          "понос, иногда с кровью",
+          "вялость",
+          "отказ от еды",
+          "повышенная температура"
+        ],
+        "en": [
+          "vomiting, sometimes with blood",
+          "diarrhoea, sometimes with blood",
+          "lethargy",
+          "not eating",
+          "raised body temperature"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Железо и мультивитамины для людей опасны для собак.",
+        "en": "Dangerous. Human iron supplements and multivitamins are dangerous to dogs."
+      },
+      "why": {
+        "ru": "Избыток железа раздражает желудок и кишечник; первые признаки обычно появляются в течение нескольких часов, а поражение печени возможно позже, через 12–24 часа. Насколько это опасно, оценит врач.",
+        "en": "Excess iron irritates the stomach and gut; the first signs usually appear within a few hours, and liver damage can follow later, after 12–24 hours. The vet will judge how dangerous it is."
+      },
+      "signs": {
+        "ru": [
+          "рвота, иногда с кровью",
+          "понос, иногда с кровью",
+          "вялость",
+          "отказ от еды",
+          "повышенная температура"
+        ],
+        "en": [
+          "vomiting, sometimes with blood",
+          "diarrhoea, sometimes with blood",
+          "lethargy",
+          "not eating",
+          "raised body temperature"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Уберите остатки препарата и назовите врачу его название",
+      "Сохраните упаковку или сфотографируйте её: врачу важны состав и форма препарата",
+      "Прикиньте, сколько могло быть съедено и когда"
+    ],
+    "en": [
+      "Call a vet clinic right away, even if your pet seems fine",
+      "Put the rest of the product away and tell the vet its name",
+      "Keep the packaging or take a photo of it: the vet needs the ingredients and the form",
+      "Work out roughly how much was eaten and when"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте молоко, масло, уголь и другие «антидоты» из интернета",
+      "Не ждите признаков: они могут появиться через несколько часов или дней"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give milk, oil, charcoal or other home “antidotes” from the internet",
+      "Do not wait for signs: they can appear hours or days later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "MSD Veterinary Manual — Poisoning from Human Over-the-Counter Drugs",
+      "url": "https://www.merckvetmanual.com/special-pet-topics/poisoning/poisoning-from-human-over-the-counter-drugs"
+    },
+    {
+      "title": "Pet Poison Helpline — Iron",
+      "url": "https://petpoisonhelpline.com/poison/iron/"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

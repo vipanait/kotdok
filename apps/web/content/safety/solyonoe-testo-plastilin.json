@@ -1,0 +1,129 @@
+{
+  "slug": "solyonoe-testo-plastilin",
+  "category": "household",
+  "name": {
+    "ru": "Солёное тесто и домашний пластилин",
+    "en": "Salt dough and homemade play dough"
+  },
+  "titleRu": "солёное тесто для лепки",
+  "aliases": {
+    "ru": [
+      "солёное тесто",
+      "соленое тесто",
+      "тесто для лепки",
+      "самодельное тесто для лепки",
+      "домашний пластилин",
+      "самодельный пластилин",
+      "поделки из солёного теста",
+      "игрушки из солёного теста"
+    ],
+    "en": [
+      "salt dough",
+      "play dough",
+      "playdough",
+      "homemade play dough",
+      "homemade playdough",
+      "salt dough ornament",
+      "salt dough ornaments"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. В солёном тесте и домашнем пластилине очень много соли — это может вызвать тяжёлое отравление солью.",
+        "en": "Dangerous. Salt dough and homemade play dough contain a lot of salt, which can cause severe salt poisoning."
+      },
+      "why": {
+        "ru": "Домашний пластилин делают из муки, красителя, масла и большого количества соли. Избыток соли в тяжёлых случаях вызывает дрожь, судороги, кому и может закончиться смертью. Магазинное тесто для лепки и обычный пластилин имеют другой состав — если питомец их съел, покажите врачу упаковку.",
+        "en": "Homemade play dough is made of flour, food colouring, oil and a lot of salt. In severe cases too much salt causes tremors, seizures, coma and can be fatal. Shop-bought modelling dough and plasticine have a different make-up — if your pet ate them, show the vet the packaging."
+      },
+      "signs": {
+        "ru": [
+          "рвота, понос",
+          "потеря аппетита",
+          "вялость",
+          "шаткая походка",
+          "сильная жажда, частое мочеиспускание",
+          "дрожь, судороги"
+        ],
+        "en": [
+          "vomiting, diarrhoea",
+          "loss of appetite",
+          "lethargy",
+          "wobbly walking",
+          "strong thirst, frequent urination",
+          "tremors, seizures"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Собаки съедают поделки и ёлочные игрушки из солёного теста, а в нём очень много соли.",
+        "en": "Dangerous. Dogs eat crafts and ornaments made of salt dough, which contains a lot of salt."
+      },
+      "why": {
+        "ru": "Домашний пластилин и солёное тесто делают из муки, красителя, масла и большого количества соли. Были случаи гибели питомцев после ёлочных игрушек из солёного теста. Избыток соли в тяжёлых случаях вызывает дрожь, судороги и кому.",
+        "en": "Homemade play dough and salt dough are made of flour, food colouring, oil and a lot of salt. Salt dough ornaments have killed pets. In severe cases too much salt causes tremors, seizures and coma."
+      },
+      "signs": {
+        "ru": [
+          "рвота, понос",
+          "потеря аппетита",
+          "вялость",
+          "шаткая походка",
+          "сильная жажда, частое мочеиспускание",
+          "дрожь, судороги"
+        ],
+        "en": [
+          "vomiting, diarrhoea",
+          "loss of appetite",
+          "lethargy",
+          "wobbly walking",
+          "strong thirst, frequent urination",
+          "tremors, seizures"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Запомните, что и когда мог съесть питомец",
+      "Уберите оставшиеся поделки и тесто подальше"
+    ],
+    "en": [
+      "Call a vet clinic right away, even if your pet seems fine",
+      "Note roughly what your pet may have eaten and when",
+      "Put away the remaining crafts and dough"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не поите питомца насильно и не давайте солёную воду",
+      "Не ждите признаков: они могут появиться позже"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not force-feed water to your pet or give salty water",
+      "Do not wait for signs: they can appear later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — Play Dough (Homemade)",
+      "url": "https://www.petpoisonhelpline.com/poison/homemade-play-dough/"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

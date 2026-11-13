@@ -1,0 +1,32 @@
+/**
+ * The first words of a symptom check opened from a «Можно ли?» card:
+ * «Съел(а): виноград. » — the person goes on typing after it.
+ */
+
+import type { Locale } from '@lapka/contracts'
+
+/** Lower case at the start of a sentence fragment, unless the first word is an abbreviation (NSAID). */
+function inSentence(name: string): string {
+  const first = name.split(' ')[0]
+  if (first.length > 1 && first === first.toUpperCase()) return name
+  return name.charAt(0).toLocaleLowerCase() + name.slice(1)
+}
+
+export function checkPrefill(itemName: string, locale: Locale): string {
+  const name = itemName.trim()
+  if (!name) return ''
+  const what = inSentence(name)
+  return locale === 'ru' ? `Съел(а): ${what}. ` : `Ate: ${what}. `
+}
+
+/** The titles the server falls back on when the model's own cannot be shown (ask-language.ts, SAFETY_NO_DATA). */
+const NO_DATA_TITLES = new Set(['нет данных', 'no data'])
+
+/**
+ * What an AI answer hands to the symptom check: its title, unless the title
+ * is the «No data» fallback — «Съел(а): нет данных» says nothing, so what the
+ * person typed goes instead.
+ */
+export function aiPrefillName(title: string, query: string): string {
+  return NO_DATA_TITLES.has(title.trim().toLocaleLowerCase()) ? query : title
+}

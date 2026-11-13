@@ -1,0 +1,121 @@
+{
+  "slug": "griby-magazinnye",
+  "category": "food",
+  "name": {
+    "ru": "Грибы из магазина",
+    "en": "Store-bought mushrooms"
+  },
+  "titleRu": "грибы из магазина",
+  "aliases": {
+    "ru": [
+      "магазинные грибы",
+      "шампиньоны",
+      "шампиньон",
+      "шампиньоны жареные",
+      "вёшенки",
+      "вешенка",
+      "шиитаке"
+    ],
+    "en": [
+      "grocery mushrooms",
+      "champignon",
+      "champignons",
+      "button mushrooms",
+      "button mushroom",
+      "shiitake",
+      "portobello",
+      "cremini"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Магазинные грибы обычно не вредят, если они простые, без лука, чеснока и соли. Гриб с улицы может быть ядовитым.",
+        "en": "With caution. Shop mushrooms usually do no harm if plain, with no onion, garlic or salt. A mushroom found outdoors may be poisonous."
+      },
+      "why": {
+        "ru": "ASPCA считает грибы, которые продают в магазинах для людей, в целом безопасными для питомцев: вреда от них не ждут. Риск в том, как их готовят: с луком и чесноком они раздражают желудок и повреждают эритроциты, и кошки к этому особенно чувствительны; солёные и маринованные грибы опасны солью. Если вы не уверены, что гриб из магазина, а не собран на улице или в лесу, считайте его ядовитым: отличить ядовитый гриб от безвредного трудно даже специалисту. Это не замена корму.",
+        "en": "The ASPCA considers mushrooms sold in grocery stores for people generally safe for pets: no harm is expected from them. The risk is in how they are cooked: with onion and garlic they irritate the stomach and damage red blood cells, and cats are especially sensitive to this; salted and pickled mushrooms are risky because of the salt. If you are not sure the mushroom came from a shop rather than a lawn or a forest, treat it as poisonous: telling a poisonous mushroom from a harmless one is hard even for experts. It is no substitute for food."
+      },
+      "signs": {
+        "ru": [
+          "рвота или понос",
+          "шаткая походка, дрожь, судороги — если гриб мог быть не из магазина"
+        ],
+        "en": [
+          "vomiting or diarrhoea",
+          "unsteady walking, tremors, seizures — if the mushroom may not have come from a shop"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Магазинные грибы обычно не вредят, если они простые, без лука, чеснока и соли. Гриб с улицы может быть ядовитым.",
+        "en": "With caution. Shop mushrooms usually do no harm if plain, with no onion, garlic or salt. A mushroom found outdoors may be poisonous."
+      },
+      "why": {
+        "ru": "ASPCA считает грибы, которые продают в магазинах для людей, в целом безопасными для питомцев: вреда от них не ждут. Риск в том, как их готовят: с луком и чесноком они раздражают желудок и повреждают эритроциты; солёные и маринованные грибы опасны солью. Собаки на прогулке подбирают грибы с земли — такой гриб считайте ядовитым: отличить ядовитый гриб от безвредного трудно даже специалисту. Это не замена корму.",
+        "en": "The ASPCA considers mushrooms sold in grocery stores for people generally safe for pets: no harm is expected from them. The risk is in how they are cooked: with onion and garlic they irritate the stomach and damage red blood cells; salted and pickled mushrooms are risky because of the salt. Dogs pick up mushrooms from the ground on walks — treat such a mushroom as poisonous: telling a poisonous mushroom from a harmless one is hard even for experts. It is no substitute for food."
+      },
+      "signs": {
+        "ru": [
+          "рвота или понос",
+          "шаткая походка, дрожь, судороги — если гриб мог быть не из магазина"
+        ],
+        "en": [
+          "vomiting or diarrhoea",
+          "unsteady walking, tremors, seizures — if the mushroom may not have come from a shop"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Если гриб мог быть собран на улице или в лесу, сразу позвоните в клинику, не дожидаясь признаков",
+      "Уберите остатки блюда от питомца",
+      "Вспомните, были ли в блюде лук, чеснок или соль и сколько примерно съедено, и при признаках расскажите это врачу"
+    ],
+    "en": [
+      "If the mushroom may have been picked outdoors, call a clinic right away, do not wait for signs",
+      "Put the rest of the dish out of your pet's reach",
+      "Recall whether the dish had onion, garlic or salt and roughly how much was eaten, and tell the vet if signs appear"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не считайте гриб безопасным, если не знаете точно, что он из магазина",
+      "Не оставляйте питомцу блюда с грибами, луком и чесноком"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not assume a mushroom is harmless unless you know it came from a shop",
+      "Do not leave dishes with mushrooms, onion and garlic within your pet's reach"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA — The Fungus Among Us: Mushroom Toxicosis",
+      "url": "https://www.aspca.org/news/fungus-among-us-mushroom-toxicosis"
+    },
+    {
+      "title": "ASPCA — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    },
+    {
+      "title": "Pet Poison Helpline — Mushrooms",
+      "url": "https://www.petpoisonhelpline.com/poison/mushrooms/"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

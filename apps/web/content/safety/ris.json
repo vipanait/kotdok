@@ -1,0 +1,79 @@
+{
+  "slug": "ris",
+  "category": "food",
+  "name": {
+    "ru": "Рис",
+    "en": "Rice"
+  },
+  "titleRu": "рис",
+  "aliases": {
+    "ru": [
+      "рис варёный",
+      "рис вареный",
+      "варёный рис",
+      "вареный рис",
+      "белый рис"
+    ],
+    "en": [
+      "cooked rice",
+      "white rice",
+      "boiled rice",
+      "plain rice"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "safe",
+      "summary": {
+        "ru": "Можно. Немного простого варёного риса без соли и масла.",
+        "en": "Safe. A little plain boiled rice with no salt or butter."
+      },
+      "why": {
+        "ru": "Варёная курица или нежирный фарш с белым рисом — щадящая еда, которой ветеринары советуют кормить и кошек, и собак при лёгком расстройстве желудка. Условия: хорошо проваренный рис без соли, масла, специй, лука и чеснока, изредка и не вместо корма: кошке нужна мясная еда, а лакомства должны быть изредка.",
+        "en": "Boiled chicken or lean mince with white rice is a bland meal that vets suggest for both cats and dogs with a mild stomach upset. Conditions: well-cooked rice with no salt, butter, spices, onion or garlic, now and then and not instead of cat food: a cat needs a meat diet, and treats should be occasional."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "none"
+    },
+    "dog": {
+      "verdict": "safe",
+      "summary": {
+        "ru": "Можно. Немного простого варёного риса без соли и масла.",
+        "en": "Safe. A little plain boiled rice with no salt or butter."
+      },
+      "why": {
+        "ru": "Простой варёный рис с варёной курицей — классическая щадящая еда для собаки при расстройстве желудка. Условия: хорошо проваренный, без соли, масла, специй, лука и чеснока, и не вместо корма. Если щадящая еда нужна собаке часто, стоит выяснить причину с врачом.",
+        "en": "Plain boiled rice with boiled chicken is a classic bland meal for a dog with an upset stomach. Conditions: well cooked, with no salt, butter, spices, onion or garlic, and not instead of dog food. If your dog often needs a bland diet, find out the cause with a vet."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "none"
+    }
+  },
+  "sources": [
+    {
+      "title": "Cornell Riney Canine Health Center — Re-evaluating your dog's diet",
+      "url": "https://www.vet.cornell.edu/departments-centers-and-institutes/riney-canine-health-center/canine-health-topics/re-evaluating-your-dogs-diet"
+    },
+    {
+      "title": "Cornell Riney Canine Health Center — Diarrhea",
+      "url": "https://www.vet.cornell.edu/departments-centers-and-institutes/riney-canine-health-center/canine-health-topics/diarrhea"
+    },
+    {
+      "title": "Cornell Feline Health Center — Feeding Your Cat",
+      "url": "https://www.vet.cornell.edu/departments-centers-and-institutes/cornell-feline-health-center/health-information/feline-health-topics/feeding-your-cat"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

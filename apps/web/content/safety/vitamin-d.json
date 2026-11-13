@@ -1,0 +1,127 @@
+{
+  "slug": "vitamin-d",
+  "category": "medicine",
+  "name": {
+    "ru": "Витамин D",
+    "en": "Vitamin D"
+  },
+  "titleRu": "витамин D",
+  "aliases": {
+    "ru": [
+      "витамин д",
+      "витамин д3",
+      "холекальциферол",
+      "колекальциферол",
+      "вигантол",
+      "аквадетрим",
+      "д3"
+    ],
+    "en": [
+      "vitamin d3",
+      "cholecalciferol",
+      "vitamin d supplement",
+      "calcitriol"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Витамин D в добавках для людей ядовит для кошек.",
+        "en": "Dangerous. Vitamin D in human supplements is poisonous to cats."
+      },
+      "why": {
+        "ru": "Витамин D повышает уровень кальция и фосфора в крови, и через сутки-двое могут отказать почки. Опасность не видна сразу: признаки обычно появляются через 12–36 часов. Что делать, решает врач.",
+        "en": "Vitamin D raises blood calcium and phosphorus, and the kidneys can fail a day or two later. The danger is not visible at once: signs usually appear 12–36 hours later. The vet decides what to do."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "отказ от еды, вялость",
+          "сильная жажда и частое мочеиспускание",
+          "слабость",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "not eating, lethargy",
+          "strong thirst and frequent urination",
+          "weakness",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Витамин D в добавках для людей ядовит для собак.",
+        "en": "Dangerous. Vitamin D in human supplements is poisonous to dogs."
+      },
+      "why": {
+        "ru": "Витамин D повышает уровень кальция в крови и может повредить почки. Признаки иногда появляются только через сутки-двое, поэтому звонить нужно сразу. Насколько это опасно, оценит врач.",
+        "en": "Vitamin D raises blood calcium and can damage the kidneys. Signs sometimes show only after a day or two, so call at once. The vet will judge how dangerous it is."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "отказ от еды, вялость",
+          "сильная жажда и частое мочеиспускание",
+          "слабость",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "not eating, lethargy",
+          "strong thirst and frequent urination",
+          "weakness",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Уберите остатки препарата и назовите врачу его название",
+      "Сохраните упаковку или сфотографируйте её: врачу важны состав и форма препарата",
+      "Прикиньте, сколько могло быть съедено и когда"
+    ],
+    "en": [
+      "Call a vet clinic right away, even if your pet seems fine",
+      "Put the rest of the product away and tell the vet its name",
+      "Keep the packaging or take a photo of it: the vet needs the ingredients and the form",
+      "Work out roughly how much was eaten and when"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте молоко, масло, уголь и другие «антидоты» из интернета",
+      "Не ждите признаков: они могут появиться через несколько часов или дней"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give milk, oil, charcoal or other home “antidotes” from the internet",
+      "Do not wait for signs: they can appear hours or days later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "MSD Veterinary Manual — Poisoning from Human Over-the-Counter Drugs",
+      "url": "https://www.merckvetmanual.com/special-pet-topics/poisoning/poisoning-from-human-over-the-counter-drugs"
+    },
+    {
+      "title": "Pet Poison Helpline — Vitamin D Toxicity in Dogs",
+      "url": "https://www.petpoisonhelpline.com/?p=14066"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

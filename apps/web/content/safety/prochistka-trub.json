@@ -1,0 +1,138 @@
+{
+  "slug": "prochistka-trub",
+  "category": "household",
+  "name": {
+    "ru": "Средство для прочистки труб",
+    "en": "Drain cleaner"
+  },
+  "titleRu": "средство для прочистки труб",
+  "aliases": {
+    "ru": [
+      "прочистка труб",
+      "чистящее для труб",
+      "средство от засора",
+      "крот для труб",
+      "едкий натр",
+      "каустическая сода",
+      "щёлочь",
+      "гель для прочистки труб"
+    ],
+    "en": [
+      "drain cleaner",
+      "drain opener",
+      "lye",
+      "caustic soda",
+      "sodium hydroxide",
+      "clog remover"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Средство для прочистки труб — едкое вещество, чаще всего щёлочь, опасное для кошек.",
+        "en": "Dangerous. Drain cleaner is a corrosive product, most often an alkali, dangerous to cats."
+      },
+      "why": {
+        "ru": "Такие средства вызывают химические ожоги рта, пищевода и желудка. Щёлочь не жжёт сразу, поэтому питомец может не показать боли, а пищевод бывает повреждён, даже когда во рту ожогов не видно. Опасен и контакт с кожей и глазами. Что делать, решает врач.",
+        "en": "These products cause chemical burns of the mouth, throat and stomach. An alkali does not sting at once, so your pet may show no pain, and the gullet can be damaged even when the mouth looks unburnt. Contact with skin and eyes is dangerous too. The vet decides what to do."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "рвота, иногда с кровью",
+          "трудно глотать",
+          "боль в животе",
+          "затруднённое дыхание",
+          "покраснение и боль кожи, поражение глаз"
+        ],
+        "en": [
+          "drooling",
+          "vomiting, sometimes with blood",
+          "trouble swallowing",
+          "belly pain",
+          "laboured breathing",
+          "red, painful skin, eye injury"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Средство для прочистки труб — едкое вещество, чаще всего щёлочь, опасное для собак.",
+        "en": "Dangerous. Drain cleaner is a corrosive product, most often an alkali, dangerous to dogs."
+      },
+      "why": {
+        "ru": "Такие средства вызывают химические ожоги рта, пищевода и желудка. Щёлочь не жжёт сразу, поэтому питомец может не показать боли, а пищевод бывает повреждён, даже когда во рту ожогов не видно. Опасен и контакт с кожей и глазами. Что делать, решает врач.",
+        "en": "These products cause chemical burns of the mouth, throat and stomach. An alkali does not sting at once, so your pet may show no pain, and the gullet can be damaged even when the mouth looks unburnt. Contact with skin and eyes is dangerous too. The vet decides what to do."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "рвота, иногда с кровью",
+          "трудно глотать",
+          "боль в животе",
+          "затруднённое дыхание",
+          "покраснение и боль кожи, поражение глаз"
+        ],
+        "en": [
+          "drooling",
+          "vomiting, sometimes with blood",
+          "trouble swallowing",
+          "belly pain",
+          "laboured breathing",
+          "red, painful skin, eye injury"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Уберите питомца от вещества и закройте к нему доступ; если средство попало на шерсть, кожу или в глаза, промойте водой и скажите об этом врачу",
+      "Сохраните упаковку или сфотографируйте её: врачу важен состав средства",
+      "Прикиньте, сколько могло быть съедено и когда"
+    ],
+    "en": [
+      "Call a vet clinic right away, even if your pet seems fine",
+      "Take your pet away from the substance and block access; if it got on the coat, skin or in the eyes, rinse with water and tell the vet",
+      "Keep the packaging or take a photo of it: the vet needs the ingredients",
+      "Work out roughly how much was eaten and when"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте молоко, масло, уголь и другие «антидоты» из интернета",
+      "Не ждите признаков: они могут появиться не сразу"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give milk, oil, charcoal or other home “antidotes” from the internet",
+      "Do not wait for signs: they may not appear at once"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — Alkalis",
+      "url": "https://www.petpoisonhelpline.com/poison/alkalis/"
+    },
+    {
+      "title": "MSD Veterinary Manual — Toxicoses From Corrosive Agents in Animals",
+      "url": "https://www.merckvetmanual.com/toxicology/household-hazards/corrosives"
+    },
+    {
+      "title": "MSD Veterinary Manual — Household Hazards",
+      "url": "https://www.merckvetmanual.com/special-pet-topics/poisoning/household-hazards"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

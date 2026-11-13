@@ -1,0 +1,147 @@
+{
+  "slug": "alkogol",
+  "category": "food",
+  "name": {
+    "ru": "Алкоголь",
+    "en": "Alcohol"
+  },
+  "titleRu": "алкоголь",
+  "aliases": {
+    "ru": [
+      "спиртное",
+      "алкогольные напитки",
+      "вино",
+      "пиво",
+      "водка",
+      "коньяк",
+      "виски",
+      "спирт",
+      "этанол",
+      "ликёр",
+      "коктейль с алкоголем"
+    ],
+    "en": [
+      "alcoholic drinks",
+      "booze",
+      "wine",
+      "beer",
+      "vodka",
+      "whiskey",
+      "whisky",
+      "ethanol",
+      "liquor",
+      "spirits"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. Алкоголь вызывает отравление у кошек.",
+        "en": "Not safe. Alcohol poisons cats."
+      },
+      "why": {
+        "ru": "Алкоголь быстро всасывается и угнетает нервную систему и дыхание. Он есть не только в напитках: в конфетах с ликёром, сыром дрожжевом тесте, некоторых жидких лекарствах и спиртовых средствах для рук.",
+        "en": "Alcohol is absorbed quickly and depresses the nervous system and breathing. It is not only in drinks: it is also in liqueur sweets, raw yeast dough, some liquid medicines and alcohol-based hand gels."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "вялость, сонливость",
+          "шаткая походка",
+          "замедленное дыхание",
+          "дрожь",
+          "потеря сознания"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "lethargy, drowsiness",
+          "unsteady walk",
+          "slow breathing",
+          "tremors",
+          "collapse"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. Алкоголь вызывает отравление у собак.",
+        "en": "Not safe. Alcohol poisons dogs."
+      },
+      "why": {
+        "ru": "Алкоголь быстро всасывается, угнетает нервную систему и дыхание и может сильно снизить сахар в крови и температуру тела. Он есть в напитках, конфетах с ликёром, сыром дрожжевом тесте, некоторых жидких лекарствах и спиртовых средствах для рук.",
+        "en": "Alcohol is absorbed quickly, depresses the nervous system and breathing, and can sharply lower blood sugar and body temperature. It is found in drinks, liqueur sweets, raw yeast dough, some liquid medicines and alcohol-based hand gels."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "шаткая походка",
+          "сонливость, вялость",
+          "замедленное дыхание",
+          "дрожь",
+          "судороги",
+          "потеря сознания"
+        ],
+        "en": [
+          "vomiting",
+          "unsteady walk",
+          "drowsiness, lethargy",
+          "slow breathing",
+          "tremors",
+          "seizures",
+          "collapse"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Уберите остатки",
+      "Сохраните упаковку или запомните, что и когда было съедено"
+    ],
+    "en": [
+      "Call a vet clinic, even if your pet seems fine",
+      "Put the rest away",
+      "Keep the packaging or note what was eaten and when"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте домашние «антидоты» из интернета",
+      "Не ждите признаков: они могут появиться не сразу"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give home “antidotes” from the internet",
+      "Do not wait for signs: they may appear later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    },
+    {
+      "title": "Pet Poison Helpline — Alcohol",
+      "url": "https://www.petpoisonhelpline.com/poison/alcohol/"
+    },
+    {
+      "title": "Merck Veterinary Manual — Toxicoses From Alcohols in Animals",
+      "url": "https://www.merckvetmanual.com/toxicology/household-hazards/alcohols"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

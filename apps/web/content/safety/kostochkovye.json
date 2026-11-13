@@ -1,0 +1,139 @@
+{
+  "slug": "kostochkovye",
+  "category": "food",
+  "name": {
+    "ru": "Персик, абрикос и слива",
+    "en": "Peach, apricot and plum"
+  },
+  "titleRu": "персики, абрикосы и сливы",
+  "aliases": {
+    "ru": [
+      "персик",
+      "персики",
+      "абрикос",
+      "абрикосы",
+      "слива",
+      "сливы",
+      "нектарин",
+      "нектарины",
+      "косточка абрикоса",
+      "косточка персика",
+      "чернослив"
+    ],
+    "en": [
+      "peach",
+      "peaches",
+      "apricot",
+      "apricots",
+      "plum",
+      "plums",
+      "nectarine",
+      "apricot pit",
+      "peach pit",
+      "prune"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Мякоть без косточки не ядовита, но косточка, листья и веточки опасны; если проглочена косточка — звоните в клинику сразу.",
+        "en": "With caution. The flesh without the pit is not poisonous, but the pit, leaves and twigs are dangerous; if a pit was swallowed, call a clinic at once."
+      },
+      "why": {
+        "ru": "В косточках, листьях и стеблях персика, абрикоса и сливы есть вещества, из которых выделяется цианид. Из целой проглоченной косточки он обычно не высвобождается — опасна раскушенная, — но у кошки косточка может застрять в кишечнике. Мякоть кошке не нужна; если и предлагать, то кусочек без косточки.",
+        "en": "The pits, leaves and stems of peach, apricot and plum hold substances that release cyanide. A pit swallowed whole usually does not release it — a chewed one does — but in a cat a pit can lodge in the gut. A cat does not need the flesh; if you offer any, a small piece without the pit."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение, рвота",
+          "расширенные зрачки, затруднённое или частое дыхание",
+          "кирпично-красные дёсны",
+          "слабость, обморок, судороги",
+          "рвота, отказ от еды, запор — если косточка застряла"
+        ],
+        "en": [
+          "drooling, vomiting",
+          "dilated pupils, laboured or fast breathing",
+          "brick-red gums",
+          "weakness, collapse, seizures",
+          "vomiting, refusing food, constipation — if a pit is stuck"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Мякоть без косточки не ядовита, но косточка, листья и веточки опасны; если проглочена косточка — звоните в клинику сразу.",
+        "en": "With caution. The flesh without the pit is not poisonous, but the pit, leaves and twigs are dangerous; if a pit was swallowed, call a clinic at once."
+      },
+      "why": {
+        "ru": "В косточках, листьях и стеблях персика, абрикоса и сливы есть вещества, из которых выделяется цианид. Из целой проглоченной косточки он обычно не высвобождается — опасна раскушенная, — но у небольшой собаки косточка может застрять в кишечнике. Если и предлагать мякоть, то немного и без косточки.",
+        "en": "The pits, leaves and stems of peach, apricot and plum hold substances that release cyanide. A pit swallowed whole usually does not release it — a chewed one does — but in a small dog a pit can lodge in the gut. If you offer the flesh, a little and without the pit."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение, рвота",
+          "расширенные зрачки, затруднённое или частое дыхание",
+          "кирпично-красные дёсны",
+          "слабость, обморок, судороги",
+          "рвота, отказ от еды, запор — если косточка застряла"
+        ],
+        "en": [
+          "drooling, vomiting",
+          "dilated pupils, laboured or fast breathing",
+          "brick-red gums",
+          "weakness, collapse, seizures",
+          "vomiting, refusing food, constipation — if a pit is stuck"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Если питомец проглотил или раскусил косточку либо грыз листья и веточки, сразу позвоните в клинику, даже если он ведёт себя как обычно",
+      "Уберите остатки плодов и косточки",
+      "Прикиньте, сколько могло быть съедено и когда, и расскажите врачу"
+    ],
+    "en": [
+      "If your pet swallowed or chewed a pit, or chewed leaves or twigs, call a clinic right away, even if it seems fine",
+      "Put away the leftover fruit and pits",
+      "Work out roughly how much was eaten and when, and tell the vet"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не ждите признаков, если проглочена косточка: если ждать, помощь может опоздать",
+      "Не давайте косточки и не оставляйте плоды в досягаемости",
+      "Не вызывайте рвоту сами — только по указанию врача"
+    ],
+    "en": [
+      "Do not wait for signs if a pit was swallowed: waiting can make help come too late",
+      "Do not give pits or leave fruit within reach",
+      "Do not make your pet vomit unless a vet tells you to"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — Peach Pits",
+      "url": "https://www.petpoisonhelpline.com/poison/peach-pits/"
+    },
+    {
+      "title": "ASPCA Animal Poison Control — Peach",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/peach"
+    },
+    {
+      "title": "ASPCA Animal Poison Control — Plum",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/plum"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

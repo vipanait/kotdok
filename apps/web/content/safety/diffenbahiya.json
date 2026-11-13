@@ -1,0 +1,120 @@
+{
+  "slug": "diffenbahiya",
+  "category": "plant",
+  "name": {
+    "ru": "Диффенбахия",
+    "en": "Dieffenbachia"
+  },
+  "titleRu": "диффенбахию",
+  "aliases": {
+    "ru": [
+      "диффенбахии",
+      "диффенбахия пятнистая",
+      "дифенбахия",
+      "дифенбахию",
+      "немая трость"
+    ],
+    "en": [
+      "dumb cane",
+      "dumbcane",
+      "leopard lily"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Диффенбахия ядовита для кошек, но обычно даёт лишь раздражение рта.",
+        "en": "With caution. Dieffenbachia is poisonous to cats, but it usually only irritates the mouth."
+      },
+      "why": {
+        "ru": "В растении есть нерастворимые кристаллы оксалата кальция. При жевании они сразу жгут рот, язык и губы, поэтому много питомец обычно не съедает. Может отекать горло. Если питомец трёт морду, не может проглотить, дышит с трудом или рвота повторяется, звоните в клинику.",
+        "en": "The plant holds insoluble calcium oxalate crystals. When chewed they burn the mouth, tongue and lips at once, so pets usually do not eat much. The throat can swell. If your pet paws at its face, cannot swallow, breathes with difficulty or keeps vomiting, call a clinic."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "жжение и раздражение во рту",
+          "рвота",
+          "трудно глотать"
+        ],
+        "en": [
+          "drooling",
+          "burning and irritation in the mouth",
+          "vomiting",
+          "difficulty swallowing"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Диффенбахия ядовита для собак, но обычно даёт лишь раздражение рта.",
+        "en": "With caution. Dieffenbachia is poisonous to dogs, but it usually only irritates the mouth."
+      },
+      "why": {
+        "ru": "В растении есть нерастворимые кристаллы оксалата кальция. При жевании они сразу жгут рот, язык и губы, поэтому много питомец обычно не съедает. Может отекать горло. Если питомец трёт морду, не может проглотить, дышит с трудом или рвота повторяется, звоните в клинику.",
+        "en": "The plant holds insoluble calcium oxalate crystals. When chewed they burn the mouth, tongue and lips at once, so pets usually do not eat much. The throat can swell. If your pet paws at its face, cannot swallow, breathes with difficulty or keeps vomiting, call a clinic."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "жжение и раздражение во рту",
+          "рвота",
+          "трудно глотать"
+        ],
+        "en": [
+          "drooling",
+          "burning and irritation in the mouth",
+          "vomiting",
+          "difficulty swallowing"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите растение и выньте остатки из пасти питомца",
+      "Оставьте питомцу миску со свежей водой",
+      "Понаблюдайте за ним несколько часов",
+      "Если появились признаки или их стало больше, позвоните в клинику"
+    ],
+    "en": [
+      "Take the plant away and remove any bits from your pet’s mouth",
+      "Make sure fresh water is available",
+      "Watch your pet for the next few hours",
+      "If signs appear or get worse, call a clinic"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте домашние «противоядия» из интернета",
+      "Не оставляйте растение в доступе после случая"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give home “antidotes” from the internet",
+      "Do not leave the plant within reach afterwards"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Dieffenbachia",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/dieffenbachia"
+    },
+    {
+      "title": "MSD Veterinary Manual — Houseplants and Ornamentals Toxic to Animals",
+      "url": "https://www.merckvetmanual.com/toxicology/poisonous-plants/houseplants-and-ornamentals-toxic-to-animals"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

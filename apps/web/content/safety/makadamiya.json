@@ -1,0 +1,127 @@
+{
+  "slug": "makadamiya",
+  "category": "food",
+  "name": {
+    "ru": "Орехи макадамия",
+    "en": "Macadamia nuts"
+  },
+  "titleRu": "орехи макадамия",
+  "aliases": {
+    "ru": [
+      "макадамия",
+      "макадамию",
+      "макадамии",
+      "макадамский орех",
+      "печенье с макадамией"
+    ],
+    "en": [
+      "macadamia",
+      "macadamias",
+      "macadamia nut",
+      "macadamia cookies"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. Отравление макадамией описано у собак; данных о кошках нет, поэтому лучше не рисковать.",
+        "en": "Not safe. Macadamia poisoning is described in dogs; there are no data on cats, so do not take the risk."
+      },
+      "why": {
+        "ru": "Отравление макадамией описано только у собак, и почему оно возникает, неизвестно. Данных о кошках нет, поэтому оценка строже. Признаки ниже — те, что описаны у собак. В печенье и сладостях с макадамией бывает шоколад, а он тоже опасен.",
+        "en": "Macadamia poisoning has been described only in dogs, and its cause is unknown. There are no data on cats, so we take the stricter view. The signs below are those described in dogs. Cookies and sweets with macadamia may contain chocolate, which is also dangerous."
+      },
+      "signs": {
+        "ru": [
+          "слабость, шаткая походка",
+          "дрожь",
+          "рвота",
+          "повышенная температура"
+        ],
+        "en": [
+          "weakness, unsteady walk",
+          "tremors",
+          "vomiting",
+          "raised temperature"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. Макадамия ядовита для собак.",
+        "en": "Not safe. Macadamia nuts are poisonous to dogs."
+      },
+      "why": {
+        "ru": "Почему орехи вызывают отравление, неизвестно. Признаки обычно появляются в первые 12 часов и проходят за один–три дня. Орехи очень жирные, и у некоторых собак бывает воспаление поджелудочной железы. В печенье и сладостях с макадамией бывает шоколад, а он тоже опасен.",
+        "en": "Why the nuts cause poisoning is unknown. Signs usually start within 12 hours and pass in one to three days. The nuts are very fatty, and some dogs develop an inflamed pancreas. Cookies and sweets with macadamia may contain chocolate, which is also dangerous."
+      },
+      "signs": {
+        "ru": [
+          "слабость, особенно задних лап",
+          "шаткая походка",
+          "дрожь",
+          "рвота",
+          "повышенная температура",
+          "сильная вялость"
+        ],
+        "en": [
+          "weakness, especially in the back legs",
+          "unsteady walk",
+          "tremors",
+          "vomiting",
+          "raised temperature",
+          "marked lethargy"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Уберите остатки орехов",
+      "Сохраните упаковку или запомните, сколько примерно было съедено и когда"
+    ],
+    "en": [
+      "Call a vet clinic, even if your pet seems fine",
+      "Put the rest of the nuts away",
+      "Keep the packaging or note roughly how much was eaten and when"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте домашние «антидоты» из интернета",
+      "Не ждите признаков: они могут появиться не сразу"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give home “antidotes” from the internet",
+      "Do not wait for signs: they may appear later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    },
+    {
+      "title": "Merck Veterinary Manual — Food Hazards",
+      "url": "https://www.merckvetmanual.com/special-pet-topics/poisoning/food-hazards"
+    },
+    {
+      "title": "Pet Poison Helpline — Macadamia Nuts",
+      "url": "https://www.petpoisonhelpline.com/poison/macadamia-nuts/"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

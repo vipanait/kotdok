@@ -1,0 +1,137 @@
+{
+  "slug": "snotvornye-uspokoitelnye",
+  "category": "medicine",
+  "name": {
+    "ru": "Снотворные и успокоительные",
+    "en": "Sleeping pills and sedatives"
+  },
+  "titleRu": "снотворные и успокоительные",
+  "aliases": {
+    "ru": [
+      "снотворное",
+      "транквилизатор",
+      "транквилизаторы",
+      "зопиклон",
+      "золпидем",
+      "феназепам",
+      "диазепам",
+      "алпразолам",
+      "ксанакс",
+      "валиум",
+      "имован"
+    ],
+    "en": [
+      "sleeping pills",
+      "sleep aid",
+      "tranquilizer",
+      "benzodiazepine",
+      "zolpidem",
+      "ambien",
+      "xanax",
+      "alprazolam",
+      "diazepam",
+      "valium"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Снотворные и успокоительные для людей опасны для кошек.",
+        "en": "Dangerous. Human sleeping pills and sedatives are dangerous to cats."
+      },
+      "why": {
+        "ru": "Часть этих препаратов угнетает нервную систему и дыхание, а у некоторых животных вызывает, наоборот, сильное возбуждение. Кошки к некоторым из них чувствительнее собак. Что делать, решает врач.",
+        "en": "Some of these drugs depress the nervous system and breathing, while in some animals they do the opposite and cause strong agitation. Cats are more sensitive than dogs to some of them. The vet decides what to do."
+      },
+      "signs": {
+        "ru": [
+          "сильная сонливость, шаткость",
+          "необычное возбуждение",
+          "замедленное дыхание",
+          "рвота",
+          "слюнотечение"
+        ],
+        "en": [
+          "heavy drowsiness, wobbliness",
+          "unusual agitation",
+          "slow breathing",
+          "vomiting",
+          "drooling"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Снотворные и успокоительные для людей опасны для собак.",
+        "en": "Dangerous. Human sleeping pills and sedatives are dangerous to dogs."
+      },
+      "why": {
+        "ru": "Они могут сильно угнетать нервную систему и дыхание или, наоборот, вызывать возбуждение. Реакция зависит от препарата и непредсказуема; насколько это опасно, оценит врач.",
+        "en": "They can strongly depress the nervous system and breathing or, the other way round, cause agitation. The reaction depends on the drug and is unpredictable; the vet will judge how dangerous it is."
+      },
+      "signs": {
+        "ru": [
+          "сильная сонливость, шаткая походка",
+          "необычное возбуждение",
+          "замедленное дыхание",
+          "рвота",
+          "дрожь"
+        ],
+        "en": [
+          "heavy drowsiness, unsteady walk",
+          "unusual agitation",
+          "slow breathing",
+          "vomiting",
+          "tremors"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Уберите остатки препарата и назовите врачу его название",
+      "Сохраните упаковку или сфотографируйте её: врачу важны состав и форма препарата",
+      "Прикиньте, сколько могло быть съедено и когда"
+    ],
+    "en": [
+      "Call a vet clinic right away, even if your pet seems fine",
+      "Put the rest of the product away and tell the vet its name",
+      "Keep the packaging or take a photo of it: the vet needs the ingredients and the form",
+      "Work out roughly how much was eaten and when"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте молоко, масло, уголь и другие «антидоты» из интернета",
+      "Не ждите признаков: они могут появиться через несколько часов или дней"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give milk, oil, charcoal or other home “antidotes” from the internet",
+      "Do not wait for signs: they can appear hours or days later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — Sleep Aids",
+      "url": "https://petpoisonhelpline.com/poison/sleep-aids/"
+    },
+    {
+      "title": "MSD Veterinary Manual — Toxicoses in Animals From Human Antidepressants, Anxiolytics, and Sleep Aids",
+      "url": "https://www.merckvetmanual.com/toxicology/toxicities-from-human-drugs/tranquilizers,-antidepressants,-sleep-aids,-and-anticonvulsants-toxicity"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

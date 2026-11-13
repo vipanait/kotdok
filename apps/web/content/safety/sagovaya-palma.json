@@ -1,0 +1,132 @@
+{
+  "slug": "sagovaya-palma",
+  "category": "plant",
+  "name": {
+    "ru": "Саговая пальма (саговник)",
+    "en": "Sago palm (cycad)"
+  },
+  "titleRu": "саговую пальму",
+  "aliases": {
+    "ru": [
+      "саговая пальма",
+      "саговник",
+      "саговника",
+      "цикас",
+      "цикас революта",
+      "цикас поникающий"
+    ],
+    "en": [
+      "sago palm",
+      "sago",
+      "cycas revoluta",
+      "cycad",
+      "king sago",
+      "japanese sago palm"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Саговая пальма ядовита для кошек, особенно семена.",
+        "en": "Dangerous. Sago palm is poisonous to cats, especially the seeds."
+      },
+      "why": {
+        "ru": "Все части растения содержат циказин, больше всего его в семенах. Он повреждает печень, и отравление бывает смертельным. Печёночная недостаточность может развиться через двое-трое суток, даже если сначала питомец выглядит неплохо, поэтому звонить нужно сразу.",
+        "en": "Every part of the plant contains cycasin, with the most in the seeds. It damages the liver, and poisoning can be fatal. Liver failure can develop two or three days later even if your pet looks fine at first, so call at once."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "чёрный дегтеобразный стул",
+          "сильная жажда",
+          "желтизна дёсен или кожи",
+          "синяки или кровотечения"
+        ],
+        "en": [
+          "vomiting",
+          "black tarry stools",
+          "strong thirst",
+          "yellow gums or skin",
+          "bruising or bleeding"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Саговая пальма ядовита для собак, особенно семена.",
+        "en": "Dangerous. Sago palm is poisonous to dogs, especially the seeds."
+      },
+      "why": {
+        "ru": "Все части растения содержат циказин, больше всего его в семенах. Собаки особенно чувствительны к этому яду. Он повреждает печень, и отравление бывает смертельным. Печёночная недостаточность может развиться через двое-трое суток, даже если сначала питомец выглядит неплохо, поэтому звонить нужно сразу.",
+        "en": "Every part of the plant contains cycasin, with the most in the seeds. Dogs are especially sensitive to this poison. It damages the liver, and poisoning can be fatal. Liver failure can develop two or three days later even if your pet looks fine at first, so call at once."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "чёрный дегтеобразный стул",
+          "сильная жажда",
+          "желтизна дёсен или кожи",
+          "синяки или кровотечения"
+        ],
+        "en": [
+          "vomiting",
+          "black tarry stools",
+          "strong thirst",
+          "yellow gums or skin",
+          "bruising or bleeding"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Позвоните в ветеринарную клинику сразу, не дожидаясь признаков",
+      "Уберите растение туда, куда питомец не доберётся",
+      "Возьмите кусочек растения или сфотографируйте его, чтобы показать врачу",
+      "Скажите врачу, сколько примерно времени прошло"
+    ],
+    "en": [
+      "Call a vet clinic right away, without waiting for signs",
+      "Move the plant out of reach",
+      "Take a piece of the plant or a photo of it to show the vet",
+      "Tell the vet roughly how long ago it happened"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте домашние «противоядия» из интернета",
+      "Не откладывайте звонок до утра, даже если питомец выглядит бодрым"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give home “antidotes” from the internet",
+      "Do not put off the call till morning even if your pet looks fine"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Sago Palm",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/sago-palm"
+    },
+    {
+      "title": "Pet Poison Helpline — Sago Palm",
+      "url": "https://www.petpoisonhelpline.com/poison/sago-palm/"
+    },
+    {
+      "title": "MSD Veterinary Manual — Houseplants and Ornamentals Toxic to Animals",
+      "url": "https://www.merckvetmanual.com/toxicology/poisonous-plants/houseplants-and-ornamentals-toxic-to-animals"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

@@ -1,0 +1,126 @@
+{
+  "slug": "amarillis",
+  "category": "plant",
+  "name": {
+    "ru": "Амариллис (гиппеаструм)",
+    "en": "Amaryllis (hippeastrum)"
+  },
+  "titleRu": "амариллис",
+  "aliases": {
+    "ru": [
+      "амариллис",
+      "амариллиса",
+      "гиппеаструм",
+      "гиппеаструма",
+      "гиппеаструм гибридный",
+      "амариллис белладонна"
+    ],
+    "en": [
+      "amaryllis",
+      "hippeastrum",
+      "belladonna lily",
+      "amaryllis bulb"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Амариллис (гиппеаструм) ядовит для кошек и собак, особенно луковица.",
+        "en": "Dangerous. Amaryllis (hippeastrum) is poisonous to cats and dogs, especially the bulb."
+      },
+      "why": {
+        "ru": "ASPCA относит амариллис к ядовитым для кошек и собак: в нём ликорин и другие алкалоиды. Возможны рвота, слюнотечение, боль в животе, понос, вялость, потеря аппетита и дрожь. По данным Pet Poison Helpline, алкалоиды есть в листьях, стеблях и луковице, раздражающих кристаллов больше всего в луковице, а при большом количестве бывают судороги и падение давления. Позвоните в клинику, не дожидаясь признаков.",
+        "en": "The ASPCA lists amaryllis as toxic to cats and dogs: it contains lycorine and other alkaloids. Vomiting, drooling, belly pain, diarrhoea, lethargy, loss of appetite and tremors are possible. According to Pet Poison Helpline, the alkaloids are in the leaves, stems and bulb, the irritating crystals are most concentrated in the bulb, and a large amount can cause seizures and low blood pressure. Call a clinic without waiting for signs."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "слюнотечение",
+          "боль в животе",
+          "дрожь",
+          "судороги"
+        ],
+        "en": [
+          "vomiting",
+          "drooling",
+          "belly pain",
+          "tremors",
+          "seizures"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Амариллис (гиппеаструм) ядовит для кошек и собак, особенно луковица.",
+        "en": "Dangerous. Amaryllis (hippeastrum) is poisonous to cats and dogs, especially the bulb."
+      },
+      "why": {
+        "ru": "ASPCA относит амариллис к ядовитым для кошек и собак: в нём ликорин и другие алкалоиды. Возможны рвота, слюнотечение, боль в животе, понос, вялость, потеря аппетита и дрожь. По данным Pet Poison Helpline, алкалоиды есть в листьях, стеблях и луковице, раздражающих кристаллов больше всего в луковице, а при большом количестве бывают судороги и падение давления. Позвоните в клинику, не дожидаясь признаков.",
+        "en": "The ASPCA lists amaryllis as toxic to cats and dogs: it contains lycorine and other alkaloids. Vomiting, drooling, belly pain, diarrhoea, lethargy, loss of appetite and tremors are possible. According to Pet Poison Helpline, the alkaloids are in the leaves, stems and bulb, the irritating crystals are most concentrated in the bulb, and a large amount can cause seizures and low blood pressure. Call a clinic without waiting for signs."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "слюнотечение",
+          "боль в животе",
+          "дрожь",
+          "судороги"
+        ],
+        "en": [
+          "vomiting",
+          "drooling",
+          "belly pain",
+          "tremors",
+          "seizures"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Позвоните в клинику сразу, не дожидаясь признаков, и расскажите, что и сколько съедено",
+      "Уберите растение туда, куда питомец не доберётся",
+      "Уберите остатки растения из пасти и протрите мордочку влажной тканью",
+      "Возьмите кусочек растения или сфотографируйте его"
+    ],
+    "en": [
+      "Call a clinic right away, without waiting for signs, and tell them what was eaten and roughly how much",
+      "Move the plant out of the pet's reach",
+      "Remove any plant pieces from the mouth and wipe the face with a damp cloth",
+      "Take a piece of the plant or a photo of it"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте молоко, масло, уголь и другие «антидоты» из интернета",
+      "Не ждите, пока станет хуже, если питомец вялый или его рвёт"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give milk, oil, charcoal or other home “antidotes” from the internet",
+      "Do not wait for things to get worse if the pet is lethargic or vomiting"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Amaryllis",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/amaryllis"
+    },
+    {
+      "title": "Pet Poison Helpline — Amaryllis",
+      "url": "https://www.petpoisonhelpline.com/poison/amaryllis/"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

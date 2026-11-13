@@ -1,0 +1,72 @@
+{
+  "slug": "ogurec",
+  "category": "food",
+  "name": {
+    "ru": "Огурец",
+    "en": "Cucumber"
+  },
+  "titleRu": "огурец",
+  "aliases": {
+    "ru": [
+      "огурцы",
+      "огурчик",
+      "огурцы свежие",
+      "свежий огурец"
+    ],
+    "en": [
+      "cucumbers",
+      "fresh cucumber"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "safe",
+      "summary": {
+        "ru": "Можно как лакомство. Свежий огурец не ядовит, но это не замена корму.",
+        "en": "Safe as a treat. Fresh cucumber is not poisonous, but it is no substitute for food."
+      },
+      "why": {
+        "ru": "ASPCA относит огурец к неядовитым растениям для кошек и собак. Подходит свежий, без соли, рассола и специй, небольшими кусочками. Солёные и маринованные огурцы не подходят: в рассоле много соли, а часто ещё чеснок.",
+        "en": "The ASPCA lists cucumber as non-toxic to cats and dogs. It should be fresh, with no salt, brine or spices, in small pieces. Salted and pickled cucumbers are not suitable: brine is very salty and often contains garlic."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "none"
+    },
+    "dog": {
+      "verdict": "safe",
+      "summary": {
+        "ru": "Можно как лакомство в небольшом количестве, свежий и без добавок.",
+        "en": "Safe as a treat in small amounts, fresh and plain."
+      },
+      "why": {
+        "ru": "ASPCA относит огурец к неядовитым растениям для собак. Подходит свежий, без соли, рассола и специй, кусочками. Солёные и маринованные огурцы не подходят: в рассоле много соли, а часто ещё чеснок.",
+        "en": "The ASPCA lists cucumber as non-toxic to dogs. It should be fresh, with no salt, brine or spices, in pieces. Salted and pickled cucumbers are not suitable: brine is very salty and often contains garlic."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "none"
+    }
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Cucumber",
+      "url": "https://www.aspca.org/pet-care/animal-poison-control/toxic-and-non-toxic-plants/cucumber"
+    },
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/animal-poison-control/people-foods-avoid-feeding-your-pets"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

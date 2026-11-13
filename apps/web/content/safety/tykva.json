@@ -1,0 +1,77 @@
+{
+  "slug": "tykva",
+  "category": "food",
+  "name": {
+    "ru": "Тыква",
+    "en": "Pumpkin"
+  },
+  "titleRu": "тыкву",
+  "aliases": {
+    "ru": [
+      "тыквы",
+      "тыква варёная",
+      "тыквенное пюре",
+      "мякоть тыквы"
+    ],
+    "en": [
+      "pumpkins",
+      "cooked pumpkin",
+      "pumpkin puree"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "safe",
+      "summary": {
+        "ru": "Можно как лакомство в небольшом количестве: простая варёная мякоть без сахара и специй.",
+        "en": "Safe as a treat in small amounts: plain cooked flesh with no sugar or spices."
+      },
+      "why": {
+        "ru": "ASPCA считает тыкву неядовитой для кошек и собак. Подходит простая варёная или запечённая мякоть без сахара, соли и специй, небольшими кусочками; это не замена корму. Готовая начинка для тыквенного пирога не подходит: в ней бывают специи и ксилит. Сырая корка жёсткая и плохо переваривается, кусок может застрять в кишечнике; много семечек тоже может застрять.",
+        "en": "The ASPCA considers pumpkin non-toxic to cats and dogs. Plain cooked or baked flesh with no sugar, salt or spices, in small pieces, is fine; it is no substitute for food. Ready-made pumpkin pie filling is not suitable: it can contain spices and xylitol. Raw rind is tough and hard to digest, and a piece can get stuck in the gut; a lot of seeds can get stuck too."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "none"
+    },
+    "dog": {
+      "verdict": "safe",
+      "summary": {
+        "ru": "Можно как лакомство в небольшом количестве: простая варёная мякоть без сахара и специй.",
+        "en": "Safe as a treat in small amounts: plain cooked flesh with no sugar or spices."
+      },
+      "why": {
+        "ru": "ASPCA считает тыкву неядовитой для кошек и собак. Подходит простая варёная или запечённая мякоть без сахара, соли и специй, небольшими кусочками; это не замена корму. Готовая начинка для тыквенного пирога не подходит: в ней бывают специи и ксилит. Сырая корка жёсткая и плохо переваривается, кусок может застрять в кишечнике; много семечек тоже может застрять.",
+        "en": "The ASPCA considers pumpkin non-toxic to cats and dogs. Plain cooked or baked flesh with no sugar, salt or spices, in small pieces, is fine; it is no substitute for food. Ready-made pumpkin pie filling is not suitable: it can contain spices and xylitol. Raw rind is tough and hard to digest, and a piece can get stuck in the gut; a lot of seeds can get stuck too."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "none"
+    }
+  },
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — Pumpkins: A Safe and Nutritious Treat for Your Furry Friend",
+      "url": "https://www.petpoisonhelpline.com/uncategorized/pumpkins-a-safe-and-nutritious-treat-for-your-furry-friend/"
+    },
+    {
+      "title": "ASPCA — 5 Toxic Seasonal Plants You Don't Want Your Pet To Fall For!",
+      "url": "https://www.aspca.org/news/5-toxic-seasonal-plants-you-dont-want-your-pet-fall"
+    },
+    {
+      "title": "ASPCA Animal Poison Control — Acorn Squash (Cucurbita pepo, similar plant: pumpkin)",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/acorn-squash"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

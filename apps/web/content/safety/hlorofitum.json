@@ -1,0 +1,68 @@
+{
+  "slug": "hlorofitum",
+  "category": "plant",
+  "name": {
+    "ru": "Хлорофитум",
+    "en": "Spider plant"
+  },
+  "titleRu": "хлорофитум",
+  "aliases": {
+    "ru": [
+      "хлорофитум хохлатый",
+      "паучник",
+      "паучье растение"
+    ],
+    "en": [
+      "chlorophytum",
+      "chlorophytum comosum",
+      "airplane plant"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "safe",
+      "summary": {
+        "ru": "Безопасно. Хлорофитум для кошек не ядовит.",
+        "en": "Non-toxic. Spider plant is not poisonous to cats."
+      },
+      "why": {
+        "ru": "ASPCA относит хлорофитум к неядовитым для кошек растениям.",
+        "en": "The ASPCA lists spider plant as non-toxic to cats."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "none"
+    },
+    "dog": {
+      "verdict": "safe",
+      "summary": {
+        "ru": "Безопасно. Хлорофитум для собак не ядовит.",
+        "en": "Non-toxic. Spider plant is not poisonous to dogs."
+      },
+      "why": {
+        "ru": "ASPCA относит хлорофитум к неядовитым для собак растениям.",
+        "en": "The ASPCA lists spider plant as non-toxic to dogs."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "none"
+    }
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Spider Plant",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/spider-plant"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

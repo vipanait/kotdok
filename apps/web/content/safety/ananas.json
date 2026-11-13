@@ -1,0 +1,103 @@
+{
+  "slug": "ananas",
+  "category": "food",
+  "name": {
+    "ru": "Ананас",
+    "en": "Pineapple"
+  },
+  "titleRu": "ананас",
+  "aliases": {
+    "ru": [
+      "ананасы",
+      "ананаса",
+      "мякоть ананаса",
+      "консервированный ананас"
+    ],
+    "en": [
+      "pineapples",
+      "pineapple chunks",
+      "canned pineapple"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Маленький кусочек свежей мякоти изредка, но кошке он не нужен.",
+        "en": "With caution. A small piece of fresh flesh now and then, but a cat does not need it."
+      },
+      "why": {
+        "ru": "Данных об ананасе в справочниках ядов мало, поэтому — осторожно. Если и предлагать, то кусочек свежей мякоти без кожуры и жёсткой сердцевины: от избытка сладкого бывают понос и газы. Ананас из банки в сиропе не подходит: в нём много сахара.",
+        "en": "There is little data on pineapple in poison references, so take care. If you offer any, a small piece of fresh flesh without skin or the tough core: too much sugar can cause diarrhoea and gas. Canned pineapple in syrup is not suitable: it is high in sugar."
+      },
+      "signs": {
+        "ru": [
+          "понос",
+          "вздутие, газы"
+        ],
+        "en": [
+          "diarrhoea",
+          "bloating, gas"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Несколько кусочков свежей мякоти без кожуры и сердцевины — изредка.",
+        "en": "With caution. A few pieces of fresh flesh without skin or core, now and then."
+      },
+      "why": {
+        "ru": "Данных об ананасе в справочниках ядов мало, поэтому — осторожно. Если и предлагать, то несколько кусочков свежей мякоти без кожуры и жёсткой сердцевины, изредка: от избытка сладкого бывают понос и газы. Ананас из банки в сиропе не подходит: в нём много сахара.",
+        "en": "There is little data on pineapple in poison references, so take care. If you offer any, a few pieces of fresh flesh without skin or the tough core, now and then: too much sugar can cause diarrhoea and gas. Canned pineapple in syrup is not suitable: it is high in sugar."
+      },
+      "signs": {
+        "ru": [
+          "понос",
+          "вздутие, газы"
+        ],
+        "en": [
+          "diarrhoea",
+          "bloating, gas"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите остатки и убедитесь, что питомец больше не достаёт до них",
+      "Понаблюдайте за питомцем сутки; при рвоте, поносе, вялости или вздутом животе позвоните в клинику",
+      "Если съедено много или питомец маленький, позвоните в клинику сразу"
+    ],
+    "en": [
+      "Put away the leftovers so your pet cannot reach more",
+      "Watch your pet for a day; call a clinic if there is vomiting, diarrhoea, lethargy or a swollen belly",
+      "If a lot was eaten or your pet is small, call a clinic straight away"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не давайте кожуру, сердцевину и ананас в сиропе",
+      "Не вызывайте рвоту сами — только по указанию врача"
+    ],
+    "en": [
+      "Do not give skin, core or pineapple in syrup",
+      "Do not make your pet vomit unless a vet tells you to"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Merck Veterinary Manual — Nutritional Requirements of Small Animals",
+      "url": "https://www.merckvetmanual.com/management-and-nutrition/nutrition-small-animals/nutritional-requirements-of-small-animals"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

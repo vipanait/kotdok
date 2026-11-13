@@ -1,0 +1,119 @@
+{
+  "slug": "sansevieriya",
+  "category": "plant",
+  "name": {
+    "ru": "Сансевиерия",
+    "en": "Snake plant"
+  },
+  "titleRu": "сансевиерию",
+  "aliases": {
+    "ru": [
+      "сансевиерии",
+      "щучий хвост",
+      "тёщин язык",
+      "тещин язык",
+      "сансевьерия",
+      "сансевиерия трехполосная"
+    ],
+    "en": [
+      "snake plant",
+      "sansevieria",
+      "dracaena trifasciata",
+      "mother-in-law's tongue",
+      "mother in law tongue"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Сансевиерия для кошек и собак ядовита: бывают тошнота, рвота и понос.",
+        "en": "With caution. Snake plant is poisonous to cats and dogs and causes nausea, vomiting and diarrhoea."
+      },
+      "why": {
+        "ru": "ASPCA относит сансевиерию к ядовитым для кошек и собак: в ней сапонины. Обычно это тошнота, рвота и понос, по данным Merck — и слюнотечение. Если питомец съел много листьев или рвота не проходит, позвоните в клинику.",
+        "en": "The ASPCA lists snake plant as toxic to cats and dogs because of its saponins. It usually means nausea, vomiting and diarrhoea, and according to Merck drooling too. If the pet ate a lot of leaves or the vomiting does not stop, call a clinic."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "рвота",
+          "понос"
+        ],
+        "en": [
+          "drooling",
+          "vomiting",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Сансевиерия для кошек и собак ядовита: бывают тошнота, рвота и понос.",
+        "en": "With caution. Snake plant is poisonous to cats and dogs and causes nausea, vomiting and diarrhoea."
+      },
+      "why": {
+        "ru": "ASPCA относит сансевиерию к ядовитым для кошек и собак: в ней сапонины. Обычно это тошнота, рвота и понос, по данным Merck — и слюнотечение. Если питомец съел много листьев или рвота не проходит, позвоните в клинику.",
+        "en": "The ASPCA lists snake plant as toxic to cats and dogs because of its saponins. It usually means nausea, vomiting and diarrhoea, and according to Merck drooling too. If the pet ate a lot of leaves or the vomiting does not stop, call a clinic."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "рвота",
+          "понос"
+        ],
+        "en": [
+          "drooling",
+          "vomiting",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите растение туда, куда питомец не доберётся",
+      "Уберите остатки растения из пасти и протрите мордочку влажной тканью",
+      "Понаблюдайте за питомцем несколько часов",
+      "Если появились признаки или вы не уверены в растении, позвоните в клинику"
+    ],
+    "en": [
+      "Move the plant out of the pet's reach",
+      "Remove any plant pieces from the mouth and wipe the face with a damp cloth",
+      "Watch the pet for several hours",
+      "If signs appear or you are not sure about the plant, call a clinic"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте молоко, масло, уголь и другие «антидоты» из интернета",
+      "Не ждите, пока станет хуже, если питомец вялый или его рвёт"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give milk, oil, charcoal or other home “antidotes” from the internet",
+      "Do not wait for things to get worse if the pet is lethargic or vomiting"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Snake Plant",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/snake-plant"
+    },
+    {
+      "title": "MSD Veterinary Manual — Houseplants and Ornamentals Toxic to Animals",
+      "url": "https://www.merckvetmanual.com/toxicology/poisonous-plants/houseplants-and-ornamentals-toxic-to-animals"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

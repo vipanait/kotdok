@@ -1,0 +1,105 @@
+{
+  "slug": "yabloko",
+  "category": "food",
+  "name": {
+    "ru": "Яблоко",
+    "en": "Apple"
+  },
+  "titleRu": "яблоки",
+  "aliases": {
+    "ru": [
+      "яблоки",
+      "яблочко",
+      "яблочная мякоть"
+    ],
+    "en": [
+      "apples",
+      "apple slices"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Кусочек мякоти без семечек и сердцевины не считается ядовитым, но кошке он не нужен.",
+        "en": "With caution. A piece of flesh without seeds or core is not considered poisonous, but a cat does not need it."
+      },
+      "why": {
+        "ru": "Семечки, черенки и листья яблони содержат вещества, из которых выделяется цианид. Мякоть к ядовитым частям не относится. Если и предлагать, то маленький кусочек мякоти без семечек и сердцевины, изредка.",
+        "en": "Apple seeds, stems and leaves contain substances that release cyanide. The flesh is not among the toxic parts. If you offer any, a small piece of flesh without seeds or core, now and then."
+      },
+      "signs": {
+        "ru": [
+          "ярко-красные дёсны",
+          "расширенные зрачки",
+          "тяжёлое, затруднённое дыхание"
+        ],
+        "en": [
+          "brick-red gums",
+          "dilated pupils",
+          "laboured, difficult breathing"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Мякоть яблока можно как лакомство, но без семечек и сердцевины.",
+        "en": "With caution. Apple flesh is fine as a treat, but without the seeds and core."
+      },
+      "why": {
+        "ru": "Семечки, черенки и листья яблони содержат вещества, из которых выделяется цианид. Мякоть к ядовитым частям не относится. Если и предлагать, то нарезанную мякоть без семечек и сердцевины, понемногу и не каждый день.",
+        "en": "Apple seeds, stems and leaves contain substances that release cyanide. The flesh is not among the toxic parts. If you offer any, sliced flesh without seeds or core, a little and not every day."
+      },
+      "signs": {
+        "ru": [
+          "ярко-красные дёсны",
+          "расширенные зрачки",
+          "тяжёлое, затруднённое дыхание"
+        ],
+        "en": [
+          "brick-red gums",
+          "dilated pupils",
+          "laboured, difficult breathing"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите остатки яблок, огрызки и ветки с листьями",
+      "Наблюдайте за питомцем; при ярко-красных дёснах, тяжёлом дыхании или вялости сразу позвоните в клинику",
+      "Если съедено много огрызков, семечек или листьев, позвоните в клинику сразу"
+    ],
+    "en": [
+      "Put away the rest of the apples, the cores and any leafy twigs",
+      "Watch your pet; call a clinic straight away if the gums turn bright red, breathing is laboured or your pet is lethargic",
+      "If many cores, seeds or leaves were eaten, call a clinic straight away"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не ждите, если дыхание стало тяжёлым: это срочно"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not wait if breathing becomes laboured: that is urgent"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Apple (Malus sylvestrus)",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/apple"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

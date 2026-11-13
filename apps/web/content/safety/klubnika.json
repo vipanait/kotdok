@@ -1,0 +1,86 @@
+{
+  "slug": "klubnika",
+  "category": "food",
+  "name": {
+    "ru": "Клубника",
+    "en": "Strawberry"
+  },
+  "titleRu": "клубнику",
+  "aliases": {
+    "ru": [
+      "клубнику",
+      "земляника",
+      "землянику",
+      "клубничка",
+      "садовая земляника"
+    ],
+    "en": [
+      "strawberries",
+      "strawberry",
+      "wild strawberry"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "safe",
+      "summary": {
+        "ru": "Можно как лакомство. Пара свежих ягод изредка не повредит, но кошке они не нужны.",
+        "en": "Safe as a treat. A couple of fresh berries now and then will not hurt, but a cat does not need them."
+      },
+      "why": {
+        "ru": "Клубника не ядовита для кошек и собак. Подходят свежие вымытые ягоды, изредка и понемногу: от избытка сладкого бывают понос и газы. Варенье, йогурты и десерты с клубникой не подходят: в них сахар, а иногда ксилит.",
+        "en": "Strawberries are not poisonous to cats or dogs. Fresh washed berries, now and then and a few at a time, are fine: too much sugar can cause diarrhoea and gas. Jam, yoghurt and desserts with strawberry are not suitable: they contain sugar and sometimes xylitol."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "none"
+    },
+    "dog": {
+      "verdict": "safe",
+      "summary": {
+        "ru": "Можно как лакомство. Несколько свежих ягод изредка — без сахара и сладких добавок.",
+        "en": "Safe as a treat. A few fresh berries now and then, with no sugar or sweet additives."
+      },
+      "why": {
+        "ru": "Клубника не ядовита для собак и кошек. Подходят свежие вымытые ягоды, нарезанные кусочками: от избытка сладкого бывают понос и газы. Варенье, сиропы и десерты не подходят: в них сахар, а иногда ксилит, опасный для собак.",
+        "en": "Strawberries are not poisonous to dogs or cats. Fresh washed berries cut into pieces are fine: too much sugar can cause diarrhoea and gas. Jam, syrups and desserts are not suitable: they contain sugar and sometimes xylitol, which is dangerous for dogs."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "none"
+    }
+  },
+  "firstSteps": {
+    "ru": [],
+    "en": []
+  },
+  "avoid": {
+    "ru": [],
+    "en": []
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Strawberry",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/strawberry"
+    },
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    },
+    {
+      "title": "Merck Veterinary Manual — Nutritional Requirements of Small Animals",
+      "url": "https://www.merckvetmanual.com/management-and-nutrition/nutrition-small-animals/nutritional-requirements-of-small-animals"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

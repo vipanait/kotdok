@@ -68,6 +68,27 @@
   .level-legend { display: grid; gap: 10px; margin: 0; }
   .level-legend li { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; color: var(--muted); font-size: 15px; }
 
+  /* «Можно ли» reference, /mozhno-li: verdict colours are the urgency classes of tokens.css, as in the app. */
+  .reading .safety-verdicts { margin: 18px 0 0; gap: 12px; }
+  .reading .safety-verdicts .card.level { margin: 0; }
+  .safety-verdicts .badge { color: var(--signal); background: var(--tint); }
+  .reading p.safety-medicine-line { margin: 12px 0 0; }
+  .safety-why h3 { margin: 14px 0 4px; font-size: 16px; }
+  .safety-why p { margin: 0; }
+  .safety-article .article-section > h3 { margin: 18px 0 6px; font-size: 16px; }
+  .reading p.safety-lead.call_now strong { color: var(--red); }
+  .reading .safety-toxin-link { margin-top: 24px; }
+
+  .safety-search { display: grid; gap: 8px; margin: 22px 0 0; }
+  .safety-search label { font-weight: 700; font-size: 15px; }
+  .safety-results { display: grid; gap: 8px; margin: 4px 0 0; }
+  .reading p.safety-missing { margin: 6px 0 0; }
+  .safety-missing .link { display: inline; min-height: 0; text-decoration: underline; text-underline-offset: 3px; }
+  /* The verdicts are what the row says: not clamped like a description. */
+  .hub-item .verdict-pair { display: flex; flex-wrap: wrap; gap: 6px; -webkit-line-clamp: unset; overflow: visible; }
+  .hub-item .verdict-pair .badge { color: var(--signal); font-size: 12px; line-height: 1.2; }
+  .reading .safety-empty { margin-top: 22px; }
+
   @media (max-width: 760px) {
     .crumbs ol { margin-bottom: 12px; }
     .article h1 { margin-bottom: 10px; }
@@ -79,5 +100,6 @@
     .hub-item strong { font-size: 15px; }
     .species-hub .hub-item span { display: none; }
     .related { grid-template-columns: minmax(0, 1fr); }
+    .safety-list.hub-list { grid-template-columns: minmax(0, 1fr); }
   }
 }

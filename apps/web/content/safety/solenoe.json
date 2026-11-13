@@ -1,0 +1,132 @@
+{
+  "slug": "solenoe",
+  "category": "food",
+  "name": {
+    "ru": "Солёное (чипсы, солёные закуски)",
+    "en": "Salty food (chips, salty snacks)"
+  },
+  "titleRu": "солёное",
+  "aliases": {
+    "ru": [
+      "солёное",
+      "соленое",
+      "чипсы",
+      "солёные закуски",
+      "соленые закуски",
+      "сухарики",
+      "солёные орешки",
+      "соленые орешки",
+      "соль",
+      "солёную еду",
+      "крекеры",
+      "попкорн солёный"
+    ],
+    "en": [
+      "salty food",
+      "salty snacks",
+      "chips",
+      "potato chips",
+      "crisps",
+      "pretzels",
+      "salt",
+      "salted nuts"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Крошка-другая не страшна, но солёное давать не нужно: много соли опасно.",
+        "en": "With caution. A crumb or two is not alarming, but do not feed salty food: a lot of salt is dangerous."
+      },
+      "why": {
+        "ru": "Лишняя соль вызывает сильную жажду и частое мочеиспускание, а в большом количестве — отравление солью: рвоту, понос, вялость, дрожь и судороги, в тяжёлых случаях смертельное. Чем меньше питомец, тем опаснее то же количество. Если в приправе есть лук или чеснок — это отдельная опасность.",
+        "en": "Excess salt causes strong thirst and frequent urination, and a large amount causes salt poisoning: vomiting, diarrhoea, lethargy, tremors and seizures, fatal in severe cases. The smaller the pet, the more dangerous the same amount. Onion or garlic in the seasoning is a separate danger."
+      },
+      "signs": {
+        "ru": [
+          "сильная жажда",
+          "рвота",
+          "понос",
+          "вялость",
+          "дрожь, судороги"
+        ],
+        "en": [
+          "strong thirst",
+          "vomiting",
+          "diarrhoea",
+          "lethargy",
+          "tremors, seizures"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Пару крошек не страшно, но солёное лучше не давать: много соли опасно.",
+        "en": "With caution. A few crumbs are not alarming, but avoid salty food: a lot of salt is dangerous."
+      },
+      "why": {
+        "ru": "Лишняя соль вызывает сильную жажду и частое мочеиспускание, а в большом количестве — отравление солью: рвоту, понос, вялость, дрожь и судороги, в тяжёлых случаях смертельное. Чем меньше собака, тем опаснее то же количество. Солёные орешки к тому же жирные, а лук и чеснок в приправе — отдельная опасность.",
+        "en": "Excess salt causes strong thirst and frequent urination, and a large amount causes salt poisoning: vomiting, diarrhoea, lethargy, tremors and seizures, fatal in severe cases. The smaller the dog, the more dangerous the same amount. Salted nuts are also fatty, and onion or garlic in the seasoning is a separate danger."
+      },
+      "signs": {
+        "ru": [
+          "сильная жажда",
+          "рвота",
+          "понос",
+          "вялость",
+          "дрожь, судороги"
+        ],
+        "en": [
+          "strong thirst",
+          "vomiting",
+          "diarrhoea",
+          "lethargy",
+          "tremors, seizures"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Оставьте свободный доступ к свежей воде",
+      "Если съедена целая пачка, а питомец маленький — позвоните в клинику, не ждите признаков",
+      "При дрожи, судорогах, рвоте или сильной слабости — сразу в клинику"
+    ],
+    "en": [
+      "Leave fresh water freely available",
+      "If a whole bag was eaten and your pet is small, call a clinic and do not wait for signs",
+      "If there are tremors, seizures, vomiting or severe weakness, go to a clinic at once"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте лекарства без назначения врача"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give any medicine unless a vet tells you to"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    },
+    {
+      "title": "Pet Poison Helpline — Salt",
+      "url": "https://www.petpoisonhelpline.com/poison/salt/"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

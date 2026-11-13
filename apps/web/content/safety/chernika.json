@@ -1,0 +1,106 @@
+{
+  "slug": "chernika",
+  "category": "food",
+  "name": {
+    "ru": "Черника",
+    "en": "Blueberry"
+  },
+  "titleRu": "чернику",
+  "aliases": {
+    "ru": [
+      "чернику",
+      "голубика",
+      "голубику",
+      "черничка",
+      "ягоды черники"
+    ],
+    "en": [
+      "blueberries",
+      "blueberry",
+      "bilberry"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Пара свежих ягод изредка вряд ли навредит, но кошке они не нужны.",
+        "en": "With caution. A couple of fresh berries now and then are unlikely to harm, but a cat does not need them."
+      },
+      "why": {
+        "ru": "Черника не считается ядовитой, но данных именно о кошках мало, поэтому — осторожно. Если и предлагать, то пару свежих ягод без добавок: от избытка сладкого бывают понос и газы. Выпечка, джемы и йогурты с черникой не подходят: в них сахар, а иногда ксилит.",
+        "en": "Blueberries are not considered poisonous, but there is little data on cats specifically, so take care. If you offer any, a couple of fresh berries with nothing added: too much sugar can cause diarrhoea and gas. Baking, jams and yoghurts with blueberries are not suitable: they contain sugar and sometimes xylitol."
+      },
+      "signs": {
+        "ru": [
+          "понос",
+          "вздутие, газы"
+        ],
+        "en": [
+          "diarrhoea",
+          "bloating, gas"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "safe",
+      "summary": {
+        "ru": "Можно как лакомство. Несколько свежих ягод без добавок изредка.",
+        "en": "Safe as a treat. A few fresh berries with nothing added, now and then."
+      },
+      "why": {
+        "ru": "Черника не ядовита для собак и подходит как лакомство: несколько свежих ягод без добавок. От избытка сладкого бывают понос и газы. Выпечка, джемы и йогурты с черникой не подходят: в них сахар, а иногда ксилит, опасный для собак.",
+        "en": "Blueberries are not poisonous to dogs and are fine as a treat: a few fresh berries with nothing added. Too much sugar can cause diarrhoea and gas. Baking, jams and yoghurts with blueberries are not suitable: they contain sugar and sometimes xylitol, which is dangerous for dogs."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "none"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите остатки и убедитесь, что питомец больше не достаёт до них",
+      "Понаблюдайте за питомцем сутки; при рвоте, поносе, вялости или вздутом животе позвоните в клинику",
+      "Если съедено много или питомец маленький, позвоните в клинику сразу"
+    ],
+    "en": [
+      "Put away the leftovers so your pet cannot reach more",
+      "Watch your pet for a day; call a clinic if there is vomiting, diarrhoea, lethargy or a swollen belly",
+      "If a lot was eaten or your pet is small, call a clinic straight away"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не давайте выпечку, джемы и сладкие десерты с черникой",
+      "Не вызывайте рвоту сами — только по указанию врача"
+    ],
+    "en": [
+      "Do not give baking, jams or sweet desserts with blueberries",
+      "Do not make your pet vomit unless a vet tells you to"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — Are Cherries Safe for Dogs?",
+      "url": "https://www.petpoisonhelpline.com/uncategorized/are-cherries-safe-for-dogs/"
+    },
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    },
+    {
+      "title": "Merck Veterinary Manual — Nutritional Requirements of Small Animals",
+      "url": "https://www.merckvetmanual.com/management-and-nutrition/nutrition-small-animals/nutritional-requirements-of-small-animals"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

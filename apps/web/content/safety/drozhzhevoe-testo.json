@@ -1,0 +1,132 @@
+{
+  "slug": "drozhzhevoe-testo",
+  "category": "food",
+  "name": {
+    "ru": "Сырое дрожжевое тесто",
+    "en": "Raw yeast dough"
+  },
+  "titleRu": "сырое дрожжевое тесто",
+  "aliases": {
+    "ru": [
+      "дрожжевое тесто",
+      "тесто на дрожжах",
+      "сырое тесто",
+      "тесто для хлеба",
+      "тесто для пиццы"
+    ],
+    "en": [
+      "yeast dough",
+      "bread dough",
+      "raw dough",
+      "pizza dough",
+      "raw bread dough"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. Сырое тесто раздувается в желудке и выделяет спирт, это опасно для кошек.",
+        "en": "Not safe. Raw dough swells in the stomach and releases alcohol, which is dangerous to cats."
+      },
+      "why": {
+        "ru": "В тёплом и влажном желудке тесто продолжает подниматься и растягивает его, а дрожжи при брожении образуют спирт, который быстро всасывается. Бывают вздутие и отравление спиртом.",
+        "en": "In the warm, moist stomach the dough keeps rising and stretches it, and the yeast makes alcohol as it ferments, which is quickly absorbed. Bloating and alcohol poisoning can follow."
+      },
+      "signs": {
+        "ru": [
+          "вздутый живот",
+          "напрасные позывы на рвоту",
+          "рвота",
+          "шаткая походка",
+          "вялость",
+          "слабость"
+        ],
+        "en": [
+          "swollen belly",
+          "retching with nothing coming up",
+          "vomiting",
+          "unsteady walk",
+          "lethargy",
+          "weakness"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. Сырое тесто раздувается в желудке и выделяет спирт; собакам это особенно опасно.",
+        "en": "Not safe. Raw dough swells in the stomach and releases alcohol; it is especially dangerous to dogs."
+      },
+      "why": {
+        "ru": "Тесто растёт в тёплом желудке и растягивает его; иногда желудок перекручивается, и это угрожает жизни. Брожение даёт спирт: он отравляет и может снизить сахар в крови и температуру тела. Чаще всего сырое тесто съедают именно собаки.",
+        "en": "The dough rises in the warm stomach and stretches it; sometimes the stomach twists, which is life-threatening. Fermentation makes alcohol, which poisons and can lower blood sugar and body temperature. Dogs are the pets that most often eat raw dough."
+      },
+      "signs": {
+        "ru": [
+          "вздутый живот",
+          "напрасные позывы на рвоту",
+          "рвота",
+          "шаткая походка",
+          "вялость",
+          "слабость"
+        ],
+        "en": [
+          "swollen belly",
+          "retching with nothing coming up",
+          "vomiting",
+          "unsteady walk",
+          "lethargy",
+          "weakness"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Уберите остатки",
+      "Сохраните упаковку или запомните, что и когда было съедено"
+    ],
+    "en": [
+      "Call a vet clinic, even if your pet seems fine",
+      "Put the rest away",
+      "Keep the packaging or note what was eaten and when"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте домашние «антидоты» из интернета",
+      "Не ждите признаков: они могут появиться не сразу"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give home “antidotes” from the internet",
+      "Do not wait for signs: they may appear later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    },
+    {
+      "title": "Merck Veterinary Manual — Food Hazards",
+      "url": "https://www.merckvetmanual.com/special-pet-topics/poisoning/food-hazards"
+    },
+    {
+      "title": "Pet Poison Helpline — Bread Dough",
+      "url": "https://www.petpoisonhelpline.com/poison/bread-dough/"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

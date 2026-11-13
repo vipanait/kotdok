@@ -1,0 +1,101 @@
+{
+  "slug": "grusha",
+  "category": "food",
+  "name": {
+    "ru": "Груша",
+    "en": "Pear"
+  },
+  "titleRu": "грушу",
+  "aliases": {
+    "ru": [
+      "груши",
+      "грушка",
+      "мякоть груши"
+    ],
+    "en": [
+      "pears",
+      "pear slices"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Немного мякоти без семечек и сердцевины — изредка.",
+        "en": "With caution. A little flesh without seeds or core, now and then."
+      },
+      "why": {
+        "ru": "Данных о груше в справочниках ядов мало, поэтому — осторожно. Если и предлагать, то кусочек мякоти без семечек и сердцевины: от избытка сладкого бывают понос и газы. Кошке фрукты не нужны.",
+        "en": "There is little data on pears in poison references, so take care. If you offer any, a small piece of flesh without seeds or core: too much sugar can cause diarrhoea and gas. A cat does not need fruit."
+      },
+      "signs": {
+        "ru": [
+          "понос",
+          "вздутие, газы"
+        ],
+        "en": [
+          "diarrhoea",
+          "bloating, gas"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Нарезанная мякоть без семечек и сердцевины — как редкое лакомство.",
+        "en": "With caution. Sliced flesh without seeds or core as an occasional treat."
+      },
+      "why": {
+        "ru": "Данных о груше в справочниках ядов мало, поэтому — осторожно. Если и предлагать, то нарезанную мякоть без семечек, сердцевины и черенка, изредка: от избытка сладкого бывают понос и газы.",
+        "en": "There is little data on pears in poison references, so take care. If you offer any, sliced flesh without seeds, core or stem, now and then: too much sugar can cause diarrhoea and gas."
+      },
+      "signs": {
+        "ru": [
+          "понос",
+          "вздутие, газы"
+        ],
+        "en": [
+          "diarrhoea",
+          "bloating, gas"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите остатки груши и сердцевины",
+      "Понаблюдайте за питомцем сутки; при рвоте, вялости или вздутом животе позвоните в клинику",
+      "Если съедено много сердцевин или семечек, позвоните в клинику сразу"
+    ],
+    "en": [
+      "Put away the rest of the pear and any cores",
+      "Watch your pet for a day; call a clinic if there is vomiting, lethargy or a swollen belly",
+      "If many cores or seeds were eaten, call a clinic straight away"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не давайте сердцевину и семечки",
+      "Не вызывайте рвоту сами — только по указанию врача"
+    ],
+    "en": [
+      "Do not give the core or seeds",
+      "Do not make your pet vomit unless a vet tells you to"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Merck Veterinary Manual — Nutritional Requirements of Small Animals",
+      "url": "https://www.merckvetmanual.com/management-and-nutrition/nutrition-small-animals/nutritional-requirements-of-small-animals"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

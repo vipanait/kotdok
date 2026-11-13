@@ -28,6 +28,10 @@ export const queryKeys = {
   followup: (caseId: string) => ['followup', caseId] as const,
   checkFollowup: (checkId: string) => ['check-followup', checkId] as const,
   episodes: (petId: string) => ['episodes', petId] as const,
+  /** The «Можно ли?» reference's light list, searched on the phone. */
+  safetyIndex: () => ['safety-index'] as const,
+  /** One entry, as the server answers it for a pet (with its notes) or without one. */
+  safetyItem: (slug: string, petId: string | null) => ['safety-item', slug, petId ?? 'none'] as const,
 }
 
 /** The key as the cache holds it: this user's. */
@@ -37,10 +41,11 @@ export function scoped(userId: string, key: CacheKey): unknown[] {
 
 /**
  * What outlives a restart: the lists and the records, which the first screen
- * after a launch draws from. Not the checks — each carries the model's whole
+ * after a launch draws from, and the «Можно ли?» index, so its suggestions
+ * work offline from the first keystroke. Not the checks — each carries the model's whole
  * answer — nor the doses and summaries, which are a day's reading.
  */
-export const PERSISTED: ReadonlySet<string> = new Set(['pets', 'due', 'me', 'overview', 'followups'])
+export const PERSISTED: ReadonlySet<string> = new Set(['pets', 'due', 'me', 'overview', 'followups', 'safety-index'])
 
 export function persisted(queryKey: CacheKey): boolean {
   return typeof queryKey[1] === 'string' && PERSISTED.has(queryKey[1])

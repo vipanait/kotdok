@@ -1,0 +1,143 @@
+{
+  "slug": "antidepressanty",
+  "category": "medicine",
+  "name": {
+    "ru": "Антидепрессанты",
+    "en": "Antidepressants"
+  },
+  "titleRu": "антидепрессанты",
+  "aliases": {
+    "ru": [
+      "антидепрессант",
+      "амитриптилин",
+      "сертралин",
+      "флуоксетин",
+      "циталопрам",
+      "эсциталопрам",
+      "венлафаксин",
+      "прозак",
+      "золофт",
+      "лексапро",
+      "ципралекс",
+      "эффексор"
+    ],
+    "en": [
+      "antidepressant",
+      "ssri",
+      "sertraline",
+      "fluoxetine",
+      "prozac",
+      "zoloft",
+      "amitriptyline",
+      "venlafaxine",
+      "effexor",
+      "citalopram",
+      "escitalopram"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Антидепрессанты для людей опасны для кошек.",
+        "en": "Dangerous. Human antidepressants are dangerous to cats."
+      },
+      "why": {
+        "ru": "Эти препараты действуют на нервную систему и сердце. После проглатывания бывают возбуждение, дрожь, судороги, сбои ритма сердца и опасное повышение температуры. Кошек, похоже, особенно привлекают капсулы венлафаксина. Что делать, решает врач.",
+        "en": "These drugs act on the nervous system and the heart. After swallowing them a pet may have agitation, tremors, seizures, heart rhythm problems and a dangerous rise in temperature. Cats seem particularly attracted to venlafaxine capsules. The vet decides what to do."
+      },
+      "signs": {
+        "ru": [
+          "возбуждение или вялость",
+          "дрожь",
+          "расширенные зрачки",
+          "учащённое или неровное сердцебиение",
+          "рвота, слюнотечение",
+          "судороги"
+        ],
+        "en": [
+          "agitation or lethargy",
+          "tremors",
+          "dilated pupils",
+          "fast or irregular heartbeat",
+          "vomiting, drooling",
+          "seizures"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Антидепрессанты для людей опасны для собак.",
+        "en": "Dangerous. Human antidepressants are dangerous to dogs."
+      },
+      "why": {
+        "ru": "Они действуют на нервную систему и сердце. У собак бывают рвота, дрожь, возбуждение или сонливость, неровный пульс и судороги. Насколько это опасно, оценит врач.",
+        "en": "They act on the nervous system and the heart. Dogs may have vomiting, tremors, agitation or drowsiness, an uneven pulse and seizures. The vet will judge how dangerous it is."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "возбуждение или сильная сонливость",
+          "дрожь",
+          "учащённое или неровное сердцебиение",
+          "шаткая походка",
+          "судороги"
+        ],
+        "en": [
+          "vomiting",
+          "agitation or heavy drowsiness",
+          "tremors",
+          "fast or irregular heartbeat",
+          "unsteady walk",
+          "seizures"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Уберите остатки препарата и назовите врачу его название",
+      "Сохраните упаковку или сфотографируйте её: врачу важны состав и форма препарата",
+      "Прикиньте, сколько могло быть съедено и когда"
+    ],
+    "en": [
+      "Call a vet clinic right away, even if your pet seems fine",
+      "Put the rest of the product away and tell the vet its name",
+      "Keep the packaging or take a photo of it: the vet needs the ingredients and the form",
+      "Work out roughly how much was eaten and when"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте молоко, масло, уголь и другие «антидоты» из интернета",
+      "Не ждите признаков: они могут появиться через несколько часов или дней"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give milk, oil, charcoal or other home “antidotes” from the internet",
+      "Do not wait for signs: they can appear hours or days later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — What Every Pet Parent Needs to Know About Antidepressant Toxicity",
+      "url": "https://www.aspca.org/news/what-every-pet-parent-needs-know-about-antidepressant-toxicity"
+    },
+    {
+      "title": "MSD Veterinary Manual — Toxicoses in Animals From Human Antidepressants, Anxiolytics, and Sleep Aids",
+      "url": "https://www.merckvetmanual.com/toxicology/toxicities-from-human-drugs/tranquilizers,-antidepressants,-sleep-aids,-and-anticonvulsants-toxicity"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

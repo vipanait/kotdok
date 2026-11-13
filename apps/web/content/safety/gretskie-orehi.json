@@ -1,0 +1,113 @@
+{
+  "slug": "gretskie-orehi",
+  "category": "food",
+  "name": {
+    "ru": "Грецкие орехи",
+    "en": "Walnuts"
+  },
+  "titleRu": "грецкие орехи",
+  "aliases": {
+    "ru": [
+      "грецкий орех",
+      "грецкий орех ядро",
+      "грецких орехов",
+      "волошский орех"
+    ],
+    "en": [
+      "walnut",
+      "walnuts",
+      "english walnut"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Кошке орехи не нужны: они жирные, а заплесневелые опасны.",
+        "en": "With caution. Cats do not need nuts: they are fatty, and mouldy ones are dangerous."
+      },
+      "why": {
+        "ru": "В грецких орехах, как и в других орехах, много жира и масла. От этого бывают рвота, понос и воспаление поджелудочной железы. На заплесневелых орехах бывают токсины плесени: у собак от них описаны дрожь и судороги, о кошках данных мало.",
+        "en": "Walnuts, like other nuts, are high in fat and oil. This can cause vomiting, diarrhoea and an inflamed pancreas. Mouldy nuts may carry mould toxins: in dogs they are known to cause tremors and seizures; data on cats are thin."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Свежие орехи жирные и могут расстроить желудок; заплесневелые опасны.",
+        "en": "With caution. Fresh walnuts are fatty and can upset the stomach; mouldy ones are dangerous."
+      },
+      "why": {
+        "ru": "В грецких орехах много жира и масла: от них бывают рвота, понос и воспаление поджелудочной железы. Заплесневелые орехи могут содержать токсины плесени, от которых у собак бывают рвота, дрожь, судороги и повышение температуры.",
+        "en": "Walnuts are high in fat and oil: they can cause vomiting, diarrhoea and an inflamed pancreas. Mouldy nuts may contain mould toxins that cause vomiting, tremors, seizures and a raised temperature in dogs."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "дрожь, судороги или жар, если орехи были заплесневелыми"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "tremors, seizures or fever if the nuts were mouldy"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Если орехи были заплесневелыми, позвоните в клинику сразу",
+      "Уберите остатки орехов и проследите за питомцем",
+      "Если появились признаки из списка, позвоните в клинику",
+      "Запомните, что и когда было съедено"
+    ],
+    "en": [
+      "If the nuts were mouldy, call a clinic straight away",
+      "Put the rest of the nuts away and keep an eye on your pet",
+      "If any listed sign appears, call a clinic",
+      "Note what was eaten and when"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте домашние «антидоты» из интернета",
+      "Не ждите признаков: они могут появиться не сразу"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give home “antidotes” from the internet",
+      "Do not wait for signs: they may appear later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    },
+    {
+      "title": "Merck Veterinary Manual — Tremorgenic Neuromycotoxicosis in Dogs",
+      "url": "https://www.merckvetmanual.com/toxicology/mycotoxicoses/tremorgenic-neuromycotoxicosis-in-dogs"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

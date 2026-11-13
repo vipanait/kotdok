@@ -1,0 +1,111 @@
+{
+  "slug": "batareiki",
+  "category": "household",
+  "name": {
+    "ru": "Батарейки (включая плоские «таблетки»)",
+    "en": "Batteries (including button cells)"
+  },
+  "titleRu": "батарейки",
+  "aliases": {
+    "ru": [
+      "батарейка",
+      "батарейку",
+      "пальчиковая батарейка",
+      "плоская батарейка",
+      "батарейка-таблетка",
+      "дисковая батарейка",
+      "литиевая батарейка",
+      "аккумулятор"
+    ],
+    "en": [
+      "battery",
+      "button battery",
+      "coin battery",
+      "disc battery",
+      "lithium battery",
+      "coin cell",
+      "button cell"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Проглоченная плоская батарейка может застрять и обжечь пищевод — это срочный случай.",
+        "en": "Dangerous. A swallowed button battery can lodge and burn the oesophagus — this is an emergency."
+      },
+      "why": {
+        "ru": "Плоские и литиевые батарейки, застряв в пищеводе или кишечнике, проводят ток и вызывают ожог. Обычные пальчиковые при прокусе выпускают едкое содержимое. Язвы во рту могут стать заметны только через несколько часов.",
+        "en": "Button and lithium batteries that lodge in the oesophagus or intestine pass a current and cause a burn. Ordinary AA-type batteries release corrosive contents when punctured. Mouth ulcers may become visible only hours later."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "боль во рту, питомец трогает морду лапой"
+        ],
+        "en": [
+          "drooling",
+          "mouth pain, pawing at the mouth"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Проглоченная или прокушенная батарейка — срочный случай, даже если собака выглядит нормально.",
+        "en": "Dangerous. A swallowed or punctured battery is an emergency even if the dog looks normal."
+      },
+      "why": {
+        "ru": "Собаки чаще всего грызут и глотают пальчиковые батарейки и плоские «таблетки». Прокушенная батарейка выпускает едкое содержимое и обжигает рот, а плоская может застрять в пищеводе или кишечнике и вызвать ожог током. Язвы во рту могут стать заметны только через несколько часов.",
+        "en": "Dogs most often chew and swallow AA-type batteries and button cells. A punctured battery releases corrosive contents that burn the mouth, and a button cell can lodge in the oesophagus or intestine and burn by current. Mouth ulcers may become visible only hours later."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "боль во рту, собака трогает морду лапой"
+        ],
+        "en": [
+          "drooling",
+          "mouth pain, pawing at the mouth"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Скажите врачу тип батарейки и когда питомец мог её проглотить; сохраните упаковку или похожую батарейку",
+      "Найдите и уберите остальные батарейки и устройства с ними"
+    ],
+    "en": [
+      "Call a vet clinic right away, even if your pet seems fine",
+      "Tell the vet the type of battery and when it may have been swallowed; keep the packaging or a similar battery",
+      "Find and remove other batteries and the devices that hold them"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не ждите признаков: они могут появиться через несколько часов"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not wait for signs: they can appear hours later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — Batteries",
+      "url": "https://www.petpoisonhelpline.com/poison/batteries/"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

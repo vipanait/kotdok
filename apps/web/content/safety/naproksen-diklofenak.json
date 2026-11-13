@@ -1,0 +1,134 @@
+{
+  "slug": "naproksen-diklofenak",
+  "category": "medicine",
+  "name": {
+    "ru": "Напроксен и диклофенак",
+    "en": "Naproxen and diclofenac"
+  },
+  "titleRu": "напроксен и диклофенак",
+  "aliases": {
+    "ru": [
+      "напроксен",
+      "диклофенак",
+      "вольтарен",
+      "ортофен",
+      "налгезин",
+      "диклофенак гель",
+      "напроксен натрия",
+      "диклак"
+    ],
+    "en": [
+      "naproxen",
+      "diclofenac",
+      "aleve",
+      "voltaren",
+      "naprosyn",
+      "diclofenac gel"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Напроксен и диклофенак ядовиты для кошек.",
+        "en": "Dangerous. Naproxen and diclofenac are poisonous to cats."
+      },
+      "why": {
+        "ru": "Это обезболивающие и противовоспалительные для людей. В опасном количестве они вызывают тяжёлые язвы желудка и кишечника и острую почечную недостаточность. К напроксену кошки, по-видимому, ещё чувствительнее собак. Что делать, решает врач.",
+        "en": "These are human painkillers and anti-inflammatories. In a toxic amount they cause severe stomach and gut ulcers and sudden kidney failure. Cats seem to be even more sensitive to naproxen than dogs. The vet decides what to do."
+      },
+      "signs": {
+        "ru": [
+          "рвота, иногда с кровью",
+          "чёрный дёгтеобразный стул или понос",
+          "отказ от еды, боль в животе",
+          "изменение количества мочи",
+          "вялость"
+        ],
+        "en": [
+          "vomiting, sometimes with blood",
+          "black tarry stool or diarrhoea",
+          "not eating, belly pain",
+          "change in the amount of urine",
+          "lethargy"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Напроксен и диклофенак ядовиты для собак, особенно напроксен.",
+        "en": "Dangerous. Naproxen and diclofenac are poisonous to dogs, naproxen especially."
+      },
+      "why": {
+        "ru": "У собак эти препараты вызывают тяжёлые язвы желудка и кишечника, вплоть до прободения, и могут привести к острой почечной недостаточности. У напроксена очень узкий запас безопасности. Насколько это опасно, оценит врач.",
+        "en": "In dogs these drugs cause severe stomach and gut ulcers, which can even perforate, and can lead to sudden kidney failure. Naproxen has a very narrow safety margin. The vet will judge how dangerous it is."
+      },
+      "signs": {
+        "ru": [
+          "рвота, иногда с кровью",
+          "чёрный дёгтеобразный стул",
+          "отказ от еды, боль в животе",
+          "сильная жажда и частое мочеиспускание",
+          "вялость"
+        ],
+        "en": [
+          "vomiting, sometimes with blood",
+          "black tarry stool",
+          "not eating, belly pain",
+          "strong thirst and frequent urination",
+          "lethargy"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Уберите остатки препарата и назовите врачу его название",
+      "Сохраните упаковку или сфотографируйте её: врачу важны состав и форма препарата",
+      "Прикиньте, сколько могло быть съедено и когда"
+    ],
+    "en": [
+      "Call a vet clinic right away, even if your pet seems fine",
+      "Put the rest of the product away and tell the vet its name",
+      "Keep the packaging or take a photo of it: the vet needs the ingredients and the form",
+      "Work out roughly how much was eaten and when"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте молоко, масло, уголь и другие «антидоты» из интернета",
+      "Не ждите признаков: они могут появиться через несколько часов или дней"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give milk, oil, charcoal or other home “antidotes” from the internet",
+      "Do not wait for signs: they can appear hours or days later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — NSAIDs",
+      "url": "https://www.petpoisonhelpline.com/poison/nsaids/"
+    },
+    {
+      "title": "Pet Poison Helpline — Naproxen",
+      "url": "https://www.petpoisonhelpline.com/poison/naproxen/"
+    },
+    {
+      "title": "MSD Veterinary Manual — Poisoning from Human Over-the-Counter Drugs",
+      "url": "https://www.merckvetmanual.com/special-pet-topics/poisoning/poisoning-from-human-over-the-counter-drugs"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

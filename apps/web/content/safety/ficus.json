@@ -1,0 +1,126 @@
+{
+  "slug": "ficus",
+  "category": "plant",
+  "name": {
+    "ru": "Фикус",
+    "en": "Ficus (weeping fig)"
+  },
+  "titleRu": "фикус",
+  "aliases": {
+    "ru": [
+      "фикус бенджамина",
+      "фикус эластика",
+      "каучуковое дерево",
+      "фикус каучуконосный",
+      "фикуса"
+    ],
+    "en": [
+      "ficus",
+      "ficus benjamina",
+      "weeping fig",
+      "rubber plant",
+      "rubber fig"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Фикус для кошек и собак ядовит: его сок раздражает рот, желудок и кожу.",
+        "en": "With caution. Ficus is poisonous to cats and dogs: its sap irritates the mouth, stomach and skin."
+      },
+      "why": {
+        "ru": "ASPCA относит фикусы к ядовитым для кошек и собак. По данным Pet Poison Helpline, млечный сок раздражает рот и пищеварительный тракт, а попав на кожу, раздражает и её. Если питомец съел много или признаки не проходят, позвоните в клинику.",
+        "en": "The ASPCA lists ficus as toxic to cats and dogs. According to Pet Poison Helpline, the milky sap irritates the mouth and digestive tract, and it irritates the skin if it gets on it. If the pet ate a lot or the signs do not pass, call a clinic."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "слюнотечение",
+          "понос",
+          "потеря аппетита",
+          "раздражение кожи"
+        ],
+        "en": [
+          "vomiting",
+          "drooling",
+          "diarrhoea",
+          "loss of appetite",
+          "skin irritation"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Фикус для кошек и собак ядовит: его сок раздражает рот, желудок и кожу.",
+        "en": "With caution. Ficus is poisonous to cats and dogs: its sap irritates the mouth, stomach and skin."
+      },
+      "why": {
+        "ru": "ASPCA относит фикусы к ядовитым для кошек и собак. По данным Pet Poison Helpline, млечный сок раздражает рот и пищеварительный тракт, а попав на кожу, раздражает и её. Если питомец съел много или признаки не проходят, позвоните в клинику.",
+        "en": "The ASPCA lists ficus as toxic to cats and dogs. According to Pet Poison Helpline, the milky sap irritates the mouth and digestive tract, and it irritates the skin if it gets on it. If the pet ate a lot or the signs do not pass, call a clinic."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "слюнотечение",
+          "понос",
+          "потеря аппетита",
+          "раздражение кожи"
+        ],
+        "en": [
+          "vomiting",
+          "drooling",
+          "diarrhoea",
+          "loss of appetite",
+          "skin irritation"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите растение туда, куда питомец не доберётся",
+      "Уберите остатки растения из пасти и протрите мордочку влажной тканью",
+      "Понаблюдайте за питомцем несколько часов",
+      "Если появились признаки или вы не уверены в растении, позвоните в клинику"
+    ],
+    "en": [
+      "Move the plant out of the pet's reach",
+      "Remove any plant pieces from the mouth and wipe the face with a damp cloth",
+      "Watch the pet for several hours",
+      "If signs appear or you are not sure about the plant, call a clinic"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте молоко, масло, уголь и другие «антидоты» из интернета",
+      "Не ждите, пока станет хуже, если питомец вялый или его рвёт"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give milk, oil, charcoal or other home “antidotes” from the internet",
+      "Do not wait for things to get worse if the pet is lethargic or vomiting"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Weeping Fig",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/weeping-fig"
+    },
+    {
+      "title": "Pet Poison Helpline — Ficus",
+      "url": "https://www.petpoisonhelpline.com/poison/ficus/"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

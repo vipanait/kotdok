@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import { PAIN_SIGNS, SYMPTOMS_MAX } from '@lapka/contracts'
 import { emptyCheckForm, type CheckForm } from './check-form'
-import { DRAFT_KEY, isWorthKeeping, parseDraft, serialiseDraft, shouldKeepDraft } from './check-draft'
+import { DRAFT_KEY, isWorthKeeping, parseDraft, prefillDecision, serialiseDraft, shouldKeepDraft } from './check-draft'
 
 const ME = 'user-1'
 const SOMEONE_ELSE = 'user-2'
 const A_PET = '11111111-1111-4111-8111-000000000001'
+const OTHER_PET = '11111111-1111-4111-8111-000000000002'
 
 const typed = () => ({ ...emptyCheckForm(A_PET), symptoms: 'вялый второй день' })
 
@@ -108,5 +109,45 @@ describe('whether a draft survives leaving the screen', () => {
   it('drops an empty form either way', () => {
     expect(shouldKeepDraft({ finished: false, form: emptyCheckForm() })).toBe(false)
     expect(shouldKeepDraft({ finished: true, form: emptyCheckForm() })).toBe(false)
+  })
+})
+
+describe('a description handed over from «Можно ли?»', () => {
+  const prefill = 'Съел(а): виноград. '
+
+  it('goes straight in over an empty form', () => {
+    expect(prefillDecision(emptyCheckForm(), prefill)).toBe('apply')
+    expect(prefillDecision(emptyCheckForm(A_PET), prefill)).toBe('apply')
+  })
+
+  it('asks before replacing a description already begun', () => {
+    expect(prefillDecision({ ...emptyCheckForm(), symptoms: 'хромает' }, prefill)).toBe('ask')
+    // Answers chosen on the second step are work too.
+    expect(prefillDecision({ ...emptyCheckForm(), appetite: 'reduced' }, prefill)).toBe('ask')
+  })
+
+  it('needs no question when the description already starts with it', () => {
+    expect(prefillDecision({ ...emptyCheckForm(), symptoms: 'Съел(а): виноград. рвота' }, prefill)).toBe('apply')
+  })
+
+  it('asks when the description already begun is about another pet', () => {
+    const begun = { ...emptyCheckForm(A_PET), symptoms: 'Съел(а): виноград. рвота' }
+
+    expect(prefillDecision(begun, prefill, A_PET)).toBe('apply')
+    // Same words, other animal: switching the pet under a written description is not ours to do.
+    expect(prefillDecision(begun, prefill, OTHER_PET)).toBe('ask')
+  })
+
+  it('asks before touching a begun description for a pet that is gone', () => {
+    // The pet named by the card was deleted: the id matches nobody on the form.
+    expect(prefillDecision({ ...emptyCheckForm(A_PET), symptoms: 'хромает' }, prefill, 'gone')).toBe('ask')
+    expect(prefillDecision({ ...emptyCheckForm(A_PET), symptoms: 'Съел(а): виноград. ' }, prefill, 'gone')).toBe('ask')
+    // An empty form has nothing to lose: the text goes in, the pet stays the one shown.
+    expect(prefillDecision(emptyCheckForm(A_PET), prefill, 'gone')).toBe('apply')
+  })
+
+  it('does nothing without a text', () => {
+    expect(prefillDecision(emptyCheckForm(), '')).toBe('ignore')
+    expect(prefillDecision({ ...emptyCheckForm(), symptoms: 'хромает' }, '')).toBe('ignore')
   })
 })

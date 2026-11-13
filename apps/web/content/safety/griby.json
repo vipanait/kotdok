@@ -1,0 +1,142 @@
+{
+  "slug": "griby",
+  "category": "food",
+  "name": {
+    "ru": "Грибы",
+    "en": "Mushrooms"
+  },
+  "titleRu": "грибы",
+  "aliases": {
+    "ru": [
+      "гриб",
+      "грибочки",
+      "дикие грибы",
+      "лесные грибы",
+      "поганка",
+      "бледная поганка",
+      "мухомор",
+      "белые грибы",
+      "лисички",
+      "опята",
+      "сыроежки",
+      "ядовитые грибы"
+    ],
+    "en": [
+      "mushroom",
+      "wild mushrooms",
+      "toadstool",
+      "death cap",
+      "fly agaric",
+      "porcini",
+      "chanterelle",
+      "poisonous mushrooms"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. Любой гриб, съеденный на улице, считайте ядовитым: часть грибов поражает печень, почки и нервную систему.",
+        "en": "Not safe. Treat any mushroom eaten outdoors as poisonous: some damage the liver, kidneys and nervous system."
+      },
+      "why": {
+        "ru": "Ядовитые грибы трудно отличить от безвредных даже специалисту, поэтому любой гриб, который съел питомец, считают ядовитым, пока его не определит миколог. Одни грибы действуют за минуты, другие дают признаки только через много часов, до суток, когда лечить труднее. Магазинные грибы для людей — отдельная позиция «Грибы из магазина».",
+        "en": "Poisonous mushrooms are hard to tell from harmless ones even for experts, so any mushroom a pet ate is treated as poisonous until a mycologist identifies it. Some act within minutes, others show signs only many hours later, up to a day, when treatment is harder. Mushrooms sold in shops for people have their own entry, \"Store-bought mushrooms\"."
+      },
+      "signs": {
+        "ru": [
+          "рвота и понос",
+          "шаткая походка, дрожь",
+          "судороги",
+          "дезориентация, странное поведение",
+          "сильная жажда, частое мочеиспускание",
+          "чёрный дёгтеобразный стул"
+        ],
+        "en": [
+          "vomiting and diarrhoea",
+          "unsteady walking, tremors",
+          "seizures",
+          "disorientation, odd behaviour",
+          "unusual thirst or urination",
+          "black, tarry stool"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. Любой гриб, съеденный на улице, считайте ядовитым: часть грибов поражает печень, почки и нервную систему.",
+        "en": "Not safe. Treat any mushroom eaten outdoors as poisonous: some damage the liver, kidneys and nervous system."
+      },
+      "why": {
+        "ru": "Собаки чаще других отравляются грибами: едят всё подряд на прогулке. Ядовитые грибы трудно отличить от безвредных даже специалисту, поэтому любой съеденный гриб считают ядовитым, пока его не определит миколог. Признаки могут появиться через минуты или только через много часов, до суток. Магазинные грибы для людей — отдельная позиция «Грибы из магазина».",
+        "en": "Dogs are especially prone to mushroom poisoning because they eat things on walks. Poisonous mushrooms are hard to tell from harmless ones even for experts, so any mushroom eaten is treated as poisonous until a mycologist identifies it. Signs may appear within minutes or only many hours later, up to a day. Mushrooms sold in shops for people have their own entry, \"Store-bought mushrooms\"."
+      },
+      "signs": {
+        "ru": [
+          "рвота и понос",
+          "шаткая походка, дрожь",
+          "судороги",
+          "дезориентация, странное поведение",
+          "сильная жажда, частое мочеиспускание",
+          "чёрный дёгтеобразный стул"
+        ],
+        "en": [
+          "vomiting and diarrhoea",
+          "unsteady walking, tremors",
+          "seizures",
+          "disorientation, odd behaviour",
+          "unusual thirst or urination",
+          "black, tarry stool"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Позвоните в клинику сразу, не ждите признаков",
+      "Сфотографируйте гриб или возьмите его кусочек с собой, если он остался",
+      "Уберите остатки грибов от питомца"
+    ],
+    "en": [
+      "Call a clinic right away, do not wait for signs",
+      "Photograph the mushroom or take a piece of it with you if any is left",
+      "Keep your pet away from any remaining mushrooms"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не ждите, пока появятся признаки: они могут проявиться через сутки",
+      "Не пытайтесь определить гриб сами и не считайте его безопасным"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not wait for signs: they can appear a day later",
+      "Do not try to identify the mushroom yourself or assume it is harmless"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — Mushrooms",
+      "url": "https://www.petpoisonhelpline.com/poison/mushrooms/"
+    },
+    {
+      "title": "ASPCA — The Fungus Among Us: Mushroom Toxicosis",
+      "url": "https://www.aspca.org/news/fungus-among-us-mushroom-toxicosis"
+    },
+    {
+      "title": "Merck Veterinary Manual — Overview of Mushrooms Toxic to Animals",
+      "url": "https://www.merckvetmanual.com/toxicology/poisonous-mushrooms/overview-of-mushrooms-toxic-to-animals"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

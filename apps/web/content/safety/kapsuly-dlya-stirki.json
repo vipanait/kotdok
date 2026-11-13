@@ -1,0 +1,130 @@
+{
+  "slug": "kapsuly-dlya-stirki",
+  "category": "household",
+  "name": {
+    "ru": "Капсулы для стирки",
+    "en": "Laundry pods"
+  },
+  "titleRu": "капсулы для стирки",
+  "aliases": {
+    "ru": [
+      "капсулы для стирки белья",
+      "капсулы для стиральной машины",
+      "стиральные капсулы",
+      "гелевые капсулы для стирки",
+      "капсулы для белья"
+    ],
+    "en": [
+      "laundry pods",
+      "laundry capsules",
+      "detergent pods",
+      "washing capsules",
+      "tide pods"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Капсула для стирки — концентрированное средство, которое опасно для кошек.",
+        "en": "Dangerous. A laundry pod is a concentrated product that is dangerous to cats."
+      },
+      "why": {
+        "ru": "Внутри капсулы концентрированное моющее средство. Прокушенная капсула лопается, средство пенится во рту, и его можно вдохнуть — это грозит воспалением лёгких. Частые признаки — слюнотечение и рвота. О кошках данных мало, поэтому считаем это так же опасным, как для собак. Что делать, решает врач.",
+        "en": "A pod holds a concentrated detergent. A bitten pod bursts, the detergent foams in the mouth and can be breathed in, which risks pneumonia. Drooling and vomiting are common signs. There is little data on cats, so we treat it as just as dangerous as for dogs. The vet decides what to do."
+      },
+      "signs": {
+        "ru": [
+          "обильное слюнотечение",
+          "рвота",
+          "кашель, затруднённое дыхание",
+          "вялость, слабость",
+          "слезотечение и прищуривание, если средство попало в глаза"
+        ],
+        "en": [
+          "heavy drooling",
+          "vomiting",
+          "coughing, laboured breathing",
+          "lethargy, weakness",
+          "watery, squinting eyes if the detergent got in them"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Капсула для стирки — концентрированное средство, которое опасно для собак.",
+        "en": "Dangerous. A laundry pod is a concentrated product that is dangerous to dogs."
+      },
+      "why": {
+        "ru": "Прокушенная капсула лопается, концентрированное средство пенится во рту и может попасть в дыхательные пути, а это грозит воспалением лёгких. Собаки страдают от капсул чаще других животных, потому что хватают что попало. Что делать, решает врач.",
+        "en": "A bitten pod bursts, the concentrated detergent foams in the mouth and can get into the airways, which risks pneumonia. Dogs are affected by pods more often than other animals because they grab whatever they find. The vet decides what to do."
+      },
+      "signs": {
+        "ru": [
+          "обильное слюнотечение",
+          "рвота",
+          "кашель, затруднённое дыхание",
+          "вялость, слабость",
+          "слезотечение и прищуривание, если средство попало в глаза"
+        ],
+        "en": [
+          "heavy drooling",
+          "vomiting",
+          "coughing, laboured breathing",
+          "lethargy, weakness",
+          "watery, squinting eyes if the detergent got in them"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Уберите питомца от вещества и закройте к нему доступ",
+      "Сохраните упаковку или сфотографируйте её: врачу важны название и состав",
+      "Прикиньте, сколько могло быть съедено или попасть на шерсть, и когда"
+    ],
+    "en": [
+      "Call a vet clinic right away, even if your pet seems fine",
+      "Take your pet away from the substance and block access to it",
+      "Keep the packaging or take a photo of it: the vet needs the name and the ingredients",
+      "Work out roughly how much was eaten or got on the coat, and when"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте молоко, масло, уголь и другие «антидоты» из интернета",
+      "Не ждите признаков: они могут появиться не сразу"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give milk, oil, charcoal or other home “antidotes” from the internet",
+      "Do not wait for signs: they may not appear at once"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — How Detergent Pods Can Harm Your Dog",
+      "url": "https://www.petpoisonhelpline.com/pet-tips/how-detergent-pods-can-harm-your-dog/"
+    },
+    {
+      "title": "ASPCA Animal Poison Control — Keep Laundry Detergent Pods Away from Pets",
+      "url": "https://www.aspca.org/news/animal-poison-control-alert-keep-laundry-detergent-pods-away-pets"
+    },
+    {
+      "title": "MSD Veterinary Manual — Detergents, Soaps, and Shampoos",
+      "url": "https://www.merckvetmanual.com/toxicology/household-hazards/detergents,-soaps,-and-shampoos"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

@@ -1,0 +1,116 @@
+{
+  "slug": "syr",
+  "category": "food",
+  "name": {
+    "ru": "Сыр",
+    "en": "Cheese"
+  },
+  "titleRu": "сыр",
+  "aliases": {
+    "ru": [
+      "сыры",
+      "твёрдый сыр",
+      "твердый сыр",
+      "плавленый сыр",
+      "сыр с плесенью",
+      "кусочек сыра"
+    ],
+    "en": [
+      "cheeses",
+      "hard cheese",
+      "cheddar cheese",
+      "blue cheese",
+      "processed cheese",
+      "cheddar"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Крошечный кусочек сыра изредка допустим, но кошке он не нужен.",
+        "en": "With caution. A tiny piece of cheese now and then is acceptable, but a cat does not need it."
+      },
+      "why": {
+        "ru": "Многие кошки плохо переносят молочное: им не хватает фермента, который расщепляет молочный сахар, и бывает расстройство желудка. Сыр к тому же жирный и солёный. Сыр с луком, чесноком или специями исключите совсем.",
+        "en": "Many cats tolerate dairy poorly: they lack enough of the enzyme that breaks down milk sugar and can get an upset stomach. Cheese is also fatty and salty. Leave out cheese with onion, garlic or spices entirely."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Небольшой кусочек простого сыра изредка, как награда.",
+        "en": "With caution. A small piece of plain cheese now and then, as a reward."
+      },
+      "why": {
+        "ru": "Молочное может вызвать понос и расстройство желудка: собакам не хватает фермента, который расщепляет молочный сахар. Сыр жирный и солёный, а слишком жирная еда может раздражать поджелудочную железу. Сыр с луком или чесноком исключите; лучше простой сыр с малым количеством соли.",
+        "en": "Dairy can cause diarrhoea and an upset stomach: dogs lack enough of the enzyme that breaks down milk sugar. Cheese is fatty and salty, and overly rich food can irritate the pancreas. Leave out cheese with onion or garlic; plain, low-salt cheese is the better choice."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Оставьте доступ к чистой воде",
+      "Наблюдайте за питомцем сутки",
+      "Если рвота или понос не проходят, питомец вялый или отказывается от еды — проверьте симптомы или позвоните в клинику"
+    ],
+    "en": [
+      "Leave fresh water available",
+      "Watch your pet for a day",
+      "If vomiting or diarrhoea goes on, or your pet is lethargic or refuses food, check the symptoms or call a clinic"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не давайте сыр с луком, чесноком или специями",
+      "Не давайте лекарства без назначения врача"
+    ],
+    "en": [
+      "Do not give cheese with onion, garlic or spices",
+      "Do not give any medicine unless a vet tells you to"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    },
+    {
+      "title": "Cornell Feline Health Center — Feeding Your Cat",
+      "url": "https://www.vet.cornell.edu/departments-centers-and-institutes/cornell-feline-health-center/health-information/feline-health-topics/feeding-your-cat"
+    },
+    {
+      "title": "Cornell Riney Canine Health Center — Re-evaluating your dog's diet",
+      "url": "https://www.vet.cornell.edu/departments-centers-and-institutes/riney-canine-health-center/canine-health-topics/re-evaluating-your-dogs-diet"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

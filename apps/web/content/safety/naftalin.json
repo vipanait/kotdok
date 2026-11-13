@@ -1,0 +1,128 @@
+{
+  "slug": "naftalin",
+  "category": "household",
+  "name": {
+    "ru": "Нафталин",
+    "en": "Mothballs (naphthalene)"
+  },
+  "titleRu": "нафталин",
+  "aliases": {
+    "ru": [
+      "нафталин",
+      "нафталиновые шарики",
+      "шарики от моли",
+      "средство от моли",
+      "таблетки от моли"
+    ],
+    "en": [
+      "naphthalene",
+      "mothball",
+      "mothballs",
+      "moth balls",
+      "moth repellent",
+      "moth crystals",
+      "paradichlorobenzene"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Кошки чувствительнее других животных к средствам от моли: опасно проглотить шарик, а вещество всасывается и через кожу и при вдыхании.",
+        "en": "Dangerous. Cats are more sensitive than other animals to mothballs: swallowing a ball is dangerous, and the chemical is also absorbed through the skin and by breathing it in."
+      },
+      "why": {
+        "ru": "Шарики от моли — это пестицид, который испаряется. Нафталиновые шарики опаснее более новых (с парадихлорбензолом), но и новые вредны, особенно если их проглотить. Нафталин в большом количестве разрушает красные клетки крови, а тяжёлое отравление может закончиться отказом печени и почек.",
+        "en": "Mothballs are a pesticide that turns into vapour. Naphthalene mothballs are more toxic than newer ones (with paradichlorobenzene), but the newer ones are harmful too, especially when swallowed. A large amount of naphthalene destroys red blood cells, and a severe poisoning can end in liver and kidney failure."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "запах нафталина изо рта",
+          "бледные или бурые дёсны",
+          "вялость, слабость",
+          "затруднённое дыхание",
+          "дрожь, судороги"
+        ],
+        "en": [
+          "vomiting",
+          "mothball smell on the breath",
+          "pale or brownish gums",
+          "lethargy, weakness",
+          "laboured breathing",
+          "tremors, seizures"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Собаки глотают шарики от моли чаще кошек.",
+        "en": "Dangerous. Dogs swallow mothballs more often than cats do."
+      },
+      "why": {
+        "ru": "Шарики от моли — это пестицид, который испаряется; он действует при проглатывании, через кожу и при вдыхании. Нафталиновые шарики опаснее более новых (с парадихлорбензолом), но и новые вредны. Нафталин в большом количестве разрушает красные клетки крови, а тяжёлое отравление может закончиться отказом печени и почек.",
+        "en": "Mothballs are a pesticide that turns into vapour; it acts when swallowed, through the skin and when breathed in. Naphthalene mothballs are more toxic than newer ones (with paradichlorobenzene), but the newer ones are harmful too. A large amount of naphthalene destroys red blood cells, and a severe poisoning can end in liver and kidney failure."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "запах нафталина изо рта",
+          "бледные или бурые дёсны",
+          "вялость, слабость",
+          "затруднённое дыхание",
+          "дрожь, судороги"
+        ],
+        "en": [
+          "vomiting",
+          "mothball smell on the breath",
+          "pale or brownish gums",
+          "lethargy, weakness",
+          "laboured breathing",
+          "tremors, seizures"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Сохраните упаковку или сфотографируйте этикетку: врачу важны название и состав",
+      "Уберите шарики и проветрите шкаф или комнату, где они лежали"
+    ],
+    "en": [
+      "Call a vet clinic right away, even if your pet seems fine",
+      "Keep the packaging or photograph the label: the vet needs the name and ingredients",
+      "Remove the mothballs and air the cupboard or room where they were kept"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не ждите признаков: они могут появиться позже"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not wait for signs: they can appear later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — Mothballs",
+      "url": "https://www.petpoisonhelpline.com/poison/mothballs/"
+    },
+    {
+      "title": "Merck Veterinary Manual — Toxicosis From Mothballs in Animals",
+      "url": "https://www.merckvetmanual.com/toxicology/toxicoses-from-household-hazards/toxicosis-from-mothballs-in-animals"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

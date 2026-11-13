@@ -1,0 +1,109 @@
+{
+  "slug": "arbuz",
+  "category": "food",
+  "name": {
+    "ru": "Арбуз",
+    "en": "Watermelon"
+  },
+  "titleRu": "арбуз",
+  "aliases": {
+    "ru": [
+      "арбузы",
+      "мякоть арбуза",
+      "арбузная корка",
+      "корка арбуза",
+      "арбузные семечки",
+      "косточки арбуза"
+    ],
+    "en": [
+      "watermelons",
+      "watermelon rind",
+      "watermelon seeds"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Пару кусочков мякоти без корки и косточек изредка можно.",
+        "en": "With caution. A couple of pieces of flesh without rind or seeds now and then are fine."
+      },
+      "why": {
+        "ru": "Арбуза нет в списках ядовитых и неядовитых растений ASPCA, и надёжных ветеринарных данных о нём мало, поэтому вердикт осторожный. Любая растительная еда может расстроить желудок, а много семечек может застрять в кишечнике. Допустимы небольшие кусочки мякоти без корки и косточек.",
+        "en": "Watermelon is on neither the ASPCA toxic nor non-toxic plant lists, and reliable veterinary data on it is scarce, so the verdict is cautious. Any plant material can upset the stomach, and a lot of seeds can get lodged in the gut. Small pieces of flesh without rind or seeds are acceptable."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Немного мякоти без корки и косточек изредка можно.",
+        "en": "With caution. A little flesh without rind or seeds now and then is fine."
+      },
+      "why": {
+        "ru": "Арбуза нет в списках ядовитых и неядовитых растений ASPCA, и надёжных ветеринарных данных о нём мало, поэтому вердикт осторожный. Любая растительная еда может расстроить желудок, а много семечек может застрять в кишечнике. Допустимы небольшие кусочки мякоти без корки и косточек.",
+        "en": "Watermelon is on neither the ASPCA toxic nor non-toxic plant lists, and reliable veterinary data on it is scarce, so the verdict is cautious. Any plant material can upset the stomach, and a lot of seeds can get lodged in the gut. Small pieces of flesh without rind or seeds are acceptable."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите остатки и оцените, сколько питомец успел съесть",
+      "Понаблюдайте за питомцем в ближайшие сутки",
+      "Если появились признаки или вы не уверены, позвоните в клинику или пройдите проверку симптомов"
+    ],
+    "en": [
+      "Remove what is left and note how much your pet ate",
+      "Watch your pet over the next day",
+      "If signs appear or you are unsure, call a clinic or run a symptom check"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не ждите ухудшения, если питомец съел много"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not wait for it to get worse if your pet ate a lot"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Toxic and Non-Toxic Plants",
+      "url": "https://www.aspca.org/pet-care/animal-poison-control/toxic-and-non-toxic-plants"
+    },
+    {
+      "title": "ASPCA — 5 Toxic Seasonal Plants You Don't Want Your Pet To Fall For!",
+      "url": "https://www.aspca.org/news/5-toxic-seasonal-plants-you-dont-want-your-pet-fall"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

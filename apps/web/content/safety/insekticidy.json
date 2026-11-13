@@ -1,0 +1,148 @@
+{
+  "slug": "insekticidy",
+  "category": "household",
+  "name": {
+    "ru": "Инсектициды (от тараканов, муравьёв)",
+    "en": "Insecticides (for cockroaches, ants)"
+  },
+  "titleRu": "инсектициды",
+  "aliases": {
+    "ru": [
+      "инсектицид",
+      "средство от тараканов",
+      "средство от муравьёв",
+      "гель от тараканов",
+      "аэрозоль от насекомых",
+      "дихлофос",
+      "мелок от тараканов",
+      "ловушка для тараканов",
+      "приманка для муравьёв",
+      "борная кислота",
+      "средство от насекомых"
+    ],
+    "en": [
+      "insecticide",
+      "cockroach bait",
+      "ant bait",
+      "roach killer",
+      "ant killer",
+      "bug spray",
+      "insect spray",
+      "roach gel",
+      "roach trap"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Кошки чувствительнее других питомцев к пиретроидам — веществам из многих аэрозолей и порошков от насекомых.",
+        "en": "Dangerous. Cats are more sensitive than other pets to pyrethroids, found in many insect sprays and powders."
+      },
+      "why": {
+        "ru": "Многие инсектициды действуют на нервную систему насекомых и так же могут подействовать на питомца — через рот, кожу, глаза или при вдыхании. Сильнее всего они опасны, пока не высохли. Ловушки-домики от тараканов и муравьёв содержат мало яда и чаще вызывают лишь расстройство желудка, но тяжесть зависит от вещества, поэтому врачу нужна этикетка.",
+        "en": "Many insecticides act on the insect nervous system and can act the same way on a pet — by mouth, through the skin or eyes, or when inhaled. They are most dangerous while still wet. Ant and roach bait stations hold little poison and more often cause only a stomach upset, but severity depends on the substance, so the vet needs the label."
+      },
+      "signs": {
+        "ru": [
+          "тошнота, слюнотечение",
+          "рвота",
+          "вялость",
+          "повышенная возбудимость",
+          "дрожь",
+          "затруднённое дыхание",
+          "судороги, обморок"
+        ],
+        "en": [
+          "nausea, drooling",
+          "vomiting",
+          "lethargy",
+          "over-excitability",
+          "tremors",
+          "laboured breathing",
+          "seizures, collapse"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Собаки съедают приманки и лижут обработанные места; тяжесть зависит от вещества.",
+        "en": "Dangerous. Dogs eat baits and lick treated spots; how serious it is depends on the substance."
+      },
+      "why": {
+        "ru": "Многие инсектициды действуют на нервную систему насекомых и так же могут подействовать на питомца — через рот, кожу, глаза или при вдыхании. Сильнее всего они опасны, пока не высохли. В ловушках-домиках мало яда (например, борной кислоты), но собака может проглотить пластиковый корпус, и он застрянет в кишечнике. Врачу нужна этикетка.",
+        "en": "Many insecticides act on the insect nervous system and can act the same way on a pet — by mouth, through the skin or eyes, or when inhaled. They are most dangerous while still wet. Bait stations hold little poison (boric acid, for example), but a dog may swallow the plastic casing, which can block the bowel. The vet needs the label."
+      },
+      "signs": {
+        "ru": [
+          "тошнота, слюнотечение",
+          "рвота",
+          "вялость",
+          "повышенная возбудимость",
+          "дрожь",
+          "затруднённое дыхание",
+          "судороги, обморок"
+        ],
+        "en": [
+          "nausea, drooling",
+          "vomiting",
+          "lethargy",
+          "over-excitability",
+          "tremors",
+          "laboured breathing",
+          "seizures, collapse"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Сохраните упаковку или сфотографируйте этикетку: врачу важны название и состав",
+      "Если средство на шерсти или лапах, не давайте питомцу вылизываться и скажите об этом врачу",
+      "Если было распыление, выведите питомца на воздух и проветрите помещение"
+    ],
+    "en": [
+      "Call a vet clinic right away, even if your pet seems fine",
+      "Keep the packaging or photograph the label: the vet needs the name and ingredients",
+      "If the product is on the fur or paws, keep your pet from licking it and tell the vet",
+      "If it was sprayed, take your pet into fresh air and air the room"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не мойте питомца шампунями от блох и другими средствами с инсектицидами",
+      "Не ждите признаков: они могут появиться позже"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not wash your pet with flea shampoos or other insecticide products",
+      "Do not wait for signs: they can appear later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — Insecticides",
+      "url": "https://www.petpoisonhelpline.com/poison/pesticides/"
+    },
+    {
+      "title": "MSD Veterinary Manual — Plant-Derived Insecticide Toxicosis in Animals",
+      "url": "https://www.msdvetmanual.com/toxicology/insecticide-and-acaricide-organic-toxicity/plant-derived-insecticide-toxicosis-in-animals"
+    },
+    {
+      "title": "Today's Veterinary Nurse — Top 10 Toxins That Are Rarely Serious (ASPCA Animal Poison Control Center)",
+      "url": "https://todaysveterinarynurse.com/?p=1566"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

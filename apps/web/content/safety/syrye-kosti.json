@@ -1,0 +1,121 @@
+{
+  "slug": "syrye-kosti",
+  "category": "food",
+  "name": {
+    "ru": "Сырые кости",
+    "en": "Raw bones"
+  },
+  "titleRu": "сырые кости",
+  "aliases": {
+    "ru": [
+      "сырая кость",
+      "сырую кость",
+      "мозговая кость",
+      "сырые куриные кости",
+      "рёбрышки сырые",
+      "кость сырая"
+    ],
+    "en": [
+      "raw bone",
+      "raw bones",
+      "raw chicken bones",
+      "marrow bone",
+      "recreational bones"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. Сырые кости тоже могут поранить или закупорить пищеварительный тракт.",
+        "en": "Not safe. Raw bones can also injure or block the digestive tract."
+      },
+      "why": {
+        "ru": "Сырую кость могут считать естественным лакомством, но кошкам и собакам она может поранить или закупорить желудок и кишечник, и иногда нужна операция. На сыром мясе бывают сальмонелла и кишечная палочка.",
+        "en": "Raw bones may seem a natural treat, but in cats and dogs they can injure or block the stomach and gut, sometimes needing surgery. Raw meat can carry Salmonella and E. coli."
+      },
+      "signs": {
+        "ru": [
+          "внезапное сильное слюнотечение",
+          "рвотные позывы",
+          "срыгивание",
+          "частые попытки сглотнуть"
+        ],
+        "en": [
+          "sudden heavy drooling",
+          "gagging",
+          "bringing food back up",
+          "repeated attempts to swallow"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. Сырые кости тоже могут застрять, поранить или закупорить пищеварительный тракт.",
+        "en": "Not safe. Raw bones can also get stuck, injure or block the digestive tract."
+      },
+      "why": {
+        "ru": "Сырую кость могут считать естественным лакомством, но она может поранить или закупорить желудок и кишечник, и иногда нужна операция. Кости — самое частое, что застревает у собак в пищеводе. На сыром мясе бывают сальмонелла и кишечная палочка.",
+        "en": "Raw bones may seem a natural treat, but they can injure or block the stomach and gut, sometimes needing surgery. Bones are the most common thing to get stuck in a dog's gullet. Raw meat can carry Salmonella and E. coli."
+      },
+      "signs": {
+        "ru": [
+          "внезапное сильное слюнотечение",
+          "рвотные позывы",
+          "срыгивание",
+          "частые попытки сглотнуть"
+        ],
+        "en": [
+          "sudden heavy drooling",
+          "gagging",
+          "bringing food back up",
+          "repeated attempts to swallow"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Уберите оставшиеся кости",
+      "Запомните, какая это была кость, какого размера и когда она съедена"
+    ],
+    "en": [
+      "Call a vet clinic, even if your pet seems fine",
+      "Put the remaining bones away",
+      "Note what kind and size of bone it was and when it was eaten"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте домашние «антидоты» из интернета",
+      "Не ждите признаков: они могут появиться не сразу"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give home “antidotes” from the internet",
+      "Do not wait for signs: they may appear later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    },
+    {
+      "title": "Merck Veterinary Manual — Disorders of the Esophagus in Dogs",
+      "url": "https://www.merckvetmanual.com/dog-owners/digestive-disorders-of-dogs/disorders-of-the-esophagus-in-dogs"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

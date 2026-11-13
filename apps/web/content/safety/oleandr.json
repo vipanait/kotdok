@@ -1,0 +1,128 @@
+{
+  "slug": "oleandr",
+  "category": "plant",
+  "name": {
+    "ru": "Олеандр",
+    "en": "Oleander"
+  },
+  "titleRu": "олеандр",
+  "aliases": {
+    "ru": [
+      "олеандра",
+      "олеандры",
+      "нерий олеандр",
+      "нериум"
+    ],
+    "en": [
+      "nerium",
+      "nerium oleander",
+      "oleanders",
+      "rose bay"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Олеандр ядовит для кошек: он действует на сердце.",
+        "en": "Dangerous. Oleander is poisonous to cats: it affects the heart."
+      },
+      "why": {
+        "ru": "Всё растение содержит олеандрин — сердечный гликозид. Он может нарушить ритм сердца; запас безопасности у таких веществ мал, и олеандр среди самых ядовитых из них. Поэтому звоните в клинику, даже если питомец съел совсем немного.",
+        "en": "The whole plant contains oleandrin, a cardiac glycoside. It can upset the heart rhythm; such substances have a narrow margin of safety, and oleander is among the most toxic of them. So call a clinic even if only a little was eaten."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "рвота и понос",
+          "боль в животе",
+          "неровный сердечный ритм",
+          "слабость, обморок"
+        ],
+        "en": [
+          "drooling",
+          "vomiting and diarrhoea",
+          "abdominal pain",
+          "irregular heartbeat",
+          "weakness, collapse"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Олеандр ядовит для собак: он действует на сердце.",
+        "en": "Dangerous. Oleander is poisonous to dogs: it affects the heart."
+      },
+      "why": {
+        "ru": "Всё растение содержит олеандрин — сердечный гликозид. Он может нарушить ритм сердца; запас безопасности у таких веществ мал, и олеандр среди самых ядовитых из них. Поэтому звоните в клинику, даже если питомец съел совсем немного.",
+        "en": "The whole plant contains oleandrin, a cardiac glycoside. It can upset the heart rhythm; such substances have a narrow margin of safety, and oleander is among the most toxic of them. So call a clinic even if only a little was eaten."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "рвота и понос",
+          "боль в животе",
+          "неровный сердечный ритм",
+          "слабость, обморок"
+        ],
+        "en": [
+          "drooling",
+          "vomiting and diarrhoea",
+          "abdominal pain",
+          "irregular heartbeat",
+          "weakness, collapse"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Позвоните в ветеринарную клинику сразу, не дожидаясь признаков",
+      "Уберите растение туда, куда питомец не доберётся",
+      "Возьмите кусочек растения или сфотографируйте его, чтобы показать врачу",
+      "Скажите врачу, сколько примерно времени прошло"
+    ],
+    "en": [
+      "Call a vet clinic right away, without waiting for signs",
+      "Move the plant out of reach",
+      "Take a piece of the plant or a photo of it to show the vet",
+      "Tell the vet roughly how long ago it happened"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте домашние «противоядия» из интернета",
+      "Не откладывайте звонок до утра, даже если питомец выглядит бодрым"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give home “antidotes” from the internet",
+      "Do not put off the call till morning even if your pet looks fine"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Oleander",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/oleander"
+    },
+    {
+      "title": "Pet Poison Helpline — Oleander",
+      "url": "https://www.petpoisonhelpline.com/poison/oleander/"
+    },
+    {
+      "title": "MSD Veterinary Manual — Houseplants and Ornamentals Toxic to Animals",
+      "url": "https://www.merckvetmanual.com/toxicology/poisonous-plants/houseplants-and-ornamentals-toxic-to-animals"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

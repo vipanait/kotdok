@@ -1,0 +1,137 @@
+{
+  "slug": "syroe-myaso",
+  "category": "food",
+  "name": {
+    "ru": "Сырое мясо",
+    "en": "Raw meat"
+  },
+  "titleRu": "сырое мясо",
+  "aliases": {
+    "ru": [
+      "сырая говядина",
+      "сырую говядину",
+      "сырая курица",
+      "сырую курицу",
+      "сырая свинина",
+      "сырую свинину",
+      "сырой фарш",
+      "фарш сырой",
+      "барф",
+      "сырая печень",
+      "мясо сырое"
+    ],
+    "en": [
+      "raw beef",
+      "raw chicken",
+      "raw pork",
+      "raw mince",
+      "raw ground meat",
+      "raw diet",
+      "raw feeding",
+      "raw liver"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Сырое мясо может нести бактерии и паразитов; кормить им кошку не рекомендуют.",
+        "en": "With caution. Raw meat may carry bacteria and parasites; it is not recommended for cats."
+      },
+      "why": {
+        "ru": "В сыром мясе бывают бактерии, вирусы и паразиты, в том числе возбудитель токсоплазмоза. Ими может заразиться и кошка, и люди в доме, особенно с ослабленным иммунитетом. Польза сырого рациона наукой не подтверждена. Простое варёное мясо без костей и приправ надёжнее.",
+        "en": "Raw meat may carry bacteria, viruses and parasites, including the cause of toxoplasmosis. Both the cat and people at home can be infected, especially those with weak immunity. There is no scientific evidence that raw diets are beneficial. Plain cooked meat without bones or seasoning is the safer choice."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос, иногда с кровью",
+          "повышенная температура",
+          "отказ от еды",
+          "вялость"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea, sometimes bloody",
+          "raised temperature",
+          "refusing food",
+          "lethargy"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Сырое мясо может нести бактерии и паразитов; надёжнее варёное мясо или готовый корм.",
+        "en": "With caution. Raw meat may carry bacteria and parasites; cooked meat or a complete food is the safer choice."
+      },
+      "why": {
+        "ru": "В сыром мясе бывают сальмонелла, кишечная палочка, листерии и паразиты. Собака может выглядеть здоровой и при этом выделять бактерии и заражать людей — особенно детей, пожилых, беременных и людей с ослабленным иммунитетом. Сушка, в том числе сублимационная, не делает сырое мясо таким же безопасным, как варка: в сухом виде бактерии выживают.",
+        "en": "Raw meat may carry Salmonella, E. coli, Listeria and parasites. A dog can look healthy yet shed bacteria and infect people — especially children, older adults, pregnant women and anyone with weak immunity. Drying, freeze-drying included, does not make raw meat as safe as cooking: bacteria survive in a dried state."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос, иногда с кровью",
+          "повышенная температура",
+          "отказ от еды",
+          "вялость"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea, sometimes bloody",
+          "raised temperature",
+          "refusing food",
+          "lethargy"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите остатки и проследите за питомцем",
+      "Если появились признаки из списка или питомцу стало хуже, позвоните в клинику",
+      "Тщательно вымойте руки и поверхности, которых касалось сырое мясо"
+    ],
+    "en": [
+      "Put the rest away and keep an eye on your pet",
+      "If any listed sign appears or your pet gets worse, call a clinic",
+      "Wash your hands and any surfaces the raw meat touched thoroughly"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте домашние «антидоты» из интернета",
+      "Не ждите признаков: они могут появиться не сразу"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give home “antidotes” from the internet",
+      "Do not wait for signs: they may appear later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Cornell Feline Health Center — Feeding Your Cat",
+      "url": "https://www.vet.cornell.edu/departments-centers-and-institutes/cornell-feline-health-center/health-information/feline-health-topics/feeding-your-cat"
+    },
+    {
+      "title": "Cornell Riney Canine Health Center — Raw foods for dogs: evidence-based advice",
+      "url": "https://www.vet.cornell.edu/departments-centers-and-institutes/riney-canine-health-center/canine-health-information/raw-foods-dogs-evidence-based-advice-riney-canine-health-center"
+    },
+    {
+      "title": "FDA — Get the Facts about Salmonella",
+      "url": "https://www.fda.gov/animal-veterinary/animal-health-literacy/get-facts-about-salmonella"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

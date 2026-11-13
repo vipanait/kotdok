@@ -1,0 +1,134 @@
+{
+  "slug": "udobreniya",
+  "category": "household",
+  "name": {
+    "ru": "Удобрения",
+    "en": "Fertilizers"
+  },
+  "titleRu": "удобрения",
+  "aliases": {
+    "ru": [
+      "удобрение",
+      "удобрения для растений",
+      "удобрение для газона",
+      "подкормка для растений",
+      "минеральные удобрения",
+      "костная мука",
+      "кровяная мука",
+      "нитрофоска",
+      "азотные удобрения",
+      "гранулы удобрения"
+    ],
+    "en": [
+      "fertilizer",
+      "plant food",
+      "lawn fertilizer",
+      "bone meal",
+      "blood meal",
+      "garden fertilizer",
+      "plant fertilizer",
+      "granular fertilizer"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Немного удобрения обычно расстраивает желудок, но с железом или средствами от вредителей отравление бывает тяжёлым.",
+        "en": "Dangerous. A little fertilizer usually upsets the stomach, but with iron or pest killers in it poisoning can be severe."
+      },
+      "why": {
+        "ru": "В удобрениях азот, фосфор и калий, иногда железо, медь, цинк и другие микроэлементы, а также средства от сорняков, вредителей и грибка. Малое количество обычно даёт лёгкое расстройство желудка, большое — тяжёлое отравление с поражением органов. Органические удобрения из костной, кровяной или рыбной муки в большом количестве могут слипнуться в желудке в ком или вызвать воспаление поджелудочной железы.",
+        "en": "Fertilizers contain nitrogen, phosphorus and potassium, sometimes iron, copper, zinc and other trace elements, and weed, pest or fungus killers. A small amount usually causes a mild stomach upset; a large one, severe poisoning with organ damage. Organic fertilizers made of bone, blood or fish meal can, in a large amount, form a lump in the stomach or inflame the pancreas."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "тошнота, рвота",
+          "понос",
+          "болезненный живот, необычная поза",
+          "затруднённое дыхание",
+          "грязно-серые дёсны"
+        ],
+        "en": [
+          "drooling",
+          "nausea, vomiting",
+          "diarrhoea",
+          "painful belly, unusual posture",
+          "laboured breathing",
+          "muddy-coloured gums"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Немного удобрения обычно вызывает расстройство желудка, но гранулы из мешка, костная и кровяная мука в большом количестве опасны.",
+        "en": "Dangerous. A little fertilizer usually upsets the stomach, but granules from the bag and bone or blood meal in a large amount are dangerous."
+      },
+      "why": {
+        "ru": "В удобрениях азот, фосфор и калий, иногда железо и другие микроэлементы, а также средства от сорняков, вредителей и грибка — тогда отравление тяжелее. Органические удобрения из костной, кровяной или рыбной муки в большом количестве могут слипнуться в желудке в ком, перекрыть кишечник или вызвать болезненное воспаление поджелудочной железы. Точный состав нужно сообщить врачу.",
+        "en": "Fertilizers contain nitrogen, phosphorus and potassium, sometimes iron and other trace elements, and weed, pest or fungus killers — which make poisoning worse. Organic fertilizers made of bone, blood or fish meal can, in a large amount, form a lump in the stomach, block the bowel or cause a painful inflamed pancreas. Tell the vet the exact make-up."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "тошнота, рвота",
+          "понос",
+          "болезненный живот, необычная поза",
+          "затруднённое дыхание",
+          "грязно-серые дёсны"
+        ],
+        "en": [
+          "drooling",
+          "nausea, vomiting",
+          "diarrhoea",
+          "painful belly, unusual posture",
+          "laboured breathing",
+          "muddy-coloured gums"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Сохраните упаковку или сфотографируйте этикетку: врачу важны название и состав",
+      "Уберите питомца от удобрения и спрячьте упаковку"
+    ],
+    "en": [
+      "Call a vet clinic right away, even if your pet seems fine",
+      "Keep the packaging or photograph the label: the vet needs the name and ingredients",
+      "Move your pet away from the fertilizer and put the bag away"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не ждите признаков: рвота может начаться позже"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not wait for signs: vomiting can start later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — Fertilizers",
+      "url": "https://www.petpoisonhelpline.com/poison/fertilizers/"
+    },
+    {
+      "title": "Pet Poison Helpline — Bone Meal & Blood Meal",
+      "url": "https://www.petpoisonhelpline.com/poison/bone-meal/"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

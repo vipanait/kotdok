@@ -1,0 +1,82 @@
+{
+  "slug": "dynya",
+  "category": "food",
+  "name": {
+    "ru": "Дыня",
+    "en": "Melon"
+  },
+  "titleRu": "дыню",
+  "aliases": {
+    "ru": [
+      "дыни",
+      "дыньку",
+      "мякоть дыни",
+      "канталупа"
+    ],
+    "en": [
+      "melon",
+      "cantaloupe",
+      "honeydew",
+      "melon slices"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "safe",
+      "summary": {
+        "ru": "Можно как лакомство. Мякоть дыни не ядовита, но кошке она не нужна.",
+        "en": "Safe as a treat. Melon flesh is not poisonous, but a cat does not need it."
+      },
+      "why": {
+        "ru": "Дыня не ядовита для кошек и собак. Подходит спелая мякоть без корки и семечек, маленькими кусочками и изредка: от избытка сладкого бывают понос и газы.",
+        "en": "Melon is not poisonous to cats or dogs. Ripe flesh without rind or seeds, in small pieces and now and then, is fine: too much sugar can cause diarrhoea and gas."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "none"
+    },
+    "dog": {
+      "verdict": "safe",
+      "summary": {
+        "ru": "Можно как лакомство. Мякоть без корки и семечек — изредка и понемногу.",
+        "en": "Safe as a treat. Flesh without rind or seeds, now and then and a little at a time."
+      },
+      "why": {
+        "ru": "Дыня не ядовита для собак и кошек. Подходит спелая мякоть без корки и семечек, нарезанная кусочками, как редкое лакомство: от избытка сладкого бывают понос и газы.",
+        "en": "Melon is not poisonous to dogs or cats. Ripe flesh without rind or seeds, cut into pieces, is fine as an occasional treat: too much sugar can cause diarrhoea and gas."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "none"
+    }
+  },
+  "firstSteps": {
+    "ru": [],
+    "en": []
+  },
+  "avoid": {
+    "ru": [],
+    "en": []
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Honeydew Melon",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/honeydew-melon"
+    },
+    {
+      "title": "Merck Veterinary Manual — Nutritional Requirements of Small Animals",
+      "url": "https://www.merckvetmanual.com/management-and-nutrition/nutrition-small-animals/nutritional-requirements-of-small-animals"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

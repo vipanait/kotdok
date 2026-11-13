@@ -1,0 +1,130 @@
+{
+  "slug": "dratsena",
+  "category": "plant",
+  "name": {
+    "ru": "Драцена",
+    "en": "Dracaena"
+  },
+  "titleRu": "драцену",
+  "aliases": {
+    "ru": [
+      "драцены",
+      "драконово дерево",
+      "драцена фрагранс",
+      "драцена маргината",
+      "кукурузное растение"
+    ],
+    "en": [
+      "dracaena",
+      "corn plant",
+      "dragon tree",
+      "dracaena fragrans",
+      "ribbon plant"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Драцена для кошек и собак ядовита, чаще всего приводит к рвоте.",
+        "en": "With caution. Dracaena is poisonous to cats and dogs and most often causes vomiting."
+      },
+      "why": {
+        "ru": "ASPCA относит драцену к ядовитым для кошек и собак: в ней сапонины. Возможны рвота (иногда с кровью), слюнотечение, вялость и потеря аппетита, по данным Merck — и понос. У кошек бывают расширенные зрачки. Если рвота не прекращается или питомец вялый, позвоните в клинику.",
+        "en": "The ASPCA lists dracaena as toxic to cats and dogs because of its saponins. Vomiting (sometimes with blood), drooling, lethargy and loss of appetite are possible, and according to Merck so is diarrhoea. Cats may have dilated pupils. If vomiting keeps going or the pet is lethargic, call a clinic."
+      },
+      "signs": {
+        "ru": [
+          "рвота, иногда с кровью",
+          "слюнотечение",
+          "понос",
+          "потеря аппетита",
+          "вялость",
+          "расширенные зрачки у кошек"
+        ],
+        "en": [
+          "vomiting, sometimes with blood",
+          "drooling",
+          "diarrhoea",
+          "loss of appetite",
+          "lethargy",
+          "dilated pupils in cats"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Драцена для кошек и собак ядовита, чаще всего приводит к рвоте.",
+        "en": "With caution. Dracaena is poisonous to cats and dogs and most often causes vomiting."
+      },
+      "why": {
+        "ru": "ASPCA относит драцену к ядовитым для кошек и собак: в ней сапонины. Возможны рвота (иногда с кровью), слюнотечение, вялость и потеря аппетита, по данным Merck — и понос. У кошек бывают расширенные зрачки. Если рвота не прекращается или питомец вялый, позвоните в клинику.",
+        "en": "The ASPCA lists dracaena as toxic to cats and dogs because of its saponins. Vomiting (sometimes with blood), drooling, lethargy and loss of appetite are possible, and according to Merck so is diarrhoea. Cats may have dilated pupils. If vomiting keeps going or the pet is lethargic, call a clinic."
+      },
+      "signs": {
+        "ru": [
+          "рвота, иногда с кровью",
+          "слюнотечение",
+          "понос",
+          "потеря аппетита",
+          "вялость",
+          "расширенные зрачки у кошек"
+        ],
+        "en": [
+          "vomiting, sometimes with blood",
+          "drooling",
+          "diarrhoea",
+          "loss of appetite",
+          "lethargy",
+          "dilated pupils in cats"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите растение туда, куда питомец не доберётся",
+      "Уберите остатки растения из пасти и протрите мордочку влажной тканью",
+      "Понаблюдайте за питомцем несколько часов",
+      "Если появились признаки или вы не уверены в растении, позвоните в клинику"
+    ],
+    "en": [
+      "Move the plant out of the pet's reach",
+      "Remove any plant pieces from the mouth and wipe the face with a damp cloth",
+      "Watch the pet for several hours",
+      "If signs appear or you are not sure about the plant, call a clinic"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте молоко, масло, уголь и другие «антидоты» из интернета",
+      "Не ждите, пока станет хуже, если питомец вялый или его рвёт"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give milk, oil, charcoal or other home “antidotes” from the internet",
+      "Do not wait for things to get worse if the pet is lethargic or vomiting"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Dracaena",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/dracaena"
+    },
+    {
+      "title": "MSD Veterinary Manual — Houseplants and Ornamentals Toxic to Animals",
+      "url": "https://www.merckvetmanual.com/toxicology/poisonous-plants/houseplants-and-ornamentals-toxic-to-animals"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

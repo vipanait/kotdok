@@ -1,0 +1,130 @@
+{
+  "slug": "omela",
+  "category": "plant",
+  "name": {
+    "ru": "Омела",
+    "en": "Mistletoe"
+  },
+  "titleRu": "омелу",
+  "aliases": {
+    "ru": [
+      "омелы",
+      "омела белая",
+      "омела обыкновенная",
+      "рождественская омела",
+      "веточка омелы"
+    ],
+    "en": [
+      "mistletoe",
+      "european mistletoe",
+      "american mistletoe",
+      "mistletoe berries",
+      "christmas mistletoe"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Омела ядовита для кошек и собак.",
+        "en": "Dangerous. Mistletoe is poisonous to cats and dogs."
+      },
+      "why": {
+        "ru": "ASPCA относит американскую омелу к ядовитым для кошек и собак: возможны рвота, понос, затруднённое дыхание и замедленный пульс. По данным Pet Poison Helpline, европейская омела опаснее американской, а при большом количестве бывают нарушения работы сердца, падение давления и смерть. Поэтому вердикт строгий: позвоните в клинику, не дожидаясь признаков.",
+        "en": "The ASPCA lists American mistletoe as toxic to cats and dogs: vomiting, diarrhoea, difficulty breathing and a slow heart rate are possible. According to Pet Poison Helpline, European mistletoe is of more concern than American, and a large amount can cause heart problems, low blood pressure and death. So the verdict is the strict one: call a clinic without waiting for signs."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "затруднённое дыхание",
+          "замедленный пульс",
+          "шаткая походка"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "difficulty breathing",
+          "slow heart rate",
+          "stumbling"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Омела ядовита для кошек и собак.",
+        "en": "Dangerous. Mistletoe is poisonous to cats and dogs."
+      },
+      "why": {
+        "ru": "ASPCA относит американскую омелу к ядовитым для кошек и собак: возможны рвота, понос, затруднённое дыхание и замедленный пульс. По данным Pet Poison Helpline, европейская омела опаснее американской, а при большом количестве бывают нарушения работы сердца, падение давления и смерть. Поэтому вердикт строгий: позвоните в клинику, не дожидаясь признаков.",
+        "en": "The ASPCA lists American mistletoe as toxic to cats and dogs: vomiting, diarrhoea, difficulty breathing and a slow heart rate are possible. According to Pet Poison Helpline, European mistletoe is of more concern than American, and a large amount can cause heart problems, low blood pressure and death. So the verdict is the strict one: call a clinic without waiting for signs."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "затруднённое дыхание",
+          "замедленный пульс",
+          "шаткая походка"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "difficulty breathing",
+          "slow heart rate",
+          "stumbling"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Позвоните в клинику сразу, не дожидаясь признаков, и расскажите, что и сколько съедено",
+      "Уберите растение туда, куда питомец не доберётся",
+      "Уберите остатки растения из пасти и протрите мордочку влажной тканью",
+      "Возьмите кусочек растения или сфотографируйте его"
+    ],
+    "en": [
+      "Call a clinic right away, without waiting for signs, and tell them what was eaten and roughly how much",
+      "Move the plant out of the pet's reach",
+      "Remove any plant pieces from the mouth and wipe the face with a damp cloth",
+      "Take a piece of the plant or a photo of it"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте молоко, масло, уголь и другие «антидоты» из интернета",
+      "Не ждите, пока станет хуже, если питомец вялый или его рвёт"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give milk, oil, charcoal or other home “antidotes” from the internet",
+      "Do not wait for things to get worse if the pet is lethargic or vomiting"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — American Mistletoe",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/mistletoe-american"
+    },
+    {
+      "title": "Pet Poison Helpline — Mistletoe",
+      "url": "https://www.petpoisonhelpline.com/poison/mistletoe/"
+    },
+    {
+      "title": "Pet Poison Helpline — Holiday Plants",
+      "url": "https://www.petpoisonhelpline.com/uncategorized/holiday-plants/"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

@@ -1,0 +1,112 @@
+{
+  "slug": "silikagel",
+  "category": "household",
+  "name": {
+    "ru": "Силикагель",
+    "en": "Silica gel"
+  },
+  "titleRu": "силикагель",
+  "aliases": {
+    "ru": [
+      "силикагель",
+      "пакетик силикагеля",
+      "пакетик из обуви",
+      "осушитель",
+      "влагопоглотитель",
+      "силикагелевые шарики"
+    ],
+    "en": [
+      "silica gel",
+      "silica gel packet",
+      "silica packets",
+      "desiccant",
+      "moisture absorber",
+      "silica beads"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "Малый риск: сам силикагель практически не ядовит, но есть его нельзя. Крупный пакетик может застрять в кишечнике.",
+        "en": "Low risk: silica gel itself is virtually non-toxic, but it is not to be eaten. A large packet can get stuck in the bowel."
+      },
+      "why": {
+        "ru": "Силикагель не разбухает в желудке и обычно вызывает самое большее рвоту или понос — в зависимости от количества. Крупный пакетик изредка может перекрыть кишечник. Окрашенные шарики-индикаторы в большом количестве могут быть ядовиты. Пакетик с тёмно-бурым порошком, который притягивается магнитом, — это поглотитель кислорода с железом, и он опасен даже в малом количестве.",
+        "en": "Silica gel does not swell in the stomach and usually causes at most vomiting or diarrhoea, depending on the amount. A large packet can occasionally block the bowel. Coloured indicator beads may be toxic in large amounts. A packet with dark brown, magnetic powder is an iron oxygen absorber, which is dangerous even in a small amount."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "Малый риск: сам силикагель практически не ядовит, но есть его нельзя. Крупный пакетик может застрять в кишечнике.",
+        "en": "Low risk: silica gel itself is virtually non-toxic, but it is not to be eaten. A large packet can get stuck in the bowel."
+      },
+      "why": {
+        "ru": "Силикагель не разбухает в желудке, а мягкая оболочка пакетика редко травмирует или застревает; обычно бывает самое большее рвота или понос. Крупный пакетик изредка может перекрыть кишечник. Окрашенные шарики-индикаторы в большом количестве могут быть ядовиты. Пакетик с тёмно-бурым порошком, который притягивается магнитом, — это поглотитель кислорода с железом: он опасен даже в малом количестве, особенно для мелких собак.",
+        "en": "Silica gel does not swell in the stomach, and the soft packet rarely injures or lodges; usually there is at most vomiting or diarrhoea. A large packet can occasionally block the bowel. Coloured indicator beads may be toxic in large amounts. A packet with dark brown, magnetic powder is an iron oxygen absorber: it is dangerous even in a small amount, especially for small dogs."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Посмотрите, что было в пакетике: прозрачные или белые шарики силикагеля, цветные шарики или тёмно-бурый порошок",
+      "Если это порошок с железом, цветные шарики или питомец проглотил крупный пакетик, позвоните в клинику",
+      "Если рвота или понос не проходят, позвоните в клинику"
+    ],
+    "en": [
+      "Check what was in the packet: clear or white silica beads, coloured beads or dark brown powder",
+      "If it was iron powder or coloured beads, or your pet swallowed a large packet, call a clinic",
+      "If vomiting or diarrhoea does not stop, call a clinic"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не оставляйте пакетики там, где питомец их достанет, особенно из упаковок с едой"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not leave packets where your pet can reach them, especially from food packaging"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA — Learn More About Silica Gel, A Common Pet Toxin",
+      "url": "https://www.aspca.org/news/learn-more-about-silica-gel-common-pet-toxin"
+    },
+    {
+      "title": "Pet Poison Helpline — Are those packaging freshness packets really toxic to dogs?",
+      "url": "https://www.petpoisonhelpline.com/pet-safety-tips/packaging-freshness-packets-really-toxic-dogs/"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

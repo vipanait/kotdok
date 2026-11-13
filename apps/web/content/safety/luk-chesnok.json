@@ -1,0 +1,137 @@
+{
+  "slug": "luk-chesnok",
+  "category": "food",
+  "name": {
+    "ru": "Лук и чеснок",
+    "en": "Onion and garlic"
+  },
+  "titleRu": "лук и чеснок",
+  "aliases": {
+    "ru": [
+      "лук",
+      "чеснок",
+      "репчатый лук",
+      "зеленый лук",
+      "лук порей",
+      "шнитт лук",
+      "жареный лук",
+      "луковый порошок",
+      "чесночный порошок",
+      "черемша"
+    ],
+    "en": [
+      "onion",
+      "onions",
+      "garlic",
+      "chives",
+      "leek",
+      "leeks",
+      "spring onion",
+      "onion powder",
+      "garlic powder"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. Лук, чеснок и родственные им растения разрушают эритроциты, и кошки к ним особенно чувствительны.",
+        "en": "Not safe. Onion, garlic and their relatives damage red blood cells, and cats are especially sensitive to them."
+      },
+      "why": {
+        "ru": "Опасны все формы: сырой, варёный, жареный, сушёный и порошок, в том числе в соусах и бульонах с луком или чесноком. Чаще всего отравляются концентрированными формами — сушёным луком и порошком. Признаки малокровия обычно появляются не сразу, а через несколько дней.",
+        "en": "Every form is harmful: raw, cooked, fried, dried or powdered, including in sauces and broths made with onion or garlic. Concentrated forms such as dried onion and powder cause most poisonings. Signs of anaemia usually appear a few days later rather than at once."
+      },
+      "signs": {
+        "ru": [
+          "рвота, понос",
+          "вялость и слабость",
+          "отказ от еды",
+          "частое дыхание",
+          "тёмная, красно-коричневая моча",
+          "желтушность дёсен и белков глаз"
+        ],
+        "en": [
+          "vomiting, diarrhoea",
+          "lethargy and weakness",
+          "not eating",
+          "fast breathing",
+          "dark, reddish-brown urine",
+          "yellowish gums and whites of the eyes"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. Лук и чеснок разрушают эритроциты и могут привести к малокровию.",
+        "en": "Not safe. Onion and garlic damage red blood cells and can lead to anaemia."
+      },
+      "why": {
+        "ru": "Собаки чуть менее чувствительны, чем кошки, но опасность зависит от количества, а его по еде со стола не оценить. Порошок и сушёные формы концентрированнее свежих. Признаки малокровия обычно появляются через несколько дней.",
+        "en": "Dogs are a little less sensitive than cats, but the risk depends on the amount, which cannot be judged from table food. Powder and dried forms are more concentrated than fresh ones. Signs of anaemia usually appear a few days later."
+      },
+      "signs": {
+        "ru": [
+          "рвота, понос",
+          "вялость и слабость",
+          "отказ от еды",
+          "частое дыхание",
+          "тёмная моча"
+        ],
+        "en": [
+          "vomiting, diarrhoea",
+          "lethargy and weakness",
+          "not eating",
+          "fast breathing",
+          "dark urine"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Уберите остатки еды",
+      "Вспомните, что это было (сырой лук, соус, бульон, порошок) и сколько",
+      "Следите за цветом дёсен и мочи в ближайшие дни"
+    ],
+    "en": [
+      "Call a vet clinic right away, even if your pet seems fine",
+      "Put the rest of the food away",
+      "Note what it was (raw onion, sauce, broth, powder) and how much",
+      "Watch the colour of the gums and urine over the next few days"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте молоко, масло, уголь и другие «антидоты» из интернета",
+      "Не успокаивайтесь, если в первый день признаков нет: малокровие развивается позже"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give milk, oil, charcoal or other home “antidotes” from the internet",
+      "Do not relax if there are no signs on the first day: anaemia develops later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    },
+    {
+      "title": "Merck Veterinary Manual — Garlic and Onion (Allium spp) Toxicosis in Animals",
+      "url": "https://www.merckvetmanual.com/toxicology/food-hazards/garlic-and-onion-allium-spp-toxicosis-in-animals"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

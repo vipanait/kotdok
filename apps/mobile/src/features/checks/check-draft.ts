@@ -44,6 +44,25 @@ export function isWorthKeeping(form: CheckForm): boolean {
 }
 
 /**
+ * What to do with the start of a description handed over by another tab
+ * («Проверить симптомы» on a «Можно ли?» card), for the pet `petId` the card
+ * was about (null when it named none).
+ *
+ * `ignore` when there is nothing to hand over. `apply` over a form with
+ * nothing in it worth keeping, or one whose description already starts with
+ * the same words about the same pet (the person came back from the same
+ * card). Anything else is somebody's half-written check — the same words
+ * about another animal included, or about a pet deleted since — and
+ * replacing it, or moving it to another pet, is asked first.
+ */
+export function prefillDecision(current: CheckForm, prefill: string, petId: string | null = null): 'apply' | 'ask' | 'ignore' {
+  if (!prefill) return 'ignore'
+  if (!isWorthKeeping(current)) return 'apply'
+  const samePet = petId === null || current.petId === petId
+  return samePet && current.symptoms.startsWith(prefill) ? 'apply' : 'ask'
+}
+
+/**
  * Whether the draft on screen is still worth storing.
  *
  * `finished` is the half that was missing and cost people their next check. It

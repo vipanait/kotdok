@@ -1,0 +1,115 @@
+{
+  "slug": "kartofel-syroy",
+  "category": "food",
+  "name": {
+    "ru": "Сырой и зелёный картофель",
+    "en": "Raw and green potato"
+  },
+  "titleRu": "сырой и зелёный картофель",
+  "aliases": {
+    "ru": [
+      "сырая картошка",
+      "сырой картофель",
+      "зеленая картошка",
+      "зеленый картофель",
+      "проросшая картошка",
+      "ростки картофеля",
+      "картофельная ботва"
+    ],
+    "en": [
+      "raw potato",
+      "green potato",
+      "sprouted potato",
+      "potato sprouts"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Сырой, зелёный и проросший картофель давать нельзя.",
+        "en": "With caution. Do not give raw, green or sprouted potato."
+      },
+      "why": {
+        "ru": "Сырой картофель может навредить питомцу, а варёный без добавок допустим в небольшом количестве. Зелёные участки клубня и сам куст картофеля содержат соланин. Отдельных данных именно о кошках мало, поэтому вердикт осторожный.",
+        "en": "Raw potato can be a problem for pets, while plain cooked potato is fine in moderation. Green parts of the potato and the plant itself contain solanine. There is little data on cats specifically, so the verdict is cautious."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "слабость"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "weakness"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Сырой, зелёный и проросший картофель давать нельзя.",
+        "en": "With caution. Do not give raw, green or sprouted potato."
+      },
+      "why": {
+        "ru": "Картофель, особенно зелёный, и сам куст содержат соланин, поэтому в таком виде собаке его давать нельзя. Простой варёный белый картофель в небольшом количестве обычно считается безопасным, а всё зелёное — нет. Пюре с маслом и солью, жареный картофель и чипсы — это уже соль и жир.",
+        "en": "Potatoes, green ones especially, and the plant itself contain solanine and should not be fed to a dog in these forms. Plain cooked white potato in small amounts is generally considered safe, but anything green is not. Buttered, salted mash, fried potato and crisps add salt and fat."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "слабость, дрожь, шаткая походка"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "weakness, tremors, unsteady walking"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите остатки и оцените, сколько питомец успел съесть",
+      "Понаблюдайте за питомцем в ближайшие сутки",
+      "Если появились признаки или вы не уверены, позвоните в клинику или пройдите проверку симптомов"
+    ],
+    "en": [
+      "Remove what is left and note how much your pet ate",
+      "Watch your pet over the next day",
+      "If signs appear or you are unsure, call a clinic or run a symptom check"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не ждите ухудшения, если питомец съел много"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not wait for it to get worse if your pet ate a lot"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA — Pets and Produce: Top Tips on Vegetable Garden Safety",
+      "url": "https://www.aspca.org/news/pets-and-produce-top-tips-vegetable-garden-safety"
+    },
+    {
+      "title": "Pet Poison Helpline — Are Tomatoes Bad for Dogs? What's Safe & What's Toxic",
+      "url": "https://www.petpoisonhelpline.com/pet-safety-tips/are-tomatoes-poisonous-to-dogs/"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

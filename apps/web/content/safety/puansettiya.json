@@ -1,0 +1,124 @@
+{
+  "slug": "puansettiya",
+  "category": "plant",
+  "name": {
+    "ru": "Пуансеттия",
+    "en": "Poinsettia"
+  },
+  "titleRu": "пуансеттию",
+  "aliases": {
+    "ru": [
+      "пуансеттии",
+      "рождественская звезда",
+      "молочай прекраснейший",
+      "молочай красивейший"
+    ],
+    "en": [
+      "poinsettia",
+      "christmas star",
+      "christmas flower",
+      "euphorbia pulcherrima"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Пуансеттия ядовита меньше, чем о ней говорят: чаще всего раздражает рот и желудок.",
+        "en": "With caution. Poinsettia is less dangerous than its reputation: it mostly irritates the mouth and stomach."
+      },
+      "why": {
+        "ru": "ASPCA относит пуансеттию к ядовитым для кошек и собак, но отмечает, что её токсичность сильно преувеличена. Pet Poison Helpline называет её слабо ядовитой: млечный сок раздражает рот и желудок, обычно бывают слюнотечение и рвота, иногда понос; на коже от сока бывают покраснение и зуд. Если питомец съел много или рвота не проходит, позвоните в клинику.",
+        "en": "The ASPCA lists poinsettia as toxic to cats and dogs but notes that its toxicity is greatly overrated. Pet Poison Helpline calls it mildly toxic: the milky sap irritates the mouth and stomach, usually causing drooling and vomiting, sometimes diarrhoea; on the skin the sap causes redness and itching. If the pet ate a lot or the vomiting does not stop, call a clinic."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "слюнотечение",
+          "облизывание губ",
+          "понос",
+          "покраснение кожи"
+        ],
+        "en": [
+          "vomiting",
+          "drooling",
+          "lip licking",
+          "diarrhoea",
+          "redness of the skin"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Пуансеттия ядовита меньше, чем о ней говорят: чаще всего раздражает рот и желудок.",
+        "en": "With caution. Poinsettia is less dangerous than its reputation: it mostly irritates the mouth and stomach."
+      },
+      "why": {
+        "ru": "ASPCA относит пуансеттию к ядовитым для кошек и собак, но отмечает, что её токсичность сильно преувеличена. Pet Poison Helpline называет её слабо ядовитой: млечный сок раздражает рот и желудок, обычно бывают слюнотечение и рвота, иногда понос; на коже от сока бывают покраснение и зуд. Если питомец съел много или рвота не проходит, позвоните в клинику.",
+        "en": "The ASPCA lists poinsettia as toxic to cats and dogs but notes that its toxicity is greatly overrated. Pet Poison Helpline calls it mildly toxic: the milky sap irritates the mouth and stomach, usually causing drooling and vomiting, sometimes diarrhoea; on the skin the sap causes redness and itching. If the pet ate a lot or the vomiting does not stop, call a clinic."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "слюнотечение",
+          "облизывание губ",
+          "понос",
+          "покраснение кожи"
+        ],
+        "en": [
+          "vomiting",
+          "drooling",
+          "lip licking",
+          "diarrhoea",
+          "redness of the skin"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите растение туда, куда питомец не доберётся",
+      "Уберите остатки растения из пасти и протрите мордочку влажной тканью",
+      "Понаблюдайте за питомцем несколько часов",
+      "Если появились признаки или вы не уверены в растении, позвоните в клинику"
+    ],
+    "en": [
+      "Move the plant out of the pet's reach",
+      "Remove any plant pieces from the mouth and wipe the face with a damp cloth",
+      "Watch the pet for several hours",
+      "If signs appear or you are not sure about the plant, call a clinic"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте молоко, масло, уголь и другие «антидоты» из интернета",
+      "Не ждите, пока станет хуже, если питомец вялый или его рвёт"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give milk, oil, charcoal or other home “antidotes” from the internet",
+      "Do not wait for things to get worse if the pet is lethargic or vomiting"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Poinsettia",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/poinsettia"
+    },
+    {
+      "title": "Pet Poison Helpline — Poinsettia",
+      "url": "https://www.petpoisonhelpline.com/poison/poinsettia/"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

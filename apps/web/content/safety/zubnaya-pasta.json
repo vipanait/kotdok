@@ -1,0 +1,123 @@
+{
+  "slug": "zubnaya-pasta",
+  "category": "household",
+  "name": {
+    "ru": "Зубная паста (для людей)",
+    "en": "Toothpaste (human)"
+  },
+  "titleRu": "зубную пасту",
+  "aliases": {
+    "ru": [
+      "зубная паста",
+      "зубной пасты",
+      "паста для зубов",
+      "зубная паста с фтором",
+      "отбеливающая зубная паста",
+      "паста с ксилитом"
+    ],
+    "en": [
+      "toothpaste",
+      "human toothpaste",
+      "fluoride toothpaste",
+      "whitening toothpaste",
+      "dental paste"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "Малый риск, если кошка лизнула немного, но давать пасту для людей нельзя. Много пасты с фтором вредно.",
+        "en": "Low risk if a cat licks a little, but do not use human toothpaste on it. A lot of fluoride paste is harmful."
+      },
+      "why": {
+        "ru": "Немного пасты с фтором обычно вызывает самое большее лёгкое расстройство желудка, которое проходит само. Большое количество фтора может затронуть сердце и нервную систему. Ксилит, который бывает в пасте, по данным ASPCA не вызывает у кошек серьёзных проблем. Для зубов кошки нужна паста для животных.",
+        "en": "A little fluoride toothpaste usually causes at most a mild stomach upset that passes on its own. A large amount of fluoride can affect the heart and nervous system. Xylitol, found in some pastes, does not cause serious problems in cats according to the ASPCA. Use a pet toothpaste for a cat's teeth."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно, если в пасте ксилит: у собак он вызывает падение сахара в крови и повреждает печень. Много пасты с фтором тоже вредно.",
+        "en": "Dangerous if the paste contains xylitol: in dogs it lowers blood sugar and harms the liver. A lot of fluoride paste is harmful too."
+      },
+      "why": {
+        "ru": "Ксилит есть не во всех пастах, и его количество сильно разнится, поэтому надо смотреть состав. Падение сахара бывает уже через 30 минут, а поражение печени проявляется через 2–3 дня. Большое количество фтора может затронуть сердце и нервную систему. Для зубов собаки нужна паста для животных.",
+        "en": "Not every paste contains xylitol, and the amount varies a lot, so check the ingredients. Blood sugar can drop within 30 minutes, and liver damage shows after 2–3 days. A large amount of fluoride can affect the heart and nervous system. Use a pet toothpaste for a dog's teeth."
+      },
+      "signs": {
+        "ru": [
+          "слабость, шаткая походка",
+          "дрожь",
+          "судороги",
+          "рвота, понос",
+          "вялость, потеря аппетита",
+          "пожелтение кожи и глаз"
+        ],
+        "en": [
+          "weakness, wobbly walking",
+          "shaking",
+          "seizures",
+          "vomiting, diarrhoea",
+          "lethargy, loss of appetite",
+          "yellowing of skin and eyes"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Прочитайте состав на тюбике: есть ли ксилит (E967)",
+      "Если собака съела пасту, особенно с ксилитом, сразу позвоните в клинику",
+      "Если кошка съела много пасты или рвота не проходит, позвоните в клинику"
+    ],
+    "en": [
+      "Read the ingredients on the tube: is there xylitol (E967)",
+      "If a dog ate the paste, especially with xylitol, call a clinic right away",
+      "If a cat ate a lot of paste or keeps vomiting, call a clinic"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не чистите питомцу зубы пастой для людей"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not brush your pet's teeth with human toothpaste"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA — Poisonous Household Products",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/poisonous-household-products"
+    },
+    {
+      "title": "ASPCA — Xylitol: The Sweetener That Is Not So Sweet for Pets",
+      "url": "https://www.aspca.org/news/xylitol-sweetener-not-so-sweet-pets"
+    },
+    {
+      "title": "Pet Poison Helpline — Fluoride Toothpaste & Pets",
+      "url": "https://www.petpoisonhelpline.com/uncategorized/fluoride-toothpaste-pets/"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

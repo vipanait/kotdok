@@ -1,0 +1,130 @@
+{
+  "slug": "syraya-ryba",
+  "category": "food",
+  "name": {
+    "ru": "Сырая рыба",
+    "en": "Raw fish"
+  },
+  "titleRu": "сырую рыбу",
+  "aliases": {
+    "ru": [
+      "сырая рыба",
+      "рыба сырая",
+      "суши",
+      "сашими",
+      "сырой лосось",
+      "сырая сёмга",
+      "сырая форель",
+      "сырой тунец"
+    ],
+    "en": [
+      "raw salmon",
+      "raw tuna",
+      "sushi",
+      "sashimi",
+      "raw trout",
+      "uncooked fish"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. В сырой рыбе есть фермент, разрушающий витамин B1; при частом кормлении это опасно для кошки.",
+        "en": "With caution. Raw fish contains an enzyme that destroys vitamin B1; frequent feeding is dangerous for a cat."
+      },
+      "why": {
+        "ru": "Рацион из сырой рыбы — одна из причин нехватки витамина B1 (тиамина): в сырой рыбе есть фермент, который его разрушает. У кошек нехватка B1 поражает мозг. Рыбьи кости могут поранить или закупорить кишечник. Рыбные консервы для людей тоже не подходят.",
+        "en": "A raw-fish diet is one cause of vitamin B1 (thiamine) deficiency: raw fish contains an enzyme that destroys it. In cats, a lack of B1 affects the brain. Fish bones can injure or block the gut. Canned fish made for people is not suitable either."
+      },
+      "signs": {
+        "ru": [
+          "шаткая походка",
+          "дрожь головы",
+          "голова сильно опущена к груди",
+          "судороги"
+        ],
+        "en": [
+          "unsteady walk",
+          "head tremor",
+          "head bent down towards the chest",
+          "seizures"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Сырой лосось и форель в некоторых регионах переносят возбудителя смертельно опасной болезни.",
+        "en": "With caution. In some regions raw salmon and trout carry the cause of a deadly disease."
+      },
+      "why": {
+        "ru": "Сырые или недоваренные лосось и форель (это описано на северо-западе США) могут нести паразита с бактерией, которая вызывает «лососёвое отравление». Признаки обычно появляются через 5–7 дней, иногда через несколько недель, и без лечения до 90% собак погибают. Опасна именно сырая или недоваренная рыба. Рыбьи кости могут поранить или закупорить кишечник.",
+        "en": "Raw or undercooked salmon and trout (described in the north-western United States) can carry a parasite with a bacterium that causes “salmon poisoning”. Signs usually appear after 5–7 days, sometimes after several weeks, and without treatment up to 90% of dogs die. The danger is in raw or undercooked fish. Fish bones can injure or block the gut."
+      },
+      "signs": {
+        "ru": [
+          "высокая температура",
+          "слабость",
+          "полный отказ от еды",
+          "рвота",
+          "понос, иногда с кровью"
+        ],
+        "en": [
+          "high fever",
+          "weakness",
+          "complete loss of appetite",
+          "vomiting",
+          "diarrhoea, sometimes bloody"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите остатки и проследите за питомцем",
+      "Если собака съела сырого лосося или форель и у неё жар, слабость, отказ от еды или рвота, позвоните в клинику, даже если прошло несколько дней или недель",
+      "Запомните, какая это была рыба и когда её съели"
+    ],
+    "en": [
+      "Put the rest away and keep an eye on your pet",
+      "If your dog ate raw salmon or trout and has a fever, weakness, loss of appetite or vomiting, call a clinic even if days or weeks have passed",
+      "Note what fish it was and when it was eaten"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте домашние «антидоты» из интернета",
+      "Не ждите признаков: они могут появиться не сразу"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give home “antidotes” from the internet",
+      "Do not wait for signs: they may appear later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Merck Veterinary Manual — Nutritional Disorders of the Spinal Column and Cord in Animals",
+      "url": "https://www.merckvetmanual.com/nervous-system/diseases-of-the-spinal-column-and-cord/nutritional-disorders-of-the-spinal-column-and-cord"
+    },
+    {
+      "title": "Merck Veterinary Manual — Salmon Poisoning Disease and Elokomin Fluke Fever in Dogs",
+      "url": "https://www.merckvetmanual.com/dog-owners/disorders-affecting-multiple-body-systems-of-dogs/salmon-poisoning-disease-and-elokomin-fluke-fever-in-dogs"
+    },
+    {
+      "title": "Cornell Feline Health Center — Feeding Your Cat",
+      "url": "https://www.vet.cornell.edu/departments-centers-and-institutes/cornell-feline-health-center/health-information/feline-health-topics/feeding-your-cat"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

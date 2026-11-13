@@ -1,0 +1,128 @@
+{
+  "slug": "montazhnaya-pena-klej",
+  "category": "household",
+  "name": {
+    "ru": "Монтажная пена и клей (полиуретановый)",
+    "en": "Expanding foam and polyurethane glue"
+  },
+  "titleRu": "монтажную пену и клей",
+  "aliases": {
+    "ru": [
+      "монтажная пена",
+      "пена монтажная",
+      "полиуретановая пена",
+      "полиуретановый клей",
+      "клей пу",
+      "расширяющийся клей",
+      "строительный клей",
+      "клей горилла"
+    ],
+    "en": [
+      "expanding foam",
+      "spray foam",
+      "polyurethane glue",
+      "polyurethane foam",
+      "gorilla glue",
+      "expanding glue",
+      "foaming glue",
+      "construction adhesive"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Расширяющийся полиуретановый клей в желудке разбухает в твёрдый ком, который может перекрыть проход.",
+        "en": "Dangerous. Expanding polyurethane glue swells in the stomach into a hard mass that can block the gut."
+      },
+      "why": {
+        "ru": "Клеи с изоцианатами (часть клеев Gorilla Glue, строительные и полиуретановые клеи) от влаги в желудке расширяются, прилипают к стенке и образуют ком; его часто приходится удалять хирургически. Ком обычно формируется за 3–12 часов. Застывший клей уже не расширяется. О монтажной пене данных меньше — врачу нужна этикетка.",
+        "en": "Glues with isocyanates (some Gorilla Glue products, construction and polyurethane glues) expand with the moisture in the stomach, stick to its wall and form a mass that often has to be removed surgically. The mass usually forms within 3–12 hours. Dried glue no longer expands. There is less data on expanding foam — the vet needs the label."
+      },
+      "signs": {
+        "ru": [
+          "отказ от еды",
+          "рвота, иногда с кровью",
+          "вздутый или болезненный живот",
+          "вялость",
+          "кашель, чихание, если вдыхал пары"
+        ],
+        "en": [
+          "refusing food",
+          "vomiting, sometimes with blood",
+          "bloated or painful belly",
+          "lethargy",
+          "coughing, sneezing if fumes were inhaled"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Расширяющийся клей разбухает в желудке в твёрдый ком; собаке среднего размера опасно всё, что больше, чем раз лизнуть влажный клей.",
+        "en": "Dangerous. Expanding glue swells in the stomach into a hard mass; for a medium-sized dog anything more than a lick of wet glue can be a problem."
+      },
+      "why": {
+        "ru": "Клеи с изоцианатами (часть клеев Gorilla Glue, строительные и полиуретановые клеи) от влаги в желудке расширяются, прилипают к стенке и образуют ком; его часто приходится удалять хирургически. Ком обычно формируется за 3–12 часов, а непроходимость становится заметна в первые сутки. Застывший клей уже не расширяется. О монтажной пене данных меньше — врачу нужна этикетка.",
+        "en": "Glues with isocyanates (some Gorilla Glue products, construction and polyurethane glues) expand with the moisture in the stomach, stick to its wall and form a mass that often has to be removed surgically. The mass usually forms within 3–12 hours, and a blockage shows within the first day. Dried glue no longer expands. There is less data on expanding foam — the vet needs the label."
+      },
+      "signs": {
+        "ru": [
+          "отказ от еды",
+          "рвота, иногда с кровью",
+          "вздутый или болезненный живот",
+          "вялость",
+          "кашель, чихание, если вдыхал пары"
+        ],
+        "en": [
+          "refusing food",
+          "vomiting, sometimes with blood",
+          "bloated or painful belly",
+          "lethargy",
+          "coughing, sneezing if fumes were inhaled"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Сохраните упаковку или сфотографируйте этикетку: врачу важны название и состав"
+    ],
+    "en": [
+      "Call a vet clinic right away, even if your pet seems fine",
+      "Keep the packaging or photograph the label: the vet needs the name and ingredients"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не кормите питомца и не давайте ничего «для очистки», пока не поговорили с врачом",
+      "Не ждите признаков: ком растёт несколько часов"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not feed your pet or give anything to “clear it out” until you have spoken to a vet",
+      "Do not wait for signs: the mass grows over several hours"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — Gorilla Glue",
+      "url": "https://www.petpoisonhelpline.com/poison/gorilla-glue/"
+    },
+    {
+      "title": "VCA Animal Hospitals — Expanding Glues (Pet Poison Helpline)",
+      "url": "https://vcahospitals.com/know-your-pet/expanding-glues"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

@@ -1,0 +1,122 @@
+{
+  "slug": "ksilit",
+  "category": "food",
+  "name": {
+    "ru": "Ксилит",
+    "en": "Xylitol"
+  },
+  "titleRu": "ксилит",
+  "aliases": {
+    "ru": [
+      "е967",
+      "e967",
+      "жвачка без сахара",
+      "жвачку без сахара",
+      "жвачка с ксилитом",
+      "жвачку с ксилитом",
+      "березовый сахар"
+    ],
+    "en": [
+      "sugar free gum",
+      "xylitol gum",
+      "birch sugar",
+      "e967"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. У кошек отравление ксилитом не описано, но данных мало. Если кошка съела продукт с ксилитом, позвоните в клинику.",
+        "en": "With caution. Xylitol poisoning has not been reported in cats, but data are limited. If your cat ate something with xylitol, call a clinic."
+      },
+      "why": {
+        "ru": "По ветеринарному справочнику Merck, отравление ксилитом описано только у собак, а кошкам падение сахара в крови и повреждение печени от него не грозят. Исследований на кошках немного, поэтому, если кошка съела продукт с ксилитом, лучше позвонить в клинику. В сладостях без сахара бывают и другие опасные для кошки продукты, например шоколад или изюм, — проверьте состав. Ксилит бывает в жвачке без сахара, конфетах, выпечке, зубной пасте и некоторых сиропах.",
+        "en": "According to the Merck Veterinary Manual, xylitol poisoning has been reported only in dogs, and cats are not at risk of the blood sugar drop or liver damage it causes. Studies in cats are few, so if your cat ate something with xylitol, it is best to call a clinic. Sugar-free sweets may also hold other things that are harmful to a cat, such as chocolate or raisins, so check the ingredients. Xylitol is found in sugar-free gum, sweets, baking, toothpaste and some syrups."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. Ксилит может очень быстро обрушить сахар в крови собаки и повредить печень.",
+        "en": "Not safe. Xylitol can crash a dog’s blood sugar very quickly and damage the liver."
+      },
+      "why": {
+        "ru": "У собаки ксилит вызывает резкий выброс инсулина, и сахар в крови падает — иногда уже в первые полчаса, а из жвачки ксилит может всасываться медленнее, и признаки появляются через несколько часов. Повреждение печени может проявиться через сутки–двое. Сколько ксилита в жвачке или конфете, по упаковке не посчитать.",
+        "en": "In dogs xylitol triggers a surge of insulin and blood sugar drops, sometimes within half an hour; from gum it may be absorbed more slowly, and signs can appear hours later. Liver damage may show one to two days later. The amount of xylitol in gum or sweets cannot be worked out from the label."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "вялость, слабость",
+          "шаткая походка",
+          "судороги",
+          "позже — желтушность дёсен и белков глаз",
+          "позже — синяки и кровотечения"
+        ],
+        "en": [
+          "vomiting",
+          "lethargy, weakness",
+          "wobbly walking",
+          "seizures",
+          "later on, yellowish gums and whites of the eyes",
+          "later on, bruising and bleeding"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику: если это собака — даже если она ведёт себя как обычно; если кошка — чтобы врач оценил, нужно ли ехать",
+      "Найдите упаковку и проверьте состав; возьмите её с собой",
+      "Прикиньте, сколько могло быть съедено и когда",
+      "Уберите остатки жвачки и сладостей"
+    ],
+    "en": [
+      "Call a vet clinic right away: for a dog, even if it seems fine; for a cat, so the vet can judge whether you need to come in",
+      "Find the packaging, check the ingredients and take it with you",
+      "Work out roughly how much was eaten and when",
+      "Put away the rest of the gum and sweets"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не вливайте в рот сладкое или воду, если питомец ослаб или без сознания: он может захлебнуться",
+      "Не давайте лекарства без назначения врача"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not pour sweet drinks or water into the mouth of a weak or unconscious pet: it may choke",
+      "Do not give any medicine unless a vet tells you to"
+    ]
+  },
+  "toxinSlug": "ksilit",
+  "sources": [
+    {
+      "title": "Merck Veterinary Manual — Xylitol Toxicosis in Dogs",
+      "url": "https://www.merckvetmanual.com/toxicology/food-hazards/xylitol-toxicosis-in-dogs"
+    },
+    {
+      "title": "Pet Poison Helpline — Xylitol",
+      "url": "https://www.petpoisonhelpline.com/poison/xylitol/"
+    },
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

@@ -1,0 +1,131 @@
+{
+  "slug": "vishnya-chereshnya",
+  "category": "food",
+  "name": {
+    "ru": "Вишня и черешня",
+    "en": "Cherries"
+  },
+  "titleRu": "вишню и черешню",
+  "aliases": {
+    "ru": [
+      "вишня",
+      "вишни",
+      "черешня",
+      "черешни",
+      "вишенка",
+      "черешенка",
+      "ягоды вишни",
+      "косточка вишни"
+    ],
+    "en": [
+      "cherry",
+      "cherries",
+      "sweet cherry",
+      "sour cherry",
+      "cherry pit"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. Косточка, листья и веточки содержат вещества, из которых выделяется цианид, а косточка может перекрыть кишечник.",
+        "en": "No. The pit, leaves and twigs contain substances that release cyanide, and a pit can block the gut."
+      },
+      "why": {
+        "ru": "Косточка у вишни и черешни опасна двумя способами: внутри неё вещества, из которых выделяется цианид, а сама она может застрять в кишечнике. Раскушенная косточка опаснее целой. Листья и черешки тоже содержат эти вещества. Мякоть без косточки не ядовита, но кошке она не нужна, а вместе с ней легко проглотить и косточку, поэтому не предлагайте.",
+        "en": "A cherry pit is dangerous two ways: it holds substances that release cyanide, and it can lodge in the gut. A cracked pit is more dangerous than a whole one. Leaves and stems hold the same substances. Flesh without the pit is not poisonous, but a cat does not need it and it is easy to swallow the pit with it, so do not offer it."
+      },
+      "signs": {
+        "ru": [
+          "расширенные зрачки, затруднённое дыхание",
+          "красные воспалённые дёсны",
+          "расстройство желудка, понос",
+          "резкая слабость, шок",
+          "рвота, отказ от еды, запор — если косточка застряла"
+        ],
+        "en": [
+          "dilated pupils, trouble breathing",
+          "red, inflamed gums",
+          "stomach upset, diarrhoea",
+          "sudden weakness, shock",
+          "vomiting, refusing food, constipation — if a pit is stuck"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. Косточка опасна: из неё выделяется цианид, и она может застрять в кишечнике.",
+        "en": "No. The pit is dangerous: it releases cyanide and can lodge in the gut."
+      },
+      "why": {
+        "ru": "Косточка у вишни и черешни опасна двумя способами: внутри неё вещества, из которых выделяется цианид, а сама она может застрять в кишечнике. Раскушенная косточка опаснее целой. Листья и черешки тоже содержат эти вещества. Мякоть без косточки не ядовита, но вместе с ней легко проглотить и косточку, поэтому не предлагайте.",
+        "en": "A cherry pit is dangerous two ways: it holds substances that release cyanide, and it can lodge in the gut. A cracked pit is more dangerous than a whole one. Leaves and stems hold the same substances. Flesh without the pit is not poisonous, but it is easy to swallow the pit with it, so do not offer it."
+      },
+      "signs": {
+        "ru": [
+          "расширенные зрачки, затруднённое дыхание",
+          "красные воспалённые дёсны",
+          "расстройство желудка, понос",
+          "резкая слабость, шок",
+          "рвота, отказ от еды, запор — если косточка застряла"
+        ],
+        "en": [
+          "dilated pupils, trouble breathing",
+          "red, inflamed gums",
+          "stomach upset, diarrhoea",
+          "sudden weakness, shock",
+          "vomiting, refusing food, constipation — if a pit is stuck"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Уберите остатки ягод и косточки",
+      "Прикиньте, сколько могло быть съедено и когда, и расскажите врачу"
+    ],
+    "en": [
+      "Call a vet clinic right away, even if your pet seems fine",
+      "Put away the leftover cherries and pits",
+      "Work out roughly how much was eaten and when, and tell the vet"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не ждите признаков: если ждать, помощь может опоздать",
+      "Не давайте косточки и не оставляйте плоды в досягаемости",
+      "Не вызывайте рвоту сами — только по указанию врача"
+    ],
+    "en": [
+      "Do not wait for signs: waiting can make help come too late",
+      "Do not give pits or leave fruit within reach",
+      "Do not make your pet vomit unless a vet tells you to"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — My Cat Ate a Cherry Pit",
+      "url": "https://www.petpoisonhelpline.com/pet-tips/my-cat-ate-a-cherry-pit/"
+    },
+    {
+      "title": "Pet Poison Helpline — My Dog Ate a Cherry Pit",
+      "url": "https://www.petpoisonhelpline.com/pet-tips/my-dog-ate-a-cherry-pit/"
+    },
+    {
+      "title": "ASPCA Animal Poison Control — Cherry",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/cherry"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "slug": "kapusta",
+  "category": "food",
+  "name": {
+    "ru": "Капуста",
+    "en": "Cabbage"
+  },
+  "titleRu": "капусту",
+  "aliases": {
+    "ru": [
+      "белокочанная капуста",
+      "квашеная капуста",
+      "тушёная капуста",
+      "цветная капуста",
+      "краснокочанная капуста",
+      "брюссельская капуста",
+      "кочанная капуста"
+    ],
+    "en": [
+      "cabbages",
+      "white cabbage",
+      "red cabbage",
+      "cauliflower",
+      "brussels sprouts",
+      "sauerkraut"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Совсем немного простой капусты — изредка, квашеную и тушёную с луком давать нельзя.",
+        "en": "With caution. A very small piece of plain cabbage now and then; do not give sauerkraut or stews with onion."
+      },
+      "why": {
+        "ru": "Капусты нет в списках ядовитых растений ASPCA, но и надёжных данных о ней в проверенных источниках мало, поэтому вердикт осторожный. Любая растительная еда может расстроить желудок. Квашеная капуста солёная, а тушёная капуста и щи часто с луком и чесноком, которые повреждают кровь, особенно у кошек.",
+        "en": "Cabbage is not on the ASPCA toxic plant lists, but reliable data on it is scarce in the sources checked, so the verdict is cautious. Any plant material can upset the stomach. Sauerkraut is salty, and stewed cabbage and soups often contain onion and garlic, which damage red blood cells, cats especially."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Немного простой капусты без добавок — изредка, квашеную и тушёную с луком давать нельзя.",
+        "en": "With caution. A little plain cabbage now and then; do not give sauerkraut or stews with onion."
+      },
+      "why": {
+        "ru": "Капусты нет в списках ядовитых растений ASPCA, но и надёжных данных о ней в проверенных источниках мало, поэтому вердикт осторожный. Любая растительная еда может расстроить желудок. Квашеная капуста солёная, а тушёная капуста и щи часто с луком и чесноком, которые повреждают кровь, особенно у кошек.",
+        "en": "Cabbage is not on the ASPCA toxic plant lists, but reliable data on it is scarce in the sources checked, so the verdict is cautious. Any plant material can upset the stomach. Sauerkraut is salty, and stewed cabbage and soups often contain onion and garlic, which damage red blood cells, cats especially."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите остатки и оцените, сколько питомец успел съесть",
+      "Понаблюдайте за питомцем в ближайшие сутки",
+      "Если появились признаки или вы не уверены, позвоните в клинику или пройдите проверку симптомов"
+    ],
+    "en": [
+      "Remove what is left and note how much your pet ate",
+      "Watch your pet over the next day",
+      "If signs appear or you are unsure, call a clinic or run a symptom check"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не ждите ухудшения, если питомец съел много"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not wait for it to get worse if your pet ate a lot"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Toxic and Non-Toxic Plants",
+      "url": "https://www.aspca.org/pet-care/animal-poison-control/toxic-and-non-toxic-plants"
+    },
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/animal-poison-control/people-foods-avoid-feeding-your-pets"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

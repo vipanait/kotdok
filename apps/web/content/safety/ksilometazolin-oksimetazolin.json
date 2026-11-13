@@ -1,0 +1,139 @@
+{
+  "slug": "ksilometazolin-oksimetazolin",
+  "category": "medicine",
+  "name": {
+    "ru": "Сосудосуживающие капли в нос",
+    "en": "Decongestant nose drops"
+  },
+  "titleRu": "сосудосуживающие капли в нос",
+  "aliases": {
+    "ru": [
+      "ксилометазолин",
+      "оксиметазолин",
+      "нафазолин",
+      "галазолин",
+      "нафтизин",
+      "називин",
+      "отривин",
+      "снуп",
+      "тизин",
+      "сосудосуживающие капли",
+      "сосудосуживающий спрей"
+    ],
+    "en": [
+      "xylometazoline",
+      "oxymetazoline",
+      "naphazoline",
+      "nasal decongestant",
+      "decongestant nasal spray",
+      "afrin",
+      "otrivin",
+      "nasivin"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Сосудосуживающие капли и спреи для носа очень опасны для кошек, даже в малом количестве.",
+        "en": "Dangerous. Decongestant nose drops and sprays are very dangerous to cats, even in a small amount."
+      },
+      "why": {
+        "ru": "Ксилометазолин и оксиметазолин очень сильные: даже малое количество может замедлить пульс, изменить давление и вызвать вялость и слабость. Признаки появляются в течение получаса–четырёх часов. Что делать, решает врач.",
+        "en": "Xylometazoline and oxymetazoline are very potent: even a small amount can slow the pulse, change blood pressure and cause lethargy and weakness. Signs appear within half an hour to four hours. The vet decides what to do."
+      },
+      "signs": {
+        "ru": [
+          "сильная сонливость, вялость",
+          "очень медленный или неровный пульс",
+          "рвота, слюнотечение",
+          "слабость, шаткость",
+          "беспокойство, дрожь",
+          "обморок"
+        ],
+        "en": [
+          "heavy drowsiness, lethargy",
+          "very slow or irregular pulse",
+          "vomiting, drooling",
+          "weakness, wobbliness",
+          "nervousness, shaking",
+          "collapse"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Сосудосуживающие капли и спреи для носа очень опасны для собак, особенно мелких.",
+        "en": "Dangerous. Decongestant nose drops and sprays are very dangerous to dogs, small ones especially."
+      },
+      "why": {
+        "ru": "Эти вещества замедляют пульс и меняют давление; бывают рвота, вялость, беспокойство или дрожь. Флакон, который собака разгрызла, — повод звонить сразу. Насколько это опасно, оценит врач.",
+        "en": "These substances slow the pulse and change blood pressure, and cause vomiting, lethargy, nervousness or shaking. A bottle the dog chewed is a reason to call at once. The vet will judge how dangerous it is."
+      },
+      "signs": {
+        "ru": [
+          "сильная сонливость, вялость",
+          "очень медленный или неровный пульс",
+          "рвота, слюнотечение",
+          "слабость, шаткая походка",
+          "беспокойство, дрожь, частое дыхание",
+          "обморок"
+        ],
+        "en": [
+          "heavy drowsiness, lethargy",
+          "very slow or irregular pulse",
+          "vomiting, drooling",
+          "weakness, unsteady walk",
+          "nervousness, shaking, panting",
+          "collapse"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Уберите остатки препарата и назовите врачу его название",
+      "Сохраните упаковку или сфотографируйте её: врачу важны состав и форма препарата",
+      "Прикиньте, сколько могло быть съедено и когда"
+    ],
+    "en": [
+      "Call a vet clinic right away, even if your pet seems fine",
+      "Put the rest of the product away and tell the vet its name",
+      "Keep the packaging or take a photo of it: the vet needs the ingredients and the form",
+      "Work out roughly how much was eaten and when"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте молоко, масло, уголь и другие «антидоты» из интернета",
+      "Не ждите признаков: они могут появиться через несколько часов или дней"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give milk, oil, charcoal or other home “antidotes” from the internet",
+      "Do not wait for signs: they can appear hours or days later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — Imidazoline Decongestants",
+      "url": "https://petpoisonhelpline.com/poison/imidazoline/"
+    },
+    {
+      "title": "MSD Veterinary Manual — Poisoning from Human Over-the-Counter Drugs",
+      "url": "https://www.merckvetmanual.com/special-pet-topics/poisoning/poisoning-from-human-over-the-counter-drugs"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

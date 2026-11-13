@@ -1,0 +1,114 @@
+{
+  "slug": "gortenziya",
+  "category": "plant",
+  "name": {
+    "ru": "Гортензия",
+    "en": "Hydrangea"
+  },
+  "titleRu": "гортензию",
+  "aliases": {
+    "ru": [
+      "гортензии",
+      "гортензия крупнолистная",
+      "гортензия садовая"
+    ],
+    "en": [
+      "hydrangea",
+      "hydrangeas",
+      "bigleaf hydrangea"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Гортензия для кошек и собак ядовита, чаще всего расстраивает желудок.",
+        "en": "With caution. Hydrangea is poisonous to cats and dogs and most often upsets the stomach."
+      },
+      "why": {
+        "ru": "ASPCA относит гортензию к ядовитым для кошек и собак: в ней цианогенный гликозид. Отравление цианидом бывает редко, обычно дело в расстройстве желудка: рвота, понос, вялость. По данным Merck, тяжёлое отравление у кошек и собак бывает, только если съедено много. Если съедено много, позвоните в клинику.",
+        "en": "The ASPCA lists hydrangea as toxic to cats and dogs: it contains a cyanogenic glycoside. Cyanide poisoning is rare; it usually means an upset stomach: vomiting, diarrhoea and lethargy. According to Merck, severe poisoning in cats and dogs is uncommon unless a lot is eaten. If a lot was eaten, call a clinic."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "вялость"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "lethargy"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Гортензия для кошек и собак ядовита, чаще всего расстраивает желудок.",
+        "en": "With caution. Hydrangea is poisonous to cats and dogs and most often upsets the stomach."
+      },
+      "why": {
+        "ru": "ASPCA относит гортензию к ядовитым для кошек и собак: в ней цианогенный гликозид. Отравление цианидом бывает редко, обычно дело в расстройстве желудка: рвота, понос, вялость. По данным Merck, тяжёлое отравление у кошек и собак бывает, только если съедено много. Если съедено много, позвоните в клинику.",
+        "en": "The ASPCA lists hydrangea as toxic to cats and dogs: it contains a cyanogenic glycoside. Cyanide poisoning is rare; it usually means an upset stomach: vomiting, diarrhoea and lethargy. According to Merck, severe poisoning in cats and dogs is uncommon unless a lot is eaten. If a lot was eaten, call a clinic."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "вялость"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "lethargy"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите растение туда, куда питомец не доберётся",
+      "Уберите остатки растения из пасти и протрите мордочку влажной тканью",
+      "Понаблюдайте за питомцем несколько часов",
+      "Если появились признаки или вы не уверены в растении, позвоните в клинику"
+    ],
+    "en": [
+      "Move the plant out of the pet's reach",
+      "Remove any plant pieces from the mouth and wipe the face with a damp cloth",
+      "Watch the pet for several hours",
+      "If signs appear or you are not sure about the plant, call a clinic"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте молоко, масло, уголь и другие «антидоты» из интернета",
+      "Не ждите, пока станет хуже, если питомец вялый или его рвёт"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give milk, oil, charcoal or other home “antidotes” from the internet",
+      "Do not wait for things to get worse if the pet is lethargic or vomiting"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Hydrangea",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/hydrangea"
+    },
+    {
+      "title": "MSD Veterinary Manual — Houseplants and Ornamentals Toxic to Animals",
+      "url": "https://www.merckvetmanual.com/toxicology/poisonous-plants/houseplants-and-ornamentals-toxic-to-animals"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

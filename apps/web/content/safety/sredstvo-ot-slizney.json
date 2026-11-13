@@ -1,0 +1,133 @@
+{
+  "slug": "sredstvo-ot-slizney",
+  "category": "household",
+  "name": {
+    "ru": "Средство от слизней (метальдегид)",
+    "en": "Slug and snail bait (metaldehyde)"
+  },
+  "titleRu": "средство от слизней",
+  "aliases": {
+    "ru": [
+      "метальдегид",
+      "яд от слизней",
+      "гроза от слизней",
+      "приманка для слизней",
+      "гранулы от слизней",
+      "средство от улиток"
+    ],
+    "en": [
+      "metaldehyde",
+      "slug bait",
+      "slug pellets",
+      "snail bait",
+      "snail pellets"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Средство от слизней с метальдегидом очень опасно для кошек.",
+        "en": "Dangerous. Slug bait with metaldehyde is very dangerous to cats."
+      },
+      "why": {
+        "ru": "Метальдегид действует на нервную систему: дрожь, нарушение координации, судороги и жар. У кошек особенно сильно выражены быстрые движения глаз. Приманка вкусная для животных. Что делать, решает врач.",
+        "en": "Metaldehyde acts on the nervous system: tremors, poor coordination, seizures and fever. Cats show especially strong rapid eye movements. The bait tastes good to animals. The vet decides what to do."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение, рвота",
+          "беспокойство",
+          "дрожь, подёргивание мышц",
+          "шаткая походка",
+          "высокая температура",
+          "судороги",
+          "быстрые движения глаз"
+        ],
+        "en": [
+          "drooling, vomiting",
+          "restlessness",
+          "tremors, muscle twitching",
+          "unsteady walk",
+          "high temperature",
+          "seizures",
+          "rapid eye movements"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Средство от слизней с метальдегидом очень опасно для собак.",
+        "en": "Dangerous. Slug bait with metaldehyde is very dangerous to dogs."
+      },
+      "why": {
+        "ru": "Метальдегид быстро поражает нервную систему: дрожь, судороги и жар. Без лечения возможен смертельный исход. Собаки отравляются им чаще других животных. Звоните сразу.",
+        "en": "Metaldehyde quickly harms the nervous system: tremors, seizures and fever. Without treatment it can be fatal. Dogs are poisoned by it more often than other animals. Call at once."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение, рвота",
+          "беспокойство",
+          "дрожь, подёргивание мышц",
+          "шаткая походка",
+          "высокая температура",
+          "судороги"
+        ],
+        "en": [
+          "drooling, vomiting",
+          "restlessness",
+          "tremors, muscle twitching",
+          "unsteady walk",
+          "high temperature",
+          "seizures"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Уберите питомца от вещества и закройте к нему доступ",
+      "Сохраните упаковку или сфотографируйте её: врачу важны название и состав",
+      "Прикиньте, сколько могло быть съедено или попасть на шерсть, и когда"
+    ],
+    "en": [
+      "Call a vet clinic right away, even if your pet seems fine",
+      "Take your pet away from the substance and block access to it",
+      "Keep the packaging or take a photo of it: the vet needs the name and the ingredients",
+      "Work out roughly how much was eaten or got on the coat, and when"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте молоко, масло, уголь и другие «антидоты» из интернета",
+      "Не ждите признаков: они могут появиться не сразу"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give milk, oil, charcoal or other home “antidotes” from the internet",
+      "Do not wait for signs: they may not appear at once"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — Metaldehyde",
+      "url": "https://www.petpoisonhelpline.com/poison/metaldehyde/"
+    },
+    {
+      "title": "MSD Veterinary Manual — Metaldehyde Poisoning",
+      "url": "https://www.merckvetmanual.com/special-pet-topics/poisoning/metaldehyde-poisoning"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

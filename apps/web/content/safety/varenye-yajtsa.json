@@ -1,0 +1,104 @@
+{
+  "slug": "varenye-yajtsa",
+  "category": "food",
+  "name": {
+    "ru": "Варёные яйца",
+    "en": "Boiled eggs"
+  },
+  "titleRu": "варёные яйца",
+  "aliases": {
+    "ru": [
+      "яйцо варёное",
+      "варёное яйцо",
+      "вареное яйцо",
+      "вареные яйца",
+      "яйца вкрутую",
+      "яйцо вкрутую",
+      "сваренное яйцо"
+    ],
+    "en": [
+      "hard boiled egg",
+      "hard-boiled eggs",
+      "boiled egg",
+      "cooked egg",
+      "cooked eggs"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Хорошо проваренное яйцо без соли и масла — изредка и понемногу.",
+        "en": "With caution. A well-cooked egg with no salt or butter, now and then and in small pieces."
+      },
+      "why": {
+        "ru": "Сырые яйца могут нести сальмонеллу и кишечную палочку, а в сыром яйце есть вещество, которое мешает усваивать некоторые витамины, — страдают кожа и шерсть. Поэтому допустимо только хорошо проваренное яйцо, без соли, масла и специй. Лакомства не заменяют корм и должны быть изредка.",
+        "en": "Raw eggs can carry Salmonella and E. coli, and raw egg contains an enzyme that can interfere with absorbing certain vitamins, which shows in the skin and coat. So only well-cooked egg is acceptable, with no salt, butter or spices. Treats do not replace cat food and should be occasional."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Хорошо проваренное яйцо без добавок — как редкое лакомство.",
+        "en": "With caution. A well-cooked egg with nothing added, as a rare treat."
+      },
+      "why": {
+        "ru": "Сырые яйца могут нести сальмонеллу и кишечную палочку, а в сыром яйце есть вещество, которое мешает усваивать некоторые витамины, — страдают кожа и шерсть. Поэтому допустимо только хорошо проваренное яйцо, без соли, масла и специй, изредка: еда со стола быстро набирается и не заменяет корм.",
+        "en": "Raw eggs can carry Salmonella and E. coli, and raw egg contains an enzyme that can interfere with absorbing certain vitamins, which shows in the skin and coat. So only well-cooked egg is acceptable, with no salt, butter or spices, now and then: food from the table adds up quickly and does not replace dog food."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Оставьте доступ к чистой воде",
+      "Наблюдайте за питомцем сутки",
+      "Если появились рвота, понос или вялость — проверьте симптомы или позвоните в клинику"
+    ],
+    "en": [
+      "Leave fresh water available",
+      "Watch your pet for a day",
+      "If vomiting, diarrhoea or lethargy appear, check the symptoms or call a clinic"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не кормите сырыми яйцами",
+      "Не давайте лекарства без назначения врача"
+    ],
+    "en": [
+      "Do not feed raw eggs",
+      "Do not give any medicine unless a vet tells you to"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    },
+    {
+      "title": "Cornell Feline Health Center — Feeding Your Cat",
+      "url": "https://www.vet.cornell.edu/departments-centers-and-institutes/cornell-feline-health-center/health-information/feline-health-topics/feeding-your-cat"
+    },
+    {
+      "title": "Cornell Riney Canine Health Center — Re-evaluating your dog's diet",
+      "url": "https://www.vet.cornell.edu/departments-centers-and-institutes/riney-canine-health-center/canine-health-topics/re-evaluating-your-dogs-diet"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

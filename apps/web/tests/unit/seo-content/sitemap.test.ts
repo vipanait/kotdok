@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { allContent } from '@/features/seo-content/load'
+import { nonePublished, onlyPublished, withReviewStatus } from '../safety/review-states'
 import sitemap from '@/app/sitemap'
 import { siteUrl } from '@/shared/seo'
 
@@ -22,5 +23,25 @@ describe('the sitemap', () => {
       expect(urls.includes(`${siteUrl}/otravlenie/${page.slug}`), page.slug).toBe(page.review.status === 'published')
     }
     expect(new Set(urls).size).toBe(urls.length)
+  })
+
+  it('leaves the «Можно ли» hub and every entry out while nothing is published, even on a preview', () => {
+    vi.stubEnv('VERCEL_ENV', 'preview')
+    return withReviewStatus(nonePublished(), () => {
+      const urls = sitemap().map(entry => entry.url)
+      // An empty hub is not worth a crawl: it joins the sitemap with its first entry.
+      expect(urls).not.toContain(`${siteUrl}/mozhno-li`)
+      expect(urls.filter(url => url.startsWith(`${siteUrl}/mozhno-li`))).toEqual([])
+    })
+  })
+
+  it('lists the hub and the published entries only, once one is published', () => {
+    vi.stubEnv('VERCEL_ENV', 'preview')
+    return withReviewStatus(onlyPublished('shokolad', 'draft'), () => {
+      const urls = sitemap().map(item => item.url)
+      expect(urls).toContain(`${siteUrl}/mozhno-li`)
+      expect(urls.filter(url => url.startsWith(`${siteUrl}/mozhno-li/`))).toEqual([`${siteUrl}/mozhno-li/shokolad`])
+      expect(new Set(urls).size).toBe(urls.length)
+    })
   })
 })

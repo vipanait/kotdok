@@ -1,0 +1,108 @@
+{
+  "slug": "kokos",
+  "category": "food",
+  "name": {
+    "ru": "Кокос",
+    "en": "Coconut"
+  },
+  "titleRu": "кокос",
+  "aliases": {
+    "ru": [
+      "кокосы",
+      "кокосовая стружка",
+      "кокосовое молоко",
+      "кокосовое масло",
+      "мякоть кокоса",
+      "скорлупа кокоса"
+    ],
+    "en": [
+      "coconuts",
+      "coconut flesh",
+      "coconut milk",
+      "coconut oil",
+      "coconut water",
+      "desiccated coconut"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Немного кокоса вряд ли серьёзно навредит, но от него бывает расстройство желудка.",
+        "en": "With caution. A little coconut is unlikely to do serious harm, but it can upset the stomach."
+      },
+      "why": {
+        "ru": "В небольшом количестве кокос и продукты из него вряд ли серьёзно навредят. Но в мякоти и молоке свежего кокоса есть масла, от которых бывают расстройство желудка, жидкий стул и понос.",
+        "en": "In small amounts, coconut and coconut products are unlikely to cause serious harm. But the flesh and milk of fresh coconut contain oils that can upset the stomach and cause loose stools and diarrhoea."
+      },
+      "signs": {
+        "ru": [
+          "расстройство желудка",
+          "жидкий стул, понос"
+        ],
+        "en": [
+          "stomach upset",
+          "loose stools, diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Немного мякоти изредка вряд ли навредит, но масла в кокосе могут вызвать понос.",
+        "en": "With caution. A little flesh now and then is unlikely to harm, but the oils in coconut can cause diarrhoea."
+      },
+      "why": {
+        "ru": "В небольшом количестве кокос и продукты из него вряд ли серьёзно навредят. Но в мякоти и молоке свежего кокоса есть масла, от которых бывают расстройство желудка, жидкий стул и понос.",
+        "en": "In small amounts, coconut and coconut products are unlikely to cause serious harm. But the flesh and milk of fresh coconut contain oils that can upset the stomach and cause loose stools and diarrhoea."
+      },
+      "signs": {
+        "ru": [
+          "расстройство желудка",
+          "жидкий стул, понос"
+        ],
+        "en": [
+          "stomach upset",
+          "loose stools, diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите остатки и убедитесь, что питомец больше не достаёт до них",
+      "Понаблюдайте за питомцем сутки; при рвоте, поносе, вялости или вздутом животе позвоните в клинику",
+      "Если съедено много или питомец маленький, позвоните в клинику сразу"
+    ],
+    "en": [
+      "Put away the leftovers so your pet cannot reach more",
+      "Watch your pet for a day; call a clinic if there is vomiting, diarrhoea, lethargy or a swollen belly",
+      "If a lot was eaten or your pet is small, call a clinic straight away"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не давайте скорлупу и сладкие кокосовые десерты",
+      "Не вызывайте рвоту сами — только по указанию врача"
+    ],
+    "en": [
+      "Do not give the shell or sweet coconut desserts",
+      "Do not make your pet vomit unless a vet tells you to"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

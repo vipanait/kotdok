@@ -46,6 +46,9 @@ const paths = {
   calendar: '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4m10-4v4M3 10h18"/>',
   bell: '<path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4Z"/><path d="M10 21h4"/>',
   calendarAlert: '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4m10-4v4M3 10h18m-9 3v3m0 2h.01"/>',
+  // The «Можно ли?» tab: not in either concept, drawn here in their stroke —
+  // a bowl with kibble.
+  bowl: '<path d="M3 12h18"/><path d="M4.5 12c0 3.6 3.4 6 7.5 6s7.5-2.4 7.5-6"/><path d="M8.5 18 8 20.5h8l-.5-2.5"/><circle cx="9" cy="8.5" r="1.4"/><circle cx="13.5" cy="7.5" r="1.4"/><circle cx="16" cy="10" r=".9"/>',
 } as const
 
 export type IconName = keyof typeof paths

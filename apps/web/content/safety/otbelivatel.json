@@ -1,0 +1,133 @@
+{
+  "slug": "otbelivatel",
+  "category": "household",
+  "name": {
+    "ru": "Отбеливатель (хлорка)",
+    "en": "Bleach"
+  },
+  "titleRu": "отбеливатель",
+  "aliases": {
+    "ru": [
+      "хлорка",
+      "хлорный отбеливатель",
+      "белизна",
+      "гипохлорит натрия",
+      "хлорсодержащее средство"
+    ],
+    "en": [
+      "chlorine bleach",
+      "household bleach",
+      "sodium hypochlorite",
+      "clorox"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Хлорный отбеливатель раздражает рот и желудок кошки, а концентрированный может их обжечь.",
+        "en": "Dangerous. Chlorine bleach irritates the mouth and stomach of a cat, and concentrated bleach can burn them."
+      },
+      "why": {
+        "ru": "От слабого раствора обычно бывает лишь лёгкое расстройство: слюнотечение, рвота, вялость. Концентрированные средства могут химически обжечь рот и желудок, а от паров хлора бывает кашель. Кошка может слизать хлорку с лап, пройдя по луже на полу. Насколько крепким был раствор, на глаз не понять, поэтому звоните врачу.",
+        "en": "A weak dilution usually causes only a mild upset: drooling, vomiting, lethargy. Concentrated products can cause chemical burns of the mouth and stomach, and chlorine fumes can cause coughing. A cat can lick bleach off its paws after walking through a puddle on the floor. You cannot tell by eye how strong it was, so call a vet."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "рвота",
+          "отказ от еды",
+          "кашель после вдыхания паров",
+          "вялость",
+          "раздражённая кожа, обесцвеченная шерсть"
+        ],
+        "en": [
+          "drooling",
+          "vomiting",
+          "not eating",
+          "coughing after breathing in fumes",
+          "lethargy",
+          "irritated skin, bleached fur"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Хлорный отбеливатель раздражает рот и желудок собаки, а концентрированный может их обжечь.",
+        "en": "Dangerous. Chlorine bleach irritates the mouth and stomach of a dog, and concentrated bleach can burn them."
+      },
+      "why": {
+        "ru": "От слабого раствора обычно бывает лишь лёгкое расстройство: слюнотечение, рвота, вялость. Концентрированные средства могут химически обжечь рот и желудок, а от паров хлора бывает кашель. Насколько крепким был раствор, на глаз не понять, поэтому звоните врачу.",
+        "en": "A weak dilution usually causes only a mild upset: drooling, vomiting, lethargy. Concentrated products can cause chemical burns of the mouth and stomach, and chlorine fumes can cause coughing. You cannot tell by eye how strong it was, so call a vet."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "рвота",
+          "отказ от еды",
+          "кашель после вдыхания паров",
+          "вялость",
+          "раздражённая кожа, обесцвеченная шерсть"
+        ],
+        "en": [
+          "drooling",
+          "vomiting",
+          "not eating",
+          "coughing after breathing in fumes",
+          "lethargy",
+          "irritated skin, bleached fur"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Уберите питомца от вещества; если хлорка попала на лапы или шерсть, тщательно промойте их водой",
+      "Сохраните упаковку или сфотографируйте её: врачу важны название и состав",
+      "Прикиньте, сколько могло быть съедено или попасть на шерсть, и когда"
+    ],
+    "en": [
+      "Call a vet clinic right away, even if your pet seems fine",
+      "Take your pet away from the substance; if bleach got on the paws or coat, rinse them well with water",
+      "Keep the packaging or take a photo of it: the vet needs the name and the ingredients",
+      "Work out roughly how much was eaten or got on the coat, and when"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте молоко, масло, уголь и другие «антидоты» из интернета",
+      "Не ждите признаков: они могут появиться не сразу"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give milk, oil, charcoal or other home “antidotes” from the internet",
+      "Do not wait for signs: they may not appear at once"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — My Dog Ate Bleach: The Dangers of Cleaning Products",
+      "url": "https://www.petpoisonhelpline.com/pet-tips/my-dog-ate-bleach-the-dangers-of-cleaning-products"
+    },
+    {
+      "title": "Pet Poison Helpline — #StopBleachingFido",
+      "url": "https://www.petpoisonhelpline.com/covid-19/stopbleachingfido/"
+    },
+    {
+      "title": "MSD Veterinary Manual — Household Hazards",
+      "url": "https://www.merckvetmanual.com/special-pet-topics/poisoning/household-hazards"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

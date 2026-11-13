@@ -1,0 +1,133 @@
+{
+  "slug": "slivochnoe-maslo-zhirnaya-eda",
+  "category": "food",
+  "name": {
+    "ru": "Сливочное масло и жирная еда",
+    "en": "Butter and fatty food"
+  },
+  "titleRu": "сливочное масло и жирную еду",
+  "aliases": {
+    "ru": [
+      "сливочное масло",
+      "масло сливочное",
+      "жирная еда",
+      "жирную еду",
+      "жирное",
+      "жирное мясо",
+      "сало",
+      "шкурки от мяса",
+      "жир",
+      "растительное масло",
+      "жареное",
+      "жареную еду"
+    ],
+    "en": [
+      "butter",
+      "fatty food",
+      "fatty foods",
+      "fatty meat",
+      "greasy food",
+      "fat trimmings",
+      "cooking oil",
+      "fried food",
+      "lard"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Жирное лучше не давать: от него бывают рвота и понос, а иногда воспаление поджелудочной железы.",
+        "en": "With caution. Better to avoid fatty food: it can cause vomiting and diarrhoea, and sometimes an inflamed pancreas."
+      },
+      "why": {
+        "ru": "Масло, сало, жирные обрезки и жареная еда могут вызвать рвоту и понос, а у некоторых питомцев — воспаление поджелудочной железы. У кошек причину воспаления часто не удаётся найти, но жирное лучше не давать.",
+        "en": "Butter, lard, fatty trimmings and fried food can cause vomiting and diarrhoea, and in some pets an inflamed pancreas. In cats the cause of pancreatitis often cannot be found, but fatty food is still best avoided."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "вялость, отказ от еды",
+          "боль в животе"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "lethargy, refusing food",
+          "belly pain"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Жирное лучше не давать: у собак от него бывают рвота, понос и воспаление поджелудочной железы.",
+        "en": "With caution. Better to avoid fatty food: in dogs it can cause vomiting, diarrhoea and an inflamed pancreas."
+      },
+      "why": {
+        "ru": "Жирная еда может вызвать рвоту и понос, а объедки со стола и другая неподходящая еда — частая причина воспаления поджелудочной железы у собак. Чаще оно бывает у миниатюрных шнауцеров, йоркширских терьеров, кокер-спаниелей, такс и пуделей.",
+        "en": "Fatty food can cause vomiting and diarrhoea, and table scraps and other unsuitable food are a common risk factor for pancreatitis in dogs. It is more common in miniature schnauzers, Yorkshire terriers, cocker spaniels, dachshunds and poodles."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "вялость, слабость, отказ от еды",
+          "боль в животе"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "lethargy, weakness, refusing food",
+          "belly pain"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Оставьте доступ к чистой воде",
+      "Не кормите питомца жирным, пока он не придёт в норму",
+      "Если рвота повторяется, живот болит или питомец вялый — позвоните в клинику, не ждите"
+    ],
+    "en": [
+      "Leave fresh water available",
+      "Do not feed anything fatty until your pet is back to normal",
+      "If vomiting keeps coming back, the belly hurts or your pet is lethargic, call a clinic and do not wait"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не давайте жирные объедки «для аппетита»",
+      "Не давайте лекарства без назначения врача"
+    ],
+    "en": [
+      "Do not give fatty scraps to tempt appetite",
+      "Do not give any medicine unless a vet tells you to"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    },
+    {
+      "title": "Merck Veterinary Manual — Pancreatitis and Other Disorders of the Pancreas in Dogs",
+      "url": "https://www.merckvetmanual.com/dog-owners/digestive-disorders-of-dogs/pancreatitis-and-other-disorders-of-the-pancreas-in-dogs"
+    },
+    {
+      "title": "Merck Veterinary Manual — Disorders of the Pancreas in Cats",
+      "url": "https://www.merckvetmanual.com/cat-owners/digestive-disorders-of-cats/disorders-of-the-pancreas-in-cats"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

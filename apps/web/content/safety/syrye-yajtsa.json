@@ -1,0 +1,122 @@
+{
+  "slug": "syrye-yajtsa",
+  "category": "food",
+  "name": {
+    "ru": "Сырые яйца",
+    "en": "Raw eggs"
+  },
+  "titleRu": "сырые яйца",
+  "aliases": {
+    "ru": [
+      "сырое яйцо",
+      "яйцо сырое",
+      "сырой белок",
+      "сырой желток"
+    ],
+    "en": [
+      "raw egg",
+      "raw eggs",
+      "raw egg white",
+      "uncooked eggs"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Сырые яйца могут нести сальмонеллу и кишечную палочку.",
+        "en": "With caution. Raw eggs may carry Salmonella and E. coli."
+      },
+      "why": {
+        "ru": "В сырых яйцах бывают сальмонелла и кишечная палочка. Питомец может их переносить без признаков и заражать людей. В сыром яйце есть фермент, который мешает усвоению некоторых витаминов; это может сказаться на коже и шерсти.",
+        "en": "Raw eggs may carry Salmonella and E. coli. A pet can carry them without signs and pass them to people. Raw egg contains an enzyme that interferes with absorbing certain vitamins, which can affect skin and coat."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос, иногда с кровью",
+          "повышенная температура",
+          "отказ от еды",
+          "вялость"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea, sometimes bloody",
+          "raised temperature",
+          "refusing food",
+          "lethargy"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Сырые яйца могут нести сальмонеллу и кишечную палочку.",
+        "en": "With caution. Raw eggs may carry Salmonella and E. coli."
+      },
+      "why": {
+        "ru": "В сырых яйцах бывают сальмонелла и кишечная палочка. Питомец может их переносить без признаков и заражать людей. В сыром яйце есть фермент, который мешает усвоению некоторых витаминов; это может сказаться на коже и шерсти.",
+        "en": "Raw eggs may carry Salmonella and E. coli. A pet can carry them without signs and pass them to people. Raw egg contains an enzyme that interferes with absorbing certain vitamins, which can affect skin and coat."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос, иногда с кровью",
+          "повышенная температура",
+          "отказ от еды",
+          "вялость"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea, sometimes bloody",
+          "raised temperature",
+          "refusing food",
+          "lethargy"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите остатки и проследите за питомцем",
+      "Если появились признаки из списка или питомцу стало хуже, позвоните в клинику",
+      "Запомните, что и когда было съедено"
+    ],
+    "en": [
+      "Put the rest away and keep an eye on your pet",
+      "If any of the listed signs appear or your pet gets worse, call a clinic",
+      "Note what was eaten and when"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте домашние «антидоты» из интернета",
+      "Не ждите признаков: они могут появиться не сразу"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give home “antidotes” from the internet",
+      "Do not wait for signs: they may appear later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    },
+    {
+      "title": "FDA — Get the Facts about Salmonella",
+      "url": "https://www.fda.gov/animal-veterinary/animal-health-literacy/get-facts-about-salmonella"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

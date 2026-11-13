@@ -1,0 +1,131 @@
+{
+  "slug": "aspirin",
+  "category": "medicine",
+  "name": {
+    "ru": "Аспирин",
+    "en": "Aspirin"
+  },
+  "titleRu": "аспирин",
+  "aliases": {
+    "ru": [
+      "ацетилсалициловая кислота",
+      "аспирин кардио",
+      "тромбо асс",
+      "аспирин с",
+      "упсарин"
+    ],
+    "en": [
+      "acetylsalicylic acid",
+      "salicylate",
+      "bayer aspirin",
+      "baby aspirin"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Аспирин для кошки ядовит: кошки гораздо чувствительнее к нему, чем собаки.",
+        "en": "Dangerous. Aspirin is poisonous to cats, which are much more sensitive to it than dogs."
+      },
+      "why": {
+        "ru": "Аспирин — обезболивающее для людей. Кошкам не хватает фермента, который помогает выводить аспирин, поэтому он задерживается в организме. Он может вызвать язвы желудка, повредить почки и кроветворение. Что делать, решает врач.",
+        "en": "Aspirin is a human painkiller. Cats lack an enzyme that helps clear aspirin, so it stays in the body longer. It can cause stomach ulcers and harm the kidneys and blood production. The vet decides what to do."
+      },
+      "signs": {
+        "ru": [
+          "рвота, иногда с кровью",
+          "чёрный дёгтеобразный стул",
+          "вялость, слабость",
+          "изменения дыхания",
+          "повышенная температура",
+          "дрожь, судороги"
+        ],
+        "en": [
+          "vomiting, sometimes with blood",
+          "black tarry stool",
+          "lethargy, weakness",
+          "changes in breathing",
+          "raised body temperature",
+          "tremors, seizures"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Аспирин для собак ядовит, даже если человеку он привычен.",
+        "en": "Dangerous. Aspirin is poisonous to dogs, however familiar it is to people."
+      },
+      "why": {
+        "ru": "У собак аспирин раздражает желудок и кишечник и может вызвать язвы и кровотечения, а при большем количестве — повредить почки, кроветворение и нервную систему. Насколько опасно именно в вашем случае, оценит врач.",
+        "en": "In dogs aspirin irritates the stomach and gut and can cause ulcers and bleeding and, in larger amounts, harm the kidneys, blood production and the nervous system. The vet will judge how dangerous it is in your case."
+      },
+      "signs": {
+        "ru": [
+          "рвота, иногда с кровью",
+          "чёрный дёгтеобразный стул",
+          "вялость",
+          "изменения дыхания",
+          "повышенная температура"
+        ],
+        "en": [
+          "vomiting, sometimes with blood",
+          "black tarry stool",
+          "lethargy",
+          "changes in breathing",
+          "raised body temperature"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Уберите остатки препарата и назовите врачу его название",
+      "Сохраните упаковку или сфотографируйте её: врачу важны состав и форма препарата",
+      "Прикиньте, сколько могло быть съедено и когда"
+    ],
+    "en": [
+      "Call a vet clinic right away, even if your pet seems fine",
+      "Put the rest of the product away and tell the vet its name",
+      "Keep the packaging or take a photo of it: the vet needs the ingredients and the form",
+      "Work out roughly how much was eaten and when"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте молоко, масло, уголь и другие «антидоты» из интернета",
+      "Не ждите признаков: они могут появиться через несколько часов или дней"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give milk, oil, charcoal or other home “antidotes” from the internet",
+      "Do not wait for signs: they can appear hours or days later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — Aspirin",
+      "url": "https://www.petpoisonhelpline.com/poison/aspirin/"
+    },
+    {
+      "title": "Pet Poison Helpline — Cats and Aspirin",
+      "url": "https://www.petpoisonhelpline.com/pet-tips/cats-and-aspirin"
+    },
+    {
+      "title": "MSD Veterinary Manual — Poisoning from Human Over-the-Counter Drugs",
+      "url": "https://www.merckvetmanual.com/special-pet-topics/poisoning/poisoning-from-human-over-the-counter-drugs"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

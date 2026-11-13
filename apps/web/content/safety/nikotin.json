@@ -1,0 +1,147 @@
+{
+  "slug": "nikotin",
+  "category": "household",
+  "name": {
+    "ru": "Никотин, сигареты и вейпы",
+    "en": "Nicotine, cigarettes and vapes"
+  },
+  "titleRu": "никотин, сигареты и вейпы",
+  "aliases": {
+    "ru": [
+      "никотин",
+      "сигарета",
+      "сигарету",
+      "сигареты",
+      "окурок",
+      "окурки",
+      "вейп",
+      "вейпы",
+      "жидкость для вейпа",
+      "табак",
+      "жевательный табак",
+      "снюс",
+      "никотиновая жвачка",
+      "никотиновые пластыри",
+      "кальян"
+    ],
+    "en": [
+      "nicotine",
+      "cigarette",
+      "cigarettes",
+      "cigarette butt",
+      "vape",
+      "vape liquid",
+      "e-cigarette",
+      "tobacco",
+      "snus",
+      "nicotine gum",
+      "nicotine patch",
+      "nicotine pouch",
+      "hookah",
+      "shisha"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Никотин действует быстро, а окурок, табак и жидкость для вейпа питомец может съесть или слизать.",
+        "en": "Dangerous. Nicotine acts fast, and a pet may eat or lick a cigarette butt, tobacco or vape liquid."
+      },
+      "why": {
+        "ru": "Никотин — быстродействующий яд с малым запасом прочности для питомцев: он влияет на сердце, давление и нервную систему. Опасны окурки, табак, сигары, жидкость для вейпа, жвачки, леденцы, пластыри и пакетики.",
+        "en": "Nicotine is a fast-acting poison with a narrow safety margin for pets: it affects the heart, blood pressure and the nervous system. Butts, tobacco, cigars, vape liquid, gum, lozenges, patches and pouches are all dangerous."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "рвота",
+          "возбуждение",
+          "дрожь",
+          "слишком частое или редкое сердцебиение",
+          "поверхностное дыхание",
+          "оцепенение, обморок"
+        ],
+        "en": [
+          "drooling",
+          "vomiting",
+          "agitation",
+          "tremors",
+          "too fast or too slow heartbeat",
+          "shallow breathing",
+          "stupor, collapse"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Собака может подобрать окурок или погрызть пачку, пакетик, жвачку или флакон с жидкостью для вейпа.",
+        "en": "Dangerous. A dog may pick up a cigarette butt or chew a pack, pouch, gum or vape-liquid bottle."
+      },
+      "why": {
+        "ru": "Никотин — быстродействующий яд с малым запасом прочности для питомцев: он влияет на сердце, давление и нервную систему. В некоторых никотиновых продуктах есть ещё и ксилит, который у собак отдельно вызывает падение сахара в крови и повреждает печень.",
+        "en": "Nicotine is a fast-acting poison with a narrow safety margin for pets: it affects the heart, blood pressure and the nervous system. Some nicotine products also contain xylitol, which separately lowers blood sugar and harms the liver in dogs."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "рвота",
+          "возбуждение",
+          "дрожь",
+          "слишком частое или редкое сердцебиение",
+          "поверхностное дыхание",
+          "оцепенение, обморок"
+        ],
+        "en": [
+          "drooling",
+          "vomiting",
+          "agitation",
+          "tremors",
+          "too fast or too slow heartbeat",
+          "shallow breathing",
+          "stupor, collapse"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Уберите остатки и всё, что питомец мог достать",
+      "Сохраните упаковку или окурок и скажите врачу, что именно и когда было съедено"
+    ],
+    "en": [
+      "Call a vet clinic right away, even if your pet seems fine",
+      "Remove what is left and anything else within your pet's reach",
+      "Keep the packaging or the butt and tell the vet what was eaten and when"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не ждите признаков: они могут появиться позже",
+      "Не пробуйте «домашние антидоты» из интернета"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not wait for signs: they can appear later",
+      "Do not try home “antidotes” from the internet"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — Nicotine",
+      "url": "https://www.petpoisonhelpline.com/poison/nicotine/"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

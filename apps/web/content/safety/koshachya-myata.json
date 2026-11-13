@@ -1,0 +1,111 @@
+{
+  "slug": "koshachya-myata",
+  "category": "plant",
+  "name": {
+    "ru": "Кошачья мята",
+    "en": "Catnip"
+  },
+  "titleRu": "кошачью мяту",
+  "aliases": {
+    "ru": [
+      "кошачьей мяты",
+      "котовник",
+      "котовник кошачий",
+      "мята кошачья"
+    ],
+    "en": [
+      "catnip",
+      "catmint",
+      "nepeta",
+      "nepeta cataria",
+      "cat mint"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. ASPCA относит кошачью мяту к ядовитым для кошек: она может расстроить желудок.",
+        "en": "With caution. The ASPCA lists catnip as toxic to cats: it can upset the stomach."
+      },
+      "why": {
+        "ru": "Многие кошки любят кошачью мяту, но, по данным ASPCA, у кошки от неё бывают рвота и понос. На одних кошек она действует успокаивающе, на других возбуждающе. Если рвота или понос не проходят или кошка вялая, позвоните в клинику.",
+        "en": "Many cats love catnip, but according to the ASPCA it can cause vomiting and diarrhoea in cats. It makes some cats calm and others excited. If vomiting or diarrhoea does not pass or the cat is lethargic, call a clinic."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "сильное возбуждение или сонливость"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "strong excitement or drowsiness"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Данных о кошачьей мяте для собак мало.",
+        "en": "With caution. There is little data on catnip for dogs."
+      },
+      "why": {
+        "ru": "ASPCA относит кошачью мяту к ядовитым для кошек, а о собаках в этой записи не говорит. Данных по виду мало, поэтому вердикт строгий. Если после мяты появились рвота или понос, позвоните в клинику.",
+        "en": "The ASPCA lists catnip as toxic to cats, and its entry says nothing about dogs. Data for this species is thin, so the verdict is the strict one. If vomiting or diarrhoea appear after eating catnip, call a clinic."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите растение туда, куда питомец не доберётся",
+      "Уберите остатки растения из пасти и протрите мордочку влажной тканью",
+      "Понаблюдайте за питомцем несколько часов",
+      "Если появились признаки или вы не уверены в растении, позвоните в клинику"
+    ],
+    "en": [
+      "Move the plant out of the pet's reach",
+      "Remove any plant pieces from the mouth and wipe the face with a damp cloth",
+      "Watch the pet for several hours",
+      "If signs appear or you are not sure about the plant, call a clinic"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте молоко, масло, уголь и другие «антидоты» из интернета",
+      "Не ждите, пока станет хуже, если питомец вялый или его рвёт"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give milk, oil, charcoal or other home “antidotes” from the internet",
+      "Do not wait for things to get worse if the pet is lethargic or vomiting"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Catnip",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/catnip"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

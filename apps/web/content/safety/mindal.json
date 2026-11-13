@@ -1,0 +1,103 @@
+{
+  "slug": "mindal",
+  "category": "food",
+  "name": {
+    "ru": "Миндаль",
+    "en": "Almonds"
+  },
+  "titleRu": "миндаль",
+  "aliases": {
+    "ru": [
+      "миндальные орехи",
+      "миндаля",
+      "миндальный орех"
+    ],
+    "en": [
+      "almond",
+      "almond nuts"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Кошке миндаль не нужен: он жирный и может расстроить желудок.",
+        "en": "With caution. Cats do not need almonds: they are fatty and can upset the stomach."
+      },
+      "why": {
+        "ru": "В миндале, как и в других орехах, много жира и масла. От этого бывают рвота, понос и воспаление поджелудочной железы. Солёные орехи вреднее: избыток соли тоже опасен.",
+        "en": "Almonds, like other nuts, are high in fat and oil. This can cause vomiting, diarrhoea and an inflamed pancreas. Salted nuts are worse: too much salt is harmful too."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Собаке миндаль не нужен: он жирный и может расстроить желудок.",
+        "en": "With caution. Dogs do not need almonds: they are fatty and can upset the stomach."
+      },
+      "why": {
+        "ru": "В миндале много жира и масла: от него бывают рвота, понос и воспаление поджелудочной железы. Солёные, глазированные и ароматизированные орехи вреднее: избыток соли тоже опасен.",
+        "en": "Almonds are high in fat and oil: they can cause vomiting, diarrhoea and an inflamed pancreas. Salted, glazed or flavoured nuts are worse: too much salt is harmful too."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите остатки и проследите за питомцем",
+      "Если появились признаки из списка или питомцу стало хуже, позвоните в клинику",
+      "Запомните, что и когда было съедено"
+    ],
+    "en": [
+      "Put the rest away and keep an eye on your pet",
+      "If any of the listed signs appear or your pet gets worse, call a clinic",
+      "Note what was eaten and when"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте домашние «антидоты» из интернета",
+      "Не ждите признаков: они могут появиться не сразу"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give home “antidotes” from the internet",
+      "Do not wait for signs: they may appear later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

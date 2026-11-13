@@ -1,0 +1,123 @@
+{
+  "slug": "kukuruza",
+  "category": "food",
+  "name": {
+    "ru": "Кукуруза и початки",
+    "en": "Corn and corn cobs"
+  },
+  "titleRu": "кукурузу и кукурузные початки",
+  "aliases": {
+    "ru": [
+      "кукуруза",
+      "початок кукурузы",
+      "початки",
+      "кукурузный початок",
+      "кукурузные зёрна",
+      "варёная кукуруза",
+      "попкорн",
+      "кукуруза консервированная"
+    ],
+    "en": [
+      "corn",
+      "corn on the cob",
+      "corncob",
+      "cob",
+      "corn kernels",
+      "sweetcorn",
+      "popcorn"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Пара зёрен без добавок изредка допустима, а початок давать нельзя: он может закупорить кишечник.",
+        "en": "With caution. A few plain kernels now and then are acceptable, but never give the cob: it can block the intestine."
+      },
+      "why": {
+        "ru": "ASPCA считает кукурузу неядовитой для кошек и собак. Опасен початок: проглоченный кусок может застрять в кишечнике, а закупорка кишечника требует срочной помощи, и кусок обычно приходится удалять в клинике. Попкорн с солью и маслом и консервированная кукуруза в рассоле не подходят.",
+        "en": "The ASPCA considers corn non-toxic to cats and dogs. The cob is the danger: a swallowed piece can lodge in the intestine, and a blocked intestine is an emergency, and the piece usually has to be removed by a vet. Popcorn with salt and butter and tinned corn in brine are not suitable."
+      },
+      "signs": {
+        "ru": [
+          "повторная рвота",
+          "отказ от еды",
+          "боль в животе",
+          "вялость"
+        ],
+        "en": [
+          "repeated vomiting",
+          "refusing food",
+          "belly pain",
+          "lethargy"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Пару зёрен без добавок изредка можно, а початок давать нельзя: он может закупорить кишечник.",
+        "en": "With caution. A few plain kernels now and then are fine, but never give the cob: it can block the intestine."
+      },
+      "why": {
+        "ru": "ASPCA считает кукурузу неядовитой для кошек и собак. Опасен початок: собака может проглотить его кусок, он застревает в кишечнике, а закупорка кишечника требует срочной помощи, и кусок обычно приходится удалять в клинике. Если собака проглотила початок или его кусок, звоните в клинику, не ждите признаков. Попкорн с солью и маслом не подходит.",
+        "en": "The ASPCA considers corn non-toxic to cats and dogs. The cob is the danger: a swallowed piece can lodge in the intestine, and a blocked intestine is an emergency, and the piece usually has to be removed by a vet. If your dog swallowed a cob or a piece of one, call a clinic without waiting for signs. Popcorn with salt and butter is not suitable."
+      },
+      "signs": {
+        "ru": [
+          "повторная рвота",
+          "отказ от еды",
+          "боль в животе",
+          "вялость"
+        ],
+        "en": [
+          "repeated vomiting",
+          "refusing food",
+          "belly pain",
+          "lethargy"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Если питомец проглотил початок или его кусок, сразу позвоните в клинику",
+      "Уберите остатки и оцените, что и сколько питомец успел съесть",
+      "Если съел только зёрна, понаблюдайте за ним в ближайшие сутки"
+    ],
+    "en": [
+      "If your pet swallowed a cob or a piece of one, call a clinic right away",
+      "Remove what is left and note what and how much your pet ate",
+      "If it ate only kernels, watch your pet over the next day"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не ждите, пока кусок початка «выйдет сам»"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not wait for a piece of cob to pass on its own"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA — 5 Toxic Seasonal Plants You Don't Want Your Pet To Fall For!",
+      "url": "https://www.aspca.org/news/5-toxic-seasonal-plants-you-dont-want-your-pet-fall"
+    },
+    {
+      "title": "Merck Veterinary Manual — Gastrointestinal Obstruction in Small Animals",
+      "url": "https://www.merckvetmanual.com/digestive-system/diseases-of-the-stomach-and-intestines-in-small-animals/gastrointestinal-obstruction-in-small-animals"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

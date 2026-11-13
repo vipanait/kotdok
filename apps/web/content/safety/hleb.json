@@ -1,0 +1,110 @@
+{
+  "slug": "hleb",
+  "category": "food",
+  "name": {
+    "ru": "Хлеб",
+    "en": "Bread"
+  },
+  "titleRu": "хлеб",
+  "aliases": {
+    "ru": [
+      "хлеба",
+      "батон",
+      "белый хлеб",
+      "чёрный хлеб",
+      "черный хлеб",
+      "сухарь",
+      "булка",
+      "булку",
+      "хлебушек"
+    ],
+    "en": [
+      "bread",
+      "white bread",
+      "toast",
+      "loaf",
+      "bread crust"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Корочка готового хлеба изредка допустима, но кошке он не нужен. Сырое тесто опасно.",
+        "en": "With caution. A bit of baked bread crust now and then is acceptable, but a cat does not need it. Raw dough is dangerous."
+      },
+      "why": {
+        "ru": "Готовый хлеб кормом не является. Хлеб с изюмом, чесноком, луком или орехами исключите. Сырое дрожжевое тесто поднимается в желудке: вздутие болезненно и может привести к завороту желудка, а дрожжи выделяют спирт — это неотложный случай.",
+        "en": "Baked bread is not a proper food. Leave out bread with raisins, garlic, onion or nuts. Raw yeast dough rises in the stomach: the bloating is painful and can lead to a twisted stomach, and the yeast produces alcohol, which is an emergency."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Небольшой кусочек готового хлеба без добавок — изредка. Сырое тесто опасно.",
+        "en": "With caution. A small piece of plain baked bread now and then. Raw dough is dangerous."
+      },
+      "why": {
+        "ru": "Готовый хлеб кормом не является. Хлеб с изюмом, чесноком, луком или орехами исключите. Сырое дрожжевое тесто поднимается в желудке: вздутие болезненно и может привести к завороту желудка, а дрожжи выделяют спирт — это неотложный случай.",
+        "en": "Baked bread is not a proper food. Leave out bread with raisins, garlic, onion or nuts. Raw yeast dough rises in the stomach: the bloating is painful and can lead to a twisted stomach, and the yeast produces alcohol, which is an emergency."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Если съедено сырое тесто — сразу позвоните в клинику, не ждите признаков",
+      "Если это был готовый хлеб — оставьте воду и наблюдайте за питомцем сутки",
+      "Проверьте, нет ли в хлебе изюма, орехов, чеснока или лука"
+    ],
+    "en": [
+      "If raw dough was eaten, call a clinic at once and do not wait for signs",
+      "If it was baked bread, leave water available and watch your pet for a day",
+      "Check the bread for raisins, nuts, garlic or onion"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не оставляйте сырое тесто в доступном месте",
+      "Не вызывайте рвоту сами — только по указанию врача"
+    ],
+    "en": [
+      "Do not leave raw dough where pets can reach it",
+      "Do not make your pet vomit unless a vet tells you to"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

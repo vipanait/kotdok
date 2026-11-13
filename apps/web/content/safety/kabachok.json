@@ -1,0 +1,79 @@
+{
+  "slug": "kabachok",
+  "category": "food",
+  "name": {
+    "ru": "Кабачок",
+    "en": "Zucchini"
+  },
+  "titleRu": "кабачок",
+  "aliases": {
+    "ru": [
+      "кабачки",
+      "цукини",
+      "цуккини",
+      "кабачок варёный",
+      "кабачок сырой"
+    ],
+    "en": [
+      "courgette",
+      "courgettes",
+      "zucchinis",
+      "squash zucchini"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "safe",
+      "summary": {
+        "ru": "Можно как лакомство в небольшом количестве. Кабачок не ядовит, но это не замена корму.",
+        "en": "Safe as a treat in small amounts. Zucchini is not poisonous, but it is no substitute for food."
+      },
+      "why": {
+        "ru": "ASPCA относит кабачок к неядовитым растениям для кошек и собак. Подходит сырой или варёный, мелкими кусочками, без соли, масла и специй. Любая растительная еда в большом количестве может расстроить желудок.",
+        "en": "The ASPCA lists zucchini as non-toxic to cats and dogs. Raw or cooked, in small pieces, with no salt, butter or spices, is fine. Any plant food in large amounts can upset the stomach."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "none"
+    },
+    "dog": {
+      "verdict": "safe",
+      "summary": {
+        "ru": "Можно как лакомство в небольшом количестве, сырой или варёный, без добавок.",
+        "en": "Safe as a treat in small amounts, raw or cooked, with nothing added."
+      },
+      "why": {
+        "ru": "ASPCA относит кабачок к неядовитым растениям и называет его овощем, который можно дать собаке как лакомство в меру. Подходит мелкими кусочками, без соли, масла и специй. Много сразу может расстроить желудок.",
+        "en": "The ASPCA lists zucchini as non-toxic and names it among garden vegetables fine as a snack in moderation. Small pieces with no salt, butter or spices are fine. A lot at once can upset the stomach."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "none"
+    }
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Zucchini Squash",
+      "url": "https://www.aspca.org/pet-care/animal-poison-control/toxic-and-non-toxic-plants/zucchini-squash"
+    },
+    {
+      "title": "ASPCA — Pets and Produce: Top Tips on Vegetable Garden Safety",
+      "url": "https://www.aspca.org/news/pets-and-produce-top-tips-vegetable-garden-safety"
+    },
+    {
+      "title": "ASPCA Animal Poison Control — Toxic and Non-Toxic Plants",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

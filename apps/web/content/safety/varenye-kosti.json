@@ -1,0 +1,131 @@
+{
+  "slug": "varenye-kosti",
+  "category": "food",
+  "name": {
+    "ru": "Варёные кости",
+    "en": "Cooked bones"
+  },
+  "titleRu": "варёные кости",
+  "aliases": {
+    "ru": [
+      "варёная кость",
+      "вареная кость",
+      "вареные кости",
+      "жареные кости",
+      "куриные кости",
+      "косточки",
+      "косточку",
+      "рыбные кости",
+      "рыбья кость",
+      "запечённые кости"
+    ],
+    "en": [
+      "cooked bone",
+      "cooked bones",
+      "chicken bones",
+      "fish bones",
+      "fish bone",
+      "roasted bones",
+      "poultry bones"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. Варёные и жареные кости легко раскалываются на острые осколки.",
+        "en": "Not safe. Cooked and roasted bones easily split into sharp splinters."
+      },
+      "why": {
+        "ru": "Варёные кости склонны раскалываться на острые осколки. Кость может поранить или закупорить пищевод, желудок и кишечник, и иногда её удаляют только операцией. Это относится к любым костям из готовой еды, в том числе куриным и рыбьим.",
+        "en": "Cooked bones tend to split into sharp splinters. A bone can injure or block the gullet, stomach and gut, and sometimes only surgery can remove it. This applies to any bones from cooked food, including chicken and fish bones."
+      },
+      "signs": {
+        "ru": [
+          "внезапное сильное слюнотечение",
+          "рвотные позывы",
+          "срыгивание",
+          "частые попытки сглотнуть"
+        ],
+        "en": [
+          "sudden heavy drooling",
+          "gagging",
+          "bringing food back up",
+          "repeated attempts to swallow"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. Варёные и жареные кости, в том числе куриные, легко раскалываются на острые осколки.",
+        "en": "Not safe. Cooked and roasted bones, chicken bones included, easily split into sharp splinters."
+      },
+      "why": {
+        "ru": "Варёные кости склонны раскалываться на острые осколки. Кости — самое частое, что застревает у собак в пищеводе; осколок может проколоть его стенку. Кость может также поранить или закупорить желудок и кишечник, и иногда её удаляют только операцией.",
+        "en": "Cooked bones tend to split into sharp splinters. Bones are the most common thing to get stuck in a dog's gullet, and a splinter can pierce its wall. A bone can also injure or block the stomach and gut, and sometimes only surgery can remove it."
+      },
+      "signs": {
+        "ru": [
+          "внезапное сильное слюнотечение",
+          "рвотные позывы",
+          "срыгивание",
+          "частые попытки сглотнуть"
+        ],
+        "en": [
+          "sudden heavy drooling",
+          "gagging",
+          "bringing food back up",
+          "repeated attempts to swallow"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Уберите оставшиеся кости",
+      "Запомните, какая это была кость и когда она съедена"
+    ],
+    "en": [
+      "Call a vet clinic, even if your pet seems fine",
+      "Put the remaining bones away",
+      "Note what kind of bone it was and when it was eaten"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте домашние «средства» из интернета",
+      "Не ждите признаков: осколки могут ранить не сразу"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give home “remedies” from the internet",
+      "Do not wait for signs: splinters may not hurt at once"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCApro — 4 Harmful Thanksgiving Foods for Pets",
+      "url": "https://www.aspcapro.org/resource/4-harmful-thanksgiving-foods-pets"
+    },
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    },
+    {
+      "title": "Merck Veterinary Manual — Disorders of the Esophagus in Dogs",
+      "url": "https://www.merckvetmanual.com/dog-owners/digestive-disorders-of-dogs/disorders-of-the-esophagus-in-dogs"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

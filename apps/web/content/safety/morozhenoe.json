@@ -1,0 +1,111 @@
+{
+  "slug": "morozhenoe",
+  "category": "food",
+  "name": {
+    "ru": "Мороженое",
+    "en": "Ice cream"
+  },
+  "titleRu": "мороженое",
+  "aliases": {
+    "ru": [
+      "пломбир",
+      "мороженое с шоколадом",
+      "эскимо",
+      "сливочное мороженое",
+      "фруктовый лёд",
+      "фруктовый лед"
+    ],
+    "en": [
+      "ice cream",
+      "icecream",
+      "gelato",
+      "frozen dessert",
+      "chocolate ice cream"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Лучше не давать: молочное и жирное могут расстроить желудок.",
+        "en": "With caution. Better not to give it: dairy and fat can upset the stomach."
+      },
+      "why": {
+        "ru": "Мороженое — молочное, сладкое и жирное. Многие кошки плохо переносят молочное: им не хватает фермента, который расщепляет молочный сахар. Опасны добавки: шоколад, ксилит, изюм, орехи макадамия.",
+        "en": "Ice cream is dairy, sweet and fatty. Many cats tolerate dairy poorly: they lack enough of the enzyme that breaks down milk sugar. Additions are the danger: chocolate, xylitol, raisins, macadamia nuts."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Лучше не давать: молочное и жирное могут расстроить желудок. Шоколад, ксилит, изюм и орехи в составе опасны.",
+        "en": "With caution. Better not to give it: dairy and fat can upset the stomach. Chocolate, xylitol, raisins and nuts in it are dangerous."
+      },
+      "why": {
+        "ru": "Мороженое — молочное, сладкое и жирное: молочное может вызвать понос, жирное — рвоту и понос. Опасны добавки: шоколад, ксилит, изюм, орехи макадамия. Проверьте состав, прежде чем делиться.",
+        "en": "Ice cream is dairy, sweet and fatty: dairy can cause diarrhoea, fat can cause vomiting and diarrhoea. Additions are the danger: chocolate, xylitol, raisins, macadamia nuts. Check the label before sharing."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Прочитайте состав: нет ли ксилита, шоколада, изюма, орехов",
+      "Если есть ксилит, шоколад, изюм или макадамия — сразу позвоните в клинику",
+      "Если их нет — оставьте воду и наблюдайте за питомцем сутки"
+    ],
+    "en": [
+      "Read the label for xylitol, chocolate, raisins or nuts",
+      "If xylitol, chocolate, raisins or macadamia nuts are there, call a clinic at once",
+      "If not, leave water available and watch your pet for a day"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не давайте мороженое повторно, если был понос",
+      "Не давайте лекарства без назначения врача"
+    ],
+    "en": [
+      "Do not give ice cream again if it caused diarrhoea",
+      "Do not give any medicine unless a vet tells you to"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    },
+    {
+      "title": "Cornell Feline Health Center — Feeding Your Cat",
+      "url": "https://www.vet.cornell.edu/departments-centers-and-institutes/cornell-feline-health-center/health-information/feline-health-topics/feeding-your-cat"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

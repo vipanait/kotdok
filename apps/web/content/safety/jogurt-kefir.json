@@ -1,0 +1,118 @@
+{
+  "slug": "jogurt-kefir",
+  "category": "food",
+  "name": {
+    "ru": "Йогурт и кефир",
+    "en": "Yoghurt and kefir"
+  },
+  "titleRu": "йогурт и кефир",
+  "aliases": {
+    "ru": [
+      "йогурт",
+      "кефир",
+      "йогурты",
+      "простокваша",
+      "ряженка",
+      "натуральный йогурт",
+      "йогурт с сахаром",
+      "фруктовый йогурт"
+    ],
+    "en": [
+      "yogurt",
+      "yoghurt",
+      "kefir",
+      "plain yogurt",
+      "greek yogurt",
+      "sweetened yogurt"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Немного натурального продукта без сахара — изредка.",
+        "en": "With caution. A little plain, unsweetened product now and then."
+      },
+      "why": {
+        "ru": "Многие кошки плохо переносят молочное: им не хватает фермента, который расщепляет молочный сахар, и бывает понос. Подслащённые и фруктовые йогурты исключите: проверьте, нет ли в составе подсластителя ксилита — он опасен для питомцев.",
+        "en": "Many cats tolerate dairy poorly: they lack enough of the enzyme that breaks down milk sugar and can get diarrhoea. Leave out sweetened and fruit yoghurts: check the label for the sweetener xylitol, which is dangerous for pets."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Немного натурального йогурта или кефира без сахара — изредка.",
+        "en": "With caution. A little plain yoghurt or kefir with no sugar, now and then."
+      },
+      "why": {
+        "ru": "Молочное может вызвать понос и расстройство желудка: собакам не хватает фермента, который расщепляет молочный сахар. Подслащённые и фруктовые йогурты исключите: проверьте, нет ли в составе ксилита — у собак он вызывает резкое падение сахара в крови и может повредить печень.",
+        "en": "Dairy can cause diarrhoea and an upset stomach: dogs lack enough of the enzyme that breaks down milk sugar. Leave out sweetened and fruit yoghurts: check the label for xylitol, which in dogs causes a sharp drop in blood sugar and can damage the liver."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Проверьте состав: есть ли в продукте ксилит. Если есть — позвоните в клинику сразу",
+      "Оставьте доступ к чистой воде",
+      "Наблюдайте за питомцем сутки"
+    ],
+    "en": [
+      "Check the label for xylitol. If it is there, call a clinic right away",
+      "Leave fresh water available",
+      "Watch your pet for a day"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не давайте йогурт с сахаром, подсластителями или добавками",
+      "Не давайте лекарства без назначения врача"
+    ],
+    "en": [
+      "Do not give yoghurt with sugar, sweeteners or additives",
+      "Do not give any medicine unless a vet tells you to"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    },
+    {
+      "title": "Cornell Feline Health Center — Feeding Your Cat",
+      "url": "https://www.vet.cornell.edu/departments-centers-and-institutes/cornell-feline-health-center/health-information/feline-health-topics/feeding-your-cat"
+    },
+    {
+      "title": "Pet Poison Helpline — Xylitol",
+      "url": "https://www.petpoisonhelpline.com/poison/xylitol/"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

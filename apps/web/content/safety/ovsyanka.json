@@ -1,0 +1,99 @@
+{
+  "slug": "ovsyanka",
+  "category": "food",
+  "name": {
+    "ru": "Овсянка",
+    "en": "Oatmeal"
+  },
+  "titleRu": "овсянку",
+  "aliases": {
+    "ru": [
+      "овсяная каша",
+      "овсянка варёная",
+      "овсянка вареная",
+      "каша овсяная",
+      "овсяные хлопья",
+      "геркулес",
+      "овсянку на воде"
+    ],
+    "en": [
+      "oats",
+      "cooked oatmeal",
+      "rolled oats",
+      "oat porridge"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Немного овсянки на воде без сахара и соли — изредка.",
+        "en": "With caution. A little oatmeal made with water, with no sugar or salt, now and then."
+      },
+      "why": {
+        "ru": "Прямых данных об овсянке для кошек в ветеринарных справочниках нет. Кошке нужна мясная еда, лакомства — только изредка. Допустима каша на воде, без сахара, соли, изюма и молока: многие кошки плохо переносят молочное, а изюм опасен.",
+        "en": "Veterinary references have no direct data on oatmeal for cats. A cat needs a meat diet, and treats should be occasional. Only oatmeal made with water is acceptable, with no sugar, salt, raisins or milk: many cats tolerate dairy poorly, and raisins are dangerous."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Немного овсянки на воде без сахара и соли — изредка.",
+        "en": "With caution. A little oatmeal made with water, with no sugar or salt, now and then."
+      },
+      "why": {
+        "ru": "Прямых данных об овсянке для собак в ветеринарных справочниках нет. Допустима каша на воде, без сахара, соли, изюма и подсластителей: изюм и ксилит опасны для собак. Готовую овсянку с добавками исключите.",
+        "en": "Veterinary references have no direct data on oatmeal for dogs. Only oatmeal made with water is acceptable, with no sugar, salt, raisins or sweeteners: raisins and xylitol are dangerous for dogs. Leave out instant oatmeal with flavourings."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Оставьте доступ к чистой воде",
+      "Наблюдайте за питомцем сутки",
+      "Если появились рвота, понос или вялость — проверьте симптомы или позвоните в клинику"
+    ],
+    "en": [
+      "Leave fresh water available",
+      "Watch your pet for a day",
+      "If vomiting, diarrhoea or lethargy appear, check the symptoms or call a clinic"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не давайте кашу с изюмом, сахаром, подсластителями или на молоке",
+      "Не давайте лекарства без назначения врача"
+    ],
+    "en": [
+      "Do not give porridge with raisins, sugar, sweeteners or milk",
+      "Do not give any medicine unless a vet tells you to"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    },
+    {
+      "title": "Cornell Feline Health Center — Feeding Your Cat",
+      "url": "https://www.vet.cornell.edu/departments-centers-and-institutes/cornell-feline-health-center/health-information/feline-health-topics/feeding-your-cat"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}

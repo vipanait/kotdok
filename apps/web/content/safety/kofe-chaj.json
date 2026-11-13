@@ -1,0 +1,141 @@
+{
+  "slug": "kofe-chaj",
+  "category": "food",
+  "name": {
+    "ru": "Кофе и чай (кофеин)",
+    "en": "Coffee and tea (caffeine)"
+  },
+  "titleRu": "кофе и чай",
+  "aliases": {
+    "ru": [
+      "кофе",
+      "чай",
+      "кофеин",
+      "кофейные зёрна",
+      "кофейная гуща",
+      "чайные пакетики",
+      "энергетик",
+      "энергетики",
+      "кола",
+      "эспрессо"
+    ],
+    "en": [
+      "coffee",
+      "tea",
+      "caffeine",
+      "coffee beans",
+      "coffee grounds",
+      "tea bags",
+      "energy drink",
+      "espresso",
+      "cola"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. Кофеин опасен для кошек; больше всего его в зёрнах, гуще, чайных пакетиках и энергетиках.",
+        "en": "Not safe. Caffeine is dangerous to cats; the most is in beans, grounds, tea bags and energy drinks."
+      },
+      "why": {
+        "ru": "Кофеин относится к тем же веществам, что и в шоколаде, и действует на сердце и нервную систему. Пара случайных лизков кофе или чая обычно не вызывает отравления, но зёрна, гуща, чайные пакетики, энергетики и таблетки с кофеином опасны. Насколько опасно съеденное, оценит врач.",
+        "en": "Caffeine belongs to the same group of compounds as those in chocolate and acts on the heart and the nervous system. One or two licks of coffee or tea are unlikely to poison a pet, but beans, grounds, tea bags, energy drinks and caffeine tablets are dangerous. A vet will judge how risky the amount eaten is."
+      },
+      "signs": {
+        "ru": [
+          "беспокойство, возбуждение",
+          "учащённое сердцебиение",
+          "частое дыхание",
+          "рвота",
+          "дрожь",
+          "судороги"
+        ],
+        "en": [
+          "restlessness, hyperactivity",
+          "racing heartbeat",
+          "fast breathing",
+          "vomiting",
+          "tremors",
+          "seizures"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. Кофеин ядовит для собак; зёрна, гуща, пакетики и энергетики особенно опасны.",
+        "en": "Not safe. Caffeine is poisonous to dogs; beans, grounds, tea bags and energy drinks are especially dangerous."
+      },
+      "why": {
+        "ru": "Кофеин относится к тем же веществам, что и в шоколаде, и действует на сердце и нервную систему. Пара случайных лизков кофе или чая обычно не вызывает отравления, но зёрна, гуща, чайные пакетики, энергетики и таблетки с кофеином опасны. Насколько опасно съеденное для вашей собаки, оценит врач.",
+        "en": "Caffeine belongs to the same group of compounds as those in chocolate and acts on the heart and the nervous system. One or two licks of coffee or tea are unlikely to poison a pet, but beans, grounds, tea bags, energy drinks and caffeine tablets are dangerous. A vet will judge how risky the amount eaten is for your dog."
+      },
+      "signs": {
+        "ru": [
+          "беспокойство, возбуждение",
+          "учащённое или неровное сердцебиение",
+          "частое дыхание",
+          "рвота",
+          "дрожь",
+          "судороги"
+        ],
+        "en": [
+          "restlessness, hyperactivity",
+          "fast or irregular heartbeat",
+          "fast breathing",
+          "vomiting",
+          "tremors",
+          "seizures"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Уберите остатки",
+      "Сохраните упаковку или запомните, что и когда было съедено"
+    ],
+    "en": [
+      "Call a vet clinic, even if your pet seems fine",
+      "Put the rest away",
+      "Keep the packaging or note what was eaten and when"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте домашние «антидоты» из интернета",
+      "Не ждите признаков: они могут появиться не сразу"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give home “antidotes” from the internet",
+      "Do not wait for signs: they may appear later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    },
+    {
+      "title": "Pet Poison Helpline — Caffeine",
+      "url": "https://www.petpoisonhelpline.com/poison/caffeine/"
+    },
+    {
+      "title": "Merck Veterinary Manual — Food Hazards",
+      "url": "https://www.merckvetmanual.com/special-pet-topics/poisoning/food-hazards"
+    }
+  ],
+  "review": {
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
+  }
+}
