@@ -33,7 +33,7 @@ let openaiClient: OpenAI | null = null
 export const OPENAI_TIMEOUT_MS = 60_000
 export const OPENAI_MAX_RETRIES = 1
 
-function openai(): OpenAI {
+export function openai(): OpenAI {
   openaiClient ??= new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
     timeout: OPENAI_TIMEOUT_MS,
@@ -43,6 +43,7 @@ function openai(): OpenAI {
 }
 
 import { DISCLAIMER, REASSURANCE, outputFormat } from './analysis-language'
+import { TRIAGE_SIGNS } from './triage-signs'
 
 const catSystemPrompt = (locale: Locale) => `You are a specialized feline health triage assistant.
 You have deep knowledge of cat-specific diseases, physiology, and behavioral signs of illness.
@@ -59,8 +60,8 @@ CRITICAL RULES:
 - Always identify what extra cat-specific information would make the triage more accurate. Prefer practical questions about missing age, weight, breed, sex/neutering, appetite, activity, stool/urination, duration, medications, chronic conditions, vaccination, lifestyle, diet, or photo details. If the provided cat profile and symptom description already contain enough context, return an empty array.
 
 TRIAGE LEVELS:
-EMERGENCY (go now): seizures, difficulty breathing, urinary blockage in male cats, collapse, suspected poisoning, trauma
-URGENT (within 24h): not eating >24h, vomiting >3x, blood in urine/stool, hiding + lethargy combo, significant weight loss
+EMERGENCY (go now): ${TRIAGE_SIGNS.cat.emergency}
+URGENT (within 24h): ${TRIAGE_SIGNS.cat.urgent}
 MONITOR (watch 48h): single vomit, mild sneezing, slight appetite change
 HOME CARE: minor wounds, mild hairball, normal grooming changes
 HEALTHY (nothing to do): the described behavior is a normal feline trait or a one-off harmless event — e.g. seasonal shedding, purring while kneading, a single sneeze with no other signs, brief post-play panting, normal grooming, occasional zoomies. Use this ONLY when you are confident no action is needed and there are no red flags in the description, quick-assessment answers, photo, or cat profile. If there is any doubt, prefer MONITOR or HOME CARE.
@@ -87,8 +88,8 @@ CRITICAL RULES:
 - Always identify what extra dog-specific information would make the triage more accurate. Prefer practical questions about missing age, weight, breed, sex/neutering, appetite, activity, stool/urination, duration, medications, chronic conditions, vaccination, lifestyle, diet, or photo details. If the provided dog profile and symptom description already contain enough context, return an empty array.
 
 TRIAGE LEVELS:
-EMERGENCY (go now): seizures, difficulty breathing, suspected GDV/bloat (non-productive retching + distended abdomen), collapse, suspected poisoning (xylitol, chocolate, grapes, rodenticide), trauma, heatstroke, pale gums, continuous uncontrolled bleeding
-URGENT (within 24h): not eating >24h, vomiting >3x, blood in urine/stool, marked lethargy, significant limp/pain, puppy with diarrhea/vomiting (parvo risk), sudden behavioral change with pain signs
+EMERGENCY (go now): ${TRIAGE_SIGNS.dog.emergency}
+URGENT (within 24h): ${TRIAGE_SIGNS.dog.urgent}
 MONITOR (watch 48h): single vomit, mild soft stool, slight appetite change, mild limping after play that improves
 HOME CARE: minor scrapes, mild itch after known allergen exposure without distress, routine post-walk stiffness that resolves
 HEALTHY (nothing to do): the described behavior is a normal canine trait or a one-off harmless event — e.g. occasional zoomies, brief panting after exercise that resolves, one sneeze with no other signs, normal shedding. Use this ONLY when you are confident no action is needed and there are no red flags. If there is any doubt, prefer MONITOR or HOME CARE.
@@ -100,11 +101,11 @@ For HEALTHY:
 
 ${outputFormat(locale)}`
 
-function systemPromptForSpecies(species: PetSpecies, locale: Locale): string {
+export function systemPromptForSpecies(species: PetSpecies, locale: Locale): string {
   return species === 'dog' ? dogSystemPrompt(locale) : catSystemPrompt(locale)
 }
 
-async function getVetContext(
+export async function getVetContext(
   supabase: SupabaseService,
   symptoms: string,
   species: PetSpecies,
@@ -254,6 +255,25 @@ const STOOL_LABELS: Record<string, string> = {
   bloody: 'blood in stool',
 }
 
+/**
+ * The quick-assessment answers as one line of plain English, or '' when the
+ * owner gave none. Read by the analysis and by an answer to a question about
+ * the check, which must see the same words.
+ */
+export function describeQuickAssessment(answers: QuickAssessment): string {
+  const painSignsText = answers.pain_signs.length
+    ? answers.pain_signs.map(s => PAIN_SIGN_PROMPT_LABELS[s as PainSign] ?? s).join(', ')
+    : null
+
+  return [
+    answers.appetite ? `Appetite: ${APPETITE_LABELS[answers.appetite] ?? answers.appetite}` : null,
+    answers.activity ? `Activity level: ${ACTIVITY_LABELS[answers.activity] ?? answers.activity}` : null,
+    answers.duration ? `Duration: symptoms have ${DURATION_LABELS[answers.duration] ?? answers.duration}` : null,
+    answers.stool ? `Stool: ${STOOL_LABELS[answers.stool] ?? answers.stool}` : null,
+    painSignsText ? `Pain signs: ${painSignsText}` : null,
+  ].filter(Boolean).join('. ')
+}
+
 /** The pet as the model reads it: one line of what the owner filled in. */
 export function describePetProfile(pet: Pet, species: PetSpecies, today: string = new Date().toISOString().slice(0, 10)): string {
   // From the birth date when the app saved one (FB-2/01); an estimate is said to be one.
@@ -387,17 +407,7 @@ export async function analyzeSymptomCheck(
       | { type: 'text'; text: string }
       | { type: 'image_url'; image_url: { url: string; detail: 'high' } }
 
-    const painSignsText = input.pain_signs.length
-      ? input.pain_signs.map(s => PAIN_SIGN_PROMPT_LABELS[s as PainSign] ?? s).join(', ')
-      : null
-
-    const quickContext = [
-      input.appetite ? `Appetite: ${APPETITE_LABELS[input.appetite] ?? input.appetite}` : null,
-      input.activity ? `Activity level: ${ACTIVITY_LABELS[input.activity] ?? input.activity}` : null,
-      input.duration ? `Duration: symptoms have ${DURATION_LABELS[input.duration] ?? input.duration}` : null,
-      input.stool ? `Stool: ${STOOL_LABELS[input.stool] ?? input.stool}` : null,
-      painSignsText ? `Pain signs: ${painSignsText}` : null,
-    ].filter(Boolean).join('. ')
+    const quickContext = describeQuickAssessment(input)
 
     const speciesLabel = species === 'dog' ? 'Dog' : 'Cat'
     const userContent: ContentPart[] = [
