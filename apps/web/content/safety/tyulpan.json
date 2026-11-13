@@ -28,8 +28,8 @@
         "en": "With caution. Tulip is poisonous to cats, most of all the bulbs."
       },
       "why": {
-        "ru": "Опасные вещества — тюльпанин A и B, их больше всего в луковице. Листья и цветок обычно дают более слабую реакцию, чем луковица. После луковицы, особенно съеденной целиком, лучше позвонить в клинику.",
-        "en": "The harmful substances are tulipalin A and B, with the most in the bulb. Leaves and flowers usually cause a milder reaction than the bulb. After a bulb, especially one eaten whole, it is better to call a clinic."
+        "ru": "Опасные вещества — тюльпанин A и B, больше всего их в луковице. Если питомец погрыз немного листьев или цветков, обычно бывает лишь лёгкая тошнота и рвота. После луковицы расстройство желудка и кишечника бывает долгим, поэтому в этом случае звоните в клинику.",
+        "en": "The harmful substances are tulipalin A and B, with the most in the bulb. Nibbling a few leaves or flowers usually causes only mild nausea and vomiting. A bulb can cause a longer stomach and gut upset, so after a bulb call a clinic."
       },
       "signs": {
         "ru": [
@@ -54,8 +54,8 @@
         "en": "With caution. Tulip is poisonous to dogs, most of all the bulbs."
       },
       "why": {
-        "ru": "Опасные вещества — тюльпанин A и B, их больше всего в луковице. Листья и цветок обычно дают более слабую реакцию, чем луковица. После луковицы, особенно съеденной целиком, лучше позвонить в клинику.",
-        "en": "The harmful substances are tulipalin A and B, with the most in the bulb. Leaves and flowers usually cause a milder reaction than the bulb. After a bulb, especially one eaten whole, it is better to call a clinic."
+        "ru": "Опасные вещества — тюльпанин A и B, больше всего их в луковице. Если питомец погрыз немного листьев или цветков, обычно бывает лишь лёгкая тошнота и рвота. После луковицы расстройство желудка и кишечника бывает долгим, поэтому в этом случае звоните в клинику.",
+        "en": "The harmful substances are tulipalin A and B, with the most in the bulb. Nibbling a few leaves or flowers usually causes only mild nausea and vomiting. A bulb can cause a longer stomach and gut upset, so after a bulb call a clinic."
       },
       "signs": {
         "ru": [
@@ -77,7 +77,7 @@
   "firstSteps": {
     "ru": [
       "Уберите растение и выньте остатки из пасти питомца",
-      "Дайте питомцу свежую воду для питья",
+      "Оставьте питомцу миску со свежей водой",
       "Понаблюдайте за ним несколько часов",
       "Если появились признаки или их стало больше, позвоните в клинику"
     ],
@@ -104,6 +104,10 @@
     {
       "title": "ASPCA Animal Poison Control — Tulip",
       "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/tulip"
+    },
+    {
+      "title": "Pet Poison Helpline — Tulips and Hyacinths",
+      "url": "https://www.petpoisonhelpline.com/poison/tulip/"
     }
   ],
   "review": {

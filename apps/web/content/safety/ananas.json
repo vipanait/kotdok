@@ -23,23 +23,21 @@
     "cat": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Маленький кусочек свежей мякоти изредка можно, но кошке он не нужен.",
-        "en": "With caution. A small piece of fresh flesh now and then is fine, but a cat does not need it."
+        "ru": "С осторожностью. Маленький кусочек свежей мякоти изредка, но кошке он не нужен.",
+        "en": "With caution. A small piece of fresh flesh now and then, but a cat does not need it."
       },
       "why": {
-        "ru": "Мякоть не ядовита, но кислая и сладкая: от неё бывают рвота и понос. Кожура и жёсткая сердцевина могут застрять в кишечнике. Консервированный ананас в сиропе не подходит.",
-        "en": "The flesh is not poisonous but is acidic and sweet: it can cause vomiting and diarrhoea. Skin and the tough core can get stuck in the gut. Canned pineapple in syrup is not suitable."
+        "ru": "Данных об ананасе в справочниках ядов мало, поэтому — осторожно. Если и предлагать, то кусочек свежей мякоти без кожуры и жёсткой сердцевины: от избытка сладкого бывают понос и газы. Ананас из банки в сиропе не подходит: в нём много сахара.",
+        "en": "There is little data on pineapple in poison references, so take care. If you offer any, a small piece of fresh flesh without skin or the tough core: too much sugar can cause diarrhoea and gas. Canned pineapple in syrup is not suitable: it is high in sugar."
       },
       "signs": {
         "ru": [
-          "рвота",
           "понос",
-          "вялость, отказ от еды"
+          "вздутие, газы"
         ],
         "en": [
-          "vomiting",
           "diarrhoea",
-          "lethargy, refusing food"
+          "bloating, gas"
         ]
       },
       "ifEaten": "watch"
@@ -51,19 +49,17 @@
         "en": "With caution. A few pieces of fresh flesh without skin or core, now and then."
       },
       "why": {
-        "ru": "Мякоть не ядовита, но кислая и сладкая: от неё бывают понос и вздутие. Кожура и жёсткая сердцевина могут застрять в кишечнике. Консервированный ананас в сиропе не подходит.",
-        "en": "The flesh is not poisonous but is acidic and sweet: it can cause diarrhoea and bloating. Skin and the tough core can get stuck in the gut. Canned pineapple in syrup is not suitable."
+        "ru": "Данных об ананасе в справочниках ядов мало, поэтому — осторожно. Если и предлагать, то несколько кусочков свежей мякоти без кожуры и жёсткой сердцевины, изредка: от избытка сладкого бывают понос и газы. Ананас из банки в сиропе не подходит: в нём много сахара.",
+        "en": "There is little data on pineapple in poison references, so take care. If you offer any, a few pieces of fresh flesh without skin or the tough core, now and then: too much sugar can cause diarrhoea and gas. Canned pineapple in syrup is not suitable: it is high in sugar."
       },
       "signs": {
         "ru": [
-          "рвота",
           "понос",
-          "вялость, отказ от еды"
+          "вздутие, газы"
         ],
         "en": [
-          "vomiting",
           "diarrhoea",
-          "lethargy, refusing food"
+          "bloating, gas"
         ]
       },
       "ifEaten": "watch"
@@ -93,11 +89,8 @@
   },
   "sources": [
     {
-      "title": "Merck Veterinary Manual — Food Hazards"
-    },
-    {
-      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
-      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+      "title": "Merck Veterinary Manual — Nutritional Requirements of Small Animals",
+      "url": "https://www.merckvetmanual.com/management-and-nutrition/nutrition-small-animals/nutritional-requirements-of-small-animals"
     }
   ],
   "review": {

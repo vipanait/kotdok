@@ -44,8 +44,8 @@
         "en": "Dangerous. Human sleeping pills and sedatives are dangerous to cats."
       },
       "why": {
-        "ru": "Часть этих препаратов угнетает нервную систему и дыхание, а часть, наоборот, вызывает сильное возбуждение. Поведение после них непредсказуемо, а у кошек возможен и вред для печени. Что делать, решает врач.",
-        "en": "Some of these drugs depress the nervous system and breathing, while others do the opposite and cause strong agitation. The reaction is unpredictable, and in cats the liver can be harmed too. The vet decides what to do."
+        "ru": "Часть этих препаратов угнетает нервную систему и дыхание, а у некоторых животных вызывает, наоборот, сильное возбуждение. Кошки к некоторым из них чувствительнее собак. Что делать, решает врач.",
+        "en": "Some of these drugs depress the nervous system and breathing, while in some animals they do the opposite and cause strong agitation. Cats are more sensitive than dogs to some of them. The vet decides what to do."
       },
       "signs": {
         "ru": [
@@ -53,14 +53,14 @@
           "необычное возбуждение",
           "замедленное дыхание",
           "рвота",
-          "дрожь"
+          "слюнотечение"
         ],
         "en": [
           "heavy drowsiness, wobbliness",
           "unusual agitation",
           "slow breathing",
           "vomiting",
-          "tremors"
+          "drooling"
         ]
       },
       "ifEaten": "call_now"
@@ -122,10 +122,12 @@
   },
   "sources": [
     {
-      "title": "Pet Poison Helpline — Poison Database"
+      "title": "Pet Poison Helpline — Sleep Aids",
+      "url": "https://petpoisonhelpline.com/poison/sleep-aids/"
     },
     {
-      "title": "MSD Veterinary Manual — Toxicology"
+      "title": "MSD Veterinary Manual — Toxicoses in Animals From Human Antidepressants, Anxiolytics, and Sleep Aids",
+      "url": "https://www.merckvetmanual.com/toxicology/toxicities-from-human-drugs/tranquilizers,-antidepressants,-sleep-aids,-and-anticonvulsants-toxicity"
     }
   ],
   "review": {

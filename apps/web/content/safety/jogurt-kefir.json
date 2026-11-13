@@ -34,8 +34,8 @@
         "en": "With caution. A little plain, unsweetened product now and then."
       },
       "why": {
-        "ru": "В кисломолочных продуктах молочного сахара меньше, чем в молоке, но многие кошки всё равно плохо их переносят. Йогурты с сахаром, ароматизаторами и подсластителями не давайте: в некоторых бывает ксилит.",
-        "en": "Fermented dairy has less milk sugar than milk, but many cats still tolerate it poorly. Do not give yoghurts with sugar, flavourings or sweeteners: some contain xylitol."
+        "ru": "Многие кошки плохо переносят молочное: им не хватает фермента, который расщепляет молочный сахар, и бывает понос. Подслащённые и фруктовые йогурты исключите: проверьте, нет ли в составе подсластителя ксилита — он опасен для питомцев.",
+        "en": "Many cats tolerate dairy poorly: they lack enough of the enzyme that breaks down milk sugar and can get diarrhoea. Leave out sweetened and fruit yoghurts: check the label for the sweetener xylitol, which is dangerous for pets."
       },
       "signs": {
         "ru": [
@@ -56,8 +56,8 @@
         "en": "With caution. A little plain yoghurt or kefir with no sugar, now and then."
       },
       "why": {
-        "ru": "В кисломолочных продуктах молочного сахара меньше, чем в молоке, но чувствительным собакам они всё равно могут навредить. Йогурты с сахаром, ароматизаторами и подсластителями не давайте: в некоторых бывает ксилит, он опасен для собак.",
-        "en": "Fermented dairy has less milk sugar than milk, but can still upset a sensitive dog. Do not give yoghurts with sugar, flavourings or sweeteners: some contain xylitol, which is dangerous for dogs."
+        "ru": "Молочное может вызвать понос и расстройство желудка: собакам не хватает фермента, который расщепляет молочный сахар. Подслащённые и фруктовые йогурты исключите: проверьте, нет ли в составе ксилита — у собак он вызывает резкое падение сахара в крови и может повредить печень.",
+        "en": "Dairy can cause diarrhoea and an upset stomach: dogs lack enough of the enzyme that breaks down milk sugar. Leave out sweetened and fruit yoghurts: check the label for xylitol, which in dogs causes a sharp drop in blood sugar and can damage the liver."
       },
       "signs": {
         "ru": [
@@ -98,6 +98,14 @@
     {
       "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
       "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    },
+    {
+      "title": "Cornell Feline Health Center — Feeding Your Cat",
+      "url": "https://www.vet.cornell.edu/departments-centers-and-institutes/cornell-feline-health-center/health-information/feline-health-topics/feeding-your-cat"
+    },
+    {
+      "title": "Pet Poison Helpline — Xylitol",
+      "url": "https://www.petpoisonhelpline.com/poison/xylitol/"
     }
   ],
   "review": {

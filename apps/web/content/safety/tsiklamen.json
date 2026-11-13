@@ -29,21 +29,23 @@
         "en": "Dangerous. Cyclamen is poisonous to cats and dogs, especially the tuber."
       },
       "why": {
-        "ru": "ASPCA относит цикламен к ядовитым для кошек и собак. Больше всего токсинов в клубне. При большом количестве возможны нарушения ритма сердца и судороги. Съело даже немного — позвоните в клинику, не дожидаясь признаков.",
-        "en": "The ASPCA lists cyclamen as toxic to cats and dogs. Most of the toxin is in the tuber. A large amount can cause heart rhythm problems and seizures. Even if only a little was eaten, call a clinic without waiting for signs."
+        "ru": "ASPCA относит цикламен к ядовитым для кошек и собак: в нём сапонины, больше всего — в клубне. Обычно бывают слюнотечение, рвота и понос. Если съедено много клубней, возможны нарушения ритма сердца, судороги и смерть. Съел даже немного — позвоните в клинику, не дожидаясь признаков.",
+        "en": "The ASPCA lists cyclamen as toxic to cats and dogs: it contains saponins, mostly in the tuber. Drooling, vomiting and diarrhoea are usual. After eating a lot of tuber, heart rhythm problems, seizures and death are possible. Even if only a little was eaten, call a clinic without waiting for signs."
       },
       "signs": {
         "ru": [
           "слюнотечение",
           "рвота",
           "понос",
-          "слабость"
+          "нарушения ритма сердца",
+          "судороги"
         ],
         "en": [
           "drooling",
           "vomiting",
           "diarrhoea",
-          "weakness"
+          "heart rhythm problems",
+          "seizures"
         ]
       },
       "ifEaten": "call_now"
@@ -55,21 +57,23 @@
         "en": "Dangerous. Cyclamen is poisonous to cats and dogs, especially the tuber."
       },
       "why": {
-        "ru": "ASPCA относит цикламен к ядовитым для кошек и собак. Больше всего токсинов в клубне. При большом количестве возможны нарушения ритма сердца и судороги. Съело даже немного — позвоните в клинику, не дожидаясь признаков.",
-        "en": "The ASPCA lists cyclamen as toxic to cats and dogs. Most of the toxin is in the tuber. A large amount can cause heart rhythm problems and seizures. Even if only a little was eaten, call a clinic without waiting for signs."
+        "ru": "ASPCA относит цикламен к ядовитым для кошек и собак: в нём сапонины, больше всего — в клубне. Обычно бывают слюнотечение, рвота и понос. Если съедено много клубней, возможны нарушения ритма сердца, судороги и смерть. Съел даже немного — позвоните в клинику, не дожидаясь признаков.",
+        "en": "The ASPCA lists cyclamen as toxic to cats and dogs: it contains saponins, mostly in the tuber. Drooling, vomiting and diarrhoea are usual. After eating a lot of tuber, heart rhythm problems, seizures and death are possible. Even if only a little was eaten, call a clinic without waiting for signs."
       },
       "signs": {
         "ru": [
           "слюнотечение",
           "рвота",
           "понос",
-          "слабость"
+          "нарушения ритма сердца",
+          "судороги"
         ],
         "en": [
           "drooling",
           "vomiting",
           "diarrhoea",
-          "weakness"
+          "heart rhythm problems",
+          "seizures"
         ]
       },
       "ifEaten": "call_now"
@@ -107,7 +111,12 @@
       "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/cyclamen"
     },
     {
-      "title": "Pet Poison Helpline — Poison Index (plants)"
+      "title": "Pet Poison Helpline — Cyclamen",
+      "url": "https://www.petpoisonhelpline.com/poison/cyclamen/"
+    },
+    {
+      "title": "Merck Veterinary Manual — Houseplants and Ornamentals Toxic to Animals",
+      "url": "https://www.merckvetmanual.com/toxicology/poisonous-plants/houseplants-and-ornamentals"
     }
   ],
   "review": {

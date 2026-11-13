@@ -33,24 +33,24 @@
         "en": "With caution. A couple of pieces of plain boiled pasta with no sauce, now and then."
       },
       "why": {
-        "ru": "Макароны не ядовиты, но это пустые углеводы, а кошке нужна мясная еда. Соусы с луком, чесноком, помидорами и специями опасны, как и солёная вода из кастрюли.",
-        "en": "Pasta is not poisonous, but it is empty carbohydrate, and a cat needs a meat diet. Sauces with onion, garlic, tomato and spices are dangerous, and so is salty cooking water."
+        "ru": "Прямых данных о макаронах для кошек в ветеринарных справочниках нет. Кошке нужна мясная еда, лакомства — только изредка. Соусы с луком и чесноком опасны, много соли тоже.",
+        "en": "Veterinary references have no direct data on pasta for cats. A cat needs a meat diet, and treats should be occasional. Sauces with onion and garlic are dangerous, and so is a lot of salt."
       },
       "signs": {
         "ru": [],
         "en": []
       },
-      "ifEaten": "none"
+      "ifEaten": "watch"
     },
     "dog": {
-      "verdict": "caution",
+      "verdict": "safe",
       "summary": {
-        "ru": "С осторожностью. Немного простых варёных макарон без соуса — изредка.",
-        "en": "With caution. A little plain boiled pasta with no sauce, now and then."
+        "ru": "Можно. Немного простых варёных макарон без соуса.",
+        "en": "Safe. A little plain boiled pasta with no sauce."
       },
       "why": {
-        "ru": "Макароны не ядовиты, но это пустые углеводы. Соусы с луком, чесноком, помидорами и специями опасны, как и много соли или масла. Тесто из сырой муки давать не стоит.",
-        "en": "Pasta is not poisonous, but it is empty carbohydrate. Sauces with onion, garlic, tomato and spices are dangerous, and so are a lot of salt or butter. Raw dough is best avoided."
+        "ru": "Простые варёные макароны — один из вариантов щадящей еды для собаки при расстройстве желудка. Условия: без соуса, соли и масла, и не вместо корма. Соусы с луком и чесноком опасны.",
+        "en": "Plain cooked pasta is one of the bland-diet options for a dog with an upset stomach. Conditions: no sauce, salt or butter, and not instead of dog food. Sauces with onion and garlic are dangerous."
       },
       "signs": {
         "ru": [],
@@ -59,7 +59,37 @@
       "ifEaten": "none"
     }
   },
+  "firstSteps": {
+    "ru": [
+      "Оставьте доступ к чистой воде",
+      "Наблюдайте за питомцем сутки",
+      "Если появились рвота, понос или вялость — проверьте симптомы или позвоните в клинику"
+    ],
+    "en": [
+      "Leave fresh water available",
+      "Watch your pet for a day",
+      "If vomiting, diarrhoea or lethargy appear, check the symptoms or call a clinic"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не давайте макароны с соусом, луком или чесноком",
+      "Не давайте лекарства без назначения врача"
+    ],
+    "en": [
+      "Do not give pasta with sauce, onion or garlic",
+      "Do not give any medicine unless a vet tells you to"
+    ]
+  },
   "sources": [
+    {
+      "title": "Cornell Riney Canine Health Center — Re-evaluating your dog's diet",
+      "url": "https://www.vet.cornell.edu/departments-centers-and-institutes/riney-canine-health-center/canine-health-topics/re-evaluating-your-dogs-diet"
+    },
+    {
+      "title": "Cornell Feline Health Center — Feeding Your Cat",
+      "url": "https://www.vet.cornell.edu/departments-centers-and-institutes/cornell-feline-health-center/health-information/feline-health-topics/feeding-your-cat"
+    },
     {
       "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
       "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"

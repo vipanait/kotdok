@@ -22,83 +22,54 @@
   },
   "bySpecies": {
     "cat": {
-      "verdict": "caution",
+      "verdict": "safe",
       "summary": {
-        "ru": "С осторожностью. Немного мякоти без корки и семечек изредка можно, но кошке она не нужна.",
-        "en": "With caution. A little flesh without rind and seeds now and then is fine, but a cat does not need it."
+        "ru": "Можно как лакомство. Мякоть дыни не ядовита, но кошке она не нужна.",
+        "en": "Safe as a treat. Melon flesh is not poisonous, but a cat does not need it."
       },
       "why": {
-        "ru": "Мякоть дыни не считается ядовитой, но в ней много сахара, и от лишнего бывает расстройство желудка. Корка и семечки могут застрять в кишечнике. Кошкам нужна мясная еда.",
-        "en": "Melon flesh is not considered poisonous, but it is high in sugar and too much can upset the stomach. Rind and seeds can get stuck in the gut. Cats need a meat diet."
+        "ru": "Дыня не ядовита для кошек и собак. Подходит спелая мякоть без корки и семечек, маленькими кусочками и изредка: от избытка сладкого бывают понос и газы.",
+        "en": "Melon is not poisonous to cats or dogs. Ripe flesh without rind or seeds, in small pieces and now and then, is fine: too much sugar can cause diarrhoea and gas."
       },
       "signs": {
-        "ru": [
-          "рвота",
-          "понос",
-          "вялость, отказ от еды"
-        ],
-        "en": [
-          "vomiting",
-          "diarrhoea",
-          "lethargy, refusing food"
-        ]
+        "ru": [],
+        "en": []
       },
-      "ifEaten": "watch"
+      "ifEaten": "none"
     },
     "dog": {
-      "verdict": "caution",
+      "verdict": "safe",
       "summary": {
-        "ru": "С осторожностью. Мякоть без корки и семечек можно как редкое лакомство.",
-        "en": "With caution. Flesh without rind and seeds is fine as an occasional treat."
+        "ru": "Можно как лакомство. Мякоть без корки и семечек — изредка и понемногу.",
+        "en": "Safe as a treat. Flesh without rind or seeds, now and then and a little at a time."
       },
       "why": {
-        "ru": "Мякоть дыни не ядовита, но сладкая: от неё бывают понос и вздутие, особенно при диабете или лишнем весе. Корка и семечки могут застрять в кишечнике. Режьте мякоть мелко и не давайте часто.",
-        "en": "Melon flesh is not poisonous but it is sweet: it can cause diarrhoea and bloating, especially with diabetes or excess weight. Rind and seeds can get stuck in the gut. Cut flesh small and do not give it often."
+        "ru": "Дыня не ядовита для собак и кошек. Подходит спелая мякоть без корки и семечек, нарезанная кусочками, как редкое лакомство: от избытка сладкого бывают понос и газы.",
+        "en": "Melon is not poisonous to dogs or cats. Ripe flesh without rind or seeds, cut into pieces, is fine as an occasional treat: too much sugar can cause diarrhoea and gas."
       },
       "signs": {
-        "ru": [
-          "рвота",
-          "понос",
-          "вялость, отказ от еды"
-        ],
-        "en": [
-          "vomiting",
-          "diarrhoea",
-          "lethargy, refusing food"
-        ]
+        "ru": [],
+        "en": []
       },
-      "ifEaten": "watch"
+      "ifEaten": "none"
     }
   },
   "firstSteps": {
-    "ru": [
-      "Уберите остатки и убедитесь, что питомец больше не достаёт до них",
-      "Понаблюдайте за питомцем сутки; при рвоте, поносе, вялости или вздутом животе позвоните в клинику",
-      "Если съедено много или питомец маленький, позвоните в клинику сразу"
-    ],
-    "en": [
-      "Put away the leftovers so your pet cannot reach more",
-      "Watch your pet for a day; call a clinic if there is vomiting, diarrhoea, lethargy or a swollen belly",
-      "If a lot was eaten or your pet is small, call a clinic straight away"
-    ]
+    "ru": [],
+    "en": []
   },
   "avoid": {
-    "ru": [
-      "Не давайте корку и семечки",
-      "Не вызывайте рвоту сами — только по указанию врача"
-    ],
-    "en": [
-      "Do not give the rind or seeds",
-      "Do not make your pet vomit unless a vet tells you to"
-    ]
+    "ru": [],
+    "en": []
   },
   "sources": [
     {
-      "title": "Merck Veterinary Manual — Food Hazards"
+      "title": "ASPCA Animal Poison Control — Honeydew Melon",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/honeydew-melon"
     },
     {
-      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
-      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+      "title": "Merck Veterinary Manual — Nutritional Requirements of Small Animals",
+      "url": "https://www.merckvetmanual.com/management-and-nutrition/nutrition-small-animals/nutritional-requirements-of-small-animals"
     }
   ],
   "review": {

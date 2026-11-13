@@ -37,16 +37,17 @@
     "cat": {
       "verdict": "danger",
       "summary": {
-        "ru": "Нельзя. Алкоголь опасен для кошек: из-за малого веса хватит совсем небольшого количества.",
-        "en": "Not safe. Alcohol is dangerous to cats: because cats are small, very little can be enough."
+        "ru": "Нельзя. Алкоголь вызывает отравление у кошек.",
+        "en": "Not safe. Alcohol poisons cats."
       },
       "why": {
-        "ru": "Алкоголь действует на нервную систему и дыхание. Он есть не только в напитках: в десертах, ликёрных конфетах, сыром тесте и некоторых лекарствах и средствах для рук.",
-        "en": "Alcohol acts on the nervous system and breathing. It is not only in drinks: it is also in desserts, liqueur sweets, raw dough, and some medicines and hand products."
+        "ru": "Алкоголь быстро всасывается и угнетает нервную систему и дыхание. Он есть не только в напитках: в конфетах с ликёром, сыром дрожжевом тесте, некоторых жидких лекарствах и спиртовых средствах для рук.",
+        "en": "Alcohol is absorbed quickly and depresses the nervous system and breathing. It is not only in drinks: it is also in liqueur sweets, raw yeast dough, some liquid medicines and alcohol-based hand gels."
       },
       "signs": {
         "ru": [
           "рвота",
+          "понос",
           "вялость, сонливость",
           "шаткая походка",
           "замедленное дыхание",
@@ -55,6 +56,7 @@
         ],
         "en": [
           "vomiting",
+          "diarrhoea",
           "lethargy, drowsiness",
           "unsteady walk",
           "slow breathing",
@@ -67,12 +69,12 @@
     "dog": {
       "verdict": "danger",
       "summary": {
-        "ru": "Нельзя. Алкоголь опасен для собак, и даже небольшое количество может быть тяжёлым.",
-        "en": "Not safe. Alcohol is dangerous to dogs, and even a small amount can be serious."
+        "ru": "Нельзя. Алкоголь вызывает отравление у собак.",
+        "en": "Not safe. Alcohol poisons dogs."
       },
       "why": {
-        "ru": "Алкоголь вызывает опьянение, угнетает дыхание и сильно снижает сахар и температуру тела. Он бывает в десертах, сыром тесте, ликёрных конфетах и некоторых лекарствах. Смеси с шоколадом или изюмом опаснее вдвойне.",
-        "en": "Alcohol causes intoxication, slows breathing and sharply lowers blood sugar and body temperature. It is found in desserts, raw dough, liqueur sweets and some medicines. Mixes with chocolate or raisins are doubly dangerous."
+        "ru": "Алкоголь быстро всасывается, угнетает нервную систему и дыхание и может сильно снизить сахар в крови и температуру тела. Он есть в напитках, конфетах с ликёром, сыром дрожжевом тесте, некоторых жидких лекарствах и спиртовых средствах для рук.",
+        "en": "Alcohol is absorbed quickly, depresses the nervous system and breathing, and can sharply lower blood sugar and body temperature. It is found in drinks, liqueur sweets, raw yeast dough, some liquid medicines and alcohol-based hand gels."
       },
       "signs": {
         "ru": [
@@ -127,7 +129,12 @@
       "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
     },
     {
-      "title": "Pet Poison Helpline — Poison Control for Pets"
+      "title": "Pet Poison Helpline — Alcohol",
+      "url": "https://www.petpoisonhelpline.com/poison/alcohol/"
+    },
+    {
+      "title": "Merck Veterinary Manual — Toxicoses From Alcohols in Animals",
+      "url": "https://www.merckvetmanual.com/toxicology/household-hazards/alcohols"
     }
   ],
   "review": {

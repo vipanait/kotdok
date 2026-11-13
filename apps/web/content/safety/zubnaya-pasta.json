@@ -27,25 +27,21 @@
     "cat": {
       "verdict": "caution",
       "summary": {
-        "ru": "Малый риск, если лизнуть немного, но давать нельзя. Много пасты вредно.",
-        "en": "Low risk if a little is licked, but never give it. A lot of paste is harmful."
+        "ru": "Малый риск, если кошка лизнула немного, но давать пасту для людей нельзя. Много пасты с фтором вредно.",
+        "en": "Low risk if a cat licks a little, but do not use human toothpaste on it. A lot of fluoride paste is harmful."
       },
       "why": {
-        "ru": "Паста для людей не рассчитана на проглатывание: фтор и пенящие вещества раздражают желудок. Иногда в составе есть ксилит. Для зубов кошки нужна паста для животных.",
-        "en": "Human toothpaste is not made to be swallowed: fluoride and foaming agents irritate the stomach. Some contain xylitol. Use a pet toothpaste for a cat's teeth."
+        "ru": "Немного пасты с фтором обычно вызывает самое большее лёгкое расстройство желудка, которое проходит само. Большое количество фтора может затронуть сердце и нервную систему. Ксилит, который бывает в пасте, по данным ASPCA не вызывает у кошек серьёзных проблем. Для зубов кошки нужна паста для животных.",
+        "en": "A little fluoride toothpaste usually causes at most a mild stomach upset that passes on its own. A large amount of fluoride can affect the heart and nervous system. Xylitol, found in some pastes, does not cause serious problems in cats according to the ASPCA. Use a pet toothpaste for a cat's teeth."
       },
       "signs": {
         "ru": [
-          "слюнотечение",
           "рвота",
-          "вялость",
-          "потеря аппетита"
+          "понос"
         ],
         "en": [
-          "drooling",
           "vomiting",
-          "lethargy",
-          "loss of appetite"
+          "diarrhoea"
         ]
       },
       "ifEaten": "watch"
@@ -53,29 +49,29 @@
     "dog": {
       "verdict": "danger",
       "summary": {
-        "ru": "Нельзя. В пасте для людей может быть ксилит, он опасен для собак; много пасты с фтором тоже вредно.",
-        "en": "Not safe. Human toothpaste may contain xylitol, which is dangerous to dogs; a lot of fluoride paste is harmful too."
+        "ru": "Опасно, если в пасте ксилит: у собак он вызывает падение сахара в крови и повреждает печень. Много пасты с фтором тоже вредно.",
+        "en": "Dangerous if the paste contains xylitol: in dogs it lowers blood sugar and harms the liver. A lot of fluoride paste is harmful too."
       },
       "why": {
-        "ru": "Ксилит вызывает у собак резкое падение сахара в крови и может повредить печень; не во всех пастах он есть, но проверять надо. Фтор и пенящие вещества раздражают желудок. Для зубов собаки нужна паста для животных.",
-        "en": "Xylitol makes a dog's blood sugar drop sharply and can harm the liver; not every paste has it, but it has to be checked. Fluoride and foaming agents irritate the stomach. Use a pet toothpaste for a dog's teeth."
+        "ru": "Ксилит есть не во всех пастах, и его количество сильно разнится, поэтому надо смотреть состав. Падение сахара бывает уже через 30 минут, а поражение печени проявляется через 2–3 дня. Большое количество фтора может затронуть сердце и нервную систему. Для зубов собаки нужна паста для животных.",
+        "en": "Not every paste contains xylitol, and the amount varies a lot, so check the ingredients. Blood sugar can drop within 30 minutes, and liver damage shows after 2–3 days. A large amount of fluoride can affect the heart and nervous system. Use a pet toothpaste for a dog's teeth."
       },
       "signs": {
         "ru": [
           "слабость, шаткая походка",
-          "рвота",
-          "слюнотечение",
           "дрожь",
           "судороги",
-          "вялость"
+          "рвота, понос",
+          "вялость, потеря аппетита",
+          "пожелтение кожи и глаз"
         ],
         "en": [
           "weakness, wobbly walking",
-          "vomiting",
-          "drooling",
-          "tremors",
+          "shaking",
           "seizures",
-          "lethargy"
+          "vomiting, diarrhoea",
+          "lethargy, loss of appetite",
+          "yellowing of skin and eyes"
         ]
       },
       "ifEaten": "call_now"
@@ -83,35 +79,38 @@
   },
   "firstSteps": {
     "ru": [
-      "Прочитайте состав на тубе: есть ли ксилит (Е967)",
+      "Прочитайте состав на тюбике: есть ли ксилит (E967)",
       "Если собака съела пасту, особенно с ксилитом, сразу позвоните в клинику",
-      "Если кошка съела много пасты или появились признаки, позвоните в клинику"
+      "Если кошка съела много пасты или рвота не проходит, позвоните в клинику"
     ],
     "en": [
       "Read the ingredients on the tube: is there xylitol (E967)",
       "If a dog ate the paste, especially with xylitol, call a clinic right away",
-      "If a cat ate a lot of paste or signs appeared, call a clinic"
+      "If a cat ate a lot of paste or keeps vomiting, call a clinic"
     ]
   },
   "avoid": {
     "ru": [
       "Не вызывайте рвоту сами — только по указанию врача",
-      "Не ждите признаков: они могут появиться позже",
-      "Не пробуйте «домашние антидоты» из интернета"
+      "Не чистите питомцу зубы пастой для людей"
     ],
     "en": [
       "Do not make your pet vomit unless a vet tells you to",
-      "Do not wait for signs: they can appear later",
-      "Do not try home “antidotes” from the internet"
+      "Do not brush your pet's teeth with human toothpaste"
     ]
   },
   "sources": [
     {
-      "title": "ASPCA Animal Poison Control — Poisons and Pet Safety"
+      "title": "ASPCA — Poisonous Household Products",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/poisonous-household-products"
     },
     {
-      "title": "Pet Poison Helpline — Nicotine (note on xylitol in products)",
-      "url": "https://www.petpoisonhelpline.com/poisons/nicotine/"
+      "title": "ASPCA — Xylitol: The Sweetener That Is Not So Sweet for Pets",
+      "url": "https://www.aspca.org/news/xylitol-sweetener-not-so-sweet-pets"
+    },
+    {
+      "title": "Pet Poison Helpline — Fluoride Toothpaste & Pets",
+      "url": "https://www.petpoisonhelpline.com/uncategorized/fluoride-toothpaste-pets/"
     }
   ],
   "review": {

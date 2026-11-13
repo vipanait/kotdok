@@ -41,27 +41,29 @@
     "cat": {
       "verdict": "danger",
       "summary": {
-        "ru": "Нельзя. Любой дикий гриб считайте опасным: часть грибов вызывает тяжёлое поражение печени, почек и нервной системы.",
-        "en": "Not safe. Treat any wild mushroom as dangerous: some cause severe damage to the liver, kidneys and nervous system."
+        "ru": "Нельзя. Любой гриб, съеденный на улице, считайте ядовитым: часть грибов поражает печень, почки и нервную систему.",
+        "en": "Not safe. Treat any mushroom eaten outdoors as poisonous: some damage the liver, kidneys and nervous system."
       },
       "why": {
-        "ru": "Дикие грибы трудно отличить друг от друга, и признаки могут появиться только через сутки, когда помощь уже сложнее. Магазинные шампиньоны и вёшенки сами по себе не считаются ядовитыми, но питомцу их лучше не давать: жареные, с луком, маслом и солью они вредны. Если питомец съел гриб на прогулке, считайте его ядовитым.",
-        "en": "Wild mushrooms are hard to tell apart, and signs may appear only a day later, when treatment is harder. Plain shop-bought button or oyster mushrooms are not considered poisonous in themselves, but it is best not to give them: fried, with onion, butter or salt they are harmful. If your pet ate a mushroom on a walk, assume it is poisonous."
+        "ru": "Ядовитые грибы трудно отличить от безвредных даже специалисту, поэтому любой гриб, который съел питомец, считают ядовитым, пока его не определит миколог. Одни грибы действуют за минуты, другие дают признаки только через много часов, до суток, когда лечить труднее. Магазинные грибы для людей обычно считаются безопасными для питомцев, но жаренные с луком или чесноком опасны из-за лука и чеснока.",
+        "en": "Poisonous mushrooms are hard to tell from harmless ones even for experts, so any mushroom a pet ate is treated as poisonous until a mycologist identifies it. Some act within minutes, others show signs only many hours later, up to a day, when treatment is harder. Shop-bought mushrooms sold for people are generally considered safe for pets, but cooked with onion or garlic they are dangerous because of the onion and garlic."
       },
       "signs": {
         "ru": [
           "рвота и понос",
-          "слюнотечение",
-          "вялость, слабость",
           "шаткая походка, дрожь",
-          "желтоватые дёсны или глаза"
+          "судороги",
+          "дезориентация, странное поведение",
+          "сильная жажда, частое мочеиспускание",
+          "чёрный дёгтеобразный стул"
         ],
         "en": [
           "vomiting and diarrhoea",
-          "drooling",
-          "lethargy, weakness",
           "unsteady walking, tremors",
-          "yellowish gums or eyes"
+          "seizures",
+          "disorientation, odd behaviour",
+          "unusual thirst or urination",
+          "black, tarry stool"
         ]
       },
       "ifEaten": "call_now"
@@ -69,27 +71,29 @@
     "dog": {
       "verdict": "danger",
       "summary": {
-        "ru": "Нельзя. Любой дикий гриб считайте опасным: часть грибов вызывает тяжёлое поражение печени, почек и нервной системы.",
-        "en": "Not safe. Treat any wild mushroom as dangerous: some cause severe damage to the liver, kidneys and nervous system."
+        "ru": "Нельзя. Любой гриб, съеденный на улице, считайте ядовитым: часть грибов поражает печень, почки и нервную систему.",
+        "en": "Not safe. Treat any mushroom eaten outdoors as poisonous: some damage the liver, kidneys and nervous system."
       },
       "why": {
-        "ru": "Дикие грибы трудно отличить друг от друга, и признаки могут появиться только через сутки, когда помощь уже сложнее. Магазинные шампиньоны и вёшенки сами по себе не считаются ядовитыми, но собаке их лучше не давать: жареные, с луком, маслом и солью они вредны. Если собака съела гриб на прогулке, считайте его ядовитым.",
-        "en": "Wild mushrooms are hard to tell apart, and signs may appear only a day later, when treatment is harder. Plain shop-bought button or oyster mushrooms are not considered poisonous in themselves, but it is best not to give them: fried, with onion, butter or salt they are harmful. If your dog ate a mushroom on a walk, assume it is poisonous."
+        "ru": "Собаки чаще других отравляются грибами: едят всё подряд на прогулке. Ядовитые грибы трудно отличить от безвредных даже специалисту, поэтому любой съеденный гриб считают ядовитым, пока его не определит миколог. Признаки могут появиться через минуты или только через много часов, до суток. Магазинные грибы для людей обычно считаются безопасными, но жаренные с луком или чесноком опасны из-за лука и чеснока.",
+        "en": "Dogs are especially prone to mushroom poisoning because they eat things on walks. Poisonous mushrooms are hard to tell from harmless ones even for experts, so any mushroom eaten is treated as poisonous until a mycologist identifies it. Signs may appear within minutes or only many hours later, up to a day. Shop-bought mushrooms sold for people are generally considered safe, but cooked with onion or garlic they are dangerous because of the onion and garlic."
       },
       "signs": {
         "ru": [
           "рвота и понос",
-          "слюнотечение",
-          "вялость, слабость",
           "шаткая походка, дрожь",
-          "желтоватые дёсны или глаза"
+          "судороги",
+          "дезориентация, странное поведение",
+          "сильная жажда, частое мочеиспускание",
+          "чёрный дёгтеобразный стул"
         ],
         "en": [
           "vomiting and diarrhoea",
-          "drooling",
-          "lethargy, weakness",
           "unsteady walking, tremors",
-          "yellowish gums or eyes"
+          "seizures",
+          "disorientation, odd behaviour",
+          "unusual thirst or urination",
+          "black, tarry stool"
         ]
       },
       "ifEaten": "call_now"
@@ -121,11 +125,16 @@
   },
   "sources": [
     {
-      "title": "Pet Poison Helpline — Mushroom Poisoning in Dogs and Cats",
+      "title": "Pet Poison Helpline — Mushrooms",
       "url": "https://www.petpoisonhelpline.com/poison/mushrooms/"
     },
     {
-      "title": "Merck Veterinary Manual — Mushroom Poisoning"
+      "title": "ASPCA — The Fungus Among Us: Mushroom Toxicosis",
+      "url": "https://www.aspca.org/news/fungus-among-us-mushroom-toxicosis"
+    },
+    {
+      "title": "Merck Veterinary Manual — Overview of Mushrooms Toxic to Animals",
+      "url": "https://www.merckvetmanual.com/toxicology/poisonous-mushrooms/overview-of-mushrooms-toxic-to-animals"
     }
   ],
   "review": {

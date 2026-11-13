@@ -30,21 +30,23 @@
         "en": "Dangerous. Mistletoe is poisonous to cats and dogs."
       },
       "why": {
-        "ru": "ASPCA относит американскую омелу к ядовитым для кошек и собак: возможны рвота, понос, затруднённое дыхание и замедленный пульс. Европейская омела считается опаснее, поэтому вердикт строгий. Позвоните в клинику, не дожидаясь признаков.",
-        "en": "The ASPCA lists American mistletoe as toxic to cats and dogs: vomiting, diarrhoea, difficulty breathing and a slow heart rate are possible. European mistletoe is considered more dangerous, so the verdict is the strict one. Call a clinic without waiting for signs."
+        "ru": "ASPCA относит американскую омелу к ядовитым для кошек и собак: возможны рвота, понос, затруднённое дыхание и замедленный пульс. По данным Pet Poison Helpline, европейская омела опаснее американской, а при большом количестве бывают нарушения работы сердца, падение давления и смерть. Поэтому вердикт строгий: позвоните в клинику, не дожидаясь признаков.",
+        "en": "The ASPCA lists American mistletoe as toxic to cats and dogs: vomiting, diarrhoea, difficulty breathing and a slow heart rate are possible. According to Pet Poison Helpline, European mistletoe is of more concern than American, and a large amount can cause heart problems, low blood pressure and death. So the verdict is the strict one: call a clinic without waiting for signs."
       },
       "signs": {
         "ru": [
           "рвота",
           "понос",
           "затруднённое дыхание",
-          "вялость"
+          "замедленный пульс",
+          "шаткая походка"
         ],
         "en": [
           "vomiting",
           "diarrhoea",
           "difficulty breathing",
-          "lethargy"
+          "slow heart rate",
+          "stumbling"
         ]
       },
       "ifEaten": "call_now"
@@ -56,21 +58,23 @@
         "en": "Dangerous. Mistletoe is poisonous to cats and dogs."
       },
       "why": {
-        "ru": "ASPCA относит американскую омелу к ядовитым для кошек и собак: возможны рвота, понос, затруднённое дыхание и замедленный пульс. Европейская омела считается опаснее, поэтому вердикт строгий. Позвоните в клинику, не дожидаясь признаков.",
-        "en": "The ASPCA lists American mistletoe as toxic to cats and dogs: vomiting, diarrhoea, difficulty breathing and a slow heart rate are possible. European mistletoe is considered more dangerous, so the verdict is the strict one. Call a clinic without waiting for signs."
+        "ru": "ASPCA относит американскую омелу к ядовитым для кошек и собак: возможны рвота, понос, затруднённое дыхание и замедленный пульс. По данным Pet Poison Helpline, европейская омела опаснее американской, а при большом количестве бывают нарушения работы сердца, падение давления и смерть. Поэтому вердикт строгий: позвоните в клинику, не дожидаясь признаков.",
+        "en": "The ASPCA lists American mistletoe as toxic to cats and dogs: vomiting, diarrhoea, difficulty breathing and a slow heart rate are possible. According to Pet Poison Helpline, European mistletoe is of more concern than American, and a large amount can cause heart problems, low blood pressure and death. So the verdict is the strict one: call a clinic without waiting for signs."
       },
       "signs": {
         "ru": [
           "рвота",
           "понос",
           "затруднённое дыхание",
-          "вялость"
+          "замедленный пульс",
+          "шаткая походка"
         ],
         "en": [
           "vomiting",
           "diarrhoea",
           "difficulty breathing",
-          "lethargy"
+          "slow heart rate",
+          "stumbling"
         ]
       },
       "ifEaten": "call_now"
@@ -108,7 +112,12 @@
       "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/mistletoe-american"
     },
     {
-      "title": "Pet Poison Helpline — Poison Index (plants)"
+      "title": "Pet Poison Helpline — Mistletoe",
+      "url": "https://www.petpoisonhelpline.com/poison/mistletoe/"
+    },
+    {
+      "title": "Pet Poison Helpline — Holiday Plants",
+      "url": "https://www.petpoisonhelpline.com/uncategorized/holiday-plants/"
     }
   ],
   "review": {

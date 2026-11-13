@@ -30,12 +30,12 @@
     "cat": {
       "verdict": "danger",
       "summary": {
-        "ru": "Нельзя. Шоколад ядовит для кошек, и из-за небольшого веса опасным может оказаться даже немного.",
-        "en": "Not safe. Chocolate is poisonous to cats, and because cats are small even a little can be dangerous."
+        "ru": "Нельзя. Шоколад ядовит для домашних животных, и для кошек тоже.",
+        "en": "Not safe. Chocolate is poisonous to pets, cats included."
       },
       "why": {
-        "ru": "В шоколаде есть теобромин и кофеин. Они действуют на сердце и нервную систему. Сладкого вкуса кошки не чувствуют и едят шоколад редко, но могут слизать какао, крем или шоколадную пасту.",
-        "en": "Chocolate contains theobromine and caffeine, which act on the heart and the nervous system. Cats cannot taste sweetness and rarely eat chocolate, but they may lick cocoa, frosting or chocolate spread."
+        "ru": "В шоколаде есть теобромин и кофеин. Они действуют на сердце и нервную систему. Чем темнее шоколад, тем их больше; больше всего — в какао-порошке. Кошка может слизать какао, крем или шоколадную пасту.",
+        "en": "Chocolate contains theobromine and caffeine, which act on the heart and the nervous system. The darker the chocolate, the more of them it has; cocoa powder has the most. A cat may lick cocoa, frosting or chocolate spread."
       },
       "signs": {
         "ru": [
@@ -43,7 +43,7 @@
           "беспокойство, частое дыхание",
           "сильная жажда",
           "дрожь",
-          "учащённое сердцебиение",
+          "неровное сердцебиение",
           "судороги"
         ],
         "en": [
@@ -51,7 +51,7 @@
           "restlessness, fast breathing",
           "strong thirst",
           "tremors",
-          "racing heartbeat",
+          "irregular heartbeat",
           "seizures"
         ]
       },
@@ -60,8 +60,8 @@
     "dog": {
       "verdict": "danger",
       "summary": {
-        "ru": "Нельзя. Шоколад — одно из самых частых отравлений у собак; чем он темнее, тем опаснее.",
-        "en": "Not safe. Chocolate is one of the most common poisonings in dogs; the darker it is, the more dangerous."
+        "ru": "Нельзя. Шоколадом собаки отравляются чаще других животных; чем он темнее, тем опаснее.",
+        "en": "Not safe. Dogs are poisoned by chocolate more often than other animals; the darker it is, the more dangerous."
       },
       "why": {
         "ru": "Теобромин и кофеин из шоколада собака выводит медленно, и они действуют на сердце и нервную систему. Горький шоколад и какао-порошок опаснее молочного; в белом шоколаде теобромина мало, но жирное может навредить поджелудочной железе. Сколько опасно именно вашей собаке, оценит врач.",
@@ -73,7 +73,7 @@
           "беспокойство, возбуждение",
           "сильная жажда и частое мочеиспускание",
           "дрожь",
-          "учащённое или неровное сердцебиение",
+          "неровное сердцебиение",
           "судороги"
         ],
         "en": [
@@ -81,7 +81,7 @@
           "restlessness, hyperactivity",
           "strong thirst and frequent urination",
           "tremors",
-          "fast or irregular heartbeat",
+          "irregular heartbeat",
           "seizures"
         ]
       },
@@ -109,7 +109,7 @@
       "Не ждите признаков: они появляются через несколько часов"
     ],
     "en": [
-      "Do not induce vomiting unless a vet tells you to",
+      "Do not make your pet vomit unless a vet tells you to",
       "Do not give milk, oil, charcoal or other home “antidotes” from the internet",
       "Do not wait for signs: they appear hours later"
     ]
@@ -121,7 +121,8 @@
       "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
     },
     {
-      "title": "MSD Veterinary Manual — отравление шоколадом (метилксантинами) у животных"
+      "title": "Merck Veterinary Manual — Chocolate Toxicosis in Animals",
+      "url": "https://www.merckvetmanual.com/toxicology/food-hazards/chocolate-toxicosis-in-animals"
     }
   ],
   "review": {

@@ -25,33 +25,30 @@
       "chicken breast",
       "boiled chicken",
       "cooked chicken meat",
-      "roast chicken",
-      "chicken bones"
+      "roast chicken"
     ]
   },
   "bySpecies": {
     "cat": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Простое варёное мясо без костей, кожи, соли и специй можно; кости опасны.",
-        "en": "With caution. Plain boiled meat without bones, skin, salt or spices is fine; bones are dangerous."
+        "ru": "С осторожностью. Простое варёное мясо без костей, кожи, соли и специй — как лакомство; кости опасны.",
+        "en": "With caution. Plain boiled meat without bones, skin, salt or spices as a treat; bones are dangerous."
       },
       "why": {
-        "ru": "Простая варёная курица без соли, лука, чеснока и специй обычно подходит как лакомство. Варёные и жареные кости ломаются на острые осколки и могут поранить рот и кишечник. Курица бывает пищевым аллергеном, и сырая несёт риск сальмонеллы.",
-        "en": "Plain boiled chicken without salt, onion, garlic or spices is usually fine as a treat. Cooked bones splinter into sharp pieces and can injure the mouth and gut. Chicken can be a food allergen, and raw chicken carries a salmonella risk."
+        "ru": "Осторожность нужна из-за костей и приправ. Кости могут поранить или закупорить кишечник, иногда нужна операция. Лук и чеснок опасны для кошек. Сырая курица может нести сальмонеллу и кишечную палочку. Курица не заменяет корм: рацион почти из одного мяса ведёт к нехватке кальция. У кошек с пищевой аллергией причиной бывает белок привычной еды, в том числе курицы.",
+        "en": "The caution is about bones and seasoning. Bones can injure or block the gut, sometimes needing surgery. Onion and garlic are dangerous for cats. Raw chicken can carry Salmonella and E. coli. Chicken does not replace cat food: a diet of almost only meat leads to calcium deficiency. In cats with a food allergy, the cause is often a protein in their usual food, chicken included."
       },
       "signs": {
         "ru": [
           "рвота",
           "понос",
-          "вялость, отказ от еды",
-          "боль в животе, горбится — если проглочена кость"
+          "отказ от еды, запор — если проглочена кость"
         ],
         "en": [
           "vomiting",
           "diarrhoea",
-          "lethargy, refusing food",
-          "belly pain, hunched posture — if a bone was swallowed"
+          "refusing food, constipation — if a bone was swallowed"
         ]
       },
       "ifEaten": "watch"
@@ -59,25 +56,23 @@
     "dog": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Простое варёное мясо без костей, кожи, соли и специй можно; кости опасны.",
-        "en": "With caution. Plain boiled meat without bones, skin, salt or spices is fine; bones are dangerous."
+        "ru": "С осторожностью. Простое варёное мясо без костей, кожи, соли и специй — как лакомство; кости опасны.",
+        "en": "With caution. Plain boiled meat without bones, skin, salt or spices as a treat; bones are dangerous."
       },
       "why": {
-        "ru": "Простая варёная курица без соли, лука, чеснока и специй обычно подходит как лакомство. Варёные и жареные кости ломаются на острые осколки и могут поранить рот и кишечник. Жирная кожа и жареное могут вызвать понос и воспаление поджелудочной железы. Курица бывает пищевым аллергеном.",
-        "en": "Plain boiled chicken without salt, onion, garlic or spices is usually fine as a treat. Cooked bones splinter into sharp pieces and can injure the mouth and gut. Fatty skin and fried food can cause diarrhoea and inflammation of the pancreas. Chicken can be a food allergen."
+        "ru": "Осторожность нужна из-за костей, жира и приправ. Кости могут поранить или закупорить кишечник, иногда нужна операция. От жирной кожи и жареного бывают рвота, понос и воспаление поджелудочной железы. Лук и чеснок опасны для собак. Сырая курица может нести сальмонеллу и кишечную палочку. Курица не заменяет корм: рацион почти из одного мяса ведёт к нехватке кальция.",
+        "en": "The caution is about bones, fat and seasoning. Bones can injure or block the gut, sometimes needing surgery. Fatty skin and fried chicken can cause vomiting, diarrhoea and inflammation of the pancreas. Onion and garlic are dangerous for dogs. Raw chicken can carry Salmonella and E. coli. Chicken does not replace dog food: a diet of almost only meat leads to calcium deficiency."
       },
       "signs": {
         "ru": [
           "рвота",
           "понос",
-          "вялость, отказ от еды",
-          "боль в животе, горбится — если проглочена кость"
+          "отказ от еды, запор — если проглочена кость"
         ],
         "en": [
           "vomiting",
           "diarrhoea",
-          "lethargy, refusing food",
-          "belly pain, hunched posture — if a bone was swallowed"
+          "refusing food, constipation — if a bone was swallowed"
         ]
       },
       "ifEaten": "watch"
@@ -86,37 +81,39 @@
   "firstSteps": {
     "ru": [
       "Уберите остатки мяса и кости",
-      "Если проглочена кость, понаблюдайте за питомцем и позвоните в клинику: острые осколки опасны и без признаков",
-      "При рвоте, боли в животе, чёрном стуле или вялости обращайтесь в клинику сразу"
+      "Если проглочена кость, позвоните в клинику и расскажите, какая и сколько",
+      "При рвоте, отказе от еды, запоре или вялости обращайтесь в клинику сразу"
     ],
     "en": [
       "Put away the leftover meat and bones",
-      "If a bone was swallowed, watch your pet and call a clinic: sharp splinters are dangerous even without signs",
-      "With vomiting, belly pain, black stools or lethargy, go to a clinic straight away"
+      "If a bone was swallowed, call a clinic and say what kind and how much",
+      "With vomiting, refusing food, constipation or lethargy, go to a clinic straight away"
     ]
   },
   "avoid": {
     "ru": [
       "Не давайте кости: ни варёные, ни жареные",
-      "Не ждите, если питомец горбится, скулит или отказывается от еды",
+      "Не ждите, если после проглоченной кости питомца рвёт или он отказывается от еды",
       "Не вызывайте рвоту сами — только по указанию врача"
     ],
     "en": [
       "Do not give bones, cooked or fried",
-      "Do not wait if your pet hunches, whimpers or refuses food",
+      "Do not wait if your pet vomits or refuses food after swallowing a bone",
       "Do not make your pet vomit unless a vet tells you to"
     ]
   },
   "sources": [
     {
-      "title": "Merck Veterinary Manual — Food Hazards"
-    },
-    {
-      "title": "Pet Poison Helpline — Poison Guide: Foods"
-    },
-    {
       "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
       "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    },
+    {
+      "title": "Merck Veterinary Manual — Nutritional Requirements of Small Animals",
+      "url": "https://www.merckvetmanual.com/management-and-nutrition/nutrition-small-animals/nutritional-requirements-of-small-animals"
+    },
+    {
+      "title": "Cornell Feline Health Center — Food Allergies",
+      "url": "https://www.vet.cornell.edu/departments-centers-and-institutes/cornell-feline-health-center/health-information/feline-health-topics/food-allergies"
     }
   ],
   "review": {

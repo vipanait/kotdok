@@ -29,25 +29,23 @@
     "cat": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Кусочек тунца из банки изредка — можно, но регулярно и кормом он быть не должен.",
-        "en": "With caution. A piece of canned tuna now and then is fine, but it must not be a regular food or a main meal."
+        "ru": "С осторожностью. Кусочек тунца из банки изредка — можно, но кормом он быть не должен.",
+        "en": "With caution. A piece of canned tuna now and then is fine, but it must not be a regular food."
       },
       "why": {
-        "ru": "Тунец из банки не ядовит, но в нём может быть ртуть, а в маринаде — много соли, масла, лук и специи. Кошки быстро привыкают к вкусу и отказываются от обычного корма, а тунец не покрывает все их потребности. Выбирайте тунец в собственном соку без соли и не давайте часто.",
-        "en": "Canned tuna is not poisonous, but it may contain mercury, and the brine or marinade can hold a lot of salt, oil, onion and spices. Cats get used to the taste and turn down their regular food, and tuna does not meet all their needs. Choose tuna in its own juice without salt and do not give it often."
+        "ru": "У кошек, которых кормили большим количеством консервированного тунца, развивался недостаток витамина Е и болезнь жировой ткани (желтожировая болезнь). В тунце в рассоле много соли, а в маринаде бывают лук и специи. Если и предлагать, то тунец в собственном соку без соли, изредка.",
+        "en": "Cats fed large amounts of canned tuna have developed vitamin E deficiency and a disease of body fat (yellow fat disease). Tuna in brine is high in salt, and marinades can contain onion and spices. If you offer any, tuna in its own juice with no salt, now and then."
       },
       "signs": {
         "ru": [
           "сильная жажда и частое мочеиспускание",
           "рвота, понос",
-          "вялость, дрожь",
-          "судороги — при большом количестве соли"
+          "вялость, отказ от еды, болезненный живот — при частом кормлении тунцом"
         ],
         "en": [
           "heavy thirst and frequent urination",
           "vomiting, diarrhoea",
-          "lethargy, tremors",
-          "seizures — with a large amount of salt"
+          "lethargy, refusing food, a tender belly — with frequent tuna feeding"
         ]
       },
       "ifEaten": "watch"
@@ -59,8 +57,8 @@
         "en": "With caution. A little canned tuna now and then is fine, but without oil, salt and spices."
       },
       "why": {
-        "ru": "Тунец из банки не ядовит, но в нём может быть ртуть, а в маринаде — много соли, масла, лук и специи. Жирный тунец в масле может вызвать понос и воспаление поджелудочной железы. Давайте немного тунца в собственном соку и не часто.",
-        "en": "Canned tuna is not poisonous, but it may contain mercury, and the brine or marinade can hold a lot of salt, oil, onion and spices. Oily tuna can cause diarrhoea and inflammation of the pancreas. Give a little tuna in its own juice and not often."
+        "ru": "Риск — в соли, жире и приправах. В тунце в рассоле много соли, в маринаде бывают лук и чеснок, а от жирной еды бывают рвота, понос и воспаление поджелудочной железы. Если и предлагать, то немного тунца в собственном соку без соли, изредка.",
+        "en": "The risk is salt, fat and seasoning. Tuna in brine is high in salt, marinades can contain onion and garlic, and fatty food can cause vomiting, diarrhoea and inflammation of the pancreas. If you offer any, a little tuna in its own juice with no salt, now and then."
       },
       "signs": {
         "ru": [
@@ -103,7 +101,8 @@
   },
   "sources": [
     {
-      "title": "Merck Veterinary Manual — Food Hazards"
+      "title": "Merck Veterinary Manual — Nutritional Requirements of Small Animals",
+      "url": "https://www.merckvetmanual.com/management-and-nutrition/nutrition-small-animals/nutritional-requirements-of-small-animals"
     },
     {
       "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",

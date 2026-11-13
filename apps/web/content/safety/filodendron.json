@@ -28,8 +28,8 @@
         "en": "With caution. Philodendron is poisonous to cats, but it usually only irritates the mouth."
       },
       "why": {
-        "ru": "В листьях и стеблях есть нерастворимые кристаллы оксалата кальция. При жевании они жгут рот, язык и губы. Если питомец трёт морду, не может проглотить, дышит с трудом или рвота повторяется, звоните в клинику.",
-        "en": "The leaves and stems hold insoluble calcium oxalate crystals. When chewed they burn the mouth, tongue and lips. If your pet paws at its face, cannot swallow, breathes with difficulty or keeps vomiting, call a clinic."
+        "ru": "В растении есть нерастворимые кристаллы оксалата кальция. При жевании они сразу жгут рот, язык и губы, поэтому много питомец обычно не съедает. Может отекать горло. Если питомец трёт морду, не может проглотить, дышит с трудом или рвота повторяется, звоните в клинику.",
+        "en": "The plant holds insoluble calcium oxalate crystals. When chewed they burn the mouth, tongue and lips at once, so pets usually do not eat much. The throat can swell. If your pet paws at its face, cannot swallow, breathes with difficulty or keeps vomiting, call a clinic."
       },
       "signs": {
         "ru": [
@@ -54,8 +54,8 @@
         "en": "With caution. Philodendron is poisonous to dogs, but it usually only irritates the mouth."
       },
       "why": {
-        "ru": "В листьях и стеблях есть нерастворимые кристаллы оксалата кальция. При жевании они жгут рот, язык и губы. Если питомец трёт морду, не может проглотить, дышит с трудом или рвота повторяется, звоните в клинику.",
-        "en": "The leaves and stems hold insoluble calcium oxalate crystals. When chewed they burn the mouth, tongue and lips. If your pet paws at its face, cannot swallow, breathes with difficulty or keeps vomiting, call a clinic."
+        "ru": "В растении есть нерастворимые кристаллы оксалата кальция. При жевании они сразу жгут рот, язык и губы, поэтому много питомец обычно не съедает. Может отекать горло. Если питомец трёт морду, не может проглотить, дышит с трудом или рвота повторяется, звоните в клинику.",
+        "en": "The plant holds insoluble calcium oxalate crystals. When chewed they burn the mouth, tongue and lips at once, so pets usually do not eat much. The throat can swell. If your pet paws at its face, cannot swallow, breathes with difficulty or keeps vomiting, call a clinic."
       },
       "signs": {
         "ru": [
@@ -77,7 +77,7 @@
   "firstSteps": {
     "ru": [
       "Уберите растение и выньте остатки из пасти питомца",
-      "Дайте питомцу свежую воду для питья",
+      "Оставьте питомцу миску со свежей водой",
       "Понаблюдайте за ним несколько часов",
       "Если появились признаки или их стало больше, позвоните в клинику"
     ],
@@ -104,6 +104,10 @@
     {
       "title": "ASPCA Animal Poison Control — Heartleaf Philodendron",
       "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/heartleaf-philodendron"
+    },
+    {
+      "title": "MSD Veterinary Manual — Houseplants and Ornamentals Toxic to Animals",
+      "url": "https://www.merckvetmanual.com/toxicology/poisonous-plants/houseplants-and-ornamentals-toxic-to-animals"
     }
   ],
   "review": {

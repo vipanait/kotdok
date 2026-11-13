@@ -10,8 +10,7 @@
     "ru": [
       "хлорофитум хохлатый",
       "паучник",
-      "паучье растение",
-      "зеленая лилия"
+      "паучье растение"
     ],
     "en": [
       "chlorophytum",
@@ -28,8 +27,8 @@
         "en": "Non-toxic. Spider plant is not poisonous to cats."
       },
       "why": {
-        "ru": "ASPCA относит хлорофитум к неядовитым для кошек растениям. Кошки любят его грызть; если съедено много листьев, возможна разовая рвота от грубой зелени, это не отравление.",
-        "en": "The ASPCA lists spider plant as non-toxic to cats. Cats like to chew it; eating a lot of leaves may bring on a one-off bout of vomiting from the roughage, which is not poisoning."
+        "ru": "ASPCA относит хлорофитум к неядовитым для кошек растениям.",
+        "en": "The ASPCA lists spider plant as non-toxic to cats."
       },
       "signs": {
         "ru": [],
@@ -44,8 +43,8 @@
         "en": "Non-toxic. Spider plant is not poisonous to dogs."
       },
       "why": {
-        "ru": "ASPCA относит хлорофитум к неядовитым для собак растениям. Если собака съела много листьев, желудок может ненадолго расстроиться.",
-        "en": "The ASPCA lists spider plant as non-toxic to dogs. If a dog eats a lot of leaves, its stomach may be briefly upset."
+        "ru": "ASPCA относит хлорофитум к неядовитым для собак растениям.",
+        "en": "The ASPCA lists spider plant as non-toxic to dogs."
       },
       "signs": {
         "ru": [],

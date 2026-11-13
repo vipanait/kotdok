@@ -25,12 +25,12 @@
     "cat": {
       "verdict": "danger",
       "summary": {
-        "ru": "Нельзя. Для кошек макадамия не считается безопасной: данных мало, поэтому лучше не рисковать.",
-        "en": "Not safe. Macadamia is not considered safe for cats: data are thin, so do not take the risk."
+        "ru": "Нельзя. Отравление макадамией описано у собак; данных о кошках нет, поэтому лучше не рисковать.",
+        "en": "Not safe. Macadamia poisoning is described in dogs; there are no data on cats, so do not take the risk."
       },
       "why": {
-        "ru": "Для собак макадамия известна как причина отравления с непонятным механизмом. По кошкам данных мало, поэтому берём более строгую оценку. Орехи к тому же очень жирные, а в печенье и сладостях есть шоколад и другие добавки.",
-        "en": "Macadamia is a known cause of poisoning in dogs, by a mechanism that is not clear. Data on cats are thin, so we take the stricter view. The nuts are also very fatty, and cookies and sweets contain chocolate and other additions."
+        "ru": "Отравление макадамией описано только у собак, и почему оно возникает, неизвестно. Данных о кошках нет, поэтому оценка строже. Признаки ниже — те, что описаны у собак. В печенье и сладостях с макадамией бывает шоколад, а он тоже опасен.",
+        "en": "Macadamia poisoning has been described only in dogs, and its cause is unknown. There are no data on cats, so we take the stricter view. The signs below are those described in dogs. Cookies and sweets with macadamia may contain chocolate, which is also dangerous."
       },
       "signs": {
         "ru": [
@@ -51,12 +51,12 @@
     "dog": {
       "verdict": "danger",
       "summary": {
-        "ru": "Нельзя. Макадамия ядовита для собак, даже небольшое количество может вызвать признаки.",
-        "en": "Not safe. Macadamia is poisonous to dogs; even a small amount can cause signs."
+        "ru": "Нельзя. Макадамия ядовита для собак.",
+        "en": "Not safe. Macadamia nuts are poisonous to dogs."
       },
       "why": {
-        "ru": "Механизм до конца не изучен, но орехи вызывают слабость, дрожь и повышение температуры, обычно в первые часы. Они очень жирные и могут воспалить поджелудочную железу. Опасность не зависит от того, солёные они или нет.",
-        "en": "The mechanism is not fully understood, but the nuts cause weakness, tremors and a raised temperature, usually within hours. They are very fatty and can inflame the pancreas. Salted or not, they are equally risky."
+        "ru": "Почему орехи вызывают отравление, неизвестно. Признаки обычно появляются в первые 12 часов и проходят за один–три дня. Орехи очень жирные, и у некоторых собак бывает воспаление поджелудочной железы. В печенье и сладостях с макадамией бывает шоколад, а он тоже опасен.",
+        "en": "Why the nuts cause poisoning is unknown. Signs usually start within 12 hours and pass in one to three days. The nuts are very fatty, and some dogs develop an inflamed pancreas. Cookies and sweets with macadamia may contain chocolate, which is also dangerous."
       },
       "signs": {
         "ru": [
@@ -65,7 +65,7 @@
           "дрожь",
           "рвота",
           "повышенная температура",
-          "боль в животе"
+          "сильная вялость"
         ],
         "en": [
           "weakness, especially in the back legs",
@@ -73,7 +73,7 @@
           "tremors",
           "vomiting",
           "raised temperature",
-          "belly pain"
+          "marked lethargy"
         ]
       },
       "ifEaten": "call_now"
@@ -109,7 +109,12 @@
       "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
     },
     {
-      "title": "Pet Poison Helpline — Poison Control for Pets"
+      "title": "Merck Veterinary Manual — Food Hazards",
+      "url": "https://www.merckvetmanual.com/special-pet-topics/poisoning/food-hazards"
+    },
+    {
+      "title": "Pet Poison Helpline — Macadamia Nuts",
+      "url": "https://www.petpoisonhelpline.com/poison/macadamia-nuts/"
     }
   ],
   "review": {

@@ -30,12 +30,12 @@
     "cat": {
       "verdict": "danger",
       "summary": {
-        "ru": "Опасно. Напроксен и диклофенак ядовиты для кошек; опасна и мазь, если кошка её слизала.",
-        "en": "Dangerous. Naproxen and diclofenac are poisonous to cats; a gel is dangerous too if the cat licks it off."
+        "ru": "Опасно. Напроксен и диклофенак ядовиты для кошек.",
+        "en": "Dangerous. Naproxen and diclofenac are poisonous to cats."
       },
       "why": {
-        "ru": "Это обезболивающие и противовоспалительные для людей. У кошек они повреждают желудок, кишечник и почки, причём вред возможен от очень малого количества. Что делать, решает врач.",
-        "en": "These are human painkillers and anti-inflammatories. In cats they damage the stomach, gut and kidneys, and a very small amount can be enough. The vet decides what to do."
+        "ru": "Это обезболивающие и противовоспалительные для людей. В опасном количестве они вызывают тяжёлые язвы желудка и кишечника и острую почечную недостаточность. К напроксену кошки, по-видимому, ещё чувствительнее собак. Что делать, решает врач.",
+        "en": "These are human painkillers and anti-inflammatories. In a toxic amount they cause severe stomach and gut ulcers and sudden kidney failure. Cats seem to be even more sensitive to naproxen than dogs. The vet decides what to do."
       },
       "signs": {
         "ru": [
@@ -62,8 +62,8 @@
         "en": "Dangerous. Naproxen and diclofenac are poisonous to dogs, naproxen especially."
       },
       "why": {
-        "ru": "У собак эти препараты вызывают язвы желудка и кишечника и могут повредить почки; напроксен собаки выводят медленно, и вред держится долго. Насколько это опасно, оценит врач.",
-        "en": "In dogs these drugs cause stomach and gut ulcers and can damage the kidneys; dogs clear naproxen slowly, so the harm lasts long. The vet will judge how dangerous it is."
+        "ru": "У собак эти препараты вызывают тяжёлые язвы желудка и кишечника, вплоть до прободения, и могут привести к острой почечной недостаточности. У напроксена очень узкий запас безопасности. Насколько это опасно, оценит врач.",
+        "en": "In dogs these drugs cause severe stomach and gut ulcers, which can even perforate, and can lead to sudden kidney failure. Naproxen has a very narrow safety margin. The vet will judge how dangerous it is."
       },
       "signs": {
         "ru": [
@@ -112,10 +112,16 @@
   },
   "sources": [
     {
-      "title": "Pet Poison Helpline — Poison Database"
+      "title": "Pet Poison Helpline — NSAIDs",
+      "url": "https://www.petpoisonhelpline.com/poison/nsaids/"
     },
     {
-      "title": "MSD Veterinary Manual — Toxicology"
+      "title": "Pet Poison Helpline — Naproxen",
+      "url": "https://www.petpoisonhelpline.com/poison/naproxen/"
+    },
+    {
+      "title": "MSD Veterinary Manual — Poisoning from Human Over-the-Counter Drugs",
+      "url": "https://www.merckvetmanual.com/special-pet-topics/poisoning/poisoning-from-human-over-the-counter-drugs"
     }
   ],
   "review": {

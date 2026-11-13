@@ -35,12 +35,12 @@
     "cat": {
       "verdict": "danger",
       "summary": {
-        "ru": "Нельзя. Кофеин опасен для кошек даже в небольшом количестве.",
-        "en": "Not safe. Caffeine is dangerous to cats even in small amounts."
+        "ru": "Нельзя. Кофеин опасен для кошек; больше всего его в зёрнах, гуще, чайных пакетиках и энергетиках.",
+        "en": "Not safe. Caffeine is dangerous to cats; the most is in beans, grounds, tea bags and energy drinks."
       },
       "why": {
-        "ru": "Кофеин действует на сердце и нервную систему. Больше всего его в зёрнах, гуще, пакетиках и энергетиках, меньше в напитках. Кошки могут лизнуть остатки из кружки или погрызть пакетик.",
-        "en": "Caffeine acts on the heart and the nervous system. The most is in beans, grounds, bags and energy drinks, less in brewed drinks. Cats may lick a mug or chew a tea bag."
+        "ru": "Кофеин относится к тем же веществам, что и в шоколаде, и действует на сердце и нервную систему. Пара случайных лизков кофе или чая обычно не вызывает отравления, но зёрна, гуща, чайные пакетики, энергетики и таблетки с кофеином опасны. Насколько опасно съеденное, оценит врач.",
+        "en": "Caffeine belongs to the same group of compounds as those in chocolate and acts on the heart and the nervous system. One or two licks of coffee or tea are unlikely to poison a pet, but beans, grounds, tea bags, energy drinks and caffeine tablets are dangerous. A vet will judge how risky the amount eaten is."
       },
       "signs": {
         "ru": [
@@ -65,12 +65,12 @@
     "dog": {
       "verdict": "danger",
       "summary": {
-        "ru": "Нельзя. Кофеин ядовит для собак; зёрна, гуща и пакетики особенно опасны.",
-        "en": "Not safe. Caffeine is poisonous to dogs; beans, grounds and bags are especially dangerous."
+        "ru": "Нельзя. Кофеин ядовит для собак; зёрна, гуща, пакетики и энергетики особенно опасны.",
+        "en": "Not safe. Caffeine is poisonous to dogs; beans, grounds, tea bags and energy drinks are especially dangerous."
       },
       "why": {
-        "ru": "Кофеин из группы метилксантинов, как в шоколаде: он действует на сердце и нервную систему. Собаки легко добираются до гущи в мусоре и пакетиков чая. Сколько опасно именно вашей собаке, оценит врач.",
-        "en": "Caffeine is a methylxanthine, like the compounds in chocolate: it acts on the heart and the nervous system. Dogs easily reach grounds in the bin and tea bags. A vet will judge how much is dangerous for your dog."
+        "ru": "Кофеин относится к тем же веществам, что и в шоколаде, и действует на сердце и нервную систему. Пара случайных лизков кофе или чая обычно не вызывает отравления, но зёрна, гуща, чайные пакетики, энергетики и таблетки с кофеином опасны. Насколько опасно съеденное для вашей собаки, оценит врач.",
+        "en": "Caffeine belongs to the same group of compounds as those in chocolate and acts on the heart and the nervous system. One or two licks of coffee or tea are unlikely to poison a pet, but beans, grounds, tea bags, energy drinks and caffeine tablets are dangerous. A vet will judge how risky the amount eaten is for your dog."
       },
       "signs": {
         "ru": [
@@ -123,7 +123,12 @@
       "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
     },
     {
-      "title": "Pet Poison Helpline — Poison Control for Pets"
+      "title": "Pet Poison Helpline — Caffeine",
+      "url": "https://www.petpoisonhelpline.com/poison/caffeine/"
+    },
+    {
+      "title": "Merck Veterinary Manual — Food Hazards",
+      "url": "https://www.merckvetmanual.com/special-pet-topics/poisoning/food-hazards"
     }
   ],
   "review": {

@@ -37,42 +37,12 @@
     "cat": {
       "verdict": "danger",
       "summary": {
-        "ru": "Опасно, особенно для кошек. Масло на шерсти или лапах питомец слижет, а некоторые масла опасны и в малом количестве.",
-        "en": "Dangerous, especially for cats. A pet licks oil off its fur or paws, and some oils are dangerous even in a small amount."
+        "ru": "Опасно, особенно для кошек. Масло на шерсти или лапах питомец слижет, а концентрированное масло опасно даже в малом количестве.",
+        "en": "Dangerous, especially for cats. A pet licks oil off its fur or paws, and concentrated oil is dangerous even in a small amount."
       },
       "why": {
-        "ru": "Кошки хуже других животных справляются с веществами из эфирных масел, а при вылизывании шерсти масло попадает внутрь. Чаще всего беду приносят масло чайного дерева, цитрусовые, эвкалипт, мята, сосна и грушанка. Чистое масло опаснее разбавленного.",
-        "en": "Cats cope with the compounds in essential oils worse than other animals, and licking the coat takes oil inside. Tea tree, citrus, eucalyptus, mint, pine and wintergreen oils are the most common culprits. Undiluted oil is worse than diluted."
-      },
-      "signs": {
-        "ru": [
-          "слюнотечение",
-          "рвота",
-          "вялость, шаткая походка",
-          "потеря аппетита",
-          "раздражение кожи, рта или дыхательных путей",
-          "дрожь"
-        ],
-        "en": [
-          "drooling",
-          "vomiting",
-          "lethargy, wobbly walking",
-          "loss of appetite",
-          "irritation of skin, mouth or airways",
-          "tremors"
-        ]
-      },
-      "ifEaten": "call_now"
-    },
-    "dog": {
-      "verdict": "danger",
-      "summary": {
-        "ru": "Опасно. Собака может слизать пролитое масло или погрызть флакон; чистое масло особенно опасно.",
-        "en": "Dangerous. A dog may lick spilled oil or chew a bottle; undiluted oil is especially dangerous."
-      },
-      "why": {
-        "ru": "Эфирные масла раздражают рот, желудок и дыхательные пути, а некоторые действуют на нервную систему и печень. Опасность зависит от масла и его крепости, поэтому оценить её лучше врачу.",
-        "en": "Essential oils irritate the mouth, stomach and airways, and some affect the nervous system and the liver. The risk depends on the oil and its strength, so a vet is the one to judge it."
+        "ru": "Кошки — среди самых уязвимых к эфирным маслам животных. Опаснее всего проглотить масло, чуть меньше — попадание на кожу, меньше всего — вдыхание. Чаще всего отравления вызывают масло чайного дерева, цитрусовые, эвкалипт, гвоздика, сосна и грушанка; чистое масло опаснее разбавленного.",
+        "en": "Cats are among the animals most at risk from essential oils. Swallowing oil is the riskiest, skin contact less so, breathing it in least of all. Tea tree, citrus, eucalyptus, clove, pine and wintergreen oils are common culprits; undiluted oil is worse than diluted."
       },
       "signs": {
         "ru": [
@@ -80,16 +50,46 @@
           "рвота",
           "вялость",
           "потеря аппетита",
-          "раздражение кожи или рта",
-          "дрожь, шаткость"
+          "шаткая походка",
+          "раздражение кожи, рта или дыхательных путей"
         ],
         "en": [
           "drooling",
           "vomiting",
           "lethargy",
           "loss of appetite",
-          "irritation of skin or mouth",
-          "tremors, unsteadiness"
+          "wobbly walking",
+          "irritation of skin, mouth or airways"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Собака может слизать пролитое масло или погрызть флакон; концентрированное масло особенно опасно.",
+        "en": "Dangerous. A dog may lick spilled oil or chew a bottle; concentrated oil is especially dangerous."
+      },
+      "why": {
+        "ru": "Эфирные масла раздражают рот, желудок, кожу и дыхательные пути, а при сильном отравлении затрагивают нервную систему и печень. Опасность зависит от масла и его крепости: у концентрированного масла чайного дерева неприятности бывают от нескольких капель.",
+        "en": "Essential oils irritate the mouth, stomach, skin and airways, and a severe poisoning affects the nervous system and the liver. The risk depends on the oil and its strength: concentrated tea tree oil can cause trouble from a few drops."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "рвота",
+          "вялость",
+          "потеря аппетита",
+          "шаткая походка",
+          "раздражение кожи или рта"
+        ],
+        "en": [
+          "drooling",
+          "vomiting",
+          "lethargy",
+          "loss of appetite",
+          "wobbly walking",
+          "irritation of skin or mouth"
         ]
       },
       "ifEaten": "call_now"
@@ -111,21 +111,22 @@
     "ru": [
       "Не вызывайте рвоту сами — только по указанию врача",
       "Не мойте и не втирайте ничего в шерсть по советам из интернета — сначала позвоните врачу",
-      "Не ждите признаков: они могут появиться позже"
+      "Не ждите признаков: они могут появиться через несколько часов"
     ],
     "en": [
       "Do not make your pet vomit unless a vet tells you to",
       "Do not wash or rub anything into the coat on internet advice — call the vet first",
-      "Do not wait for signs: they can appear later"
+      "Do not wait for signs: they can appear several hours later"
     ]
   },
   "sources": [
     {
       "title": "Pet Poison Helpline — Essential Oils",
-      "url": "https://www.petpoisonhelpline.com/poisons/essential-oils/"
+      "url": "https://www.petpoisonhelpline.com/uncategorized/essential-oils/"
     },
     {
-      "title": "ASPCA Animal Poison Control — Poisons and Pet Safety"
+      "title": "ASPCA — Is the Latest Home Trend Harmful to Your Pets? What You Need to Know!",
+      "url": "https://www.aspca.org/news/latest-home-trend-harmful-your-pets-what-you-need-know"
     }
   ],
   "review": {

@@ -30,23 +30,23 @@
         "en": "Dangerous. A laundry pod is a concentrated product that is dangerous to cats."
       },
       "why": {
-        "ru": "Внутри капсулы концентрированный стиральный гель. Он раздражает рот и желудок, вызывает сильное слюнотечение и рвоту и может попасть в лёгкие при вдохе. Кошку может привлечь мягкая яркая капсула. Что делать, решает врач.",
-        "en": "A pod holds a concentrated washing gel. It irritates the mouth and stomach, causes heavy drooling and vomiting, and can get into the lungs if breathed in. A soft bright pod can attract a cat. The vet decides what to do."
+        "ru": "Внутри капсулы концентрированное моющее средство. Прокушенная капсула лопается, средство пенится во рту, и его можно вдохнуть — это грозит воспалением лёгких. Частые признаки — слюнотечение и рвота. О кошках данных мало, поэтому считаем это так же опасным, как для собак. Что делать, решает врач.",
+        "en": "A pod holds a concentrated detergent. A bitten pod bursts, the detergent foams in the mouth and can be breathed in, which risks pneumonia. Drooling and vomiting are common signs. There is little data on cats, so we treat it as just as dangerous as for dogs. The vet decides what to do."
       },
       "signs": {
         "ru": [
           "обильное слюнотечение",
           "рвота",
           "кашель, затруднённое дыхание",
-          "сильная сонливость",
-          "красные раздражённые глаза или кожа"
+          "вялость, слабость",
+          "слезотечение и прищуривание, если средство попало в глаза"
         ],
         "en": [
           "heavy drooling",
           "vomiting",
           "coughing, laboured breathing",
-          "heavy drowsiness",
-          "red irritated eyes or skin"
+          "lethargy, weakness",
+          "watery, squinting eyes if the detergent got in them"
         ]
       },
       "ifEaten": "call_now"
@@ -58,23 +58,23 @@
         "en": "Dangerous. A laundry pod is a concentrated product that is dangerous to dogs."
       },
       "why": {
-        "ru": "Концентрированный гель раздражает рот и желудок, вызывает слюнотечение и рвоту и может попасть в лёгкие. Собаки часто разгрызают капсулу целиком. Что делать, решает врач.",
-        "en": "The concentrated gel irritates the mouth and stomach, causes drooling and vomiting, and can get into the lungs. Dogs often bite a pod right through. The vet decides what to do."
+        "ru": "Прокушенная капсула лопается, концентрированное средство пенится во рту и может попасть в дыхательные пути, а это грозит воспалением лёгких. Собаки страдают от капсул чаще других животных, потому что хватают что попало. Что делать, решает врач.",
+        "en": "A bitten pod bursts, the concentrated detergent foams in the mouth and can get into the airways, which risks pneumonia. Dogs are affected by pods more often than other animals because they grab whatever they find. The vet decides what to do."
       },
       "signs": {
         "ru": [
           "обильное слюнотечение",
           "рвота",
           "кашель, затруднённое дыхание",
-          "сильная сонливость",
-          "красные раздражённые глаза или кожа"
+          "вялость, слабость",
+          "слезотечение и прищуривание, если средство попало в глаза"
         ],
         "en": [
           "heavy drooling",
           "vomiting",
           "coughing, laboured breathing",
-          "heavy drowsiness",
-          "red irritated eyes or skin"
+          "lethargy, weakness",
+          "watery, squinting eyes if the detergent got in them"
         ]
       },
       "ifEaten": "call_now"
@@ -108,11 +108,16 @@
   },
   "sources": [
     {
-      "title": "Pet Poison Helpline — Poison Database"
+      "title": "Pet Poison Helpline — How Detergent Pods Can Harm Your Dog",
+      "url": "https://www.petpoisonhelpline.com/pet-tips/how-detergent-pods-can-harm-your-dog/"
     },
     {
-      "title": "ASPCA Animal Poison Control — Toxic and Non-Toxic Plants and People Foods",
-      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants"
+      "title": "ASPCA Animal Poison Control — Keep Laundry Detergent Pods Away from Pets",
+      "url": "https://www.aspca.org/news/animal-poison-control-alert-keep-laundry-detergent-pods-away-pets"
+    },
+    {
+      "title": "MSD Veterinary Manual — Detergents, Soaps, and Shampoos",
+      "url": "https://www.merckvetmanual.com/toxicology/household-hazards/detergents,-soaps,-and-shampoos"
     }
   ],
   "review": {

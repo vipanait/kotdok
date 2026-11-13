@@ -36,31 +36,31 @@
     "cat": {
       "verdict": "danger",
       "summary": {
-        "ru": "Нельзя. Для кошек опасен даже небольшой кусочек, а в выпечке и сладостях действующее вещество часто сочетается с шоколадом.",
-        "en": "Not safe. Even a small piece is dangerous to a cat, and edibles often combine the active ingredient with chocolate."
+        "ru": "Опасно. Безопасного количества психоактивной марихуаны для питомцев нет; выпечка и сладости с ней опаснее самого растения.",
+        "en": "Dangerous. There is no safe amount of psychoactive marijuana for pets; baked goods and sweets with it are more dangerous than the plant itself."
       },
       "why": {
-        "ru": "ТГК действует на нервную систему. Безопасной дозы психоактивной марихуаны для питомцев нет. Вдыхание дыма тоже вредно. В сладостях добавляются сахарозаменители и шоколад, которые опасны отдельно.",
-        "en": "THC acts on the nervous system. There is no safe dose of psychoactive marijuana for pets. Inhaling the smoke is also harmful. Edibles add sweeteners and chocolate, which are dangerous on their own."
+        "ru": "ТГК действует на нервную систему: питомец шатается, выглядит оглушённым или агрессивным, вздрагивает. Вредно и вдыхание дыма. Чаще всего питомцы съедают выпечку с марихуаной, а она опаснее растения.",
+        "en": "THC acts on the nervous system: a pet staggers, looks dazed or aggressive, and flinches. Breathing in the smoke is harmful too. Pets most often eat marijuana baked goods, which are more dangerous than the plant."
       },
       "signs": {
         "ru": [
           "шаткая походка",
-          "вялость или возбуждение",
-          "расширенные зрачки",
-          "слюнотечение, рвота",
+          "оглушённость или агрессия",
+          "внезапные вздрагивания",
+          "рвота, расстройство желудка",
           "непроизвольное мочеиспускание",
-          "замедленное дыхание",
-          "судороги"
+          "затруднённое дыхание",
+          "обморок, судороги"
         ],
         "en": [
           "unsteady walking",
-          "lethargy or agitation",
-          "dilated pupils",
-          "drooling, vomiting",
+          "dazed or aggressive state",
+          "sudden flinching",
+          "vomiting, stomach upset",
           "uncontrolled urination",
-          "slow breathing",
-          "seizures"
+          "difficulty breathing",
+          "collapse, seizures"
         ]
       },
       "ifEaten": "call_now"
@@ -68,31 +68,31 @@
     "dog": {
       "verdict": "danger",
       "summary": {
-        "ru": "Нельзя. Собаки находят и съедают траву, сигареты с ней и выпечку, и это опасно.",
-        "en": "Not safe. Dogs find and eat the plant, joints and edibles, and this is dangerous."
+        "ru": "Опасно. Безопасного количества нет; собаки находят и съедают растение, окурки косяков и выпечку, а выпечка опаснее всего.",
+        "en": "Dangerous. There is no safe amount; dogs find and eat the plant, joint ends and edibles, and edibles are the most dangerous."
       },
       "why": {
-        "ru": "ТГК действует на нервную систему: собака шатается, пугается, может потерять сознание. В выпечке и конфетах бывают шоколад и ксилит, которые опасны отдельно. Безопасной дозы нет.",
-        "en": "THC acts on the nervous system: a dog may stagger, startle, or collapse. Edibles can contain chocolate and xylitol, which are separate dangers. There is no safe dose."
+        "ru": "ТГК действует на нервную систему: собака шатается, выглядит оглушённой или агрессивной, вздрагивает, может упасть. Вредно и вдыхание дыма. Выпечка с марихуаной опаснее самого растения, и в ней бывают другие опасные для собак продукты — врачу важен весь состав.",
+        "en": "THC acts on the nervous system: a dog staggers, looks dazed or aggressive, flinches, and may collapse. Breathing in the smoke is harmful too. Marijuana baked goods are more dangerous than the plant and may hold other foods harmful to dogs — the vet needs the full ingredient list."
       },
       "signs": {
         "ru": [
           "шаткая походка",
-          "вялость или беспокойство",
-          "вздрагивание от звуков",
-          "слюнотечение, рвота",
+          "оглушённость или агрессия",
+          "внезапные вздрагивания",
+          "рвота, расстройство желудка",
           "непроизвольное мочеиспускание",
-          "замедленное сердцебиение, слабое дыхание",
-          "судороги"
+          "затруднённое дыхание",
+          "обморок, судороги"
         ],
         "en": [
           "unsteady walking",
-          "lethargy or restlessness",
-          "startling at sounds",
-          "drooling, vomiting",
+          "dazed or aggressive state",
+          "sudden flinching",
+          "vomiting, stomach upset",
           "uncontrolled urination",
-          "slow heartbeat, weak breathing",
-          "seizures"
+          "difficulty breathing",
+          "collapse, seizures"
         ]
       },
       "ifEaten": "call_now"
@@ -101,15 +101,13 @@
   "firstSteps": {
     "ru": [
       "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
-      "Честно скажите врачу, что именно съел питомец — это не повод для наказаний, а ускорит помощь",
-      "Сохраните упаковку выпечки или сладости: врачу важен состав, например шоколад",
-      "Держите питомца в спокойном тёмном месте и не оставляйте одного"
+      "Честно скажите врачу, что именно съел питомец — это ускорит помощь",
+      "Сохраните упаковку выпечки или сладости: врачу важен весь состав"
     ],
     "en": [
       "Call a vet clinic right away, even if your pet seems fine",
-      "Be honest with the vet about what the pet ate — it speeds up care",
-      "Keep the edible's packaging: the vet needs the ingredients, e.g. chocolate",
-      "Keep your pet somewhere quiet and dim and do not leave it alone"
+      "Be honest with the vet about what your pet ate — it speeds up care",
+      "Keep the packaging of the edible: the vet needs the full ingredient list"
     ]
   },
   "avoid": {
@@ -127,10 +125,11 @@
   "sources": [
     {
       "title": "Pet Poison Helpline — Marijuana",
-      "url": "https://www.petpoisonhelpline.com/poisons/marijuana/"
+      "url": "https://www.petpoisonhelpline.com/poison/marijuana/"
     },
     {
-      "title": "MSD Veterinary Manual — Toxicology (poisoning in small animals)"
+      "title": "ASPCA — Recreational Drugs Makes ASPCA Annual List of Top Pet Toxins for the First Time",
+      "url": "https://www.aspca.org/about-us/press-releases/recreational-drugs-makes-aspca-annual-list-top-pet-toxins-first-time"
     }
   ],
   "review": {

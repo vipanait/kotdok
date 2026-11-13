@@ -33,21 +33,21 @@
         "en": "Dangerous. Azalea and rhododendron are poisonous to cats."
       },
       "why": {
-        "ru": "Все части растения содержат грайанотоксины. Они действуют на нервы, мышцы и сердце. Даже несколько листьев могут привести к серьёзному отравлению.",
-        "en": "Every part of the plant contains grayanotoxins. They affect nerves, muscles and the heart. Even a few leaves can lead to serious poisoning."
+        "ru": "Все части растения, даже пыльца и нектар, содержат грайанотоксины. После пары листьев обычно бывают рвота, понос и вялость, а большее количество может затронуть сердце и нервную систему. Насколько серьёзно, по виду питомца сразу не понять, поэтому звоните в клинику.",
+        "en": "Every part of the plant, even pollen and nectar, contains grayanotoxins. A couple of leaves usually cause vomiting, diarrhoea and lethargy, while more can affect the heart and nervous system. You cannot tell how serious it is just by looking, so call a clinic."
       },
       "signs": {
         "ru": [
           "слюнотечение",
           "рвота и понос",
-          "слабость",
-          "шаткая походка"
+          "слабость, вялость",
+          "судороги"
         ],
         "en": [
           "drooling",
           "vomiting and diarrhoea",
-          "weakness",
-          "unsteady walk"
+          "weakness, lethargy",
+          "seizures"
         ]
       },
       "ifEaten": "call_now"
@@ -59,21 +59,21 @@
         "en": "Dangerous. Azalea and rhododendron are poisonous to dogs."
       },
       "why": {
-        "ru": "Все части растения содержат грайанотоксины. Они действуют на нервы, мышцы и сердце. Даже несколько листьев могут привести к серьёзному отравлению.",
-        "en": "Every part of the plant contains grayanotoxins. They affect nerves, muscles and the heart. Even a few leaves can lead to serious poisoning."
+        "ru": "Все части растения, даже пыльца и нектар, содержат грайанотоксины. После пары листьев обычно бывают рвота, понос и вялость, а большее количество может затронуть сердце и нервную систему. Насколько серьёзно, по виду питомца сразу не понять, поэтому звоните в клинику.",
+        "en": "Every part of the plant, even pollen and nectar, contains grayanotoxins. A couple of leaves usually cause vomiting, diarrhoea and lethargy, while more can affect the heart and nervous system. You cannot tell how serious it is just by looking, so call a clinic."
       },
       "signs": {
         "ru": [
           "слюнотечение",
           "рвота и понос",
-          "слабость",
-          "шаткая походка"
+          "слабость, вялость",
+          "судороги"
         ],
         "en": [
           "drooling",
           "vomiting and diarrhoea",
-          "weakness",
-          "unsteady walk"
+          "weakness, lethargy",
+          "seizures"
         ]
       },
       "ifEaten": "call_now"
@@ -109,6 +109,14 @@
     {
       "title": "ASPCA Animal Poison Control — Azalea",
       "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/azalea"
+    },
+    {
+      "title": "Pet Poison Helpline — Azalea",
+      "url": "https://www.petpoisonhelpline.com/poison/azalea/"
+    },
+    {
+      "title": "MSD Veterinary Manual — Houseplants and Ornamentals Toxic to Animals",
+      "url": "https://www.merckvetmanual.com/toxicology/poisonous-plants/houseplants-and-ornamentals-toxic-to-animals"
     }
   ],
   "review": {

@@ -30,21 +30,19 @@
         "en": "Dangerous. Yew is highly poisonous to cats and dogs."
       },
       "why": {
-        "ru": "ASPCA относит тис к ядовитым для кошек и собак: в нём таксины, которые поражают сердце. Опасны хвоя, ветки и семена. Возможна внезапная остановка сердца, а до неё — дрожь, затруднённое дыхание и судороги. Это срочный случай: звоните в клинику сразу.",
-        "en": "The ASPCA lists yew as toxic to cats and dogs: it contains taxines that damage the heart. The needles, twigs and seeds are dangerous. Sudden cardiac arrest is possible, preceded by tremors, difficulty breathing and seizures. This is an emergency: call a clinic at once."
+        "ru": "ASPCA относит тис к ядовитым для кошек и собак: в нём таксин, который поражает сердце. По данным Merck, токсины есть во всём растении, кроме мякоти ягоды, а семя внутри ягоды ядовито. Возможна внезапная смерть от остановки сердца; ранние признаки у собак — дрожь, затруднённое дыхание и судороги. Это срочный случай: звоните в клинику сразу.",
+        "en": "The ASPCA lists yew as toxic to cats and dogs: it contains taxine, which affects the heart. According to Merck, the toxins are throughout the plant except the fleshy part of the berry, and the seed inside the berry is toxic. Sudden death from heart failure is possible; early signs in dogs are tremors, difficulty breathing and seizures. This is an emergency: call a clinic at once."
       },
       "signs": {
         "ru": [
           "дрожь",
           "затруднённое дыхание",
-          "судороги",
-          "слабость"
+          "судороги"
         ],
         "en": [
           "tremors",
           "difficulty breathing",
-          "seizures",
-          "weakness"
+          "seizures"
         ]
       },
       "ifEaten": "call_now"
@@ -56,21 +54,19 @@
         "en": "Dangerous. Yew is highly poisonous to cats and dogs."
       },
       "why": {
-        "ru": "ASPCA относит тис к ядовитым для кошек и собак: в нём таксины, которые поражают сердце. Опасны хвоя, ветки и семена. Возможна внезапная остановка сердца, а до неё — дрожь, затруднённое дыхание и судороги. Это срочный случай: звоните в клинику сразу.",
-        "en": "The ASPCA lists yew as toxic to cats and dogs: it contains taxines that damage the heart. The needles, twigs and seeds are dangerous. Sudden cardiac arrest is possible, preceded by tremors, difficulty breathing and seizures. This is an emergency: call a clinic at once."
+        "ru": "ASPCA относит тис к ядовитым для кошек и собак: в нём таксин, который поражает сердце. По данным Merck, токсины есть во всём растении, кроме мякоти ягоды, а семя внутри ягоды ядовито. Возможна внезапная смерть от остановки сердца; ранние признаки у собак — дрожь, затруднённое дыхание и судороги. Это срочный случай: звоните в клинику сразу.",
+        "en": "The ASPCA lists yew as toxic to cats and dogs: it contains taxine, which affects the heart. According to Merck, the toxins are throughout the plant except the fleshy part of the berry, and the seed inside the berry is toxic. Sudden death from heart failure is possible; early signs in dogs are tremors, difficulty breathing and seizures. This is an emergency: call a clinic at once."
       },
       "signs": {
         "ru": [
           "дрожь",
           "затруднённое дыхание",
-          "судороги",
-          "слабость"
+          "судороги"
         ],
         "en": [
           "tremors",
           "difficulty breathing",
-          "seizures",
-          "weakness"
+          "seizures"
         ]
       },
       "ifEaten": "call_now"
@@ -108,7 +104,8 @@
       "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/yew"
     },
     {
-      "title": "Pet Poison Helpline — Poison Index (plants)"
+      "title": "Merck Veterinary Manual — Houseplants and Ornamentals Toxic to Animals",
+      "url": "https://www.merckvetmanual.com/toxicology/poisonous-plants/houseplants-and-ornamentals"
     }
   ],
   "review": {

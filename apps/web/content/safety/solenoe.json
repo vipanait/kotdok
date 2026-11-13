@@ -36,12 +36,12 @@
     "cat": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Немного соли не страшно, но солёное давать не нужно: много соли опасно.",
-        "en": "With caution. A little salt is not alarming, but do not feed salty food: a lot of salt is dangerous."
+        "ru": "С осторожностью. Крошка-другая не страшна, но солёное давать не нужно: много соли опасно.",
+        "en": "With caution. A crumb or two is not alarming, but do not feed salty food: a lot of salt is dangerous."
       },
       "why": {
-        "ru": "Лишняя соль вызывает сильную жажду и частое мочеиспускание, а в большом количестве — расстройство солевого баланса, дрожь и судороги. Для маленькой кошки опасно сравнительно малое количество. Чипсы часто содержат ещё лук и чеснок в приправах.",
-        "en": "Excess salt causes strong thirst and frequent urination, and in large amounts it upsets the body's salt balance and can cause tremors and seizures. A small cat is at risk from a fairly small amount. Chips are often seasoned with onion and garlic as well."
+        "ru": "Лишняя соль вызывает сильную жажду и частое мочеиспускание, а в большом количестве — отравление солью: рвоту, понос, вялость, дрожь и судороги, в тяжёлых случаях смертельное. Чем меньше питомец, тем опаснее то же количество. Если в приправе есть лук или чеснок — это отдельная опасность.",
+        "en": "Excess salt causes strong thirst and frequent urination, and a large amount causes salt poisoning: vomiting, diarrhoea, lethargy, tremors and seizures, fatal in severe cases. The smaller the pet, the more dangerous the same amount. Onion or garlic in the seasoning is a separate danger."
       },
       "signs": {
         "ru": [
@@ -49,14 +49,14 @@
           "рвота",
           "понос",
           "вялость",
-          "дрожь"
+          "дрожь, судороги"
         ],
         "en": [
           "strong thirst",
           "vomiting",
           "diarrhoea",
           "lethargy",
-          "tremors"
+          "tremors, seizures"
         ]
       },
       "ifEaten": "watch"
@@ -68,8 +68,8 @@
         "en": "With caution. A few crumbs are not alarming, but avoid salty food: a lot of salt is dangerous."
       },
       "why": {
-        "ru": "Лишняя соль вызывает сильную жажду и частое мочеиспускание, а в большом количестве — рвоту, дрожь и судороги. Чипсы, солёные орешки и закуски часто содержат ещё лук, чеснок и жир. Для маленькой собаки риск выше.",
-        "en": "Excess salt causes strong thirst and frequent urination, and in large amounts vomiting, tremors and seizures. Chips, salted nuts and snacks often also contain onion, garlic and fat. The risk is higher for a small dog."
+        "ru": "Лишняя соль вызывает сильную жажду и частое мочеиспускание, а в большом количестве — отравление солью: рвоту, понос, вялость, дрожь и судороги, в тяжёлых случаях смертельное. Чем меньше собака, тем опаснее то же количество. Солёные орешки к тому же жирные, а лук и чеснок в приправе — отдельная опасность.",
+        "en": "Excess salt causes strong thirst and frequent urination, and a large amount causes salt poisoning: vomiting, diarrhoea, lethargy, tremors and seizures, fatal in severe cases. The smaller the dog, the more dangerous the same amount. Salted nuts are also fatty, and onion or garlic in the seasoning is a separate danger."
       },
       "signs": {
         "ru": [
@@ -77,14 +77,14 @@
           "рвота",
           "понос",
           "вялость",
-          "дрожь"
+          "дрожь, судороги"
         ],
         "en": [
           "strong thirst",
           "vomiting",
           "diarrhoea",
           "lethargy",
-          "tremors"
+          "tremors, seizures"
         ]
       },
       "ifEaten": "watch"
@@ -92,23 +92,23 @@
   },
   "firstSteps": {
     "ru": [
-      "Дайте свободный доступ к свежей воде",
+      "Оставьте свободный доступ к свежей воде",
       "Если съедена целая пачка, а питомец маленький — позвоните в клинику, не ждите признаков",
       "При дрожи, судорогах, рвоте или сильной слабости — сразу в клинику"
     ],
     "en": [
-      "Give free access to fresh water",
+      "Leave fresh water freely available",
       "If a whole bag was eaten and your pet is small, call a clinic and do not wait for signs",
       "If there are tremors, seizures, vomiting or severe weakness, go to a clinic at once"
     ]
   },
   "avoid": {
     "ru": [
-      "Не пытайтесь поить питомца силой",
+      "Не вызывайте рвоту сами — только по указанию врача",
       "Не давайте лекарства без назначения врача"
     ],
     "en": [
-      "Do not force your pet to drink",
+      "Do not make your pet vomit unless a vet tells you to",
       "Do not give any medicine unless a vet tells you to"
     ]
   },
@@ -116,6 +116,10 @@
     {
       "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
       "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    },
+    {
+      "title": "Pet Poison Helpline — Salt",
+      "url": "https://www.petpoisonhelpline.com/poison/salt/"
     }
   ],
   "review": {

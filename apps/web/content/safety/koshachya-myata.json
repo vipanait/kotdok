@@ -11,9 +11,7 @@
       "кошачьей мяты",
       "котовник",
       "котовник кошачий",
-      "мята кошачья",
-      "нега",
-      "котовник кошачий"
+      "мята кошачья"
     ],
     "en": [
       "catnip",
@@ -27,12 +25,12 @@
     "cat": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Кошачья мята для кошек не опасна в малом количестве, но много съесть не стоит.",
-        "en": "With caution. Catnip is not dangerous to cats in small amounts, but they should not eat a lot of it."
+        "ru": "С осторожностью. ASPCA относит кошачью мяту к ядовитым для кошек: она может расстроить желудок.",
+        "en": "With caution. The ASPCA lists catnip as toxic to cats: it can upset the stomach."
       },
       "why": {
-        "ru": "ASPCA указывает, что кошачья мята может вызвать у кошки рвоту и понос; при этом на одних кошек она действует успокаивающе, на других возбуждающе. Лёгкое расстройство желудка обычно проходит само. Разовая порция листьев — нормально, регулярно давать большое количество не стоит.",
-        "en": "The ASPCA notes that catnip can cause vomiting and diarrhoea in cats; some cats become calm and others excited. A mild stomach upset usually passes on its own. A single nibble of leaves is fine, but a large amount regularly is not."
+        "ru": "Многие кошки любят кошачью мяту, но, по данным ASPCA, у кошки от неё бывают рвота и понос. На одних кошек она действует успокаивающе, на других возбуждающе. Если рвота или понос не проходят или кошка вялая, позвоните в клинику.",
+        "en": "Many cats love catnip, but according to the ASPCA it can cause vomiting and diarrhoea in cats. It makes some cats calm and others excited. If vomiting or diarrhoea does not pass or the cat is lethargic, call a clinic."
       },
       "signs": {
         "ru": [
@@ -51,12 +49,12 @@
     "dog": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Для собак кошачья мята не считается ядовитой, но может расстроить желудок.",
-        "en": "With caution. Catnip is not considered poisonous to dogs, but it can upset the stomach."
+        "ru": "С осторожностью. Данных о кошачьей мяте для собак мало.",
+        "en": "With caution. There is little data on catnip for dogs."
       },
       "why": {
-        "ru": "ASPCA в записи о кошачьей мяте собак не упоминает, данных по виду мало, поэтому вердикт строгий. В большом количестве листья могут вызвать рвоту и понос. Немного листьев обычно не опасно.",
-        "en": "The ASPCA entry on catnip does not mention dogs and data for this species is thin, so the verdict is the strict one. A large amount of leaves may cause vomiting and diarrhoea. A few leaves are usually harmless."
+        "ru": "ASPCA относит кошачью мяту к ядовитым для кошек, а о собаках в этой записи не говорит. Данных по виду мало, поэтому вердикт строгий. Если после мяты появились рвота или понос, позвоните в клинику.",
+        "en": "The ASPCA lists catnip as toxic to cats, and its entry says nothing about dogs. Data for this species is thin, so the verdict is the strict one. If vomiting or diarrhoea appear after eating catnip, call a clinic."
       },
       "signs": {
         "ru": [
@@ -101,9 +99,6 @@
     {
       "title": "ASPCA Animal Poison Control — Catnip",
       "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/catnip"
-    },
-    {
-      "title": "Pet Poison Helpline — Poison Index (plants)"
     }
   ],
   "review": {

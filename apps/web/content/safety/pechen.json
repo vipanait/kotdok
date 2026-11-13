@@ -15,8 +15,7 @@
       "говяжья печень",
       "печень курицы",
       "печень говяжья",
-      "свиная печень",
-      "паштет"
+      "свиная печень"
     ],
     "en": [
       "liver",
@@ -30,25 +29,21 @@
     "cat": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Варёная печень — редкое лакомство небольшим кусочком, регулярно её давать нельзя.",
-        "en": "With caution. Cooked liver is an occasional treat in a small piece; it must not be fed regularly."
+        "ru": "С осторожностью. Варёная печень — только изредка и понемногу: при частом кормлении копится избыток витамина А.",
+        "en": "With caution. Cooked liver only now and then and a little: fed often, it leads to too much vitamin A."
       },
       "why": {
-        "ru": "Печень богата витамином А, и при регулярном кормлении он накапливается и вредит костям и суставам, особенно у кошек. Давайте только варёную, без соли, лука и специй. Паштеты и печёночные колбасы не подходят: в них соль, лук и добавки.",
-        "en": "Liver is rich in vitamin A, which builds up when it is fed regularly and harms bones and joints, especially in cats. Give it cooked only, without salt, onion or spices. Pâtés and liver sausages are not suitable: they contain salt, onion and additives."
+        "ru": "В печени много витамина А. Рацион, где много печени, приводит к его избытку, и кошки к нему чувствительнее собак: у котят разрастается костная ткань на шейных позвонках, шея плохо гнётся, и кошка не может вылизываться. Если и предлагать, то варёную, без соли, лука и специй: в сыром мясе бывают сальмонелла и кишечная палочка. Паштеты и печёночные колбасы не подходят: в них бывают соль и лук.",
+        "en": "Liver is rich in vitamin A. A diet high in liver leads to too much of it, and cats are more sensitive than dogs: in kittens extra bone grows on the neck vertebrae, the neck stiffens and the cat cannot groom itself. If you offer any, cooked, without salt, onion or spices: raw meat can carry Salmonella and E. coli. Pâtés and liver sausage are not suitable: they can contain salt and onion."
       },
       "signs": {
         "ru": [
-          "рвота",
-          "понос",
-          "вялость, отказ от еды",
-          "скованность, хромота при регулярном кормлении"
+          "скованность шеи — при частом кормлении печенью",
+          "неопрятная шерсть: кошке трудно вылизываться"
         ],
         "en": [
-          "vomiting",
-          "diarrhoea",
-          "lethargy, refusing food",
-          "stiffness, limping with regular feeding"
+          "stiff neck — with frequent liver feeding",
+          "unkempt coat: the cat struggles to groom"
         ]
       },
       "ifEaten": "watch"
@@ -56,25 +51,21 @@
     "dog": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Варёная печень — редкое лакомство небольшим кусочком, регулярно её давать нельзя.",
-        "en": "With caution. Cooked liver is an occasional treat in a small piece; it must not be fed regularly."
+        "ru": "С осторожностью. Варёная печень — редкое лакомство небольшим кусочком, не основа рациона.",
+        "en": "With caution. Cooked liver is an occasional treat in a small piece, not the base of the diet."
       },
       "why": {
-        "ru": "Печень богата витамином А, и при регулярном кормлении он накапливается и вредит костям и суставам. Давайте только варёную, без соли, лука и специй. Паштеты и печёночные колбасы не подходят: в них соль, лук и добавки.",
-        "en": "Liver is rich in vitamin A, which builds up when it is fed regularly and harms bones and joints. Give it cooked only, without salt, onion or spices. Pâtés and liver sausages are not suitable: they contain salt, onion and additives."
+        "ru": "В печени много витамина А. Собаки к его избытку менее чувствительны, чем кошки, но рацион почти из одной печени может его вызвать: страдают кости и суставы, бывают переломы. Если и предлагать, то варёную, без соли, лука и специй: в сыром мясе бывают сальмонелла и кишечная палочка. Паштеты и печёночные колбасы не подходят: в них бывают соль и лук.",
+        "en": "Liver is rich in vitamin A. Dogs are less sensitive to an excess than cats, but a diet of almost only liver can cause it: bones and joints suffer, and fractures can happen. If you offer any, cooked, without salt, onion or spices: raw meat can carry Salmonella and E. coli. Pâtés and liver sausage are not suitable: they can contain salt and onion."
       },
       "signs": {
         "ru": [
-          "рвота",
-          "понос",
-          "вялость, отказ от еды",
-          "скованность, хромота при регулярном кормлении"
+          "скованность суставов, хромота — при частом кормлении печенью",
+          "переломы без явной причины"
         ],
         "en": [
-          "vomiting",
-          "diarrhoea",
-          "lethargy, refusing food",
-          "stiffness, limping with regular feeding"
+          "stiff joints, limping — with frequent liver feeding",
+          "fractures with no clear cause"
         ]
       },
       "ifEaten": "watch"
@@ -83,13 +74,13 @@
   "firstSteps": {
     "ru": [
       "Уберите остатки и убедитесь, что питомец больше не достаёт до них",
-      "Понаблюдайте за питомцем сутки; при рвоте, поносе, вялости или вздутом животе позвоните в клинику",
-      "Если съедено много или питомец маленький, позвоните в клинику сразу"
+      "Если печень была с луком, чесноком или солью, позвоните в клинику",
+      "Если печень стала частью ежедневного рациона, обсудите его с врачом"
     ],
     "en": [
       "Put away the leftovers so your pet cannot reach more",
-      "Watch your pet for a day; call a clinic if there is vomiting, diarrhoea, lethargy or a swollen belly",
-      "If a lot was eaten or your pet is small, call a clinic straight away"
+      "If the liver had onion, garlic or salt in it, call a clinic",
+      "If liver has become part of the daily diet, discuss it with a vet"
     ]
   },
   "avoid": {
@@ -104,10 +95,12 @@
   },
   "sources": [
     {
-      "title": "Merck Veterinary Manual — Food Hazards"
+      "title": "Merck Veterinary Manual — Nutritional Requirements of Small Animals",
+      "url": "https://www.merckvetmanual.com/management-and-nutrition/nutrition-small-animals/nutritional-requirements-of-small-animals"
     },
     {
-      "title": "Pet Poison Helpline — Poison Guide: Foods"
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
     }
   ],
   "review": {

@@ -31,25 +31,25 @@
     "cat": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Пару зёрен без добавок изредка можно, а початок давать нельзя: он может закупорить кишечник.",
-        "en": "With caution. A few plain kernels now and then are fine, but never give the cob: it can block the intestine."
+        "ru": "С осторожностью. Пара зёрен без добавок изредка допустима, а початок давать нельзя: он может закупорить кишечник.",
+        "en": "With caution. A few plain kernels now and then are acceptable, but never give the cob: it can block the intestine."
       },
       "why": {
-        "ru": "Зёрна кукурузы не ядовиты, но кошке они почти не дают пользы. Початок не переваривается: проглоченный, он может застрять в кишечнике и потребовать операции. Попкорн с солью, маслом и сахаром, а также консервированную кукурузу с рассолом давать не стоит.",
-        "en": "Corn kernels are not poisonous, but give a cat very little. The cob does not digest: if swallowed it can lodge in the intestine and need surgery. Popcorn with salt, butter or sugar, and tinned corn in brine, are best avoided."
+        "ru": "ASPCA считает кукурузу неядовитой для кошек и собак. Опасен початок: проглоченный кусок может застрять в кишечнике, а закупорка кишечника требует срочной помощи, и кусок обычно приходится удалять в клинике. Попкорн с солью и маслом и консервированная кукуруза в рассоле не подходят.",
+        "en": "The ASPCA considers corn non-toxic to cats and dogs. The cob is the danger: a swallowed piece can lodge in the intestine, and a blocked intestine is an emergency, and the piece usually has to be removed by a vet. Popcorn with salt and butter and tinned corn in brine are not suitable."
       },
       "signs": {
         "ru": [
           "повторная рвота",
           "отказ от еды",
-          "боль в животе, вялость",
-          "отсутствие стула или натуживание"
+          "боль в животе",
+          "вялость"
         ],
         "en": [
           "repeated vomiting",
           "refusing food",
-          "belly pain, lethargy",
-          "no stool or straining"
+          "belly pain",
+          "lethargy"
         ]
       },
       "ifEaten": "watch"
@@ -61,21 +61,21 @@
         "en": "With caution. A few plain kernels now and then are fine, but never give the cob: it can block the intestine."
       },
       "why": {
-        "ru": "Зёрна кукурузы не ядовиты. Початок не переваривается: проглоченный, он может застрять в кишечнике, и это одна из частых причин срочной операции у собак. Если собака проглотила початок или его кусок, звоните в клинику, не ждите признаков. Попкорн с солью, маслом и сахаром давать не стоит.",
-        "en": "Corn kernels are not poisonous. The cob does not digest: if swallowed it can lodge in the intestine, a common reason for emergency surgery in dogs. If your dog swallowed a cob or a piece of one, call a clinic without waiting for signs. Popcorn with salt, butter or sugar is best avoided."
+        "ru": "ASPCA считает кукурузу неядовитой для кошек и собак. Опасен початок: собака может проглотить его кусок, он застревает в кишечнике, а закупорка кишечника требует срочной помощи, и кусок обычно приходится удалять в клинике. Если собака проглотила початок или его кусок, звоните в клинику, не ждите признаков. Попкорн с солью и маслом не подходит.",
+        "en": "The ASPCA considers corn non-toxic to cats and dogs. The cob is the danger: a swallowed piece can lodge in the intestine, and a blocked intestine is an emergency, and the piece usually has to be removed by a vet. If your dog swallowed a cob or a piece of one, call a clinic without waiting for signs. Popcorn with salt and butter is not suitable."
       },
       "signs": {
         "ru": [
           "повторная рвота",
           "отказ от еды",
-          "боль в животе, вялость",
-          "отсутствие стула или натуживание"
+          "боль в животе",
+          "вялость"
         ],
         "en": [
           "repeated vomiting",
           "refusing food",
-          "belly pain, lethargy",
-          "no stool or straining"
+          "belly pain",
+          "lethargy"
         ]
       },
       "ifEaten": "call_now"
@@ -83,32 +83,34 @@
   },
   "firstSteps": {
     "ru": [
-      "Уберите остатки и оцените, сколько питомец успел съесть",
-      "Понаблюдайте за питомцем в ближайшие сутки",
-      "Если появились признаки или вы не уверены, позвоните в клинику или пройдите проверку симптомов"
+      "Если питомец проглотил початок или его кусок, сразу позвоните в клинику",
+      "Уберите остатки и оцените, что и сколько питомец успел съесть",
+      "Если съел только зёрна, понаблюдайте за ним в ближайшие сутки"
     ],
     "en": [
-      "Remove what is left and note how much your pet ate",
-      "Watch your pet over the next day",
-      "If signs appear or you are unsure, call a clinic or run a symptom check"
+      "If your pet swallowed a cob or a piece of one, call a clinic right away",
+      "Remove what is left and note what and how much your pet ate",
+      "If it ate only kernels, watch your pet over the next day"
     ]
   },
   "avoid": {
     "ru": [
       "Не вызывайте рвоту сами — только по указанию врача",
-      "Не ждите ухудшения, если питомец съел много"
+      "Не ждите, пока кусок початка «выйдет сам»"
     ],
     "en": [
       "Do not make your pet vomit unless a vet tells you to",
-      "Do not wait for it to get worse if your pet ate a lot"
+      "Do not wait for a piece of cob to pass on its own"
     ]
   },
   "sources": [
     {
-      "title": "ASPCA Animal Poison Control — Toxic and Non-Toxic Plants"
+      "title": "ASPCA — 5 Toxic Seasonal Plants You Don't Want Your Pet To Fall For!",
+      "url": "https://www.aspca.org/news/5-toxic-seasonal-plants-you-dont-want-your-pet-fall"
     },
     {
-      "title": "Merck Veterinary Manual — Gastrointestinal Foreign Bodies in Dogs"
+      "title": "Merck Veterinary Manual — Gastrointestinal Obstruction in Small Animals",
+      "url": "https://www.merckvetmanual.com/digestive-system/diseases-of-the-stomach-and-intestines-in-small-animals/gastrointestinal-obstruction-in-small-animals"
     }
   ],
   "review": {

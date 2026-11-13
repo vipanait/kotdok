@@ -21,21 +21,23 @@
     "cat": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Немного мякоти без кожуры и семечек не повредит, но кошке она не нужна.",
-        "en": "With caution. A little peeled flesh without seeds will not harm a cat, but it does not need it."
+        "ru": "С осторожностью. Кусочек мякоти без семечек и сердцевины не считается ядовитым, но кошке он не нужен.",
+        "en": "With caution. A piece of flesh without seeds or core is not considered poisonous, but a cat does not need it."
       },
       "why": {
-        "ru": "Семечки, черенок и листья яблони содержат вещества, из которых выделяется цианид. Мякоть ядовитой не считается, но кошкам нужна мясная еда, а сладкое может расстроить желудок. Если давать — маленький кусочек без семечек и сердцевины, изредка.",
-        "en": "Apple seeds, stems and leaves contain substances that release cyanide. The flesh is not considered poisonous, but cats need a meat diet and sweet fruit can upset the stomach. If you give any, a small piece without seeds or core, now and then."
+        "ru": "Семечки, черенки и листья яблони содержат вещества, из которых выделяется цианид. Мякоть к ядовитым частям не относится. Если давать — маленький кусочек мякоти без семечек и сердцевины, изредка.",
+        "en": "Apple seeds, stems and leaves contain substances that release cyanide. The flesh is not among the toxic parts. If you give any, a small piece of flesh without seeds or core, now and then."
       },
       "signs": {
         "ru": [
-          "рвота",
-          "понос"
+          "ярко-красные дёсны",
+          "расширенные зрачки",
+          "тяжёлое, затруднённое дыхание"
         ],
         "en": [
-          "vomiting",
-          "diarrhoea"
+          "brick-red gums",
+          "dilated pupils",
+          "laboured, difficult breathing"
         ]
       },
       "ifEaten": "watch"
@@ -47,19 +49,19 @@
         "en": "With caution. Apple flesh is fine as a treat, but without the seeds and core."
       },
       "why": {
-        "ru": "Семечки, черенок и листья яблони содержат вещества, из которых выделяется цианид. Огрызок может застрять в кишечнике, особенно у небольшой собаки. Давайте нарезанную мякоть без семечек, понемногу и не каждый день.",
-        "en": "Apple seeds, stems and leaves contain substances that release cyanide. A core can get stuck in the gut, especially in a small dog. Give sliced flesh without seeds, a little and not every day."
+        "ru": "Семечки, черенки и листья яблони содержат вещества, из которых выделяется цианид. Мякоть к ядовитым частям не относится. Давайте нарезанную мякоть без семечек и сердцевины, понемногу и не каждый день.",
+        "en": "Apple seeds, stems and leaves contain substances that release cyanide. The flesh is not among the toxic parts. Give sliced flesh without seeds or core, a little and not every day."
       },
       "signs": {
         "ru": [
-          "рвота",
-          "понос",
-          "позывы на рвоту без результата, вздутый живот — если проглочен огрызок"
+          "ярко-красные дёсны",
+          "расширенные зрачки",
+          "тяжёлое, затруднённое дыхание"
         ],
         "en": [
-          "vomiting",
-          "diarrhoea",
-          "retching with nothing coming up, swollen belly — if a core was swallowed"
+          "brick-red gums",
+          "dilated pupils",
+          "laboured, difficult breathing"
         ]
       },
       "ifEaten": "watch"
@@ -67,24 +69,24 @@
   },
   "firstSteps": {
     "ru": [
-      "Уберите остатки яблок и огрызки",
-      "Наблюдайте за питомцем сутки; при рвоте, вялости или вздутом животе позвоните в клинику",
-      "Если съедено много огрызков или семечек, позвоните в клинику сразу"
+      "Уберите остатки яблок, огрызки и ветки с листьями",
+      "Наблюдайте за питомцем; при ярко-красных дёснах, тяжёлом дыхании или вялости сразу позвоните в клинику",
+      "Если съедено много огрызков, семечек или листьев, позвоните в клинику сразу"
     ],
     "en": [
-      "Put away the rest of the apples and any cores",
-      "Watch your pet for a day; call a clinic if there is vomiting, lethargy or a swollen belly",
-      "If many cores or seeds were eaten, call a clinic straight away"
+      "Put away the rest of the apples, the cores and any leafy twigs",
+      "Watch your pet; call a clinic straight away if the gums turn bright red, breathing is laboured or your pet is lethargic",
+      "If many cores, seeds or leaves were eaten, call a clinic straight away"
     ]
   },
   "avoid": {
     "ru": [
       "Не вызывайте рвоту сами — только по указанию врача",
-      "Не ждите, если живот вздулся и есть безрезультатные позывы на рвоту: это срочно"
+      "Не ждите, если дыхание стало тяжёлым: это срочно"
     ],
     "en": [
-      "Do not induce vomiting unless a vet tells you to",
-      "Do not wait if the belly swells and there is retching with nothing coming up: that is urgent"
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not wait if breathing becomes laboured: that is urgent"
     ]
   },
   "sources": [

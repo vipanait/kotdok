@@ -25,12 +25,12 @@
     "cat": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Хризантема для кошек и собак ядовита: бывают рвота, понос и слюнотечение.",
-        "en": "With caution. Chrysanthemum is poisonous to cats and dogs: it causes vomiting, diarrhoea and drooling."
+        "ru": "С осторожностью. Хризантема для кошек и собак ядовита: обычно расстраивает желудок.",
+        "en": "With caution. Chrysanthemum is poisonous to cats and dogs: it usually upsets the stomach."
       },
       "why": {
-        "ru": "ASPCA относит хризантему к ядовитым для кошек и собак: в ней сесквитерпеновые лактоны и пиретрины. Возможны рвота, понос, слюнотечение, шаткая походка и раздражение кожи. При большом количестве или шаткой походке позвоните в клинику.",
-        "en": "The ASPCA lists chrysanthemum as toxic to cats and dogs because of sesquiterpene lactones and pyrethrins. Vomiting, diarrhoea, drooling, an unsteady walk and skin irritation are possible. If the pet ate a lot or is unsteady, call a clinic."
+        "ru": "ASPCA относит хризантему к ядовитым для кошек и собак: в ней сесквитерпеновые лактоны, пиретрины и другие раздражающие вещества. Возможны рвота, понос, слюнотечение, шаткая походка и раздражение кожи. По данным Pet Poison Helpline, от съеденного растения обычно бывает только расстройство желудка. Если питомец съел много или его шатает, позвоните в клинику.",
+        "en": "The ASPCA lists chrysanthemum as toxic to cats and dogs: it contains sesquiterpene lactones, pyrethrins and other irritants. Vomiting, diarrhoea, drooling, an unsteady walk and skin irritation are possible. According to Pet Poison Helpline, eating the plant usually causes only an upset stomach. If the pet ate a lot or is unsteady, call a clinic."
       },
       "signs": {
         "ru": [
@@ -51,12 +51,12 @@
     "dog": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Хризантема для кошек и собак ядовита: бывают рвота, понос и слюнотечение.",
-        "en": "With caution. Chrysanthemum is poisonous to cats and dogs: it causes vomiting, diarrhoea and drooling."
+        "ru": "С осторожностью. Хризантема для кошек и собак ядовита: обычно расстраивает желудок.",
+        "en": "With caution. Chrysanthemum is poisonous to cats and dogs: it usually upsets the stomach."
       },
       "why": {
-        "ru": "ASPCA относит хризантему к ядовитым для кошек и собак: в ней сесквитерпеновые лактоны и пиретрины. Возможны рвота, понос, слюнотечение, шаткая походка и раздражение кожи. При большом количестве или шаткой походке позвоните в клинику.",
-        "en": "The ASPCA lists chrysanthemum as toxic to cats and dogs because of sesquiterpene lactones and pyrethrins. Vomiting, diarrhoea, drooling, an unsteady walk and skin irritation are possible. If the pet ate a lot or is unsteady, call a clinic."
+        "ru": "ASPCA относит хризантему к ядовитым для кошек и собак: в ней сесквитерпеновые лактоны, пиретрины и другие раздражающие вещества. Возможны рвота, понос, слюнотечение, шаткая походка и раздражение кожи. По данным Pet Poison Helpline, от съеденного растения обычно бывает только расстройство желудка. Если питомец съел много или его шатает, позвоните в клинику.",
+        "en": "The ASPCA lists chrysanthemum as toxic to cats and dogs: it contains sesquiterpene lactones, pyrethrins and other irritants. Vomiting, diarrhoea, drooling, an unsteady walk and skin irritation are possible. According to Pet Poison Helpline, eating the plant usually causes only an upset stomach. If the pet ate a lot or is unsteady, call a clinic."
       },
       "signs": {
         "ru": [
@@ -107,7 +107,8 @@
       "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/chrysanthemum"
     },
     {
-      "title": "Pet Poison Helpline — Poison Index (plants)"
+      "title": "Pet Poison Helpline — Chrysanthemum",
+      "url": "https://www.petpoisonhelpline.com/poison/chrysanthemum/"
     }
   ],
   "review": {

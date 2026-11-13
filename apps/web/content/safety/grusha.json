@@ -25,19 +25,17 @@
         "en": "With caution. A little flesh without seeds or core, now and then."
       },
       "why": {
-        "ru": "Семечки груши содержат вещества, из которых выделяется цианид, а сердцевина может застрять в кишечнике. Мякоть не ядовита, но сладкая, и кошке она не нужна.",
-        "en": "Pear seeds contain substances that release cyanide, and a core can get stuck in the gut. The flesh is not poisonous but is sweet, and a cat does not need it."
+        "ru": "Данных о груше в справочниках ядов мало, поэтому — осторожно. Если и предлагать, то кусочек мякоти без семечек и сердцевины: от избытка сладкого бывают понос и газы. Кошке фрукты не нужны.",
+        "en": "There is little data on pears in poison references, so take care. If you offer any, a small piece of flesh without seeds or core: too much sugar can cause diarrhoea and gas. A cat does not need fruit."
       },
       "signs": {
         "ru": [
-          "рвота",
           "понос",
-          "вялость, отказ от еды"
+          "вздутие, газы"
         ],
         "en": [
-          "vomiting",
           "diarrhoea",
-          "lethargy, refusing food"
+          "bloating, gas"
         ]
       },
       "ifEaten": "watch"
@@ -49,21 +47,17 @@
         "en": "With caution. Sliced flesh without seeds or core as an occasional treat."
       },
       "why": {
-        "ru": "Семечки груши содержат вещества, из которых выделяется цианид, а сердцевина и черенок могут застрять в кишечнике, особенно у небольшой собаки. Мякоть не ядовита, но сладкая: много сразу вызывает понос.",
-        "en": "Pear seeds contain substances that release cyanide, and the core and stem can get stuck in the gut, especially in a small dog. The flesh is not poisonous but sweet: a lot at once causes diarrhoea."
+        "ru": "Данных о груше в справочниках ядов мало, поэтому — осторожно. Если и предлагать, то нарезанную мякоть без семечек, сердцевины и черенка, изредка: от избытка сладкого бывают понос и газы.",
+        "en": "There is little data on pears in poison references, so take care. If you offer any, sliced flesh without seeds, core or stem, now and then: too much sugar can cause diarrhoea and gas."
       },
       "signs": {
         "ru": [
-          "рвота",
           "понос",
-          "вялость, отказ от еды",
-          "позывы на рвоту без результата, вздутый живот — если проглочена сердцевина или косточка"
+          "вздутие, газы"
         ],
         "en": [
-          "vomiting",
           "diarrhoea",
-          "lethargy, refusing food",
-          "retching with nothing coming up, swollen belly — if a core or pit was swallowed"
+          "bloating, gas"
         ]
       },
       "ifEaten": "watch"
@@ -84,21 +78,17 @@
   "avoid": {
     "ru": [
       "Не давайте сердцевину и семечки",
-      "Не ждите, если живот вздулся и есть безрезультатные позывы на рвоту: это срочно",
       "Не вызывайте рвоту сами — только по указанию врача"
     ],
     "en": [
       "Do not give the core or seeds",
-      "Do not wait if the belly swells and there is retching with nothing coming up: that is urgent",
       "Do not make your pet vomit unless a vet tells you to"
     ]
   },
   "sources": [
     {
-      "title": "Merck Veterinary Manual — Food Hazards"
-    },
-    {
-      "title": "Pet Poison Helpline — Poison Guide: Foods"
+      "title": "Merck Veterinary Manual — Nutritional Requirements of Small Animals",
+      "url": "https://www.merckvetmanual.com/management-and-nutrition/nutrition-small-animals/nutritional-requirements-of-small-animals"
     }
   ],
   "review": {

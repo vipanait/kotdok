@@ -31,27 +31,21 @@
     "cat": {
       "verdict": "danger",
       "summary": {
-        "ru": "Опасно. Проглоченная плоская батарейка может обжечь пищевод за считаные часы — это срочный случай.",
-        "en": "Dangerous. A swallowed button battery can burn the oesophagus within hours — this is an emergency."
+        "ru": "Опасно. Проглоченная плоская батарейка может застрять и обжечь пищевод — это срочный случай.",
+        "en": "Dangerous. A swallowed button battery can lodge and burn the oesophagus — this is an emergency."
       },
       "why": {
-        "ru": "Плоские литиевые батарейки в мокрой слизистой дают ток и вызывают ожог. Обычные пальчиковые при прокусе выпускают едкое содержимое. Ожоги во рту могут проявиться только через несколько часов.",
-        "en": "Flat lithium batteries produce a current in wet tissue and cause a burn. Ordinary AA-type batteries release corrosive contents when punctured. Mouth burns may show only several hours later."
+        "ru": "Плоские и литиевые батарейки, застряв в пищеводе или кишечнике, проводят ток и вызывают ожог. Обычные пальчиковые при прокусе выпускают едкое содержимое. Язвы во рту могут стать заметны только через несколько часов.",
+        "en": "Button and lithium batteries that lodge in the oesophagus or intestine pass a current and cause a burn. Ordinary AA-type batteries release corrosive contents when punctured. Mouth ulcers may become visible only hours later."
       },
       "signs": {
         "ru": [
           "слюнотечение",
-          "боль во рту, питомец трогает морду лапой",
-          "отказ от еды и питья",
-          "рвота",
-          "вялость"
+          "боль во рту, питомец трогает морду лапой"
         ],
         "en": [
           "drooling",
-          "mouth pain, pawing at the face",
-          "refusing food and water",
-          "vomiting",
-          "lethargy"
+          "mouth pain, pawing at the mouth"
         ]
       },
       "ifEaten": "call_now"
@@ -59,27 +53,21 @@
     "dog": {
       "verdict": "danger",
       "summary": {
-        "ru": "Опасно. Проглоченная плоская батарейка — экстренный случай, даже если собака выглядит нормально.",
-        "en": "Dangerous. A swallowed button battery is an emergency even if the dog looks normal."
+        "ru": "Опасно. Проглоченная или прокушенная батарейка — срочный случай, даже если собака выглядит нормально.",
+        "en": "Dangerous. A swallowed or punctured battery is an emergency even if the dog looks normal."
       },
       "why": {
-        "ru": "Плоская батарейка может застрять и обжечь пищевод или кишечник, а прокушенная выпускает едкое содержимое. Крупная собака может проглотить батарейку целиком, а вред проявляется со временем.",
-        "en": "A button battery can lodge and burn the oesophagus or intestine, and a bitten one releases corrosive contents. A big dog can swallow a battery whole, and the harm builds over time."
+        "ru": "Собаки чаще всего грызут и глотают пальчиковые батарейки и плоские «таблетки». Прокушенная батарейка выпускает едкое содержимое и обжигает рот, а плоская может застрять в пищеводе или кишечнике и вызвать ожог током. Язвы во рту могут стать заметны только через несколько часов.",
+        "en": "Dogs most often chew and swallow AA-type batteries and button cells. A punctured battery releases corrosive contents that burn the mouth, and a button cell can lodge in the oesophagus or intestine and burn by current. Mouth ulcers may become visible only hours later."
       },
       "signs": {
         "ru": [
           "слюнотечение",
-          "боль во рту, питомец трогает морду лапой",
-          "отказ от еды",
-          "рвота",
-          "вялость"
+          "боль во рту, собака трогает морду лапой"
         ],
         "en": [
           "drooling",
-          "mouth pain, pawing at the face",
-          "refusing food",
-          "vomiting",
-          "lethargy"
+          "mouth pain, pawing at the mouth"
         ]
       },
       "ifEaten": "call_now"
@@ -100,22 +88,17 @@
   "avoid": {
     "ru": [
       "Не вызывайте рвоту сами — только по указанию врача",
-      "Не давайте воду, молоко и еду — сначала позвоните врачу",
-      "Не ждите признаков: они могут появиться позже"
+      "Не ждите признаков: они могут появиться через несколько часов"
     ],
     "en": [
       "Do not make your pet vomit unless a vet tells you to",
-      "Do not give water, milk or food — call the vet first",
-      "Do not wait for signs: they can appear later"
+      "Do not wait for signs: they can appear hours later"
     ]
   },
   "sources": [
     {
       "title": "Pet Poison Helpline — Batteries",
-      "url": "https://www.petpoisonhelpline.com/poisons/batteries/"
-    },
-    {
-      "title": "MSD Veterinary Manual — Toxicology (poisoning in small animals)"
+      "url": "https://www.petpoisonhelpline.com/poison/batteries/"
     }
   ],
   "review": {

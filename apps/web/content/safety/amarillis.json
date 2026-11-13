@@ -30,21 +30,23 @@
         "en": "Dangerous. Amaryllis (hippeastrum) is poisonous to cats and dogs, especially the bulb."
       },
       "why": {
-        "ru": "ASPCA относит амариллис к ядовитым для кошек и собак. Возможны рвота, слюнотечение, боль в животе, понос, вялость, потеря аппетита и дрожь. Больше всего токсинов в луковице. Позвоните в клинику, не дожидаясь признаков.",
-        "en": "The ASPCA lists amaryllis as toxic to cats and dogs. Vomiting, drooling, belly pain, diarrhoea, lethargy, loss of appetite and tremors are possible. Most of the toxin is in the bulb. Call a clinic without waiting for signs."
+        "ru": "ASPCA относит амариллис к ядовитым для кошек и собак: в нём ликорин и другие алкалоиды. Возможны рвота, слюнотечение, боль в животе, понос, вялость, потеря аппетита и дрожь. По данным Pet Poison Helpline, алкалоиды есть в листьях, стеблях и луковице, раздражающих кристаллов больше всего в луковице, а при большом количестве бывают судороги и падение давления. Позвоните в клинику, не дожидаясь признаков.",
+        "en": "The ASPCA lists amaryllis as toxic to cats and dogs: it contains lycorine and other alkaloids. Vomiting, drooling, belly pain, diarrhoea, lethargy, loss of appetite and tremors are possible. According to Pet Poison Helpline, the alkaloids are in the leaves, stems and bulb, the irritating crystals are most concentrated in the bulb, and a large amount can cause seizures and low blood pressure. Call a clinic without waiting for signs."
       },
       "signs": {
         "ru": [
           "рвота",
           "слюнотечение",
           "боль в животе",
-          "дрожь"
+          "дрожь",
+          "судороги"
         ],
         "en": [
           "vomiting",
           "drooling",
           "belly pain",
-          "tremors"
+          "tremors",
+          "seizures"
         ]
       },
       "ifEaten": "call_now"
@@ -56,21 +58,23 @@
         "en": "Dangerous. Amaryllis (hippeastrum) is poisonous to cats and dogs, especially the bulb."
       },
       "why": {
-        "ru": "ASPCA относит амариллис к ядовитым для кошек и собак. Возможны рвота, слюнотечение, боль в животе, понос, вялость, потеря аппетита и дрожь. Больше всего токсинов в луковице. Позвоните в клинику, не дожидаясь признаков.",
-        "en": "The ASPCA lists amaryllis as toxic to cats and dogs. Vomiting, drooling, belly pain, diarrhoea, lethargy, loss of appetite and tremors are possible. Most of the toxin is in the bulb. Call a clinic without waiting for signs."
+        "ru": "ASPCA относит амариллис к ядовитым для кошек и собак: в нём ликорин и другие алкалоиды. Возможны рвота, слюнотечение, боль в животе, понос, вялость, потеря аппетита и дрожь. По данным Pet Poison Helpline, алкалоиды есть в листьях, стеблях и луковице, раздражающих кристаллов больше всего в луковице, а при большом количестве бывают судороги и падение давления. Позвоните в клинику, не дожидаясь признаков.",
+        "en": "The ASPCA lists amaryllis as toxic to cats and dogs: it contains lycorine and other alkaloids. Vomiting, drooling, belly pain, diarrhoea, lethargy, loss of appetite and tremors are possible. According to Pet Poison Helpline, the alkaloids are in the leaves, stems and bulb, the irritating crystals are most concentrated in the bulb, and a large amount can cause seizures and low blood pressure. Call a clinic without waiting for signs."
       },
       "signs": {
         "ru": [
           "рвота",
           "слюнотечение",
           "боль в животе",
-          "дрожь"
+          "дрожь",
+          "судороги"
         ],
         "en": [
           "vomiting",
           "drooling",
           "belly pain",
-          "tremors"
+          "tremors",
+          "seizures"
         ]
       },
       "ifEaten": "call_now"
@@ -108,7 +112,8 @@
       "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/amaryllis"
     },
     {
-      "title": "Pet Poison Helpline — Poison Index (plants)"
+      "title": "Pet Poison Helpline — Amaryllis",
+      "url": "https://www.petpoisonhelpline.com/poison/amaryllis/"
     }
   ],
   "review": {

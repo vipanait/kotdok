@@ -10,40 +10,32 @@
     "ru": [
       "миндальные орехи",
       "миндаля",
-      "миндальный орех",
-      "горький миндаль",
-      "миндальное молоко"
+      "миндальный орех"
     ],
     "en": [
       "almond",
-      "almond nuts",
-      "almond milk",
-      "bitter almonds"
+      "almond nuts"
     ]
   },
   "bySpecies": {
     "cat": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Миндаль кошке не нужен, и лучше не давать.",
-        "en": "With caution. Cats do not need almonds, and it is better not to give them."
+        "ru": "С осторожностью. Кошке миндаль не нужен: он жирный и может расстроить желудок.",
+        "en": "With caution. Cats do not need almonds: they are fatty and can upset the stomach."
       },
       "why": {
-        "ru": "Миндаль не входит в списки сильных ядов для кошек, но он жирный, твёрдый и может застрять в пищеводе или кишечнике. Солёный и ароматизированный миндаль вреднее. Горький миндаль содержит вещества, из которых выделяется цианид.",
-        "en": "Almonds are not on the lists of strong poisons for cats, but they are fatty and hard and can lodge in the gullet or gut. Salted and flavoured almonds are worse. Bitter almonds contain substances that release cyanide."
+        "ru": "В миндале, как и в других орехах, много жира и масла. От этого бывают рвота, понос и воспаление поджелудочной железы. Солёные орехи вреднее: избыток соли тоже опасен.",
+        "en": "Almonds, like other nuts, are high in fat and oil. This can cause vomiting, diarrhoea and an inflamed pancreas. Salted nuts are worse: too much salt is harmful too."
       },
       "signs": {
         "ru": [
           "рвота",
-          "понос",
-          "отказ от еды",
-          "напрасные позывы на рвоту, вздутый живот"
+          "понос"
         ],
         "en": [
           "vomiting",
-          "diarrhoea",
-          "refusing food",
-          "retching with nothing coming up, swollen belly"
+          "diarrhoea"
         ]
       },
       "ifEaten": "watch"
@@ -51,25 +43,21 @@
     "dog": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Один-два несолёных миндаля изредка допустимы крупной собаке; маленьким лучше не давать.",
-        "en": "With caution. One or two unsalted almonds now and then may do for a large dog; better not for small ones."
+        "ru": "С осторожностью. Собаке миндаль не нужен: он жирный и может расстроить желудок.",
+        "en": "With caution. Dogs do not need almonds: they are fatty and can upset the stomach."
       },
       "why": {
-        "ru": "Миндаль не считается ядовитым для собак, но плохо переваривается, жирен и легко застревает в горле и кишечнике, особенно у мелких пород. Солёные, глазированные и ароматизированные орехи нельзя, как и горький миндаль.",
-        "en": "Almonds are not considered poisonous to dogs, but they digest poorly, are fatty and easily lodge in the throat and gut, especially in small breeds. Salted, glazed or flavoured nuts are not for dogs, and neither are bitter almonds."
+        "ru": "В миндале много жира и масла: от него бывают рвота, понос и воспаление поджелудочной железы. Солёные, глазированные и ароматизированные орехи вреднее: избыток соли тоже опасен.",
+        "en": "Almonds are high in fat and oil: they can cause vomiting, diarrhoea and an inflamed pancreas. Salted, glazed or flavoured nuts are worse: too much salt is harmful too."
       },
       "signs": {
         "ru": [
           "рвота",
-          "понос",
-          "боль в животе",
-          "кашель или поперхивание, если орех застрял"
+          "понос"
         ],
         "en": [
           "vomiting",
-          "diarrhoea",
-          "belly pain",
-          "coughing or gagging if a nut is stuck"
+          "diarrhoea"
         ]
       },
       "ifEaten": "watch"
@@ -103,9 +91,6 @@
     {
       "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
       "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
-    },
-    {
-      "title": "MSD Veterinary Manual — Food Hazards in Small Animals"
     }
   ],
   "review": {

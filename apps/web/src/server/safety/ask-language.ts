@@ -14,12 +14,12 @@ import type { Locale } from '@/shared/i18n/config'
 /** What to do straight away when the pet has eaten it; shown unless the answer is «nothing to do». */
 export const SAFETY_FIRST_STEPS: Record<Locale, readonly string[]> = {
   ru: [
-    'Позвоните в ветклинику и скажите, что съел питомец и примерно сколько.',
+    'Позвоните в ветклинику и скажите, что съел питомец, когда и примерно сколько.',
     'Уберите остатки, чтобы питомец не съел ещё.',
     'Сохраните упаковку или этикетку: она пригодится врачу.',
   ],
   en: [
-    'Call a vet clinic and say what your pet ate and roughly how much.',
+    'Call a vet clinic and say what your pet ate, when, and roughly how much.',
     'Remove what is left so your pet cannot eat more.',
     'Keep the packaging or the label: the vet may need it.',
   ],
@@ -30,10 +30,12 @@ export const SAFETY_AVOID: Record<Locale, readonly string[]> = {
   ru: [
     'Не вызывайте рвоту сами — только по указанию врача.',
     'Не давайте молоко, масло, уголь и другие средства без указания врача.',
+    'Не давайте лекарства без назначения врача.',
   ],
   en: [
-    'Do not induce vomiting unless a vet tells you to.',
+    'Do not make your pet vomit unless a vet tells you to.',
     'Do not give milk, oil, charcoal or any other remedy unless a vet tells you to.',
+    'Do not give any medicine unless a vet tells you to.',
   ],
 }
 

@@ -28,20 +28,22 @@
         "en": "With caution. Poinsettia is less dangerous than its reputation: it mostly irritates the mouth and stomach."
       },
       "why": {
-        "ru": "ASPCA относит пуансеттию к ядовитым для кошек и собак, но отмечает, что её токсичность сильно преувеличена. Сок раздражает рот и желудок, иногда ведёт к рвоте. Сок может раздражать и кожу. Если питомец съел много или рвота не проходит, позвоните в клинику.",
-        "en": "The ASPCA lists poinsettia as toxic to cats and dogs but notes that its toxicity is greatly overrated. The sap irritates the mouth and stomach and sometimes causes vomiting. It can also irritate the skin. If the pet ate a lot or the vomiting does not stop, call a clinic."
+        "ru": "ASPCA относит пуансеттию к ядовитым для кошек и собак, но отмечает, что её токсичность сильно преувеличена. Pet Poison Helpline называет её слабо ядовитой: млечный сок раздражает рот и желудок, обычно бывают слюнотечение и рвота, иногда понос; на коже от сока бывают покраснение и зуд. Если питомец съел много или рвота не проходит, позвоните в клинику.",
+        "en": "The ASPCA lists poinsettia as toxic to cats and dogs but notes that its toxicity is greatly overrated. Pet Poison Helpline calls it mildly toxic: the milky sap irritates the mouth and stomach, usually causing drooling and vomiting, sometimes diarrhoea; on the skin the sap causes redness and itching. If the pet ate a lot or the vomiting does not stop, call a clinic."
       },
       "signs": {
         "ru": [
           "рвота",
           "слюнотечение",
-          "раздражение рта",
+          "облизывание губ",
+          "понос",
           "покраснение кожи"
         ],
         "en": [
           "vomiting",
           "drooling",
-          "irritation of the mouth",
+          "lip licking",
+          "diarrhoea",
           "redness of the skin"
         ]
       },
@@ -54,20 +56,22 @@
         "en": "With caution. Poinsettia is less dangerous than its reputation: it mostly irritates the mouth and stomach."
       },
       "why": {
-        "ru": "ASPCA относит пуансеттию к ядовитым для кошек и собак, но отмечает, что её токсичность сильно преувеличена. Сок раздражает рот и желудок, иногда ведёт к рвоте. Сок может раздражать и кожу. Если питомец съел много или рвота не проходит, позвоните в клинику.",
-        "en": "The ASPCA lists poinsettia as toxic to cats and dogs but notes that its toxicity is greatly overrated. The sap irritates the mouth and stomach and sometimes causes vomiting. It can also irritate the skin. If the pet ate a lot or the vomiting does not stop, call a clinic."
+        "ru": "ASPCA относит пуансеттию к ядовитым для кошек и собак, но отмечает, что её токсичность сильно преувеличена. Pet Poison Helpline называет её слабо ядовитой: млечный сок раздражает рот и желудок, обычно бывают слюнотечение и рвота, иногда понос; на коже от сока бывают покраснение и зуд. Если питомец съел много или рвота не проходит, позвоните в клинику.",
+        "en": "The ASPCA lists poinsettia as toxic to cats and dogs but notes that its toxicity is greatly overrated. Pet Poison Helpline calls it mildly toxic: the milky sap irritates the mouth and stomach, usually causing drooling and vomiting, sometimes diarrhoea; on the skin the sap causes redness and itching. If the pet ate a lot or the vomiting does not stop, call a clinic."
       },
       "signs": {
         "ru": [
           "рвота",
           "слюнотечение",
-          "раздражение рта",
+          "облизывание губ",
+          "понос",
           "покраснение кожи"
         ],
         "en": [
           "vomiting",
           "drooling",
-          "irritation of the mouth",
+          "lip licking",
+          "diarrhoea",
           "redness of the skin"
         ]
       },
@@ -106,7 +110,8 @@
       "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/poinsettia"
     },
     {
-      "title": "Pet Poison Helpline — Poison Index (plants)"
+      "title": "Pet Poison Helpline — Poinsettia",
+      "url": "https://www.petpoisonhelpline.com/poison/poinsettia/"
     }
   ],
   "review": {

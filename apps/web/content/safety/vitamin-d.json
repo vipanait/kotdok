@@ -31,8 +31,8 @@
         "en": "Dangerous. Vitamin D in human supplements is poisonous to cats."
       },
       "why": {
-        "ru": "Витамин D накапливается и повышает уровень кальция в крови, из-за чего страдают почки и сердце. Опасность не всегда видна сразу: признаки могут появиться через сутки-двое. Что делать, решает врач.",
-        "en": "Vitamin D builds up and raises blood calcium, which harms the kidneys and the heart. The danger is not always visible at once: signs can appear a day or two later. The vet decides what to do."
+        "ru": "Витамин D повышает уровень кальция и фосфора в крови, и через сутки-двое могут отказать почки. Опасность не видна сразу: признаки обычно появляются через 12–36 часов. Что делать, решает врач.",
+        "en": "Vitamin D raises blood calcium and phosphorus, and the kidneys can fail a day or two later. The danger is not visible at once: signs usually appear 12–36 hours later. The vet decides what to do."
       },
       "signs": {
         "ru": [
@@ -40,14 +40,14 @@
           "отказ от еды, вялость",
           "сильная жажда и частое мочеиспускание",
           "слабость",
-          "запор"
+          "понос"
         ],
         "en": [
           "vomiting",
           "not eating, lethargy",
           "strong thirst and frequent urination",
           "weakness",
-          "constipation"
+          "diarrhoea"
         ]
       },
       "ifEaten": "call_now"
@@ -109,10 +109,12 @@
   },
   "sources": [
     {
-      "title": "Pet Poison Helpline — Poison Database"
+      "title": "MSD Veterinary Manual — Poisoning from Human Over-the-Counter Drugs",
+      "url": "https://www.merckvetmanual.com/special-pet-topics/poisoning/poisoning-from-human-over-the-counter-drugs"
     },
     {
-      "title": "MSD Veterinary Manual — Toxicology"
+      "title": "Pet Poison Helpline — Vitamin D Toxicity in Dogs",
+      "url": "https://www.petpoisonhelpline.com/?p=14066"
     }
   ],
   "review": {

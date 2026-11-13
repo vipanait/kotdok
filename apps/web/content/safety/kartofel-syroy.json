@@ -27,23 +27,23 @@
     "cat": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Сырой, зелёный и проросший картофель давать нельзя, варёный без соли и масла — немного можно.",
-        "en": "With caution. Do not give raw, green or sprouted potato; plain boiled potato without salt or butter is fine in a small piece."
+        "ru": "С осторожностью. Сырой, зелёный и проросший картофель давать нельзя.",
+        "en": "With caution. Do not give raw, green or sprouted potato."
       },
       "why": {
-        "ru": "Сырой картофель, зелёные участки, ростки и ботва содержат соланин и вызывают расстройство желудка. Варёный картофель без соли, масла и специй допустим изредка, но кошке он почти ничего не даёт. Жареный и с добавками лучше не давать.",
-        "en": "Raw potato, green patches, sprouts and vines contain solanine and upset the stomach. Plain boiled potato with no salt, butter or spices is acceptable now and then, but gives a cat very little. Fried or seasoned potato is best avoided."
+        "ru": "Сырой картофель может навредить питомцу, а варёный без добавок допустим в небольшом количестве. Зелёные участки клубня и сам куст картофеля содержат соланин. Отдельных данных именно о кошках мало, поэтому вердикт осторожный.",
+        "en": "Raw potato can be a problem for pets, while plain cooked potato is fine in moderation. Green parts of the potato and the plant itself contain solanine. There is little data on cats specifically, so the verdict is cautious."
       },
       "signs": {
         "ru": [
           "рвота",
           "понос",
-          "вялость"
+          "слабость"
         ],
         "en": [
           "vomiting",
           "diarrhoea",
-          "lethargy"
+          "weakness"
         ]
       },
       "ifEaten": "watch"
@@ -51,23 +51,23 @@
     "dog": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Сырой, зелёный и проросший картофель давать нельзя, варёный без добавок — немного изредка.",
-        "en": "With caution. Do not give raw, green or sprouted potato; plain boiled potato is fine in a small amount now and then."
+        "ru": "С осторожностью. Сырой, зелёный и проросший картофель давать нельзя.",
+        "en": "With caution. Do not give raw, green or sprouted potato."
       },
       "why": {
-        "ru": "Сырой картофель, зелёные участки, ростки и ботва содержат соланин и вызывают расстройство желудка. Варёный картофель без соли, масла и специй допустим изредка. Жареный, чипсы и пюре с маслом и солью лучше не давать.",
-        "en": "Raw potato, green patches, sprouts and vines contain solanine and upset the stomach. Plain boiled potato with no salt, butter or spices is acceptable now and then. Fried potato, crisps and buttered, salted mash are best avoided."
+        "ru": "Картофель, особенно зелёный, и сам куст содержат соланин, поэтому в таком виде собаке его давать нельзя. Простой варёный белый картофель в небольшом количестве обычно считается безопасным, а всё зелёное — нет. Пюре с маслом и солью, жареный картофель и чипсы — это уже соль и жир.",
+        "en": "Potatoes, green ones especially, and the plant itself contain solanine and should not be fed to a dog in these forms. Plain cooked white potato in small amounts is generally considered safe, but anything green is not. Buttered, salted mash, fried potato and crisps add salt and fat."
       },
       "signs": {
         "ru": [
           "рвота",
           "понос",
-          "вялость"
+          "слабость, дрожь, шаткая походка"
         ],
         "en": [
           "vomiting",
           "diarrhoea",
-          "lethargy"
+          "weakness, tremors, unsteady walking"
         ]
       },
       "ifEaten": "watch"
@@ -101,7 +101,8 @@
       "url": "https://www.aspca.org/news/pets-and-produce-top-tips-vegetable-garden-safety"
     },
     {
-      "title": "ASPCA Animal Poison Control — Toxic and Non-Toxic Plants"
+      "title": "Pet Poison Helpline — Are Tomatoes Bad for Dogs? What's Safe & What's Toxic",
+      "url": "https://www.petpoisonhelpline.com/pet-safety-tips/are-tomatoes-poisonous-to-dogs/"
     }
   ],
   "review": {

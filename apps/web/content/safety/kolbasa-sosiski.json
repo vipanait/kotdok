@@ -44,8 +44,8 @@
         "en": "With caution. Sausage and hot dogs are salty and fatty and not suitable for cats; one stray piece is usually not serious."
       },
       "why": {
-        "ru": "В колбасе много соли, жира, консервантов и специй, нередко лук или чеснок, а они опасны для кошек. Избыток соли вызывает жажду и расстройство, а в тяжёлых случаях — тремор и судороги. Жирная еда может спровоцировать воспаление поджелудочной железы.",
-        "en": "Sausage is high in salt, fat, preservatives and spices, often with onion or garlic, which are dangerous for cats. Too much salt causes thirst and upsets the gut, and in severe cases tremors and seizures. Fatty food can trigger inflammation of the pancreas."
+        "ru": "В колбасе и сосисках много соли и жира, а в составе бывают лук и чеснок, опасные для кошек. От избытка соли бывают жажда и частое мочеиспускание, а при большом количестве — рвота, понос, угнетённость, дрожь и судороги. От жирной еды бывают рвота, понос и воспаление поджелудочной железы.",
+        "en": "Sausage and hot dogs are high in salt and fat and can contain onion and garlic, which are dangerous for cats. Too much salt causes thirst and frequent urination, and a large amount can cause vomiting, diarrhoea, low mood, tremors and seizures. Fatty food can cause vomiting, diarrhoea and inflammation of the pancreas."
       },
       "signs": {
         "ru": [
@@ -66,12 +66,12 @@
     "dog": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Колбаса и сосиски — солёные и жирные; кусочек изредка не страшен, но кормом они не станут.",
-        "en": "With caution. Sausage and hot dogs are salty and fatty; a piece now and then is not serious, but they are no substitute for food."
+        "ru": "С осторожностью. Колбаса и сосиски — солёные и жирные; случайный кусочек обычно не страшен, но кормом они не станут.",
+        "en": "With caution. Sausage and hot dogs are salty and fatty; one stray piece is usually not serious, but they are no substitute for food."
       },
       "why": {
-        "ru": "В колбасе много соли, жира, консервантов и специй, нередко лук или чеснок, а они опасны для собак. Избыток соли вызывает жажду и расстройство, а в тяжёлых случаях — тремор и судороги. Жирная еда может спровоцировать воспаление поджелудочной железы. Если давать, то редко и кусочек варёной сосиски без специй.",
-        "en": "Sausage is high in salt, fat, preservatives and spices, often with onion or garlic, which are dangerous for dogs. Too much salt causes thirst and upsets the gut, and in severe cases tremors and seizures. Fatty food can trigger inflammation of the pancreas. If you give any, rarely and a piece of plain boiled sausage."
+        "ru": "В колбасе и сосисках много соли и жира, а в составе бывают лук и чеснок, опасные для собак. От избытка соли бывают жажда и частое мочеиспускание, а при большом количестве — рвота, понос, угнетённость, дрожь и судороги. От жирной еды бывают рвота, понос и воспаление поджелудочной железы.",
+        "en": "Sausage and hot dogs are high in salt and fat and can contain onion and garlic, which are dangerous for dogs. Too much salt causes thirst and frequent urination, and a large amount can cause vomiting, diarrhoea, low mood, tremors and seizures. Fatty food can cause vomiting, diarrhoea and inflammation of the pancreas."
       },
       "signs": {
         "ru": [
@@ -93,7 +93,7 @@
   "firstSteps": {
     "ru": [
       "Уберите остатки колбасы и упаковку",
-      "Дайте питомцу доступ к свежей воде и понаблюдайте за ним сутки",
+      "Проследите, чтобы у питомца была свежая вода, и понаблюдайте за ним сутки",
       "Если съедено много, есть рвота, сильная жажда или вялость, позвоните в клинику"
     ],
     "en": [
@@ -118,9 +118,6 @@
     {
       "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
       "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
-    },
-    {
-      "title": "Merck Veterinary Manual — Food Hazards"
     }
   ],
   "review": {

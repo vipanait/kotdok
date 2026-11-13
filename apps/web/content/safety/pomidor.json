@@ -32,23 +32,27 @@
     "cat": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Спелый помидор — изредка и немного, а зелёные плоды, листья и стебли давать нельзя.",
-        "en": "With caution. A ripe tomato is fine now and then in a small piece, but green fruit, leaves and stems are not."
+        "ru": "С осторожностью. Спелый красный помидор — немного и изредка, а зелёные плоды, листья и стебли давать нельзя.",
+        "en": "With caution. A little ripe red tomato now and then is fine, but green fruit, leaves and stems are not."
       },
       "why": {
-        "ru": "Куст помидора и незрелые зелёные плоды содержат соланин и томатин и вызывают расстройство желудка, слабость и слюнотечение. Мякоть спелого плода ядовитой не считается, но кошке она не нужна. Если даёте, то немного спелого помидора без соли и соусов.",
-        "en": "The tomato plant and unripe green fruit contain solanine and tomatine and cause stomach upset, weakness and drooling. Ripe fruit flesh is not considered poisonous, but a cat does not need it. If you give any, a little ripe tomato with no salt or sauce."
+        "ru": "Куст помидора и незрелые зелёные плоды содержат томатин и соланин и ядовиты для кошек и собак. По мере созревания этих веществ становится намного меньше, и спелый плод ядовитым не считается. Допустим немного спелого помидора без соли и соусов.",
+        "en": "The tomato plant and unripe green fruit contain tomatine and solanine and are toxic to cats and dogs. As the fruit ripens, these levels drop sharply, and ripe fruit is not considered toxic. A little ripe tomato with no salt or sauce is acceptable."
       },
       "signs": {
         "ru": [
           "слюнотечение",
           "рвота, понос",
-          "вялость, слабость"
+          "отказ от еды",
+          "слабость, вялость",
+          "редкий пульс"
         ],
         "en": [
           "drooling",
           "vomiting, diarrhoea",
-          "lethargy, weakness"
+          "loss of appetite",
+          "weakness, lethargy",
+          "slow heart rate"
         ]
       },
       "ifEaten": "watch"
@@ -56,23 +60,27 @@
     "dog": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Спелый помидор — изредка и немного, а зелёные плоды, листья и стебли давать нельзя.",
-        "en": "With caution. A ripe tomato is fine now and then in a small amount, but green fruit, leaves and stems are not."
+        "ru": "С осторожностью. Спелый красный помидор — немного и изредка, а зелёные плоды, листья и стебли давать нельзя.",
+        "en": "With caution. A little ripe red tomato now and then is fine, but green fruit, leaves and stems are not."
       },
       "why": {
-        "ru": "Куст помидора и незрелые зелёные плоды содержат соланин и томатин и вызывают расстройство желудка, слабость и слюнотечение. Мякоть спелого плода ядовитой не считается. Если даёте, то немного спелого помидора без соли и соусов. Если собака обгрызла куст, понаблюдайте за ней.",
-        "en": "The tomato plant and unripe green fruit contain solanine and tomatine and cause stomach upset, weakness and drooling. Ripe fruit flesh is not considered poisonous. If you give any, a little ripe tomato with no salt or sauce. If your dog chewed the plant, keep an eye on it."
+        "ru": "Куст помидора и незрелые зелёные плоды содержат томатин и соланин и ядовиты для кошек и собак. По мере созревания этих веществ становится намного меньше, и спелый плод ядовитым не считается. Допустим немного спелого помидора без соли и соусов.",
+        "en": "The tomato plant and unripe green fruit contain tomatine and solanine and are toxic to cats and dogs. As the fruit ripens, these levels drop sharply, and ripe fruit is not considered toxic. A little ripe tomato with no salt or sauce is acceptable."
       },
       "signs": {
         "ru": [
           "слюнотечение",
           "рвота, понос",
-          "вялость, слабость"
+          "отказ от еды",
+          "слабость, вялость",
+          "редкий пульс"
         ],
         "en": [
           "drooling",
           "vomiting, diarrhoea",
-          "lethargy, weakness"
+          "loss of appetite",
+          "weakness, lethargy",
+          "slow heart rate"
         ]
       },
       "ifEaten": "watch"
@@ -103,11 +111,15 @@
   "sources": [
     {
       "title": "ASPCA Animal Poison Control — Tomato Plant",
-      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/tomato-plant"
+      "url": "https://www.aspca.org/pet-care/animal-poison-control/toxic-and-non-toxic-plants/tomato-plant"
     },
     {
       "title": "ASPCA — Pets and Produce: Top Tips on Vegetable Garden Safety",
       "url": "https://www.aspca.org/news/pets-and-produce-top-tips-vegetable-garden-safety"
+    },
+    {
+      "title": "Pet Poison Helpline — Are Tomatoes Bad for Dogs? What's Safe & What's Toxic",
+      "url": "https://www.petpoisonhelpline.com/pet-safety-tips/are-tomatoes-poisonous-to-dogs/"
     }
   ],
   "review": {

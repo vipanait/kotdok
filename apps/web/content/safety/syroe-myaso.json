@@ -35,27 +35,27 @@
     "cat": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Сырое мясо может нести бактерии и паразитов; надёжнее варёное или готовый корм.",
-        "en": "With caution. Raw meat may carry bacteria and parasites; cooked meat or a complete food is the safer choice."
+        "ru": "С осторожностью. Сырое мясо может нести бактерии и паразитов; кормить им кошку не рекомендуют.",
+        "en": "With caution. Raw meat may carry bacteria and parasites; it is not recommended for cats."
       },
       "why": {
-        "ru": "На сыром мясе бывают сальмонелла, кишечная палочка и паразиты. Они опасны не только кошке, но и людям в доме, особенно детям и пожилым. Тем, кто кормит сырым, нужны чистота, замораживание и полноценный рацион, а не просто кусок мяса. Свинину сырой не давайте.",
-        "en": "Raw meat may carry salmonella, E. coli and parasites. They endanger not only the cat but also people at home, especially children and older adults. Raw feeding needs hygiene, freezing and a complete diet, not just a piece of meat. Do not give raw pork."
+        "ru": "В сыром мясе бывают бактерии, вирусы и паразиты, в том числе возбудитель токсоплазмоза. Ими может заразиться и кошка, и люди в доме, особенно с ослабленным иммунитетом. Польза сырого рациона наукой не подтверждена. Простое варёное мясо без костей и приправ надёжнее.",
+        "en": "Raw meat may carry bacteria, viruses and parasites, including the cause of toxoplasmosis. Both the cat and people at home can be infected, especially those with weak immunity. There is no scientific evidence that raw diets are beneficial. Plain cooked meat without bones or seasoning is the safer choice."
       },
       "signs": {
         "ru": [
           "рвота",
-          "понос",
-          "вялость",
+          "понос, иногда с кровью",
+          "повышенная температура",
           "отказ от еды",
-          "повышенная температура"
+          "вялость"
         ],
         "en": [
           "vomiting",
-          "diarrhoea",
-          "lethargy",
+          "diarrhoea, sometimes bloody",
+          "raised temperature",
           "refusing food",
-          "raised temperature"
+          "lethargy"
         ]
       },
       "ifEaten": "watch"
@@ -63,27 +63,27 @@
     "dog": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Сырое мясо может нести бактерии и паразитов; надёжнее варёное или готовый корм.",
+        "ru": "С осторожностью. Сырое мясо может нести бактерии и паразитов; надёжнее варёное мясо или готовый корм.",
         "en": "With caution. Raw meat may carry bacteria and parasites; cooked meat or a complete food is the safer choice."
       },
       "why": {
-        "ru": "На сыром мясе бывают сальмонелла, кишечная палочка и паразиты. Собака может переносить их без видимых признаков, но заражает людей. Сырой рацион требует чистоты и сбалансированности. Сырую свинину давать нельзя.",
-        "en": "Raw meat may carry salmonella, E. coli and parasites. A dog may carry them without signs yet pass them to people. A raw diet needs hygiene and balance. Raw pork is not for dogs."
+        "ru": "В сыром мясе бывают сальмонелла, кишечная палочка, листерии и паразиты. Собака может выглядеть здоровой и при этом выделять бактерии и заражать людей — особенно детей, пожилых, беременных и людей с ослабленным иммунитетом. Заморозка и сушка не делают сырое мясо таким же безопасным, как варка.",
+        "en": "Raw meat may carry Salmonella, E. coli, Listeria and parasites. A dog can look healthy yet shed bacteria and infect people — especially children, older adults, pregnant women and anyone with weak immunity. Freezing or freeze-drying does not make raw meat as safe as cooking."
       },
       "signs": {
         "ru": [
           "рвота",
-          "понос",
-          "вялость",
+          "понос, иногда с кровью",
+          "повышенная температура",
           "отказ от еды",
-          "повышенная температура"
+          "вялость"
         ],
         "en": [
           "vomiting",
-          "diarrhoea",
-          "lethargy",
+          "diarrhoea, sometimes bloody",
+          "raised temperature",
           "refusing food",
-          "raised temperature"
+          "lethargy"
         ]
       },
       "ifEaten": "watch"
@@ -115,11 +115,16 @@
   },
   "sources": [
     {
-      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
-      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+      "title": "Cornell Feline Health Center — Feeding Your Cat",
+      "url": "https://www.vet.cornell.edu/departments-centers-and-institutes/cornell-feline-health-center/health-information/feline-health-topics/feeding-your-cat"
     },
     {
-      "title": "MSD Veterinary Manual — Food Hazards in Small Animals"
+      "title": "Cornell Riney Canine Health Center — Raw foods for dogs: evidence-based advice",
+      "url": "https://www.vet.cornell.edu/departments-centers-and-institutes/riney-canine-health-center/canine-health-information/raw-foods-dogs-evidence-based-advice-riney-canine-health-center"
+    },
+    {
+      "title": "FDA — Get the Facts about Salmonella",
+      "url": "https://www.fda.gov/animal-veterinary/animal-health-literacy/get-facts-about-salmonella"
     }
   ],
   "review": {

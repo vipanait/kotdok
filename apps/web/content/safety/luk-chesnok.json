@@ -39,23 +39,25 @@
         "en": "Not safe. Onion, garlic and their relatives damage red blood cells, and cats are especially sensitive to them."
       },
       "why": {
-        "ru": "Опасны все формы: сырой, варёный, жареный, сушёный и порошок, в том числе в бульонах, соусах и детском питании. Признаки малокровия часто появляются не сразу, а через несколько дней.",
-        "en": "Every form is harmful: raw, boiled, fried, dried or powdered, including in broths, sauces and baby food. Signs of anaemia often appear days later rather than at once."
+        "ru": "Опасны все формы: сырой, варёный, жареный, сушёный и порошок, в том числе в соусах и бульонах с луком или чесноком. Чаще всего отравляются концентрированными формами — сушёным луком и порошком. Признаки малокровия обычно появляются не сразу, а через несколько дней.",
+        "en": "Every form is harmful: raw, cooked, fried, dried or powdered, including in sauces and broths made with onion or garlic. Concentrated forms such as dried onion and powder cause most poisonings. Signs of anaemia usually appear a few days later rather than at once."
       },
       "signs": {
         "ru": [
-          "рвота, понос, слюнотечение",
+          "рвота, понос",
           "вялость и слабость",
-          "бледные дёсны",
+          "отказ от еды",
           "частое дыхание",
-          "тёмная, красно-коричневая моча"
+          "тёмная, красно-коричневая моча",
+          "желтушность дёсен и белков глаз"
         ],
         "en": [
-          "vomiting, diarrhoea, drooling",
+          "vomiting, diarrhoea",
           "lethargy and weakness",
-          "pale gums",
+          "not eating",
           "fast breathing",
-          "dark, reddish-brown urine"
+          "dark, reddish-brown urine",
+          "yellowish gums and whites of the eyes"
         ]
       },
       "ifEaten": "call_now"
@@ -67,21 +69,21 @@
         "en": "Not safe. Onion and garlic damage red blood cells and can lead to anaemia."
       },
       "why": {
-        "ru": "Собаки чуть менее чувствительны, чем кошки, но опасность зависит от количества, а его по еде со стола не оценить. Порошок и сушёные формы концентрированнее свежих. Вред копится, если собака получает понемногу регулярно.",
-        "en": "Dogs are a little less sensitive than cats, but the risk depends on the amount, which cannot be judged from table food. Powder and dried forms are more concentrated than fresh ones. Harm builds up when a dog gets small amounts often."
+        "ru": "Собаки чуть менее чувствительны, чем кошки, но опасность зависит от количества, а его по еде со стола не оценить. Порошок и сушёные формы концентрированнее свежих. Признаки малокровия обычно появляются через несколько дней.",
+        "en": "Dogs are a little less sensitive than cats, but the risk depends on the amount, which cannot be judged from table food. Powder and dried forms are more concentrated than fresh ones. Signs of anaemia usually appear a few days later."
       },
       "signs": {
         "ru": [
           "рвота, понос",
           "вялость и слабость",
-          "бледные дёсны",
+          "отказ от еды",
           "частое дыхание",
           "тёмная моча"
         ],
         "en": [
           "vomiting, diarrhoea",
           "lethargy and weakness",
-          "pale gums",
+          "not eating",
           "fast breathing",
           "dark urine"
         ]
@@ -110,7 +112,7 @@
       "Не успокаивайтесь, если в первый день признаков нет: малокровие развивается позже"
     ],
     "en": [
-      "Do not induce vomiting unless a vet tells you to",
+      "Do not make your pet vomit unless a vet tells you to",
       "Do not give milk, oil, charcoal or other home “antidotes” from the internet",
       "Do not relax if there are no signs on the first day: anaemia develops later"
     ]
@@ -121,7 +123,8 @@
       "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
     },
     {
-      "title": "MSD Veterinary Manual — отравление луком и чесноком у животных"
+      "title": "Merck Veterinary Manual — Garlic and Onion (Allium spp) Toxicosis in Animals",
+      "url": "https://www.merckvetmanual.com/toxicology/food-hazards/garlic-and-onion-allium-spp-toxicosis-in-animals"
     }
   ],
   "review": {

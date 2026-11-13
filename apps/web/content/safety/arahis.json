@@ -29,23 +29,21 @@
     "cat": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Кошке арахис не нужен; немного без соли и добавок не опасно, но жирно.",
-        "en": "With caution. Cats do not need peanuts; a little with no salt or additions is not dangerous, but it is fatty."
+        "ru": "С осторожностью. Кошке арахис не нужен: он жирный, а паста может содержать ксилит.",
+        "en": "With caution. Cats do not need peanuts: they are fatty, and peanut butter may contain xylitol."
       },
       "why": {
-        "ru": "Арахис не ядовит, но очень жирен и может расстроить желудок. Соль, сахар и ароматизаторы в орехах и пасте вредны. Некоторые виды арахисовой пасты подслащены ксилитом — он очень опасен, смотрите состав. Заплесневелый арахис нельзя.",
-        "en": "Peanuts are not poisonous but are very fatty and can upset the stomach. Salt, sugar and flavourings in nuts and paste are harmful. Some peanut butters are sweetened with xylitol, which is very dangerous, so check the ingredients. Mouldy peanuts are not for pets."
+        "ru": "Арахис и арахисовая паста жирные. Солёный арахис вреднее из-за соли. Некоторые арахисовые пасты подслащены ксилитом — он смертельно опасен для собак; о кошках источники не пишут, поэтому смотрите состав. Заплесневелый арахис может содержать токсины плесени.",
+        "en": "Peanuts and peanut butter are fatty. Salted peanuts are worse because of the salt. Some peanut butters are sweetened with xylitol, which is deadly for dogs; sources say nothing about cats, so check the ingredients. Mouldy peanuts may contain mould toxins."
       },
       "signs": {
         "ru": [
           "рвота",
-          "понос",
-          "отказ от еды"
+          "понос"
         ],
         "en": [
           "vomiting",
-          "diarrhoea",
-          "refusing food"
+          "diarrhoea"
         ]
       },
       "ifEaten": "watch"
@@ -53,25 +51,23 @@
     "dog": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Немного несолёного арахиса или пасты без ксилита изредка допустимо.",
-        "en": "With caution. A little unsalted peanut or xylitol-free paste now and then is acceptable."
+        "ru": "С осторожностью. Немного простой арахисовой пасты без ксилита допустимо; паста с ксилитом смертельно опасна.",
+        "en": "With caution. A little plain peanut butter without xylitol is acceptable; peanut butter with xylitol is deadly."
       },
       "why": {
-        "ru": "Арахис собакам не ядовит, но жирен: частые порции вредят поджелудочной железе и фигуре. Давайте только несолёный арахис без глазури или пасту без добавок. Обязательно читайте состав пасты: ксилит в ней смертельно опасен для собак. Заплесневелый арахис нельзя.",
-        "en": "Peanuts are not poisonous to dogs but are fatty: frequent servings harm the pancreas and the waistline. Give only unsalted peanuts without coating, or plain paste. Always read the ingredients of the paste: xylitol in it is deadly for dogs. Mouldy peanuts are not for dogs."
+        "ru": "Арахисовая паста жирная, поэтому порции должны быть маленькими. Немногие пасты содержат ксилит — сахарозаменитель, смертельно опасный для собак, поэтому всегда читайте состав. Солёный арахис вреднее из-за соли. Заплесневелый арахис может содержать токсины плесени, от которых у собак бывают дрожь и судороги.",
+        "en": "Peanut butter is fatty, so portions should be small. A few peanut butters contain xylitol, a sweetener that is deadly for dogs, so always read the ingredients. Salted peanuts are worse because of the salt. Mouldy peanuts may contain mould toxins that cause tremors and seizures in dogs."
       },
       "signs": {
         "ru": [
           "рвота",
           "понос",
-          "боль в животе",
-          "слабость и дрожь, если в пасте был ксилит"
+          "судороги, если в пасте был ксилит или орехи были заплесневелыми"
         ],
         "en": [
           "vomiting",
           "diarrhoea",
-          "belly pain",
-          "weakness and tremors if the paste contained xylitol"
+          "seizures if the paste contained xylitol or the nuts were mouldy"
         ]
       },
       "ifEaten": "watch"
@@ -79,12 +75,12 @@
   },
   "firstSteps": {
     "ru": [
-      "Проверьте состав пасты: нет ли ксилита (может называться «берёзовый сахар», Е967)",
+      "Проверьте состав пасты: нет ли ксилита (может называться «берёзовый сахар» или «древесный сахар»)",
       "Если ксилит в составе, сразу звоните в клинику",
       "Если ксилита нет, проследите за питомцем; при признаках из списка позвоните в клинику"
     ],
     "en": [
-      "Check the ingredients of the paste for xylitol (it may be listed as “birch sugar”, E967)",
+      "Check the ingredients of the paste for xylitol (it may be listed as “birch sugar” or “wood sugar”)",
       "If xylitol is listed, call a clinic straight away",
       "If there is no xylitol, keep an eye on your pet; call a clinic if any listed sign appears"
     ]
@@ -103,11 +99,16 @@
   },
   "sources": [
     {
-      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
-      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+      "title": "ASPCA — Sharing is Caring: Foods You Can Safely Share with Your Pet",
+      "url": "https://www.aspca.org/news/sharing-caring-foods-you-can-safely-share-your-pet"
     },
     {
-      "title": "Pet Poison Helpline — Poison Control for Pets"
+      "title": "Pet Poison Helpline — Sickeningly sweet: Xylitol toxicity in dogs",
+      "url": "https://www.petpoisonhelpline.com/uncategorized/sickeningly-sweet-xylitol-toxicity-in-dogs/"
+    },
+    {
+      "title": "Merck Veterinary Manual — Tremorgenic Neuromycotoxicosis in Dogs",
+      "url": "https://www.merckvetmanual.com/toxicology/mycotoxicoses/tremorgenic-neuromycotoxicosis-in-dogs"
     }
   ],
   "review": {

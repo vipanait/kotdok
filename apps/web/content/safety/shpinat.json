@@ -24,23 +24,21 @@
     "cat": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Пара листьев изредка вреда не принесёт, но регулярно шпинат давать не стоит.",
-        "en": "With caution. A couple of leaves now and then will not harm, but do not give spinach regularly."
+        "ru": "С осторожностью. Пара листьев изредка вряд ли навредит, но регулярно шпинат давать не стоит.",
+        "en": "With caution. A couple of leaves now and then is unlikely to harm, but do not give spinach regularly."
       },
       "why": {
-        "ru": "Шпинат богат щавелевой кислотой, которая связывает кальций и при частом употреблении нагружает почки и мочевыводящие пути. Кошкам и собакам с болезнями почек или мочевого пузыря его лучше не давать совсем. Если даёте здоровому питомцу, то немного, без соли, масла и сливок.",
-        "en": "Spinach is rich in oxalic acid, which binds calcium and, if eaten often, strains the kidneys and urinary tract. Cats and dogs with kidney or bladder disease are best kept off it entirely. If you give any to a healthy pet, a little, with no salt, butter or cream."
+        "ru": "Шпината нет в списках ядовитых и неядовитых растений ASPCA, и надёжных ветеринарных данных о нём мало, поэтому вердикт осторожный. Любая растительная еда может расстроить желудок. Если у питомца болезнь почек или мочевого пузыря, спросите врача, прежде чем давать любую зелень. Шпинат со сливками, маслом, солью или чесноком не подходит.",
+        "en": "Spinach is on neither the ASPCA toxic nor non-toxic plant lists, and reliable veterinary data on it is scarce, so the verdict is cautious. Any plant material can upset the stomach. If your pet has kidney or bladder disease, ask a vet before giving any greens. Spinach with cream, butter, salt or garlic is not suitable."
       },
       "signs": {
         "ru": [
           "рвота",
-          "понос",
-          "повышенная жажда"
+          "понос"
         ],
         "en": [
           "vomiting",
-          "diarrhoea",
-          "increased thirst"
+          "diarrhoea"
         ]
       },
       "ifEaten": "watch"
@@ -48,23 +46,21 @@
     "dog": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Немного изредка можно здоровой собаке, регулярно шпинат давать не стоит.",
-        "en": "With caution. A little now and then is fine for a healthy dog, but do not give spinach regularly."
+        "ru": "С осторожностью. Пара листьев изредка вряд ли навредит, но регулярно шпинат давать не стоит.",
+        "en": "With caution. A couple of leaves now and then is unlikely to harm, but do not give spinach regularly."
       },
       "why": {
-        "ru": "Шпинат богат щавелевой кислотой, которая связывает кальций и при частом употреблении нагружает почки и мочевыводящие пути. Собакам с болезнями почек или мочевого пузыря его лучше не давать совсем. Если даёте здоровой собаке, то немного, без соли, масла и сливок.",
-        "en": "Spinach is rich in oxalic acid, which binds calcium and, if eaten often, strains the kidneys and urinary tract. Dogs with kidney or bladder disease are best kept off it entirely. If you give any to a healthy dog, a little, with no salt, butter or cream."
+        "ru": "Шпината нет в списках ядовитых и неядовитых растений ASPCA, и надёжных ветеринарных данных о нём мало, поэтому вердикт осторожный. Любая растительная еда может расстроить желудок. Если у питомца болезнь почек или мочевого пузыря, спросите врача, прежде чем давать любую зелень. Шпинат со сливками, маслом, солью или чесноком не подходит.",
+        "en": "Spinach is on neither the ASPCA toxic nor non-toxic plant lists, and reliable veterinary data on it is scarce, so the verdict is cautious. Any plant material can upset the stomach. If your pet has kidney or bladder disease, ask a vet before giving any greens. Spinach with cream, butter, salt or garlic is not suitable."
       },
       "signs": {
         "ru": [
           "рвота",
-          "понос",
-          "повышенная жажда"
+          "понос"
         ],
         "en": [
           "vomiting",
-          "diarrhoea",
-          "increased thirst"
+          "diarrhoea"
         ]
       },
       "ifEaten": "watch"
@@ -94,10 +90,12 @@
   },
   "sources": [
     {
-      "title": "ASPCA Animal Poison Control — Toxic and Non-Toxic Plants"
+      "title": "ASPCA Animal Poison Control — Toxic and Non-Toxic Plants",
+      "url": "https://www.aspca.org/pet-care/animal-poison-control/toxic-and-non-toxic-plants"
     },
     {
-      "title": "Merck Veterinary Manual — Poisoning by Plants and Foods"
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/animal-poison-control/people-foods-avoid-feeding-your-pets"
     }
   ],
   "review": {

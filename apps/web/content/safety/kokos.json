@@ -28,23 +28,21 @@
     "cat": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. В малом количестве серьёзного вреда не будет, но от кокоса бывает расстройство желудка.",
-        "en": "With caution. A small amount is unlikely to do serious harm, but coconut can upset the stomach."
+        "ru": "С осторожностью. Немного кокоса вряд ли серьёзно навредит, но от него бывает расстройство желудка.",
+        "en": "With caution. A little coconut is unlikely to do serious harm, but it can upset the stomach."
       },
       "why": {
-        "ru": "Кокос и продукты из него в небольшом количестве серьёзного вреда не причиняют, но мякоть и молоко могут вызвать расстройство желудка и жидкий стул. Жирное тяжело для поджелудочной железы. Скорлупа жёсткая и может поранить рот и застрять.",
-        "en": "Coconut and coconut products in small amounts are not likely to cause serious harm, but the flesh and milk can upset the stomach and loosen stools. Rich fat is hard on the pancreas. The shell is hard and can hurt the mouth or get stuck."
+        "ru": "В небольшом количестве кокос и продукты из него вряд ли серьёзно навредят. Но в мякоти и молоке свежего кокоса есть масла, от которых бывают расстройство желудка, жидкий стул и понос.",
+        "en": "In small amounts, coconut and coconut products are unlikely to cause serious harm. But the flesh and milk of fresh coconut contain oils that can upset the stomach and cause loose stools and diarrhoea."
       },
       "signs": {
         "ru": [
-          "рвота",
-          "понос",
-          "вялость, отказ от еды"
+          "расстройство желудка",
+          "жидкий стул, понос"
         ],
         "en": [
-          "vomiting",
-          "diarrhoea",
-          "lethargy, refusing food"
+          "stomach upset",
+          "loose stools, diarrhoea"
         ]
       },
       "ifEaten": "watch"
@@ -52,23 +50,21 @@
     "dog": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Немного мякоти изредка — можно, но кокос жирный и может вызвать понос.",
-        "en": "With caution. A little flesh now and then is fine, but coconut is fatty and can cause diarrhoea."
+        "ru": "С осторожностью. Немного мякоти изредка вряд ли навредит, но масла в кокосе могут вызвать понос.",
+        "en": "With caution. A little flesh now and then is unlikely to harm, but the oils in coconut can cause diarrhoea."
       },
       "why": {
-        "ru": "Кокос и продукты из него в небольшом количестве серьёзного вреда не причиняют, но мякоть и молоко могут вызвать расстройство желудка и жидкий стул. Жирное тяжело для поджелудочной железы. Скорлупа жёсткая и может поранить рот и застрять. Кокосовая вода богата калием.",
-        "en": "Coconut and coconut products in small amounts are not likely to cause serious harm, but the flesh and milk can upset the stomach and loosen stools. Rich fat is hard on the pancreas. The shell is hard and can hurt the mouth or get stuck. Coconut water is rich in potassium."
+        "ru": "В небольшом количестве кокос и продукты из него вряд ли серьёзно навредят. Но в мякоти и молоке свежего кокоса есть масла, от которых бывают расстройство желудка, жидкий стул и понос.",
+        "en": "In small amounts, coconut and coconut products are unlikely to cause serious harm. But the flesh and milk of fresh coconut contain oils that can upset the stomach and cause loose stools and diarrhoea."
       },
       "signs": {
         "ru": [
-          "рвота",
-          "понос",
-          "вялость, отказ от еды"
+          "расстройство желудка",
+          "жидкий стул, понос"
         ],
         "en": [
-          "vomiting",
-          "diarrhoea",
-          "lethargy, refusing food"
+          "stomach upset",
+          "loose stools, diarrhoea"
         ]
       },
       "ifEaten": "watch"
@@ -100,9 +96,6 @@
     {
       "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
       "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
-    },
-    {
-      "title": "Merck Veterinary Manual — Food Hazards"
     }
   ],
   "review": {

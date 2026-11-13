@@ -29,8 +29,8 @@
         "en": "With caution. A couple of pieces of flesh without rind or seeds now and then are fine."
       },
       "why": {
-        "ru": "Мякоть арбуза не ядовита, но сладкая, а косточки и корка плохо переваривается и могут вызвать расстройство желудка или непроходимость. Кошке арбуз не нужен.",
-        "en": "Watermelon flesh is not poisonous, but it is sweet, and the seeds and rind are hard to digest and can cause stomach upset or a blockage. A cat does not need watermelon."
+        "ru": "Арбуза нет в списках ядовитых и неядовитых растений ASPCA, и надёжных ветеринарных данных о нём мало, поэтому вердикт осторожный. Любая растительная еда может расстроить желудок, а много семечек может застрять в кишечнике. Допустимы небольшие кусочки мякоти без корки и косточек.",
+        "en": "Watermelon is on neither the ASPCA toxic nor non-toxic plant lists, and reliable veterinary data on it is scarce, so the verdict is cautious. Any plant material can upset the stomach, and a lot of seeds can get lodged in the gut. Small pieces of flesh without rind or seeds are acceptable."
       },
       "signs": {
         "ru": [
@@ -51,8 +51,8 @@
         "en": "With caution. A little flesh without rind or seeds now and then is fine."
       },
       "why": {
-        "ru": "Мякоть арбуза не ядовита, но сладкая, а косточки и корка плохо переваривается и могут вызвать расстройство желудка или непроходимость, особенно у небольшой собаки. Много арбуза сразу вызывает понос.",
-        "en": "Watermelon flesh is not poisonous, but it is sweet, and the seeds and rind are hard to digest and can cause stomach upset or a blockage, especially in a small dog. A lot at once causes diarrhoea."
+        "ru": "Арбуза нет в списках ядовитых и неядовитых растений ASPCA, и надёжных ветеринарных данных о нём мало, поэтому вердикт осторожный. Любая растительная еда может расстроить желудок, а много семечек может застрять в кишечнике. Допустимы небольшие кусочки мякоти без корки и косточек.",
+        "en": "Watermelon is on neither the ASPCA toxic nor non-toxic plant lists, and reliable veterinary data on it is scarce, so the verdict is cautious. Any plant material can upset the stomach, and a lot of seeds can get lodged in the gut. Small pieces of flesh without rind or seeds are acceptable."
       },
       "signs": {
         "ru": [
@@ -91,10 +91,12 @@
   },
   "sources": [
     {
-      "title": "ASPCA Animal Poison Control — Toxic and Non-Toxic Plants"
+      "title": "ASPCA Animal Poison Control — Toxic and Non-Toxic Plants",
+      "url": "https://www.aspca.org/pet-care/animal-poison-control/toxic-and-non-toxic-plants"
     },
     {
-      "title": "Merck Veterinary Manual — Poisoning by Plants and Foods"
+      "title": "ASPCA — 5 Toxic Seasonal Plants You Don't Want Your Pet To Fall For!",
+      "url": "https://www.aspca.org/news/5-toxic-seasonal-plants-you-dont-want-your-pet-fall"
     }
   ],
   "review": {

@@ -26,12 +26,12 @@
     "cat": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Плющ для кошек и собак ядовит, особенно листья.",
-        "en": "With caution. Ivy is poisonous to cats and dogs, especially the leaves."
+        "ru": "С осторожностью. Плющ для кошек и собак ядовит, листья опаснее ягод.",
+        "en": "With caution. Ivy is poisonous to cats and dogs; the leaves are more toxic than the berries."
       },
       "why": {
-        "ru": "ASPCA относит английский плющ к ядовитым для кошек и собак; листья опаснее ягод. Возможны рвота, боли в животе, слюнотечение и понос. Если питомец съел много или ему стало хуже, позвоните в клинику.",
-        "en": "The ASPCA lists English ivy as toxic to cats and dogs; the leaves are more toxic than the berries. Vomiting, belly pain, drooling and diarrhoea are possible. If the pet ate a lot or is getting worse, call a clinic."
+        "ru": "ASPCA относит английский плющ к ядовитым для кошек и собак: в нём сапонины, листья опаснее ягод. Возможны рвота, боль в животе, слюнотечение и понос. По данным Merck, токсин плохо всасывается, поэтому отравление обычно ограниченное. Если питомец съел много или ему стало хуже, позвоните в клинику.",
+        "en": "The ASPCA lists English ivy as toxic to cats and dogs: it contains saponins, and the leaves are more toxic than the berries. Vomiting, belly pain, drooling and diarrhoea are possible. According to Merck, the toxin is poorly absorbed, so the effects are usually limited. If the pet ate a lot or is getting worse, call a clinic."
       },
       "signs": {
         "ru": [
@@ -52,12 +52,12 @@
     "dog": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Плющ для кошек и собак ядовит, особенно листья.",
-        "en": "With caution. Ivy is poisonous to cats and dogs, especially the leaves."
+        "ru": "С осторожностью. Плющ для кошек и собак ядовит, листья опаснее ягод.",
+        "en": "With caution. Ivy is poisonous to cats and dogs; the leaves are more toxic than the berries."
       },
       "why": {
-        "ru": "ASPCA относит английский плющ к ядовитым для кошек и собак; листья опаснее ягод. Возможны рвота, боли в животе, слюнотечение и понос. Если питомец съел много или ему стало хуже, позвоните в клинику.",
-        "en": "The ASPCA lists English ivy as toxic to cats and dogs; the leaves are more toxic than the berries. Vomiting, belly pain, drooling and diarrhoea are possible. If the pet ate a lot or is getting worse, call a clinic."
+        "ru": "ASPCA относит английский плющ к ядовитым для кошек и собак: в нём сапонины, листья опаснее ягод. Возможны рвота, боль в животе, слюнотечение и понос. По данным Merck, токсин плохо всасывается, поэтому отравление обычно ограниченное. Если питомец съел много или ему стало хуже, позвоните в клинику.",
+        "en": "The ASPCA lists English ivy as toxic to cats and dogs: it contains saponins, and the leaves are more toxic than the berries. Vomiting, belly pain, drooling and diarrhoea are possible. According to Merck, the toxin is poorly absorbed, so the effects are usually limited. If the pet ate a lot or is getting worse, call a clinic."
       },
       "signs": {
         "ru": [
@@ -108,7 +108,8 @@
       "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/english-ivy"
     },
     {
-      "title": "Pet Poison Helpline — Poison Index (plants)"
+      "title": "Merck Veterinary Manual — Houseplants and Ornamentals Toxic to Animals",
+      "url": "https://www.merckvetmanual.com/toxicology/poisonous-plants/houseplants-and-ornamentals"
     }
   ],
   "review": {

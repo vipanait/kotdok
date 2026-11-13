@@ -33,25 +33,25 @@
     "cat": {
       "verdict": "danger",
       "summary": {
-        "ru": "Нельзя. Варёные, жареные и рыбьи кости ломаются на острые осколки.",
-        "en": "Not safe. Cooked, roasted and fish bones break into sharp splinters."
+        "ru": "Нельзя. Варёные и жареные кости легко раскалываются на острые осколки.",
+        "en": "Not safe. Cooked and roasted bones easily split into sharp splinters."
       },
       "why": {
-        "ru": "После варки кость становится хрупкой и ломается на острые части. Они ранят рот, горло и кишечник или застревают. Отдельно опасны мелкие рыбьи и птичьи кости.",
-        "en": "Cooking makes bone brittle, and it splits into sharp pieces. They injure the mouth, throat and gut or lodge in them. Small fish and poultry bones are especially risky."
+        "ru": "Варёные кости склонны раскалываться на острые осколки. Кость может поранить или закупорить пищевод, желудок и кишечник, и иногда её удаляют только операцией. Это относится к любым костям из готовой еды, в том числе куриным и рыбьим.",
+        "en": "Cooked bones tend to split into sharp splinters. A bone can injure or block the gullet, stomach and gut, and sometimes only surgery can remove it. This applies to any bones from cooked food, including chicken and fish bones."
       },
       "signs": {
         "ru": [
-          "рвота, слюнотечение",
-          "вялость, отказ от еды",
-          "вздутый или болезненный живот",
-          "кровь в стуле или рвоте"
+          "внезапное сильное слюнотечение",
+          "рвотные позывы",
+          "срыгивание",
+          "частые попытки сглотнуть"
         ],
         "en": [
-          "vomiting, drooling",
-          "lethargy, refusing food",
-          "swollen or painful belly",
-          "blood in stool or vomit"
+          "sudden heavy drooling",
+          "gagging",
+          "bringing food back up",
+          "repeated attempts to swallow"
         ]
       },
       "ifEaten": "call_now"
@@ -59,27 +59,25 @@
     "dog": {
       "verdict": "danger",
       "summary": {
-        "ru": "Нельзя. Варёные и жареные кости, особенно куриные, ломаются на острые осколки.",
-        "en": "Not safe. Cooked and roasted bones, especially chicken, split into sharp splinters."
+        "ru": "Нельзя. Варёные и жареные кости, в том числе куриные, легко раскалываются на острые осколки.",
+        "en": "Not safe. Cooked and roasted bones, chicken bones included, easily split into sharp splinters."
       },
       "why": {
-        "ru": "Осколки могут поранить пасть, пищевод и кишечник, вызвать закупорку или прокол стенки. Это одна из частых причин срочных обращений к врачу после праздничного стола.",
-        "en": "Splinters can cut the mouth, gullet and gut, cause a blockage or perforate the wall. It is a common reason for emergency visits after a holiday meal."
+        "ru": "Варёные кости склонны раскалываться на острые осколки. Кости — самое частое, что застревает у собак в пищеводе; осколок может проколоть его стенку. Кость может также поранить или закупорить желудок и кишечник, и иногда её удаляют только операцией.",
+        "en": "Cooked bones tend to split into sharp splinters. Bones are the most common thing to get stuck in a dog's gullet, and a splinter can pierce its wall. A bone can also injure or block the stomach and gut, and sometimes only surgery can remove it."
       },
       "signs": {
         "ru": [
-          "рвота, слюнотечение",
-          "вялость, отказ от еды",
-          "вздутый или болезненный живот",
-          "кровь в стуле или рвоте",
-          "запор или напрасные позывы"
+          "внезапное сильное слюнотечение",
+          "рвотные позывы",
+          "срыгивание",
+          "частые попытки сглотнуть"
         ],
         "en": [
-          "vomiting, drooling",
-          "lethargy, refusing food",
-          "swollen or painful belly",
-          "blood in stool or vomit",
-          "constipation or straining"
+          "sudden heavy drooling",
+          "gagging",
+          "bringing food back up",
+          "repeated attempts to swallow"
         ]
       },
       "ifEaten": "call_now"
@@ -100,22 +98,27 @@
   "avoid": {
     "ru": [
       "Не вызывайте рвоту сами — только по указанию врача",
-      "Не давайте хлеб, вату и другие «средства» из интернета",
+      "Не давайте домашние «средства» из интернета",
       "Не ждите признаков: осколки могут ранить не сразу"
     ],
     "en": [
       "Do not make your pet vomit unless a vet tells you to",
-      "Do not give bread, cotton wool or other home “remedies” from the internet",
+      "Do not give home “remedies” from the internet",
       "Do not wait for signs: splinters may not hurt at once"
     ]
   },
   "sources": [
     {
+      "title": "ASPCApro — 4 Harmful Thanksgiving Foods for Pets",
+      "url": "https://www.aspcapro.org/resource/4-harmful-thanksgiving-foods-pets"
+    },
+    {
       "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
       "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
     },
     {
-      "title": "MSD Veterinary Manual — Food Hazards in Small Animals"
+      "title": "Merck Veterinary Manual — Disorders of the Esophagus in Dogs",
+      "url": "https://www.merckvetmanual.com/dog-owners/digestive-disorders-of-dogs/disorders-of-the-esophagus-in-dogs"
     }
   ],
   "review": {

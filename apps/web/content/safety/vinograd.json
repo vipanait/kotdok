@@ -24,7 +24,8 @@
       "raisins",
       "raisin",
       "sultanas",
-      "currants"
+      "zante currants",
+      "dried currants"
     ]
   },
   "bySpecies": {
@@ -61,8 +62,8 @@
         "en": "Not safe. Grapes and raisins can cause kidney failure in dogs; there is no safe amount."
       },
       "why": {
-        "ru": "Почему одни собаки тяжело отравляются, а другие нет, до конца не известно; от размера и породы это надёжно не зависит. То, что собака раньше ела виноград без последствий, ничего не гарантирует.",
-        "en": "Why some dogs are badly poisoned and others are not is still unclear, and size or breed does not reliably predict it. A dog that ate grapes before without trouble is not safe next time."
+        "ru": "Сколько вредного вещества в ягодах, бывает очень по-разному, поэтому одни собаки тяжело отравляются, а другие нет. Заранее этого не узнать, и то, что собака раньше ела виноград без последствий, ничего не гарантирует.",
+        "en": "The amount of the harmful substance varies a lot from fruit to fruit, so some dogs are badly poisoned and others are not. There is no way to tell in advance, and a dog that ate grapes before without trouble is not safe next time."
       },
       "signs": {
         "ru": [
@@ -104,7 +105,7 @@
       "Не давайте молоко, масло, уголь и другие «антидоты» из интернета"
     ],
     "en": [
-      "Do not induce vomiting unless a vet tells you to",
+      "Do not make your pet vomit unless a vet tells you to",
       "Do not wait for signs: the kidneys may be harmed first",
       "Do not give milk, oil, charcoal or other home “antidotes” from the internet"
     ]

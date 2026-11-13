@@ -29,12 +29,12 @@
     "cat": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Кусочек сыра изредка — не вред, но кошке он не нужен.",
-        "en": "With caution. A small piece of cheese now and then is not harmful, but a cat does not need it."
+        "ru": "С осторожностью. Крошечный кусочек сыра изредка допустим, но кошке он не нужен.",
+        "en": "With caution. A tiny piece of cheese now and then is acceptable, but a cat does not need it."
       },
       "why": {
-        "ru": "У кошек мало фермента, который расщепляет молочный сахар, а сыр жирный и солёный. Сыры с плесенью и с добавками (лук, чеснок, специи) лучше не давать совсем. Если давать — крошечный кусочек несолёного сыра, изредка.",
-        "en": "Cats have little of the enzyme that breaks down milk sugar, and cheese is fatty and salty. Blue cheeses and cheeses with onion, garlic or spices are best avoided entirely. If you give any, a tiny piece of unsalted cheese, rarely."
+        "ru": "Многие кошки плохо переносят молочное: им не хватает фермента, который расщепляет молочный сахар, и бывает расстройство желудка. Сыр к тому же жирный и солёный. Сыр с луком, чесноком или специями исключите совсем.",
+        "en": "Many cats tolerate dairy poorly: they lack enough of the enzyme that breaks down milk sugar and can get an upset stomach. Cheese is also fatty and salty. Leave out cheese with onion, garlic or spices entirely."
       },
       "signs": {
         "ru": [
@@ -55,8 +55,8 @@
         "en": "With caution. A small piece of plain cheese now and then, as a reward."
       },
       "why": {
-        "ru": "Сыр жирный и солёный: много его может вызвать расстройство желудка, а жирная еда — болезнь поджелудочной железы. Сыры с плесенью, чесноком, луком или травами не давайте. Лучше простой сыр с малым количеством соли.",
-        "en": "Cheese is fatty and salty: a lot can upset the stomach, and fatty food can lead to pancreas trouble. Do not give blue cheese or cheese with garlic, onion or herbs. Plain, low-salt cheese is the better choice."
+        "ru": "Молочное может вызвать понос и расстройство желудка: собакам не хватает фермента, который расщепляет молочный сахар. Сыр жирный и солёный, а слишком жирная еда может раздражать поджелудочную железу. Сыр с луком или чесноком исключите; лучше простой сыр с малым количеством соли.",
+        "en": "Dairy can cause diarrhoea and an upset stomach: dogs lack enough of the enzyme that breaks down milk sugar. Cheese is fatty and salty, and overly rich food can irritate the pancreas. Leave out cheese with onion or garlic; plain, low-salt cheese is the better choice."
       },
       "signs": {
         "ru": [
@@ -85,11 +85,11 @@
   },
   "avoid": {
     "ru": [
-      "Не давайте сыр с плесенью, чесноком, луком или специями",
+      "Не давайте сыр с луком, чесноком или специями",
       "Не давайте лекарства без назначения врача"
     ],
     "en": [
-      "Do not give blue cheese or cheese with garlic, onion or spices",
+      "Do not give cheese with onion, garlic or spices",
       "Do not give any medicine unless a vet tells you to"
     ]
   },
@@ -99,8 +99,12 @@
       "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
     },
     {
-      "title": "Merck Veterinary Manual — Pancreatitis and Other Disorders of the Pancreas in Dogs",
-      "url": "https://www.merckvetmanual.com/dog-owners/digestive-disorders-of-dogs/pancreatitis-and-other-disorders-of-the-pancreas-in-dogs"
+      "title": "Cornell Feline Health Center — Feeding Your Cat",
+      "url": "https://www.vet.cornell.edu/departments-centers-and-institutes/cornell-feline-health-center/health-information/feline-health-topics/feeding-your-cat"
+    },
+    {
+      "title": "Cornell Riney Canine Health Center — Re-evaluating your dog's diet",
+      "url": "https://www.vet.cornell.edu/departments-centers-and-institutes/riney-canine-health-center/canine-health-topics/re-evaluating-your-dogs-diet"
     }
   ],
   "review": {

@@ -32,8 +32,8 @@
         "en": "Dangerous. Sago palm is poisonous to cats, especially the seeds."
       },
       "why": {
-        "ru": "Все части растения содержат циказин, больше всего его в семенах. Он может повредить печень, и отравление бывает тяжёлым и смертельным. Признаки могут проявиться не сразу, поэтому звонить нужно сразу.",
-        "en": "Every part of the plant contains cycasin, with the most in the seeds. It can damage the liver, and poisoning can be severe and fatal. Signs may not show right away, so call at once."
+        "ru": "Все части растения содержат циказин, больше всего его в семенах. Он повреждает печень, и отравление бывает смертельным. Печёночная недостаточность может развиться через двое-трое суток, даже если сначала питомец выглядит неплохо, поэтому звонить нужно сразу.",
+        "en": "Every part of the plant contains cycasin, with the most in the seeds. It damages the liver, and poisoning can be fatal. Liver failure can develop two or three days later even if your pet looks fine at first, so call at once."
       },
       "signs": {
         "ru": [
@@ -60,8 +60,8 @@
         "en": "Dangerous. Sago palm is poisonous to dogs, especially the seeds."
       },
       "why": {
-        "ru": "Все части растения содержат циказин, больше всего его в семенах. Он может повредить печень, и отравление бывает тяжёлым и смертельным. Признаки могут проявиться не сразу, поэтому звонить нужно сразу.",
-        "en": "Every part of the plant contains cycasin, with the most in the seeds. It can damage the liver, and poisoning can be severe and fatal. Signs may not show right away, so call at once."
+        "ru": "Все части растения содержат циказин, больше всего его в семенах. Собаки особенно чувствительны к этому яду. Он повреждает печень, и отравление бывает смертельным. Печёночная недостаточность может развиться через двое-трое суток, даже если сначала питомец выглядит неплохо, поэтому звонить нужно сразу.",
+        "en": "Every part of the plant contains cycasin, with the most in the seeds. Dogs are especially sensitive to this poison. It damages the liver, and poisoning can be fatal. Liver failure can develop two or three days later even if your pet looks fine at first, so call at once."
       },
       "signs": {
         "ru": [
@@ -112,6 +112,14 @@
     {
       "title": "ASPCA Animal Poison Control — Sago Palm",
       "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/sago-palm"
+    },
+    {
+      "title": "Pet Poison Helpline — Sago Palm",
+      "url": "https://www.petpoisonhelpline.com/poison/sago-palm/"
+    },
+    {
+      "title": "MSD Veterinary Manual — Houseplants and Ornamentals Toxic to Animals",
+      "url": "https://www.merckvetmanual.com/toxicology/poisonous-plants/houseplants-and-ornamentals-toxic-to-animals"
     }
   ],
   "review": {

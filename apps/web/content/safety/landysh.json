@@ -11,8 +11,7 @@
       "ландыши",
       "ландыша",
       "майский ландыш",
-      "ландыш майский",
-      "ландыши в вазе"
+      "ландыш майский"
     ],
     "en": [
       "lily-of-the-valley",
@@ -30,8 +29,8 @@
         "en": "Dangerous. Lily of the valley is poisonous to cats: it affects the heart."
       },
       "why": {
-        "ru": "Все части ландыша содержат сердечные гликозиды (карденолиды). Они могут нарушить ритм сердца и давление. Опасны не только цветы, но и листья, ягоды и вода из вазы с букетом.",
-        "en": "Every part of lily of the valley contains cardiac glycosides (cardenolides). They can upset the heart rhythm and blood pressure. Not only the flowers are dangerous but also the leaves, berries and the water from a vase."
+        "ru": "Ландыш содержит сердечные гликозиды (карденолиды). Они могут нарушить ритм сердца и снизить давление. Запас безопасности у таких веществ мал, а кошки, по-видимому, чувствительнее собак, поэтому звоните в клинику сразу.",
+        "en": "Lily of the valley contains cardiac glycosides (cardenolides). They can upset the heart rhythm and lower blood pressure. These substances have a narrow margin of safety, and cats seem to be more sensitive than dogs, so call a clinic at once."
       },
       "signs": {
         "ru": [
@@ -56,8 +55,8 @@
         "en": "Dangerous. Lily of the valley is poisonous to dogs: it affects the heart."
       },
       "why": {
-        "ru": "Все части ландыша содержат сердечные гликозиды (карденолиды). Они могут нарушить ритм сердца и давление. Опасны не только цветы, но и листья, ягоды и вода из вазы с букетом.",
-        "en": "Every part of lily of the valley contains cardiac glycosides (cardenolides). They can upset the heart rhythm and blood pressure. Not only the flowers are dangerous but also the leaves, berries and the water from a vase."
+        "ru": "Ландыш содержит сердечные гликозиды (карденолиды). Они могут нарушить ритм сердца и снизить давление. Запас безопасности у таких веществ мал, а кошки, по-видимому, чувствительнее собак, поэтому звоните в клинику сразу.",
+        "en": "Lily of the valley contains cardiac glycosides (cardenolides). They can upset the heart rhythm and lower blood pressure. These substances have a narrow margin of safety, and cats seem to be more sensitive than dogs, so call a clinic at once."
       },
       "signs": {
         "ru": [
@@ -106,6 +105,14 @@
     {
       "title": "ASPCA Animal Poison Control — Lily of the Valley",
       "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/lily-valley"
+    },
+    {
+      "title": "Pet Poison Helpline — Lily of the Valley",
+      "url": "https://www.petpoisonhelpline.com/poison/lily-of-the-valley/"
+    },
+    {
+      "title": "MSD Veterinary Manual — Houseplants and Ornamentals Toxic to Animals",
+      "url": "https://www.merckvetmanual.com/toxicology/poisonous-plants/houseplants-and-ornamentals-toxic-to-animals"
     }
   ],
   "review": {

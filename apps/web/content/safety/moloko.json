@@ -16,8 +16,7 @@
     "en": [
       "cow's milk",
       "cows milk",
-      "cream",
-      "dairy"
+      "cream"
     ]
   },
   "bySpecies": {
@@ -28,8 +27,8 @@
         "en": "With caution. Many adult cats digest milk poorly, and it can cause diarrhoea."
       },
       "why": {
-        "ru": "После отлучения от матери у кошек мало фермента, который расщепляет молочный сахар. Молоко — не замена воде и не нужно для здоровья. Сливки и сгущёнка ещё и очень жирные или сладкие.",
-        "en": "After weaning, cats have little of the enzyme that breaks down milk sugar. Milk is no substitute for water and is not needed for health. Cream and condensed milk are also very fatty or sweet."
+        "ru": "У кошек мало фермента, который расщепляет молочный сахар, поэтому молоко и молочные продукты могут вызвать понос и расстройство пищеварения. Сливки и сгущёнка ещё и очень жирные или сладкие.",
+        "en": "Cats have little of the enzyme that breaks down milk sugar, so milk and dairy foods can cause diarrhoea and digestive upset. Cream and condensed milk are also very fatty or sweet."
       },
       "signs": {
         "ru": [
@@ -52,8 +51,8 @@
         "en": "With caution. Many dogs do not tolerate milk well: it can cause diarrhoea and bloating."
       },
       "why": {
-        "ru": "У взрослых собак мало фермента, который расщепляет молочный сахар. Жирные молочные продукты могут навредить поджелудочной железе. Если давать — немного и не регулярно.",
-        "en": "Adult dogs have little of the enzyme that breaks down milk sugar. Fatty dairy foods can harm the pancreas. If you give any, a little and not regularly."
+        "ru": "У собак мало фермента, который расщепляет молочный сахар, поэтому молоко может вызвать понос и расстройство пищеварения. Если давать — немного и не регулярно.",
+        "en": "Dogs have little of the enzyme that breaks down milk sugar, so milk can cause diarrhoea and digestive upset. If you give any, a little and not regularly."
       },
       "signs": {
         "ru": [

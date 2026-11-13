@@ -28,12 +28,12 @@
     "cat": {
       "verdict": "danger",
       "summary": {
-        "ru": "Опасно. Кошки особенно чувствительны к нафталину: опасно проглотить шарик и опасны его пары.",
-        "en": "Dangerous. Cats are especially sensitive to naphthalene: swallowing a ball is dangerous, and so are the fumes."
+        "ru": "Опасно. Кошки чувствительнее других животных к средствам от моли: опасно проглотить шарик, а вещество всасывается и через кожу и при вдыхании.",
+        "en": "Dangerous. Cats are more sensitive than other animals to mothballs: swallowing a ball is dangerous, and the chemical is also absorbed through the skin and by breathing it in."
       },
       "why": {
-        "ru": "Нафталин разрушает красные клетки крови и повреждает печень и почки. Он действует при проглатывании, через кожу и при вдыхании паров. Более новые шарики с другим веществом менее опасны, но тоже вредны.",
-        "en": "Naphthalene destroys red blood cells and damages the liver and kidneys. It acts when swallowed, through the skin and when the fumes are breathed in. Newer balls with a different substance are less toxic but still harmful."
+        "ru": "Шарики от моли — это пестицид, который испаряется. Нафталиновые шарики опаснее более новых (с парадихлорбензолом), но и новые вредны, особенно если их проглотить. Нафталин в большом количестве разрушает красные клетки крови, а тяжёлое отравление может закончиться отказом печени и почек.",
+        "en": "Mothballs are a pesticide that turns into vapour. Naphthalene mothballs are more toxic than newer ones (with paradichlorobenzene), but the newer ones are harmful too, especially when swallowed. A large amount of naphthalene destroys red blood cells, and a severe poisoning can end in liver and kidney failure."
       },
       "signs": {
         "ru": [
@@ -58,12 +58,12 @@
     "dog": {
       "verdict": "danger",
       "summary": {
-        "ru": "Опасно. Собаки чаще кошек глотают шарики, а пары вредны и без этого.",
-        "en": "Dangerous. Dogs swallow mothballs more often than cats, and the fumes are harmful anyway."
+        "ru": "Опасно. Собаки глотают шарики от моли чаще кошек.",
+        "en": "Dangerous. Dogs swallow mothballs more often than cats do."
       },
       "why": {
-        "ru": "Нафталин повреждает красные клетки крови, печень и почки. Он действует при проглатывании, через кожу и при вдыхании. Шарики от моли похожи на конфеты и пахнут сильно, но питомцев это не всегда останавливает.",
-        "en": "Naphthalene harms red blood cells, the liver and the kidneys. It acts when swallowed, through the skin and when breathed in. Mothballs look like sweets and smell strongly, but that does not always stop pets."
+        "ru": "Шарики от моли — это пестицид, который испаряется; он действует при проглатывании, через кожу и при вдыхании. Нафталиновые шарики опаснее более новых (с парадихлорбензолом), но и новые вредны. Нафталин в большом количестве разрушает красные клетки крови, а тяжёлое отравление может закончиться отказом печени и почек.",
+        "en": "Mothballs are a pesticide that turns into vapour; it acts when swallowed, through the skin and when breathed in. Naphthalene mothballs are more toxic than newer ones (with paradichlorobenzene), but the newer ones are harmful too. A large amount of naphthalene destroys red blood cells, and a severe poisoning can end in liver and kidney failure."
       },
       "signs": {
         "ru": [
@@ -101,22 +101,21 @@
   "avoid": {
     "ru": [
       "Не вызывайте рвоту сами — только по указанию врача",
-      "Не давайте молоко и жирную еду — сначала позвоните врачу",
       "Не ждите признаков: они могут появиться позже"
     ],
     "en": [
       "Do not make your pet vomit unless a vet tells you to",
-      "Do not give milk or fatty food — call the vet first",
       "Do not wait for signs: they can appear later"
     ]
   },
   "sources": [
     {
       "title": "Pet Poison Helpline — Mothballs",
-      "url": "https://www.petpoisonhelpline.com/poisons/mothballs/"
+      "url": "https://www.petpoisonhelpline.com/poison/mothballs/"
     },
     {
-      "title": "MSD Veterinary Manual — Toxicology (poisoning in small animals)"
+      "title": "Merck Veterinary Manual — Toxicosis From Mothballs in Animals",
+      "url": "https://www.merckvetmanual.com/toxicology/toxicoses-from-household-hazards/toxicosis-from-mothballs-in-animals"
     }
   ],
   "review": {

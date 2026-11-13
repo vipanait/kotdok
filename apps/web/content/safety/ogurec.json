@@ -22,12 +22,12 @@
     "cat": {
       "verdict": "safe",
       "summary": {
-        "ru": "Можно как лакомство. Свежий огурец не ядовит, но кошке он не нужен.",
-        "en": "Safe as a treat. Fresh cucumber is not poisonous, but a cat does not need it."
+        "ru": "Можно как лакомство. Свежий огурец не ядовит, но это не замена корму.",
+        "en": "Safe as a treat. Fresh cucumber is not poisonous, but it is no substitute for food."
       },
       "why": {
-        "ru": "Огурец не ядовит для кошек и собак. Давайте свежий, без соли, маринада и специй, небольшими кусочками. Солёные и маринованные огурцы не подходят: в них соль, чеснок и специи.",
-        "en": "Cucumber is not poisonous to cats or dogs. Give it fresh, with no salt, brine or spices, in small pieces. Salted and pickled cucumbers are not suitable: they contain salt, garlic and spices."
+        "ru": "ASPCA относит огурец к неядовитым растениям для кошек и собак. Подходит свежий, без соли, рассола и специй, небольшими кусочками. Солёные и маринованные огурцы не подходят: в рассоле много соли, а часто ещё чеснок.",
+        "en": "The ASPCA lists cucumber as non-toxic to cats and dogs. It should be fresh, with no salt, brine or spices, in small pieces. Salted and pickled cucumbers are not suitable: brine is very salty and often contains garlic."
       },
       "signs": {
         "ru": [],
@@ -42,8 +42,8 @@
         "en": "Safe as a treat in small amounts, fresh and plain."
       },
       "why": {
-        "ru": "Огурец не ядовит для собак. Давайте свежий, без соли, маринада и специй, кусочками. Солёные и маринованные огурцы не подходят: в них соль, чеснок и специи.",
-        "en": "Cucumber is not poisonous to dogs. Give it fresh, with no salt, brine or spices, in pieces. Salted and pickled cucumbers are not suitable: they contain salt, garlic and spices."
+        "ru": "ASPCA относит огурец к неядовитым растениям для собак. Подходит свежий, без соли, рассола и специй, кусочками. Солёные и маринованные огурцы не подходят: в рассоле много соли, а часто ещё чеснок.",
+        "en": "The ASPCA lists cucumber as non-toxic to dogs. It should be fresh, with no salt, brine or spices, in pieces. Salted and pickled cucumbers are not suitable: brine is very salty and often contains garlic."
       },
       "signs": {
         "ru": [],
@@ -56,6 +56,10 @@
     {
       "title": "ASPCA Animal Poison Control — Cucumber",
       "url": "https://www.aspca.org/pet-care/animal-poison-control/toxic-and-non-toxic-plants/cucumber"
+    },
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/animal-poison-control/people-foods-avoid-feeding-your-pets"
     }
   ],
   "review": {

@@ -37,25 +37,23 @@
     "cat": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Кошки цитрусы не любят, а кожура и масла в ней вредны; мякоть — максимум изредка и кусочек.",
-        "en": "With caution. Cats dislike citrus, and the peel and its oils are harmful; flesh is at most a small piece now and then."
+        "ru": "С осторожностью. Мякоть съедобна, но кожура, листья и семена вредны; кошке цитрусы не нужны.",
+        "en": "With caution. The flesh is edible, but peel, leaves and seeds are harmful; a cat does not need citrus."
       },
       "why": {
-        "ru": "Мякоть при случайном кусочке обычно вызывает лишь лёгкое расстройство желудка. Кожура, семена, листья и эфирные масла раздражают желудок и могут вызвать угнетение, особенно у кошек. Лимонные и лаймовые сок и кислота раздражают слизистую.",
-        "en": "A small bite of flesh usually causes no more than a mild stomach upset. Peel, seeds, leaves and essential oils irritate the stomach and may cause lethargy, especially in cats. Lemon and lime juice and acid irritate the mouth and gut."
+        "ru": "В стеблях, листьях, кожуре, мякоти и семенах цитрусовых есть лимонная кислота и эфирные масла. От небольшого кусочка мякоти обычно бывает разве что лёгкое расстройство желудка, а от кожуры и частей растения в заметном количестве — рвота, понос и угнетённость. На коже от них бывает раздражение.",
+        "en": "Citrus stems, leaves, peel, flesh and seeds contain citric acid and essential oils. A small bite of flesh usually causes no more than a mild stomach upset, while a significant amount of peel or plant can cause vomiting, diarrhoea and low mood. On the skin they can cause irritation."
       },
       "signs": {
         "ru": [
           "рвота",
           "понос",
-          "вялость, отказ от еды",
-          "обильное слюнотечение"
+          "вялость, угнетённость"
         ],
         "en": [
           "vomiting",
           "diarrhoea",
-          "lethargy, refusing food",
-          "heavy drooling"
+          "lethargy, low mood"
         ]
       },
       "ifEaten": "watch"
@@ -63,25 +61,23 @@
     "dog": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Одна-две дольки мякоти без кожуры и косточек — изредка; кожура и масла вредны.",
-        "en": "With caution. One or two segments of flesh without peel or seeds, now and then; peel and oils are harmful."
+        "ru": "С осторожностью. Немного мякоти без кожуры и косточек — изредка; кожура и листья вредны.",
+        "en": "With caution. A little flesh without peel or seeds, now and then; peel and leaves are harmful."
       },
       "why": {
-        "ru": "Небольшой кусочек мякоти обычно вызывает лишь лёгкое расстройство желудка. Кожура, косточки, листья и эфирные масла раздражают желудок и могут вызвать угнетение. Лимон, лайм и грейпфрут слишком кислые и горькие, их лучше не давать.",
-        "en": "A small piece of flesh usually causes no more than a mild stomach upset. Peel, seeds, leaves and essential oils irritate the stomach and may cause lethargy. Lemon, lime and grapefruit are too sour and bitter, so best not given."
+        "ru": "В стеблях, листьях, кожуре, мякоти и семенах цитрусовых есть лимонная кислота и эфирные масла. От небольшого кусочка мякоти обычно бывает разве что лёгкое расстройство желудка, а от кожуры и частей растения в заметном количестве — рвота, понос и угнетённость. На коже от них бывает раздражение.",
+        "en": "Citrus stems, leaves, peel, flesh and seeds contain citric acid and essential oils. A small piece of flesh usually causes no more than a mild stomach upset, while a significant amount of peel or plant can cause vomiting, diarrhoea and low mood. On the skin they can cause irritation."
       },
       "signs": {
         "ru": [
           "рвота",
           "понос",
-          "вялость, отказ от еды",
-          "обильное слюнотечение"
+          "вялость, угнетённость"
         ],
         "en": [
           "vomiting",
           "diarrhoea",
-          "lethargy, refusing food",
-          "heavy drooling"
+          "lethargy, low mood"
         ]
       },
       "ifEaten": "watch"
@@ -101,21 +97,22 @@
   },
   "avoid": {
     "ru": [
-      "Не давайте кожуру, цедру и цитрусовые масла",
+      "Не давайте кожуру, цедру, листья и цитрусовые масла",
       "Не вызывайте рвоту сами — только по указанию врача"
     ],
     "en": [
-      "Do not give peel, zest or citrus oils",
+      "Do not give peel, zest, leaves or citrus oils",
       "Do not make your pet vomit unless a vet tells you to"
     ]
   },
   "sources": [
     {
-      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
-      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+      "title": "ASPCA Animal Poison Control — Orange",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/orange"
     },
     {
-      "title": "Merck Veterinary Manual — Food Hazards"
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
     }
   ],
   "review": {

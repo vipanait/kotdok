@@ -36,12 +36,12 @@
     "cat": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Сладкое кошке не нужно. Немного сахара не ядовито, но подсластитель ксилит и шоколад опасны.",
-        "en": "With caution. A cat does not need sweets. A little sugar is not poisonous, but the sweetener xylitol and chocolate are dangerous."
+        "ru": "С осторожностью. Сладкое кошке не нужно. Главная опасность — состав: ксилит, шоколад, изюм.",
+        "en": "With caution. A cat does not need sweets. The real danger is the ingredients: xylitol, chocolate, raisins."
       },
       "why": {
-        "ru": "Кошки не чувствуют сладкий вкус, и пользы от сладкого нет. Сахар может расстроить желудок. Главная опасность — состав: ксилит и шоколад, изюм или орехи в выпечке. Проверьте этикетку; про ксилит и шоколад есть отдельные статьи.",
-        "en": "Cats cannot taste sweetness and gain nothing from it. Sugar can upset the stomach. The real danger is the ingredients: xylitol, and chocolate, raisins or nuts in baked goods. Check the label; xylitol and chocolate have their own entries."
+        "ru": "Пользы от сладкого кошке нет. Главная опасность — состав: подсластитель ксилит, шоколад, изюм и орехи в выпечке. В выпечке ещё много жира, а жирное может вызвать рвоту и понос. Проверьте этикетку; про ксилит и шоколад есть отдельные статьи.",
+        "en": "Sweets do a cat no good. The real danger is the ingredients: the sweetener xylitol, and chocolate, raisins or nuts in baked goods. Baked goods are also fatty, and fatty food can cause vomiting and diarrhoea. Check the label; xylitol and chocolate have their own entries."
       },
       "signs": {
         "ru": [
@@ -58,12 +58,12 @@
     "dog": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Немного сахара не ядовито, но сладкое давать не стоит. Ксилит и шоколад в составе опасны.",
-        "en": "With caution. A little sugar is not poisonous, but sweets are best avoided. Xylitol and chocolate in the ingredients are dangerous."
+        "ru": "С осторожностью. Сладкое давать не стоит. Ксилит и шоколад в составе опасны.",
+        "en": "With caution. Sweets are best avoided. Xylitol and chocolate in the ingredients are dangerous."
       },
       "why": {
-        "ru": "Сахар вреден зубам и весу и может расстроить желудок. Главная опасность — состав: ксилит и шоколад, изюм или орехи в выпечке. Проверьте этикетку; про ксилит и шоколад есть отдельные статьи.",
-        "en": "Sugar is bad for teeth and weight and can upset the stomach. The real danger is the ingredients: xylitol, and chocolate, raisins or nuts in baked goods. Check the label; xylitol and chocolate have their own entries."
+        "ru": "Пользы от сладкого собаке нет. Главная опасность — состав: ксилит (бывает в конфетах, жвачке, джемах, сиропах) резко снижает сахар в крови у собак, а шоколад, изюм и орехи в выпечке тоже опасны. В выпечке ещё много жира, а жирное может вызвать рвоту и понос. Про ксилит и шоколад есть отдельные статьи.",
+        "en": "Sweets do a dog no good. The real danger is the ingredients: xylitol (found in candy, gum, jams and syrups) sharply drops a dog's blood sugar, and chocolate, raisins and nuts in baked goods are dangerous too. Baked goods are also fatty, and fatty food can cause vomiting and diarrhoea. Xylitol and chocolate have their own entries."
       },
       "signs": {
         "ru": [
@@ -81,12 +81,12 @@
   "firstSteps": {
     "ru": [
       "Прочитайте состав: нет ли ксилита, шоколада, изюма",
-      "Если есть ксилит или шоколад — сразу позвоните в клинику",
+      "Если есть ксилит, шоколад или изюм — сразу позвоните в клинику",
       "Если их нет — оставьте воду и наблюдайте за питомцем сутки"
     ],
     "en": [
       "Read the label for xylitol, chocolate or raisins",
-      "If xylitol or chocolate is there, call a clinic at once",
+      "If xylitol, chocolate or raisins are there, call a clinic at once",
       "If not, leave water available and watch your pet for a day"
     ]
   },
@@ -104,6 +104,10 @@
     {
       "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
       "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    },
+    {
+      "title": "Pet Poison Helpline — Xylitol",
+      "url": "https://www.petpoisonhelpline.com/poison/xylitol/"
     }
   ],
   "review": {

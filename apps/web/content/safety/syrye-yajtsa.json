@@ -9,16 +9,13 @@
   "aliases": {
     "ru": [
       "сырое яйцо",
-      "сырое яйцо",
       "яйцо сырое",
       "сырой белок",
-      "сырой желток",
-      "яичный белок"
+      "сырой желток"
     ],
     "en": [
       "raw egg",
       "raw eggs",
-      "egg white",
       "raw egg white",
       "uncooked eggs"
     ]
@@ -27,25 +24,27 @@
     "cat": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Сырые яйца могут нести сальмонеллу; варёное яйцо безопаснее.",
-        "en": "With caution. Raw eggs may carry salmonella; a cooked egg is the safer choice."
+        "ru": "С осторожностью. Сырые яйца могут нести сальмонеллу и кишечную палочку.",
+        "en": "With caution. Raw eggs may carry Salmonella and E. coli."
       },
       "why": {
-        "ru": "На сыром яйце бывают сальмонелла и другие бактерии. Сырой белок мешает усвоению витамина биотина, при частом кормлении страдают шерсть и кожа. Варёное яйцо без соли и масла изредка допустимо.",
-        "en": "Raw eggs may carry salmonella and other bacteria. Raw egg white interferes with absorbing the vitamin biotin, so frequent feeding harms skin and coat. A plain cooked egg without salt or butter is acceptable now and then."
+        "ru": "В сырых яйцах бывают сальмонелла и кишечная палочка. Питомец может их переносить без признаков и заражать людей. В сыром яйце есть фермент, который мешает усвоению некоторых витаминов; это может сказаться на коже и шерсти.",
+        "en": "Raw eggs may carry Salmonella and E. coli. A pet can carry them without signs and pass them to people. Raw egg contains an enzyme that interferes with absorbing certain vitamins, which can affect skin and coat."
       },
       "signs": {
         "ru": [
           "рвота",
-          "понос",
-          "вялость",
-          "отказ от еды"
+          "понос, иногда с кровью",
+          "повышенная температура",
+          "отказ от еды",
+          "вялость"
         ],
         "en": [
           "vomiting",
-          "diarrhoea",
-          "lethargy",
-          "refusing food"
+          "diarrhoea, sometimes bloody",
+          "raised temperature",
+          "refusing food",
+          "lethargy"
         ]
       },
       "ifEaten": "watch"
@@ -53,25 +52,27 @@
     "dog": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Сырые яйца могут нести сальмонеллу; варёное яйцо безопаснее.",
-        "en": "With caution. Raw eggs may carry salmonella; a cooked egg is the safer choice."
+        "ru": "С осторожностью. Сырые яйца могут нести сальмонеллу и кишечную палочку.",
+        "en": "With caution. Raw eggs may carry Salmonella and E. coli."
       },
       "why": {
-        "ru": "Сырое яйцо несёт риск сальмонеллы и других бактерий, а сырой белок мешает усвоению биотина, и при частом кормлении страдают кожа и шерсть. Варёное яйцо без соли и масла изредка допустимо.",
-        "en": "A raw egg carries a risk of salmonella and other bacteria, and raw egg white interferes with biotin, so frequent feeding harms skin and coat. A plain cooked egg without salt or butter is acceptable now and then."
+        "ru": "В сырых яйцах бывают сальмонелла и кишечная палочка. Питомец может их переносить без признаков и заражать людей. В сыром яйце есть фермент, который мешает усвоению некоторых витаминов; это может сказаться на коже и шерсти.",
+        "en": "Raw eggs may carry Salmonella and E. coli. A pet can carry them without signs and pass them to people. Raw egg contains an enzyme that interferes with absorbing certain vitamins, which can affect skin and coat."
       },
       "signs": {
         "ru": [
           "рвота",
-          "понос",
-          "вялость",
-          "отказ от еды"
+          "понос, иногда с кровью",
+          "повышенная температура",
+          "отказ от еды",
+          "вялость"
         ],
         "en": [
           "vomiting",
-          "diarrhoea",
-          "lethargy",
-          "refusing food"
+          "diarrhoea, sometimes bloody",
+          "raised temperature",
+          "refusing food",
+          "lethargy"
         ]
       },
       "ifEaten": "watch"
@@ -107,7 +108,8 @@
       "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
     },
     {
-      "title": "MSD Veterinary Manual — Food Hazards in Small Animals"
+      "title": "FDA — Get the Facts about Salmonella",
+      "url": "https://www.fda.gov/animal-veterinary/animal-health-literacy/get-facts-about-salmonella"
     }
   ],
   "review": {

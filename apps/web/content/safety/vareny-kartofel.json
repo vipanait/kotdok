@@ -15,29 +15,30 @@
       "картофель вареный",
       "картофель отварной",
       "отварную картошку",
+      "картошка",
       "картошку",
       "картофель",
-      "картофельное пюре",
-      "пюре"
+      "картофельное пюре"
     ],
     "en": [
       "boiled potatoes",
       "cooked potato",
       "mashed potato",
       "plain potato",
-      "potato"
+      "potato",
+      "potatoes"
     ]
   },
   "bySpecies": {
     "cat": {
-      "verdict": "caution",
+      "verdict": "safe",
       "summary": {
-        "ru": "С осторожностью. Кусочек простого варёного картофеля — изредка. Сырой и зелёный картофель опасен.",
-        "en": "With caution. A piece of plain boiled potato now and then. Raw and green potato is dangerous."
+        "ru": "Можно. Кусочек простого варёного картофеля — изредка. Сырой картофель — другое дело.",
+        "en": "Safe. A piece of plain boiled potato now and then. Raw potato is a different matter."
       },
       "why": {
-        "ru": "Хорошо проваренный картофель не ядовит, но кошке нужна мясная еда. Сырой картофель, зелёные клубни и ботва содержат соланин. Не давайте жареный картофель, чипсы и пюре с маслом, молоком или солью.",
-        "en": "Well-cooked potato is not poisonous, but a cat needs a meat diet. Raw potato, green tubers and the plant's leaves contain solanine. Do not give fried potato, chips or mash with butter, milk or salt."
+        "ru": "Варёный картофель в умеренном количестве питомцам подходит, а сырой может навредить — про сырой и зелёный картофель есть отдельная статья. Условия: простой, без соли, масла, молока и специй: молочное и жирное могут расстроить желудок, а много соли опасно. Жареный картофель и чипсы — уже жирное и солёное.",
+        "en": "Cooked potato in moderation is fine for pets, while raw potato can cause problems; raw and green potato has its own entry. Conditions: plain, with no salt, butter, milk or spices: dairy and fat can upset the stomach, and a lot of salt is dangerous. Fried potato and crisps count as fatty and salty food."
       },
       "signs": {
         "ru": [],
@@ -46,14 +47,14 @@
       "ifEaten": "none"
     },
     "dog": {
-      "verdict": "caution",
+      "verdict": "safe",
       "summary": {
-        "ru": "С осторожностью. Кусочек простого варёного картофеля — изредка. Сырой и зелёный картофель опасен.",
-        "en": "With caution. A piece of plain boiled potato now and then. Raw and green potato is dangerous."
+        "ru": "Можно. Кусочек простого варёного картофеля — изредка. Сырой картофель — другое дело.",
+        "en": "Safe. A piece of plain boiled potato now and then. Raw potato is a different matter."
       },
       "why": {
-        "ru": "Хорошо проваренный картофель не ядовит. Сырой картофель, зелёные клубни и ботва содержат соланин. Не давайте жареный картофель, чипсы и пюре с маслом, молоком или солью.",
-        "en": "Well-cooked potato is not poisonous. Raw potato, green tubers and the plant's leaves contain solanine. Do not give fried potato, chips or mash with butter, milk or salt."
+        "ru": "Варёный картофель в умеренном количестве питомцам подходит, а сырой может навредить — про сырой и зелёный картофель есть отдельная статья. Условия: простой, без соли, масла, молока и специй: молочное и жирное могут расстроить желудок, а много соли опасно. Жареный картофель и чипсы — уже жирное и солёное.",
+        "en": "Cooked potato in moderation is fine for pets, while raw potato can cause problems; raw and green potato has its own entry. Conditions: plain, with no salt, butter, milk or spices: dairy and fat can upset the stomach, and a lot of salt is dangerous. Fried potato and crisps count as fatty and salty food."
       },
       "signs": {
         "ru": [],
@@ -63,6 +64,10 @@
     }
   },
   "sources": [
+    {
+      "title": "ASPCA — Pets and Produce: Top Tips on Vegetable Garden Safety",
+      "url": "https://www.aspca.org/news/pets-and-produce-top-tips-vegetable-garden-safety"
+    },
     {
       "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
       "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"

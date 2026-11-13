@@ -24,25 +24,25 @@
     "cat": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Мякоть обычно не опасна, но косточка и кожура — риск.",
-        "en": "With caution. The flesh is usually not dangerous, but the pit and skin are a risk."
+        "ru": "С осторожностью. Мякоть авокадо не считается ядовитой для кошек, но угощать ею не стоит; косточка опасна.",
+        "en": "With caution. Avocado flesh is not considered poisonous to cats, but it is not a good treat; the pit is dangerous."
       },
       "why": {
-        "ru": "В авокадо есть персин. Птицам и травоядным он опасен, кошки и собаки к нему менее чувствительны. Главная беда — крупная косточка: её могут проглотить, и она застрянет в кишечнике. Мякоть жирная и может расстроить желудок; в гуакамоле часто есть лук и чеснок.",
-        "en": "Avocado contains persin. It is dangerous to birds and grazing animals, while cats and dogs are less sensitive. The main trouble is the large pit: it can be swallowed and block the gut. The flesh is fatty and can upset the stomach; guacamole often contains onion and garlic."
+        "ru": "В авокадо есть персин. Он опасен прежде всего птицам, кроликам, лошадям и жвачным животным; кошки и собаки к нему менее чувствительны. Главная опасность — косточка: она может застрять в горле или закупорить кишечник. Мякоть жирная и может вызвать воспаление поджелудочной железы. В гуакамоле часто есть лук и чеснок — о них есть отдельные статьи.",
+        "en": "Avocado contains persin. It is mainly dangerous to birds, rabbits, horses and grazing animals; cats and dogs are less sensitive to it. The main danger is the pit: it can choke or block the gut. The flesh is fatty and can inflame the pancreas. Guacamole often contains onion and garlic — they have their own entries."
       },
       "signs": {
         "ru": [
           "рвота",
           "понос",
           "отказ от еды",
-          "вздутый живот, если проглочена косточка"
+          "вялость, натуживание или боль в животе, если проглочена косточка"
         ],
         "en": [
           "vomiting",
           "diarrhoea",
           "refusing food",
-          "swollen belly if the pit was swallowed"
+          "lethargy, straining or belly pain if the pit was swallowed"
         ]
       },
       "ifEaten": "watch"
@@ -50,25 +50,25 @@
     "dog": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Немного мякоти изредка допустимо; косточку и кожуру собаке не давайте.",
-        "en": "With caution. A little flesh now and then is acceptable; do not give the pit or skin."
+        "ru": "С осторожностью. Мякоть авокадо не считается ядовитой для собак, но угощать ею не стоит; косточка опасна.",
+        "en": "With caution. Avocado flesh is not considered poisonous to dogs, but it is not a good treat; the pit is dangerous."
       },
       "why": {
-        "ru": "Персин для собак слабо опасен, но косточка легко застревает в пищеводе и кишечнике, а жирная мякоть может воспалить поджелудочную железу. Изредка — маленький кусочек мякоти без косточки и кожуры. Гуакамоле с луком и чесноком давать нельзя.",
-        "en": "Persin is only weakly harmful to dogs, but the pit easily lodges in the gullet or gut, and fatty flesh can inflame the pancreas. Now and then, a small piece of flesh without pit or skin. Guacamole with onion and garlic is not for dogs."
+        "ru": "Собаки к персину менее чувствительны, чем птицы и кролики, но от него бывают рвота и понос. Жирная мякоть может воспалить поджелудочную железу. Главная опасность — косточка: она может закупорить кишечник, это повод срочно ехать в клинику. В гуакамоле часто есть лук и чеснок, а они ядовиты для собак.",
+        "en": "Dogs are less sensitive to persin than birds and rabbits, but it can bring on vomiting and diarrhoea. The fatty flesh can inflame the pancreas. The main danger is the pit: it can block the gut, which is an emergency. Guacamole often contains onion and garlic, which are poisonous to dogs."
       },
       "signs": {
         "ru": [
           "рвота",
           "понос",
-          "боль в животе",
-          "напрасные позывы на рвоту и вздутый живот, если проглочена косточка"
+          "отказ от еды",
+          "повторная рвота, вялость, натуживание или боль в животе, если проглочена косточка"
         ],
         "en": [
           "vomiting",
           "diarrhoea",
-          "belly pain",
-          "retching with nothing coming up and a swollen belly if the pit was swallowed"
+          "refusing food",
+          "repeated vomiting, lethargy, straining or belly pain if the pit was swallowed"
         ]
       },
       "ifEaten": "watch"
@@ -76,16 +76,16 @@
   },
   "firstSteps": {
     "ru": [
+      "Если проглочена косточка, позвоните в клинику сразу",
       "Уберите остатки и проследите за питомцем",
       "Если появились признаки из списка или питомцу стало хуже, позвоните в клинику",
-      "Запомните, что и когда было съедено",
-      "Если проглочена косточка, позвоните в клинику сразу"
+      "Запомните, что и когда было съедено"
     ],
     "en": [
+      "If the pit was swallowed, call a clinic straight away",
       "Put the rest away and keep an eye on your pet",
       "If any of the listed signs appear or your pet gets worse, call a clinic",
-      "Note what was eaten and when",
-      "If the pit was swallowed, call a clinic straight away"
+      "Note what was eaten and when"
     ]
   },
   "avoid": {
@@ -102,12 +102,12 @@
   },
   "sources": [
     {
-      "title": "ASPCA Animal Poison Control — Toxic and Non-Toxic Plants: Avocado",
-      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/avocado"
+      "title": "Pet Poison Helpline — Can Dogs Eat Avocado? Safety, Risks & What To Do",
+      "url": "https://www.petpoisonhelpline.com/blog/can-dogs-eat-avocado/"
     },
     {
-      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
-      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+      "title": "ASPCA Animal Poison Control — Toxic and Non-Toxic Plants: Avocado",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/avocado"
     }
   ],
   "review": {

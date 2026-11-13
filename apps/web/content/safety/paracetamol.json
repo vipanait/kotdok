@@ -23,27 +23,27 @@
     "cat": {
       "verdict": "danger",
       "summary": {
-        "ru": "Опасно. Для кошки безопасного количества парацетамола нет.",
-        "en": "Dangerous. There is no safe amount of paracetamol for a cat."
+        "ru": "Опасно. Для кошки парацетамол особенно опасен: ей вредит гораздо меньшее количество, чем собаке.",
+        "en": "Dangerous. Paracetamol is especially dangerous to cats: a much smaller amount harms them than harms a dog."
       },
       "why": {
-        "ru": "Печень кошки почти не может обезвредить парацетамол. Он нарушает перенос кислорода кровью, разрушает эритроциты и может повредить печень. Признаки появляются в течение нескольких часов.",
-        "en": "A cat’s liver can hardly break paracetamol down. It stops the blood carrying oxygen, destroys red blood cells and can damage the liver. Signs appear within a few hours."
+        "ru": "Парацетамол меняет гемоглобин крови, и она хуже переносит кислород; ещё он может повредить печень. У кошек это развивается в течение нескольких часов.",
+        "en": "Paracetamol changes the haemoglobin in the blood so it carries oxygen poorly, and it can damage the liver. In cats this develops within a few hours."
       },
       "signs": {
         "ru": [
-          "коричневые или синюшные дёсны",
-          "частое, тяжёлое дыхание",
+          "коричневые, грязно-серые или синюшные дёсны",
+          "частое или глубокое дыхание",
           "отёк морды и лап",
-          "слабость, рвота",
-          "тёмная моча"
+          "слабость, вялость",
+          "позже — желтушность дёсен и кожи"
         ],
         "en": [
-          "brown or bluish gums",
-          "fast, laboured breathing",
+          "brown, muddy or bluish gums",
+          "fast or deep breathing",
           "swelling of the face and paws",
-          "weakness, vomiting",
-          "dark urine"
+          "weakness, lethargy",
+          "later on, yellowish gums and skin"
         ]
       },
       "ifEaten": "call_now"
@@ -61,17 +61,17 @@
       "signs": {
         "ru": [
           "рвота, отказ от еды",
-          "боль в животе",
-          "коричневые или бледные дёсны",
+          "коричневые или синюшные дёсны",
           "частое дыхание",
-          "желтушность слизистых позже"
+          "слабость, вялость",
+          "позже — желтушность дёсен и кожи"
         ],
         "en": [
           "vomiting, not eating",
-          "belly pain",
-          "brown or pale gums",
+          "brown or bluish gums",
           "fast breathing",
-          "yellowish gums later on"
+          "weakness, lethargy",
+          "later on, yellowish gums and skin"
         ]
       },
       "ifEaten": "call_now"
@@ -99,7 +99,7 @@
     ],
     "en": [
       "Do not give other human medicines “to help”: they are dangerous too",
-      "Do not induce vomiting unless a vet tells you to",
+      "Do not make your pet vomit unless a vet tells you to",
       "Tell the vet if you gave the medicine yourself: the right help depends on it"
     ]
   },
@@ -109,7 +109,8 @@
       "url": "https://www.petpoisonhelpline.com/poison/acetaminophen/"
     },
     {
-      "title": "MSD Veterinary Manual — отравления обезболивающими для людей"
+      "title": "Merck Veterinary Manual — Poisoning from Human Over-the-Counter Drugs",
+      "url": "https://www.merckvetmanual.com/special-pet-topics/poisoning/poisoning-from-human-over-the-counter-drugs"
     }
   ],
   "review": {

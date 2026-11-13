@@ -36,23 +36,23 @@
         "en": "Dangerous. Human iron supplements and multivitamins are dangerous to cats."
       },
       "why": {
-        "ru": "Много железа раздражает желудок и кишечник, а затем может повредить печень и другие органы. В мультивитаминах железа, как и других веществ, бывает много. Что делать, решает врач.",
-        "en": "Too much iron irritates the stomach and gut and can then damage the liver and other organs. Multivitamins can contain a lot of iron and other substances. The vet decides what to do."
+        "ru": "Много железа раздражает желудок и кишечник, а затем может повредить печень. В мультивитаминах опасны прежде всего железо и витамины A и D; остальное чаще вызывает лишь расстройство желудка, но по упаковке это не оценить. Что делать, решает врач.",
+        "en": "Too much iron irritates the stomach and gut and can then damage the liver. In multivitamins the main risks are iron and vitamins A and D; the rest usually causes only a stomach upset, but you cannot judge that from the box. The vet decides what to do."
       },
       "signs": {
         "ru": [
           "рвота, иногда с кровью",
-          "понос",
+          "понос, иногда с кровью",
           "вялость",
-          "боль в животе",
-          "отказ от еды"
+          "отказ от еды",
+          "повышенная температура"
         ],
         "en": [
           "vomiting, sometimes with blood",
-          "diarrhoea",
+          "diarrhoea, sometimes with blood",
           "lethargy",
-          "belly pain",
-          "not eating"
+          "not eating",
+          "raised body temperature"
         ]
       },
       "ifEaten": "call_now"
@@ -64,23 +64,23 @@
         "en": "Dangerous. Human iron supplements and multivitamins are dangerous to dogs."
       },
       "why": {
-        "ru": "Избыток железа раздражает желудок и кишечник, в тяжёлых случаях страдают печень и другие органы; признаки могут стихнуть, а потом вернуться. Насколько это опасно, оценит врач.",
-        "en": "Excess iron irritates the stomach and gut and in serious cases harms the liver and other organs; signs may ease and then return. The vet will judge how dangerous it is."
+        "ru": "Избыток железа раздражает желудок и кишечник; первые признаки обычно появляются в течение нескольких часов, а поражение печени возможно позже, через 12–24 часа. Насколько это опасно, оценит врач.",
+        "en": "Excess iron irritates the stomach and gut; the first signs usually appear within a few hours, and liver damage can follow later, after 12–24 hours. The vet will judge how dangerous it is."
       },
       "signs": {
         "ru": [
           "рвота, иногда с кровью",
-          "чёрный или кровавый стул",
+          "понос, иногда с кровью",
           "вялость",
-          "боль в животе",
-          "отказ от еды"
+          "отказ от еды",
+          "повышенная температура"
         ],
         "en": [
           "vomiting, sometimes with blood",
-          "black or bloody stool",
+          "diarrhoea, sometimes with blood",
           "lethargy",
-          "belly pain",
-          "not eating"
+          "not eating",
+          "raised body temperature"
         ]
       },
       "ifEaten": "call_now"
@@ -114,10 +114,12 @@
   },
   "sources": [
     {
-      "title": "Pet Poison Helpline — Poison Database"
+      "title": "MSD Veterinary Manual — Poisoning from Human Over-the-Counter Drugs",
+      "url": "https://www.merckvetmanual.com/special-pet-topics/poisoning/poisoning-from-human-over-the-counter-drugs"
     },
     {
-      "title": "MSD Veterinary Manual — Toxicology"
+      "title": "Pet Poison Helpline — Iron",
+      "url": "https://petpoisonhelpline.com/poison/iron/"
     }
   ],
   "review": {

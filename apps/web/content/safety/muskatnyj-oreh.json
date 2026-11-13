@@ -12,40 +12,37 @@
       "мускатный орех молотый",
       "мускатного ореха",
       "мускатный орешек",
-      "мускатный цвет",
-      "макис",
       "пряность мускатный орех"
     ],
     "en": [
       "nutmeg",
       "ground nutmeg",
-      "whole nutmeg",
-      "mace"
+      "whole nutmeg"
     ]
   },
   "bySpecies": {
     "cat": {
       "verdict": "danger",
       "summary": {
-        "ru": "Нельзя. Мускатный орех содержит миристицин: он поражает нервную систему и вызывает рвоту, дезориентацию и учащённое сердцебиение.",
-        "en": "No. Nutmeg contains myristicin, which affects the nervous system and causes vomiting, disorientation and a fast heartbeat."
+        "ru": "Нельзя. В мускатном орехе есть миристицин: если питомец съел много пряности или целые орехи, возможны дезориентация, учащённое сердцебиение и судороги.",
+        "en": "No. Nutmeg contains myristicin: if a pet eats a lot of the spice or whole nuts, disorientation, a fast heartbeat and seizures are possible."
       },
       "why": {
-        "ru": "Мускатный орех содержит миристицин, и в количествах, которые легко съесть из выпечки или с блюдом, он вызывает отравление. Опасен и молотый, и целый орех, включая выпечку, пудинги и напитки с мускатом. Признаки могут появиться не сразу, а через несколько часов.",
-        "en": "Nutmeg contains myristicin, which in amounts easily eaten from baking or a dish can cause poisoning. Both ground and whole nutmeg are dangerous, including baking, puddings and drinks spiced with nutmeg. Signs may appear not at once but after several hours."
+        "ru": "Мускатный орех содержит токсин миристицин. Немного муската в готовом блюде или выпечке вряд ли вызовет серьёзное отравление — возможно лёгкое расстройство желудка. Но после большого количества пряности или целых орехов бывают дезориентация, галлюцинации, учащённое сердцебиение, повышенное давление, сухость во рту, боль в животе и судороги; признаки держатся до двух суток.",
+        "en": "Nutmeg contains a toxin called myristicin. A little nutmeg in a cooked dish or baking is unlikely to cause serious poisoning — a mild stomach upset is possible. But after a large amount of the spice or whole nuts there can be disorientation, hallucinations, a fast heartbeat, high blood pressure, dry mouth, belly pain and seizures; signs can last up to two days."
       },
       "signs": {
         "ru": [
-          "рвота",
-          "дезориентация, сонливость или возбуждение",
+          "дезориентация, странное поведение",
           "учащённое сердцебиение",
-          "дрожь, судороги"
+          "боль в животе, расстройство желудка",
+          "судороги"
         ],
         "en": [
-          "vomiting",
-          "disorientation, drowsiness or agitation",
+          "disorientation, strange behaviour",
           "fast heartbeat",
-          "tremors, seizures"
+          "belly pain, stomach upset",
+          "seizures"
         ]
       },
       "ifEaten": "call_now"
@@ -53,25 +50,25 @@
     "dog": {
       "verdict": "danger",
       "summary": {
-        "ru": "Нельзя. Мускатный орех содержит миристицин: он поражает нервную систему и вызывает рвоту, дезориентацию и учащённое сердцебиение.",
-        "en": "No. Nutmeg contains myristicin, which affects the nervous system and causes vomiting, disorientation and a fast heartbeat."
+        "ru": "Нельзя. В мускатном орехе есть миристицин: если питомец съел много пряности или целые орехи, возможны дезориентация, учащённое сердцебиение и судороги.",
+        "en": "No. Nutmeg contains myristicin: if a pet eats a lot of the spice or whole nuts, disorientation, a fast heartbeat and seizures are possible."
       },
       "why": {
-        "ru": "Мускатный орех содержит миристицин, и в количествах, которые легко съесть из выпечки или с блюдом, он вызывает отравление. Опасен и молотый, и целый орех, включая выпечку, пудинги и напитки с мускатом. Признаки могут появиться не сразу, а через несколько часов.",
-        "en": "Nutmeg contains myristicin, which in amounts easily eaten from baking or a dish can cause poisoning. Both ground and whole nutmeg are dangerous, including baking, puddings and drinks spiced with nutmeg. Signs may appear not at once but after several hours."
+        "ru": "Мускатный орех содержит токсин миристицин. Немного муската в готовом блюде или выпечке вряд ли вызовет серьёзное отравление — возможно лёгкое расстройство желудка. Но после большого количества пряности или целых орехов бывают дезориентация, галлюцинации, учащённое сердцебиение, повышенное давление, сухость во рту, боль в животе и судороги; признаки держатся до двух суток.",
+        "en": "Nutmeg contains a toxin called myristicin. A little nutmeg in a cooked dish or baking is unlikely to cause serious poisoning — a mild stomach upset is possible. But after a large amount of the spice or whole nuts there can be disorientation, hallucinations, a fast heartbeat, high blood pressure, dry mouth, belly pain and seizures; signs can last up to two days."
       },
       "signs": {
         "ru": [
-          "рвота",
-          "дезориентация, сонливость или возбуждение",
+          "дезориентация, странное поведение",
           "учащённое сердцебиение",
-          "дрожь, судороги"
+          "боль в животе, расстройство желудка",
+          "судороги"
         ],
         "en": [
-          "vomiting",
-          "disorientation, drowsiness or agitation",
+          "disorientation, strange behaviour",
           "fast heartbeat",
-          "tremors, seizures"
+          "belly pain, stomach upset",
+          "seizures"
         ]
       },
       "ifEaten": "call_now"
@@ -79,35 +76,32 @@
   },
   "firstSteps": {
     "ru": [
-      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
-      "Уберите остатки и сохраните упаковку или косточки, если они есть",
+      "Если съедена пряность из банки или целый орех, сразу позвоните в клинику, даже если питомец ведёт себя как обычно",
+      "Уберите остатки и сохраните упаковку",
       "Прикиньте, сколько могло быть съедено и когда, и расскажите врачу"
     ],
     "en": [
-      "Call a vet clinic right away, even if your pet seems fine",
-      "Put away the leftovers and keep the packaging or pits if there are any",
+      "If spice from the jar or a whole nut was eaten, call a clinic right away, even if your pet seems fine",
+      "Put away the leftovers and keep the packaging",
       "Work out roughly how much was eaten and when, and tell the vet"
     ]
   },
   "avoid": {
     "ru": [
-      "Не ждите признаков: они могут появиться через несколько часов",
-      "Не оставляйте пряности и выпечку с мускатом в доступе",
+      "Не ждите признаков, если съедено много пряности",
+      "Не оставляйте пряности в доступе",
       "Не вызывайте рвоту сами — только по указанию врача"
     ],
     "en": [
-      "Do not wait for signs: they can appear hours later",
-      "Do not leave spices or baking with nutmeg within reach",
+      "Do not wait for signs if a lot of the spice was eaten",
+      "Do not leave spices within reach",
       "Do not make your pet vomit unless a vet tells you to"
     ]
   },
   "sources": [
     {
-      "title": "Pet Poison Helpline — Poison Guide: Foods"
-    },
-    {
-      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
-      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+      "title": "Pet Poison Helpline — Nutmeg and Cinnamon Toxicity",
+      "url": "https://www.petpoisonhelpline.com/poisons/nutmeg/"
     }
   ],
   "review": {

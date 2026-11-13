@@ -28,8 +28,8 @@
         "en": "With caution. Aloe is poisonous to cats: vomiting and diarrhoea are possible."
       },
       "why": {
-        "ru": "В листьях есть сапонины и антрахиноны, они раздражают кишечник. Больше всего их в жёлтом соке под кожицей листа. Лёгкое расстройство обычно проходит само, но при сильных или долгих признаках, а также если питомец вялый, звоните в клинику.",
-        "en": "The leaves contain saponins and anthraquinones, which irritate the gut. Most of them are in the yellow sap under the skin of the leaf. A mild upset usually passes by itself, but if signs are strong or last long, or your pet is lethargic, call a clinic."
+        "ru": "В алоэ есть сапонины и антрахиноны, они раздражают желудок и кишечник. Обычно бывает лёгкое или умеренное расстройство, но изредка начинается резкий сильный понос. Если признаки сильные или долгие, а также если питомец вялый, звоните в клинику.",
+        "en": "Aloe contains saponins and anthraquinones, which irritate the stomach and gut. Usually the upset is mild or moderate, but now and then sudden heavy diarrhoea starts. If signs are strong or last long, or your pet is lethargic, call a clinic."
       },
       "signs": {
         "ru": [
@@ -52,8 +52,8 @@
         "en": "With caution. Aloe is poisonous to dogs: vomiting and diarrhoea are possible."
       },
       "why": {
-        "ru": "В листьях есть сапонины и антрахиноны, они раздражают кишечник. Больше всего их в жёлтом соке под кожицей листа. Лёгкое расстройство обычно проходит само, но при сильных или долгих признаках, а также если питомец вялый, звоните в клинику.",
-        "en": "The leaves contain saponins and anthraquinones, which irritate the gut. Most of them are in the yellow sap under the skin of the leaf. A mild upset usually passes by itself, but if signs are strong or last long, or your pet is lethargic, call a clinic."
+        "ru": "В алоэ есть сапонины и антрахиноны, они раздражают желудок и кишечник. Обычно бывает лёгкое или умеренное расстройство, но изредка начинается резкий сильный понос. Если признаки сильные или долгие, а также если питомец вялый, звоните в клинику.",
+        "en": "Aloe contains saponins and anthraquinones, which irritate the stomach and gut. Usually the upset is mild or moderate, but now and then sudden heavy diarrhoea starts. If signs are strong or last long, or your pet is lethargic, call a clinic."
       },
       "signs": {
         "ru": [
@@ -73,7 +73,7 @@
   "firstSteps": {
     "ru": [
       "Уберите растение и выньте остатки из пасти питомца",
-      "Дайте питомцу свежую воду для питья",
+      "Оставьте питомцу миску со свежей водой",
       "Понаблюдайте за ним несколько часов",
       "Если появились признаки или их стало больше, позвоните в клинику"
     ],
@@ -100,6 +100,10 @@
     {
       "title": "ASPCA Animal Poison Control — Aloe",
       "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/aloe"
+    },
+    {
+      "title": "MSD Veterinary Manual — Houseplants and Ornamentals Toxic to Animals",
+      "url": "https://www.merckvetmanual.com/toxicology/poisonous-plants/houseplants-and-ornamentals-toxic-to-animals"
     }
   ],
   "review": {

@@ -24,25 +24,21 @@
     "cat": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Немного спелой мякоти без семян изредка; семена и кожура вредны.",
-        "en": "With caution. A little ripe flesh without seeds now and then; seeds and skin are harmful."
+        "ru": "С осторожностью. Немного спелой мякоти без семян и кожуры — изредка.",
+        "en": "With caution. A little ripe flesh without seeds or skin, now and then."
       },
       "why": {
-        "ru": "Семена хурмы могут застрять в кишечнике, а у недозрелых плодов вяжущие вещества тяжело переваривать. Мякоть не считается ядовитой, но сладкая и кошке не нужна.",
-        "en": "Persimmon seeds can lodge in the gut, and the astringent compounds of unripe fruit are hard to digest. The flesh is not considered poisonous but is sweet, and a cat does not need it."
+        "ru": "Данных о хурме в справочниках ядов мало, поэтому — осторожно. Если и предлагать, то кусочек спелой мякоти без семян и кожуры: от избытка сладкого бывают понос и газы. Кошке фрукты не нужны.",
+        "en": "There is little data on persimmons in poison references, so take care. If you offer any, a small piece of ripe flesh without seeds or skin: too much sugar can cause diarrhoea and gas. A cat does not need fruit."
       },
       "signs": {
         "ru": [
-          "рвота",
           "понос",
-          "вялость, отказ от еды",
-          "позывы на рвоту без результата, вздутый живот — если проглочена сердцевина или косточка"
+          "вздутие, газы"
         ],
         "en": [
-          "vomiting",
           "diarrhoea",
-          "lethargy, refusing food",
-          "retching with nothing coming up, swollen belly — if a core or pit was swallowed"
+          "bloating, gas"
         ]
       },
       "ifEaten": "watch"
@@ -50,25 +46,21 @@
     "dog": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Немного спелой мякоти без семян и кожуры изредка; семена опасны.",
-        "en": "With caution. A little ripe flesh without seeds and skin now and then; seeds are dangerous."
+        "ru": "С осторожностью. Немного спелой мякоти без семян и кожуры — изредка.",
+        "en": "With caution. A little ripe flesh without seeds or skin, now and then."
       },
       "why": {
-        "ru": "Семена хурмы могут вызвать непроходимость кишечника, особенно у небольшой собаки, а недозрелые плоды вяжущие и тяжело перевариваются. Мякоть сладкая: много сразу вызывает понос.",
-        "en": "Persimmon seeds can block the gut, especially in a small dog, and unripe fruit is astringent and hard to digest. The flesh is sweet: a lot at once causes diarrhoea."
+        "ru": "Данных о хурме в справочниках ядов мало, поэтому — осторожно. Если и предлагать, то немного спелой мякоти без семян и кожуры, изредка: от избытка сладкого бывают понос и газы.",
+        "en": "There is little data on persimmons in poison references, so take care. If you offer any, a little ripe flesh without seeds or skin, now and then: too much sugar can cause diarrhoea and gas."
       },
       "signs": {
         "ru": [
-          "рвота",
           "понос",
-          "вялость, отказ от еды",
-          "позывы на рвоту без результата, вздутый живот — если проглочена сердцевина или косточка"
+          "вздутие, газы"
         ],
         "en": [
-          "vomiting",
           "diarrhoea",
-          "lethargy, refusing food",
-          "retching with nothing coming up, swollen belly — if a core or pit was swallowed"
+          "bloating, gas"
         ]
       },
       "ifEaten": "watch"
@@ -88,22 +80,18 @@
   },
   "avoid": {
     "ru": [
-      "Не давайте сердцевину и семечки",
-      "Не ждите, если живот вздулся и есть безрезультатные позывы на рвоту: это срочно",
+      "Не давайте семена и кожуру",
       "Не вызывайте рвоту сами — только по указанию врача"
     ],
     "en": [
-      "Do not give the core or seeds",
-      "Do not wait if the belly swells and there is retching with nothing coming up: that is urgent",
+      "Do not give the seeds or skin",
       "Do not make your pet vomit unless a vet tells you to"
     ]
   },
   "sources": [
     {
-      "title": "Merck Veterinary Manual — Food Hazards"
-    },
-    {
-      "title": "Pet Poison Helpline — Poison Guide: Foods"
+      "title": "Merck Veterinary Manual — Nutritional Requirements of Small Animals",
+      "url": "https://www.merckvetmanual.com/management-and-nutrition/nutrition-small-animals/nutritional-requirements-of-small-animals"
     }
   ],
   "review": {

@@ -27,12 +27,12 @@
     "cat": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Лучше не давать: молочный сахар и сахар в составе могут расстроить желудок.",
-        "en": "With caution. Better not to give it: milk sugar and added sugar can upset the stomach."
+        "ru": "С осторожностью. Лучше не давать: молочное и жирное могут расстроить желудок.",
+        "en": "With caution. Better not to give it: dairy and fat can upset the stomach."
       },
       "why": {
-        "ru": "Мороженое — молочный и сладкий продукт, а кошки плохо переносят молочный сахар. Опасны добавки: шоколад, ксилит, изюм, орехи макадамия. Лизнуть каплю — не беда, миску мороженого не давайте.",
-        "en": "Ice cream is a dairy and sweet food, and cats digest milk sugar poorly. Additions are the danger: chocolate, xylitol, raisins, macadamia nuts. A lick is no harm, but do not give a bowl."
+        "ru": "Мороженое — молочное, сладкое и жирное. Многие кошки плохо переносят молочное: им не хватает фермента, который расщепляет молочный сахар. Опасны добавки: шоколад, ксилит, изюм, орехи макадамия.",
+        "en": "Ice cream is dairy, sweet and fatty. Many cats tolerate dairy poorly: they lack enough of the enzyme that breaks down milk sugar. Additions are the danger: chocolate, xylitol, raisins, macadamia nuts."
       },
       "signs": {
         "ru": [
@@ -49,12 +49,12 @@
     "dog": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Ложка простого мороженого — изредка. Шоколад, ксилит, изюм и орехи в составе опасны.",
-        "en": "With caution. A spoonful of plain ice cream now and then. Chocolate, xylitol, raisins and nuts in it are dangerous."
+        "ru": "С осторожностью. Немного простого мороженого изредка допустимо, но лучше обойтись без него. Шоколад, ксилит, изюм и орехи в составе опасны.",
+        "en": "With caution. A little plain ice cream now and then is acceptable, but better to do without. Chocolate, xylitol, raisins and nuts in it are dangerous."
       },
       "why": {
-        "ru": "Мороженое — молочный, сладкий и жирный продукт, у многих собак от него бывает понос. Опасны добавки: шоколад, ксилит, изюм, орехи макадамия. Проверьте состав, прежде чем делиться.",
-        "en": "Ice cream is dairy, sweet and fatty, and many dogs get diarrhoea from it. Additions are the danger: chocolate, xylitol, raisins, macadamia nuts. Check the label before sharing."
+        "ru": "Мороженое — молочное, сладкое и жирное: молочное может вызвать понос, жирное — рвоту и понос. Опасны добавки: шоколад, ксилит, изюм, орехи макадамия. Проверьте состав, прежде чем делиться.",
+        "en": "Ice cream is dairy, sweet and fatty: dairy can cause diarrhoea, fat can cause vomiting and diarrhoea. Additions are the danger: chocolate, xylitol, raisins, macadamia nuts. Check the label before sharing."
       },
       "signs": {
         "ru": [
@@ -72,12 +72,12 @@
   "firstSteps": {
     "ru": [
       "Прочитайте состав: нет ли ксилита, шоколада, изюма, орехов",
-      "Если есть ксилит или шоколад — сразу позвоните в клинику",
+      "Если есть ксилит, шоколад, изюм или макадамия — сразу позвоните в клинику",
       "Если их нет — оставьте воду и наблюдайте за питомцем сутки"
     ],
     "en": [
       "Read the label for xylitol, chocolate, raisins or nuts",
-      "If xylitol or chocolate is there, call a clinic at once",
+      "If xylitol, chocolate, raisins or macadamia nuts are there, call a clinic at once",
       "If not, leave water available and watch your pet for a day"
     ]
   },
@@ -95,6 +95,10 @@
     {
       "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
       "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    },
+    {
+      "title": "Cornell Feline Health Center — Feeding Your Cat",
+      "url": "https://www.vet.cornell.edu/departments-centers-and-institutes/cornell-feline-health-center/health-information/feline-health-topics/feeding-your-cat"
     }
   ],
   "review": {

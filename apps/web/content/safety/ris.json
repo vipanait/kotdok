@@ -31,24 +31,24 @@
         "en": "With caution. A little boiled rice with no salt or butter, now and then."
       },
       "why": {
-        "ru": "Рис не ядовит, но кошке нужна мясная еда, а рис её не заменит. Давайте только хорошо проваренный, без соли, масла, специй, лука и чеснока.",
-        "en": "Rice is not poisonous, but a cat needs a meat diet and rice does not replace it. Give only well-cooked rice with no salt, butter, spices, onion or garlic."
+        "ru": "Прямых данных о рисе для кошек в ветеринарных справочниках нет. Кошке нужна мясная еда, а лакомства не заменяют корм и бывают изредка. Допустим только хорошо проваренный рис без соли, масла, специй, лука и чеснока.",
+        "en": "Veterinary references have no direct data on rice for cats. A cat needs a meat diet, and treats do not replace cat food and should be occasional. Only well-cooked rice with no salt, butter, spices, onion or garlic is acceptable."
       },
       "signs": {
         "ru": [],
         "en": []
       },
-      "ifEaten": "none"
+      "ifEaten": "watch"
     },
     "dog": {
-      "verdict": "caution",
+      "verdict": "safe",
       "summary": {
-        "ru": "С осторожностью. Немного варёного риса без добавок — изредка.",
-        "en": "With caution. A little boiled rice with nothing added, now and then."
+        "ru": "Можно. Немного простого варёного риса без соли и масла.",
+        "en": "Safe. A little plain boiled rice with no salt or butter."
       },
       "why": {
-        "ru": "Рис не ядовит, но это лишь наполнитель, а не полноценный корм. Давайте только хорошо проваренный, без соли, масла, специй, лука и чеснока. Сырой рис не давайте.",
-        "en": "Rice is not poisonous, but it is only filler, not a complete food. Give only well-cooked rice with no salt, butter, spices, onion or garlic. Do not give raw rice."
+        "ru": "Простой варёный рис с варёной курицей — классическая щадящая еда для собаки при расстройстве желудка. Условия: хорошо проваренный, без соли, масла, специй, лука и чеснока, и не вместо корма. Если щадящая еда нужна собаке часто, стоит выяснить причину с врачом.",
+        "en": "Plain boiled rice with boiled chicken is a classic bland meal for a dog with an upset stomach. Conditions: well cooked, with no salt, butter, spices, onion or garlic, and not instead of dog food. If your dog often needs a bland diet, find out the cause with a vet."
       },
       "signs": {
         "ru": [],
@@ -57,7 +57,37 @@
       "ifEaten": "none"
     }
   },
+  "firstSteps": {
+    "ru": [
+      "Оставьте доступ к чистой воде",
+      "Наблюдайте за питомцем сутки",
+      "Если появились рвота, понос или вялость — проверьте симптомы или позвоните в клинику"
+    ],
+    "en": [
+      "Leave fresh water available",
+      "Watch your pet for a day",
+      "If vomiting, diarrhoea or lethargy appear, check the symptoms or call a clinic"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не давайте кашу или гарнир с солью, маслом, луком или чесноком",
+      "Не давайте лекарства без назначения врача"
+    ],
+    "en": [
+      "Do not give porridge or side dishes with salt, butter, onion or garlic",
+      "Do not give any medicine unless a vet tells you to"
+    ]
+  },
   "sources": [
+    {
+      "title": "Cornell Riney Canine Health Center — Re-evaluating your dog's diet",
+      "url": "https://www.vet.cornell.edu/departments-centers-and-institutes/riney-canine-health-center/canine-health-topics/re-evaluating-your-dogs-diet"
+    },
+    {
+      "title": "Cornell Feline Health Center — Feeding Your Cat",
+      "url": "https://www.vet.cornell.edu/departments-centers-and-institutes/cornell-feline-health-center/health-information/feline-health-topics/feeding-your-cat"
+    },
     {
       "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
       "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"

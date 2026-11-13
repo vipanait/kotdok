@@ -23,88 +23,96 @@
   },
   "bySpecies": {
     "cat": {
-      "verdict": "caution",
+      "verdict": "danger",
       "summary": {
-        "ru": "С осторожностью. Каланхоэ ядовито для кошек, в редких случаях — для сердца.",
-        "en": "With caution. Kalanchoe is poisonous to cats, and rarely affects the heart."
+        "ru": "Опасно. Каланхоэ ядовито для кошек: в нём есть вещества, действующие на сердце.",
+        "en": "Dangerous. Kalanchoe is poisonous to cats: it contains substances that act on the heart."
       },
       "why": {
-        "ru": "Растение содержит буфадиенолиды, это вещества, действующие на сердце. Обычно всё ограничивается рвотой и поносом, но сбои сердечного ритма возможны, пусть и редко. Если съедено много или питомец вялый, звоните в клинику.",
-        "en": "The plant contains bufadienolides, substances that act on the heart. Usually it stops at vomiting and diarrhoea, but heart rhythm problems are possible, though rare. If a lot was eaten or your pet is lethargic, call a clinic."
+        "ru": "Растение содержит буфадиенолиды — сердечные гликозиды. Чаще всего дело ограничивается рвотой и поносом, но у таких веществ малый запас безопасности, кошки, по-видимому, к ним чувствительнее собак, а при большом количестве возможны сбои ритма, слабость и обморок. Поэтому звоните в клинику, не дожидаясь признаков.",
+        "en": "The plant contains bufadienolides, a kind of cardiac glycoside. Most often it stops at vomiting and diarrhoea, but these substances have a narrow margin of safety, cats seem to be more sensitive to them than dogs, and a large amount can cause rhythm problems, weakness and collapse. So call a clinic without waiting for signs."
       },
       "signs": {
         "ru": [
           "рвота",
           "понос",
-          "слюнотечение",
-          "вялость"
+          "неровный сердечный ритм",
+          "слабость, обморок"
         ],
         "en": [
           "vomiting",
           "diarrhoea",
-          "drooling",
-          "lethargy"
+          "irregular heartbeat",
+          "weakness, collapse"
         ]
       },
-      "ifEaten": "watch"
+      "ifEaten": "call_now"
     },
     "dog": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Каланхоэ ядовито для собак, в редких случаях — для сердца.",
-        "en": "With caution. Kalanchoe is poisonous to dogs, and rarely affects the heart."
+        "ru": "С осторожностью. Каланхоэ ядовито для собак, обычно вызывает расстройство желудка, редко — сбои ритма сердца.",
+        "en": "With caution. Kalanchoe is poisonous to dogs; it usually upsets the stomach and rarely affects the heart rhythm."
       },
       "why": {
-        "ru": "Растение содержит буфадиенолиды, это вещества, действующие на сердце. Обычно всё ограничивается рвотой и поносом, но сбои сердечного ритма возможны, пусть и редко. Если съедено много или питомец вялый, звоните в клинику.",
-        "en": "The plant contains bufadienolides, substances that act on the heart. Usually it stops at vomiting and diarrhoea, but heart rhythm problems are possible, though rare. If a lot was eaten or your pet is lethargic, call a clinic."
+        "ru": "Растение содержит буфадиенолиды — сердечные гликозиды. Чаще всего дело ограничивается рвотой и поносом, но при большом количестве возможны сбои ритма, слабость и обморок. Запас безопасности у таких веществ мал, поэтому лучше сразу позвонить в клинику.",
+        "en": "The plant contains bufadienolides, a kind of cardiac glycoside. Most often it stops at vomiting and diarrhoea, but a large amount can cause rhythm problems, weakness and collapse. These substances have a narrow margin of safety, so it is better to call a clinic right away."
       },
       "signs": {
         "ru": [
           "рвота",
           "понос",
-          "слюнотечение",
-          "вялость"
+          "неровный сердечный ритм",
+          "слабость"
         ],
         "en": [
           "vomiting",
           "diarrhoea",
-          "drooling",
-          "lethargy"
+          "irregular heartbeat",
+          "weakness"
         ]
       },
-      "ifEaten": "watch"
+      "ifEaten": "call_now"
     }
   },
   "firstSteps": {
     "ru": [
-      "Уберите растение и выньте остатки из пасти питомца",
-      "Дайте питомцу свежую воду для питья",
-      "Понаблюдайте за ним несколько часов",
-      "Если появились признаки или их стало больше, позвоните в клинику"
+      "Позвоните в ветеринарную клинику сразу, не дожидаясь признаков",
+      "Уберите растение туда, куда питомец не доберётся",
+      "Возьмите кусочек растения или сфотографируйте его, чтобы показать врачу",
+      "Скажите врачу, сколько примерно времени прошло"
     ],
     "en": [
-      "Take the plant away and remove any bits from your pet’s mouth",
-      "Make sure fresh water is available",
-      "Watch your pet for the next few hours",
-      "If signs appear or get worse, call a clinic"
+      "Call a vet clinic right away, without waiting for signs",
+      "Move the plant out of reach",
+      "Take a piece of the plant or a photo of it to show the vet",
+      "Tell the vet roughly how long ago it happened"
     ]
   },
   "avoid": {
     "ru": [
       "Не вызывайте рвоту сами — только по указанию врача",
       "Не давайте домашние «противоядия» из интернета",
-      "Не оставляйте растение в доступе после случая"
+      "Не откладывайте звонок до утра, даже если питомец выглядит бодрым"
     ],
     "en": [
       "Do not make your pet vomit unless a vet tells you to",
       "Do not give home “antidotes” from the internet",
-      "Do not leave the plant within reach afterwards"
+      "Do not put off the call till morning even if your pet looks fine"
     ]
   },
   "sources": [
     {
       "title": "ASPCA Animal Poison Control — Kalanchoe",
       "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/kalanchoe"
+    },
+    {
+      "title": "Pet Poison Helpline — Kalanchoe",
+      "url": "https://www.petpoisonhelpline.com/poison/kalanchoe/"
+    },
+    {
+      "title": "MSD Veterinary Manual — Houseplants and Ornamentals Toxic to Animals",
+      "url": "https://www.merckvetmanual.com/toxicology/poisonous-plants/houseplants-and-ornamentals-toxic-to-animals"
     }
   ],
   "review": {

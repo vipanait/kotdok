@@ -34,21 +34,23 @@
         "en": "Dangerous. Every part of a lily or daylily is poisonous to cats, even the pollen and the water in the vase."
       },
       "why": {
-        "ru": "Хватает нескольких укусов листа или лепестка или пыльцы, слизанной с шерсти. Без быстрой помощи отравление может привести к отказу почек за один–три дня. В первые часы кошка может выглядеть здоровой.",
-        "en": "A few bites of a leaf or petal, or pollen licked off the fur, is enough. Without prompt treatment it can lead to kidney failure within one to three days. In the first hours the cat may look well."
+        "ru": "Опасны все части растения, пыльца, слизанная с шерсти, и вода из вазы; даже немного может тяжело повредить почки. Помощь нужна сразу: если её начать позже чем через 18 часов, кошка часто погибает.",
+        "en": "Every part of the plant is dangerous, as are pollen licked off the fur and the vase water; even a little can badly damage the kidneys. Help is needed at once: if treatment starts more than 18 hours later, the cat often dies."
       },
       "signs": {
         "ru": [
           "рвота",
           "отказ от еды",
           "вялость",
-          "сильная жажда, потом мало мочи"
+          "боль в животе",
+          "обезвоживание"
         ],
         "en": [
           "vomiting",
           "not eating",
           "lethargy",
-          "strong thirst, then little urine"
+          "belly pain",
+          "dehydration"
         ]
       },
       "ifEaten": "call_now"
@@ -56,24 +58,16 @@
     "dog": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Настоящие лилии для собак не считаются ядовитыми, но могут расстроить желудок.",
-        "en": "With caution. True lilies are not considered poisonous to dogs, but they can upset the stomach."
+        "ru": "С осторожностью. Для собак лилии гораздо менее опасны, чем для кошек, но совсем безопасными их не назовёшь.",
+        "en": "With caution. Lilies are far less dangerous to dogs than to cats, but they cannot be called entirely safe."
       },
       "why": {
-        "ru": "ASPCA относит пасхальную лилию к неядовитым для собак растениям, а отказа почек, как у кошек, у собак она не вызывает. Часть букета можно съесть вместе с другими растениями, поэтому оставляем осторожность: возможны рвота и понос. Ландыш, калла и спатифиллум только называются лилиями, для собак они опасны и описаны отдельно.",
-        "en": "The ASPCA lists the Easter lily as non-toxic to dogs, and it does not cause kidney failure in dogs as it does in cats. We still keep caution because a bouquet can hold other plants and a stomach upset is possible. Lily of the valley, calla and peace lily are only called lilies; they are harmful to dogs and have their own entries."
+        "ru": "В списке растений ASPCA пасхальная и тигровая лилии и лилейник отмечены как неядовитые для собак: отказ почек от них описан только у кошек. Но в статье ASPCA о лилиях сказано, что они могут навредить и собакам, хотя гораздо слабее. Источники расходятся, поэтому оставляем осторожность. Ландыш и спатифиллум только называются лилиями и описаны отдельно.",
+        "en": "The ASPCA plant list marks the Easter lily, tiger lily and daylily as non-toxic to dogs: kidney failure from them is known only in cats. But the ASPCA article on lilies says they can harm dogs too, though much less severely. The sources disagree, so we keep caution. Lily of the valley and peace lily are only called lilies and have their own entries."
       },
       "signs": {
-        "ru": [
-          "рвота",
-          "понос",
-          "отказ от еды"
-        ],
-        "en": [
-          "vomiting",
-          "diarrhoea",
-          "not eating"
-        ]
+        "ru": [],
+        "en": []
       },
       "ifEaten": "watch"
     }
@@ -99,7 +93,7 @@
       "Не откладывайте звонок до утра, если кошка кажется бодрой"
     ],
     "en": [
-      "Do not induce vomiting unless a vet tells you to",
+      "Do not make your pet vomit unless a vet tells you to",
       "Do not give milk, oil, charcoal or other home “antidotes” from the internet",
       "Do not put off the call till morning because the cat seems fine"
     ]
@@ -111,7 +105,12 @@
       "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/easter-lily"
     },
     {
-      "title": "MSD Veterinary Manual — отравление лилиями у кошек"
+      "title": "ASPCA — Which Lilies Are Toxic to Pets?",
+      "url": "https://www.aspca.org/news/which-lilies-are-toxic-pets"
+    },
+    {
+      "title": "Pet Poison Helpline — Lilies",
+      "url": "https://www.petpoisonhelpline.com/poison/lilies/"
     }
   ],
   "review": {

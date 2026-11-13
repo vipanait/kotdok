@@ -26,23 +26,21 @@
     "cat": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Капля изредка не повредит, но мёд — это сахар, и кошке он не нужен.",
-        "en": "With caution. A drop now and then will not hurt, but honey is sugar and a cat does not need it."
+        "ru": "С осторожностью. Мёд — почти чистый сахар, кошке он не нужен.",
+        "en": "With caution. Honey is almost pure sugar, and a cat does not need it."
       },
       "why": {
-        "ru": "Мёд не ядовит, но почти целиком состоит из сахара: он вредит зубам, ведёт к лишнему весу, а у питомцев с диабетом повышает сахар. В сыром мёде бывают споры бактерий, опасные для котят и ослабленных питомцев.",
-        "en": "Honey is not poisonous, but it is almost all sugar: it harms teeth, leads to weight gain and raises blood sugar in pets with diabetes. Raw honey can carry bacterial spores that are risky for kittens and weakened pets."
+        "ru": "Данных о мёде в справочниках ядов мало, поэтому — осторожно. Мёд почти целиком состоит из сахара, а от избытка сладкого бывают понос и газы. Если у питомца диабет или особая диета, сладкое обсудите с врачом.",
+        "en": "There is little data on honey in poison references, so take care. Honey is almost all sugar, and too much sugar can cause diarrhoea and gas. If your pet has diabetes or a special diet, talk to a vet about sweet foods."
       },
       "signs": {
         "ru": [
-          "рвота",
           "понос",
-          "вялость, отказ от еды"
+          "вздутие, газы"
         ],
         "en": [
-          "vomiting",
           "diarrhoea",
-          "lethargy, refusing food"
+          "bloating, gas"
         ]
       },
       "ifEaten": "watch"
@@ -50,23 +48,21 @@
     "dog": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Немного изредка — можно, но мёд сладкий; щенкам и собакам с диабетом лучше не давать.",
-        "en": "With caution. A little now and then is fine, but honey is sweet; better not for puppies or dogs with diabetes."
+        "ru": "С осторожностью. Мёд — почти чистый сахар; немного изредка вряд ли навредит, но собаке он не нужен.",
+        "en": "With caution. Honey is almost pure sugar; a little now and then is unlikely to harm, but a dog does not need it."
       },
       "why": {
-        "ru": "Мёд не ядовит, но почти целиком состоит из сахара: он вредит зубам, ведёт к лишнему весу, а у питомцев с диабетом повышает сахар. В сыром мёде бывают споры бактерий, опасные для щенков и ослабленных собак.",
-        "en": "Honey is not poisonous, but it is almost all sugar: it harms teeth, leads to weight gain and raises blood sugar in pets with diabetes. Raw honey can carry bacterial spores that are risky for puppies and weakened dogs."
+        "ru": "Данных о мёде в справочниках ядов мало, поэтому — осторожно. Мёд почти целиком состоит из сахара, а от избытка сладкого бывают понос и газы. Если у питомца диабет или особая диета, сладкое обсудите с врачом.",
+        "en": "There is little data on honey in poison references, so take care. Honey is almost all sugar, and too much sugar can cause diarrhoea and gas. If your pet has diabetes or a special diet, talk to a vet about sweet foods."
       },
       "signs": {
         "ru": [
-          "рвота",
           "понос",
-          "вялость, отказ от еды"
+          "вздутие, газы"
         ],
         "en": [
-          "vomiting",
           "diarrhoea",
-          "lethargy, refusing food"
+          "bloating, gas"
         ]
       },
       "ifEaten": "watch"
@@ -86,17 +82,18 @@
   },
   "avoid": {
     "ru": [
-      "Не давайте мёд при диабете и котятам или щенкам",
+      "Не давайте сладости и выпечку с мёдом: в них бывает ксилит",
       "Не вызывайте рвоту сами — только по указанию врача"
     ],
     "en": [
-      "Do not give honey with diabetes or to kittens and puppies",
+      "Do not give sweets or baking with honey: they can contain xylitol",
       "Do not make your pet vomit unless a vet tells you to"
     ]
   },
   "sources": [
     {
-      "title": "Merck Veterinary Manual — Food Hazards"
+      "title": "Merck Veterinary Manual — Nutritional Requirements of Small Animals",
+      "url": "https://www.merckvetmanual.com/management-and-nutrition/nutrition-small-animals/nutritional-requirements-of-small-animals"
     },
     {
       "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",

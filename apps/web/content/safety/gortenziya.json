@@ -26,8 +26,8 @@
         "en": "With caution. Hydrangea is poisonous to cats and dogs and most often upsets the stomach."
       },
       "why": {
-        "ru": "ASPCA относит гортензию к ядовитым для кошек и собак: в листьях и цветках есть вещества, из которых может выделяться цианид. Обычно это рвота, понос и вялость; тяжёлое отравление бывает редко. Если съедено много, позвоните в клинику.",
-        "en": "The ASPCA lists hydrangea as toxic to cats and dogs: the leaves and flowers contain compounds that can release cyanide. It is usually vomiting, diarrhoea and lethargy; severe poisoning is rare. If a lot was eaten, call a clinic."
+        "ru": "ASPCA относит гортензию к ядовитым для кошек и собак: в ней цианогенный гликозид. Отравление цианидом бывает редко, обычно дело в расстройстве желудка: рвота, понос, вялость. По данным Merck, тяжёлое отравление у кошек и собак бывает, только если съедено много. Если съедено много, позвоните в клинику.",
+        "en": "The ASPCA lists hydrangea as toxic to cats and dogs: it contains a cyanogenic glycoside. Cyanide poisoning is rare; it usually means an upset stomach: vomiting, diarrhoea and lethargy. According to Merck, severe poisoning in cats and dogs is uncommon unless a lot is eaten. If a lot was eaten, call a clinic."
       },
       "signs": {
         "ru": [
@@ -50,8 +50,8 @@
         "en": "With caution. Hydrangea is poisonous to cats and dogs and most often upsets the stomach."
       },
       "why": {
-        "ru": "ASPCA относит гортензию к ядовитым для кошек и собак: в листьях и цветках есть вещества, из которых может выделяться цианид. Обычно это рвота, понос и вялость; тяжёлое отравление бывает редко. Если съедено много, позвоните в клинику.",
-        "en": "The ASPCA lists hydrangea as toxic to cats and dogs: the leaves and flowers contain compounds that can release cyanide. It is usually vomiting, diarrhoea and lethargy; severe poisoning is rare. If a lot was eaten, call a clinic."
+        "ru": "ASPCA относит гортензию к ядовитым для кошек и собак: в ней цианогенный гликозид. Отравление цианидом бывает редко, обычно дело в расстройстве желудка: рвота, понос, вялость. По данным Merck, тяжёлое отравление у кошек и собак бывает, только если съедено много. Если съедено много, позвоните в клинику.",
+        "en": "The ASPCA lists hydrangea as toxic to cats and dogs: it contains a cyanogenic glycoside. Cyanide poisoning is rare; it usually means an upset stomach: vomiting, diarrhoea and lethargy. According to Merck, severe poisoning in cats and dogs is uncommon unless a lot is eaten. If a lot was eaten, call a clinic."
       },
       "signs": {
         "ru": [
@@ -100,7 +100,8 @@
       "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/hydrangea"
     },
     {
-      "title": "Pet Poison Helpline — Poison Index (plants)"
+      "title": "Merck Veterinary Manual — Houseplants and Ornamentals Toxic to Animals",
+      "url": "https://www.merckvetmanual.com/toxicology/poisonous-plants/houseplants-and-ornamentals"
     }
   ],
   "review": {

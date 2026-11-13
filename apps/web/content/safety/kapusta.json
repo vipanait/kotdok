@@ -29,23 +29,21 @@
     "cat": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Совсем немного варёной капусты без добавок — изредка, квашеную и тушёную с луком давать нельзя.",
-        "en": "With caution. A very small piece of plain cooked cabbage now and then; do not give sauerkraut or stews with onion."
+        "ru": "С осторожностью. Совсем немного простой капусты — изредка, квашеную и тушёную с луком давать нельзя.",
+        "en": "With caution. A very small piece of plain cabbage now and then; do not give sauerkraut or stews with onion."
       },
       "why": {
-        "ru": "Капуста не ядовита, но вызывает газы и расстройство желудка. Квашеная капуста солёная, а тушёная или в борще часто с луком и чесноком, которые опасны. Кошке капуста не нужна.",
-        "en": "Cabbage is not poisonous, but it causes gas and stomach upset. Sauerkraut is salty, and stewed cabbage or soup often has onion and garlic, which are dangerous. A cat does not need cabbage."
+        "ru": "Капусты нет в списках ядовитых растений ASPCA, но и надёжных данных о ней в проверенных источниках мало, поэтому вердикт осторожный. Любая растительная еда может расстроить желудок. Квашеная капуста солёная, а тушёная капуста и щи часто с луком и чесноком, которые повреждают кровь, особенно у кошек.",
+        "en": "Cabbage is not on the ASPCA toxic plant lists, but reliable data on it is scarce in the sources checked, so the verdict is cautious. Any plant material can upset the stomach. Sauerkraut is salty, and stewed cabbage and soups often contain onion and garlic, which damage red blood cells, cats especially."
       },
       "signs": {
         "ru": [
           "рвота",
-          "понос",
-          "вздутие живота"
+          "понос"
         ],
         "en": [
           "vomiting",
-          "diarrhoea",
-          "bloated belly"
+          "diarrhoea"
         ]
       },
       "ifEaten": "watch"
@@ -53,23 +51,21 @@
     "dog": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Немного сырой или варёной капусты без добавок — изредка, квашеную и тушёную с луком давать нельзя.",
-        "en": "With caution. A little plain raw or cooked cabbage now and then; do not give sauerkraut or stews with onion."
+        "ru": "С осторожностью. Немного простой капусты без добавок — изредка, квашеную и тушёную с луком давать нельзя.",
+        "en": "With caution. A little plain cabbage now and then; do not give sauerkraut or stews with onion."
       },
       "why": {
-        "ru": "Капуста не ядовита, но вызывает газы и расстройство желудка. Квашеная капуста солёная, а тушёная или в борще часто с луком и чесноком, которые опасны.",
-        "en": "Cabbage is not poisonous, but it causes gas and stomach upset. Sauerkraut is salty, and stewed cabbage or soup often has onion and garlic, which are dangerous."
+        "ru": "Капусты нет в списках ядовитых растений ASPCA, но и надёжных данных о ней в проверенных источниках мало, поэтому вердикт осторожный. Любая растительная еда может расстроить желудок. Квашеная капуста солёная, а тушёная капуста и щи часто с луком и чесноком, которые повреждают кровь, особенно у кошек.",
+        "en": "Cabbage is not on the ASPCA toxic plant lists, but reliable data on it is scarce in the sources checked, so the verdict is cautious. Any plant material can upset the stomach. Sauerkraut is salty, and stewed cabbage and soups often contain onion and garlic, which damage red blood cells, cats especially."
       },
       "signs": {
         "ru": [
           "рвота",
-          "понос",
-          "вздутие живота"
+          "понос"
         ],
         "en": [
           "vomiting",
-          "diarrhoea",
-          "bloated belly"
+          "diarrhoea"
         ]
       },
       "ifEaten": "watch"
@@ -99,11 +95,12 @@
   },
   "sources": [
     {
-      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
-      "url": "https://www.aspca.org/pet-care/animal-poison-control/people-foods-avoid-feeding-your-pets"
+      "title": "ASPCA Animal Poison Control — Toxic and Non-Toxic Plants",
+      "url": "https://www.aspca.org/pet-care/animal-poison-control/toxic-and-non-toxic-plants"
     },
     {
-      "title": "ASPCA Animal Poison Control — Toxic and Non-Toxic Plants"
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/animal-poison-control/people-foods-avoid-feeding-your-pets"
     }
   ],
   "review": {

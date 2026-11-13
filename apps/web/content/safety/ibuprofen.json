@@ -25,20 +25,20 @@
         "en": "Dangerous. Ibuprofen is poisonous to cats, which are more sensitive to it than dogs."
       },
       "why": {
-        "ru": "Ибупрофен — обезболивающее для людей. У животных он может вызвать язвы желудка и кишечника и повредить почки; кошки выводят его хуже собак. Что делать, решает врач по тому, сколько и когда было съедено.",
-        "en": "Ibuprofen is a human painkiller. In animals it can cause stomach and gut ulcers and damage the kidneys; cats clear it less well than dogs. The vet decides what to do from how much was taken and when."
+        "ru": "Ибупрофен — обезболивающее для людей. У животных он может вызвать язвы желудка и кишечника и повредить почки, а кошкам вредит уже вдвое меньшее количество, чем собакам. Что делать, решает врач по тому, сколько и когда было съедено.",
+        "en": "Ibuprofen is a human painkiller. In animals it can cause stomach and gut ulcers and damage the kidneys, and cats are harmed by half the amount that harms dogs. The vet decides what to do from how much was taken and when."
       },
       "signs": {
         "ru": [
           "рвота, иногда с кровью",
-          "чёрный дёгтеобразный стул или понос",
+          "понос, иногда с кровью",
           "отказ от еды, боль в животе",
           "сначала много мочи, потом мало",
           "вялость, шаткость, судороги"
         ],
         "en": [
           "vomiting, sometimes with blood",
-          "black tarry stool or diarrhoea",
+          "diarrhoea, sometimes with blood",
           "not eating, belly pain",
           "more urine at first, then little",
           "lethargy, wobbliness, seizures"
@@ -59,14 +59,14 @@
       "signs": {
         "ru": [
           "рвота, иногда с кровью",
-          "чёрный дёгтеобразный стул или понос",
+          "понос, иногда с кровью",
           "отказ от еды, боль в животе",
           "сначала много мочи, потом мало",
           "вялость, шаткость, судороги"
         ],
         "en": [
           "vomiting, sometimes with blood",
-          "black tarry stool or diarrhoea",
+          "diarrhoea, sometimes with blood",
           "not eating, belly pain",
           "more urine at first, then little",
           "lethargy, wobbliness, seizures"
@@ -97,7 +97,7 @@
     ],
     "en": [
       "Do not give other human medicines “to help”: they are dangerous too",
-      "Do not induce vomiting unless a vet tells you to",
+      "Do not make your pet vomit unless a vet tells you to",
       "Tell the vet if you gave the medicine yourself: the right help depends on it"
     ]
   },
@@ -107,7 +107,8 @@
       "url": "https://www.petpoisonhelpline.com/poison/ibuprofen/"
     },
     {
-      "title": "MSD Veterinary Manual — отравления обезболивающими для людей"
+      "title": "Merck Veterinary Manual — Poisoning from Human Over-the-Counter Drugs",
+      "url": "https://www.merckvetmanual.com/special-pet-topics/poisoning/poisoning-from-human-over-the-counter-drugs"
     }
   ],
   "review": {

@@ -26,23 +26,27 @@
     "cat": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Фикус для кошек и собак ядовит: сок раздражает рот и кожу.",
-        "en": "With caution. Ficus is poisonous to cats and dogs: the sap irritates the mouth and skin."
+        "ru": "С осторожностью. Фикус для кошек и собак ядовит: его сок раздражает рот, желудок и кожу.",
+        "en": "With caution. Ficus is poisonous to cats and dogs: its sap irritates the mouth, stomach and skin."
       },
       "why": {
-        "ru": "ASPCA относит плакучий фикус (Ficus benjamina) к ядовитым для кошек и собак. Белый млечный сок раздражает рот, желудок и кожу. Обычно дело ограничивается расстройством желудка, но сок на шерсти питомец слизывает.",
-        "en": "The ASPCA lists the weeping fig (Ficus benjamina) as toxic to cats and dogs. The white milky sap irritates the mouth, stomach and skin. It usually ends with an upset stomach, but a pet will lick sap off its fur."
+        "ru": "ASPCA относит фикусы к ядовитым для кошек и собак. По данным Pet Poison Helpline, млечный сок раздражает рот и пищеварительный тракт, а попав на кожу, раздражает и её. Если питомец съел много или признаки не проходят, позвоните в клинику.",
+        "en": "The ASPCA lists ficus as toxic to cats and dogs. According to Pet Poison Helpline, the milky sap irritates the mouth and digestive tract, and it irritates the skin if it gets on it. If the pet ate a lot or the signs do not pass, call a clinic."
       },
       "signs": {
         "ru": [
           "рвота",
           "слюнотечение",
-          "покраснение кожи или мордочки"
+          "понос",
+          "потеря аппетита",
+          "раздражение кожи"
         ],
         "en": [
           "vomiting",
           "drooling",
-          "redness of the skin or face"
+          "diarrhoea",
+          "loss of appetite",
+          "skin irritation"
         ]
       },
       "ifEaten": "watch"
@@ -50,23 +54,27 @@
     "dog": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Фикус для кошек и собак ядовит: сок раздражает рот и кожу.",
-        "en": "With caution. Ficus is poisonous to cats and dogs: the sap irritates the mouth and skin."
+        "ru": "С осторожностью. Фикус для кошек и собак ядовит: его сок раздражает рот, желудок и кожу.",
+        "en": "With caution. Ficus is poisonous to cats and dogs: its sap irritates the mouth, stomach and skin."
       },
       "why": {
-        "ru": "ASPCA относит плакучий фикус (Ficus benjamina) к ядовитым для кошек и собак. Белый млечный сок раздражает рот, желудок и кожу. Обычно дело ограничивается расстройством желудка, но сок на шерсти питомец слизывает.",
-        "en": "The ASPCA lists the weeping fig (Ficus benjamina) as toxic to cats and dogs. The white milky sap irritates the mouth, stomach and skin. It usually ends with an upset stomach, but a pet will lick sap off its fur."
+        "ru": "ASPCA относит фикусы к ядовитым для кошек и собак. По данным Pet Poison Helpline, млечный сок раздражает рот и пищеварительный тракт, а попав на кожу, раздражает и её. Если питомец съел много или признаки не проходят, позвоните в клинику.",
+        "en": "The ASPCA lists ficus as toxic to cats and dogs. According to Pet Poison Helpline, the milky sap irritates the mouth and digestive tract, and it irritates the skin if it gets on it. If the pet ate a lot or the signs do not pass, call a clinic."
       },
       "signs": {
         "ru": [
           "рвота",
           "слюнотечение",
-          "покраснение кожи или мордочки"
+          "понос",
+          "потеря аппетита",
+          "раздражение кожи"
         ],
         "en": [
           "vomiting",
           "drooling",
-          "redness of the skin or face"
+          "diarrhoea",
+          "loss of appetite",
+          "skin irritation"
         ]
       },
       "ifEaten": "watch"
@@ -104,7 +112,8 @@
       "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/weeping-fig"
     },
     {
-      "title": "Pet Poison Helpline — Poison Index (plants)"
+      "title": "Pet Poison Helpline — Ficus",
+      "url": "https://www.petpoisonhelpline.com/poison/ficus/"
     }
   ],
   "review": {

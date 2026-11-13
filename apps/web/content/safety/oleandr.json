@@ -28,21 +28,23 @@
         "en": "Dangerous. Oleander is poisonous to cats: it affects the heart."
       },
       "why": {
-        "ru": "Все части олеандра, включая сухие листья и цветы, содержат сердечные гликозиды. Они могут нарушить сердечный ритм, поэтому помощь нужна, даже если питомец съел совсем немного.",
-        "en": "Every part of oleander, including dried leaves and flowers, contains cardiac glycosides. They can upset the heart rhythm, so help is needed even if only a little was eaten."
+        "ru": "Всё растение содержит олеандрин — сердечный гликозид. Он может нарушить ритм сердца; запас безопасности у таких веществ мал, и олеандр среди самых ядовитых из них. Поэтому звоните в клинику, даже если питомец съел совсем немного.",
+        "en": "The whole plant contains oleandrin, a cardiac glycoside. It can upset the heart rhythm; such substances have a narrow margin of safety, and oleander is among the most toxic of them. So call a clinic even if only a little was eaten."
       },
       "signs": {
         "ru": [
           "слюнотечение",
           "рвота и понос",
           "боль в животе",
-          "вялость, слабый пульс"
+          "неровный сердечный ритм",
+          "слабость, обморок"
         ],
         "en": [
           "drooling",
           "vomiting and diarrhoea",
           "abdominal pain",
-          "lethargy, weak pulse"
+          "irregular heartbeat",
+          "weakness, collapse"
         ]
       },
       "ifEaten": "call_now"
@@ -54,21 +56,23 @@
         "en": "Dangerous. Oleander is poisonous to dogs: it affects the heart."
       },
       "why": {
-        "ru": "Все части олеандра, включая сухие листья и цветы, содержат сердечные гликозиды. Они могут нарушить сердечный ритм, поэтому помощь нужна, даже если питомец съел совсем немного.",
-        "en": "Every part of oleander, including dried leaves and flowers, contains cardiac glycosides. They can upset the heart rhythm, so help is needed even if only a little was eaten."
+        "ru": "Всё растение содержит олеандрин — сердечный гликозид. Он может нарушить ритм сердца; запас безопасности у таких веществ мал, и олеандр среди самых ядовитых из них. Поэтому звоните в клинику, даже если питомец съел совсем немного.",
+        "en": "The whole plant contains oleandrin, a cardiac glycoside. It can upset the heart rhythm; such substances have a narrow margin of safety, and oleander is among the most toxic of them. So call a clinic even if only a little was eaten."
       },
       "signs": {
         "ru": [
           "слюнотечение",
           "рвота и понос",
           "боль в животе",
-          "вялость, слабый пульс"
+          "неровный сердечный ритм",
+          "слабость, обморок"
         ],
         "en": [
           "drooling",
           "vomiting and diarrhoea",
           "abdominal pain",
-          "lethargy, weak pulse"
+          "irregular heartbeat",
+          "weakness, collapse"
         ]
       },
       "ifEaten": "call_now"
@@ -104,6 +108,14 @@
     {
       "title": "ASPCA Animal Poison Control — Oleander",
       "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/oleander"
+    },
+    {
+      "title": "Pet Poison Helpline — Oleander",
+      "url": "https://www.petpoisonhelpline.com/poison/oleander/"
+    },
+    {
+      "title": "MSD Veterinary Manual — Houseplants and Ornamentals Toxic to Animals",
+      "url": "https://www.merckvetmanual.com/toxicology/poisonous-plants/houseplants-and-ornamentals-toxic-to-animals"
     }
   ],
   "review": {

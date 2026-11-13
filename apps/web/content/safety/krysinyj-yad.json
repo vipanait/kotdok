@@ -34,29 +34,29 @@
     "cat": {
       "verdict": "danger",
       "summary": {
-        "ru": "Опасно. Крысиный яд опасен для кошек; опасно и съесть отравленную мышь или крысу.",
-        "en": "Dangerous. Rat poison is dangerous to cats; eating a poisoned mouse or rat is dangerous too."
+        "ru": "Опасно. Крысиный яд опасен для кошек, даже если кошка выглядит здоровой.",
+        "en": "Dangerous. Rat poison is dangerous to cats, even if the cat looks well."
       },
       "why": {
-        "ru": "Чаще всего в приманках вещество, нарушающее свёртывание крови: кровотечения начинаются через несколько дней, а не сразу. Бывают и яды, действующие на нервную систему или повышающие кальций. Звонить нужно, пока признаков нет.",
-        "en": "Most baits contain a substance that stops blood from clotting: bleeding starts days later, not at once. Other baits act on the nervous system or raise calcium. Call while there are no signs yet."
+        "ru": "Яды бывают разные. Самые частые нарушают свёртывание крови: кровотечения начинаются через 3–5 дней; кошки к ним устойчивее собак, но не защищены. Другие действуют на мозг (к ним кошки чувствительнее собак) или повышают кальций и поражают почки. Звонить нужно, пока признаков нет.",
+        "en": "There are several kinds of poison. The most common ones stop blood from clotting: bleeding starts 3–5 days later; cats resist them better than dogs but are not safe. Others act on the brain (cats are more sensitive to these than dogs) or raise calcium and damage the kidneys. Call while there are no signs yet."
       },
       "signs": {
         "ru": [
           "вялость, слабость",
           "бледные дёсны",
-          "кровь в моче, стуле или рвоте",
-          "кровотечение из носа или дёсен",
+          "кровотечение из носа или дёсен, кровь в моче",
           "синяки на коже",
-          "затруднённое дыхание"
+          "шаткая походка, дрожь, судороги",
+          "сильная жажда и частое мочеиспускание"
         ],
         "en": [
           "lethargy, weakness",
           "pale gums",
-          "blood in urine, stool or vomit",
-          "bleeding from the nose or gums",
+          "bleeding from the nose or gums, blood in urine",
           "bruises on the skin",
-          "laboured breathing"
+          "unsteady walk, tremors, seizures",
+          "strong thirst and frequent urination"
         ]
       },
       "ifEaten": "call_now"
@@ -68,25 +68,25 @@
         "en": "Dangerous. Rat poison is dangerous to dogs, even if the dog looks well."
       },
       "why": {
-        "ru": "Чаще всего в приманках вещество, нарушающее свёртывание крови: кровотечения начинаются через несколько дней. Другие яды действуют на мозг или почки. Собаки охотно едят приманку. Звонить нужно, пока признаков нет.",
-        "en": "Most baits contain a substance that stops blood from clotting: bleeding starts days later. Other poisons act on the brain or the kidneys. Dogs readily eat bait. Call while there are no signs yet."
+        "ru": "Чаще всего в приманках вещество, нарушающее свёртывание крови: кровотечения начинаются через 3–5 дней, и собаки к нему чувствительны. Другие яды действуют на мозг или повышают кальций и поражают почки. Звонить нужно, пока признаков нет.",
+        "en": "Most baits contain a substance that stops blood from clotting: bleeding starts 3–5 days later, and dogs are sensitive to it. Other poisons act on the brain or raise calcium and damage the kidneys. Call while there are no signs yet."
       },
       "signs": {
         "ru": [
           "вялость, слабость",
           "бледные дёсны",
-          "кровь в моче, стуле или рвоте",
-          "кровотечение из носа или дёсен",
+          "кровотечение из носа или дёсен, кровь в моче",
           "синяки на коже",
-          "кашель, затруднённое дыхание"
+          "кашель, затруднённое дыхание",
+          "шаткая походка, дрожь, судороги"
         ],
         "en": [
           "lethargy, weakness",
           "pale gums",
-          "blood in urine, stool or vomit",
-          "bleeding from the nose or gums",
+          "bleeding from the nose or gums, blood in urine",
           "bruises on the skin",
-          "coughing, laboured breathing"
+          "coughing, laboured breathing",
+          "unsteady walk, tremors, seizures"
         ]
       },
       "ifEaten": "call_now"
@@ -110,20 +110,18 @@
     "ru": [
       "Не вызывайте рвоту сами — только по указанию врача",
       "Не давайте молоко, масло, уголь и другие «антидоты» из интернета",
-      "Не ждите признаков: они появляются через несколько дней"
+      "Не ждите признаков: они могут появиться через несколько дней"
     ],
     "en": [
       "Do not make your pet vomit unless a vet tells you to",
       "Do not give milk, oil, charcoal or other home “antidotes” from the internet",
-      "Do not wait for signs: they appear days later"
+      "Do not wait for signs: they can appear days later"
     ]
   },
   "sources": [
     {
-      "title": "Pet Poison Helpline — Poison Database"
-    },
-    {
-      "title": "MSD Veterinary Manual — Toxicology"
+      "title": "Pet Poison Helpline — Mouse and Rat Poison: Rodenticides Poisonous to Dogs & Cats",
+      "url": "https://petpoisonhelpline.com/pet-safety-tips/mouse-and-rat-poison-rodenticides-poisonous-to-dogs-cats/"
     }
   ],
   "review": {

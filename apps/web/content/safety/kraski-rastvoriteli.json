@@ -41,29 +41,27 @@
     "cat": {
       "verdict": "danger",
       "summary": {
-        "ru": "Опасно. Кошка слизывает краску и растворитель с шерсти и лап, а пары раздражают дыхание.",
-        "en": "Dangerous. A cat licks paint and solvent off its fur and paws, and the fumes irritate the airways."
+        "ru": "Опасно, если это растворитель, бензин, керосин или краска на масляной основе. Водные краски (латексные, акриловые) обычно вызывают только расстройство желудка.",
+        "en": "Dangerous if it is a solvent, petrol, kerosene or oil-based paint. Water-based paints (latex, acrylic) usually cause only stomach upset."
       },
       "why": {
-        "ru": "Растворители, скипидар и бензин раздражают рот и желудок, действуют на нервную систему и могут повредить лёгкие, если попадут в дыхательные пути. Краски на масляной основе и с тяжёлыми добавками опаснее водных. Кошки хуже справляются со многими такими веществами.",
-        "en": "Solvents, turpentine and petrol irritate the mouth and stomach, affect the nervous system and can damage the lungs if they get into the airways. Oil-based paints and those with heavy additives are worse than water-based. Cats cope worse with many such substances."
+        "ru": "Кошка слизывает краску и растворитель с шерсти при вылизывании. Самое опасное — попадание растворителя или бензина в лёгкие: это вызывает тяжёлую пневмонию. Такие вещества раздражают рот и кожу, а при всасывании действуют на нервную систему. Пары в плохо проветриваемом помещении раздражают дыхательные пути и глаза. Старая краска может содержать свинец.",
+        "en": "A cat licks paint and solvent off its coat while grooming. The worst risk is solvent or petrol getting into the lungs, which causes a serious pneumonia. These products irritate the mouth and skin and, once absorbed, affect the nervous system. Fumes in a poorly aired room irritate the airways and eyes. Old paint may contain lead."
       },
       "signs": {
         "ru": [
-          "слюнотечение",
-          "рвота",
-          "вялость, шаткая походка",
-          "кашель, затруднённое дыхание",
-          "раздражение кожи и глаз",
-          "дрожь"
+          "слюнотечение, раздражение рта",
+          "рвота, понос",
+          "кашель, поперхивание, затруднённое дыхание",
+          "вялость или возбуждение",
+          "раздражение кожи и глаз"
         ],
         "en": [
-          "drooling",
-          "vomiting",
-          "lethargy, wobbly walking",
-          "coughing, laboured breathing",
-          "skin and eye irritation",
-          "tremors"
+          "drooling, mouth irritation",
+          "vomiting, diarrhoea",
+          "coughing, choking, laboured breathing",
+          "lethargy or agitation",
+          "skin and eye irritation"
         ]
       },
       "ifEaten": "call_now"
@@ -71,29 +69,27 @@
     "dog": {
       "verdict": "danger",
       "summary": {
-        "ru": "Опасно. Собака может вылакать растворитель или краску, а пары вредны в закрытой комнате.",
-        "en": "Dangerous. A dog may lap up solvent or paint, and the fumes are harmful in a closed room."
+        "ru": "Опасно, если это растворитель, бензин, керосин или краска на масляной основе. Водные краски (латексные, акриловые) обычно вызывают только расстройство желудка.",
+        "en": "Dangerous if it is a solvent, petrol, kerosene or oil-based paint. Water-based paints (latex, acrylic) usually cause only stomach upset."
       },
       "why": {
-        "ru": "Растворители, скипидар и бензин раздражают рот и желудок, действуют на нервную систему и могут повредить лёгкие. Свежая краска на масляной основе или с тяжёлыми добавками опаснее водной. Что делать, зависит от состава, поэтому врачу нужна этикетка.",
-        "en": "Solvents, turpentine and petrol irritate the mouth and stomach, affect the nervous system and can damage the lungs. Fresh oil-based paint or paint with heavy additives is worse than water-based. What to do depends on the contents, so the vet needs the label."
+        "ru": "Собака может вылакать растворитель из открытой ёмкости или слизать его с шерсти. Самое опасное — попадание растворителя или бензина в лёгкие: это вызывает тяжёлую пневмонию. Такие вещества раздражают рот и кожу, а при всасывании действуют на нервную систему. Старая краска может содержать свинец. Что делать, зависит от состава, поэтому врачу нужна этикетка.",
+        "en": "A dog may lap solvent from an open container or lick it off the coat. The worst risk is solvent or petrol getting into the lungs, which causes a serious pneumonia. These products irritate the mouth and skin and, once absorbed, affect the nervous system. Old paint may contain lead. What to do depends on the contents, so the vet needs the label."
       },
       "signs": {
         "ru": [
-          "слюнотечение",
-          "рвота",
+          "слюнотечение, раздражение рта",
+          "рвота, понос",
+          "кашель, поперхивание, затруднённое дыхание",
           "вялость или возбуждение",
-          "шаткая походка",
-          "кашель, затруднённое дыхание",
-          "дрожь"
+          "раздражение кожи и глаз"
         ],
         "en": [
-          "drooling",
-          "vomiting",
+          "drooling, mouth irritation",
+          "vomiting, diarrhoea",
+          "coughing, choking, laboured breathing",
           "lethargy or agitation",
-          "wobbly walking",
-          "coughing, laboured breathing",
-          "tremors"
+          "skin and eye irritation"
         ]
       },
       "ifEaten": "call_now"
@@ -114,21 +110,23 @@
   "avoid": {
     "ru": [
       "Не вызывайте рвоту сами — только по указанию врача",
-      "Не мойте питомца растворителем и не стирайте им краску с шерсти — сначала позвоните врачу",
+      "Не стирайте краску с шерсти растворителем, уайт-спиритом или бензином — сначала позвоните врачу",
       "Не ждите признаков: они могут появиться позже"
     ],
     "en": [
       "Do not make your pet vomit unless a vet tells you to",
-      "Do not wash your pet with solvent or take paint off the coat with it — call the vet first",
+      "Do not take paint off the coat with solvent, white spirit or petrol — call the vet first",
       "Do not wait for signs: they can appear later"
     ]
   },
   "sources": [
     {
-      "title": "ASPCA Animal Poison Control — Poisons and Pet Safety"
+      "title": "Merck Veterinary Manual — Petroleum Product Poisoning in Animals",
+      "url": "https://www.merckvetmanual.com/toxicology/petroleum-product-poisoning/petroleum-product-poisoning-in-animals"
     },
     {
-      "title": "MSD Veterinary Manual — Toxicology (poisoning in small animals)"
+      "title": "VCA Animal Hospitals — Paint and Varnish Poisoning in Dogs and Cats (Pet Poison Helpline)",
+      "url": "https://vcahospitals.com/know-your-pet/paint-and-varnish-poison-alert-for-dogs-and-cats"
     }
   ],
   "review": {

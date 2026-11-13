@@ -45,44 +45,12 @@
     "cat": {
       "verdict": "danger",
       "summary": {
-        "ru": "Нельзя. Никотин ядовит для кошек, а окурок, табак и жидкость для вейпа питомец может съесть или слизать.",
-        "en": "Not safe. Nicotine is poisonous to cats, and a cigarette butt, tobacco or vape liquid can be eaten or licked."
+        "ru": "Опасно. Никотин действует быстро, а окурок, табак и жидкость для вейпа питомец может съесть или слизать.",
+        "en": "Dangerous. Nicotine acts fast, and a pet may eat or lick a cigarette butt, tobacco or vape liquid."
       },
       "why": {
-        "ru": "Никотин быстро всасывается и действует на нервную систему и сердце; запас прочности у питомцев небольшой. Опасны окурки, табак, жидкость для вейпа, жвачки, пластыри и пакетики. Некоторые никотиновые продукты содержат ещё и ксилит.",
-        "en": "Nicotine is absorbed fast and acts on the nervous system and the heart; pets have little margin. Butts, tobacco, vape liquid, gum, patches and pouches are all dangerous. Some nicotine products also contain xylitol."
-      },
-      "signs": {
-        "ru": [
-          "слюнотечение",
-          "рвота",
-          "возбуждение или, наоборот, вялость",
-          "дрожь",
-          "учащённое или неровное сердцебиение",
-          "поверхностное дыхание",
-          "судороги"
-        ],
-        "en": [
-          "drooling",
-          "vomiting",
-          "agitation or, on the contrary, lethargy",
-          "tremors",
-          "fast or irregular heartbeat",
-          "shallow breathing",
-          "seizures"
-        ]
-      },
-      "ifEaten": "call_now"
-    },
-    "dog": {
-      "verdict": "danger",
-      "summary": {
-        "ru": "Нельзя. Собаки подбирают окурки и грызут пачки, пакетики и флаконы с жидкостью для вейпа — это опасно.",
-        "en": "Not safe. Dogs pick up butts and chew packs, pouches and vape-liquid bottles — this is dangerous."
-      },
-      "why": {
-        "ru": "Никотин действует быстро и сильно влияет на сердце и нервную систему. Собаки чаще кошек съедают такие вещи целиком. Никотиновая жвачка может содержать ксилит, который отдельно опасен для собак.",
-        "en": "Nicotine acts fast and strongly affects the heart and the nervous system. Dogs eat such things whole more often than cats. Nicotine gum may contain xylitol, which is a separate danger to dogs."
+        "ru": "Никотин — быстродействующий яд с малым запасом прочности для питомцев: он влияет на сердце, давление и нервную систему. Опасны окурки, табак, сигары, жидкость для вейпа, жвачки, леденцы, пластыри и пакетики.",
+        "en": "Nicotine is a fast-acting poison with a narrow safety margin for pets: it affects the heart, blood pressure and the nervous system. Butts, tobacco, cigars, vape liquid, gum, lozenges, patches and pouches are all dangerous."
       },
       "signs": {
         "ru": [
@@ -90,18 +58,50 @@
           "рвота",
           "возбуждение",
           "дрожь",
-          "учащённое или неровное сердцебиение",
+          "слишком частое или редкое сердцебиение",
           "поверхностное дыхание",
-          "судороги"
+          "оцепенение, обморок"
         ],
         "en": [
           "drooling",
           "vomiting",
           "agitation",
           "tremors",
-          "fast or irregular heartbeat",
+          "too fast or too slow heartbeat",
           "shallow breathing",
-          "seizures"
+          "stupor, collapse"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Собака может подобрать окурок или погрызть пачку, пакетик, жвачку или флакон с жидкостью для вейпа.",
+        "en": "Dangerous. A dog may pick up a cigarette butt or chew a pack, pouch, gum or vape-liquid bottle."
+      },
+      "why": {
+        "ru": "Никотин — быстродействующий яд с малым запасом прочности для питомцев: он влияет на сердце, давление и нервную систему. В некоторых никотиновых продуктах есть ещё и ксилит, который у собак отдельно вызывает падение сахара в крови и повреждает печень.",
+        "en": "Nicotine is a fast-acting poison with a narrow safety margin for pets: it affects the heart, blood pressure and the nervous system. Some nicotine products also contain xylitol, which separately lowers blood sugar and harms the liver in dogs."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "рвота",
+          "возбуждение",
+          "дрожь",
+          "слишком частое или редкое сердцебиение",
+          "поверхностное дыхание",
+          "оцепенение, обморок"
+        ],
+        "en": [
+          "drooling",
+          "vomiting",
+          "agitation",
+          "tremors",
+          "too fast or too slow heartbeat",
+          "shallow breathing",
+          "stupor, collapse"
         ]
       },
       "ifEaten": "call_now"
@@ -134,10 +134,7 @@
   "sources": [
     {
       "title": "Pet Poison Helpline — Nicotine",
-      "url": "https://www.petpoisonhelpline.com/poisons/nicotine/"
-    },
-    {
-      "title": "MSD Veterinary Manual — Toxicology (poisoning in small animals)"
+      "url": "https://www.petpoisonhelpline.com/poison/nicotine/"
     }
   ],
   "review": {
