@@ -205,6 +205,17 @@ describe('the safety entries', () => {
     }
   })
 
+  it('do not stretch a «safe» plain food over dishes made from it (final review)', () => {
+    // A dish adds what the plain food lacks — butter, milk, sauce, salt — so «пюре» is not «варёный картофель».
+    const dishes = ['картофельное пюре', 'пюре', 'mashed potato', 'mashed potatoes', 'рисовая каша', 'рисовую кашу', 'rice porridge', 'спагетти', 'spaghetti']
+    for (const slug of ['vareny-kartofel', 'ris', 'makarony']) {
+      const entry = entries.find(e => e.slug === slug)!
+      const aliases = [...entry.aliases.ru, ...entry.aliases.en].map(normalizeSafetyQuery)
+      for (const dish of dishes) expect(aliases, `${slug}: ${dish}`).not.toContain(normalizeSafetyQuery(dish))
+      expect(aliases.some(alias => alias.includes('пюре')), slug).toBe(false)
+    }
+  })
+
   it('use none of the words that would turn information into a diagnosis or a prescription', () => {
     for (const entry of entries) {
       const ru = textsOfEntry(entry, 'ru')
