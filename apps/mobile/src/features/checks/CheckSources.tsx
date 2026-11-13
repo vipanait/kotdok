@@ -3,8 +3,9 @@ import type { SymptomCheckRecord } from '@lapka/contracts'
 import { checkSources } from '@lapka/shared'
 import { dictionary } from '@/i18n'
 import { sourceLines } from '@/features/checks/check-sources-view'
+import { Icon } from '@/ui/Icon'
 import { Text } from '@/ui/Text'
-import { space } from '@/ui/theme'
+import { colour, space } from '@/ui/theme'
 
 /**
  * The materials of the vet knowledge base the analysis relied on (SRC-01).
@@ -35,14 +36,16 @@ export function CheckSources({ check }: { check: Pick<SymptomCheckRecord, 'full_
           style={styles.source}
         >
           <View style={styles.text}>
-            <Text tone="accent">{line.title}</Text>
-            <Text variant="label" tone="muted">
+            {/* A notch under the answer's own text: a reference, not more advice. */}
+            <Text variant="label" tone="accent">{line.title}</Text>
+            <Text variant="caption" tone="muted">
               {line.caption}
             </Text>
           </View>
-          <Text tone="accent" accessibilityElementsHidden importantForAccessibility="no">
-            ↗
-          </Text>
+          {/* The design's own glyph: iOS draws a bare ↗ as a blue emoji. */}
+          <View style={styles.icon} accessibilityElementsHidden importantForAccessibility="no">
+            <Icon name="chevron" size={16} color={colour.faint} />
+          </View>
         </Pressable>
       ))}
       <Text variant="caption" tone="faint" style={styles.note}>
@@ -55,8 +58,10 @@ export function CheckSources({ check }: { check: Pick<SymptomCheckRecord, 'full_
 const styles = StyleSheet.create({
   section: { marginTop: 24, marginBottom: space.block },
   title: { marginBottom: space.row },
-  // The arrow stays at the top right while a long title wraps beside it.
-  source: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, paddingVertical: 8 },
+  // The chevron stays at the top right while a long title wraps beside it.
+  source: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, paddingVertical: 6 },
   text: { flex: 1, gap: 2 },
+  // Level with the first line of the title, however many lines it wraps to.
+  icon: { paddingTop: 1 },
   note: { marginTop: 4 },
 })
