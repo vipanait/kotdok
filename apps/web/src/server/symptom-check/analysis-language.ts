@@ -71,6 +71,7 @@ export function outputFormat(locale: Locale): string {
   "additional_pet_info_needed": ["${e.missing}"],
   "home_care_steps": ["${e.step} 1", "${e.step} 2"],
   "vet_questions": ["${e.question} 1", "${e.question} 2"],
+  "used_sources": [1, 2],
   "disclaimer": "${DISCLAIMER[locale]}"
 }
 
@@ -78,6 +79,8 @@ CONSISTENCY: every text field must agree with the chosen urgency level. The app 
 - Never advise a vet visit sooner or more firmly than the level says. If you think the pet should be seen within 24 hours, choose URGENT; if immediately, choose EMERGENCY.
 - For MONITOR, describe what to watch and which changes mean it is time to see a vet — do not also say to see a vet soon.
 - urgency_reason explains why this level, not a different one.
+
+SOURCES: entries in CONTEXT FROM VET DATABASE are numbered like [1]. In used_sources list the numbers of the entries you actually relied on for this answer, most important first. Use only numbers that appear in the context. If you relied on none, or there is no context, return []. Never write these numbers in any other field: the reader does not see them.
 
 CONTEXT FROM VET DATABASE:
 {context}`

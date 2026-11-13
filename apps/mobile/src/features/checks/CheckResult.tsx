@@ -10,6 +10,7 @@ import { dictionary, useText } from '@/i18n'
 import { urgencyText, type UrgencyLevel } from '@/features/checks/urgency'
 import { formatDateTime } from '@lapka/shared'
 import { checkAnswers, offersVisit, photoObservations, visitFormHref, clinicSearchUrl, offersClinicSearch } from '@/features/checks/check-answers'
+import { CheckSources } from '@/features/checks/CheckSources'
 import { ResultFeedback } from '@/features/checks/ResultFeedback'
 import { FollowupOffer } from '@/features/followup/FollowupOffer'
 import { reviewAfterCheck } from '@/features/review/store-review'
@@ -147,6 +148,8 @@ export function CheckResult({ id }: { id: string }) {
           onPress={() => void copyQuestions()}
         />
       ) : null}
+
+      <CheckSources check={check} />
 
       <Banner text={t.result.disclaimer} />
 

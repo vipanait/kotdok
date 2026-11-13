@@ -43,6 +43,7 @@ function openai(): OpenAI {
 }
 
 import { DISCLAIMER, REASSURANCE, outputFormat } from './analysis-language'
+import { groupMaterials, pickSources, renderVetContext, stripSourceMarks, type VetKnowledgeMatch, type VetMaterial } from './vet-sources'
 
 const catSystemPrompt = (locale: Locale) => `You are a specialized feline health triage assistant.
 You have deep knowledge of cat-specific diseases, physiology, and behavioral signs of illness.
@@ -104,11 +105,15 @@ function systemPromptForSpecies(species: PetSpecies, locale: Locale): string {
   return species === 'dog' ? dogSystemPrompt(locale) : catSystemPrompt(locale)
 }
 
+/**
+ * What the knowledge base has on these symptoms: the text the model reads, and
+ * the numbered materials it is made of, so the answer can name the ones it used.
+ */
 async function getVetContext(
   supabase: SupabaseService,
   symptoms: string,
   species: PetSpecies,
-): Promise<string> {
+): Promise<{ context: string; materials: VetMaterial[] }> {
   const embeddingResponse = await openai().embeddings.create({
     model: 'text-embedding-3-small',
     input: symptoms,
@@ -121,14 +126,8 @@ async function getVetContext(
     filter_species: species,
   })
 
-  if (error || !data?.length) return 'No additional context available.'
-
-  return data
-    .filter((row: { similarity: number }) => row.similarity > 0.3)
-    .map((row: { source_title: string; content: string }) =>
-      `[${row.source_title}]\n${row.content}`
-    )
-    .join('\n\n---\n\n')
+  const materials = error || !data?.length ? [] : groupMaterials(data as VetKnowledgeMatch[])
+  return { context: renderVetContext(materials), materials }
 }
 
 const VALID_URGENCY: Urgency[] = ['emergency', 'urgent', 'monitor', 'home_care', 'healthy']
@@ -153,15 +152,20 @@ function validateAIResponse(raw: unknown, locale: Locale): SymptomCheckResult {
   if (typeof raw !== 'object' || raw === null) throw new Error('AI response is not an object')
   const r = raw as Record<string, unknown>
   if (!VALID_URGENCY.includes(r.urgency as Urgency)) throw new Error(`Invalid urgency: ${r.urgency}`)
+  // The context is numbered for `used_sources` (SRC-01); a number left in the
+  // text would reach the reader as "[1]" with nothing to point at.
+  const clean = (text: string) => stripSourceMarks(text)
+  const cleanList = (list: unknown) => (Array.isArray(list) ? list.map(item => clean(String(item))) : [])
+  const warning = pickString(r, 'species_specific_warning', 'cat_specific_warning')
   return {
     urgency: r.urgency as Urgency,
-    urgency_reason: String(r.urgency_reason ?? ''),
-    photo_observations: r.photo_observations ? String(r.photo_observations) : null,
-    possible_causes: Array.isArray(r.possible_causes) ? r.possible_causes as string[] : [],
-    species_specific_warning: pickString(r, 'species_specific_warning', 'cat_specific_warning'),
-    additional_pet_info_needed: pickStringArray(r, 'additional_pet_info_needed', 'additional_cat_info_needed'),
-    home_care_steps: Array.isArray(r.home_care_steps) ? r.home_care_steps as string[] : [],
-    vet_questions: Array.isArray(r.vet_questions) ? r.vet_questions as string[] : [],
+    urgency_reason: clean(String(r.urgency_reason ?? '')),
+    photo_observations: r.photo_observations ? clean(String(r.photo_observations)) : null,
+    possible_causes: cleanList(r.possible_causes),
+    species_specific_warning: warning === null ? null : clean(warning),
+    additional_pet_info_needed: pickStringArray(r, 'additional_pet_info_needed', 'additional_cat_info_needed').map(clean),
+    home_care_steps: cleanList(r.home_care_steps),
+    vet_questions: cleanList(r.vet_questions),
     disclaimer: String(r.disclaimer ?? DISCLAIMER[locale]),
   }
 }
@@ -379,8 +383,8 @@ export async function analyzeSymptomCheck(
     const newBalance = reservedUsage?.new_balance ?? account.account.credits - 1
 
     // RAG search filtered by species
-    const vetContext = await getVetContext(supabase, input.symptoms, species)
-    const systemPrompt = systemPromptForSpecies(species, locale).replace('{context}', vetContext)
+    const vet = await getVetContext(supabase, input.symptoms, species)
+    const systemPrompt = systemPromptForSpecies(species, locale).replace('{context}', vet.context)
 
     // Build user message — with or without photo
     type ContentPart =
@@ -435,6 +439,9 @@ export async function analyzeSymptomCheck(
       throw new Error('AI returned invalid JSON')
     }
     const result = validateAIResponse(parsed, locale)
+    // Only a number that was in the context becomes a source (SRC-01). Kept out
+    // of `result`: the numbers mean nothing once the context is gone.
+    const sources = pickSources(vet.materials, (parsed as Record<string, unknown> | null)?.used_sources)
 
     // Save check first so the ledger entry can reference it.
     const { data: check, error: checkError } = await supabase
@@ -457,6 +464,8 @@ export async function analyzeSymptomCheck(
           ...result,
           ...quickAssessment,
           photo_count: input.photos.length,
+          // Always written, empty included: a check from before the sources has no key.
+          sources,
           ...(medicalRecord ? { medical_record: medicalRecord } : {}),
         },
       })

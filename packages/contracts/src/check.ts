@@ -17,6 +17,27 @@ export const CheckCaseLinkSchema = z.object({
 
 export type CheckCaseLink = z.infer<typeof CheckCaseLinkSchema>
 
+/** How many sources a result names at most. */
+export const CHECK_SOURCES_MAX = 3
+
+/**
+ * A material of the vet knowledge base the analysis relied on, as the result
+ * names it: the article's own title, who published it, and where to read it.
+ *
+ * Kept in `full_response.sources` of a check, a snapshot taken at the analysis:
+ * it outlives a reload of the corpus. Not strict — a build already installed
+ * must keep reading a source after the server learns a new field.
+ */
+export const CheckSourceSchema = z.object({
+  title: z.string().min(1),
+  publisher: z.string().min(1),
+  url: z.url(),
+  /** The language the article is written in, which is not the answer's. */
+  lang: LocaleSchema,
+})
+
+export type CheckSource = z.infer<typeof CheckSourceSchema>
+
 /**
  * A stored symptom check as history and the result screen show it.
  *
@@ -33,7 +54,11 @@ export const SymptomCheckRecordSchema = z.strictObject({
   species_specific_warning: z.string().nullable(),
   home_care_steps: z.array(z.string()),
   vet_questions: z.array(z.string()),
-  /** Raw model output plus the quick-assessment answers; shape varies by version. */
+  /**
+   * Raw model output plus the quick-assessment answers; shape varies by version.
+   * `sources`, when present, is a list of `CheckSourceSchema` (SRC-01); read it
+   * with `checkSources` from `@lapka/shared`, which trusts none of it.
+   */
   full_response: z.record(z.string(), z.unknown()).nullable(),
   created_at: IsoDateTimeSchema,
   /**
