@@ -188,7 +188,8 @@ describe('POST /api/v1/safety/ask', () => {
       [JSON.stringify(cached)],
     )
     const served = await answer({ query: 'драконий фрукт', species: 'dog' })
-    expect(served).toMatchObject({ source: 'ai', verdict: 'unknown', signs: [], remaining_today: null })
+    // A clean sign stays; the model's summary does not.
+    expect(served).toMatchObject({ source: 'ai', verdict: 'unknown', signs: ['вялость'], remaining_today: null })
     if (served.source !== 'ai') throw new Error('expected an AI answer')
     // The fixed «avoid» list names charcoal as something not to give; the model's line is gone.
     expect([served.title, served.summary, served.why].join(' ')).not.toMatch(/уголь/)
@@ -232,6 +233,40 @@ describe('POST /api/v1/safety/ask', () => {
     knowledge = [{ similarity: 0.82, source_title: 'Fruit', content: 'Not toxic' }]
     const backed = await answer({ query: 'питахайя', species: 'dog' })
     expect(backed).toMatchObject({ source: 'ai', verdict: 'safe', if_eaten: 'none', first_steps: [], avoid: [] })
+  })
+
+  it('keeps a dangerous answer dangerous when its words are replaced, and makes the notes from the final verdict', async () => {
+    await db.query(`update public.pets set chronic_conditions = $2 where id = $1`, [PET_IDS.aDog, ['ХБП']])
+    try {
+      model.answer = fruit({
+        category: 'plant',
+        canonical_name_ru: 'олеандр',
+        canonical_name_en: 'oleander',
+        title: 'Олеандр',
+        verdict: 'danger',
+        if_eaten: 'watch',
+        summary: 'Токсичная доза очень мала.',
+        signs: ['рвотные позывы', 'вялость', 'нарушение ритма сердца'],
+      })
+      const result = await answer({ query: 'олеандр', pet_id: PET_IDS.aDog })
+      expect(result).toMatchObject({
+        source: 'ai',
+        verdict: 'danger',
+        if_eaten: 'call_now',
+        title: 'Олеандр',
+        signs: ['вялость', 'нарушение ритма сердца'],
+        // «Talk to your vet about new foods» is not said under «danger».
+        pet_notes: [],
+      })
+      if (result.source !== 'ai') throw new Error('expected an AI answer')
+      expect(result.summary).not.toMatch(/доза/)
+
+      // A medicine the model called «caution» is dangerous: no chronic line either.
+      model.answer = fruit({ category: 'medicine', canonical_name_ru: 'лоратадин', canonical_name_en: 'loratadine', verdict: 'caution' })
+      expect(await answer({ query: 'кларитин', pet_id: PET_IDS.aDog })).toMatchObject({ verdict: 'danger', pet_notes: [] })
+    } finally {
+      await db.query(`update public.pets set chronic_conditions = null where id = $1`, [PET_IDS.aDog])
+    }
   })
 
   it('makes a medicine dangerous and keeps a household substance off «safe» (SAFE-03.5)', async () => {

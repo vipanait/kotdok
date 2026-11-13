@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { aiWordingProblems, guardAiAnswer } from '@/server/safety/ask-safety'
-import { SAFETY_AVOID, SAFETY_FIRST_STEPS, SAFETY_NO_DATA } from '@/server/safety/ask-language'
+import { SAFETY_AVOID, SAFETY_DANGER_STANDARD, SAFETY_FIRST_STEPS, SAFETY_NO_DATA } from '@/server/safety/ask-language'
 import { safetyWordingProblems } from '@/features/safety/schema'
 
 /**
@@ -26,7 +26,7 @@ function raw(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   }
 }
 
-const ru: { grounded: boolean; locale: 'ru' | 'en' } = { grounded: true, locale: 'ru' }
+const ru: { grounded: boolean; locale: 'ru' | 'en'; query?: string } = { grounded: true, locale: 'ru', query: 'питахайя' }
 
 function guarded(input: unknown, ctx = ru) {
   const result = guardAiAnswer(input, ctx)
@@ -73,7 +73,8 @@ describe('guardAiAnswer', () => {
     expect(answer.verdict).toBe('unknown')
     expect(answer.summary).toBe(SAFETY_NO_DATA.ru.summary)
     expect(answer.why).toBe(SAFETY_NO_DATA.ru.why)
-    expect(answer.signs).toEqual([])
+    // A clean sign stays: only lines that trip the list are dropped.
+    expect(answer.signs).toEqual(['вялость'])
     expect(JSON.stringify(answer)).not.toMatch(/мг|дозир/i)
   })
 
@@ -99,13 +100,19 @@ describe('guardAiAnswer', () => {
     'A dose of 2 tablets is enough.',
     'Induce emesis at home.',
     'Hydrogen peroxide helps.',
+    'Можно давать активированный уголь.',
+    'Помогает дать немного угля.',
+    'Give activated charcoal.',
+    'One tablet is fine.',
+    'A pill of it helps.',
+    'Administer it twice.',
   ])('replaces an answer that reads like treatment: %s', summary => {
     for (const locale of ['ru', 'en'] as const) {
       const answer = guarded(raw({ summary }), { grounded: true, locale })
       expect(answer.verdict, locale).toBe('unknown')
       expect(answer.summary, locale).toBe(SAFETY_NO_DATA[locale].summary)
       expect(answer.why, locale).toBe(SAFETY_NO_DATA[locale].why)
-      expect(answer.signs, locale).toEqual([])
+      expect(answer.signs, locale).toEqual(['понос'])
     }
   })
 
@@ -119,6 +126,10 @@ describe('guardAiAnswer', () => {
     'Never give grapes to a dog.',
     'Признаки появляются мгновенно.',
     'Given the sugar, keep it rare.',
+    'Не давать сырым.',
+    'Нельзя давать это собаке.',
+    'Never give it raw.',
+    'Углеводов в мякоти много.',
   ])('keeps advice against and ordinary words: %s', summary => {
     expect(guarded(raw({ summary })).summary).toBe(summary)
   })
@@ -137,11 +148,51 @@ describe('guardAiAnswer', () => {
     expect(guarded(raw({ why: 'Вызовите рвоту.' }), { grounded: true, locale: 'en' }).verdict).toBe('unknown')
   })
 
-  it('keeps a medicine «danger» when its text is replaced', () => {
+  it('keeps a medicine «danger» when its text is replaced, with the danger text', () => {
     const answer = guarded(raw({ category: 'medicine', verdict: 'danger', summary: 'Дозировка 5 мг/кг' }))
     expect(answer.verdict).toBe('danger')
     expect(answer.if_eaten).toBe('call_now')
-    expect(answer.summary).toBe(SAFETY_NO_DATA.ru.summary)
+    expect(answer.summary).toBe(SAFETY_DANGER_STANDARD.ru.summary)
+    expect(answer.why).toBe(SAFETY_DANGER_STANDARD.ru.why)
+  })
+
+  describe('a wording replacement never softens the verdict', () => {
+    it('keeps a food «danger» call-now, drops only the sign that trips and keeps the rest', () => {
+      const answer = guarded(
+        raw({ verdict: 'danger', if_eaten: 'call_now', signs: ['рвотные позывы', 'вялость', 'дрожь'], summary: 'Опасно для собак.' }),
+      )
+      expect(answer.verdict).toBe('danger')
+      expect(answer.if_eaten).toBe('call_now')
+      expect(answer.signs).toEqual(['вялость', 'дрожь'])
+      expect(answer.summary).toBe(SAFETY_DANGER_STANDARD.ru.summary)
+    })
+
+    it('keeps «call now» when «caution» becomes «unknown»', () => {
+      const answer = guarded(raw({ verdict: 'caution', if_eaten: 'call_now', why: 'Безопасная доза мала.' }))
+      expect(answer.verdict).toBe('unknown')
+      expect(answer.if_eaten).toBe('call_now')
+      expect(answer.summary).toBe(SAFETY_NO_DATA.ru.summary)
+    })
+
+    it('turns a grounded «safe» into «unknown», watch', () => {
+      const answer = guarded(raw({ verdict: 'safe', if_eaten: 'none', summary: 'Можно давать понемногу.' }))
+      expect(answer.verdict).toBe('unknown')
+      expect(answer.if_eaten).toBe('watch')
+    })
+
+    it('keeps a Russian account’s «danger» answered with an English dose', () => {
+      const answer = guarded(raw({ verdict: 'danger', summary: 'A toxic dose is 1 g per kg.' }))
+      expect(answer.verdict).toBe('danger')
+      expect(answer.if_eaten).toBe('call_now')
+      expect(answer.summary).toBe(SAFETY_DANGER_STANDARD.ru.summary)
+    })
+
+    it('falls back to the query for a title that trips, and to «No data» when that trips too', () => {
+      expect(guarded(raw({ title: 'Таблетки от кашля' })).title).toBe('Питахайя')
+      expect(guarded(raw({ title: 'Таблетки' }), { grounded: true, locale: 'ru', query: 'таблетки' }).title).toBe(
+        SAFETY_NO_DATA.ru.title,
+      )
+    })
   })
 
   it('answers «not recognized» when the model did not recognize an item', () => {
@@ -185,10 +236,17 @@ describe('guardAiAnswer', () => {
 describe('the fixed texts of an AI answer', () => {
   it('pass the reference’s wording checks in both languages', () => {
     for (const locale of ['ru', 'en'] as const) {
-      const texts = [...SAFETY_FIRST_STEPS[locale], ...SAFETY_AVOID[locale], ...Object.values(SAFETY_NO_DATA[locale])]
+      const texts = [
+        ...SAFETY_FIRST_STEPS[locale],
+        ...SAFETY_AVOID[locale],
+        ...Object.values(SAFETY_NO_DATA[locale]),
+        ...Object.values(SAFETY_DANGER_STANDARD[locale]),
+      ]
       expect(safetyWordingProblems(texts, locale), locale).toEqual([])
-      // And the stricter rules a model's text gets.
-      expect(aiWordingProblems(texts), locale).toEqual([])
+      // And the stricter rules a model's text gets — except the «avoid» list, whose job is to name
+      // the remedies (charcoal, milk, oil) the owner must not give.
+      const shown = [...SAFETY_FIRST_STEPS[locale], ...Object.values(SAFETY_NO_DATA[locale]), ...Object.values(SAFETY_DANGER_STANDARD[locale])]
+      expect(aiWordingProblems(shown), locale).toEqual([])
       expect(SAFETY_FIRST_STEPS[locale].length).toBeGreaterThanOrEqual(3)
       expect(SAFETY_AVOID[locale].length).toBeGreaterThanOrEqual(1)
     }

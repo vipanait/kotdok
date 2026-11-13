@@ -37,7 +37,11 @@ export const SAFETY_AVOID: Record<Locale, readonly string[]> = {
   ],
 }
 
-/** What replaces an answer whose text broke the wording rules: nothing of the model's text survives. */
+/**
+ * What replaces the summary and the explanation of an answer whose text broke
+ * the wording rules — unless the answer was «danger», which keeps its verdict
+ * and gets `SAFETY_DANGER_STANDARD` instead: a replacement never softens.
+ */
 export const SAFETY_NO_DATA: Record<Locale, { title: string; summary: string; why: string }> = {
   ru: {
     title: 'Нет данных',
@@ -54,16 +58,24 @@ export const SAFETY_NO_DATA: Record<Locale, { title: string; summary: string; wh
 /**
  * Word starts an AI answer may not use, on top of the reference's own list
  * (`safetyWordingProblems`): the shapes treatment advice takes in a model's
- * text — «дайте …», a dose, milligrams, tablets, peroxide, «стошнило»,
- * an emetic; "give", "dose", "mg", "peroxide", "emesis", "induce". The
+ * text — «дайте/давать/дать …», a dose, milligrams, tablets, peroxide,
+ * «стошнило», an emetic, charcoal; "give", "dose", "mg", "peroxide",
+ * "emesis", "induce", "charcoal", "tablet", "pill", "administer". The
  * reference keeps its narrower list: its texts are written and reviewed by
  * hand, a model's are not.
  *
  * `whole`: matched as a whole word, because as a word start it is inside
- * ordinary words («мгновенно», "given").
+ * ordinary words («мгновенно», "given", "pillow"). Charcoal is listed by its
+ * forms, not «угл», which starts «углеводы».
  */
 export const SAFETY_AI_FORBIDDEN_WORDS: readonly { word: string; whole?: true }[] = [
   { word: 'дайте' },
+  { word: 'давать' },
+  { word: 'дать', whole: true },
+  { word: 'уголь' },
+  { word: 'угля' },
+  { word: 'углем' },
+  { word: 'углём' },
   { word: 'доз' },
   { word: 'мг', whole: true },
   { word: 'таблетк' },
@@ -76,15 +88,34 @@ export const SAFETY_AI_FORBIDDEN_WORDS: readonly { word: string; whole?: true }[
   { word: 'peroxide' },
   { word: 'emesis' },
   { word: 'induce' },
+  { word: 'charcoal' },
+  { word: 'tablet' },
+  { word: 'pill', whole: true },
+  { word: 'pills', whole: true },
+  { word: 'administer' },
 ]
 
 /**
- * The negated forms models write all the time — «не дайте», "do not give",
- * "don't give", "never give", "do not induce" — are advice against, not
+ * The negated forms models write all the time — «не дайте», «не давать»,
+ * «нельзя давать», "do not give", "don't give", "never give", "do not
+ * induce", "do not administer" — are advice against, not
  * advice: they are cut out before the words above are looked for. What
  * follows them is still checked («не дайте … 5 мг» still trips on «мг»).
  */
-export const SAFETY_AI_NEGATED = /(^|[^а-яёa-z])(?:никогда\s+)?не\s+дайте(?![а-яёa-z])|\b(?:do\s+not|don['’]t|never)\s+(?:give|induce)\b/gi
+export const SAFETY_AI_NEGATED =
+  /(^|[^а-яёa-z])(?:(?:никогда\s+)?не|нельзя)\s+(?:дайте|давать|дать)(?![а-яёa-z])|\b(?:do\s+not|don['’]t|never)\s+(?:give|induce|administer)\b/gi
+
+/** The replacement texts of a «danger» answer: the verdict stands, only the model's words go. */
+export const SAFETY_DANGER_STANDARD: Record<Locale, { summary: string; why: string }> = {
+  ru: {
+    summary: 'Может быть опасно для питомца. Не давайте это.',
+    why: 'Если питомец съел или проглотил это, сразу позвоните в ветклинику, не дожидаясь признаков.',
+  },
+  en: {
+    summary: 'This may be dangerous for your pet. Do not let your pet have it.',
+    why: 'If your pet has eaten or swallowed it, call a vet clinic right away, without waiting for signs.',
+  },
+}
 
 const LANGUAGE: Record<Locale, string> = { ru: 'Russian', en: 'English' }
 

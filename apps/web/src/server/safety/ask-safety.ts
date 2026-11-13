@@ -20,6 +20,7 @@ import {
   SAFETY_AI_FORBIDDEN_WORDS,
   SAFETY_AI_NEGATED,
   SAFETY_AVOID,
+  SAFETY_DANGER_STANDARD,
   SAFETY_FIRST_STEPS,
   SAFETY_NO_DATA,
   safetySystemPrompt,
@@ -96,8 +97,7 @@ function capitalized(value: string): string {
 function ifEatenFor(verdict: SafetyAiVerdict, said: unknown): SafetyIfEaten {
   if (verdict === 'danger') return 'call_now'
   if (verdict === 'safe') return 'none'
-  if (verdict === 'unknown') return 'watch'
-  // «With caution» always leaves something to do: when in doubt, stricter.
+  // «No data» and «with caution» always leave something to do, and keep «call now» if the model said it.
   return said === 'call_now' ? 'call_now' : 'watch'
 }
 
@@ -126,9 +126,13 @@ export function aiWordingProblems(texts: readonly string[]): string[] {
  * The server's rules over a model's answer. Throws on an answer it cannot
  * read (a verdict or category outside the four, no title or summary): that is
  * a model failure, not something to show. Every rule can only make the
- * answer stricter.
+ * answer stricter. `query` is the normalized query: the title to fall back
+ * on when the model's title cannot be shown.
  */
-export function guardAiAnswer(raw: unknown, ctx: { grounded: boolean; locale: Locale }): GuardedAnswer | { recognized: false } {
+export function guardAiAnswer(
+  raw: unknown,
+  ctx: { grounded: boolean; locale: Locale; query?: string },
+): GuardedAnswer | { recognized: false } {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new Error('The model did not return an object')
   const r = raw as Record<string, unknown>
   // Before the other fields: a refusal need not fill them.
@@ -156,15 +160,20 @@ export function guardAiAnswer(raw: unknown, ctx: { grounded: boolean; locale: Lo
   // «Safe» from the model's memory alone is the answer this feature must not give.
   if (verdict === 'safe' && !ctx.grounded) verdict = 'unknown'
 
-  if (aiWordingProblems([title, summary, why, ...signs]).length > 0) {
-    // Nothing of the model's text survives: a dose or «make it vomit» must not reach the screen in any field.
-    const noData = SAFETY_NO_DATA[ctx.locale]
-    const name = ctx.locale === 'ru' ? canonicalRu : canonicalEn
-    verdict = category === 'medicine' ? 'danger' : 'unknown'
-    title = name && aiWordingProblems([name]).length === 0 ? capitalized(name) : noData.title
-    summary = noData.summary
-    why = noData.why
-    signs = []
+  // A line that reads like treatment is not shown, and the answer it was in loses the model's words —
+  // but never its severity (spec, «Ответ ИИ»): «danger» stays «danger», call now.
+  const tripped = (value: string) => aiWordingProblems([value]).length > 0
+  const keptSigns = signs.filter(sign => !tripped(sign))
+  if (keptSigns.length < signs.length || [title, summary, why].some(tripped)) {
+    signs = keptSigns
+    if (verdict !== 'danger') verdict = 'unknown'
+    const standard = verdict === 'danger' ? SAFETY_DANGER_STANDARD[ctx.locale] : SAFETY_NO_DATA[ctx.locale]
+    summary = standard.summary
+    why = standard.why
+    if (tripped(title)) {
+      const fallback = capitalized(ctx.query ?? '')
+      title = fallback && !tripped(fallback) ? fallback.slice(0, TITLE_MAX) : SAFETY_NO_DATA[ctx.locale].title
+    }
   }
 
   return {
@@ -231,7 +240,7 @@ async function askModel(supabase: SupabaseService, query: string, species: PetSp
   })
   const content = completion.choices[0]?.message.content
   if (!content) throw new Error('Empty response from the model')
-  return guardAiAnswer(JSON.parse(content), { grounded: knowledge.grounded, locale })
+  return guardAiAnswer(JSON.parse(content), { grounded: knowledge.grounded, locale, query })
 }
 
 type CachedRow = { answer: unknown; asked_count: number; created_at: string }
@@ -304,7 +313,7 @@ export async function askSafety(
     // Through the guards again, so a rule added later applies to what is already cached.
     let cached: ReturnType<typeof guardAiAnswer> | null = null
     try {
-      cached = guardAiAnswer(row.answer, { grounded: true, locale: input.locale })
+      cached = guardAiAnswer(row.answer, { grounded: true, locale: input.locale, query: queryKey })
     } catch (error) {
       console.error('safety ask: unreadable cached answer, asking again:', error)
     }
