@@ -10,6 +10,7 @@ import { hubSearch } from '@/features/safety/hub-search'
 import EntryPage, { generateMetadata, generateStaticParams } from '@/app/(content)/mozhno-li/[slug]/page'
 import Hub, { generateMetadata as hubMetadata } from '@/app/(content)/mozhno-li/page'
 import ToxinArticle from '@/app/(content)/otravlenie/[slug]/page'
+import AboutArticles, { generateMetadata as aboutMetadata } from '@/app/(content)/o-materialah/page'
 import { nonePublished, onlyPublished, withReviewStatus } from './review-states'
 
 /**
@@ -205,6 +206,39 @@ describe('the hub', () => {
     expect(hubSearch(index, 'кирпич').state).toBe('missing')
     expect(hubSearch(index, '  ').state).toBe('idle')
   })
+})
+
+describe('what the pages promise about the app (final review)', () => {
+  // The app gives a note about an allergy from the profile and a general one about chronic conditions;
+  // it does not weigh the conditions into the verdict, and no page may say it does.
+  const overclaim = /учитывает анкету|учитывает[^.]*хронич/i
+
+  it('the hub and the entry pages say what the app does, not more', () => {
+    vi.stubEnv('VERCEL_ENV', 'preview')
+    for (const page of [html(Hub()), html(createElement(SafetyArticle, { entry: entryBySlug(SLUG)! }))]) {
+      expect(page).not.toMatch(overclaim)
+      expect(page).toMatch(/аллерги/)
+      expect(page).toMatch(/хронич/)
+    }
+  })
+})
+
+describe('the about page', () => {
+  it('leaves the reference out while nothing is published (production)', () =>
+    withReviewStatus(nonePublished(), () => {
+      const page = html(AboutArticles())
+      expect(page).not.toContain('Справочник «Можно ли»')
+      expect(page).toContain('Пять уровней срочности')
+      expect(aboutMetadata().description).not.toContain('Можно ли')
+    }))
+
+  it('describes the reference once an entry is published, without overclaiming', () =>
+    withReviewStatus(onlyPublished(SLUG), () => {
+      const page = html(AboutArticles())
+      expect(page).toContain('Справочник «Можно ли»')
+      expect(page).not.toMatch(/учитывает анкету/i)
+      expect(aboutMetadata().description).toContain('Можно ли')
+    }))
 })
 
 describe('the content segment', () => {
