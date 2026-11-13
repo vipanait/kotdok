@@ -1,6 +1,7 @@
 import { z } from 'zod'
 // The value sets are the contract's: what a file may say is what the API may serve.
 import { SAFETY_CATEGORIES, SAFETY_IF_EATEN, SAFETY_VERDICTS } from '@lapka/contracts'
+import { FORBIDDEN_WORDS, forbiddenWordPattern } from '@/features/seo-content/schema'
 
 /**
  * The «Можно ли» reference, as it is kept in `apps/web/content/safety/` — one
@@ -17,6 +18,31 @@ import { SAFETY_CATEGORIES, SAFETY_IF_EATEN, SAFETY_VERDICTS } from '@lapka/cont
  * same way: as word starts, case-insensitively, in every English text.
  */
 export const SAFETY_FORBIDDEN_WORDS_EN: readonly string[] = ['diagnos', 'prescrib', 'mg/kg', 'dosage']
+
+/**
+ * Whether a text speaks of making a pet vomit other than «only if a vet says
+ * so» — the one way the reference may say it (global constraints). `\s`, not
+ * a space: the loader puts non-breaking spaces after short words.
+ */
+export function mentionsVomitingUnsafely(text: string, locale: 'ru' | 'en'): boolean {
+  return locale === 'ru'
+    ? // «вызывать», «вызовите», «вызвать», «спровоцируйте»: the imperative is the form that matters.
+      /вызыв|вызов|вызв|провоцир/i.test(text) && /рвот/i.test(text) && !/только\s+по\s+указанию\s+врача/i.test(text)
+    : /induc\w*\s+vomit|make\b[^.]*\bvomit/i.test(text) && !/unless\s+a\s+vet\s+tells\s+you\s+to/i.test(text)
+}
+
+/**
+ * What is wrong with the wording of these texts in one language: the
+ * forbidden words found, and `vomiting` for a vomiting line without «only if
+ * a vet says so». Empty when the texts may be shown. The reference's content
+ * test and the guards on an AI answer share it.
+ */
+export function safetyWordingProblems(texts: readonly string[], locale: 'ru' | 'en'): string[] {
+  const words = locale === 'ru' ? FORBIDDEN_WORDS : SAFETY_FORBIDDEN_WORDS_EN
+  const problems: string[] = words.filter(word => texts.some(text => forbiddenWordPattern(word).test(text)))
+  if (texts.some(text => mentionsVomitingUnsafely(text, locale))) problems.push('vomiting')
+  return problems
+}
 
 const SPECIES = ['cat', 'dog'] as const
 

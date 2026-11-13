@@ -67,7 +67,7 @@ import {
   ReauthProofSchema,
   ReauthRequestSchema,
 } from './deletion'
-import { SafetyIndexSchema, SafetyItemSchema } from './safety'
+import { SafetyAskInputSchema, SafetyAskResultSchema, SafetyIndexSchema, SafetyItemSchema } from './safety'
 
 /**
  * The OpenAPI document is built from the same schemas the runtime validates
@@ -135,6 +135,8 @@ const COMPONENTS: Array<[string, z.ZodType]> = [
   ['Health', HealthSchema],
   ['SafetyIndex', SafetyIndexSchema],
   ['SafetyItem', SafetyItemSchema],
+  ['SafetyAskInput', SafetyAskInputSchema],
+  ['SafetyAskResult', SafetyAskResultSchema],
 ]
 
 for (const [id, schema] of COMPONENTS) registry.add(schema, { id })
@@ -550,6 +552,20 @@ export function buildOpenApiDocument(): Record<string, unknown> {
             { name: 'pet_id', in: 'query', required: false, schema: { type: 'string', format: 'uuid' } },
           ],
           responses: { '200': json('SafetyItem', 'The entry'), ...commonErrors('bad_request', 'not_found') },
+        },
+      },
+      '/safety/ask': {
+        post: {
+          summary: 'Ask the AI about something the reference does not hold',
+          description:
+            'Body `{ query, pet_id }` or `{ query, species }`. The reference is searched again first, and again by the ' +
+            'name the model gives: a hit answers `{ source: \'catalog\', slug }`. Otherwise the model\'s answer after the ' +
+            'server\'s guards (`source: \'ai\'`), or `source: \'unrecognized\'` for what is not a food, plant or ' +
+            'substance. An answer is cached for 30 days per query, species and language; a cached answer and a ' +
+            'reference hit do not spend the daily limit of 10 model calls (`rate_limited` past it). Someone else\'s ' +
+            'or a deleted pet is 404.',
+          requestBody: body('SafetyAskInput'),
+          responses: { '200': json('SafetyAskResult', 'The answer'), ...commonErrors('bad_request', 'not_found') },
         },
       },
       '/pets/due': {

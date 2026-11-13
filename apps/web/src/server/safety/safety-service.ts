@@ -4,6 +4,7 @@ import type { PetSpecies, SafetyIndex, SafetyItem, SafetySpeciesSection } from '
 import { petSafetyNotes } from '@lapka/shared'
 import type { createServiceClient } from '@/server/supabase/server'
 import { entryBySlug, safetyIndex } from '@/features/safety/load'
+import { loadSafetyPet, type SafetyPet } from './safety-pet'
 import type { SafetyEntry } from '@/features/safety/schema'
 import type { Locale } from '@/shared/i18n/config'
 
@@ -20,8 +21,6 @@ export function getSafetyIndex(locale: Locale): SafetyIndex {
   return { items: safetyIndex(locale) }
 }
 
-type PetRow = { species: PetSpecies; allergies: string[] | null; chronic_conditions: string[] | null }
-
 function section(entry: SafetyEntry, species: PetSpecies, locale: Locale): SafetySpeciesSection {
   const s = entry.bySpecies[species]
   return { verdict: s.verdict, summary: s.summary[locale], why: s.why[locale], signs: s.signs[locale], if_eaten: s.ifEaten }
@@ -34,19 +33,11 @@ export async function getSafetyItem(
   const entry = entryBySlug(input.slug)
   if (!entry) return { ok: false, reason: 'not_found' }
 
-  let pet: (PetRow & { id: string }) | null = null
+  let pet: SafetyPet | null = null
   if (input.petId) {
-    const { data, error } = await supabase
-      .from('pets')
-      .select('species, allergies, chronic_conditions')
-      .eq('id', input.petId)
-      .eq('user_id', input.userId)
-      .is('deleted_at', null)
-      .maybeSingle()
-    if (error) return { ok: false, reason: 'storage_error' }
-    // Someone else's pet is indistinguishable from one that never existed, and its notes are never read.
-    if (!data) return { ok: false, reason: 'not_found' }
-    pet = { id: input.petId, ...(data as PetRow) }
+    const loaded = await loadSafetyPet(supabase, input.userId, input.petId)
+    if (!loaded.ok) return loaded
+    pet = loaded.pet
   }
 
   const species: PetSpecies[] = pet?.species === 'cat' || !pet ? ['cat', 'dog'] : ['dog', 'cat']
@@ -67,7 +58,7 @@ export async function getSafetyItem(
       pet: pet && { id: pet.id, species: pet.species },
       pet_notes: pet
         ? petSafetyNotes(
-            { allergies: pet.allergies ?? [], chronic_conditions: pet.chronic_conditions ?? [] },
+            pet,
             // Both languages: an allergy is matched in whatever language the owner typed it.
             {
               name: entry.name[input.locale],

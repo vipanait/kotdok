@@ -57,7 +57,10 @@ export const SafetyItemSchema = z.object({
   slug: text,
   category: SafetyCategorySchema,
   name: text,
-  /** With a pet, its species comes first. */
+  /**
+   * Both species. A client puts `pet.species` first: the server sends the
+   * pet's section first, but parsing rebuilds the object in this schema's order.
+   */
   by_species: z.object({ cat: SafetySpeciesSectionSchema, dog: SafetySpeciesSectionSchema }),
   first_steps: z.array(text),
   avoid: z.array(text),
@@ -69,6 +72,63 @@ export const SafetyItemSchema = z.object({
   pet_notes: z.array(SafetyPetNoteSchema),
 })
 
+/**
+ * The AI answer for what the reference does not hold (spec, «Ответ ИИ»).
+ * `unknown` — «Нет данных / No data» — exists only here: no reliable
+ * information, do not give it.
+ */
+export const SAFETY_AI_VERDICTS = ['safe', 'caution', 'danger', 'unknown'] as const
+export const SafetyAiVerdictSchema = z.enum(SAFETY_AI_VERDICTS)
+
+/**
+ * The question: what the pet might eat, and whose species to answer for —
+ * one of the caller's pets or a species picked by hand, never both. The query
+ * must hold a letter or a digit: punctuation alone normalizes to nothing.
+ */
+export const SafetyAskInputSchema = z
+  .strictObject({
+    query: z
+      .string()
+      .min(1)
+      .max(SAFETY_QUERY_MAX)
+      .regex(/[\p{L}\p{N}]/u, 'a letter or a digit'),
+    pet_id: UuidSchema.optional(),
+    species: PetSpeciesSchema.optional(),
+  })
+  .refine(input => (input.pet_id === undefined) !== (input.species === undefined), {
+    message: 'exactly one of pet_id and species',
+  })
+
+/**
+ * `catalog`: the reference holds it (by the query or by the name the model
+ * gave), open that entry. `unrecognized`: not a food, plant or substance; no
+ * verdict. `ai`: the model's answer after the server's guards.
+ * `remaining_today` is what the daily limit has left after this question;
+ * null when the answer came from the cache and spent nothing — the limiter
+ * can only tell the remainder while spending.
+ */
+export const SafetyAskResultSchema = z.discriminatedUnion('source', [
+  z.object({ source: z.literal('catalog'), slug: text }),
+  z.object({ source: z.literal('unrecognized'), remaining_today: z.number().int().min(0) }),
+  z.object({
+    source: z.literal('ai'),
+    species: PetSpeciesSchema,
+    category: SafetyCategorySchema,
+    title: text,
+    verdict: SafetyAiVerdictSchema,
+    summary: text,
+    /** May be empty: the model is not made to explain a short answer. */
+    why: z.string(),
+    signs: z.array(text),
+    if_eaten: SafetyIfEatenSchema,
+    /** Fixed texts, the same for every AI answer; empty when nothing needs doing. */
+    first_steps: z.array(text),
+    avoid: z.array(text),
+    pet_notes: z.array(SafetyPetNoteSchema),
+    remaining_today: z.number().int().min(0).nullable(),
+  }),
+])
+
 export type SafetyCategory = z.infer<typeof SafetyCategorySchema>
 export type SafetyVerdict = z.infer<typeof SafetyVerdictSchema>
 export type SafetyIfEaten = z.infer<typeof SafetyIfEatenSchema>
@@ -77,3 +137,6 @@ export type SafetyIndex = z.infer<typeof SafetyIndexSchema>
 export type SafetySpeciesSection = z.infer<typeof SafetySpeciesSectionSchema>
 export type SafetyPetNote = z.infer<typeof SafetyPetNoteSchema>
 export type SafetyItem = z.infer<typeof SafetyItemSchema>
+export type SafetyAiVerdict = z.infer<typeof SafetyAiVerdictSchema>
+export type SafetyAskInput = z.infer<typeof SafetyAskInputSchema>
+export type SafetyAskResult = z.infer<typeof SafetyAskResultSchema>

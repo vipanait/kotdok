@@ -34,6 +34,11 @@ export const RATE_LIMITS = {
    * Cheap, but each one rewrites a phone's notifications.
    */
   followup_write: { limit: 60, windowSeconds: 60 * 60 },
+  /**
+   * «Можно ли»: a question the reference does not hold costs a model call. Per
+   * account and day; reference hits and cached answers do not spend it.
+   */
+  safety_ask: { limit: 10, windowSeconds: 24 * 60 * 60 },
   /** Pollable without a session, so it is limited by receipt, not by user. */
   deletion_status: { limit: 60, windowSeconds: 60 * 60 },
 } as const

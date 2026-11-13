@@ -5,11 +5,12 @@ import { normalizeSafetyQuery } from '@lapka/shared'
 import { allEntries, entryBySlug, publishedEntries, safetyIndex, visibleEntries } from '@/features/safety/load'
 import {
   SAFETY_FORBIDDEN_WORDS_EN,
+  mentionsVomitingUnsafely,
   safetyEntrySchema,
   textsOfEntry,
   type SafetyEntry,
 } from '@/features/safety/schema'
-import { FORBIDDEN_WORDS } from '@/features/seo-content/schema'
+import { FORBIDDEN_WORDS, forbiddenWordPattern } from '@/features/seo-content/schema'
 
 /**
  * The «Можно ли» reference in `apps/web/content/safety/`. The schema carries
@@ -21,10 +22,6 @@ const DIR = join(process.cwd(), 'content', 'safety')
 const entries = allEntries()
 const SPECIES = ['cat', 'dog'] as const
 const LOCALES = ['ru', 'en'] as const
-
-function wordStart(word: string): RegExp {
-  return new RegExp(`(^|[^а-яёa-z])${word.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')}`, 'i')
-}
 
 /** A valid entry to break one field at a time. */
 function validEntry(): Record<string, unknown> {
@@ -149,19 +146,15 @@ describe('the safety entries', () => {
     for (const entry of entries) {
       const ru = textsOfEntry(entry, 'ru')
       const en = textsOfEntry(entry, 'en')
-      for (const word of FORBIDDEN_WORDS) expect(ru.filter(t => wordStart(word).test(t)), `${entry.slug}: ${word}`).toEqual([])
-      for (const word of SAFETY_FORBIDDEN_WORDS_EN) expect(en.filter(t => wordStart(word).test(t)), `${entry.slug}: ${word}`).toEqual([])
+      for (const word of FORBIDDEN_WORDS) expect(ru.filter(t => forbiddenWordPattern(word).test(t)), `${entry.slug}: ${word}`).toEqual([])
+      for (const word of SAFETY_FORBIDDEN_WORDS_EN) expect(en.filter(t => forbiddenWordPattern(word).test(t)), `${entry.slug}: ${word}`).toEqual([])
     }
   })
 
   it('mention making a pet vomit only together with «only if a vet says so»', () => {
     for (const entry of entries) {
-      for (const text of textsOfEntry(entry, 'ru')) {
-        // \s, not a space: the loader puts non-breaking spaces after short words.
-        if (/вызыв/i.test(text) && /рвот/i.test(text)) expect(text, entry.slug).toMatch(/только\s+по\s+указанию\s+врача/i)
-      }
-      for (const text of textsOfEntry(entry, 'en')) {
-        if (/induc\w*\s+vomit|make\b[^.]*\bvomit/i.test(text)) expect(text, entry.slug).toMatch(/unless\s+a\s+vet\s+tells\s+you\s+to/i)
+      for (const locale of LOCALES) {
+        expect(textsOfEntry(entry, locale).filter(text => mentionsVomitingUnsafely(text, locale)), entry.slug).toEqual([])
       }
     }
   })

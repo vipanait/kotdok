@@ -1,0 +1,151 @@
+import { describe, expect, it } from 'vitest'
+import { guardAiAnswer } from '@/server/safety/ask-safety'
+import { SAFETY_AVOID, SAFETY_FIRST_STEPS, SAFETY_NO_DATA } from '@/server/safety/ask-language'
+import { safetyWordingProblems } from '@/features/safety/schema'
+
+/**
+ * SAFE-03: what the server does to a model's answer before anyone sees it.
+ * A wrong «safe» is the harm the feature exists to prevent, so every rule
+ * that can only make an answer stricter is checked here with exact values.
+ */
+
+/** A well-formed answer about a food, to break one field at a time. */
+function raw(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+  return {
+    recognized: true,
+    category: 'food',
+    canonical_name_ru: 'Питахайя',
+    canonical_name_en: 'Dragon fruit',
+    verdict: 'caution',
+    title: 'Питахайя',
+    summary: 'Небольшой кусочек мякоти обычно не вредит.',
+    why: 'Много сахара и клетчатки; кожура жёсткая.',
+    signs: ['понос'],
+    if_eaten: 'watch',
+    ...overrides,
+  }
+}
+
+const ru: { grounded: boolean; locale: 'ru' | 'en' } = { grounded: true, locale: 'ru' }
+
+function guarded(input: unknown, ctx = ru) {
+  const result = guardAiAnswer(input, ctx)
+  if (!('verdict' in result)) throw new Error(`expected a recognized answer, got ${JSON.stringify(result)}`)
+  return result
+}
+
+describe('guardAiAnswer', () => {
+  it('turns «safe» without a knowledge-base fragment above the threshold into «unknown»', () => {
+    const answer = guarded(raw({ verdict: 'safe', if_eaten: 'none' }), { grounded: false, locale: 'ru' })
+    expect(answer.verdict).toBe('unknown')
+    expect(answer.if_eaten).toBe('watch')
+  })
+
+  it('keeps «safe» when a fragment backs it', () => {
+    const answer = guarded(raw({ verdict: 'safe', if_eaten: 'watch' }))
+    expect(answer.verdict).toBe('safe')
+    expect(answer.if_eaten).toBe('none')
+  })
+
+  it('makes any medicine «danger», call now', () => {
+    const answer = guarded(raw({ category: 'medicine', verdict: 'caution', if_eaten: 'watch' }))
+    expect(answer.verdict).toBe('danger')
+    expect(answer.if_eaten).toBe('call_now')
+  })
+
+  it('never lets a household substance be «safe», even grounded', () => {
+    const answer = guarded(raw({ category: 'household', verdict: 'safe', if_eaten: 'none' }))
+    expect(answer.verdict).toBe('unknown')
+    expect(answer.if_eaten).toBe('watch')
+  })
+
+  it('makes «danger» call now whatever the model said', () => {
+    expect(guarded(raw({ verdict: 'danger', if_eaten: 'none' })).if_eaten).toBe('call_now')
+  })
+
+  it('never leaves «caution» with nothing to do', () => {
+    expect(guarded(raw({ verdict: 'caution', if_eaten: 'none' })).if_eaten).toBe('watch')
+    expect(guarded(raw({ verdict: 'caution', if_eaten: 'call_now' })).if_eaten).toBe('call_now')
+  })
+
+  it('replaces an answer with a forbidden word by «unknown» and the standard text', () => {
+    const answer = guarded(raw({ verdict: 'safe', summary: 'Дозировка 5 мг/кг', signs: ['вялость'] }))
+    expect(answer.verdict).toBe('unknown')
+    expect(answer.summary).toBe(SAFETY_NO_DATA.ru.summary)
+    expect(answer.why).toBe(SAFETY_NO_DATA.ru.why)
+    expect(answer.signs).toEqual([])
+    expect(JSON.stringify(answer)).not.toMatch(/мг|дозир/i)
+  })
+
+  it('checks English answers against the English words', () => {
+    const answer = guarded(raw({ title: 'Dragon fruit', summary: 'Typical dosage is low.' }), { grounded: true, locale: 'en' })
+    expect(answer.verdict).toBe('unknown')
+    expect(answer.summary).toBe(SAFETY_NO_DATA.en.summary)
+  })
+
+  it('treats «make it vomit» without «only if a vet says so» as forbidden', () => {
+    const answer = guarded(raw({ why: 'Вызовите рвоту солёной водой.' }))
+    expect(answer.verdict).toBe('unknown')
+    expect(JSON.stringify(answer)).not.toMatch(/солён/)
+  })
+
+  it('keeps a medicine «danger» when its text is replaced', () => {
+    const answer = guarded(raw({ category: 'medicine', verdict: 'danger', summary: 'Дозировка 5 мг/кг' }))
+    expect(answer.verdict).toBe('danger')
+    expect(answer.if_eaten).toBe('call_now')
+    expect(answer.summary).toBe(SAFETY_NO_DATA.ru.summary)
+  })
+
+  it('answers «not recognized» when the model did not recognize an item', () => {
+    expect(guardAiAnswer(raw({ recognized: false }), ru)).toEqual({ recognized: false })
+    // Without the other fields too: a refusal need not be a full answer.
+    expect(guardAiAnswer({ recognized: false }, ru)).toEqual({ recognized: false })
+    expect(guardAiAnswer(raw({ recognized: 'yes' }), ru)).toEqual({ recognized: false })
+  })
+
+  it('throws on a verdict or a category outside the four, an empty title or summary, or not an object', () => {
+    expect(() => guardAiAnswer(raw({ verdict: 'ok' }), ru)).toThrow()
+    expect(() => guardAiAnswer(raw({ category: 'toy' }), ru)).toThrow()
+    expect(() => guardAiAnswer(raw({ title: '  ' }), ru)).toThrow()
+    expect(() => guardAiAnswer(raw({ summary: '' }), ru)).toThrow()
+    expect(() => guardAiAnswer('safe', ru)).toThrow()
+    expect(() => guardAiAnswer(null, ru)).toThrow()
+  })
+
+  it('keeps at most eight signs of at most 200 characters, and a title of at most 80', () => {
+    const answer = guarded(
+      raw({
+        verdict: 'danger',
+        signs: [...Array.from({ length: 11 }, (_, i) => `признак ${i + 1}`), 'я'.repeat(300)],
+        title: 'т'.repeat(120),
+      }),
+    )
+    expect(answer.signs).toHaveLength(8)
+    expect(answer.signs[0]).toBe('признак 1')
+    expect(answer.title).toHaveLength(80)
+
+    const long = guarded(raw({ signs: ['я'.repeat(300)] }))
+    expect(long.signs[0]).toHaveLength(200)
+  })
+
+  it('drops signs that are not text', () => {
+    expect(guarded(raw({ signs: ['рвота', 3, null, ''] })).signs).toEqual(['рвота'])
+    expect(guarded(raw({ signs: 'рвота' })).signs).toEqual([])
+  })
+})
+
+describe('the fixed texts of an AI answer', () => {
+  it('pass the reference’s wording checks in both languages', () => {
+    for (const locale of ['ru', 'en'] as const) {
+      const texts = [...SAFETY_FIRST_STEPS[locale], ...SAFETY_AVOID[locale], ...Object.values(SAFETY_NO_DATA[locale])]
+      expect(safetyWordingProblems(texts, locale), locale).toEqual([])
+      expect(SAFETY_FIRST_STEPS[locale].length).toBeGreaterThanOrEqual(3)
+      expect(SAFETY_AVOID[locale].length).toBeGreaterThanOrEqual(1)
+    }
+  })
+
+  it('mention vomiting only as «not unless a vet says so»', () => {
+    expect(SAFETY_AVOID.ru.join(' ')).toMatch(/только\s+по\s+указанию\s+врача/)
+    expect(SAFETY_AVOID.en.join(' ')).toMatch(/unless\s+a\s+vet\s+tells\s+you\s+to/i)
+  })
+})

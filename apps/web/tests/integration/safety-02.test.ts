@@ -103,6 +103,28 @@ describe('the reference while every pilot entry is a draft (a preview shows draf
     expect(item.pet_notes).toEqual([{ kind: 'chronic' }])
   })
 
+  it('notes an allergy that names the entry, in either language', async () => {
+    // Owner A's account is in Russian, the allergy written in English; owner B the other way round.
+    await db.query(`update public.pets set allergies = $2 where id = $1`, [PET_IDS.aDog, ['Chocolate']])
+    await db.query(`update public.pets set allergies = $2 where id = $1`, [PET_IDS.bCat, ['молочный шоколад']])
+    try {
+      const ru = SafetyItemSchema.parse(
+        await (await itemRoute(bearerRequest(itemUrl('shokolad', PET_IDS.aDog), {}, tokenA), slugParams('shokolad'))).json(),
+      )
+      expect(ru.name).toBe('Шоколад')
+      expect(ru.pet_notes).toContainEqual({ kind: 'allergy', allergy: 'Chocolate' })
+
+      const en = SafetyItemSchema.parse(
+        await (await itemRoute(bearerRequest(itemUrl('shokolad', PET_IDS.bCat), {}, tokenB), slugParams('shokolad'))).json(),
+      )
+      expect(en.name).toBe('Chocolate')
+      expect(en.pet_notes).toEqual([{ kind: 'allergy', allergy: 'молочный шоколад' }])
+    } finally {
+      await db.query(`update public.pets set allergies = $2 where id = $1`, [PET_IDS.aDog, ['курица']])
+      await db.query(`update public.pets set allergies = '{}' where id = $1`, [PET_IDS.bCat])
+    }
+  })
+
   it('answers someone else’s pet and a deleted one as missing', async () => {
     const foreign = await itemRoute(bearerRequest(itemUrl('shokolad', PET_IDS.bCat), {}, tokenA), slugParams('shokolad'))
     expect(foreign.status).toBe(404)

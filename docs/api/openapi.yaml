@@ -2934,6 +2934,151 @@ components:
         - pet
         - pet_notes
       additionalProperties: false
+    SafetyAskInput:
+      type: object
+      properties:
+        query:
+          type: string
+          minLength: 1
+          maxLength: 80
+          pattern: "[\\p{L}\\p{N}]"
+        pet_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        species:
+          type: string
+          enum:
+            - cat
+            - dog
+      required:
+        - query
+      additionalProperties: false
+    SafetyAskResult:
+      oneOf:
+        - type: object
+          properties:
+            source:
+              type: string
+              const: catalog
+            slug:
+              type: string
+              minLength: 1
+          required:
+            - source
+            - slug
+          additionalProperties: false
+        - type: object
+          properties:
+            source:
+              type: string
+              const: unrecognized
+            remaining_today:
+              type: integer
+              minimum: 0
+              maximum: 9007199254740991
+          required:
+            - source
+            - remaining_today
+          additionalProperties: false
+        - type: object
+          properties:
+            source:
+              type: string
+              const: ai
+            species:
+              type: string
+              enum:
+                - cat
+                - dog
+            category:
+              type: string
+              enum:
+                - food
+                - plant
+                - medicine
+                - household
+            title:
+              type: string
+              minLength: 1
+            verdict:
+              type: string
+              enum:
+                - safe
+                - caution
+                - danger
+                - unknown
+            summary:
+              type: string
+              minLength: 1
+            why:
+              type: string
+            signs:
+              type: array
+              items:
+                type: string
+                minLength: 1
+            if_eaten:
+              type: string
+              enum:
+                - call_now
+                - watch
+                - none
+            first_steps:
+              type: array
+              items:
+                type: string
+                minLength: 1
+            avoid:
+              type: array
+              items:
+                type: string
+                minLength: 1
+            pet_notes:
+              type: array
+              items:
+                oneOf:
+                  - type: object
+                    properties:
+                      kind:
+                        type: string
+                        const: allergy
+                      allergy:
+                        type: string
+                        minLength: 1
+                    required:
+                      - kind
+                      - allergy
+                    additionalProperties: false
+                  - type: object
+                    properties:
+                      kind:
+                        type: string
+                        const: chronic
+                    required:
+                      - kind
+                    additionalProperties: false
+            remaining_today:
+              anyOf:
+                - type: integer
+                  minimum: 0
+                  maximum: 9007199254740991
+                - type: "null"
+          required:
+            - source
+            - species
+            - category
+            - title
+            - verdict
+            - summary
+            - why
+            - signs
+            - if_eaten
+            - first_steps
+            - avoid
+            - pet_notes
+            - remaining_today
+          additionalProperties: false
 paths:
   /health:
     get:
@@ -4354,6 +4499,96 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SafetyItem"
+        "400":
+          description: Request body or query is invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: bad_request
+                  message: Request body or query is invalid
+                  request_id: 01J000000000000000000000
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
+                  request_id: 01J000000000000000000000
+        "404":
+          description: No such resource for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: not_found
+                  message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
+  /safety/ask:
+    post:
+      summary: Ask the AI about something the reference does not hold
+      description: "Body `{ query, pet_id }` or `{ query, species }`. The reference is searched again
+        first, and again by the name the model gives: a hit answers `{ source: 'catalog', slug }`.
+        Otherwise the model's answer after the server's guards (`source: 'ai'`), or `source:
+        'unrecognized'` for what is not a food, plant or substance. An answer is cached for 30 days
+        per query, species and language; a cached answer and a reference hit do not spend the daily
+        limit of 10 model calls (`rate_limited` past it). Someone else's or a deleted pet is 404."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SafetyAskInput"
+      responses:
+        "200":
+          description: The answer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SafetyAskResult"
         "400":
           description: Request body or query is invalid
           content:

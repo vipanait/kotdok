@@ -147,9 +147,11 @@ export function textsOf(page: ContentPage): string[] {
 
 /** Forbidden words a page uses, for the content test. */
 export function forbiddenWordsIn(page: ContentPage): string[] {
-  const texts = textsOf(page).map(t => t.toLowerCase())
-  return FORBIDDEN_WORDS.filter(word => {
-    const pattern = new RegExp(`(^|[^а-яёa-z])${word.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')}`, 'i')
-    return texts.some(t => pattern.test(t))
-  })
+  const texts = textsOf(page)
+  return FORBIDDEN_WORDS.filter(word => texts.some(t => forbiddenWordPattern(word).test(t)))
+}
+
+/** A forbidden word as a word start: «дозировк» in «Дозировка», not inside another word. */
+export function forbiddenWordPattern(word: string): RegExp {
+  return new RegExp(`(^|[^а-яёa-z])${word.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')}`, 'i')
 }
