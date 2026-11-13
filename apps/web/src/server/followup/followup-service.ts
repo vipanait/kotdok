@@ -27,6 +27,7 @@ import type { createServiceClient } from '@/server/supabase/server'
 import { loadAccount } from '@/server/auth/account-state'
 import { consumeRateLimit } from '@/server/api/rate-limit'
 import { quotedOwnerText } from '@/server/medical-record/analysis-context'
+import { questionsForRecheck } from '@/server/check-questions/recheck-questions'
 
 type SupabaseService = ReturnType<typeof createServiceClient>
 
@@ -749,6 +750,8 @@ const RECHECK_AFTER_CLOSE_DAYS = 14
 /** The previous check and its answers in the prompt, at most this many characters. */
 export const RECHECK_CONTEXT_MAX = 1500
 const NOTE_IN_PROMPT_MAX = 200
+/** One question the owner asked after the previous check, in the prompt (CQ-01). */
+const QUESTION_IN_PROMPT_MAX = 150
 
 const STATE_WORDS = { better: 'better', same: 'no change', worse: 'worse' } as const
 
@@ -797,6 +800,15 @@ export async function recheckContext(
       const vet = answer.vet_visited === null ? '' : answer.vet_visited ? ', saw a vet' : ', has not seen a vet'
       const note = answer.note ? `, note ${quotedOwnerText(answer.note, NOTE_IN_PROMPT_MAX)}` : ''
       lines.push(`- ${answer.created_at.slice(0, 16).replace('T', ' ')} UTC: ${STATE_WORDS[answer.state]}${vet}${note}`)
+    }
+  }
+
+  // Last, after the answers: the limit below cuts the end, and the answers matter more.
+  const asked = latest ? await questionsForRecheck(supabase, userId, latest.check_id) : []
+  if (asked.length > 0) {
+    lines.push("Owner's questions after that check:")
+    for (const { question, alert } of asked) {
+      lines.push(`- ${quotedOwnerText(question, QUESTION_IN_PROMPT_MAX)}${alert === 'none' ? '' : ` (alert: ${alert})`}`)
     }
   }
 
