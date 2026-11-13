@@ -286,8 +286,8 @@ describe('medical record overview contract', () => {
     expect(overview.pet.vaccinated).toBeNull()
   })
 
-  it('names the five sections of the record in their on-screen order', () => {
-    expect(HEALTH_SECTIONS).toEqual(['vaccinations', 'parasites', 'visits', 'medications', 'weight'])
+  it('names the sections of the record in their on-screen order', () => {
+    expect(HEALTH_SECTIONS).toEqual(['vaccinations', 'parasites', 'visits', 'medications', 'weight', 'documents'])
   })
 
   it('rejects a section the client would not know how to show', () => {

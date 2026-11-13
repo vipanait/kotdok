@@ -111,15 +111,20 @@ export function importantFacts(
  */
 const OPENABLE_SECTIONS: readonly HealthSection[] = ['vaccinations', 'parasites', 'visits', 'medications', 'weight']
 
+/** The sections the record screen lists. `documents` has its own entry point (DOC-1), not a row here. */
+type ListedSection = Exclude<HealthSection, 'documents'>
+
+const LISTED_SECTIONS = HEALTH_SECTIONS.filter((section): section is ListedSection => section !== 'documents')
+
 export type SectionRow = {
-  section: HealthSection
+  section: ListedSection
   title: string
   summary: string
   /** A section opens only once its records can be stored; until then it is a summary line. */
   openable: boolean
 }
 
-function summary(t: Dictionary, section: HealthSection, overview: HealthOverview, today: string): string {
+function summary(t: Dictionary, section: ListedSection, overview: HealthOverview, today: string): string {
   const words = t.medicalRecord
   const { pet } = overview
   switch (section) {
@@ -152,7 +157,7 @@ function summary(t: Dictionary, section: HealthSection, overview: HealthOverview
 }
 
 export function sectionRows(t: Dictionary, overview: HealthOverview, today: string): SectionRow[] {
-  return HEALTH_SECTIONS.map((section) => ({
+  return LISTED_SECTIONS.map((section) => ({
     section,
     title: t.medicalRecord.sections[section],
     summary: summary(t, section, overview, today),

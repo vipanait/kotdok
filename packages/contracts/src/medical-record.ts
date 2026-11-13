@@ -4,10 +4,10 @@ import { CalendarDateSchema, UuidSchema } from './primitives'
 import { HealthTargetSchema, ParasiteTargetSchema, VaccineTargetSchema } from './health-targets'
 
 /**
- * The five sections of a pet's medical record, in the order the screen lists
+ * The sections of a pet's medical record, in the order the screen lists
  * them. The spec: docs/design/medical-record-spec.md, §3.
  */
-export const HEALTH_SECTIONS = ['vaccinations', 'parasites', 'visits', 'medications', 'weight'] as const
+export const HEALTH_SECTIONS = ['vaccinations', 'parasites', 'visits', 'medications', 'weight', 'documents'] as const
 
 export const HealthSectionSchema = z.enum(HEALTH_SECTIONS)
 
@@ -529,11 +529,21 @@ export function readableWeights(value: unknown): unknown {
     : value
 }
 
+/** Leaves out sections a later server lists that this app has no screen for. */
+function readableSections(value: unknown): unknown {
+  return Array.isArray(value) ? value.filter((section) => (HEALTH_SECTIONS as readonly unknown[]).includes(section)) : value
+}
+
 /** The overview as a client reads it: see {@link readableEvents}, {@link readableWeights}. */
 export const HealthOverviewReadSchema = z.preprocess((value) => {
   if (!value || typeof value !== 'object') return value
-  const overview = value as { events?: unknown; weights?: unknown }
-  return { ...overview, events: readableEvents(overview.events), weights: readableWeights(overview.weights) }
+  const overview = value as { events?: unknown; weights?: unknown; writable?: unknown }
+  return {
+    ...overview,
+    events: readableEvents(overview.events),
+    weights: readableWeights(overview.weights),
+    writable: readableSections(overview.writable),
+  }
 }, HealthOverviewSchema)
 
 /**

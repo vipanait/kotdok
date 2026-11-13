@@ -575,6 +575,7 @@ components:
               - visits
               - medications
               - weight
+              - documents
         weights:
           default: []
           type: array
