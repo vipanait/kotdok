@@ -67,8 +67,12 @@ function groupOf(name: string, aliases: readonly string[], query: string): Group
   return null
 }
 
+/** How `exact` was found: the server diverts to the reference only on `name` or `alias`. */
+export type SafetyExactKind = 'name' | 'alias' | 'typo'
+
 /**
- * `exact` is the entry the query names (by name, alias or a one-letter typo);
+ * `exact` is the entry the query names (by name, alias or a one-letter typo),
+ * and `exactKind` says which;
  * `suggestions` are what to show while typing: exact first, then a name that
  * starts with the query, an alias that does, and anything containing it; by
  * name inside each group.
@@ -76,9 +80,9 @@ function groupOf(name: string, aliases: readonly string[], query: string): Group
 export function matchSafety(
   index: readonly SafetyIndexItem[],
   query: string,
-): { exact: SafetyIndexItem | null; suggestions: SafetyIndexItem[] } {
+): { exact: SafetyIndexItem | null; exactKind: SafetyExactKind | null; suggestions: SafetyIndexItem[] } {
   const q = normalizeSafetyQuery(query)
-  if (!q) return { exact: null, suggestions: [] }
+  if (!q) return { exact: null, exactKind: null, suggestions: [] }
 
   const terms = index.map(item => ({
     item,
@@ -87,18 +91,26 @@ export function matchSafety(
   }))
   const byName = (a: SafetyIndexItem, b: SafetyIndexItem) => a.name.localeCompare(b.name, 'ru')
 
-  const exact =
-    terms.find(t => t.name === q || t.aliases.includes(q))?.item ??
-    terms
-      .filter(t => [t.name, ...t.aliases].some(term => isTypoOf(q, term)))
-      .map(t => t.item)
-      .sort(byName)[0] ??
-    null
+  const byNameOrAlias = terms.find(t => t.name === q || t.aliases.includes(q))
+  const byTypo = byNameOrAlias
+    ? undefined
+    : terms
+        .filter(t => [t.name, ...t.aliases].some(term => isTypoOf(q, term)))
+        .map(t => t.item)
+        .sort(byName)[0]
+  const exact = byNameOrAlias?.item ?? byTypo ?? null
+  const exactKind: SafetyExactKind | null = byNameOrAlias
+    ? byNameOrAlias.name === q
+      ? 'name'
+      : 'alias'
+    : byTypo
+      ? 'typo'
+      : null
 
   const grouped = terms
     .map(t => ({ item: t.item, group: t.item === exact ? 0 : groupOf(t.name, t.aliases, q) }))
     .filter((entry): entry is { item: SafetyIndexItem; group: Group } => entry.group !== null)
     .sort((a, b) => a.group - b.group || byName(a.item, b.item))
 
-  return { exact, suggestions: grouped.slice(0, SAFETY_SUGGESTIONS_MAX).map(entry => entry.item) }
+  return { exact, exactKind, suggestions: grouped.slice(0, SAFETY_SUGGESTIONS_MAX).map(entry => entry.item) }
 }

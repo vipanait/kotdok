@@ -55,9 +55,9 @@ describe('matchSafety', () => {
   })
 
   it('returns nothing for an unknown or an empty query', () => {
-    expect(matchSafety(index, 'драконий фрукт')).toEqual({ exact: null, suggestions: [] })
-    expect(matchSafety(index, '')).toEqual({ exact: null, suggestions: [] })
-    expect(matchSafety(index, '  !! ')).toEqual({ exact: null, suggestions: [] })
+    expect(matchSafety(index, 'драконий фрукт')).toEqual({ exact: null, exactKind: null, suggestions: [] })
+    expect(matchSafety(index, '')).toEqual({ exact: null, exactKind: null, suggestions: [] })
+    expect(matchSafety(index, '  !! ')).toEqual({ exact: null, exactKind: null, suggestions: [] })
   })
 
   it('suggests no more than eight entries', () => {
@@ -80,6 +80,17 @@ describe('matchSafety', () => {
       'alias-start',
       'inside',
     ])
+  })
+
+  it('says how the exact entry was found: by name, by alias or by a typo', () => {
+    expect(matchSafety(index, 'Шоколад').exactKind).toBe('name')
+    expect(matchSafety(index, 'изюм').exactKind).toBe('alias')
+    const typo = matchSafety(index, 'шокалад')
+    expect(typo.exactKind).toBe('typo')
+    // The typo still finds and suggests the entry: the phone and the hub keep their tolerance.
+    expect(typo.exact?.slug).toBe('shokolad')
+    expect(typo.suggestions[0]?.slug).toBe('shokolad')
+    expect(matchSafety(index, 'рос').exactKind).toBeNull()
   })
 
   it('puts the exact entry first among suggestions', () => {
