@@ -12,7 +12,7 @@ import { CHECK_SOURCES_MAX, type CheckSource } from '@lapka/contracts'
 
 /**
  * A fragment less similar to the description than this is not context.
- * Not calibrated yet: the probe in `scripts/vet-similarity-probe.mjs` sets it.
+ * Not calibrated yet: the probe in `apps/web/scripts/vet-similarity-probe.mjs` sets it.
  */
 export const VET_CONTEXT_MIN_SIMILARITY = 0.3
 
