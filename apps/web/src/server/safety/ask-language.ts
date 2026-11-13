@@ -119,19 +119,26 @@ export const SAFETY_DANGER_STANDARD: Record<Locale, { summary: string; why: stri
 
 /**
  * A model talking about what it was given rather than about the item: «по
- * базе знаний», "based on the provided context", "the fragment says". The
- * owner never sees our prompt, so such a line reads as nonsense or, worse,
- * as a cited source (found on a real answer in SAFE-04). Case-insensitive,
- * word starts, both languages on every text.
+ * базе знаний», "based on the provided context". The owner never sees our
+ * prompt, so such a line reads as nonsense or, worse, as a cited source
+ * (found on a real answer in SAFE-04). Only phrases that can mean nothing
+ * but our context: "bone fragments", «фрагменты кости» and "in the context
+ * of a meal" are ordinary words and pass. Both languages on every text.
  */
 export const SAFETY_CONTEXT_LEAK: readonly RegExp[] = [
+  // «база/базе/базы/базу/базой знаний».
   /(^|[^а-яёa-z])баз\p{L}*\s+знани/iu,
-  /(^|[^а-яёa-z])контекст/i,
-  /(^|[^а-яёa-z])фрагмент/i,
+  /(^|[^а-яёa-z])предоставленн\p{L}*\s+(?:контекст|фрагмент|данн|материал)/iu,
+  /(^|[^а-яёa-z])(?:по|из|согласно)\s+контекст/i,
+  /(^|[^а-яёa-z])в\s+контексте\s+(?:выше|предоставлен)/i,
+  /(^|[^а-яёa-z])судя\s+по\s+(?:контекст|фрагмент)/i,
   /\bknowledge\s+base/i,
-  /\bprovided\s+context/i,
-  /\bthe\s+context\b/i,
-  /\bfragment/i,
+  /\bthe\s+provided\b/i,
+  /\bprovided\s+(?:context|fragments?|excerpts?|sources?)\b/i,
+  /\bthe\s+context\s+provided\b/i,
+  /\b(?:according\s+to|based\s+on)\s+the\s+context\b/i,
+  // The prompt's own section name, as the model would echo it.
+  /\bCONTEXT\b/,
 ]
 
 const LANGUAGE: Record<Locale, string> = { ru: 'Russian', en: 'English' }

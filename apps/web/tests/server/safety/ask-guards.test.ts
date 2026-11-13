@@ -233,12 +233,14 @@ describe('guardAiAnswer', () => {
 
     it.each([
       ['Судя по базе знаний, мякоть не ядовита.', 'ru'],
-      ['В контексте нет сведений.', 'ru'],
-      ['Фрагмент говорит, что опасно.', 'ru'],
+      ['В контексте выше нет сведений.', 'ru'],
+      ['По контексту это допустимо.', 'ru'],
+      ['Предоставленный фрагмент говорит, что опасно.', 'ru'],
       ['The provided knowledge base says it is mild.', 'en'],
       ['Based on the provided context, it is mild.', 'en'],
-      ['The context does not mention it.', 'en'],
-      ['One fragment notes mild upset.', 'en'],
+      ['The context provided does not mention it.', 'en'],
+      ['According to the context, it is mild.', 'en'],
+      ['The provided fragments note mild upset.', 'en'],
     ] as const)('never shows the model talking about its context: %s', (summary, locale) => {
       const danger = guarded(raw({ verdict: 'danger', summary }), { grounded: true, locale })
       expect(danger).toMatchObject({ verdict: 'danger', if_eaten: 'call_now', summary: SAFETY_DANGER_STANDARD[locale].summary })
@@ -246,16 +248,28 @@ describe('guardAiAnswer', () => {
       expect(unknown).toMatchObject({ verdict: 'unknown', summary: SAFETY_NO_DATA[locale].summary, why: SAFETY_NO_DATA[locale].why })
     })
 
-    it('drops only the context sentence from a «caution» answer, keeping its verdict', () => {
-      const answer = guarded(raw({ summary: 'Кусочек мякоти обычно не вредит. Это следует из базы знаний.' }))
-      expect(answer).toMatchObject({ verdict: 'caution', summary: 'Кусочек мякоти обычно не вредит.' })
-      // Nothing left of the summary: no verdict without an answer.
-      const empty = guarded(raw({ summary: 'Согласно контексту, это допустимо.' }))
-      expect(empty).toMatchObject({ verdict: 'unknown', summary: SAFETY_NO_DATA.ru.summary })
+    it('makes a «caution» that talks about its context «unknown», with the no-data text', () => {
+      // Dropping the sentence would drop its caveat with it: «bones are not allowed» would vanish.
+      const answer = guarded(raw({ summary: 'Кусочек обычно не вредит. По базе знаний, косточки давать нельзя.' }))
+      expect(answer).toMatchObject({ verdict: 'unknown', summary: SAFETY_NO_DATA.ru.summary, why: SAFETY_NO_DATA.ru.why })
+      const safe = guarded(raw({ verdict: 'safe', if_eaten: 'none', why: 'Based on the provided context, it is fine.' }), {
+        grounded: true,
+        locale: 'en',
+      })
+      expect(safe).toMatchObject({ verdict: 'unknown', summary: SAFETY_NO_DATA.en.summary })
+    })
+
+    it.each([
+      'Raw bones are usually fine. Cooked bones can splinter into sharp fragments.',
+      'Fine in the context of a balanced meal.',
+      'Варёные кости дают острые фрагменты кости.',
+      'В контексте обычного рациона это редкость.',
+    ])('leaves ordinary words alone: %s', summary => {
+      expect(guarded(raw({ summary }))).toMatchObject({ verdict: 'caution', summary })
     })
 
     it('drops a sign or a title that talks about the context', () => {
-      const answer = guarded(raw({ signs: ['вялость', 'фрагмент не уточняет'], title: 'Питахайя (из контекста)' }))
+      const answer = guarded(raw({ signs: ['вялость', 'по контексту не ясно'], title: 'Питахайя (из контекста)' }))
       expect(answer.signs).toEqual(['вялость'])
       expect(answer.title).toBe('Питахайя')
       expect(answer.verdict).toBe('caution')
@@ -272,6 +286,12 @@ describe('guardAiAnswer', () => {
       expect(own.summary).toBe(raw().summary)
       const lowered = guarded({ ...raw({ verdict: 'unknown' }), model_verdict: 'safe' }, { grounded: true, locale: 'ru', cached: true })
       expect(lowered.summary).toBe(SAFETY_NO_DATA.ru.summary)
+    })
+
+    it('ignores a `model_verdict` in a fresh model answer', () => {
+      // Only the cache records it; a model cannot claim a verdict it did not give to keep its text.
+      const answer = guarded({ ...raw({ category: 'medicine', verdict: 'caution', summary: 'Небольшая доля безвредна.' }), model_verdict: 'danger' })
+      expect(answer).toMatchObject({ verdict: 'danger', summary: SAFETY_DANGER_STANDARD.ru.summary, model_verdict: 'caution' })
     })
 
     it('records the model’s own verdict for the cache', () => {

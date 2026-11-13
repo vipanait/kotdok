@@ -162,14 +162,16 @@ export function guardAiAnswer(
     .map(sign => sign.slice(0, SIGN_MAX))
   const canonicalRu = text(r.canonical_name_ru).slice(0, TITLE_MAX)
   const canonicalEn = text(r.canonical_name_en).slice(0, TITLE_MAX)
-  // What the model said. A cached answer saved before `model_verdict` was kept shows only the final
-  // verdict; «unknown» and «danger» there may have been set by a guard, so their text is not trusted.
-  const recorded = r.model_verdict as SafetyAiVerdict
-  const said: SafetyAiVerdict | null = SAFETY_AI_VERDICTS.includes(recorded)
-    ? recorded
-    : ctx.cached && (verdict === 'unknown' || verdict === 'danger')
-      ? null
-      : verdict
+  // What the model said. A fresh answer's own verdict — a `model_verdict` in the model's JSON is
+  // ignored. A cached one records it; one saved before that shows only the final verdict, and its
+  // «unknown» or «danger» may have been set by a guard, so its text is not trusted.
+  const recorded = ctx.cached ? (r.model_verdict as SafetyAiVerdict) : undefined
+  const said: SafetyAiVerdict | null =
+    recorded && SAFETY_AI_VERDICTS.includes(recorded)
+      ? recorded
+      : ctx.cached && (verdict === 'unknown' || verdict === 'danger')
+        ? null
+        : verdict
 
   // Owner's decision №9, as for the reference: a human medicine is always dangerous, a household substance never safe.
   if (category === 'medicine') verdict = 'danger'
@@ -189,18 +191,10 @@ export function guardAiAnswer(
     title = fallback && !tripped(fallback) && !leaks(fallback) ? fallback.slice(0, TITLE_MAX) : SAFETY_NO_DATA[ctx.locale].title
   }
 
-  // A «caution» or «safe» of the model's own keeps its verdict when it mentions its context: only those
-  // sentences go. With nothing left of the summary there is no answer to show, and «no data» is stricter.
-  if (!wordingHit && verdict === said && (verdict === 'caution' || verdict === 'safe') && [summary, why].some(leaks)) {
-    const clean = (value: string) =>
-      value
-        .split(/(?<=[.!?…])\s+/)
-        .filter(sentence => !leaks(sentence))
-        .join(' ')
-    summary = clean(summary)
-    why = clean(why)
-    if (!summary) verdict = 'unknown'
-  }
+  // A summary or an explanation that talks about our context cannot be shown, and cutting the
+  // sentence out could cut a caveat with it («…but no bones»). So the model's «caution» or «safe»
+  // is not an answer any more: «no data». «Danger» stays, with its standard text below.
+  if ([summary, why].some(leaks) && verdict !== 'danger') verdict = 'unknown'
 
   // The text agrees with the verdict: whenever the final verdict is not the model's, or the model's
   // words could not be shown, the summary and the explanation are the standard ones for that verdict.
