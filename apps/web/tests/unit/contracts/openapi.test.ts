@@ -44,6 +44,7 @@ describe('OpenAPI document', () => {
       '/checks/{id}',
       '/checks/{id}/feedback',
       '/checks/{id}/followup',
+      '/checks/{id}/questions',
       '/consent',
       '/credits/extra-request',
       '/feedback',
