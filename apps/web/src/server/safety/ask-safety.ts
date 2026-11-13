@@ -123,8 +123,9 @@ const AI_WORD_PATTERNS = SAFETY_AI_FORBIDDEN_WORDS.map(({ word, whole }) => ({
 export function aiWordingProblems(texts: readonly string[]): string[] {
   const unnegated = texts.map(t => t.replace(SAFETY_AI_NEGATED, '$1'))
   return [
-    ...safetyWordingProblems(texts, 'ru'),
-    ...safetyWordingProblems(texts, 'en'),
+    // Strict on vomiting: a model's sign worded like advice is replaced, not argued with.
+    ...safetyWordingProblems(texts, 'ru', { strictVomiting: true }),
+    ...safetyWordingProblems(texts, 'en', { strictVomiting: true }),
     ...AI_WORD_PATTERNS.filter(({ pattern }) => unnegated.some(t => pattern.test(t))).map(({ word }) => word),
   ]
 }

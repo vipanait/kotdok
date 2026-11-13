@@ -5,8 +5,9 @@ import { normalizeSafetyQuery } from '@lapka/shared'
 import { allEntries, entryBySlug, publishedEntries, safetyIndex, visibleEntries } from '@/features/safety/load'
 import {
   SAFETY_FORBIDDEN_WORDS_EN,
-  mentionsVomitingUnsafely,
+  advisesVomiting,
   safetyEntrySchema,
+  safetyWordingProblems,
   textsOfEntry,
   type SafetyEntry,
 } from '@/features/safety/schema'
@@ -70,6 +71,68 @@ describe('the safety schema', () => {
     const entry = validEntry() as Mutable
     breakIt(entry)
     expect(safetyEntrySchema.safeParse(entry).success).toBe(false)
+  })
+})
+
+describe('advisesVomiting', () => {
+  // Advice to make a pet vomit trips; vomiting described as a sign does not (controller ruling, SAFE-06).
+  it.each([
+    'Вызовите рвоту.',
+    'Вызывайте рвоту, если съел.',
+    'Вызовите у питомца рвоту солёной водой.',
+    'Нужно вызвать рвоту как можно скорее.',
+    'Можно вызвать рвоту дома.',
+    'Стоит вызвать рвоту.',
+    'Вызвать рвоту в первые полчаса.',
+    'Если собака не ест, нужно вызвать рвоту.',
+    'Спровоцируйте рвоту.',
+  ])('trips on Russian advice: %s', text => {
+    expect(advisesVomiting(text, 'ru')).toBe(true)
+  })
+
+  it.each([
+    'Может вызвать рвоту и понос.',
+    'Шоколад вызывает рвоту.',
+    'Косточки вызывают рвоту и понос.',
+    'Молочное может вызвать понос, жирное — рвоту и понос.',
+    'Не вызывайте рвоту сами — только по указанию врача',
+    'Не вызывайте рвоту сами\u00a0— только по\u00a0указанию врача',
+    'Не нужно вызывать рвоту.',
+    'Нельзя вызывать рвоту.',
+    'Может вызвать отказ почек.',
+  ])('passes a Russian sign or the allowed line: %s', text => {
+    expect(advisesVomiting(text, 'ru')).toBe(false)
+  })
+
+  it.each([
+    'Induce vomiting at once.',
+    'You can induce vomiting with peroxide.',
+    'Make your pet vomit.',
+    'Make him vomit right away.',
+    'Make her vomit.',
+    'Make it vomit.',
+    'Cause vomiting at home.',
+    'Try to cause vomiting at home.',
+  ])('trips on English advice: %s', text => {
+    expect(advisesVomiting(text, 'en')).toBe(true)
+  })
+
+  it.each([
+    'Chocolate can cause vomiting.',
+    'Bones may cause vomiting and diarrhoea.',
+    'Rich food makes some dogs vomit.',
+    'Do not make your pet vomit unless a vet tells you to',
+    'Do not induce vomiting unless a vet tells you to',
+  ])('passes an English sign or the allowed line: %s', text => {
+    expect(advisesVomiting(text, 'en')).toBe(false)
+  })
+
+  it('is what the wording check uses, and the strict AI option still trips on a sign', () => {
+    expect(safetyWordingProblems(['Может вызвать рвоту.'], 'ru')).toEqual([])
+    expect(safetyWordingProblems(['Вызовите рвоту.'], 'ru')).toEqual(['vomiting'])
+    expect(safetyWordingProblems(['Может вызвать рвоту.'], 'ru', { strictVomiting: true })).toEqual(['vomiting'])
+    expect(safetyWordingProblems(['Can make it vomit.'], 'en', { strictVomiting: true })).toEqual(['vomiting'])
+    expect(safetyWordingProblems(['Не вызывайте рвоту сами — только по указанию врача'], 'ru', { strictVomiting: true })).toEqual([])
   })
 })
 
@@ -151,10 +214,10 @@ describe('the safety entries', () => {
     }
   })
 
-  it('mention making a pet vomit only together with «only if a vet says so»', () => {
+  it('advise making a pet vomit only as «only if a vet says so»', () => {
     for (const entry of entries) {
       for (const locale of LOCALES) {
-        expect(textsOfEntry(entry, locale).filter(text => mentionsVomitingUnsafely(text, locale)), entry.slug).toEqual([])
+        expect(textsOfEntry(entry, locale).filter(text => advisesVomiting(text, locale)), entry.slug).toEqual([])
       }
     }
   })

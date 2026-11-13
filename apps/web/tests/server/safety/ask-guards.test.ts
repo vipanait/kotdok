@@ -90,6 +90,12 @@ describe('guardAiAnswer', () => {
     expect(JSON.stringify(answer)).not.toMatch(/солён/)
   })
 
+  it('stays strict on vomiting in a model’s text: a sign worded with «вызвать рвоту» is replaced too', () => {
+    // The reference allows «может вызвать рвоту» as a sign; a model's text is not reviewed by hand.
+    expect(guarded(raw({ why: 'Может вызвать рвоту и понос.' })).verdict).toBe('unknown')
+    expect(guarded(raw({ why: 'Chocolate can make a dog vomit.' }), { grounded: true, locale: 'en' }).verdict).toBe('unknown')
+  })
+
   it.each([
     'Дайте перекись водорода, чтобы её стошнило.',
     'Дайте активированный уголь.',

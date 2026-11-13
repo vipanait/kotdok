@@ -19,28 +19,76 @@ import { FORBIDDEN_WORDS, forbiddenWordPattern } from '@/features/seo-content/sc
  */
 export const SAFETY_FORBIDDEN_WORDS_EN: readonly string[] = ['diagnos', 'prescrib', 'mg/kg', 'dosage']
 
+/** The one vomiting line the project allows, in either language. `\s`, not a space: the loader puts non-breaking spaces after short words. */
+const VET_SAYS_SO = { ru: /только\s+по\s+указанию\s+врача/i, en: /unless\s+a\s+vet\s+tells\s+you\s+to/i } as const
+
+/** Up to three words, no punctuation, between the verb and «рвоту»: «вызовите у питомца рвоту». */
+const UP_TO_THREE_WORDS = String.raw`(?:[^\s,.;:!?—–-]+\s+){0,3}`
+
+/** Imperatives: advice whatever the context. */
+const RU_IMPERATIVE = new RegExp(String.raw`(?:вызов(?:ите|и)|вызывайте|вызывай|(?:с)?провоцируйте|(?:с)?провоцируй)\s+${UP_TO_THREE_WORDS}рвот`, 'i')
+/** Infinitives: advice («нужно вызвать рвоту») unless a description («может вызвать рвоту») or a negation precedes them. */
+// The three words before it stay inside the clause: «если собака не ест, нужно вызвать» is not negated.
+const RU_INFINITIVE = new RegExp(String.raw`([^\s,.;:!?—–]+\s+)?([^\s,.;:!?—–]+\s+)?([^\s,.;:!?—–]+\s+)?(?:вызвать|вызывать|(?:с)?провоцировать)\s+${UP_TO_THREE_WORDS}рвот`, 'gi')
+const RU_DESCRIBES_OR_NEGATES = /^(?:не|нельзя|может|могут|мог|могла|могло|могли|способн[а-яё]*)$/i
+
+const EN_ADVICE = [
+  /\binduc\w*\s+(?:\w+\s+){0,2}vomit/i,
+  // "make your pet vomit", "make him vomit"; not "makes", which describes.
+  /\bmake\s+(?:[\w’']+\s+){0,3}vomit/i,
+  // "cause vomiting at home", "Cause your dog to vomit": advice, unlike "can cause vomiting".
+  /\bcause\s+(?:[\w’']+\s+){0,3}vomit\w*\s+at\s+home/i,
+  /(?:^|[.!?]\s+)cause\s+(?:[\w’']+\s+){0,3}vomit/i,
+]
+
 /**
- * Whether a text speaks of making a pet vomit other than «only if a vet says
- * so» — the one way the reference may say it (global constraints). `\s`, not
- * a space: the loader puts non-breaking spaces after short words.
+ * Whether a text advises making a pet vomit other than with «only if a vet
+ * says so» — the one way the reference may say it (global constraints).
+ * Vomiting as a sign is fine: «может вызвать рвоту», «вызывает рвоту и
+ * понос», "can cause vomiting". Advice is an imperative («вызовите рвоту»),
+ * an infinitive after «нужно / можно / стоит» or with nothing descriptive
+ * before it, or "induce vomiting", "make your pet vomit".
  */
-export function mentionsVomitingUnsafely(text: string, locale: 'ru' | 'en'): boolean {
+export function advisesVomiting(text: string, locale: 'ru' | 'en'): boolean {
+  if (VET_SAYS_SO[locale].test(text)) return false
+  if (locale === 'en') return EN_ADVICE.some(pattern => pattern.test(text))
+  if (RU_IMPERATIVE.test(text)) return true
+  for (const match of text.matchAll(RU_INFINITIVE)) {
+    const before = [match[1], match[2], match[3]].map(word => word?.trim() ?? '')
+    if (!before.some(word => RU_DESCRIBES_OR_NEGATES.test(word))) return true
+  }
+  return false
+}
+
+/**
+ * The stricter check an AI answer gets: any «вызыв… / вызов… / провоцир…»
+ * next to «рвот…», or "induce / make … vomit", without the vet line. A
+ * model's text is not reviewed by hand, so a sign worded like advice is
+ * replaced rather than argued with.
+ */
+export function mentionsInducingVomiting(text: string, locale: 'ru' | 'en'): boolean {
+  if (VET_SAYS_SO[locale].test(text)) return false
   return locale === 'ru'
-    ? // «вызывать», «вызовите», «вызвать», «спровоцируйте»: the imperative is the form that matters.
-      /вызыв|вызов|вызв|провоцир/i.test(text) && /рвот/i.test(text) && !/только\s+по\s+указанию\s+врача/i.test(text)
-    : /induc\w*\s+vomit|make\b[^.]*\bvomit/i.test(text) && !/unless\s+a\s+vet\s+tells\s+you\s+to/i.test(text)
+    ? /вызыв|вызов|вызв|провоцир/i.test(text) && /рвот/i.test(text)
+    : /induc\w*\s+vomit|make\b[^.]*\bvomit/i.test(text)
 }
 
 /**
  * What is wrong with the wording of these texts in one language: the
- * forbidden words found, and `vomiting` for a vomiting line without «only if
- * a vet says so». Empty when the texts may be shown. The reference's content
- * test and the guards on an AI answer share it.
+ * forbidden words found, and `vomiting` for advice to make a pet vomit
+ * without «only if a vet says so». Empty when the texts may be shown. The
+ * reference's content test uses it as is; the guards on an AI answer pass
+ * `strictVomiting`, which also trips on vomiting described as a sign.
  */
-export function safetyWordingProblems(texts: readonly string[], locale: 'ru' | 'en'): string[] {
+export function safetyWordingProblems(
+  texts: readonly string[],
+  locale: 'ru' | 'en',
+  options: { strictVomiting?: boolean } = {},
+): string[] {
   const words = locale === 'ru' ? FORBIDDEN_WORDS : SAFETY_FORBIDDEN_WORDS_EN
   const problems: string[] = words.filter(word => texts.some(text => forbiddenWordPattern(word).test(text)))
-  if (texts.some(text => mentionsVomitingUnsafely(text, locale))) problems.push('vomiting')
+  const vomiting = options.strictVomiting ? mentionsInducingVomiting : advisesVomiting
+  if (texts.some(text => vomiting(text, locale))) problems.push('vomiting')
   return problems
 }
 

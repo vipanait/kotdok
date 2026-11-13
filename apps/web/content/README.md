@@ -136,7 +136,7 @@ Production показывает только `published`. Предпросмот
 Источники: ASPCA Animal Poison Control (списки растений и еды со стола), Merck/MSD Veterinary Manual, Pet Poison Helpline, Cornell Feline Health Center и Cornell Riney Canine Health Center. Пишем по источникам, а не по памяти, и называем в `sources` те, на которые опирались.
 
 - **Источники расходятся или данных по виду мало — ставим более строгий вердикт.** `safe` требует явной опоры хотя бы в одном источнике; иначе `caution`.
-- Формулировки — по общим правилам выше: нет слов из `FORBIDDEN_WORDS` и их английских пар (`diagnos`, `prescrib`, `mg/kg`, `dosage`), никаких доз. Про рвоту — только «Не вызывайте рвоту сами — только по указанию врача» / “Do not induce vomiting unless a vet tells you to”; тест проверяет оба языка.
+- Формулировки — по общим правилам выше: нет слов из `FORBIDDEN_WORDS` и их английских пар (`diagnos`, `prescrib`, `mg/kg`, `dosage`), никаких доз. Совет вызвать рвоту — только «Не вызывайте рвоту сами — только по указанию врача» / “Do not make your pet vomit unless a vet tells you to”; тест проверяет оба языка (`advisesVomiting`). Рвоту как признак описывать можно: «может вызвать рвоту», «вызывает рвоту и понос», “can cause vomiting”.
 
 ### Словоформы в `aliases`
 
