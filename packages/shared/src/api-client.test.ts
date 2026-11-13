@@ -363,3 +363,52 @@ describe('what the client says it can read (FB-2 release)', () => {
     expect(seen[0]['X-Lapka-Features']).toBe('pet-dates,pet-avatar,followup')
   })
 })
+
+describe('pet safety reference', () => {
+  const entry = {
+    slug: 'morkov',
+    category: 'food',
+    name: 'Морковь',
+    by_species: {
+      dog: { verdict: 'safe', summary: 'Можно.', why: 'Не ядовита.', signs: [], if_eaten: 'none' },
+      cat: { verdict: 'safe', summary: 'Можно.', why: 'Не ядовита.', signs: [], if_eaten: 'none' },
+    },
+    first_steps: [],
+    avoid: [],
+    toxin_slug: null,
+    sources: [{ title: 'ASPCA', url: 'https://www.aspca.org/' }],
+    pet: { id: '11111111-1111-4111-8111-000000000002', species: 'dog' },
+    pet_notes: [{ kind: 'chronic' }],
+  }
+
+  function recording(body: unknown) {
+    const urls: string[] = []
+    const fetch: FetchLike = async (url) => {
+      urls.push(url)
+      return ok(body)
+    }
+    return { urls, api: createApiClient({ baseUrl: BASE, fetch }) }
+  }
+
+  it('reads the index', async () => {
+    const item = { slug: 'morkov', category: 'food', name: 'Морковь', aliases: ['морковка'], verdict: { cat: 'safe', dog: 'safe' } }
+    const { urls, api } = recording({ items: [item] })
+
+    await expect(api.getSafetyIndex()).resolves.toEqual({ items: [item] })
+    expect(urls).toEqual([`${BASE}/api/v1/safety/index`])
+  })
+
+  it('reads an entry for a pet, and without one', async () => {
+    const { urls, api } = recording(entry)
+
+    await expect(api.getSafetyItem('morkov', entry.pet.id)).resolves.toEqual(entry)
+    await api.getSafetyItem('morkov')
+    expect(urls).toEqual([`${BASE}/api/v1/safety/items/morkov?pet_id=${entry.pet.id}`, `${BASE}/api/v1/safety/items/morkov`])
+  })
+
+  it('reads an entry a later server added a field to', async () => {
+    const { api } = recording({ ...entry, added_later: true })
+
+    await expect(api.getSafetyItem('morkov')).resolves.toEqual(entry)
+  })
+})

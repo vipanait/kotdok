@@ -76,6 +76,8 @@ describe('OpenAPI document', () => {
       '/pets/{id}/health/visits/{event_id}',
       '/pets/{id}/health/weights',
       '/pets/{id}/health/weights/{weight_id}',
+      '/safety/index',
+      '/safety/items/{slug}',
       '/uploads',
     ])
   })

@@ -1,4 +1,4 @@
-import type { SafetyCategory, SafetyVerdict } from './match'
+import type { SafetyCategory, SafetyVerdict } from '@lapka/contracts'
 
 /**
  * The key of a verdict's caption. The caption answers the question the

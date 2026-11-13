@@ -67,6 +67,7 @@ import {
   ReauthProofSchema,
   ReauthRequestSchema,
 } from './deletion'
+import { SafetyIndexSchema, SafetyItemSchema } from './safety'
 
 /**
  * The OpenAPI document is built from the same schemas the runtime validates
@@ -132,6 +133,8 @@ const COMPONENTS: Array<[string, z.ZodType]> = [
   ['AccountDeletionAccepted', AccountDeletionAcceptedSchema],
   ['AccountDeletionStatus', AccountDeletionStatusSchema],
   ['Health', HealthSchema],
+  ['SafetyIndex', SafetyIndexSchema],
+  ['SafetyItem', SafetyItemSchema],
 ]
 
 for (const [id, schema] of COMPONENTS) registry.add(schema, { id })
@@ -526,6 +529,27 @@ export function buildOpenApiDocument(): Record<string, unknown> {
             },
             ...commonErrors('bad_request'),
           },
+        },
+      },
+      '/safety/index': {
+        get: {
+          summary: 'The «Можно ли» reference as a light list to search, in the account\'s language',
+          description: 'Every entry with its names, aliases and the verdict for each species. Production lists published entries only.',
+          responses: { '200': json('SafetyIndex', 'The reference'), ...commonErrors() },
+        },
+      },
+      '/safety/items/{slug}': {
+        get: {
+          summary: 'One reference entry in the account\'s language',
+          description:
+            'With `pet_id`, the pet\'s species section comes first and `pet_notes` hold what its profile adds: an allergy ' +
+            'that names the entry, or a note about chronic conditions under a verdict that is not danger. Someone ' +
+            'else\'s pet, a deleted one and an unknown or unpublished slug are 404.',
+          parameters: [
+            { name: 'slug', in: 'path', required: true, schema: { type: 'string' } },
+            { name: 'pet_id', in: 'query', required: false, schema: { type: 'string', format: 'uuid' } },
+          ],
+          responses: { '200': json('SafetyItem', 'The entry'), ...commonErrors('bad_request', 'not_found') },
         },
       },
       '/pets/due': {

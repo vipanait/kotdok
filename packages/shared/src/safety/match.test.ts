@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { matchSafety, normalizeSafetyQuery, SAFETY_SUGGESTIONS_MAX, type SafetyIndexItem } from './match'
+import type { SafetyIndexItem } from '@lapka/contracts'
+import { matchSafety, normalizeSafetyQuery, SAFETY_SUGGESTIONS_MAX } from './match'
 
 const item = (slug: string, name: string, aliases: string[] = []): SafetyIndexItem => ({
   slug,

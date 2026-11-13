@@ -2707,6 +2707,233 @@ components:
       required:
         - status
       additionalProperties: false
+    SafetyIndex:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              slug:
+                type: string
+                minLength: 1
+              category:
+                type: string
+                enum:
+                  - food
+                  - plant
+                  - medicine
+                  - household
+              name:
+                type: string
+                minLength: 1
+              aliases:
+                type: array
+                items:
+                  type: string
+                  minLength: 1
+              verdict:
+                type: object
+                properties:
+                  cat:
+                    type: string
+                    enum:
+                      - safe
+                      - caution
+                      - danger
+                  dog:
+                    type: string
+                    enum:
+                      - safe
+                      - caution
+                      - danger
+                required:
+                  - cat
+                  - dog
+                additionalProperties: false
+            required:
+              - slug
+              - category
+              - name
+              - aliases
+              - verdict
+            additionalProperties: false
+      required:
+        - items
+      additionalProperties: false
+    SafetyItem:
+      type: object
+      properties:
+        slug:
+          type: string
+          minLength: 1
+        category:
+          type: string
+          enum:
+            - food
+            - plant
+            - medicine
+            - household
+        name:
+          type: string
+          minLength: 1
+        by_species:
+          type: object
+          properties:
+            cat:
+              type: object
+              properties:
+                verdict:
+                  type: string
+                  enum:
+                    - safe
+                    - caution
+                    - danger
+                summary:
+                  type: string
+                  minLength: 1
+                why:
+                  type: string
+                  minLength: 1
+                signs:
+                  type: array
+                  items:
+                    type: string
+                    minLength: 1
+                if_eaten:
+                  type: string
+                  enum:
+                    - call_now
+                    - watch
+                    - none
+              required:
+                - verdict
+                - summary
+                - why
+                - signs
+                - if_eaten
+              additionalProperties: false
+            dog:
+              type: object
+              properties:
+                verdict:
+                  type: string
+                  enum:
+                    - safe
+                    - caution
+                    - danger
+                summary:
+                  type: string
+                  minLength: 1
+                why:
+                  type: string
+                  minLength: 1
+                signs:
+                  type: array
+                  items:
+                    type: string
+                    minLength: 1
+                if_eaten:
+                  type: string
+                  enum:
+                    - call_now
+                    - watch
+                    - none
+              required:
+                - verdict
+                - summary
+                - why
+                - signs
+                - if_eaten
+              additionalProperties: false
+          required:
+            - cat
+            - dog
+          additionalProperties: false
+        first_steps:
+          type: array
+          items:
+            type: string
+            minLength: 1
+        avoid:
+          type: array
+          items:
+            type: string
+            minLength: 1
+        toxin_slug:
+          anyOf:
+            - type: string
+              minLength: 1
+            - type: "null"
+        sources:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+                minLength: 1
+              url:
+                type: string
+                format: uri
+            required:
+              - title
+            additionalProperties: false
+        pet:
+          anyOf:
+            - type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                  pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                species:
+                  type: string
+                  enum:
+                    - cat
+                    - dog
+              required:
+                - id
+                - species
+              additionalProperties: false
+            - type: "null"
+        pet_notes:
+          type: array
+          items:
+            oneOf:
+              - type: object
+                properties:
+                  kind:
+                    type: string
+                    const: allergy
+                  allergy:
+                    type: string
+                    minLength: 1
+                required:
+                  - kind
+                  - allergy
+                additionalProperties: false
+              - type: object
+                properties:
+                  kind:
+                    type: string
+                    const: chronic
+                required:
+                  - kind
+                additionalProperties: false
+      required:
+        - slug
+        - category
+        - name
+        - by_species
+        - first_steps
+        - avoid
+        - toxin_slug
+        - sources
+        - pet
+        - pet_notes
+      additionalProperties: false
 paths:
   /health:
     get:
@@ -4020,6 +4247,158 @@ paths:
                   code: account_deleting
                   message: Account is being deleted, or consent to personal data processing is required (error.code
                     tells which)
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
+  /safety/index:
+    get:
+      summary: The «Можно ли» reference as a light list to search, in the account's language
+      description: Every entry with its names, aliases and the verdict for each species. Production lists
+        published entries only.
+      responses:
+        "200":
+          description: The reference
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SafetyIndex"
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
+  /safety/items/{slug}:
+    get:
+      summary: One reference entry in the account's language
+      description: "With `pet_id`, the pet's species section comes first and `pet_notes` hold what its
+        profile adds: an allergy that names the entry, or a note about chronic conditions under a
+        verdict that is not danger. Someone else's pet, a deleted one and an unknown or unpublished
+        slug are 404."
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: pet_id
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The entry
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SafetyItem"
+        "400":
+          description: Request body or query is invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: bad_request
+                  message: Request body or query is invalid
+                  request_id: 01J000000000000000000000
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
+                  request_id: 01J000000000000000000000
+        "404":
+          description: No such resource for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: not_found
+                  message: No such resource for this user
                   request_id: 01J000000000000000000000
         "429":
           description: Too many requests

@@ -6,19 +6,8 @@
  * that lands on the wrong entry.
  */
 
-// Declared here until the contract owns them (SAFE-02), then imported from @lapka/contracts.
-export type SafetyCategory = 'food' | 'plant' | 'medicine' | 'household'
-export type SafetyVerdict = 'safe' | 'caution' | 'danger'
+import { SAFETY_QUERY_MAX, type SafetyIndexItem } from '@lapka/contracts'
 
-export type SafetyIndexItem = {
-  slug: string
-  category: SafetyCategory
-  name: string
-  aliases: string[]
-  verdict: { cat: SafetyVerdict; dog: SafetyVerdict }
-}
-
-export const SAFETY_QUERY_MAX = 80
 export const SAFETY_SUGGESTIONS_MAX = 8
 
 /** A typo is forgiven only in a word this long: «рис» and «рос» are different foods. */

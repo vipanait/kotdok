@@ -1,4 +1,10 @@
-import { normalizeSafetyQuery, type SafetyVerdict } from './match'
+import type { SafetyPetNote, SafetyVerdict } from '@lapka/contracts'
+import { normalizeSafetyQuery } from './match'
+
+/** Whether `phrase` is `term` or holds it as whole words: «курятина, рыба» holds «курятина», «барбарис» does not hold «рис». */
+function holdsTerm(phrase: string, term: string): boolean {
+  return term !== '' && ` ${phrase} `.includes(` ${term} `)
+}
 
 /**
  * The two notes a reference card adds for a particular pet
@@ -6,13 +12,6 @@ import { normalizeSafetyQuery, type SafetyVerdict } from './match'
  * питомца»). Nothing else in the pet's profile is read, and the conditions
  * themselves are not interpreted: the card only says «talk to your vet».
  */
-export type SafetyPetNote = { kind: 'allergy'; allergy: string } | { kind: 'chronic' }
-
-/** Whether `phrase` is `term` or holds it as whole words: «курятина, рыба» holds «курятина», «барбарис» does not hold «рис». */
-function holdsTerm(phrase: string, term: string): boolean {
-  return term !== '' && ` ${phrase} `.includes(` ${term} `)
-}
-
 export function petSafetyNotes(
   pet: { allergies: readonly string[]; chronic_conditions: readonly string[] },
   item: { name: string; aliases: readonly string[] },

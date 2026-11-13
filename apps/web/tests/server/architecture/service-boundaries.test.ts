@@ -16,7 +16,10 @@ const FORBIDDEN = [
   { pattern: /from 'next\/navigation'/, reason: 'redirect' },
   { pattern: /from 'next\/headers'/, reason: 'cookies' },
   { pattern: /from 'next\/cache'/, reason: 'revalidatePath' },
-  { pattern: /from '@\/features\//, reason: 'a screen' },
+  // The «Можно ли» reference is data the site pages and the API both read from
+  // files (SAFE-02): its loader and schema live with the pages that prerender
+  // it, but they are not a screen. Any other feature module still is.
+  { pattern: /from '@\/features\/(?!safety\/(load|schema)')/, reason: 'a screen' },
   { pattern: /from '@\/app\//, reason: 'a route' },
   { pattern: /from '@\/components\//, reason: 'a component' },
 ]

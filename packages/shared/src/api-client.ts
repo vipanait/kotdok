@@ -21,6 +21,8 @@ import {
   KeyReusedDetailsSchema,
   PetSchema,
   PublicProfileSchema,
+  SafetyIndexSchema,
+  SafetyItemSchema,
   ReauthProofSchema,
   SymptomCheckRecordSchema,
   UploadGrantSchema,
@@ -428,6 +430,12 @@ export function createApiClient(options: ApiClientOptions) {
         z.array(HealthProductSchema),
         { signal: options.signal },
       ),
+
+    /** The «Можно ли» reference: the light list the phone searches, in the account's language. */
+    getSafetyIndex: () => call('/safety/index', SafetyIndexSchema),
+    /** One entry; with a pet, its species first and the notes from its profile. */
+    getSafetyItem: (slug: string, petId?: string) =>
+      call(`/safety/items/${encodeURIComponent(slug)}`, SafetyItemSchema, { query: { pet_id: petId } }),
 
     requestUploads: (body: UploadRequest) =>
       call('/uploads', UploadGrantSchema, { method: 'POST', body }),

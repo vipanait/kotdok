@@ -1,4 +1,6 @@
 import { z } from 'zod'
+// The value sets are the contract's: what a file may say is what the API may serve.
+import { SAFETY_CATEGORIES, SAFETY_IF_EATEN, SAFETY_VERDICTS } from '@lapka/contracts'
 
 /**
  * The «Можно ли» reference, as it is kept in `apps/web/content/safety/` — one
@@ -9,11 +11,6 @@ import { z } from 'zod'
  * in a test: a file that says «danger» but «nothing to do if eaten» must not
  * reach the build, the API or the phone.
  */
-
-export const SAFETY_CATEGORIES = ['food', 'plant', 'medicine', 'household'] as const
-export const SAFETY_VERDICTS = ['safe', 'caution', 'danger'] as const
-/** `call_now`: call a clinic without waiting for signs; `watch`: watch, check symptoms if signs appear. */
-export const SAFETY_IF_EATEN = ['call_now', 'watch', 'none'] as const
 
 /**
  * The English pairs of `FORBIDDEN_WORDS` (seo-content/schema.ts), matched the

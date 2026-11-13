@@ -2,7 +2,7 @@ import 'server-only'
 
 import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import type { SafetyIndexItem } from '@lapka/shared'
+import type { SafetyIndexItem } from '@lapka/contracts'
 import { isVisible, typeset } from '@/features/seo-content/load'
 import type { Locale } from '@/shared/i18n/config'
 import { safetyEntrySchema, type SafetyEntry } from './schema'

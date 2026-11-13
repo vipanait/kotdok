@@ -22,6 +22,12 @@ const staticContentPolicy = buildStaticContentSecurityPolicy({ dev: process.env.
 const nextConfig: NextConfig = {
   // Workspace packages are published as TypeScript source.
   transpilePackages: ['@lapka/contracts', '@lapka/shared'],
+  // The «Можно ли» routes read the reference files at request time, through a
+  // path built at runtime that the tracer cannot follow. Without this the
+  // deployed function has no `content/safety/` and every call fails.
+  outputFileTracingIncludes: {
+    '/api/v1/safety/**': ['./content/safety/**/*.json'],
+  },
   experimental: {
     // Two root layouts, `(frontend)` and `(content)`: an unmatched URL has no
     // single layout to render a 404 in, so `app/global-not-found.tsx` does.
