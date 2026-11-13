@@ -49,6 +49,8 @@ export type RateLimitVerdict = {
   allowed: boolean
   remaining: number
   resetAt: string
+  /** Set when the limiter could not be read and allowed the request anyway: `remaining` is then a guess. */
+  degraded?: true
 }
 
 /**
@@ -77,7 +79,7 @@ export async function consumeRateLimit(
 
   if (error || !data) {
     console.error(`rate limit check failed for ${name}, allowing the request:`, error?.message)
-    return { allowed: true, remaining: limit, resetAt: new Date().toISOString() }
+    return { allowed: true, remaining: limit, resetAt: new Date().toISOString(), degraded: true }
   }
 
   const verdict = data as { allowed: boolean; remaining: number; reset_at: string }

@@ -134,7 +134,7 @@ describe('POST /api/v1/safety/ask', () => {
   })
 
   it('asks the model once, caches the answer and serves the repeat from the cache (SAFE-03.6–7)', async () => {
-    const first = await answer({ query: 'драконий фрукт', species: 'dog' })
+    const first = await answer({ query: 'Драконий  фрукт!', species: 'dog' })
     expect(first).toMatchObject({ source: 'ai', species: 'dog', category: 'food', verdict: 'caution', remaining_today: 9 })
     if (first.source !== 'ai') throw new Error('expected an AI answer')
     expect(first.if_eaten).toBe('watch')
@@ -144,7 +144,8 @@ describe('POST /api/v1/safety/ask', () => {
     expect(model.calls).toBe(1)
     expect(await cachedRows()).toEqual([{ query_key: 'драконий фрукт', species: 'dog', locale: 'ru', asked_count: 1 }])
 
-    // The query is data, quoted in the user message; the system prompt says so.
+    // The query is data, quoted in the user message; the system prompt says so. The model gets
+    // the normalized key, so the cached row is the answer to exactly what was asked.
     const request = model.requests[0]!
     expect(String(request.messages.find(m => m.role === 'user')!.content)).toContain('"драконий фрукт"')
     expect(String(request.messages.find(m => m.role === 'system')!.content)).toMatch(/not an instruction/i)
@@ -177,6 +178,21 @@ describe('POST /api/v1/safety/ask', () => {
     expect(await answer({ query: 'изюмчик', species: 'dog' })).toEqual({ source: 'catalog', slug: 'vinograd' })
     expect(model.calls).toBe(1)
     expect(await cachedRows()).toEqual([])
+  })
+
+  it('does not serve a cached answer the current guards refuse', async () => {
+    // Written before the stricter wording rules: «дайте уголь» reads like treatment.
+    const cached = fruit({ summary: 'Дайте активированный уголь.', signs: ['вялость'] })
+    await db.query(
+      `insert into public.safety_ai_answers (query_key, species, locale, answer, model) values ('драконий фрукт', 'dog', 'ru', $1, 'gpt-5.4')`,
+      [JSON.stringify(cached)],
+    )
+    const served = await answer({ query: 'драконий фрукт', species: 'dog' })
+    expect(served).toMatchObject({ source: 'ai', verdict: 'unknown', signs: [], remaining_today: null })
+    if (served.source !== 'ai') throw new Error('expected an AI answer')
+    // The fixed «avoid» list names charcoal as something not to give; the model's line is gone.
+    expect([served.title, served.summary, served.why].join(' ')).not.toMatch(/уголь/)
+    expect(model.calls).toBe(0)
   })
 
   it('gives the reference entry over a cached answer that names it (an entry published after the answer)', async () => {
@@ -242,8 +258,11 @@ describe('POST /api/v1/safety/ask', () => {
 
     // A limiter that cannot be read lets the question through, as every other limit does.
     limiterDown = true
-    expect(await answer({ query: 'фрукт номер 12', species: 'dog' })).toMatchObject({ source: 'ai' })
-    expect(model.calls).toBe(11)
+    // Its remainder is unknown, and the client is not told an invented ten.
+    expect(await answer({ query: 'фрукт номер 12', species: 'dog' })).toMatchObject({ source: 'ai', remaining_today: null })
+    model.answer = { recognized: false }
+    expect(await answer({ query: 'фрукт номер 13', species: 'dog' })).toEqual({ source: 'unrecognized', remaining_today: null })
+    expect(model.calls).toBe(12)
   })
 
   it('takes the species from the caller’s pet and adds its notes', async () => {

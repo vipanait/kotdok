@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { guardAiAnswer } from '@/server/safety/ask-safety'
+import { aiWordingProblems, guardAiAnswer } from '@/server/safety/ask-safety'
 import { SAFETY_AVOID, SAFETY_FIRST_STEPS, SAFETY_NO_DATA } from '@/server/safety/ask-language'
 import { safetyWordingProblems } from '@/features/safety/schema'
 
@@ -89,6 +89,54 @@ describe('guardAiAnswer', () => {
     expect(JSON.stringify(answer)).not.toMatch(/солён/)
   })
 
+  it.each([
+    'Дайте перекись водорода, чтобы её стошнило.',
+    'Дайте активированный уголь.',
+    'Безопасная доза 10 мг на килограмм.',
+    'Дайте 1 таблетку.',
+    'Можно дать рвотное средство.',
+    'Give 5 mg.',
+    'A dose of 2 tablets is enough.',
+    'Induce emesis at home.',
+    'Hydrogen peroxide helps.',
+  ])('replaces an answer that reads like treatment: %s', summary => {
+    for (const locale of ['ru', 'en'] as const) {
+      const answer = guarded(raw({ summary }), { grounded: true, locale })
+      expect(answer.verdict, locale).toBe('unknown')
+      expect(answer.summary, locale).toBe(SAFETY_NO_DATA[locale].summary)
+      expect(answer.why, locale).toBe(SAFETY_NO_DATA[locale].why)
+      expect(answer.signs, locale).toEqual([])
+    }
+  })
+
+  it.each([
+    'Не дайте питомцу доесть остатки.',
+    'Никогда не дайте это котёнку.',
+    'Не давайте это питомцу.',
+    'Do not give it to your dog.',
+    "Don't give it to your cat.",
+    'Don’t give it to your cat.',
+    'Never give grapes to a dog.',
+    'Признаки появляются мгновенно.',
+    'Given the sugar, keep it rare.',
+  ])('keeps advice against and ordinary words: %s', summary => {
+    expect(guarded(raw({ summary })).summary).toBe(summary)
+  })
+
+  it('still checks what follows a negation', () => {
+    expect(guarded(raw({ summary: 'Не дайте больше 5 мг.' })).verdict).toBe('unknown')
+    expect(guarded(raw({ summary: 'Do not give more than one dose.' })).verdict).toBe('unknown')
+  })
+
+  it('checks both languages whatever the account’s language', () => {
+    // A Russian account answered in English.
+    const answer = guarded(raw({ summary: 'Dosage 5 mg/kg is fine.' }), { grounded: true, locale: 'ru' })
+    expect(answer.verdict).toBe('unknown')
+    expect(answer.summary).toBe(SAFETY_NO_DATA.ru.summary)
+    expect(guarded(raw({ why: 'Make your dog vomit at once.' }), { grounded: true, locale: 'ru' }).verdict).toBe('unknown')
+    expect(guarded(raw({ why: 'Вызовите рвоту.' }), { grounded: true, locale: 'en' }).verdict).toBe('unknown')
+  })
+
   it('keeps a medicine «danger» when its text is replaced', () => {
     const answer = guarded(raw({ category: 'medicine', verdict: 'danger', summary: 'Дозировка 5 мг/кг' }))
     expect(answer.verdict).toBe('danger')
@@ -139,6 +187,8 @@ describe('the fixed texts of an AI answer', () => {
     for (const locale of ['ru', 'en'] as const) {
       const texts = [...SAFETY_FIRST_STEPS[locale], ...SAFETY_AVOID[locale], ...Object.values(SAFETY_NO_DATA[locale])]
       expect(safetyWordingProblems(texts, locale), locale).toEqual([])
+      // And the stricter rules a model's text gets.
+      expect(aiWordingProblems(texts), locale).toEqual([])
       expect(SAFETY_FIRST_STEPS[locale].length).toBeGreaterThanOrEqual(3)
       expect(SAFETY_AVOID[locale].length).toBeGreaterThanOrEqual(1)
     }

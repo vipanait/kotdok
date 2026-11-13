@@ -105,11 +105,12 @@ export const SafetyAskInputSchema = z
  * verdict. `ai`: the model's answer after the server's guards.
  * `remaining_today` is what the daily limit has left after this question;
  * null when the answer came from the cache and spent nothing — the limiter
- * can only tell the remainder while spending.
+ * can only tell the remainder while spending — or when the limiter could not
+ * be read at all.
  */
 export const SafetyAskResultSchema = z.discriminatedUnion('source', [
   z.object({ source: z.literal('catalog'), slug: text }),
-  z.object({ source: z.literal('unrecognized'), remaining_today: z.number().int().min(0) }),
+  z.object({ source: z.literal('unrecognized'), remaining_today: z.number().int().min(0).nullable() }),
   z.object({
     source: z.literal('ai'),
     species: PetSpeciesSchema,

@@ -16,7 +16,15 @@ import { safetyWordingProblems } from '@/features/safety/schema'
 import { consumeRateLimit } from '@/server/api/rate-limit'
 import type { createServiceClient } from '@/server/supabase/server'
 import type { Locale } from '@/shared/i18n/config'
-import { SAFETY_AVOID, SAFETY_FIRST_STEPS, SAFETY_NO_DATA, safetySystemPrompt, safetyUserMessage } from './ask-language'
+import {
+  SAFETY_AI_FORBIDDEN_WORDS,
+  SAFETY_AI_NEGATED,
+  SAFETY_AVOID,
+  SAFETY_FIRST_STEPS,
+  SAFETY_NO_DATA,
+  safetySystemPrompt,
+  safetyUserMessage,
+} from './ask-language'
 import { loadSafetyPet, type SafetyPet } from './safety-pet'
 
 type SupabaseService = ReturnType<typeof createServiceClient>
@@ -93,6 +101,27 @@ function ifEatenFor(verdict: SafetyAiVerdict, said: unknown): SafetyIfEaten {
   return said === 'call_now' ? 'call_now' : 'watch'
 }
 
+const AI_WORD_PATTERNS = SAFETY_AI_FORBIDDEN_WORDS.map(({ word, whole }) => ({
+  word,
+  // The letters a word is made of, as in `forbiddenWordPattern`: a match must start (and, if whole, end) a word.
+  pattern: new RegExp(`(^|[^а-яёa-z])${word}${whole ? '(?![а-яёa-z])' : ''}`, 'i'),
+}))
+
+/**
+ * What is wrong with a model's texts. Both languages' rules on every text,
+ * whatever the account's language: the prompt is in English, and a model
+ * that answers a Russian account in English must not slip past the Russian
+ * list. Then the AI-only words, with negated advice cut out first.
+ */
+export function aiWordingProblems(texts: readonly string[]): string[] {
+  const unnegated = texts.map(t => t.replace(SAFETY_AI_NEGATED, '$1'))
+  return [
+    ...safetyWordingProblems(texts, 'ru'),
+    ...safetyWordingProblems(texts, 'en'),
+    ...AI_WORD_PATTERNS.filter(({ pattern }) => unnegated.some(t => pattern.test(t))).map(({ word }) => word),
+  ]
+}
+
 /**
  * The server's rules over a model's answer. Throws on an answer it cannot
  * read (a verdict or category outside the four, no title or summary): that is
@@ -127,12 +156,12 @@ export function guardAiAnswer(raw: unknown, ctx: { grounded: boolean; locale: Lo
   // «Safe» from the model's memory alone is the answer this feature must not give.
   if (verdict === 'safe' && !ctx.grounded) verdict = 'unknown'
 
-  if (safetyWordingProblems([title, summary, why, ...signs], ctx.locale).length > 0) {
+  if (aiWordingProblems([title, summary, why, ...signs]).length > 0) {
     // Nothing of the model's text survives: a dose or «make it vomit» must not reach the screen in any field.
     const noData = SAFETY_NO_DATA[ctx.locale]
     const name = ctx.locale === 'ru' ? canonicalRu : canonicalEn
     verdict = category === 'medicine' ? 'danger' : 'unknown'
-    title = name && safetyWordingProblems([name], ctx.locale).length === 0 ? capitalized(name) : noData.title
+    title = name && aiWordingProblems([name]).length === 0 ? capitalized(name) : noData.title
     summary = noData.summary
     why = noData.why
     signs = []
@@ -296,10 +325,13 @@ export async function askSafety(
   // 3. A model call: one of ten a day.
   const rate = await consumeRateLimit(supabase, 'safety_ask', input.userId)
   if (!rate.allowed) return { ok: false, code: 'rate_limited' }
+  // A limiter that failed open knows nothing about the remainder; say so rather than invent ten.
+  const remaining = rate.degraded ? null : rate.remaining
 
   let answer: ReturnType<typeof guardAiAnswer>
   try {
-    answer = await askModel(supabase, input.query.trim(), species, input.locale)
+    // The normalized key, not the raw text: one cache row is always the answer to one model input.
+    answer = await askModel(supabase, queryKey, species, input.locale)
   } catch (error) {
     // The attempt stays spent: the model was called, and giving it back would complicate the limiter for a rare case.
     console.error('safety ask: model failed:', error)
@@ -307,7 +339,7 @@ export async function askSafety(
   }
 
   // Not an item, or an instruction dressed as one: no verdict, nothing cached.
-  if (!answer.recognized) return { ok: true, data: { source: 'unrecognized', remaining_today: rate.remaining } }
+  if (!answer.recognized) return { ok: true, data: { source: 'unrecognized', remaining_today: remaining } }
 
   // The model named something the reference holds («изюмчик» is raisins): the checked entry, not the model's answer.
   const named = catalogSlug([answer.canonical_name_ru, answer.canonical_name_en])
@@ -328,5 +360,5 @@ export async function askSafety(
   )
   if (writeError) console.error('safety ask: cache write failed:', writeError.message)
 
-  return { ok: true, data: aiResult(answer, species, input.locale, pet, rate.remaining) }
+  return { ok: true, data: aiResult(answer, species, input.locale, pet, remaining) }
 }

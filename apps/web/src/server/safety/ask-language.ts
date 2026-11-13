@@ -51,6 +51,41 @@ export const SAFETY_NO_DATA: Record<Locale, { title: string; summary: string; wh
   },
 }
 
+/**
+ * Word starts an AI answer may not use, on top of the reference's own list
+ * (`safetyWordingProblems`): the shapes treatment advice takes in a model's
+ * text — «дайте …», a dose, milligrams, tablets, peroxide, «стошнило»,
+ * an emetic; "give", "dose", "mg", "peroxide", "emesis", "induce". The
+ * reference keeps its narrower list: its texts are written and reviewed by
+ * hand, a model's are not.
+ *
+ * `whole`: matched as a whole word, because as a word start it is inside
+ * ordinary words («мгновенно», "given").
+ */
+export const SAFETY_AI_FORBIDDEN_WORDS: readonly { word: string; whole?: true }[] = [
+  { word: 'дайте' },
+  { word: 'доз' },
+  { word: 'мг', whole: true },
+  { word: 'таблетк' },
+  { word: 'перекис' },
+  { word: 'стошн' },
+  { word: 'рвотн' },
+  { word: 'give', whole: true },
+  { word: 'dose' },
+  { word: 'mg', whole: true },
+  { word: 'peroxide' },
+  { word: 'emesis' },
+  { word: 'induce' },
+]
+
+/**
+ * The negated forms models write all the time — «не дайте», "do not give",
+ * "don't give", "never give", "do not induce" — are advice against, not
+ * advice: they are cut out before the words above are looked for. What
+ * follows them is still checked («не дайте … 5 мг» still trips on «мг»).
+ */
+export const SAFETY_AI_NEGATED = /(^|[^а-яёa-z])(?:никогда\s+)?не\s+дайте(?![а-яёa-z])|\b(?:do\s+not|don['’]t|never)\s+(?:give|induce)\b/gi
+
 const LANGUAGE: Record<Locale, string> = { ru: 'Russian', en: 'English' }
 
 /**
