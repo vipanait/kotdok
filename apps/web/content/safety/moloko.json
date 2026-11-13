@@ -51,8 +51,8 @@
         "en": "With caution. Many dogs do not tolerate milk well: it can cause diarrhoea and bloating."
       },
       "why": {
-        "ru": "У собак мало фермента, который расщепляет молочный сахар, поэтому молоко может вызвать понос и расстройство пищеварения. Если давать — немного и не регулярно.",
-        "en": "Dogs have little of the enzyme that breaks down milk sugar, so milk can cause diarrhoea and digestive upset. If you give any, a little and not regularly."
+        "ru": "У собак мало фермента, который расщепляет молочный сахар, поэтому молоко может вызвать понос и расстройство пищеварения. Если и предлагать, то немного и не регулярно.",
+        "en": "Dogs have little of the enzyme that breaks down milk sugar, so milk can cause diarrhoea and digestive upset. If you offer any, a little and not regularly."
       },
       "signs": {
         "ru": [
@@ -98,7 +98,10 @@
     }
   ],
   "review": {
-    "status": "draft",
-    "draftedBy": "model"
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
   }
 }

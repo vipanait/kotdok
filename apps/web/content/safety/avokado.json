@@ -28,8 +28,8 @@
         "en": "With caution. Avocado flesh is not considered poisonous to cats, but it is not a good treat; the pit is dangerous."
       },
       "why": {
-        "ru": "В авокадо есть персин. Он опасен прежде всего птицам, кроликам, лошадям и жвачным животным; кошки и собаки к нему менее чувствительны. Главная опасность — косточка: она может застрять в горле или закупорить кишечник. Мякоть жирная и может вызвать воспаление поджелудочной железы. В гуакамоле часто есть лук и чеснок — о них есть отдельные статьи.",
-        "en": "Avocado contains persin. It is mainly dangerous to birds, rabbits, horses and grazing animals; cats and dogs are less sensitive to it. The main danger is the pit: it can choke or block the gut. The flesh is fatty and can inflame the pancreas. Guacamole often contains onion and garlic — they have their own entries."
+        "ru": "В авокадо есть персин. Он опасен прежде всего птицам, кроликам, лошадям и жвачным животным; мякоть авокадо для кошек ядовитой не считается. Главная опасность — косточка: она может застрять в горле или закупорить кишечник. Мякоть жирная и может вызвать воспаление поджелудочной железы. В гуакамоле часто есть лук и чеснок — о них есть отдельные статьи.",
+        "en": "Avocado contains persin. It is mainly dangerous to birds, rabbits, horses and grazing animals; avocado flesh is not considered poisonous to cats. The main danger is the pit: it can choke or block the gut. The flesh is fatty and can inflame the pancreas. Guacamole often contains onion and garlic — they have their own entries."
       },
       "signs": {
         "ru": [
@@ -111,7 +111,10 @@
     }
   ],
   "review": {
-    "status": "draft",
-    "draftedBy": "model"
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
   }
 }

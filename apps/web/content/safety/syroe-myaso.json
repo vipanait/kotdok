@@ -67,8 +67,8 @@
         "en": "With caution. Raw meat may carry bacteria and parasites; cooked meat or a complete food is the safer choice."
       },
       "why": {
-        "ru": "В сыром мясе бывают сальмонелла, кишечная палочка, листерии и паразиты. Собака может выглядеть здоровой и при этом выделять бактерии и заражать людей — особенно детей, пожилых, беременных и людей с ослабленным иммунитетом. Заморозка и сушка не делают сырое мясо таким же безопасным, как варка.",
-        "en": "Raw meat may carry Salmonella, E. coli, Listeria and parasites. A dog can look healthy yet shed bacteria and infect people — especially children, older adults, pregnant women and anyone with weak immunity. Freezing or freeze-drying does not make raw meat as safe as cooking."
+        "ru": "В сыром мясе бывают сальмонелла, кишечная палочка, листерии и паразиты. Собака может выглядеть здоровой и при этом выделять бактерии и заражать людей — особенно детей, пожилых, беременных и людей с ослабленным иммунитетом. Сушка, в том числе сублимационная, не делает сырое мясо таким же безопасным, как варка: в сухом виде бактерии выживают.",
+        "en": "Raw meat may carry Salmonella, E. coli, Listeria and parasites. A dog can look healthy yet shed bacteria and infect people — especially children, older adults, pregnant women and anyone with weak immunity. Drying, freeze-drying included, does not make raw meat as safe as cooking: bacteria survive in a dried state."
       },
       "signs": {
         "ru": [
@@ -128,7 +128,10 @@
     }
   ],
   "review": {
-    "status": "draft",
-    "draftedBy": "model"
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
   }
 }

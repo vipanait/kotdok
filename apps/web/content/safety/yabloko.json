@@ -25,8 +25,8 @@
         "en": "With caution. A piece of flesh without seeds or core is not considered poisonous, but a cat does not need it."
       },
       "why": {
-        "ru": "Семечки, черенки и листья яблони содержат вещества, из которых выделяется цианид. Мякоть к ядовитым частям не относится. Если давать — маленький кусочек мякоти без семечек и сердцевины, изредка.",
-        "en": "Apple seeds, stems and leaves contain substances that release cyanide. The flesh is not among the toxic parts. If you give any, a small piece of flesh without seeds or core, now and then."
+        "ru": "Семечки, черенки и листья яблони содержат вещества, из которых выделяется цианид. Мякоть к ядовитым частям не относится. Если и предлагать, то маленький кусочек мякоти без семечек и сердцевины, изредка.",
+        "en": "Apple seeds, stems and leaves contain substances that release cyanide. The flesh is not among the toxic parts. If you offer any, a small piece of flesh without seeds or core, now and then."
       },
       "signs": {
         "ru": [
@@ -49,8 +49,8 @@
         "en": "With caution. Apple flesh is fine as a treat, but without the seeds and core."
       },
       "why": {
-        "ru": "Семечки, черенки и листья яблони содержат вещества, из которых выделяется цианид. Мякоть к ядовитым частям не относится. Давайте нарезанную мякоть без семечек и сердцевины, понемногу и не каждый день.",
-        "en": "Apple seeds, stems and leaves contain substances that release cyanide. The flesh is not among the toxic parts. Give sliced flesh without seeds or core, a little and not every day."
+        "ru": "Семечки, черенки и листья яблони содержат вещества, из которых выделяется цианид. Мякоть к ядовитым частям не относится. Если и предлагать, то нарезанную мякоть без семечек и сердцевины, понемногу и не каждый день.",
+        "en": "Apple seeds, stems and leaves contain substances that release cyanide. The flesh is not among the toxic parts. If you offer any, sliced flesh without seeds or core, a little and not every day."
       },
       "signs": {
         "ru": [
@@ -96,7 +96,10 @@
     }
   ],
   "review": {
-    "status": "draft",
-    "draftedBy": "model"
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
   }
 }

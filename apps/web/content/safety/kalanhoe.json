@@ -49,14 +49,14 @@
       "ifEaten": "call_now"
     },
     "dog": {
-      "verdict": "caution",
+      "verdict": "danger",
       "summary": {
-        "ru": "С осторожностью. Каланхоэ ядовито для собак, обычно вызывает расстройство желудка, редко — сбои ритма сердца.",
-        "en": "With caution. Kalanchoe is poisonous to dogs; it usually upsets the stomach and rarely affects the heart rhythm."
+        "ru": "Опасно. Каланхоэ ядовито для собак: в нём есть вещества, действующие на сердце.",
+        "en": "Dangerous. Kalanchoe is poisonous to dogs: it contains substances that act on the heart."
       },
       "why": {
-        "ru": "Растение содержит буфадиенолиды — сердечные гликозиды. Чаще всего дело ограничивается рвотой и поносом, но при большом количестве возможны сбои ритма, слабость и обморок. Запас безопасности у таких веществ мал, поэтому лучше сразу позвонить в клинику.",
-        "en": "The plant contains bufadienolides, a kind of cardiac glycoside. Most often it stops at vomiting and diarrhoea, but a large amount can cause rhythm problems, weakness and collapse. These substances have a narrow margin of safety, so it is better to call a clinic right away."
+        "ru": "Растение содержит буфадиенолиды — сердечные гликозиды. Чаще всего дело ограничивается рвотой и поносом, но при большом количестве возможны сбои ритма, слабость и обморок. Растения с такими веществами относят к самым ядовитым: запас безопасности у них мал. Кошки, по-видимому, чувствительнее собак, но и собаке нужен звонок в клинику, не дожидаясь признаков.",
+        "en": "The plant contains bufadienolides, a kind of cardiac glycoside. Most often it stops at vomiting and diarrhoea, but a large amount can cause rhythm problems, weakness and collapse. Plants with these substances are counted among the most toxic: their margin of safety is narrow. Cats seem to be more sensitive than dogs, but for a dog too call a clinic without waiting for signs."
       },
       "signs": {
         "ru": [
@@ -116,7 +116,10 @@
     }
   ],
   "review": {
-    "status": "draft",
-    "draftedBy": "model"
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
   }
 }

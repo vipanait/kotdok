@@ -49,8 +49,8 @@
     "dog": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Немного простого мороженого изредка допустимо, но лучше обойтись без него. Шоколад, ксилит, изюм и орехи в составе опасны.",
-        "en": "With caution. A little plain ice cream now and then is acceptable, but better to do without. Chocolate, xylitol, raisins and nuts in it are dangerous."
+        "ru": "С осторожностью. Лучше не давать: молочное и жирное могут расстроить желудок. Шоколад, ксилит, изюм и орехи в составе опасны.",
+        "en": "With caution. Better not to give it: dairy and fat can upset the stomach. Chocolate, xylitol, raisins and nuts in it are dangerous."
       },
       "why": {
         "ru": "Мороженое — молочное, сладкое и жирное: молочное может вызвать понос, жирное — рвоту и понос. Опасны добавки: шоколад, ксилит, изюм, орехи макадамия. Проверьте состав, прежде чем делиться.",
@@ -102,7 +102,10 @@
     }
   ],
   "review": {
-    "status": "draft",
-    "draftedBy": "model"
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
   }
 }

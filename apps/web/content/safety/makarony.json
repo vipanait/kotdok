@@ -8,39 +8,34 @@
   "titleRu": "макароны",
   "aliases": {
     "ru": [
-      "паста",
       "макароны варёные",
       "макароны вареные",
       "спагетти",
-      "лапша",
-      "вермишель",
-      "макароны с сыром",
-      "pasta"
+      "вермишель"
     ],
     "en": [
       "spaghetti",
       "cooked pasta",
-      "noodles",
       "plain pasta",
       "macaroni"
     ]
   },
   "bySpecies": {
     "cat": {
-      "verdict": "caution",
+      "verdict": "safe",
       "summary": {
-        "ru": "С осторожностью. Пара кусочков простых варёных макарон без соуса — изредка.",
-        "en": "With caution. A couple of pieces of plain boiled pasta with no sauce, now and then."
+        "ru": "Можно. Немного простых варёных макарон без соуса.",
+        "en": "Safe. A little plain boiled pasta with no sauce."
       },
       "why": {
-        "ru": "Прямых данных о макаронах для кошек в ветеринарных справочниках нет. Кошке нужна мясная еда, лакомства — только изредка. Соусы с луком и чесноком опасны, много соли тоже.",
-        "en": "Veterinary references have no direct data on pasta for cats. A cat needs a meat diet, and treats should be occasional. Sauces with onion and garlic are dangerous, and so is a lot of salt."
+        "ru": "Простые варёные макароны — один из вариантов щадящей еды, которую ветеринары советуют и кошкам, и собакам при лёгком расстройстве желудка. Условия: без соуса, соли и масла, изредка и не вместо корма: кошке нужна мясная еда. Соусы с луком и чесноком опасны.",
+        "en": "Plain cooked pasta is one of the bland-diet options that vets suggest for both cats and dogs with a mild stomach upset. Conditions: no sauce, salt or butter, now and then and not instead of cat food: a cat needs a meat diet. Sauces with onion and garlic are dangerous."
       },
       "signs": {
         "ru": [],
         "en": []
       },
-      "ifEaten": "watch"
+      "ifEaten": "none"
     },
     "dog": {
       "verdict": "safe",
@@ -59,44 +54,25 @@
       "ifEaten": "none"
     }
   },
-  "firstSteps": {
-    "ru": [
-      "Оставьте доступ к чистой воде",
-      "Наблюдайте за питомцем сутки",
-      "Если появились рвота, понос или вялость — проверьте симптомы или позвоните в клинику"
-    ],
-    "en": [
-      "Leave fresh water available",
-      "Watch your pet for a day",
-      "If vomiting, diarrhoea or lethargy appear, check the symptoms or call a clinic"
-    ]
-  },
-  "avoid": {
-    "ru": [
-      "Не давайте макароны с соусом, луком или чесноком",
-      "Не давайте лекарства без назначения врача"
-    ],
-    "en": [
-      "Do not give pasta with sauce, onion or garlic",
-      "Do not give any medicine unless a vet tells you to"
-    ]
-  },
   "sources": [
     {
       "title": "Cornell Riney Canine Health Center — Re-evaluating your dog's diet",
       "url": "https://www.vet.cornell.edu/departments-centers-and-institutes/riney-canine-health-center/canine-health-topics/re-evaluating-your-dogs-diet"
     },
     {
-      "title": "Cornell Feline Health Center — Feeding Your Cat",
-      "url": "https://www.vet.cornell.edu/departments-centers-and-institutes/cornell-feline-health-center/health-information/feline-health-topics/feeding-your-cat"
+      "title": "Cornell Riney Canine Health Center — Diarrhea",
+      "url": "https://www.vet.cornell.edu/departments-centers-and-institutes/riney-canine-health-center/canine-health-topics/diarrhea"
     },
     {
-      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
-      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+      "title": "Cornell Feline Health Center — Feeding Your Cat",
+      "url": "https://www.vet.cornell.edu/departments-centers-and-institutes/cornell-feline-health-center/health-information/feline-health-topics/feeding-your-cat"
     }
   ],
   "review": {
-    "status": "draft",
-    "draftedBy": "model"
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
   }
 }

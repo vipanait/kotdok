@@ -27,8 +27,8 @@
         "en": "Safe as a small treat. Carrot is not poisonous to cats, but it is no substitute for their food."
       },
       "why": {
-        "ru": "ASPCA относит морковь к неядовитым для кошек растениям; корнеплод съедобен. Лучше давать варёную морковь без соли, масла и специй, мелкими кусочками.",
-        "en": "The ASPCA lists carrot as non-toxic to cats; the root is edible. Plain cooked carrot without salt, butter or spices, cut small, is best."
+        "ru": "ASPCA относит морковь к неядовитым для кошек растениям; корнеплод съедобен. Подходит сырая или варёная морковь без соли, масла и специй, мелкими кусочками; это не замена корму.",
+        "en": "The ASPCA lists carrot as non-toxic to cats; the root is edible. Raw or cooked carrot with no salt, butter or spices, in small pieces, is fine; it is no substitute for food."
       },
       "signs": {
         "ru": [],
@@ -43,8 +43,8 @@
         "en": "Safe as a treat in small amounts, raw or cooked, with nothing added."
       },
       "why": {
-        "ru": "ASPCA относит морковь к неядовитым для собак растениям; корнеплод съедобен. Давайте её без соли, масла, глазури и специй. Маленькой собаке или той, что глотает не жуя, режьте морковь кусочками.",
-        "en": "The ASPCA lists carrot as non-toxic to dogs; the root is edible. Give it without salt, butter, glaze or spices. For a small dog or one that gulps without chewing, cut it into pieces."
+        "ru": "ASPCA относит морковь к неядовитым для собак растениям; корнеплод съедобен, и ASPCA называет морковь овощем, который можно собаке как лакомство в меру. Подходит без соли, масла, глазури и специй; маленькой собаке — мелкими кусочками.",
+        "en": "The ASPCA lists carrot as non-toxic to dogs; the root is edible, and the ASPCA names carrots among garden vegetables fine as a snack in moderation. Suitable with no salt, butter, glaze or spices; for a small dog, in small pieces."
       },
       "signs": {
         "ru": [],
@@ -57,10 +57,17 @@
     {
       "title": "ASPCA Animal Poison Control — Carrot Flower (Daucus carota var. sativa)",
       "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/carrot-flower"
+    },
+    {
+      "title": "ASPCA — Pets and Produce: Top Tips for Vegetable Garden Safety",
+      "url": "https://www.aspca.org/news/pets-and-produce-top-tips-vegetable-garden-safety"
     }
   ],
   "review": {
-    "status": "draft",
-    "draftedBy": "model"
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
   }
 }

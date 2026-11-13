@@ -20,14 +20,14 @@
   },
   "bySpecies": {
     "cat": {
-      "verdict": "caution",
+      "verdict": "safe",
       "summary": {
         "ru": "Можно как лакомство: маленький кусочек очищенного банана изредка.",
         "en": "Safe as a treat: a small piece of peeled banana now and then."
       },
       "why": {
-        "ru": "ASPCA относит банан к неядовитым растениям для кошек и собак. Подходит очищенная мякоть небольшими кусочками; это не замена корму. Любая растительная еда в большом количестве может расстроить желудок.",
-        "en": "The ASPCA lists banana as non-toxic to cats and dogs. Peeled flesh in small pieces is fine; it is no substitute for food. Any plant food in large amounts can upset the stomach."
+        "ru": "ASPCA относит банан к неядовитым растениям для кошек и собак, а Pet Poison Helpline называет бананы среди фруктов, которые питомцам можно как лакомство. Подходит очищенная мякоть небольшими кусочками; это не замена корму.",
+        "en": "The ASPCA lists the banana plant as non-toxic to cats and dogs, and Pet Poison Helpline names bananas among fruits pets can enjoy as treats. Peeled flesh in small pieces is fine; it is no substitute for food."
       },
       "signs": {
         "ru": [],
@@ -36,14 +36,14 @@
       "ifEaten": "none"
     },
     "dog": {
-      "verdict": "caution",
+      "verdict": "safe",
       "summary": {
         "ru": "Можно как лакомство: пару кусочков очищенного банана изредка.",
         "en": "Safe as a treat: a couple of pieces of peeled banana now and then."
       },
       "why": {
-        "ru": "ASPCA относит банан к неядовитым растениям для кошек и собак. Подходит очищенная мякоть небольшими кусочками; это не замена корму. Любая растительная еда в большом количестве может расстроить желудок.",
-        "en": "The ASPCA lists banana as non-toxic to cats and dogs. Peeled flesh in small pieces is fine; it is no substitute for food. Any plant food in large amounts can upset the stomach."
+        "ru": "ASPCA относит банан к неядовитым растениям для кошек и собак, а Pet Poison Helpline называет бананы среди фруктов, которые питомцам можно как лакомство. Подходит очищенная мякоть небольшими кусочками; это не замена корму.",
+        "en": "The ASPCA lists the banana plant as non-toxic to cats and dogs, and Pet Poison Helpline names bananas among fruits pets can enjoy as treats. Peeled flesh in small pieces is fine; it is no substitute for food."
       },
       "signs": {
         "ru": [],
@@ -55,15 +55,18 @@
   "sources": [
     {
       "title": "ASPCA Animal Poison Control — Edible Banana",
-      "url": "https://www.aspca.org/pet-care/animal-poison-control/toxic-and-non-toxic-plants/edible-banana"
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/edible-banana"
     },
     {
-      "title": "ASPCA Animal Poison Control — Toxic and Non-Toxic Plants",
-      "url": "https://www.aspca.org/pet-care/animal-poison-control/toxic-and-non-toxic-plants"
+      "title": "Pet Poison Helpline — Are Cherries Safe for Dogs?",
+      "url": "https://www.petpoisonhelpline.com/uncategorized/are-cherries-safe-for-dogs/"
     }
   ],
   "review": {
-    "status": "draft",
-    "draftedBy": "model"
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
   }
 }

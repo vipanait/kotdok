@@ -25,20 +25,20 @@
   },
   "bySpecies": {
     "cat": {
-      "verdict": "caution",
+      "verdict": "safe",
       "summary": {
-        "ru": "С осторожностью. Немного варёного риса без соли и масла — изредка.",
-        "en": "With caution. A little boiled rice with no salt or butter, now and then."
+        "ru": "Можно. Немного простого варёного риса без соли и масла.",
+        "en": "Safe. A little plain boiled rice with no salt or butter."
       },
       "why": {
-        "ru": "Прямых данных о рисе для кошек в ветеринарных справочниках нет. Кошке нужна мясная еда, а лакомства не заменяют корм и бывают изредка. Допустим только хорошо проваренный рис без соли, масла, специй, лука и чеснока.",
-        "en": "Veterinary references have no direct data on rice for cats. A cat needs a meat diet, and treats do not replace cat food and should be occasional. Only well-cooked rice with no salt, butter, spices, onion or garlic is acceptable."
+        "ru": "Варёная курица или нежирный фарш с белым рисом — щадящая еда, которой ветеринары советуют кормить и кошек, и собак при лёгком расстройстве желудка. Условия: хорошо проваренный рис без соли, масла, специй, лука и чеснока, изредка и не вместо корма: кошке нужна мясная еда, а лакомства должны быть изредка.",
+        "en": "Boiled chicken or lean mince with white rice is a bland meal that vets suggest for both cats and dogs with a mild stomach upset. Conditions: well-cooked rice with no salt, butter, spices, onion or garlic, now and then and not instead of cat food: a cat needs a meat diet, and treats should be occasional."
       },
       "signs": {
         "ru": [],
         "en": []
       },
-      "ifEaten": "watch"
+      "ifEaten": "none"
     },
     "dog": {
       "verdict": "safe",
@@ -57,44 +57,25 @@
       "ifEaten": "none"
     }
   },
-  "firstSteps": {
-    "ru": [
-      "Оставьте доступ к чистой воде",
-      "Наблюдайте за питомцем сутки",
-      "Если появились рвота, понос или вялость — проверьте симптомы или позвоните в клинику"
-    ],
-    "en": [
-      "Leave fresh water available",
-      "Watch your pet for a day",
-      "If vomiting, diarrhoea or lethargy appear, check the symptoms or call a clinic"
-    ]
-  },
-  "avoid": {
-    "ru": [
-      "Не давайте кашу или гарнир с солью, маслом, луком или чесноком",
-      "Не давайте лекарства без назначения врача"
-    ],
-    "en": [
-      "Do not give porridge or side dishes with salt, butter, onion or garlic",
-      "Do not give any medicine unless a vet tells you to"
-    ]
-  },
   "sources": [
     {
       "title": "Cornell Riney Canine Health Center — Re-evaluating your dog's diet",
       "url": "https://www.vet.cornell.edu/departments-centers-and-institutes/riney-canine-health-center/canine-health-topics/re-evaluating-your-dogs-diet"
     },
     {
-      "title": "Cornell Feline Health Center — Feeding Your Cat",
-      "url": "https://www.vet.cornell.edu/departments-centers-and-institutes/cornell-feline-health-center/health-information/feline-health-topics/feeding-your-cat"
+      "title": "Cornell Riney Canine Health Center — Diarrhea",
+      "url": "https://www.vet.cornell.edu/departments-centers-and-institutes/riney-canine-health-center/canine-health-topics/diarrhea"
     },
     {
-      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
-      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+      "title": "Cornell Feline Health Center — Feeding Your Cat",
+      "url": "https://www.vet.cornell.edu/departments-centers-and-institutes/cornell-feline-health-center/health-information/feline-health-topics/feeding-your-cat"
     }
   ],
   "review": {
-    "status": "draft",
-    "draftedBy": "model"
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
   }
 }

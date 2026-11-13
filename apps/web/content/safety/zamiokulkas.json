@@ -25,12 +25,12 @@
     "cat": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Замиокулькас считается умеренно ядовитым: раздражает рот и желудок.",
-        "en": "With caution. ZZ plant is considered moderately poisonous: it irritates the mouth and stomach."
+        "ru": "С осторожностью. Замиокулькас ядовит для кошек и собак: раздражает рот и желудок.",
+        "en": "With caution. ZZ plant is poisonous to cats and dogs: it irritates the mouth and stomach."
       },
       "why": {
-        "ru": "По данным NC State Extension, в листьях замиокулькаса есть оксалат кальция, а ядовитость для кошек и собак средняя: если съесть много листьев, бывают рвота и понос. По Merck, от растений с такими кристаллами бывают боль и раздражение во рту, слюнотечение, отёк, вялость и отказ от еды; обычно всё проходит. Данных по этому растению мало, поэтому вердикт строгий. Если питомцу трудно дышать или ему стало хуже, позвоните в клинику.",
-        "en": "According to NC State Extension, ZZ plant leaves contain calcium oxalate and the plant is moderately toxic to cats and dogs: eating a lot of leaves can cause vomiting and diarrhoea. According to Merck, plants with these crystals cause mouth pain and irritation, drooling, swelling, lethargy and not eating; most pets recover fully. Data on this plant is thin, so the verdict is the strict one. If the pet has trouble breathing or is getting worse, call a clinic."
+        "ru": "ASPCA относит замиокулькас к растениям с нерастворимыми кристаллами оксалата кальция. При жевании они раздражают рот: бывают слюнотечение, позывы на рвоту, рвота, понос и отказ от еды, питомец трясёт головой и трёт мордочку лапой. Редко, после большого количества, бывает сильная боль в животе или отёк горла, из-за которого трудно дышать. По Merck, обычно всё проходит без последствий. Если питомцу трудно дышать или ему стало хуже, позвоните в клинику.",
+        "en": "The ASPCA puts ZZ plant among plants with insoluble calcium oxalate crystals. Chewing them irritates the mouth: drooling, retching, vomiting, diarrhoea and loss of appetite are possible, and a pet may shake its head and paw at its mouth. Rarely, after a large amount, there can be strong belly pain or throat swelling that makes breathing hard. According to Merck, most pets recover fully. If your pet has trouble breathing or is getting worse, call a clinic."
       },
       "signs": {
         "ru": [
@@ -53,12 +53,12 @@
     "dog": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Замиокулькас считается умеренно ядовитым: раздражает рот и желудок.",
-        "en": "With caution. ZZ plant is considered moderately poisonous: it irritates the mouth and stomach."
+        "ru": "С осторожностью. Замиокулькас ядовит для кошек и собак: раздражает рот и желудок.",
+        "en": "With caution. ZZ plant is poisonous to cats and dogs: it irritates the mouth and stomach."
       },
       "why": {
-        "ru": "По данным NC State Extension, в листьях замиокулькаса есть оксалат кальция, а ядовитость для кошек и собак средняя: если съесть много листьев, бывают рвота и понос. По Merck, от растений с такими кристаллами бывают боль и раздражение во рту, слюнотечение, отёк, вялость и отказ от еды; обычно всё проходит. Данных по этому растению мало, поэтому вердикт строгий. Если питомцу трудно дышать или ему стало хуже, позвоните в клинику.",
-        "en": "According to NC State Extension, ZZ plant leaves contain calcium oxalate and the plant is moderately toxic to cats and dogs: eating a lot of leaves can cause vomiting and diarrhoea. According to Merck, plants with these crystals cause mouth pain and irritation, drooling, swelling, lethargy and not eating; most pets recover fully. Data on this plant is thin, so the verdict is the strict one. If the pet has trouble breathing or is getting worse, call a clinic."
+        "ru": "ASPCA относит замиокулькас к растениям с нерастворимыми кристаллами оксалата кальция. При жевании они раздражают рот: бывают слюнотечение, позывы на рвоту, рвота, понос и отказ от еды, питомец трясёт головой и трёт мордочку лапой. Редко, после большого количества, бывает сильная боль в животе или отёк горла, из-за которого трудно дышать. По Merck, обычно всё проходит без последствий. Если питомцу трудно дышать или ему стало хуже, позвоните в клинику.",
+        "en": "The ASPCA puts ZZ plant among plants with insoluble calcium oxalate crystals. Chewing them irritates the mouth: drooling, retching, vomiting, diarrhoea and loss of appetite are possible, and a pet may shake its head and paw at its mouth. Rarely, after a large amount, there can be strong belly pain or throat swelling that makes breathing hard. According to Merck, most pets recover fully. If your pet has trouble breathing or is getting worse, call a clinic."
       },
       "signs": {
         "ru": [
@@ -107,16 +107,19 @@
   },
   "sources": [
     {
-      "title": "NC State Extension Plant Toolbox — Zamioculcas zamiifolia",
-      "url": "https://plants.ces.ncsu.edu/plants/zamioculcas-zamiifolia/common-name/eternity-plant/"
+      "title": "ASPCA — These Houseplants Can Cause Trouble for Your Pets",
+      "url": "https://www.aspca.org/news/these-houseplants-can-cause-trouble-your-pets"
     },
     {
-      "title": "Merck Veterinary Manual — Houseplants and Ornamentals Toxic to Animals",
-      "url": "https://www.merckvetmanual.com/toxicology/poisonous-plants/houseplants-and-ornamentals"
+      "title": "MSD Veterinary Manual — Houseplants and Ornamentals Toxic to Animals",
+      "url": "https://www.merckvetmanual.com/toxicology/poisonous-plants/houseplants-and-ornamentals-toxic-to-animals"
     }
   ],
   "review": {
-    "status": "draft",
-    "draftedBy": "model"
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
   }
 }

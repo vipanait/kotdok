@@ -19,10 +19,10 @@
       "жир",
       "растительное масло",
       "жареное",
-      "жареную еду",
-      "butter"
+      "жареную еду"
     ],
     "en": [
+      "butter",
       "fatty food",
       "fatty foods",
       "fatty meat",
@@ -124,7 +124,10 @@
     }
   ],
   "review": {
-    "status": "draft",
-    "draftedBy": "model"
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
   }
 }

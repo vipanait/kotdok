@@ -76,12 +76,14 @@
   },
   "firstSteps": {
     "ru": [
+      "Если съедена луковица — позвоните в клинику, не дожидаясь признаков",
       "Уберите растение и выньте остатки из пасти питомца",
       "Оставьте питомцу миску со свежей водой",
       "Понаблюдайте за ним несколько часов",
       "Если появились признаки или их стало больше, позвоните в клинику"
     ],
     "en": [
+      "If a bulb was eaten, call a clinic without waiting for signs",
       "Take the plant away and remove any bits from your pet’s mouth",
       "Make sure fresh water is available",
       "Watch your pet for the next few hours",
@@ -111,7 +113,10 @@
     }
   ],
   "review": {
-    "status": "draft",
-    "draftedBy": "model"
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
   }
 }

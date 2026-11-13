@@ -99,12 +99,12 @@
     "ru": [
       "Не вызывайте рвоту сами — только по указанию врача",
       "Не обрабатывайте кошку сами «чем придётся», не посоветовавшись с врачом",
-      "Не ждите признаков: они могут появиться через несколько часов"
+      "Если средство попало на кошку, не ждите признаков: они могут появиться через несколько часов"
     ],
     "en": [
       "Do not make your pet vomit unless a vet tells you to",
       "Do not treat the cat yourself with whatever is at hand without asking a vet",
-      "Do not wait for signs: they can appear hours later"
+      "If the product got on a cat, do not wait for signs: they can appear hours later"
     ]
   },
   "sources": [
@@ -122,7 +122,10 @@
     }
   ],
   "review": {
-    "status": "draft",
-    "draftedBy": "model"
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
   }
 }

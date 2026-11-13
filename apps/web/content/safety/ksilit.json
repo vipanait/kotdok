@@ -27,18 +27,18 @@
     "cat": {
       "verdict": "caution",
       "summary": {
-        "ru": "С осторожностью. Для собак ксилит опасен, а у кошек отравления им не описаны. Но жвачка и сладости кошке не нужны.",
-        "en": "With caution. Xylitol is dangerous to dogs, but poisoning has not been reported in cats. Still, gum and sweets are not for cats."
+        "ru": "С осторожностью. У кошек отравление ксилитом не описано, но данных мало. Если кошка съела продукт с ксилитом, позвоните в клинику.",
+        "en": "With caution. Xylitol poisoning has not been reported in cats, but data are limited. If your cat ate something with xylitol, call a clinic."
       },
       "why": {
-        "ru": "По ветеринарному справочнику Merck, ксилит вызывает отравление только у собак, а кошкам падение сахара в крови и повреждение печени от него не грозят. Сладости с ксилитом всё равно не еда для кошки: в них бывают и опасные для неё продукты, например шоколад или изюм, — проверьте состав. Ксилит бывает в жвачке без сахара, конфетах, выпечке, зубной пасте и некоторых сиропах.",
-        "en": "According to the Merck Veterinary Manual, xylitol poisoning has been reported only in dogs, and cats are not at risk of the blood sugar drop or liver damage it causes. Sugar-free sweets are still not food for a cat: they may hold other things that are harmful to it, such as chocolate or raisins, so check the ingredients. Xylitol is found in sugar-free gum, sweets, baking, toothpaste and some syrups."
+        "ru": "По ветеринарному справочнику Merck, отравление ксилитом описано только у собак, а кошкам падение сахара в крови и повреждение печени от него не грозят. Исследований на кошках немного, поэтому, если кошка съела продукт с ксилитом, лучше позвонить в клинику. В сладостях без сахара бывают и другие опасные для кошки продукты, например шоколад или изюм, — проверьте состав. Ксилит бывает в жвачке без сахара, конфетах, выпечке, зубной пасте и некоторых сиропах.",
+        "en": "According to the Merck Veterinary Manual, xylitol poisoning has been reported only in dogs, and cats are not at risk of the blood sugar drop or liver damage it causes. Studies in cats are few, so if your cat ate something with xylitol, it is best to call a clinic. Sugar-free sweets may also hold other things that are harmful to a cat, such as chocolate or raisins, so check the ingredients. Xylitol is found in sugar-free gum, sweets, baking, toothpaste and some syrups."
       },
       "signs": {
         "ru": [],
         "en": []
       },
-      "ifEaten": "watch"
+      "ifEaten": "call_now"
     },
     "dog": {
       "verdict": "danger",
@@ -73,13 +73,13 @@
   },
   "firstSteps": {
     "ru": [
-      "Если это собака — сразу позвоните в ветеринарную клинику, даже если она ведёт себя как обычно",
+      "Сразу позвоните в ветеринарную клинику: если это собака — даже если она ведёт себя как обычно; если кошка — чтобы врач оценил, нужно ли ехать",
       "Найдите упаковку и проверьте состав; возьмите её с собой",
       "Прикиньте, сколько могло быть съедено и когда",
       "Уберите остатки жвачки и сладостей"
     ],
     "en": [
-      "If it is a dog, call a vet clinic right away, even if it seems fine",
+      "Call a vet clinic right away: for a dog, even if it seems fine; for a cat, so the vet can judge whether you need to come in",
       "Find the packaging, check the ingredients and take it with you",
       "Work out roughly how much was eaten and when",
       "Put away the rest of the gum and sweets"
@@ -113,7 +113,10 @@
     }
   ],
   "review": {
-    "status": "draft",
-    "draftedBy": "model"
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
   }
 }

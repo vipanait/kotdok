@@ -70,8 +70,7 @@
           "рвота",
           "шаткая походка",
           "вялость",
-          "слабость",
-          "учащённое сердцебиение"
+          "слабость"
         ],
         "en": [
           "swollen belly",
@@ -79,8 +78,7 @@
           "vomiting",
           "unsteady walk",
           "lethargy",
-          "weakness",
-          "fast heartbeat"
+          "weakness"
         ]
       },
       "ifEaten": "call_now"
@@ -125,7 +123,10 @@
     }
   ],
   "review": {
-    "status": "draft",
-    "draftedBy": "model"
+    "status": "agent_reviewed",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
   }
 }
