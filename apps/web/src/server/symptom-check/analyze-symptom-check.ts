@@ -43,6 +43,7 @@ function openai(): OpenAI {
 }
 
 import { DISCLAIMER, REASSURANCE, outputFormat } from './analysis-language'
+import { groupMaterials, pickSources, renderVetContext, type VetKnowledgeMatch, type VetMaterial } from './vet-sources'
 
 const catSystemPrompt = (locale: Locale) => `You are a specialized feline health triage assistant.
 You have deep knowledge of cat-specific diseases, physiology, and behavioral signs of illness.
@@ -104,11 +105,15 @@ function systemPromptForSpecies(species: PetSpecies, locale: Locale): string {
   return species === 'dog' ? dogSystemPrompt(locale) : catSystemPrompt(locale)
 }
 
+/**
+ * What the knowledge base has on these symptoms: the text the model reads, and
+ * the numbered materials it is made of, so the answer can name the ones it used.
+ */
 async function getVetContext(
   supabase: SupabaseService,
   symptoms: string,
   species: PetSpecies,
-): Promise<string> {
+): Promise<{ context: string; materials: VetMaterial[] }> {
   const embeddingResponse = await openai().embeddings.create({
     model: 'text-embedding-3-small',
     input: symptoms,
@@ -121,14 +126,8 @@ async function getVetContext(
     filter_species: species,
   })
 
-  if (error || !data?.length) return 'No additional context available.'
-
-  return data
-    .filter((row: { similarity: number }) => row.similarity > 0.3)
-    .map((row: { source_title: string; content: string }) =>
-      `[${row.source_title}]\n${row.content}`
-    )
-    .join('\n\n---\n\n')
+  const materials = error || !data?.length ? [] : groupMaterials(data as VetKnowledgeMatch[])
+  return { context: renderVetContext(materials), materials }
 }
 
 const VALID_URGENCY: Urgency[] = ['emergency', 'urgent', 'monitor', 'home_care', 'healthy']
@@ -379,8 +378,8 @@ export async function analyzeSymptomCheck(
     const newBalance = reservedUsage?.new_balance ?? account.account.credits - 1
 
     // RAG search filtered by species
-    const vetContext = await getVetContext(supabase, input.symptoms, species)
-    const systemPrompt = systemPromptForSpecies(species, locale).replace('{context}', vetContext)
+    const vet = await getVetContext(supabase, input.symptoms, species)
+    const systemPrompt = systemPromptForSpecies(species, locale).replace('{context}', vet.context)
 
     // Build user message — with or without photo
     type ContentPart =
@@ -435,6 +434,9 @@ export async function analyzeSymptomCheck(
       throw new Error('AI returned invalid JSON')
     }
     const result = validateAIResponse(parsed, locale)
+    // Only a number that was in the context becomes a source (SRC-01). Kept out
+    // of `result`: the numbers mean nothing once the context is gone.
+    const sources = pickSources(vet.materials, (parsed as Record<string, unknown> | null)?.used_sources)
 
     // Save check first so the ledger entry can reference it.
     const { data: check, error: checkError } = await supabase
@@ -457,6 +459,8 @@ export async function analyzeSymptomCheck(
           ...result,
           ...quickAssessment,
           photo_count: input.photos.length,
+          // Always written, empty included: a check from before the sources has no key.
+          sources,
           ...(medicalRecord ? { medical_record: medicalRecord } : {}),
         },
       })
