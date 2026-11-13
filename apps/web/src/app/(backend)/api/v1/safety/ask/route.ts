@@ -28,6 +28,8 @@ export const POST = withApiAuth(async (request: NextRequest, context: ApiContext
   if (result.ok) return apiSuccess(context.requestId, result.data)
 
   switch (result.code) {
+    case 'bad_request':
+      return apiError(context.requestId, 'bad_request', 'Body does not match the contract')
     case 'rate_limited':
       return apiError(context.requestId, 'rate_limited', 'No AI answers left today')
     case 'not_found':

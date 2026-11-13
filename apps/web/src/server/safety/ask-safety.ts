@@ -19,11 +19,13 @@ import type { Locale } from '@/shared/i18n/config'
 import {
   SAFETY_AI_FORBIDDEN_WORDS,
   SAFETY_AI_NEGATED,
+  SAFETY_AI_VOMIT_ADVICE,
   SAFETY_AVOID,
   SAFETY_CONTEXT_LEAK,
   SAFETY_DANGER_STANDARD,
   SAFETY_FIRST_STEPS,
   SAFETY_NO_DATA,
+  SAFETY_VET_CLAIM,
   safetySystemPrompt,
   safetyUserMessage,
 } from './ask-language'
@@ -55,6 +57,13 @@ const EMBEDDING_MODEL = 'text-embedding-3-small'
  * queries the base does not cover (docs/verification/safety-03.md).
  */
 export const SAFETY_SIMILARITY_THRESHOLD = 0.3
+/**
+ * Whether an AI answer may say «safe» at all. Off until the threshold above
+ * is measured on the production knowledge base (owner step in
+ * docs/verification/safety-07.md): until then a grounded «safe» is shown as
+ * «caution», watch, with the no-data text. Fresh and cached answers alike.
+ */
+export const AI_SAFE_ALLOWED = false
 const KNOWLEDGE_FRAGMENTS = 5
 
 const TITLE_MAX = 80
@@ -127,6 +136,7 @@ export function aiWordingProblems(texts: readonly string[]): string[] {
     ...safetyWordingProblems(texts, 'ru', { strictVomiting: true }),
     ...safetyWordingProblems(texts, 'en', { strictVomiting: true }),
     ...AI_WORD_PATTERNS.filter(({ pattern }) => unnegated.some(t => pattern.test(t))).map(({ word }) => word),
+    ...(texts.some(t => SAFETY_AI_VOMIT_ADVICE.some(pattern => pattern.test(t))) ? ['vomiting (ai)'] : []),
   ]
 }
 
@@ -179,11 +189,16 @@ export function guardAiAnswer(
   else if (category === 'household' && verdict === 'safe') verdict = 'unknown'
   // «Safe» from the model's memory alone is the answer this feature must not give.
   if (verdict === 'safe' && !ctx.grounded) verdict = 'unknown'
+  // Nor, for now, from a fragment whose threshold nobody has measured: «caution», with the no-data
+  // text, because the model's words were written for «safe» and would read softer than the verdict.
+  const capped = verdict === 'safe' && !AI_SAFE_ALLOWED
+  if (capped) verdict = 'caution'
 
   // A line that reads like treatment is not shown, and the answer it was in loses the model's words —
   // but never its severity (spec, «Ответ ИИ»): «danger» stays «danger», call now.
   const tripped = (value: string) => aiWordingProblems([value]).length > 0
-  const leaks = (value: string) => SAFETY_CONTEXT_LEAK.some(pattern => pattern.test(value))
+  // A claim that a vet checked the answer is handled like talk about our context: never true from a model.
+  const leaks = (value: string) => [...SAFETY_CONTEXT_LEAK, ...SAFETY_VET_CLAIM].some(pattern => pattern.test(value))
   const wordingHit = [title, summary, why, ...signs].some(tripped)
   if (wordingHit && verdict !== 'danger') verdict = 'unknown'
   signs = signs.filter(sign => !tripped(sign) && !leaks(sign))
@@ -200,7 +215,7 @@ export function guardAiAnswer(
   // The text agrees with the verdict: whenever the final verdict is not the model's, or the model's
   // words could not be shown, the summary and the explanation are the standard ones for that verdict.
   if (verdict !== said || wordingHit || [summary, why].some(leaks)) {
-    if (verdict === 'danger' || verdict === 'unknown') {
+    if (verdict === 'danger' || verdict === 'unknown' || capped) {
       const standard = verdict === 'danger' ? SAFETY_DANGER_STANDARD[ctx.locale] : SAFETY_NO_DATA[ctx.locale]
       summary = standard.summary
       why = standard.why
@@ -222,13 +237,18 @@ export function guardAiAnswer(
   }
 }
 
-/** The reference entry one of these names finds, in either language's index. */
-function catalogSlug(names: readonly string[]): string | null {
+/**
+ * The reference entry one of these names is, in either language's index: by
+ * its name or an alias only. A one-letter typo is a suggestion while typing,
+ * not a diversion — «баран» must not become a banana, and a wrong entry
+ * would replace an answer about something else.
+ */
+export function catalogSlug(names: readonly string[]): string | null {
   for (const name of names) {
     if (!name) continue
     for (const locale of ['ru', 'en'] as const) {
-      const exact = matchSafety(safetyIndex(locale), name).exact
-      if (exact) return exact.slug
+      const { exact, exactKind } = matchSafety(safetyIndex(locale), name)
+      if (exact && (exactKind === 'name' || exactKind === 'alias')) return exact.slug
     }
   }
   return null
@@ -316,7 +336,9 @@ function aiResult(
 export async function askSafety(
   supabase: SupabaseService,
   input: { userId: string; query: string; petId?: string; species?: PetSpecies; locale: Locale },
-): Promise<{ ok: true; data: SafetyAskResult } | { ok: false; code: 'rate_limited' | 'not_found' | 'internal_error' }> {
+): Promise<
+  { ok: true; data: SafetyAskResult } | { ok: false; code: 'bad_request' | 'rate_limited' | 'not_found' | 'internal_error' }
+> {
   let pet: SafetyPet | null = null
   if (input.petId) {
     const loaded = await loadSafetyPet(supabase, input.userId, input.petId)
@@ -326,7 +348,7 @@ export async function askSafety(
   const species = pet?.species ?? input.species
   // The contract asks for exactly one of the two, and for a letter or a digit in the query.
   const queryKey = normalizeSafetyQuery(input.query)
-  if (!species || !queryKey) return { ok: false, code: 'internal_error' }
+  if (!species || !queryKey) return { ok: false, code: 'bad_request' }
 
   // 1. The reference first: what it holds never reaches the model and costs nothing.
   const listed = catalogSlug([input.query])

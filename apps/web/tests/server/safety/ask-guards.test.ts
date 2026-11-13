@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { aiWordingProblems, guardAiAnswer } from '@/server/safety/ask-safety'
+import { AI_SAFE_ALLOWED, aiWordingProblems, guardAiAnswer } from '@/server/safety/ask-safety'
 import { SAFETY_AVOID, SAFETY_DANGER_STANDARD, SAFETY_FIRST_STEPS, SAFETY_NO_DATA } from '@/server/safety/ask-language'
 import { safetyWordingProblems } from '@/features/safety/schema'
 
@@ -41,10 +41,39 @@ describe('guardAiAnswer', () => {
     expect(answer.if_eaten).toBe('watch')
   })
 
-  it('keeps «safe» when a fragment backs it', () => {
-    const answer = guarded(raw({ verdict: 'safe', if_eaten: 'watch' }))
-    expect(answer.verdict).toBe('safe')
-    expect(answer.if_eaten).toBe('none')
+  describe('«safe» is capped until the similarity threshold is measured (AI_SAFE_ALLOWED)', () => {
+    it('is off', () => {
+      expect(AI_SAFE_ALLOWED).toBe(false)
+    })
+
+    it('turns a grounded «safe» into «caution», watch, with the no-data text', () => {
+      const answer = guarded(raw({ verdict: 'safe', if_eaten: 'none', summary: 'Мякоть подходит как лакомство.' }))
+      expect(answer).toMatchObject({
+        verdict: 'caution',
+        if_eaten: 'watch',
+        summary: SAFETY_NO_DATA.ru.summary,
+        why: SAFETY_NO_DATA.ru.why,
+        model_verdict: 'safe',
+      })
+      // Title and clean signs are the model's.
+      expect(answer.title).toBe('Питахайя')
+      expect(answer.signs).toEqual(['понос'])
+    })
+
+    it('keeps «call now» if the model said it', () => {
+      expect(guarded(raw({ verdict: 'safe', if_eaten: 'call_now' })).if_eaten).toBe('call_now')
+    })
+
+    it('caps a cached «safe» on read, whether or not its model verdict was recorded', () => {
+      for (const stored of [raw({ verdict: 'safe', if_eaten: 'none' }), { ...raw({ verdict: 'safe', if_eaten: 'none' }), model_verdict: 'safe' }]) {
+        const answer = guarded(stored, { grounded: true, locale: 'en', cached: true })
+        expect(answer).toMatchObject({ verdict: 'caution', if_eaten: 'watch', summary: SAFETY_NO_DATA.en.summary, why: SAFETY_NO_DATA.en.why })
+      }
+    })
+
+    it('leaves the model’s own «caution» with its text', () => {
+      expect(guarded(raw())).toMatchObject({ verdict: 'caution', summary: raw().summary, why: raw().why })
+    })
   })
 
   it('makes any medicine «danger», call now', () => {
@@ -95,6 +124,45 @@ describe('guardAiAnswer', () => {
     expect(guarded(raw({ why: 'Может вызвать рвоту и понос.' })).verdict).toBe('unknown')
     expect(guarded(raw({ why: 'Chocolate can make a dog vomit.' }), { grounded: true, locale: 'en' }).verdict).toBe('unknown')
   })
+
+  it.each([
+    ['Рвоту нужно вызвать как можно скорее.', 'ru'],
+    ['Рвоту вызовите солёной водой.', 'ru'],
+    ['Make your dog throw up right away.', 'en'],
+    ['Get your cat to throw up.', 'en'],
+    ['Try to make him puke.', 'en'],
+    ['Help your dog be sick at home.', 'en'],
+    ['Have your pet throw up within an hour.', 'en'],
+  ] as const)('treats vomiting advice in any word order or wording as forbidden: %s', (why, locale) => {
+    const answer = guarded(raw({ why }), { grounded: true, locale })
+    expect(answer).toMatchObject({ verdict: 'unknown', why: SAFETY_NO_DATA[locale].why })
+    expect(guarded(raw({ verdict: 'danger', why }), { grounded: true, locale })).toMatchObject({
+      verdict: 'danger',
+      if_eaten: 'call_now',
+      why: SAFETY_DANGER_STANDARD[locale].why,
+    })
+  })
+
+  it.each(['Signs: drooling and lethargy.', 'Your dog may seem sick for a day.', 'Some dogs get sick of the taste.'])(
+    'leaves ordinary English alone: %s',
+    why => {
+      expect(guarded(raw({ why }), { grounded: true, locale: 'en' })).toMatchObject({ verdict: 'caution', why })
+    },
+  )
+
+  it.each(['Давайте энтеросгель.', 'Давайте понемногу.', 'Если дадите кусочек, ничего не будет.'])(
+    'treats «давайте» and «дадите» as advice: %s',
+    summary => {
+      expect(guarded(raw({ summary }))).toMatchObject({ verdict: 'unknown', summary: SAFETY_NO_DATA.ru.summary })
+    },
+  )
+
+  it.each(['Не давайте это питомцу.', 'Никогда не давайте это котёнку.', 'Нельзя давать это собаке.', 'Не дадите — не будет проблем.'])(
+    'keeps «давайте» and «дадите» when negated: %s',
+    summary => {
+      expect(guarded(raw({ summary })).summary).toBe(summary)
+    },
+  )
 
   it.each([
     'Дайте перекись водорода, чтобы её стошнило.',
@@ -247,6 +315,20 @@ describe('guardAiAnswer', () => {
       ['The context provided does not mention it.', 'en'],
       ['According to the context, it is mild.', 'en'],
       ['The provided fragments note mild upset.', 'en'],
+      ['В контексте нет сведений об этом.', 'ru'],
+      ['В контексте не упоминается.', 'ru'],
+      ['Контекст не содержит данных.', 'ru'],
+      ['The context does not mention it.', 'en'],
+      ['The fragments indicate mild upset.', 'en'],
+      ['According to the sources, it is mild.', 'en'],
+      ['The sources say it is mild.', 'en'],
+      ['The source states it is mild.', 'en'],
+      ['Проверено ветеринаром.', 'ru'],
+      ['Ветеринар проверил этот ответ.', 'ru'],
+      ['Одобрено ветеринаром.', 'ru'],
+      ['This answer is vet-approved.', 'en'],
+      ['Approved by a vet.', 'en'],
+      ['Reviewed by a veterinarian.', 'en'],
     ] as const)('never shows the model talking about its context: %s', (summary, locale) => {
       const danger = guarded(raw({ verdict: 'danger', summary }), { grounded: true, locale })
       expect(danger).toMatchObject({ verdict: 'danger', if_eaten: 'call_now', summary: SAFETY_DANGER_STANDARD[locale].summary })
@@ -270,6 +352,10 @@ describe('guardAiAnswer', () => {
       'Fine in the context of a balanced meal.',
       'Варёные кости дают острые фрагменты кости.',
       'В контексте обычного рациона это редкость.',
+      'Bone fragments can cut the gut.',
+      'Ветеринар может посоветовать диету.',
+      'A vet may check the gums.',
+      'The sources of sugar are fruit and honey.',
     ])('leaves ordinary words alone: %s', summary => {
       expect(guarded(raw({ summary }))).toMatchObject({ verdict: 'caution', summary })
     })

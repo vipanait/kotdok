@@ -262,7 +262,10 @@ describe('POST /api/v1/safety/ask', () => {
 
     knowledge = [{ similarity: 0.82, source_title: 'Fruit', content: 'Not toxic' }]
     const backed = await answer({ query: 'питахайя', species: 'dog' })
-    expect(backed).toMatchObject({ source: 'ai', verdict: 'safe', if_eaten: 'none', first_steps: [], avoid: [] })
+    // A fragment backs it, yet «safe» stays capped until the threshold is measured (AI_SAFE_ALLOWED).
+    expect(backed).toMatchObject({ source: 'ai', verdict: 'caution', if_eaten: 'watch' })
+    if (backed.source !== 'ai') throw new Error('expected an AI answer')
+    expect(backed.first_steps.length).toBeGreaterThan(0)
   })
 
   it('keeps a dangerous answer dangerous when its words are replaced, and makes the notes from the final verdict', async () => {
@@ -270,20 +273,21 @@ describe('POST /api/v1/safety/ask', () => {
     try {
       model.answer = fruit({
         category: 'plant',
-        canonical_name_ru: 'олеандр',
-        canonical_name_en: 'oleander',
-        title: 'Олеандр',
+        // An invented plant: the reference holds oleander now, and would answer it itself.
+        canonical_name_ru: 'лунный плетень',
+        canonical_name_en: 'moon vine',
+        title: 'Лунный плетень',
         verdict: 'danger',
         if_eaten: 'watch',
         summary: 'Токсичная доза очень мала.',
         signs: ['рвотные позывы', 'вялость', 'нарушение ритма сердца'],
       })
-      const result = await answer({ query: 'олеандр', pet_id: PET_IDS.aDog })
+      const result = await answer({ query: 'лунный плетень', pet_id: PET_IDS.aDog })
       expect(result).toMatchObject({
         source: 'ai',
         verdict: 'danger',
         if_eaten: 'call_now',
-        title: 'Олеандр',
+        title: 'Лунный плетень',
         signs: ['вялость', 'нарушение ритма сердца'],
         // «Talk to your vet about new foods» is not said under «danger».
         pet_notes: [],

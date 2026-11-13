@@ -72,6 +72,9 @@ export const SAFETY_NO_DATA: Record<Locale, { title: string; summary: string; wh
  */
 export const SAFETY_AI_FORBIDDEN_WORDS: readonly { word: string; whole?: true }[] = [
   { word: 'дайте' },
+  // «Давайте энтеросгель», «если дадите кусочек»: advice in the polite plural.
+  { word: 'давайте' },
+  { word: 'дадите' },
   { word: 'давать' },
   { word: 'дать', whole: true },
   { word: 'уголь' },
@@ -98,14 +101,14 @@ export const SAFETY_AI_FORBIDDEN_WORDS: readonly { word: string; whole?: true }[
 ]
 
 /**
- * The negated forms models write all the time — «не дайте», «не давать»,
- * «нельзя давать», "do not give", "don't give", "never give", "do not
+ * The negated forms models write all the time — «не дайте», «не давайте»,
+ * «никогда не давайте», «не дадите», «не давать», «нельзя давать», "do not give", "don't give", "never give", "do not
  * induce", "do not administer" — are advice against, not
  * advice: they are cut out before the words above are looked for. What
  * follows them is still checked («не дайте … 5 мг» still trips on «мг»).
  */
 export const SAFETY_AI_NEGATED =
-  /(^|[^а-яёa-z])(?:(?:никогда\s+)?не|нельзя)\s+(?:дайте|давать|дать)(?![а-яёa-z])|\b(?:do\s+not|don['’]t|never)\s+(?:give|induce|administer)\b/gi
+  /(^|[^а-яёa-z])(?:(?:никогда\s+)?не|нельзя)\s+(?:дайте|давайте|дадите|давать|дать)(?![а-яёa-z])|\b(?:do\s+not|don['’]t|never)\s+(?:give|induce|administer)\b/gi
 
 /** The replacement texts of a «danger» answer: the verdict stands, only the model's words go. */
 export const SAFETY_DANGER_STANDARD: Record<Locale, { summary: string; why: string }> = {
@@ -139,8 +142,37 @@ export const SAFETY_CONTEXT_LEAK: readonly RegExp[] = [
   /\bprovided\s+(?:context|fragments?|excerpts?|sources?)\b/i,
   /\bthe\s+context\s+provided\b/i,
   /\b(?:according\s+to|based\s+on)\s+the\s+context\b/i,
+  // «В контексте нет сведений», «контекст не содержит»; «в контексте обычного рациона» passes.
+  /(^|[^а-яёa-z])в\s+контексте\s+(?:нет|не)(?![а-яёa-z])/i,
+  /(^|[^а-яёa-z])контекст\s+(?:не|нет)(?![а-яёa-z])/i,
+  // "The context does not mention", "the fragments indicate", "the sources say"; "the sources of sugar" passes.
+  /\bthe\s+(?:context|fragments?|sources?)\s+(?:does|do|doesn['’]t|don['’]t|says?|states?|notes?|mentions?|indicates?)\b/i,
+  /\baccording\s+to\s+the\s+(?:context|sources?|fragments?)\b/i,
   // The prompt's own section name, as the model would echo it.
   /\bCONTEXT\b/,
+]
+
+/**
+ * A model claiming a vet checked its answer: nowhere may the project say that
+ * (global constraints), and from a model it is never true. Treated as a
+ * context leak: the text goes, the verdict never softens. «Ветеринар может
+ * посоветовать», "a vet may check the gums" pass.
+ */
+export const SAFETY_VET_CLAIM: readonly RegExp[] = [
+  /(^|[^а-яёa-z])(?:провер|одобр|подтвержд|подтвердил)\p{L}*\s+(?:\p{L}+\s+)?ветеринар/iu,
+  /(^|[^а-яёa-z])ветеринар\p{L}*\s+(?:\p{L}+\s+)?(?:проверил|одобрил|подтвердил)/iu,
+  /\bvet(?:erinarian)?s?[-\s]+(?:approved|checked|reviewed|verified)\b/i,
+  /\b(?:approved|checked|reviewed|verified)\s+by\s+(?:a\s+|the\s+|our\s+)?(?:vet|veterinarian)s?\b/i,
+]
+
+/**
+ * Vomiting advice an AI answer may not give on top of the reference's check,
+ * in the words the reference never uses: "throw up", "puke", "be sick" after
+ * make / get / have / help / let. Strict like the rest of the AI path: a
+ * sign worded so is replaced, not argued with.
+ */
+export const SAFETY_AI_VOMIT_ADVICE: readonly RegExp[] = [
+  /\b(?:make|get|have|help|let)\b[^.!?]*?\b(?:throw\s+up|puke|be\s+sick)\b/i,
 ]
 
 const LANGUAGE: Record<Locale, string> = { ru: 'Russian', en: 'English' }
