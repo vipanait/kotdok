@@ -1,0 +1,117 @@
+{
+  "slug": "arahis",
+  "category": "food",
+  "name": {
+    "ru": "Арахис и арахисовая паста",
+    "en": "Peanuts and peanut butter"
+  },
+  "titleRu": "арахис и арахисовую пасту",
+  "aliases": {
+    "ru": [
+      "арахис",
+      "арахиса",
+      "арахисовая паста",
+      "арахисовое масло",
+      "арахисовую пасту",
+      "земляной орех",
+      "жареный арахис",
+      "солёный арахис"
+    ],
+    "en": [
+      "peanuts",
+      "peanut",
+      "peanut butter",
+      "salted peanuts",
+      "roasted peanuts"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Кошке арахис не нужен; немного без соли и добавок не опасно, но жирно.",
+        "en": "With caution. Cats do not need peanuts; a little with no salt or additions is not dangerous, but it is fatty."
+      },
+      "why": {
+        "ru": "Арахис не ядовит, но очень жирен и может расстроить желудок. Соль, сахар и ароматизаторы в орехах и пасте вредны. Некоторые виды арахисовой пасты подслащены ксилитом — он очень опасен, смотрите состав. Заплесневелый арахис нельзя.",
+        "en": "Peanuts are not poisonous but are very fatty and can upset the stomach. Salt, sugar and flavourings in nuts and paste are harmful. Some peanut butters are sweetened with xylitol, which is very dangerous, so check the ingredients. Mouldy peanuts are not for pets."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "отказ от еды"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "refusing food"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Немного несолёного арахиса или пасты без ксилита изредка допустимо.",
+        "en": "With caution. A little unsalted peanut or xylitol-free paste now and then is acceptable."
+      },
+      "why": {
+        "ru": "Арахис собакам не ядовит, но жирен: частые порции вредят поджелудочной железе и фигуре. Давайте только несолёный арахис без глазури или пасту без добавок. Обязательно читайте состав пасты: ксилит в ней смертельно опасен для собак. Заплесневелый арахис нельзя.",
+        "en": "Peanuts are not poisonous to dogs but are fatty: frequent servings harm the pancreas and the waistline. Give only unsalted peanuts without coating, or plain paste. Always read the ingredients of the paste: xylitol in it is deadly for dogs. Mouldy peanuts are not for dogs."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "боль в животе",
+          "слабость и дрожь, если в пасте был ксилит"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "belly pain",
+          "weakness and tremors if the paste contained xylitol"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Проверьте состав пасты: нет ли ксилита (может называться «берёзовый сахар», Е967)",
+      "Если ксилит в составе, сразу звоните в клинику",
+      "Если ксилита нет, проследите за питомцем; при признаках из списка позвоните в клинику"
+    ],
+    "en": [
+      "Check the ingredients of the paste for xylitol (it may be listed as “birch sugar”, E967)",
+      "If xylitol is listed, call a clinic straight away",
+      "If there is no xylitol, keep an eye on your pet; call a clinic if any listed sign appears"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте домашние «антидоты» из интернета",
+      "Не ждите признаков: они могут появиться не сразу"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give home “antidotes” from the internet",
+      "Do not wait for signs: they may appear later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    },
+    {
+      "title": "Pet Poison Helpline — Poison Control for Pets"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

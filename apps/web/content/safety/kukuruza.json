@@ -1,0 +1,118 @@
+{
+  "slug": "kukuruza",
+  "category": "food",
+  "name": {
+    "ru": "Кукуруза и початки",
+    "en": "Corn and corn cobs"
+  },
+  "titleRu": "кукурузу и кукурузные початки",
+  "aliases": {
+    "ru": [
+      "кукуруза",
+      "початок кукурузы",
+      "початки",
+      "кукурузный початок",
+      "кукурузные зёрна",
+      "варёная кукуруза",
+      "попкорн",
+      "кукуруза консервированная"
+    ],
+    "en": [
+      "corn",
+      "corn on the cob",
+      "corncob",
+      "cob",
+      "corn kernels",
+      "sweetcorn",
+      "popcorn"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Пару зёрен без добавок изредка можно, а початок давать нельзя: он может закупорить кишечник.",
+        "en": "With caution. A few plain kernels now and then are fine, but never give the cob: it can block the intestine."
+      },
+      "why": {
+        "ru": "Зёрна кукурузы не ядовиты, но кошке они почти не дают пользы. Початок не переваривается: проглоченный, он может застрять в кишечнике и потребовать операции. Попкорн с солью, маслом и сахаром, а также консервированную кукурузу с рассолом давать не стоит.",
+        "en": "Corn kernels are not poisonous, but give a cat very little. The cob does not digest: if swallowed it can lodge in the intestine and need surgery. Popcorn with salt, butter or sugar, and tinned corn in brine, are best avoided."
+      },
+      "signs": {
+        "ru": [
+          "повторная рвота",
+          "отказ от еды",
+          "боль в животе, вялость",
+          "отсутствие стула или натуживание"
+        ],
+        "en": [
+          "repeated vomiting",
+          "refusing food",
+          "belly pain, lethargy",
+          "no stool or straining"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Пару зёрен без добавок изредка можно, а початок давать нельзя: он может закупорить кишечник.",
+        "en": "With caution. A few plain kernels now and then are fine, but never give the cob: it can block the intestine."
+      },
+      "why": {
+        "ru": "Зёрна кукурузы не ядовиты. Початок не переваривается: проглоченный, он может застрять в кишечнике, и это одна из частых причин срочной операции у собак. Если собака проглотила початок или его кусок, звоните в клинику, не ждите признаков. Попкорн с солью, маслом и сахаром давать не стоит.",
+        "en": "Corn kernels are not poisonous. The cob does not digest: if swallowed it can lodge in the intestine, a common reason for emergency surgery in dogs. If your dog swallowed a cob or a piece of one, call a clinic without waiting for signs. Popcorn with salt, butter or sugar is best avoided."
+      },
+      "signs": {
+        "ru": [
+          "повторная рвота",
+          "отказ от еды",
+          "боль в животе, вялость",
+          "отсутствие стула или натуживание"
+        ],
+        "en": [
+          "repeated vomiting",
+          "refusing food",
+          "belly pain, lethargy",
+          "no stool or straining"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите остатки и оцените, сколько питомец успел съесть",
+      "Понаблюдайте за питомцем в ближайшие сутки",
+      "Если появились признаки или вы не уверены, позвоните в клинику или пройдите проверку симптомов"
+    ],
+    "en": [
+      "Remove what is left and note how much your pet ate",
+      "Watch your pet over the next day",
+      "If signs appear or you are unsure, call a clinic or run a symptom check"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не ждите ухудшения, если питомец съел много"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not wait for it to get worse if your pet ate a lot"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Toxic and Non-Toxic Plants"
+    },
+    {
+      "title": "Merck Veterinary Manual — Gastrointestinal Foreign Bodies in Dogs"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

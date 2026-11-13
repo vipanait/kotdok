@@ -1,0 +1,113 @@
+{
+  "slug": "oleandr",
+  "category": "plant",
+  "name": {
+    "ru": "Олеандр",
+    "en": "Oleander"
+  },
+  "titleRu": "олеандр",
+  "aliases": {
+    "ru": [
+      "олеандра",
+      "олеандры",
+      "нерий олеандр",
+      "нериум"
+    ],
+    "en": [
+      "nerium",
+      "nerium oleander",
+      "oleanders",
+      "rose bay"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Олеандр ядовит для кошек: он действует на сердце.",
+        "en": "Dangerous. Oleander is poisonous to cats: it affects the heart."
+      },
+      "why": {
+        "ru": "Все части олеандра, включая сухие листья и цветы, содержат сердечные гликозиды. Они могут нарушить сердечный ритм, поэтому помощь нужна, даже если питомец съел совсем немного.",
+        "en": "Every part of oleander, including dried leaves and flowers, contains cardiac glycosides. They can upset the heart rhythm, so help is needed even if only a little was eaten."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "рвота и понос",
+          "боль в животе",
+          "вялость, слабый пульс"
+        ],
+        "en": [
+          "drooling",
+          "vomiting and diarrhoea",
+          "abdominal pain",
+          "lethargy, weak pulse"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Олеандр ядовит для собак: он действует на сердце.",
+        "en": "Dangerous. Oleander is poisonous to dogs: it affects the heart."
+      },
+      "why": {
+        "ru": "Все части олеандра, включая сухие листья и цветы, содержат сердечные гликозиды. Они могут нарушить сердечный ритм, поэтому помощь нужна, даже если питомец съел совсем немного.",
+        "en": "Every part of oleander, including dried leaves and flowers, contains cardiac glycosides. They can upset the heart rhythm, so help is needed even if only a little was eaten."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "рвота и понос",
+          "боль в животе",
+          "вялость, слабый пульс"
+        ],
+        "en": [
+          "drooling",
+          "vomiting and diarrhoea",
+          "abdominal pain",
+          "lethargy, weak pulse"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Позвоните в ветеринарную клинику сразу, не дожидаясь признаков",
+      "Уберите растение туда, куда питомец не доберётся",
+      "Возьмите кусочек растения или сфотографируйте его, чтобы показать врачу",
+      "Скажите врачу, сколько примерно времени прошло"
+    ],
+    "en": [
+      "Call a vet clinic right away, without waiting for signs",
+      "Move the plant out of reach",
+      "Take a piece of the plant or a photo of it to show the vet",
+      "Tell the vet roughly how long ago it happened"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте домашние «противоядия» из интернета",
+      "Не откладывайте звонок до утра, даже если питомец выглядит бодрым"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give home “antidotes” from the internet",
+      "Do not put off the call till morning even if your pet looks fine"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Oleander",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/oleander"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

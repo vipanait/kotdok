@@ -1,0 +1,118 @@
+{
+  "slug": "plyusch",
+  "category": "plant",
+  "name": {
+    "ru": "Плющ",
+    "en": "Ivy"
+  },
+  "titleRu": "плющ",
+  "aliases": {
+    "ru": [
+      "плющу",
+      "английский плющ",
+      "хедера",
+      "плющ обыкновенный",
+      "плющ комнатный"
+    ],
+    "en": [
+      "ivy",
+      "english ivy",
+      "hedera",
+      "hedera helix",
+      "common ivy"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Плющ для кошек и собак ядовит, особенно листья.",
+        "en": "With caution. Ivy is poisonous to cats and dogs, especially the leaves."
+      },
+      "why": {
+        "ru": "ASPCA относит английский плющ к ядовитым для кошек и собак; листья опаснее ягод. Возможны рвота, боли в животе, слюнотечение и понос. Если питомец съел много или ему стало хуже, позвоните в клинику.",
+        "en": "The ASPCA lists English ivy as toxic to cats and dogs; the leaves are more toxic than the berries. Vomiting, belly pain, drooling and diarrhoea are possible. If the pet ate a lot or is getting worse, call a clinic."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "боль в животе",
+          "слюнотечение",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "belly pain",
+          "drooling",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Плющ для кошек и собак ядовит, особенно листья.",
+        "en": "With caution. Ivy is poisonous to cats and dogs, especially the leaves."
+      },
+      "why": {
+        "ru": "ASPCA относит английский плющ к ядовитым для кошек и собак; листья опаснее ягод. Возможны рвота, боли в животе, слюнотечение и понос. Если питомец съел много или ему стало хуже, позвоните в клинику.",
+        "en": "The ASPCA lists English ivy as toxic to cats and dogs; the leaves are more toxic than the berries. Vomiting, belly pain, drooling and diarrhoea are possible. If the pet ate a lot or is getting worse, call a clinic."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "боль в животе",
+          "слюнотечение",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "belly pain",
+          "drooling",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите растение туда, куда питомец не доберётся",
+      "Уберите остатки растения из пасти и протрите мордочку влажной тканью",
+      "Понаблюдайте за питомцем несколько часов",
+      "Если появились признаки или вы не уверены в растении, позвоните в клинику"
+    ],
+    "en": [
+      "Move the plant out of the pet's reach",
+      "Remove any plant pieces from the mouth and wipe the face with a damp cloth",
+      "Watch the pet for several hours",
+      "If signs appear or you are not sure about the plant, call a clinic"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте молоко, масло, уголь и другие «антидоты» из интернета",
+      "Не ждите, пока станет хуже, если питомец вялый или его рвёт"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give milk, oil, charcoal or other home “antidotes” from the internet",
+      "Do not wait for things to get worse if the pet is lethargic or vomiting"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — English Ivy",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/english-ivy"
+    },
+    {
+      "title": "Pet Poison Helpline — Poison Index (plants)"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

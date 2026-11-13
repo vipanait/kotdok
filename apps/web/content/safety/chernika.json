@@ -1,0 +1,108 @@
+{
+  "slug": "chernika",
+  "category": "food",
+  "name": {
+    "ru": "Черника",
+    "en": "Blueberry"
+  },
+  "titleRu": "чернику",
+  "aliases": {
+    "ru": [
+      "чернику",
+      "голубика",
+      "голубику",
+      "черничка",
+      "ягоды черники"
+    ],
+    "en": [
+      "blueberries",
+      "blueberry",
+      "bilberry"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Несколько ягод изредка — можно, но кошке они не нужны.",
+        "en": "With caution. A few berries now and then are fine, but a cat does not need them."
+      },
+      "why": {
+        "ru": "Черника не считается ядовитой, но кошкам нужна мясная еда, а лишние ягоды могут расстроить желудок. Давайте свежие ягоды без добавок, а не выпечку и джемы.",
+        "en": "Blueberries are not considered poisonous, but cats need a meat diet and extra berries can upset the stomach. Give fresh berries with nothing added, not baking or jams."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "вялость, отказ от еды"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "lethargy, refusing food"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Немного свежих ягод как лакомство — можно.",
+        "en": "With caution. A few fresh berries as a treat are fine."
+      },
+      "why": {
+        "ru": "Черника не ядовита. Маленькой собаке давайте по несколько ягод, чтобы не подавилась. Выпечка, джемы и йогурты с черникой не подходят: в них сахар и добавки, а иногда ксилит.",
+        "en": "Blueberries are not poisonous. Give a small dog just a few so it does not choke. Baking, jams and yoghurts with blueberries are not suitable: they contain sugar and additives, sometimes xylitol."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "вялость, отказ от еды"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "lethargy, refusing food"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите остатки и убедитесь, что питомец больше не достаёт до них",
+      "Понаблюдайте за питомцем сутки; при рвоте, поносе, вялости или вздутом животе позвоните в клинику",
+      "Если съедено много или питомец маленький, позвоните в клинику сразу"
+    ],
+    "en": [
+      "Put away the leftovers so your pet cannot reach more",
+      "Watch your pet for a day; call a clinic if there is vomiting, diarrhoea, lethargy or a swollen belly",
+      "If a lot was eaten or your pet is small, call a clinic straight away"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не давайте выпечку, джемы и сладкие десерты с черникой",
+      "Не вызывайте рвоту сами — только по указанию врача"
+    ],
+    "en": [
+      "Do not give baking, jams or sweet desserts with blueberries",
+      "Do not make your pet vomit unless a vet tells you to"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Merck Veterinary Manual — Food Hazards"
+    },
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

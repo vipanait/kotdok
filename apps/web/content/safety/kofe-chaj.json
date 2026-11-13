@@ -1,0 +1,133 @@
+{
+  "slug": "kofe-chaj",
+  "category": "food",
+  "name": {
+    "ru": "Кофе и чай (кофеин)",
+    "en": "Coffee and tea (caffeine)"
+  },
+  "titleRu": "кофе и чай",
+  "aliases": {
+    "ru": [
+      "кофе",
+      "чай",
+      "кофеин",
+      "кофейные зёрна",
+      "кофейная гуща",
+      "чайные пакетики",
+      "энергетик",
+      "энергетики",
+      "кола",
+      "эспрессо"
+    ],
+    "en": [
+      "coffee",
+      "tea",
+      "caffeine",
+      "coffee beans",
+      "coffee grounds",
+      "tea bags",
+      "energy drink",
+      "espresso",
+      "cola"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. Кофеин опасен для кошек даже в небольшом количестве.",
+        "en": "Not safe. Caffeine is dangerous to cats even in small amounts."
+      },
+      "why": {
+        "ru": "Кофеин действует на сердце и нервную систему. Больше всего его в зёрнах, гуще, пакетиках и энергетиках, меньше в напитках. Кошки могут лизнуть остатки из кружки или погрызть пакетик.",
+        "en": "Caffeine acts on the heart and the nervous system. The most is in beans, grounds, bags and energy drinks, less in brewed drinks. Cats may lick a mug or chew a tea bag."
+      },
+      "signs": {
+        "ru": [
+          "беспокойство, возбуждение",
+          "учащённое сердцебиение",
+          "частое дыхание",
+          "рвота",
+          "дрожь",
+          "судороги"
+        ],
+        "en": [
+          "restlessness, hyperactivity",
+          "racing heartbeat",
+          "fast breathing",
+          "vomiting",
+          "tremors",
+          "seizures"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. Кофеин ядовит для собак; зёрна, гуща и пакетики особенно опасны.",
+        "en": "Not safe. Caffeine is poisonous to dogs; beans, grounds and bags are especially dangerous."
+      },
+      "why": {
+        "ru": "Кофеин из группы метилксантинов, как в шоколаде: он действует на сердце и нервную систему. Собаки легко добираются до гущи в мусоре и пакетиков чая. Сколько опасно именно вашей собаке, оценит врач.",
+        "en": "Caffeine is a methylxanthine, like the compounds in chocolate: it acts on the heart and the nervous system. Dogs easily reach grounds in the bin and tea bags. A vet will judge how much is dangerous for your dog."
+      },
+      "signs": {
+        "ru": [
+          "беспокойство, возбуждение",
+          "учащённое или неровное сердцебиение",
+          "частое дыхание",
+          "рвота",
+          "дрожь",
+          "судороги"
+        ],
+        "en": [
+          "restlessness, hyperactivity",
+          "fast or irregular heartbeat",
+          "fast breathing",
+          "vomiting",
+          "tremors",
+          "seizures"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Уберите остатки",
+      "Сохраните упаковку или запомните, что и когда было съедено"
+    ],
+    "en": [
+      "Call a vet clinic, even if your pet seems fine",
+      "Put the rest away",
+      "Keep the packaging or note what was eaten and when"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте домашние «антидоты» из интернета",
+      "Не ждите признаков: они могут появиться не сразу"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give home “antidotes” from the internet",
+      "Do not wait for signs: they may appear later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    },
+    {
+      "title": "Pet Poison Helpline — Poison Control for Pets"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

@@ -1,0 +1,115 @@
+{
+  "slug": "narcis",
+  "category": "plant",
+  "name": {
+    "ru": "Нарцисс",
+    "en": "Daffodil"
+  },
+  "titleRu": "нарцисс",
+  "aliases": {
+    "ru": [
+      "нарциссы",
+      "нарцисса",
+      "жонкиль",
+      "луковица нарцисса",
+      "нарциссовые луковицы"
+    ],
+    "en": [
+      "daffodils",
+      "narcissus",
+      "jonquil",
+      "daffodil bulb",
+      "daffodil bulbs"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Нарцисс ядовит для кошек, особенно луковицы.",
+        "en": "Dangerous. Daffodil is poisonous to cats, especially the bulbs."
+      },
+      "why": {
+        "ru": "Луковицы самые ядовитые, но вредны и другие части растения. Основное вещество — ликорин и родственные алкалоиды. При большом количестве возможны судороги, дрожь, падение давления и сбои сердечного ритма, поэтому лучше не ждать признаков.",
+        "en": "The bulbs are the most poisonous part, but the rest of the plant is harmful too. The main substance is lycorine and related alkaloids. A large amount can bring on seizures, tremors, low blood pressure and heart rhythm problems, so it is better not to wait for signs."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "слюнотечение",
+          "понос",
+          "дрожь, вялость"
+        ],
+        "en": [
+          "vomiting",
+          "drooling",
+          "diarrhoea",
+          "tremors, lethargy"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Нарцисс ядовит для собак, особенно луковицы.",
+        "en": "Dangerous. Daffodil is poisonous to dogs, especially the bulbs."
+      },
+      "why": {
+        "ru": "Луковицы самые ядовитые, но вредны и другие части растения. Основное вещество — ликорин и родственные алкалоиды. При большом количестве возможны судороги, дрожь, падение давления и сбои сердечного ритма, поэтому лучше не ждать признаков.",
+        "en": "The bulbs are the most poisonous part, but the rest of the plant is harmful too. The main substance is lycorine and related alkaloids. A large amount can bring on seizures, tremors, low blood pressure and heart rhythm problems, so it is better not to wait for signs."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "слюнотечение",
+          "понос",
+          "дрожь, вялость"
+        ],
+        "en": [
+          "vomiting",
+          "drooling",
+          "diarrhoea",
+          "tremors, lethargy"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Позвоните в ветеринарную клинику сразу, не дожидаясь признаков",
+      "Уберите растение туда, куда питомец не доберётся",
+      "Возьмите кусочек растения или сфотографируйте его, чтобы показать врачу",
+      "Скажите врачу, сколько примерно времени прошло"
+    ],
+    "en": [
+      "Call a vet clinic right away, without waiting for signs",
+      "Move the plant out of reach",
+      "Take a piece of the plant or a photo of it to show the vet",
+      "Tell the vet roughly how long ago it happened"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте домашние «противоядия» из интернета",
+      "Не откладывайте звонок до утра, даже если питомец выглядит бодрым"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give home “antidotes” from the internet",
+      "Do not put off the call till morning even if your pet looks fine"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Daffodil",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/daffodil"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

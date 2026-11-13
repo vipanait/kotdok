@@ -1,0 +1,113 @@
+{
+  "slug": "koshachya-myata",
+  "category": "plant",
+  "name": {
+    "ru": "Кошачья мята",
+    "en": "Catnip"
+  },
+  "titleRu": "кошачью мяту",
+  "aliases": {
+    "ru": [
+      "кошачьей мяты",
+      "котовник",
+      "котовник кошачий",
+      "мята кошачья",
+      "нега",
+      "котовник кошачий"
+    ],
+    "en": [
+      "catnip",
+      "catmint",
+      "nepeta",
+      "nepeta cataria",
+      "cat mint"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Кошачья мята для кошек не опасна в малом количестве, но много съесть не стоит.",
+        "en": "With caution. Catnip is not dangerous to cats in small amounts, but they should not eat a lot of it."
+      },
+      "why": {
+        "ru": "ASPCA указывает, что кошачья мята может вызвать у кошки рвоту и понос; при этом на одних кошек она действует успокаивающе, на других возбуждающе. Лёгкое расстройство желудка обычно проходит само. Разовая порция листьев — нормально, регулярно давать большое количество не стоит.",
+        "en": "The ASPCA notes that catnip can cause vomiting and diarrhoea in cats; some cats become calm and others excited. A mild stomach upset usually passes on its own. A single nibble of leaves is fine, but a large amount regularly is not."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "сильное возбуждение или сонливость"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "strong excitement or drowsiness"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Для собак кошачья мята не считается ядовитой, но может расстроить желудок.",
+        "en": "With caution. Catnip is not considered poisonous to dogs, but it can upset the stomach."
+      },
+      "why": {
+        "ru": "ASPCA в записи о кошачьей мяте собак не упоминает, данных по виду мало, поэтому вердикт строгий. В большом количестве листья могут вызвать рвоту и понос. Немного листьев обычно не опасно.",
+        "en": "The ASPCA entry on catnip does not mention dogs and data for this species is thin, so the verdict is the strict one. A large amount of leaves may cause vomiting and diarrhoea. A few leaves are usually harmless."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите растение туда, куда питомец не доберётся",
+      "Уберите остатки растения из пасти и протрите мордочку влажной тканью",
+      "Понаблюдайте за питомцем несколько часов",
+      "Если появились признаки или вы не уверены в растении, позвоните в клинику"
+    ],
+    "en": [
+      "Move the plant out of the pet's reach",
+      "Remove any plant pieces from the mouth and wipe the face with a damp cloth",
+      "Watch the pet for several hours",
+      "If signs appear or you are not sure about the plant, call a clinic"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте молоко, масло, уголь и другие «антидоты» из интернета",
+      "Не ждите, пока станет хуже, если питомец вялый или его рвёт"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give milk, oil, charcoal or other home “antidotes” from the internet",
+      "Do not wait for things to get worse if the pet is lethargic or vomiting"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Catnip",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/catnip"
+    },
+    {
+      "title": "Pet Poison Helpline — Poison Index (plants)"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

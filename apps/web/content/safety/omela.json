@@ -1,0 +1,118 @@
+{
+  "slug": "omela",
+  "category": "plant",
+  "name": {
+    "ru": "Омела",
+    "en": "Mistletoe"
+  },
+  "titleRu": "омелу",
+  "aliases": {
+    "ru": [
+      "омелы",
+      "омела белая",
+      "омела обыкновенная",
+      "рождественская омела",
+      "веточка омелы"
+    ],
+    "en": [
+      "mistletoe",
+      "european mistletoe",
+      "american mistletoe",
+      "mistletoe berries",
+      "christmas mistletoe"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Омела ядовита для кошек и собак.",
+        "en": "Dangerous. Mistletoe is poisonous to cats and dogs."
+      },
+      "why": {
+        "ru": "ASPCA относит американскую омелу к ядовитым для кошек и собак: возможны рвота, понос, затруднённое дыхание и замедленный пульс. Европейская омела считается опаснее, поэтому вердикт строгий. Позвоните в клинику, не дожидаясь признаков.",
+        "en": "The ASPCA lists American mistletoe as toxic to cats and dogs: vomiting, diarrhoea, difficulty breathing and a slow heart rate are possible. European mistletoe is considered more dangerous, so the verdict is the strict one. Call a clinic without waiting for signs."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "затруднённое дыхание",
+          "вялость"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "difficulty breathing",
+          "lethargy"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Омела ядовита для кошек и собак.",
+        "en": "Dangerous. Mistletoe is poisonous to cats and dogs."
+      },
+      "why": {
+        "ru": "ASPCA относит американскую омелу к ядовитым для кошек и собак: возможны рвота, понос, затруднённое дыхание и замедленный пульс. Европейская омела считается опаснее, поэтому вердикт строгий. Позвоните в клинику, не дожидаясь признаков.",
+        "en": "The ASPCA lists American mistletoe as toxic to cats and dogs: vomiting, diarrhoea, difficulty breathing and a slow heart rate are possible. European mistletoe is considered more dangerous, so the verdict is the strict one. Call a clinic without waiting for signs."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "затруднённое дыхание",
+          "вялость"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "difficulty breathing",
+          "lethargy"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите растение туда, куда питомец не доберётся",
+      "Уберите остатки растения из пасти и протрите мордочку влажной тканью",
+      "Возьмите кусочек растения или сфотографируйте его",
+      "Позвоните в клинику и расскажите, что и сколько съедено"
+    ],
+    "en": [
+      "Move the plant out of the pet's reach",
+      "Remove any plant pieces from the mouth and wipe the face with a damp cloth",
+      "Take a piece of the plant or a photo of it",
+      "Call a clinic and tell them what was eaten and roughly how much"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте молоко, масло, уголь и другие «антидоты» из интернета",
+      "Не ждите, пока станет хуже, если питомец вялый или его рвёт"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give milk, oil, charcoal or other home “antidotes” from the internet",
+      "Do not wait for things to get worse if the pet is lethargic or vomiting"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — American Mistletoe",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/mistletoe-american"
+    },
+    {
+      "title": "Pet Poison Helpline — Poison Index (plants)"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

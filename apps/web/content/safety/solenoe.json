@@ -1,0 +1,125 @@
+{
+  "slug": "solenoe",
+  "category": "food",
+  "name": {
+    "ru": "Солёное (чипсы, солёные закуски)",
+    "en": "Salty food (chips, salty snacks)"
+  },
+  "titleRu": "солёное",
+  "aliases": {
+    "ru": [
+      "солёное",
+      "соленое",
+      "чипсы",
+      "солёные закуски",
+      "соленые закуски",
+      "сухарики",
+      "солёные орешки",
+      "соленые орешки",
+      "соль",
+      "солёную еду",
+      "крекеры",
+      "попкорн солёный"
+    ],
+    "en": [
+      "salty food",
+      "salty snacks",
+      "chips",
+      "potato chips",
+      "crisps",
+      "pretzels",
+      "salt",
+      "salted nuts"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Немного соли не страшно, но солёное давать не нужно: много соли опасно.",
+        "en": "With caution. A little salt is not alarming, but do not feed salty food: a lot of salt is dangerous."
+      },
+      "why": {
+        "ru": "Лишняя соль вызывает сильную жажду и частое мочеиспускание, а в большом количестве — расстройство солевого баланса, дрожь и судороги. Для маленькой кошки опасно сравнительно малое количество. Чипсы часто содержат ещё лук и чеснок в приправах.",
+        "en": "Excess salt causes strong thirst and frequent urination, and in large amounts it upsets the body's salt balance and can cause tremors and seizures. A small cat is at risk from a fairly small amount. Chips are often seasoned with onion and garlic as well."
+      },
+      "signs": {
+        "ru": [
+          "сильная жажда",
+          "рвота",
+          "понос",
+          "вялость",
+          "дрожь"
+        ],
+        "en": [
+          "strong thirst",
+          "vomiting",
+          "diarrhoea",
+          "lethargy",
+          "tremors"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Пару крошек не страшно, но солёное лучше не давать: много соли опасно.",
+        "en": "With caution. A few crumbs are not alarming, but avoid salty food: a lot of salt is dangerous."
+      },
+      "why": {
+        "ru": "Лишняя соль вызывает сильную жажду и частое мочеиспускание, а в большом количестве — рвоту, дрожь и судороги. Чипсы, солёные орешки и закуски часто содержат ещё лук, чеснок и жир. Для маленькой собаки риск выше.",
+        "en": "Excess salt causes strong thirst and frequent urination, and in large amounts vomiting, tremors and seizures. Chips, salted nuts and snacks often also contain onion, garlic and fat. The risk is higher for a small dog."
+      },
+      "signs": {
+        "ru": [
+          "сильная жажда",
+          "рвота",
+          "понос",
+          "вялость",
+          "дрожь"
+        ],
+        "en": [
+          "strong thirst",
+          "vomiting",
+          "diarrhoea",
+          "lethargy",
+          "tremors"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Дайте свободный доступ к свежей воде",
+      "Если съедена целая пачка, а питомец маленький — позвоните в клинику, не ждите признаков",
+      "При дрожи, судорогах, рвоте или сильной слабости — сразу в клинику"
+    ],
+    "en": [
+      "Give free access to fresh water",
+      "If a whole bag was eaten and your pet is small, call a clinic and do not wait for signs",
+      "If there are tremors, seizures, vomiting or severe weakness, go to a clinic at once"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не пытайтесь поить питомца силой",
+      "Не давайте лекарства без назначения врача"
+    ],
+    "en": [
+      "Do not force your pet to drink",
+      "Do not give any medicine unless a vet tells you to"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

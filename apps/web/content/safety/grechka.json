@@ -1,0 +1,71 @@
+{
+  "slug": "grechka",
+  "category": "food",
+  "name": {
+    "ru": "Гречка",
+    "en": "Buckwheat"
+  },
+  "titleRu": "гречку",
+  "aliases": {
+    "ru": [
+      "гречневая каша",
+      "гречку варёную",
+      "гречку вареную",
+      "каша гречневая",
+      "гречневую кашу",
+      "гречка варёная",
+      "гречка вареная",
+      "гречневая крупа"
+    ],
+    "en": [
+      "buckwheat groats",
+      "cooked buckwheat",
+      "buckwheat porridge",
+      "kasha"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Немного варёной гречки без соли и масла — изредка.",
+        "en": "With caution. A little boiled buckwheat with no salt or butter, now and then."
+      },
+      "why": {
+        "ru": "Гречка не ядовита, но кошке нужна мясная еда, и крупа её не заменит. Давайте хорошо проваренную, без соли, масла, специй, лука и чеснока.",
+        "en": "Buckwheat is not poisonous, but a cat needs a meat diet and groats do not replace it. Give well-cooked buckwheat with no salt, butter, spices, onion or garlic."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "none"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Немного варёной гречки без соли и масла — изредка.",
+        "en": "With caution. A little boiled buckwheat with no salt or butter, now and then."
+      },
+      "why": {
+        "ru": "Гречка не ядовита и входит в состав некоторых кормов, но домашняя каша не полноценный рацион. Давайте хорошо проваренную, без соли, масла, специй, лука и чеснока.",
+        "en": "Buckwheat is not poisonous and is in some pet foods, but home-cooked porridge is not a complete diet. Give well-cooked buckwheat with no salt, butter, spices, onion or garlic."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "none"
+    }
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

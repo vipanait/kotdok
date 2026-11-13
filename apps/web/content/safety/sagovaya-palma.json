@@ -1,0 +1,121 @@
+{
+  "slug": "sagovaya-palma",
+  "category": "plant",
+  "name": {
+    "ru": "Саговая пальма (саговник)",
+    "en": "Sago palm (cycad)"
+  },
+  "titleRu": "саговую пальму",
+  "aliases": {
+    "ru": [
+      "саговая пальма",
+      "саговник",
+      "саговника",
+      "цикас",
+      "цикас революта",
+      "цикас поникающий"
+    ],
+    "en": [
+      "sago palm",
+      "sago",
+      "cycas revoluta",
+      "cycad",
+      "king sago",
+      "japanese sago palm"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Саговая пальма ядовита для кошек, особенно семена.",
+        "en": "Dangerous. Sago palm is poisonous to cats, especially the seeds."
+      },
+      "why": {
+        "ru": "Все части растения содержат циказин, больше всего его в семенах. Он может повредить печень, и отравление бывает тяжёлым и смертельным. Признаки могут проявиться не сразу, поэтому звонить нужно сразу.",
+        "en": "Every part of the plant contains cycasin, with the most in the seeds. It can damage the liver, and poisoning can be severe and fatal. Signs may not show right away, so call at once."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "чёрный дегтеобразный стул",
+          "сильная жажда",
+          "желтизна дёсен или кожи",
+          "синяки или кровотечения"
+        ],
+        "en": [
+          "vomiting",
+          "black tarry stools",
+          "strong thirst",
+          "yellow gums or skin",
+          "bruising or bleeding"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Саговая пальма ядовита для собак, особенно семена.",
+        "en": "Dangerous. Sago palm is poisonous to dogs, especially the seeds."
+      },
+      "why": {
+        "ru": "Все части растения содержат циказин, больше всего его в семенах. Он может повредить печень, и отравление бывает тяжёлым и смертельным. Признаки могут проявиться не сразу, поэтому звонить нужно сразу.",
+        "en": "Every part of the plant contains cycasin, with the most in the seeds. It can damage the liver, and poisoning can be severe and fatal. Signs may not show right away, so call at once."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "чёрный дегтеобразный стул",
+          "сильная жажда",
+          "желтизна дёсен или кожи",
+          "синяки или кровотечения"
+        ],
+        "en": [
+          "vomiting",
+          "black tarry stools",
+          "strong thirst",
+          "yellow gums or skin",
+          "bruising or bleeding"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Позвоните в ветеринарную клинику сразу, не дожидаясь признаков",
+      "Уберите растение туда, куда питомец не доберётся",
+      "Возьмите кусочек растения или сфотографируйте его, чтобы показать врачу",
+      "Скажите врачу, сколько примерно времени прошло"
+    ],
+    "en": [
+      "Call a vet clinic right away, without waiting for signs",
+      "Move the plant out of reach",
+      "Take a piece of the plant or a photo of it to show the vet",
+      "Tell the vet roughly how long ago it happened"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте домашние «противоядия» из интернета",
+      "Не откладывайте звонок до утра, даже если питомец выглядит бодрым"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give home “antidotes” from the internet",
+      "Do not put off the call till morning even if your pet looks fine"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Sago Palm",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/sago-palm"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

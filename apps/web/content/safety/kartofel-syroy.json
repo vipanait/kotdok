@@ -1,0 +1,111 @@
+{
+  "slug": "kartofel-syroy",
+  "category": "food",
+  "name": {
+    "ru": "Сырой и зелёный картофель",
+    "en": "Raw and green potato"
+  },
+  "titleRu": "сырой и зелёный картофель",
+  "aliases": {
+    "ru": [
+      "сырая картошка",
+      "сырой картофель",
+      "зеленая картошка",
+      "зеленый картофель",
+      "проросшая картошка",
+      "ростки картофеля",
+      "картофельная ботва"
+    ],
+    "en": [
+      "raw potato",
+      "green potato",
+      "sprouted potato",
+      "potato sprouts"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Сырой, зелёный и проросший картофель давать нельзя, варёный без соли и масла — немного можно.",
+        "en": "With caution. Do not give raw, green or sprouted potato; plain boiled potato without salt or butter is fine in a small piece."
+      },
+      "why": {
+        "ru": "Сырой картофель, зелёные участки, ростки и ботва содержат соланин и вызывают расстройство желудка. Варёный картофель без соли, масла и специй допустим изредка, но кошке он почти ничего не даёт. Жареный и с добавками лучше не давать.",
+        "en": "Raw potato, green patches, sprouts and vines contain solanine and upset the stomach. Plain boiled potato with no salt, butter or spices is acceptable now and then, but gives a cat very little. Fried or seasoned potato is best avoided."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "вялость"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "lethargy"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Сырой, зелёный и проросший картофель давать нельзя, варёный без добавок — немного изредка.",
+        "en": "With caution. Do not give raw, green or sprouted potato; plain boiled potato is fine in a small amount now and then."
+      },
+      "why": {
+        "ru": "Сырой картофель, зелёные участки, ростки и ботва содержат соланин и вызывают расстройство желудка. Варёный картофель без соли, масла и специй допустим изредка. Жареный, чипсы и пюре с маслом и солью лучше не давать.",
+        "en": "Raw potato, green patches, sprouts and vines contain solanine and upset the stomach. Plain boiled potato with no salt, butter or spices is acceptable now and then. Fried potato, crisps and buttered, salted mash are best avoided."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "вялость"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "lethargy"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите остатки и оцените, сколько питомец успел съесть",
+      "Понаблюдайте за питомцем в ближайшие сутки",
+      "Если появились признаки или вы не уверены, позвоните в клинику или пройдите проверку симптомов"
+    ],
+    "en": [
+      "Remove what is left and note how much your pet ate",
+      "Watch your pet over the next day",
+      "If signs appear or you are unsure, call a clinic or run a symptom check"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не ждите ухудшения, если питомец съел много"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not wait for it to get worse if your pet ate a lot"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA — Pets and Produce: Top Tips on Vegetable Garden Safety",
+      "url": "https://www.aspca.org/news/pets-and-produce-top-tips-vegetable-garden-safety"
+    },
+    {
+      "title": "ASPCA Animal Poison Control — Toxic and Non-Toxic Plants"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

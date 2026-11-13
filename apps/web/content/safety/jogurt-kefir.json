@@ -1,0 +1,107 @@
+{
+  "slug": "jogurt-kefir",
+  "category": "food",
+  "name": {
+    "ru": "Йогурт и кефир",
+    "en": "Yoghurt and kefir"
+  },
+  "titleRu": "йогурт и кефир",
+  "aliases": {
+    "ru": [
+      "йогурт",
+      "кефир",
+      "йогурты",
+      "простокваша",
+      "ряженка",
+      "натуральный йогурт",
+      "йогурт с сахаром",
+      "фруктовый йогурт"
+    ],
+    "en": [
+      "yogurt",
+      "yoghurt",
+      "kefir",
+      "plain yogurt",
+      "greek yogurt",
+      "sweetened yogurt"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Немного натурального продукта без сахара — изредка.",
+        "en": "With caution. A little plain, unsweetened product now and then."
+      },
+      "why": {
+        "ru": "В кисломолочных продуктах молочного сахара меньше, чем в молоке, но многие кошки всё равно плохо их переносят. Йогурты с сахаром, ароматизаторами и подсластителями не давайте: в некоторых бывает ксилит.",
+        "en": "Fermented dairy has less milk sugar than milk, but many cats still tolerate it poorly. Do not give yoghurts with sugar, flavourings or sweeteners: some contain xylitol."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Немного натурального йогурта или кефира без сахара — изредка.",
+        "en": "With caution. A little plain yoghurt or kefir with no sugar, now and then."
+      },
+      "why": {
+        "ru": "В кисломолочных продуктах молочного сахара меньше, чем в молоке, но чувствительным собакам они всё равно могут навредить. Йогурты с сахаром, ароматизаторами и подсластителями не давайте: в некоторых бывает ксилит, он опасен для собак.",
+        "en": "Fermented dairy has less milk sugar than milk, but can still upset a sensitive dog. Do not give yoghurts with sugar, flavourings or sweeteners: some contain xylitol, which is dangerous for dogs."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Проверьте состав: есть ли в продукте ксилит. Если есть — позвоните в клинику сразу",
+      "Оставьте доступ к чистой воде",
+      "Наблюдайте за питомцем сутки"
+    ],
+    "en": [
+      "Check the label for xylitol. If it is there, call a clinic right away",
+      "Leave fresh water available",
+      "Watch your pet for a day"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не давайте йогурт с сахаром, подсластителями или добавками",
+      "Не давайте лекарства без назначения врача"
+    ],
+    "en": [
+      "Do not give yoghurt with sugar, sweeteners or additives",
+      "Do not give any medicine unless a vet tells you to"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

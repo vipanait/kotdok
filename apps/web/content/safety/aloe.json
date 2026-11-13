@@ -1,0 +1,109 @@
+{
+  "slug": "aloe",
+  "category": "plant",
+  "name": {
+    "ru": "Алоэ",
+    "en": "Aloe"
+  },
+  "titleRu": "алоэ",
+  "aliases": {
+    "ru": [
+      "алоэ вера",
+      "алое",
+      "алое вера",
+      "столетник"
+    ],
+    "en": [
+      "aloe vera",
+      "aloe plant",
+      "aloes",
+      "medicinal aloe"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Алоэ ядовито для кошек: возможны рвота и понос.",
+        "en": "With caution. Aloe is poisonous to cats: vomiting and diarrhoea are possible."
+      },
+      "why": {
+        "ru": "В листьях есть сапонины и антрахиноны, они раздражают кишечник. Больше всего их в жёлтом соке под кожицей листа. Лёгкое расстройство обычно проходит само, но при сильных или долгих признаках, а также если питомец вялый, звоните в клинику.",
+        "en": "The leaves contain saponins and anthraquinones, which irritate the gut. Most of them are in the yellow sap under the skin of the leaf. A mild upset usually passes by itself, but if signs are strong or last long, or your pet is lethargic, call a clinic."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "вялость"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "lethargy"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Алоэ ядовито для собак: возможны рвота и понос.",
+        "en": "With caution. Aloe is poisonous to dogs: vomiting and diarrhoea are possible."
+      },
+      "why": {
+        "ru": "В листьях есть сапонины и антрахиноны, они раздражают кишечник. Больше всего их в жёлтом соке под кожицей листа. Лёгкое расстройство обычно проходит само, но при сильных или долгих признаках, а также если питомец вялый, звоните в клинику.",
+        "en": "The leaves contain saponins and anthraquinones, which irritate the gut. Most of them are in the yellow sap under the skin of the leaf. A mild upset usually passes by itself, but if signs are strong or last long, or your pet is lethargic, call a clinic."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "вялость"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "lethargy"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите растение и выньте остатки из пасти питомца",
+      "Дайте питомцу свежую воду для питья",
+      "Понаблюдайте за ним несколько часов",
+      "Если появились признаки или их стало больше, позвоните в клинику"
+    ],
+    "en": [
+      "Take the plant away and remove any bits from your pet’s mouth",
+      "Make sure fresh water is available",
+      "Watch your pet for the next few hours",
+      "If signs appear or get worse, call a clinic"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте домашние «противоядия» из интернета",
+      "Не оставляйте растение в доступе после случая"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give home “antidotes” from the internet",
+      "Do not leave the plant within reach afterwards"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Aloe",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/aloe"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

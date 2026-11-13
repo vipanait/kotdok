@@ -1,0 +1,115 @@
+{
+  "slug": "mindal",
+  "category": "food",
+  "name": {
+    "ru": "Миндаль",
+    "en": "Almonds"
+  },
+  "titleRu": "миндаль",
+  "aliases": {
+    "ru": [
+      "миндальные орехи",
+      "миндаля",
+      "миндальный орех",
+      "горький миндаль",
+      "миндальное молоко"
+    ],
+    "en": [
+      "almond",
+      "almond nuts",
+      "almond milk",
+      "bitter almonds"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Миндаль кошке не нужен, и лучше не давать.",
+        "en": "With caution. Cats do not need almonds, and it is better not to give them."
+      },
+      "why": {
+        "ru": "Миндаль не входит в списки сильных ядов для кошек, но он жирный, твёрдый и может застрять в пищеводе или кишечнике. Солёный и ароматизированный миндаль вреднее. Горький миндаль содержит вещества, из которых выделяется цианид.",
+        "en": "Almonds are not on the lists of strong poisons for cats, but they are fatty and hard and can lodge in the gullet or gut. Salted and flavoured almonds are worse. Bitter almonds contain substances that release cyanide."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "отказ от еды",
+          "напрасные позывы на рвоту, вздутый живот"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "refusing food",
+          "retching with nothing coming up, swollen belly"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Один-два несолёных миндаля изредка допустимы крупной собаке; маленьким лучше не давать.",
+        "en": "With caution. One or two unsalted almonds now and then may do for a large dog; better not for small ones."
+      },
+      "why": {
+        "ru": "Миндаль не считается ядовитым для собак, но плохо переваривается, жирен и легко застревает в горле и кишечнике, особенно у мелких пород. Солёные, глазированные и ароматизированные орехи нельзя, как и горький миндаль.",
+        "en": "Almonds are not considered poisonous to dogs, but they digest poorly, are fatty and easily lodge in the throat and gut, especially in small breeds. Salted, glazed or flavoured nuts are not for dogs, and neither are bitter almonds."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "боль в животе",
+          "кашель или поперхивание, если орех застрял"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "belly pain",
+          "coughing or gagging if a nut is stuck"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите остатки и проследите за питомцем",
+      "Если появились признаки из списка или питомцу стало хуже, позвоните в клинику",
+      "Запомните, что и когда было съедено"
+    ],
+    "en": [
+      "Put the rest away and keep an eye on your pet",
+      "If any of the listed signs appear or your pet gets worse, call a clinic",
+      "Note what was eaten and when"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте домашние «антидоты» из интернета",
+      "Не ждите признаков: они могут появиться не сразу"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give home “antidotes” from the internet",
+      "Do not wait for signs: they may appear later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    },
+    {
+      "title": "MSD Veterinary Manual — Food Hazards in Small Animals"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

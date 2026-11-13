@@ -1,0 +1,71 @@
+{
+  "slug": "ovsyanka",
+  "category": "food",
+  "name": {
+    "ru": "Овсянка",
+    "en": "Oatmeal"
+  },
+  "titleRu": "овсянку",
+  "aliases": {
+    "ru": [
+      "овсяная каша",
+      "овсянка варёная",
+      "овсянка вареная",
+      "каша овсяная",
+      "овсяные хлопья",
+      "геркулес",
+      "овсянку на воде"
+    ],
+    "en": [
+      "oats",
+      "porridge",
+      "cooked oatmeal",
+      "rolled oats",
+      "oat porridge"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Ложка овсянки на воде без сахара и соли — изредка.",
+        "en": "With caution. A spoonful of oatmeal made with water, with no sugar or salt, now and then."
+      },
+      "why": {
+        "ru": "Овёс не ядовит, но кошкам нужна мясная еда, а многие плохо переваривают злаки. Кашу варите на воде, без сахара, соли, изюма и молока. Овсянку быстрого приготовления с добавками не давайте.",
+        "en": "Oats are not poisonous, but cats need a meat diet and many digest grains poorly. Cook it in water, with no sugar, salt, raisins or milk. Do not give instant oatmeal with flavourings."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "none"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Немного овсянки на воде без сахара и соли — изредка.",
+        "en": "With caution. A little oatmeal made with water, with no sugar or salt, now and then."
+      },
+      "why": {
+        "ru": "Овёс не ядовит, и собаке в небольшом количестве он обычно подходит. Кашу варите на воде, без сахара, соли, изюма и ксилита. Овсянку быстрого приготовления с добавками не давайте.",
+        "en": "Oats are not poisonous and are usually fine for a dog in small amounts. Cook it in water, with no sugar, salt, raisins or xylitol. Do not give instant oatmeal with flavourings."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "none"
+    }
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

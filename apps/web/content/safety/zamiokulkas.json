@@ -1,0 +1,117 @@
+{
+  "slug": "zamiokulkas",
+  "category": "plant",
+  "name": {
+    "ru": "Замиокулькас",
+    "en": "ZZ plant"
+  },
+  "titleRu": "замиокулькас",
+  "aliases": {
+    "ru": [
+      "замиокулькаса",
+      "долларовое дерево",
+      "zz растение",
+      "замиокулькас замиелистный",
+      "замиокулькас замиелистный"
+    ],
+    "en": [
+      "zz plant",
+      "zamioculcas",
+      "zamioculcas zamiifolia",
+      "zanzibar gem",
+      "eternity plant"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Замиокулькас считается ядовитым: сок раздражает рот и желудок.",
+        "en": "With caution. ZZ plant is considered poisonous: the sap irritates the mouth and stomach."
+      },
+      "why": {
+        "ru": "В замиокулькасе есть кристаллы оксалата кальция, они раздражают рот и желудок. Возможны слюнотечение, рвота и отказ от еды. Источники по этому растению скупы, поэтому вердикт строгий. Если питомец съел много или ему стало хуже, позвоните в клинику.",
+        "en": "ZZ plant contains calcium oxalate crystals that irritate the mouth and stomach. Drooling, vomiting and refusing food are possible. Sources on this plant are thin, so the verdict is the strict one. If the pet ate a lot or is getting worse, call a clinic."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "рвота",
+          "отказ от еды",
+          "раздражение рта"
+        ],
+        "en": [
+          "drooling",
+          "vomiting",
+          "not eating",
+          "irritation of the mouth"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Замиокулькас считается ядовитым: сок раздражает рот и желудок.",
+        "en": "With caution. ZZ plant is considered poisonous: the sap irritates the mouth and stomach."
+      },
+      "why": {
+        "ru": "В замиокулькасе есть кристаллы оксалата кальция, они раздражают рот и желудок. Возможны слюнотечение, рвота и отказ от еды. Источники по этому растению скупы, поэтому вердикт строгий. Если питомец съел много или ему стало хуже, позвоните в клинику.",
+        "en": "ZZ plant contains calcium oxalate crystals that irritate the mouth and stomach. Drooling, vomiting and refusing food are possible. Sources on this plant are thin, so the verdict is the strict one. If the pet ate a lot or is getting worse, call a clinic."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "рвота",
+          "отказ от еды",
+          "раздражение рта"
+        ],
+        "en": [
+          "drooling",
+          "vomiting",
+          "not eating",
+          "irritation of the mouth"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите растение туда, куда питомец не доберётся",
+      "Уберите остатки растения из пасти и протрите мордочку влажной тканью",
+      "Понаблюдайте за питомцем несколько часов",
+      "Если появились признаки или вы не уверены в растении, позвоните в клинику"
+    ],
+    "en": [
+      "Move the plant out of the pet's reach",
+      "Remove any plant pieces from the mouth and wipe the face with a damp cloth",
+      "Watch the pet for several hours",
+      "If signs appear or you are not sure about the plant, call a clinic"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте молоко, масло, уголь и другие «антидоты» из интернета",
+      "Не ждите, пока станет хуже, если питомец вялый или его рвёт"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give milk, oil, charcoal or other home “antidotes” from the internet",
+      "Do not wait for things to get worse if the pet is lethargic or vomiting"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — Poison Index (plants)"
+    },
+    {
+      "title": "MSD Veterinary Manual — Poisonous Plants (calcium oxalate plants)"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

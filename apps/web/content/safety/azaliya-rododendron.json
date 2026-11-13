@@ -1,0 +1,118 @@
+{
+  "slug": "azaliya-rododendron",
+  "category": "plant",
+  "name": {
+    "ru": "Азалия и рододендрон",
+    "en": "Azalea and rhododendron"
+  },
+  "titleRu": "азалию и рододендрон",
+  "aliases": {
+    "ru": [
+      "азалия",
+      "азалию",
+      "азалии",
+      "рододендрон",
+      "рододендроны",
+      "рододендрона",
+      "комнатная азалия",
+      "индийская азалия"
+    ],
+    "en": [
+      "azalea",
+      "azaleas",
+      "rhododendron",
+      "rhododendrons",
+      "indoor azalea"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Азалия и рододендрон ядовиты для кошек.",
+        "en": "Dangerous. Azalea and rhododendron are poisonous to cats."
+      },
+      "why": {
+        "ru": "Все части растения содержат грайанотоксины. Они действуют на нервы, мышцы и сердце. Даже несколько листьев могут привести к серьёзному отравлению.",
+        "en": "Every part of the plant contains grayanotoxins. They affect nerves, muscles and the heart. Even a few leaves can lead to serious poisoning."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "рвота и понос",
+          "слабость",
+          "шаткая походка"
+        ],
+        "en": [
+          "drooling",
+          "vomiting and diarrhoea",
+          "weakness",
+          "unsteady walk"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Азалия и рододендрон ядовиты для собак.",
+        "en": "Dangerous. Azalea and rhododendron are poisonous to dogs."
+      },
+      "why": {
+        "ru": "Все части растения содержат грайанотоксины. Они действуют на нервы, мышцы и сердце. Даже несколько листьев могут привести к серьёзному отравлению.",
+        "en": "Every part of the plant contains grayanotoxins. They affect nerves, muscles and the heart. Even a few leaves can lead to serious poisoning."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "рвота и понос",
+          "слабость",
+          "шаткая походка"
+        ],
+        "en": [
+          "drooling",
+          "vomiting and diarrhoea",
+          "weakness",
+          "unsteady walk"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Позвоните в ветеринарную клинику сразу, не дожидаясь признаков",
+      "Уберите растение туда, куда питомец не доберётся",
+      "Возьмите кусочек растения или сфотографируйте его, чтобы показать врачу",
+      "Скажите врачу, сколько примерно времени прошло"
+    ],
+    "en": [
+      "Call a vet clinic right away, without waiting for signs",
+      "Move the plant out of reach",
+      "Take a piece of the plant or a photo of it to show the vet",
+      "Tell the vet roughly how long ago it happened"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте домашние «противоядия» из интернета",
+      "Не откладывайте звонок до утра, даже если питомец выглядит бодрым"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give home “antidotes” from the internet",
+      "Do not put off the call till morning even if your pet looks fine"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Azalea",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/azalea"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

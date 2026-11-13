@@ -1,0 +1,122 @@
+{
+  "slug": "syrye-kosti",
+  "category": "food",
+  "name": {
+    "ru": "Сырые кости",
+    "en": "Raw bones"
+  },
+  "titleRu": "сырые кости",
+  "aliases": {
+    "ru": [
+      "сырая кость",
+      "сырую кость",
+      "мозговая кость",
+      "сырые куриные кости",
+      "рёбрышки сырые",
+      "кости для собак",
+      "кость сырая"
+    ],
+    "en": [
+      "raw bone",
+      "raw bones",
+      "raw chicken bones",
+      "marrow bone",
+      "recreational bones"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Крупные твёрдые кости ломают зубы, а мелкие сырые застревают; лучше не давать.",
+        "en": "With caution. Large hard bones break teeth and small raw ones lodge; better not to give them."
+      },
+      "why": {
+        "ru": "Сырые кости мягче варёных, но и они бывают опасны: ломают зубы, застревают в горле и кишечнике, а на сыром мясе могут быть сальмонелла и другие бактерии. Мелкие трубчатые кости птицы лучше не давать совсем.",
+        "en": "Raw bones are softer than cooked ones but can still be dangerous: they break teeth, lodge in the throat and gut, and raw meat on them may carry salmonella and other bacteria. Small poultry bones are best avoided altogether."
+      },
+      "signs": {
+        "ru": [
+          "рвота, слюнотечение",
+          "вялость, отказ от еды",
+          "запор или напрасные позывы",
+          "кровь в стуле"
+        ],
+        "en": [
+          "vomiting, drooling",
+          "lethargy, refusing food",
+          "constipation or straining",
+          "blood in stool"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Сырые кости не безопасны: они ломают зубы, застревают и могут нести бактерии.",
+        "en": "With caution. Raw bones are not safe: they break teeth, lodge, and may carry bacteria."
+      },
+      "why": {
+        "ru": "Кость нужного размера под присмотром собаки многие дают, но источники предупреждают о рисках: сломанные зубы, закупорка, травмы кишечника, бактерии на сыром мясе. Мелкие и пустотелые птичьи кости и кости, которые можно проглотить целиком, давать нельзя. Варёные кости — отдельная и более серьёзная опасность.",
+        "en": "Many owners give a bone of the right size under supervision, but sources warn of risks: broken teeth, blockage, gut injury, bacteria on raw meat. Small and hollow poultry bones, and any bone that can be swallowed whole, are not for dogs. Cooked bones are a separate, more serious danger."
+      },
+      "signs": {
+        "ru": [
+          "рвота, слюнотечение",
+          "вялость, отказ от еды",
+          "вздутый или болезненный живот",
+          "кровь в стуле или рвоте",
+          "запор или напрасные позывы"
+        ],
+        "en": [
+          "vomiting, drooling",
+          "lethargy, refusing food",
+          "swollen or painful belly",
+          "blood in stool or vomit",
+          "constipation or straining"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите остатки и проследите за питомцем",
+      "Если появились признаки из списка или питомцу стало хуже, позвоните в клинику",
+      "Запомните, что и когда было съедено",
+      "Если питомец давится, у него вздулся живот или он не может сходить в туалет, звоните в клинику сразу"
+    ],
+    "en": [
+      "Put the rest away and keep an eye on your pet",
+      "If any of the listed signs appear or your pet gets worse, call a clinic",
+      "Note what was eaten and when",
+      "If your pet is gagging, has a swollen belly or cannot pass stool, call a clinic straight away"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте домашние «антидоты» из интернета",
+      "Не ждите признаков: они могут появиться не сразу"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give home “antidotes” from the internet",
+      "Do not wait for signs: they may appear later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    },
+    {
+      "title": "MSD Veterinary Manual — Food Hazards in Small Animals"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

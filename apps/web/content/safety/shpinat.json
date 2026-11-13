@@ -1,0 +1,107 @@
+{
+  "slug": "shpinat",
+  "category": "food",
+  "name": {
+    "ru": "Шпинат",
+    "en": "Spinach"
+  },
+  "titleRu": "шпинат",
+  "aliases": {
+    "ru": [
+      "шпината",
+      "шпинат свежий",
+      "шпинат варёный",
+      "листья шпината"
+    ],
+    "en": [
+      "spinach leaves",
+      "baby spinach",
+      "cooked spinach",
+      "raw spinach"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Пара листьев изредка вреда не принесёт, но регулярно шпинат давать не стоит.",
+        "en": "With caution. A couple of leaves now and then will not harm, but do not give spinach regularly."
+      },
+      "why": {
+        "ru": "Шпинат богат щавелевой кислотой, которая связывает кальций и при частом употреблении нагружает почки и мочевыводящие пути. Кошкам и собакам с болезнями почек или мочевого пузыря его лучше не давать совсем. Если даёте здоровому питомцу, то немного, без соли, масла и сливок.",
+        "en": "Spinach is rich in oxalic acid, which binds calcium and, if eaten often, strains the kidneys and urinary tract. Cats and dogs with kidney or bladder disease are best kept off it entirely. If you give any to a healthy pet, a little, with no salt, butter or cream."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "повышенная жажда"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "increased thirst"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Немного изредка можно здоровой собаке, регулярно шпинат давать не стоит.",
+        "en": "With caution. A little now and then is fine for a healthy dog, but do not give spinach regularly."
+      },
+      "why": {
+        "ru": "Шпинат богат щавелевой кислотой, которая связывает кальций и при частом употреблении нагружает почки и мочевыводящие пути. Собакам с болезнями почек или мочевого пузыря его лучше не давать совсем. Если даёте здоровой собаке, то немного, без соли, масла и сливок.",
+        "en": "Spinach is rich in oxalic acid, which binds calcium and, if eaten often, strains the kidneys and urinary tract. Dogs with kidney or bladder disease are best kept off it entirely. If you give any to a healthy dog, a little, with no salt, butter or cream."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "повышенная жажда"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "increased thirst"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите остатки и оцените, сколько питомец успел съесть",
+      "Понаблюдайте за питомцем в ближайшие сутки",
+      "Если появились признаки или вы не уверены, позвоните в клинику или пройдите проверку симптомов"
+    ],
+    "en": [
+      "Remove what is left and note how much your pet ate",
+      "Watch your pet over the next day",
+      "If signs appear or you are unsure, call a clinic or run a symptom check"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не ждите ухудшения, если питомец съел много"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not wait for it to get worse if your pet ate a lot"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Toxic and Non-Toxic Plants"
+    },
+    {
+      "title": "Merck Veterinary Manual — Poisoning by Plants and Foods"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

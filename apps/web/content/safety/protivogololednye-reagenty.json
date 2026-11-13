@@ -1,0 +1,134 @@
+{
+  "slug": "protivogololednye-reagenty",
+  "category": "household",
+  "name": {
+    "ru": "Противогололёдные реагенты",
+    "en": "De-icing salts and ice melts"
+  },
+  "titleRu": "противогололёдные реагенты",
+  "aliases": {
+    "ru": [
+      "противогололёдный реагент",
+      "противогололёдная соль",
+      "соль на дороге",
+      "техническая соль",
+      "реагент на улице",
+      "антигололёд",
+      "хлорид кальция",
+      "хлористый кальций",
+      "дорожная соль"
+    ],
+    "en": [
+      "ice melt",
+      "de-icer",
+      "deicer",
+      "road salt",
+      "rock salt",
+      "de-icing salt",
+      "calcium chloride",
+      "salt on sidewalk"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Реагенты разъедают лапы, а слизывая их, кошка получает соль и едкие вещества.",
+        "en": "Dangerous. De-icers burn the paws, and licking them gives a cat salt and caustic compounds."
+      },
+      "why": {
+        "ru": "В реагентах хлориды натрия, кальция и магния, иногда мочевина. Они раздражают лапы, рот и желудок, а много соли в организме опасно: нарушаются водный баланс и работа нервов. Гранулы из упаковки питомец может съесть.",
+        "en": "De-icers contain sodium, calcium and magnesium chlorides, sometimes urea. They irritate the paws, mouth and stomach, and too much salt in the body is dangerous: it upsets water balance and nerves. A pet can also eat granules from the bag."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "рвота",
+          "сильная жажда",
+          "вялость",
+          "шаткая походка",
+          "дрожь",
+          "судороги"
+        ],
+        "en": [
+          "drooling",
+          "vomiting",
+          "strong thirst",
+          "lethargy",
+          "wobbly walking",
+          "tremors",
+          "seizures"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Собака слизывает реагент с лап и пьёт талую воду; гранулы из мешка она может съесть.",
+        "en": "Dangerous. A dog licks de-icer off its paws and drinks melt water; it may eat granules from the bag."
+      },
+      "why": {
+        "ru": "Реагенты раздражают лапы, рот и желудок, а избыток соли нарушает водный баланс и работу нервов. Хлорид кальция обжигает сильнее. Прогулки по обработанным дорожкам — самая частая причина.",
+        "en": "De-icers irritate the paws, mouth and stomach, and too much salt upsets water balance and nerves. Calcium chloride burns more. Walks on treated paths are the most common cause."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "рвота",
+          "сильная жажда",
+          "вялость",
+          "шаткая походка",
+          "дрожь",
+          "судороги"
+        ],
+        "en": [
+          "drooling",
+          "vomiting",
+          "strong thirst",
+          "lethargy",
+          "wobbly walking",
+          "tremors",
+          "seizures"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Протрите лапы и морду влажной тканью и не давайте питомцу их вылизывать",
+      "Сохраните упаковку или запомните название реагента"
+    ],
+    "en": [
+      "Call a vet clinic right away, even if your pet seems fine",
+      "Wipe the paws and muzzle with a damp cloth and keep your pet from licking them",
+      "Keep the packaging or note the name of the de-icer"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не поите питомца насильно, в том числе солёной водой",
+      "Не ждите признаков: они могут появиться позже"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not force-feed water to your pet, least of all salty water",
+      "Do not wait for signs: they can appear later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Poisons and Pet Safety"
+    },
+    {
+      "title": "MSD Veterinary Manual — Toxicology (poisoning in small animals)"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

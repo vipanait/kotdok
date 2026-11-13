@@ -1,0 +1,121 @@
+{
+  "slug": "zubnaya-pasta",
+  "category": "household",
+  "name": {
+    "ru": "Зубная паста (для людей)",
+    "en": "Toothpaste (human)"
+  },
+  "titleRu": "зубную пасту",
+  "aliases": {
+    "ru": [
+      "зубная паста",
+      "зубной пасты",
+      "паста для зубов",
+      "зубная паста с фтором",
+      "отбеливающая зубная паста",
+      "паста с ксилитом"
+    ],
+    "en": [
+      "toothpaste",
+      "human toothpaste",
+      "fluoride toothpaste",
+      "whitening toothpaste",
+      "dental paste"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "Малый риск, если лизнуть немного, но давать нельзя. Много пасты вредно.",
+        "en": "Low risk if a little is licked, but never give it. A lot of paste is harmful."
+      },
+      "why": {
+        "ru": "Паста для людей не рассчитана на проглатывание: фтор и пенящие вещества раздражают желудок. Иногда в составе есть ксилит. Для зубов кошки нужна паста для животных.",
+        "en": "Human toothpaste is not made to be swallowed: fluoride and foaming agents irritate the stomach. Some contain xylitol. Use a pet toothpaste for a cat's teeth."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "рвота",
+          "вялость",
+          "потеря аппетита"
+        ],
+        "en": [
+          "drooling",
+          "vomiting",
+          "lethargy",
+          "loss of appetite"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. В пасте для людей может быть ксилит, он опасен для собак; много пасты с фтором тоже вредно.",
+        "en": "Not safe. Human toothpaste may contain xylitol, which is dangerous to dogs; a lot of fluoride paste is harmful too."
+      },
+      "why": {
+        "ru": "Ксилит вызывает у собак резкое падение сахара в крови и может повредить печень; не во всех пастах он есть, но проверять надо. Фтор и пенящие вещества раздражают желудок. Для зубов собаки нужна паста для животных.",
+        "en": "Xylitol makes a dog's blood sugar drop sharply and can harm the liver; not every paste has it, but it has to be checked. Fluoride and foaming agents irritate the stomach. Use a pet toothpaste for a dog's teeth."
+      },
+      "signs": {
+        "ru": [
+          "слабость, шаткая походка",
+          "рвота",
+          "слюнотечение",
+          "дрожь",
+          "судороги",
+          "вялость"
+        ],
+        "en": [
+          "weakness, wobbly walking",
+          "vomiting",
+          "drooling",
+          "tremors",
+          "seizures",
+          "lethargy"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Прочитайте состав на тубе: есть ли ксилит (Е967)",
+      "Если собака съела пасту, особенно с ксилитом, сразу позвоните в клинику",
+      "Если кошка съела много пасты или появились признаки, позвоните в клинику"
+    ],
+    "en": [
+      "Read the ingredients on the tube: is there xylitol (E967)",
+      "If a dog ate the paste, especially with xylitol, call a clinic right away",
+      "If a cat ate a lot of paste or signs appeared, call a clinic"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не ждите признаков: они могут появиться позже",
+      "Не пробуйте «домашние антидоты» из интернета"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not wait for signs: they can appear later",
+      "Do not try home “antidotes” from the internet"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Poisons and Pet Safety"
+    },
+    {
+      "title": "Pet Poison Helpline — Nicotine (note on xylitol in products)",
+      "url": "https://www.petpoisonhelpline.com/poisons/nicotine/"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

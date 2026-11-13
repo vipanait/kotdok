@@ -1,0 +1,125 @@
+{
+  "slug": "varenye-kosti",
+  "category": "food",
+  "name": {
+    "ru": "Варёные кости",
+    "en": "Cooked bones"
+  },
+  "titleRu": "варёные кости",
+  "aliases": {
+    "ru": [
+      "варёная кость",
+      "вареная кость",
+      "вареные кости",
+      "жареные кости",
+      "куриные кости",
+      "косточки",
+      "косточку",
+      "рыбные кости",
+      "рыбья кость",
+      "запечённые кости"
+    ],
+    "en": [
+      "cooked bone",
+      "cooked bones",
+      "chicken bones",
+      "fish bones",
+      "fish bone",
+      "roasted bones",
+      "poultry bones"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. Варёные, жареные и рыбьи кости ломаются на острые осколки.",
+        "en": "Not safe. Cooked, roasted and fish bones break into sharp splinters."
+      },
+      "why": {
+        "ru": "После варки кость становится хрупкой и ломается на острые части. Они ранят рот, горло и кишечник или застревают. Отдельно опасны мелкие рыбьи и птичьи кости.",
+        "en": "Cooking makes bone brittle, and it splits into sharp pieces. They injure the mouth, throat and gut or lodge in them. Small fish and poultry bones are especially risky."
+      },
+      "signs": {
+        "ru": [
+          "рвота, слюнотечение",
+          "вялость, отказ от еды",
+          "вздутый или болезненный живот",
+          "кровь в стуле или рвоте"
+        ],
+        "en": [
+          "vomiting, drooling",
+          "lethargy, refusing food",
+          "swollen or painful belly",
+          "blood in stool or vomit"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. Варёные и жареные кости, особенно куриные, ломаются на острые осколки.",
+        "en": "Not safe. Cooked and roasted bones, especially chicken, split into sharp splinters."
+      },
+      "why": {
+        "ru": "Осколки могут поранить пасть, пищевод и кишечник, вызвать закупорку или прокол стенки. Это одна из частых причин срочных обращений к врачу после праздничного стола.",
+        "en": "Splinters can cut the mouth, gullet and gut, cause a blockage or perforate the wall. It is a common reason for emergency visits after a holiday meal."
+      },
+      "signs": {
+        "ru": [
+          "рвота, слюнотечение",
+          "вялость, отказ от еды",
+          "вздутый или болезненный живот",
+          "кровь в стуле или рвоте",
+          "запор или напрасные позывы"
+        ],
+        "en": [
+          "vomiting, drooling",
+          "lethargy, refusing food",
+          "swollen or painful belly",
+          "blood in stool or vomit",
+          "constipation or straining"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Уберите оставшиеся кости",
+      "Запомните, какая это была кость и когда она съедена"
+    ],
+    "en": [
+      "Call a vet clinic, even if your pet seems fine",
+      "Put the remaining bones away",
+      "Note what kind of bone it was and when it was eaten"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте хлеб, вату и другие «средства» из интернета",
+      "Не ждите признаков: осколки могут ранить не сразу"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give bread, cotton wool or other home “remedies” from the internet",
+      "Do not wait for signs: splinters may not hurt at once"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    },
+    {
+      "title": "MSD Veterinary Manual — Food Hazards in Small Animals"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

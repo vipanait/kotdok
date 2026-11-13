@@ -1,0 +1,112 @@
+{
+  "slug": "kokos",
+  "category": "food",
+  "name": {
+    "ru": "Кокос",
+    "en": "Coconut"
+  },
+  "titleRu": "кокос",
+  "aliases": {
+    "ru": [
+      "кокосы",
+      "кокосовая стружка",
+      "кокосовое молоко",
+      "кокосовое масло",
+      "мякоть кокоса",
+      "скорлупа кокоса"
+    ],
+    "en": [
+      "coconuts",
+      "coconut flesh",
+      "coconut milk",
+      "coconut oil",
+      "coconut water",
+      "desiccated coconut"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. В малом количестве серьёзного вреда не будет, но от кокоса бывает расстройство желудка.",
+        "en": "With caution. A small amount is unlikely to do serious harm, but coconut can upset the stomach."
+      },
+      "why": {
+        "ru": "Кокос и продукты из него в небольшом количестве серьёзного вреда не причиняют, но мякоть и молоко могут вызвать расстройство желудка и жидкий стул. Жирное тяжело для поджелудочной железы. Скорлупа жёсткая и может поранить рот и застрять.",
+        "en": "Coconut and coconut products in small amounts are not likely to cause serious harm, but the flesh and milk can upset the stomach and loosen stools. Rich fat is hard on the pancreas. The shell is hard and can hurt the mouth or get stuck."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "вялость, отказ от еды"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "lethargy, refusing food"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Немного мякоти изредка — можно, но кокос жирный и может вызвать понос.",
+        "en": "With caution. A little flesh now and then is fine, but coconut is fatty and can cause diarrhoea."
+      },
+      "why": {
+        "ru": "Кокос и продукты из него в небольшом количестве серьёзного вреда не причиняют, но мякоть и молоко могут вызвать расстройство желудка и жидкий стул. Жирное тяжело для поджелудочной железы. Скорлупа жёсткая и может поранить рот и застрять. Кокосовая вода богата калием.",
+        "en": "Coconut and coconut products in small amounts are not likely to cause serious harm, but the flesh and milk can upset the stomach and loosen stools. Rich fat is hard on the pancreas. The shell is hard and can hurt the mouth or get stuck. Coconut water is rich in potassium."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "вялость, отказ от еды"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "lethargy, refusing food"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите остатки и убедитесь, что питомец больше не достаёт до них",
+      "Понаблюдайте за питомцем сутки; при рвоте, поносе, вялости или вздутом животе позвоните в клинику",
+      "Если съедено много или питомец маленький, позвоните в клинику сразу"
+    ],
+    "en": [
+      "Put away the leftovers so your pet cannot reach more",
+      "Watch your pet for a day; call a clinic if there is vomiting, diarrhoea, lethargy or a swollen belly",
+      "If a lot was eaten or your pet is small, call a clinic straight away"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не давайте скорлупу и сладкие кокосовые десерты",
+      "Не вызывайте рвоту сами — только по указанию врача"
+    ],
+    "en": [
+      "Do not give the shell or sweet coconut desserts",
+      "Do not make your pet vomit unless a vet tells you to"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    },
+    {
+      "title": "Merck Veterinary Manual — Food Hazards"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

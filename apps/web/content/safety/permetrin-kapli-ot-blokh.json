@@ -1,0 +1,126 @@
+{
+  "slug": "permetrin-kapli-ot-blokh",
+  "category": "household",
+  "name": {
+    "ru": "Капли от блох с перметрином",
+    "en": "Permethrin flea drops"
+  },
+  "titleRu": "капли от блох с перметрином",
+  "aliases": {
+    "ru": [
+      "перметрин",
+      "капли от блох",
+      "капли от блох и клещей",
+      "средство от блох для собак",
+      "капли от блох для собак",
+      "адвантикс",
+      "барс капли"
+    ],
+    "en": [
+      "permethrin",
+      "flea drops for dogs",
+      "dog spot-on",
+      "spot-on flea treatment",
+      "advantix",
+      "k9 advantix"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Капли от блох для собак с перметрином очень ядовиты для кошек, достаточно и контакта со свежеобработанной собакой.",
+        "en": "Dangerous. Permethrin flea drops for dogs are highly toxic to cats, and contact with a freshly treated dog is enough."
+      },
+      "why": {
+        "ru": "Кошки плохо обезвреживают перметрин. Он попадает на кошку, если она трётся о недавно обработанную собаку, спит рядом или вылизывает её, а также если ей нанесли собачьи капли. Он действует на нервную систему. Что делать, решает врач.",
+        "en": "Cats cannot break permethrin down well. It gets on a cat that rubs against a recently treated dog, sleeps next to it or licks it, and of course if dog drops were put on the cat. It acts on the nervous system. The vet decides what to do."
+      },
+      "signs": {
+        "ru": [
+          "дрожь, подёргивание мышц",
+          "слюнотечение",
+          "рвота",
+          "возбуждение, прятанье",
+          "шаткая походка",
+          "судороги"
+        ],
+        "en": [
+          "tremors, muscle twitching",
+          "drooling",
+          "vomiting",
+          "agitation, hiding",
+          "unsteady walk",
+          "seizures"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "Малый риск. Для собак каплю по инструкции наносят на кожу, но проглатывать её нельзя.",
+        "en": "Low risk. For dogs the drops are applied to the skin as directed, but they must not be swallowed."
+      },
+      "why": {
+        "ru": "Собаки переносят перметрин лучше кошек, и по инструкции для них он допустим. Но если собака слизала капли, съела пипетку или ей нанесли слишком много, возможны дрожь и слюнотечение. Мелким породам и щенкам лучше проверять, подходит ли препарат, у врача.",
+        "en": "Dogs tolerate permethrin better than cats, and it is acceptable for them when used as the label says. But if a dog licked the drops, ate the pipette or got too much, tremors and drooling are possible. Small breeds and puppies should have the product checked by a vet first."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "рвота",
+          "дрожь, подёргивание мышц",
+          "шаткая походка",
+          "вялость или беспокойство"
+        ],
+        "en": [
+          "drooling",
+          "vomiting",
+          "tremors, muscle twitching",
+          "unsteady walk",
+          "lethargy or restlessness"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Если капли попали на кошку или она контактировала со свежеобработанной собакой, сразу позвоните в ветеринарную клинику, даже если кошка ведёт себя как обычно",
+      "Разделите кошку и собаку, пока препарат не высохнет и не впитается; уточните срок по инструкции",
+      "Сохраните упаковку или сфотографируйте её: врачу важны название и состав",
+      "Если собака слизала капли, тоже позвоните в клинику и расскажите, что за препарат"
+    ],
+    "en": [
+      "If the drops got on a cat or it touched a freshly treated dog, call a vet clinic right away, even if the cat seems fine",
+      "Keep the cat and the dog apart until the product has dried and absorbed; check the time on the leaflet",
+      "Keep the packaging or take a photo of it: the vet needs the name and the ingredients",
+      "If the dog licked the drops, call the clinic too and say which product it is"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не купайте кошку и не обрабатывайте её сами «чем придётся», не посоветовавшись с врачом",
+      "Не ждите признаков: они могут появиться через несколько часов"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not bathe the cat or treat it yourself with whatever is at hand without asking a vet",
+      "Do not wait for signs: they can appear hours later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — Poison Database"
+    },
+    {
+      "title": "ASPCA Animal Poison Control — Spot-on Flea and Tick Products"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

@@ -1,0 +1,126 @@
+{
+  "slug": "slivochnoe-maslo-zhirnaya-eda",
+  "category": "food",
+  "name": {
+    "ru": "Сливочное масло и жирная еда",
+    "en": "Butter and fatty food"
+  },
+  "titleRu": "сливочное масло и жирную еду",
+  "aliases": {
+    "ru": [
+      "сливочное масло",
+      "масло сливочное",
+      "жирная еда",
+      "жирную еду",
+      "жирное",
+      "жирное мясо",
+      "сало",
+      "шкурки от мяса",
+      "жир",
+      "растительное масло",
+      "жареное",
+      "жареную еду",
+      "butter"
+    ],
+    "en": [
+      "fatty food",
+      "fatty foods",
+      "fatty meat",
+      "greasy food",
+      "fat trimmings",
+      "cooking oil",
+      "fried food",
+      "lard"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Жирное лучше не давать: от него бывает расстройство желудка и воспаление поджелудочной железы.",
+        "en": "With caution. Better to avoid fatty food: it can cause an upset stomach and inflamed pancreas."
+      },
+      "why": {
+        "ru": "Масло, сало, жирные обрезки и жареная еда для кошки слишком тяжёлые. Резкий переход на жирное может вызвать рвоту, понос и болезнь поджелудочной железы. Следы масла на лакомстве не страшны, но целый кусок давать не стоит.",
+        "en": "Butter, lard, fatty trimmings and fried food are too heavy for a cat. A sudden switch to fatty food can cause vomiting, diarrhoea and pancreas trouble. A trace of butter on a treat is not alarming, but do not give a whole piece."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "вялость, отказ от еды",
+          "боль в животе"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "lethargy, refusing food",
+          "belly pain"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Жирное лучше не давать: у собак от него бывает рвота и воспаление поджелудочной железы.",
+        "en": "With caution. Better to avoid fatty food: in dogs it can cause vomiting and inflamed pancreas."
+      },
+      "why": {
+        "ru": "Объедки со стола, жирные обрезки, масло и жареная еда — частая причина воспаления поджелудочной железы у собак. Сильнее риск у мини-шнауцеров, йоркширских терьеров и некоторых других пород. Жирная еда не замена корму, давать её не стоит.",
+        "en": "Table scraps, fatty trimmings, butter and fried food are a common trigger of pancreatitis in dogs. The risk is higher in miniature schnauzers, Yorkshire terriers and some other breeds. Fatty food is no substitute for dog food and is best avoided."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "вялость, отказ от еды",
+          "боль в животе, поза «молитвы»"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "lethargy, refusing food",
+          "belly pain, a hunched or 'praying' stance"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Оставьте доступ к чистой воде",
+      "Не кормите питомца жирным, пока он не придёт в норму",
+      "Если рвота повторяется, живот болит или питомец вялый — позвоните в клинику, не ждите"
+    ],
+    "en": [
+      "Leave fresh water available",
+      "Do not feed anything fatty until your pet is back to normal",
+      "If vomiting keeps coming back, the belly hurts or your pet is lethargic, call a clinic and do not wait"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не давайте жирные объедки «для аппетита»",
+      "Не давайте лекарства без назначения врача"
+    ],
+    "en": [
+      "Do not give fatty scraps to tempt appetite",
+      "Do not give any medicine unless a vet tells you to"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Merck Veterinary Manual — Pancreatitis and Other Disorders of the Pancreas in Dogs",
+      "url": "https://www.merckvetmanual.com/dog-owners/digestive-disorders-of-dogs/pancreatitis-and-other-disorders-of-the-pancreas-in-dogs"
+    },
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

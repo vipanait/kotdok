@@ -1,0 +1,72 @@
+{
+  "slug": "makarony",
+  "category": "food",
+  "name": {
+    "ru": "Макароны",
+    "en": "Pasta"
+  },
+  "titleRu": "макароны",
+  "aliases": {
+    "ru": [
+      "паста",
+      "макароны варёные",
+      "макароны вареные",
+      "спагетти",
+      "лапша",
+      "вермишель",
+      "макароны с сыром",
+      "pasta"
+    ],
+    "en": [
+      "spaghetti",
+      "cooked pasta",
+      "noodles",
+      "plain pasta",
+      "macaroni"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Пара кусочков простых варёных макарон без соуса — изредка.",
+        "en": "With caution. A couple of pieces of plain boiled pasta with no sauce, now and then."
+      },
+      "why": {
+        "ru": "Макароны не ядовиты, но это пустые углеводы, а кошке нужна мясная еда. Соусы с луком, чесноком, помидорами и специями опасны, как и солёная вода из кастрюли.",
+        "en": "Pasta is not poisonous, but it is empty carbohydrate, and a cat needs a meat diet. Sauces with onion, garlic, tomato and spices are dangerous, and so is salty cooking water."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "none"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Немного простых варёных макарон без соуса — изредка.",
+        "en": "With caution. A little plain boiled pasta with no sauce, now and then."
+      },
+      "why": {
+        "ru": "Макароны не ядовиты, но это пустые углеводы. Соусы с луком, чесноком, помидорами и специями опасны, как и много соли или масла. Тесто из сырой муки давать не стоит.",
+        "en": "Pasta is not poisonous, but it is empty carbohydrate. Sauces with onion, garlic, tomato and spices are dangerous, and so are a lot of salt or butter. Raw dough is best avoided."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "none"
+    }
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

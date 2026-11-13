@@ -1,0 +1,122 @@
+{
+  "slug": "kapsuly-dlya-stirki",
+  "category": "household",
+  "name": {
+    "ru": "Капсулы для стирки",
+    "en": "Laundry pods"
+  },
+  "titleRu": "капсулы для стирки",
+  "aliases": {
+    "ru": [
+      "капсулы для стирки белья",
+      "капсулы для стиральной машины",
+      "стиральные капсулы",
+      "гелевые капсулы для стирки",
+      "капсулы для белья"
+    ],
+    "en": [
+      "laundry pods",
+      "laundry capsules",
+      "detergent pods",
+      "washing capsules",
+      "tide pods"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Капсула для стирки — концентрированное средство, которое опасно для кошек.",
+        "en": "Dangerous. A laundry pod is a concentrated product that is dangerous to cats."
+      },
+      "why": {
+        "ru": "Внутри капсулы концентрированный стиральный гель. Он раздражает рот и желудок, вызывает сильное слюнотечение и рвоту и может попасть в лёгкие при вдохе. Кошку может привлечь мягкая яркая капсула. Что делать, решает врач.",
+        "en": "A pod holds a concentrated washing gel. It irritates the mouth and stomach, causes heavy drooling and vomiting, and can get into the lungs if breathed in. A soft bright pod can attract a cat. The vet decides what to do."
+      },
+      "signs": {
+        "ru": [
+          "обильное слюнотечение",
+          "рвота",
+          "кашель, затруднённое дыхание",
+          "сильная сонливость",
+          "красные раздражённые глаза или кожа"
+        ],
+        "en": [
+          "heavy drooling",
+          "vomiting",
+          "coughing, laboured breathing",
+          "heavy drowsiness",
+          "red irritated eyes or skin"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Капсула для стирки — концентрированное средство, которое опасно для собак.",
+        "en": "Dangerous. A laundry pod is a concentrated product that is dangerous to dogs."
+      },
+      "why": {
+        "ru": "Концентрированный гель раздражает рот и желудок, вызывает слюнотечение и рвоту и может попасть в лёгкие. Собаки часто разгрызают капсулу целиком. Что делать, решает врач.",
+        "en": "The concentrated gel irritates the mouth and stomach, causes drooling and vomiting, and can get into the lungs. Dogs often bite a pod right through. The vet decides what to do."
+      },
+      "signs": {
+        "ru": [
+          "обильное слюнотечение",
+          "рвота",
+          "кашель, затруднённое дыхание",
+          "сильная сонливость",
+          "красные раздражённые глаза или кожа"
+        ],
+        "en": [
+          "heavy drooling",
+          "vomiting",
+          "coughing, laboured breathing",
+          "heavy drowsiness",
+          "red irritated eyes or skin"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Уберите питомца от вещества и закройте к нему доступ",
+      "Сохраните упаковку или сфотографируйте её: врачу важны название и состав",
+      "Прикиньте, сколько могло быть съедено или попасть на шерсть, и когда"
+    ],
+    "en": [
+      "Call a vet clinic right away, even if your pet seems fine",
+      "Take your pet away from the substance and block access to it",
+      "Keep the packaging or take a photo of it: the vet needs the name and the ingredients",
+      "Work out roughly how much was eaten or got on the coat, and when"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте молоко, масло, уголь и другие «антидоты» из интернета",
+      "Не ждите признаков: они могут появиться не сразу"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give milk, oil, charcoal or other home “antidotes” from the internet",
+      "Do not wait for signs: they may not appear at once"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — Poison Database"
+    },
+    {
+      "title": "ASPCA Animal Poison Control — Toxic and Non-Toxic Plants and People Foods",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

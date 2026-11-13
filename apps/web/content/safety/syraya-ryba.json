@@ -1,0 +1,121 @@
+{
+  "slug": "syraya-ryba",
+  "category": "food",
+  "name": {
+    "ru": "Сырая рыба",
+    "en": "Raw fish"
+  },
+  "titleRu": "сырую рыбу",
+  "aliases": {
+    "ru": [
+      "сырая рыба",
+      "рыба сырая",
+      "суши",
+      "сашими",
+      "сырой лосось",
+      "сырая сёмга",
+      "сырая форель",
+      "сырой тунец"
+    ],
+    "en": [
+      "raw salmon",
+      "raw tuna",
+      "sushi",
+      "sashimi",
+      "raw trout",
+      "uncooked fish"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Сырая рыба может нести паразитов и разрушает витамин B1; лучше варёная и без костей.",
+        "en": "With caution. Raw fish may carry parasites and breaks down vitamin B1; cooked and boneless is better."
+      },
+      "why": {
+        "ru": "В некоторых видах сырой рыбы есть фермент, разрушающий витамин B1; при частом кормлении кошки страдают нервной системой. Паразиты и бактерии тоже возможны. Тунец и другая рыба из банки с солью и маслом тоже не подходят. Кости опасны.",
+        "en": "Some raw fish contain an enzyme that destroys vitamin B1; with frequent feeding cats suffer nervous-system problems. Parasites and bacteria are also possible. Canned tuna in salt or oil is no better. Bones are a risk."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "отказ от еды",
+          "шаткая походка, судороги при частом кормлении"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "refusing food",
+          "unsteady walk, seizures with frequent feeding"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Сырая рыба, особенно речная и лосось, может нести опасных паразитов.",
+        "en": "With caution. Raw fish, especially freshwater fish and salmon, may carry dangerous parasites."
+      },
+      "why": {
+        "ru": "Сырой лосось и некоторые речные рыбы в определённых регионах могут нести паразита с бактерией, вызывающей «лососёвое отравление»: оно бывает смертельным без лечения. Бывают и другие паразиты. Рыбу лучше давать хорошо проваренной и без костей.",
+        "en": "Raw salmon and some freshwater fish in certain regions may carry a parasite with a bacterium that causes “salmon poisoning”, which can be fatal without treatment. Other parasites occur too. Fish is better well cooked and boneless."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос, иногда с кровью",
+          "вялость",
+          "отказ от еды",
+          "повышенная температура"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea, sometimes bloody",
+          "lethargy",
+          "refusing food",
+          "raised temperature"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите остатки и проследите за питомцем",
+      "Если рыба была речная или лосось и собака вялая или рвёт, позвоните в клинику, даже если прошло несколько дней",
+      "Запомните, какая это была рыба и когда её съели"
+    ],
+    "en": [
+      "Put the rest away and keep an eye on your pet",
+      "If it was freshwater fish or salmon and your dog is lethargic or vomiting, call a clinic even if days have passed",
+      "Note what fish it was and when it was eaten"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте домашние «антидоты» из интернета",
+      "Не ждите признаков: они могут появиться не сразу"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give home “antidotes” from the internet",
+      "Do not wait for signs: they may appear later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "MSD Veterinary Manual — Food Hazards in Small Animals"
+    },
+    {
+      "title": "Pet Poison Helpline — Poison Control for Pets"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "slug": "morozhenoe",
+  "category": "food",
+  "name": {
+    "ru": "Мороженое",
+    "en": "Ice cream"
+  },
+  "titleRu": "мороженое",
+  "aliases": {
+    "ru": [
+      "пломбир",
+      "мороженое с шоколадом",
+      "эскимо",
+      "сливочное мороженое",
+      "фруктовый лёд",
+      "фруктовый лед"
+    ],
+    "en": [
+      "ice cream",
+      "icecream",
+      "gelato",
+      "frozen dessert",
+      "chocolate ice cream"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Лучше не давать: молочный сахар и сахар в составе могут расстроить желудок.",
+        "en": "With caution. Better not to give it: milk sugar and added sugar can upset the stomach."
+      },
+      "why": {
+        "ru": "Мороженое — молочный и сладкий продукт, а кошки плохо переносят молочный сахар. Опасны добавки: шоколад, ксилит, изюм, орехи макадамия. Лизнуть каплю — не беда, миску мороженого не давайте.",
+        "en": "Ice cream is a dairy and sweet food, and cats digest milk sugar poorly. Additions are the danger: chocolate, xylitol, raisins, macadamia nuts. A lick is no harm, but do not give a bowl."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Ложка простого мороженого — изредка. Шоколад, ксилит, изюм и орехи в составе опасны.",
+        "en": "With caution. A spoonful of plain ice cream now and then. Chocolate, xylitol, raisins and nuts in it are dangerous."
+      },
+      "why": {
+        "ru": "Мороженое — молочный, сладкий и жирный продукт, у многих собак от него бывает понос. Опасны добавки: шоколад, ксилит, изюм, орехи макадамия. Проверьте состав, прежде чем делиться.",
+        "en": "Ice cream is dairy, sweet and fatty, and many dogs get diarrhoea from it. Additions are the danger: chocolate, xylitol, raisins, macadamia nuts. Check the label before sharing."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Прочитайте состав: нет ли ксилита, шоколада, изюма, орехов",
+      "Если есть ксилит или шоколад — сразу позвоните в клинику",
+      "Если их нет — оставьте воду и наблюдайте за питомцем сутки"
+    ],
+    "en": [
+      "Read the label for xylitol, chocolate, raisins or nuts",
+      "If xylitol or chocolate is there, call a clinic at once",
+      "If not, leave water available and watch your pet for a day"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не давайте мороженое повторно, если был понос",
+      "Не давайте лекарства без назначения врача"
+    ],
+    "en": [
+      "Do not give ice cream again if it caused diarrhoea",
+      "Do not give any medicine unless a vet tells you to"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

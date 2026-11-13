@@ -1,0 +1,110 @@
+{
+  "slug": "syr",
+  "category": "food",
+  "name": {
+    "ru": "Сыр",
+    "en": "Cheese"
+  },
+  "titleRu": "сыр",
+  "aliases": {
+    "ru": [
+      "сыры",
+      "твёрдый сыр",
+      "твердый сыр",
+      "плавленый сыр",
+      "сыр с плесенью",
+      "кусочек сыра",
+      "cheddar",
+      "cheese"
+    ],
+    "en": [
+      "cheeses",
+      "hard cheese",
+      "cheddar cheese",
+      "blue cheese",
+      "processed cheese"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Кусочек сыра изредка — не вред, но кошке он не нужен.",
+        "en": "With caution. A small piece of cheese now and then is not harmful, but a cat does not need it."
+      },
+      "why": {
+        "ru": "У кошек мало фермента, который расщепляет молочный сахар, а сыр жирный и солёный. Сыры с плесенью и с добавками (лук, чеснок, специи) лучше не давать совсем. Если давать — крошечный кусочек несолёного сыра, изредка.",
+        "en": "Cats have little of the enzyme that breaks down milk sugar, and cheese is fatty and salty. Blue cheeses and cheeses with onion, garlic or spices are best avoided entirely. If you give any, a tiny piece of unsalted cheese, rarely."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Небольшой кусочек простого сыра изредка, как награда.",
+        "en": "With caution. A small piece of plain cheese now and then, as a reward."
+      },
+      "why": {
+        "ru": "Сыр жирный и солёный: много его может вызвать расстройство желудка, а жирная еда — болезнь поджелудочной железы. Сыры с плесенью, чесноком, луком или травами не давайте. Лучше простой сыр с малым количеством соли.",
+        "en": "Cheese is fatty and salty: a lot can upset the stomach, and fatty food can lead to pancreas trouble. Do not give blue cheese or cheese with garlic, onion or herbs. Plain, low-salt cheese is the better choice."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Оставьте доступ к чистой воде",
+      "Наблюдайте за питомцем сутки",
+      "Если рвота или понос не проходят, питомец вялый или отказывается от еды — проверьте симптомы или позвоните в клинику"
+    ],
+    "en": [
+      "Leave fresh water available",
+      "Watch your pet for a day",
+      "If vomiting or diarrhoea goes on, or your pet is lethargic or refuses food, check the symptoms or call a clinic"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не давайте сыр с плесенью, чесноком, луком или специями",
+      "Не давайте лекарства без назначения врача"
+    ],
+    "en": [
+      "Do not give blue cheese or cheese with garlic, onion or spices",
+      "Do not give any medicine unless a vet tells you to"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    },
+    {
+      "title": "Merck Veterinary Manual — Pancreatitis and Other Disorders of the Pancreas in Dogs",
+      "url": "https://www.merckvetmanual.com/dog-owners/digestive-disorders-of-dogs/pancreatitis-and-other-disorders-of-the-pancreas-in-dogs"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

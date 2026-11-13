@@ -1,0 +1,117 @@
+{
+  "slug": "pechen",
+  "category": "food",
+  "name": {
+    "ru": "Печень",
+    "en": "Liver"
+  },
+  "titleRu": "печень",
+  "aliases": {
+    "ru": [
+      "печёнка",
+      "печенка",
+      "печенку",
+      "куриная печень",
+      "говяжья печень",
+      "печень курицы",
+      "печень говяжья",
+      "свиная печень",
+      "паштет"
+    ],
+    "en": [
+      "liver",
+      "chicken liver",
+      "beef liver",
+      "pork liver",
+      "liver treats"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Варёная печень — редкое лакомство небольшим кусочком, регулярно её давать нельзя.",
+        "en": "With caution. Cooked liver is an occasional treat in a small piece; it must not be fed regularly."
+      },
+      "why": {
+        "ru": "Печень богата витамином А, и при регулярном кормлении он накапливается и вредит костям и суставам, особенно у кошек. Давайте только варёную, без соли, лука и специй. Паштеты и печёночные колбасы не подходят: в них соль, лук и добавки.",
+        "en": "Liver is rich in vitamin A, which builds up when it is fed regularly and harms bones and joints, especially in cats. Give it cooked only, without salt, onion or spices. Pâtés and liver sausages are not suitable: they contain salt, onion and additives."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "вялость, отказ от еды",
+          "скованность, хромота при регулярном кормлении"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "lethargy, refusing food",
+          "stiffness, limping with regular feeding"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Варёная печень — редкое лакомство небольшим кусочком, регулярно её давать нельзя.",
+        "en": "With caution. Cooked liver is an occasional treat in a small piece; it must not be fed regularly."
+      },
+      "why": {
+        "ru": "Печень богата витамином А, и при регулярном кормлении он накапливается и вредит костям и суставам. Давайте только варёную, без соли, лука и специй. Паштеты и печёночные колбасы не подходят: в них соль, лук и добавки.",
+        "en": "Liver is rich in vitamin A, which builds up when it is fed regularly and harms bones and joints. Give it cooked only, without salt, onion or spices. Pâtés and liver sausages are not suitable: they contain salt, onion and additives."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "вялость, отказ от еды",
+          "скованность, хромота при регулярном кормлении"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "lethargy, refusing food",
+          "stiffness, limping with regular feeding"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите остатки и убедитесь, что питомец больше не достаёт до них",
+      "Понаблюдайте за питомцем сутки; при рвоте, поносе, вялости или вздутом животе позвоните в клинику",
+      "Если съедено много или питомец маленький, позвоните в клинику сразу"
+    ],
+    "en": [
+      "Put away the leftovers so your pet cannot reach more",
+      "Watch your pet for a day; call a clinic if there is vomiting, diarrhoea, lethargy or a swollen belly",
+      "If a lot was eaten or your pet is small, call a clinic straight away"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не давайте печень каждый день и паштеты с луком",
+      "Не вызывайте рвоту сами — только по указанию врача"
+    ],
+    "en": [
+      "Do not feed liver every day or pâtés with onion",
+      "Do not make your pet vomit unless a vet tells you to"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Merck Veterinary Manual — Food Hazards"
+    },
+    {
+      "title": "Pet Poison Helpline — Poison Guide: Foods"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

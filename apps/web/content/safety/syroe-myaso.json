@@ -1,0 +1,129 @@
+{
+  "slug": "syroe-myaso",
+  "category": "food",
+  "name": {
+    "ru": "Сырое мясо",
+    "en": "Raw meat"
+  },
+  "titleRu": "сырое мясо",
+  "aliases": {
+    "ru": [
+      "сырая говядина",
+      "сырую говядину",
+      "сырая курица",
+      "сырую курицу",
+      "сырая свинина",
+      "сырую свинину",
+      "сырой фарш",
+      "фарш сырой",
+      "барф",
+      "сырая печень",
+      "мясо сырое"
+    ],
+    "en": [
+      "raw beef",
+      "raw chicken",
+      "raw pork",
+      "raw mince",
+      "raw ground meat",
+      "raw diet",
+      "raw feeding",
+      "raw liver"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Сырое мясо может нести бактерии и паразитов; надёжнее варёное или готовый корм.",
+        "en": "With caution. Raw meat may carry bacteria and parasites; cooked meat or a complete food is the safer choice."
+      },
+      "why": {
+        "ru": "На сыром мясе бывают сальмонелла, кишечная палочка и паразиты. Они опасны не только кошке, но и людям в доме, особенно детям и пожилым. Тем, кто кормит сырым, нужны чистота, замораживание и полноценный рацион, а не просто кусок мяса. Свинину сырой не давайте.",
+        "en": "Raw meat may carry salmonella, E. coli and parasites. They endanger not only the cat but also people at home, especially children and older adults. Raw feeding needs hygiene, freezing and a complete diet, not just a piece of meat. Do not give raw pork."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "вялость",
+          "отказ от еды",
+          "повышенная температура"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "lethargy",
+          "refusing food",
+          "raised temperature"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Сырое мясо может нести бактерии и паразитов; надёжнее варёное или готовый корм.",
+        "en": "With caution. Raw meat may carry bacteria and parasites; cooked meat or a complete food is the safer choice."
+      },
+      "why": {
+        "ru": "На сыром мясе бывают сальмонелла, кишечная палочка и паразиты. Собака может переносить их без видимых признаков, но заражает людей. Сырой рацион требует чистоты и сбалансированности. Сырую свинину давать нельзя.",
+        "en": "Raw meat may carry salmonella, E. coli and parasites. A dog may carry them without signs yet pass them to people. A raw diet needs hygiene and balance. Raw pork is not for dogs."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "вялость",
+          "отказ от еды",
+          "повышенная температура"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "lethargy",
+          "refusing food",
+          "raised temperature"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите остатки и проследите за питомцем",
+      "Если появились признаки из списка или питомцу стало хуже, позвоните в клинику",
+      "Тщательно вымойте руки и поверхности, которых касалось сырое мясо"
+    ],
+    "en": [
+      "Put the rest away and keep an eye on your pet",
+      "If any listed sign appears or your pet gets worse, call a clinic",
+      "Wash your hands and any surfaces the raw meat touched thoroughly"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте домашние «антидоты» из интернета",
+      "Не ждите признаков: они могут появиться не сразу"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give home “antidotes” from the internet",
+      "Do not wait for signs: they may appear later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    },
+    {
+      "title": "MSD Veterinary Manual — Food Hazards in Small Animals"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

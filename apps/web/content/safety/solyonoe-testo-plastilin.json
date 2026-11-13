@@ -1,0 +1,131 @@
+{
+  "slug": "solyonoe-testo-plastilin",
+  "category": "household",
+  "name": {
+    "ru": "Солёное тесто и пластилин",
+    "en": "Salt dough and modelling clay"
+  },
+  "titleRu": "солёное тесто и пластилин",
+  "aliases": {
+    "ru": [
+      "солёное тесто",
+      "соленое тесто",
+      "тесто для лепки",
+      "тесто для поделок",
+      "пластилин",
+      "детский пластилин",
+      "домашний пластилин",
+      "самодельный пластилин"
+    ],
+    "en": [
+      "salt dough",
+      "play dough",
+      "playdough",
+      "modelling clay",
+      "modeling clay",
+      "homemade play dough",
+      "craft dough",
+      "plasticine",
+      "salt dough ornament"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. В солёном тесте очень много соли — это опасное отравление; готовые игровые массы тоже вредны.",
+        "en": "Dangerous. Salt dough contains a lot of salt — a dangerous poisoning; ready-made modelling compounds are harmful too."
+      },
+      "why": {
+        "ru": "Избыток соли нарушает водный баланс и работу нервов и мозга. Солёное тесто и самодельный пластилин бывают очень солёными, а поделки из него питомец может съесть. Пластилин из магазина обычно мягче, но комки и красители вредны.",
+        "en": "Too much salt upsets water balance and the nerves and brain. Salt dough and homemade clay can be very salty, and a pet may eat the crafts made of it. Shop-bought clay is usually milder, but lumps and dyes are harmful."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "слюнотечение",
+          "сильная жажда",
+          "вялость, шаткая походка",
+          "дрожь",
+          "судороги"
+        ],
+        "en": [
+          "vomiting",
+          "drooling",
+          "strong thirst",
+          "lethargy, wobbly walking",
+          "tremors",
+          "seizures"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Солёное тесто — частая зимняя беда: собаки съедают ёлочные игрушки и поделки из него.",
+        "en": "Dangerous. Salt dough is a common winter problem: dogs eat ornaments and crafts made from it."
+      },
+      "why": {
+        "ru": "Избыток соли нарушает водный баланс и работу нервов, он может закончиться смертью. Солёное тесто, ёлочные игрушки из него и самодельный пластилин пахнут едой. Магазинный пластилин мягче, но комки и красители тоже вредны.",
+        "en": "Too much salt upsets water balance and the nerves and can be fatal. Salt dough, ornaments made of it and homemade clay smell like food. Shop-bought clay is milder, but lumps and dyes are harmful too."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "слюнотечение",
+          "сильная жажда и частое мочеиспускание",
+          "вялость, шаткая походка",
+          "дрожь",
+          "судороги"
+        ],
+        "en": [
+          "vomiting",
+          "drooling",
+          "strong thirst and frequent urination",
+          "lethargy, wobbly walking",
+          "tremors",
+          "seizures"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Запомните, что и когда мог съесть питомец",
+      "Уберите оставшиеся поделки и тесто подальше"
+    ],
+    "en": [
+      "Call a vet clinic right away, even if your pet seems fine",
+      "Note roughly what your pet may have eaten and when",
+      "Put away the remaining crafts and dough"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не поите питомца насильно и не давайте солёную воду",
+      "Не ждите признаков: они могут появиться позже"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not force-feed water to your pet or give salty water",
+      "Do not wait for signs: they can appear later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — Homemade Play Dough / Salt Dough",
+      "url": "https://www.petpoisonhelpline.com/poisons/homemade-play-dough/"
+    },
+    {
+      "title": "ASPCA Animal Poison Control — Poisons and Pet Safety"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

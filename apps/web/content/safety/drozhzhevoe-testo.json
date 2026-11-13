@@ -1,0 +1,127 @@
+{
+  "slug": "drozhzhevoe-testo",
+  "category": "food",
+  "name": {
+    "ru": "Сырое дрожжевое тесто",
+    "en": "Raw yeast dough"
+  },
+  "titleRu": "сырое дрожжевое тесто",
+  "aliases": {
+    "ru": [
+      "дрожжевое тесто",
+      "тесто на дрожжах",
+      "сырое тесто",
+      "тесто для хлеба",
+      "тесто для пиццы",
+      "сырые дрожжи"
+    ],
+    "en": [
+      "yeast dough",
+      "bread dough",
+      "raw dough",
+      "pizza dough",
+      "raw bread dough"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. Сырое тесто раздувается в желудке и выделяет спирт, это опасно для кошек.",
+        "en": "Not safe. Raw dough swells in the stomach and releases alcohol, which is dangerous to cats."
+      },
+      "why": {
+        "ru": "В тёплом желудке тесто поднимается и растягивает его, а дрожжи при брожении образуют спирт. Бывает вздутие и опьянение. Испечённый хлеб такой опасности не несёт.",
+        "en": "In the warm stomach the dough rises and stretches it, and the yeast makes alcohol as it ferments. Swelling and intoxication can follow. Baked bread does not carry this danger."
+      },
+      "signs": {
+        "ru": [
+          "вздутый, твёрдый живот",
+          "напрасные позывы на рвоту",
+          "рвота",
+          "шаткая походка",
+          "вялость",
+          "затруднённое дыхание"
+        ],
+        "en": [
+          "swollen, hard belly",
+          "retching with nothing coming up",
+          "vomiting",
+          "unsteady walk",
+          "lethargy",
+          "laboured breathing"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. Сырое тесто раздувается в желудке и выделяет спирт; собакам это особенно опасно.",
+        "en": "Not safe. Raw dough swells in the stomach and releases alcohol; it is especially dangerous to dogs."
+      },
+      "why": {
+        "ru": "Тесто растёт в тепле желудка, растягивает его и может привести к тяжёлому вздутию и заворотам, а брожение даёт спирт и опьянение. Собаки часто съедают тесто, оставленное «подходить» на столе. Испечённый хлеб такой опасности не несёт.",
+        "en": "The dough rises in the warm stomach, stretches it and can lead to severe bloating and twisting, while fermentation makes alcohol and intoxication. Dogs often eat dough left to rise on the counter. Baked bread does not carry this danger."
+      },
+      "signs": {
+        "ru": [
+          "вздутый, твёрдый живот",
+          "напрасные позывы на рвоту",
+          "рвота",
+          "шаткая походка",
+          "вялость",
+          "слюнотечение",
+          "затруднённое дыхание"
+        ],
+        "en": [
+          "swollen, hard belly",
+          "retching with nothing coming up",
+          "vomiting",
+          "unsteady walk",
+          "lethargy",
+          "drooling",
+          "laboured breathing"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Уберите остатки",
+      "Сохраните упаковку или запомните, что и когда было съедено"
+    ],
+    "en": [
+      "Call a vet clinic, even if your pet seems fine",
+      "Put the rest away",
+      "Keep the packaging or note what was eaten and when"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте домашние «антидоты» из интернета",
+      "Не ждите признаков: они могут появиться не сразу"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give home “antidotes” from the internet",
+      "Do not wait for signs: they may appear later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    },
+    {
+      "title": "MSD Veterinary Manual — Food Hazards in Small Animals"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "slug": "klubnika",
+  "category": "food",
+  "name": {
+    "ru": "Клубника",
+    "en": "Strawberry"
+  },
+  "titleRu": "клубнику",
+  "aliases": {
+    "ru": [
+      "клубнику",
+      "земляника",
+      "землянику",
+      "клубничка",
+      "садовая земляника"
+    ],
+    "en": [
+      "strawberries",
+      "strawberry",
+      "wild strawberry"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Пара ягод изредка — можно, но это сладкое лакомство, а не еда.",
+        "en": "With caution. A couple of berries now and then is fine, but it is a sweet treat, not food."
+      },
+      "why": {
+        "ru": "Сама ягода не считается ядовитой, но в ней много сахара, и у чувствительных питомцев от неё бывает понос. Мойте ягоды, режьте на кусочки и не давайте варенье, йогурты и десерты с клубникой: в них сахар и добавки.",
+        "en": "The berry itself is not considered poisonous, but it is sugary and can cause diarrhoea in sensitive pets. Wash berries, cut them up and do not give jam, yoghurt or desserts with strawberry: they contain sugar and additives."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "вялость, отказ от еды"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "lethargy, refusing food"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Несколько ягод изредка — можно, но без сладких добавок.",
+        "en": "With caution. A few berries now and then are fine, but with no sweet additives."
+      },
+      "why": {
+        "ru": "Ягода не ядовита, но сладкая: много сразу вызывает расстройство желудка. Давайте вымытую, нарезанную ягоду; варенье, сиропы и десерты не подходят.",
+        "en": "The berry is not poisonous but it is sweet: a lot at once upsets the stomach. Give washed, cut-up berries; jam, syrups and desserts are not suitable."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "вялость, отказ от еды"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "lethargy, refusing food"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите остатки и убедитесь, что питомец больше не достаёт до них",
+      "Понаблюдайте за питомцем сутки; при рвоте, поносе, вялости или вздутом животе позвоните в клинику",
+      "Если съедено много или питомец маленький, позвоните в клинику сразу"
+    ],
+    "en": [
+      "Put away the leftovers so your pet cannot reach more",
+      "Watch your pet for a day; call a clinic if there is vomiting, diarrhoea, lethargy or a swollen belly",
+      "If a lot was eaten or your pet is small, call a clinic straight away"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не давайте варенье, сиропы и десерты с клубникой",
+      "Не вызывайте рвоту сами — только по указанию врача"
+    ],
+    "en": [
+      "Do not give jam, syrups or desserts with strawberry",
+      "Do not make your pet vomit unless a vet tells you to"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Merck Veterinary Manual — Food Hazards"
+    },
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

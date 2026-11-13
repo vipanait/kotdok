@@ -1,0 +1,133 @@
+{
+  "slug": "krysinyj-yad",
+  "category": "household",
+  "name": {
+    "ru": "Крысиный яд",
+    "en": "Rat and mouse poison"
+  },
+  "titleRu": "крысиный яд",
+  "aliases": {
+    "ru": [
+      "яд для крыс",
+      "яд для мышей",
+      "мышиный яд",
+      "отрава для крыс",
+      "отрава для мышей",
+      "родентицид",
+      "родентициды",
+      "бродифакум",
+      "бромадиолон",
+      "приманка для крыс"
+    ],
+    "en": [
+      "rat poison",
+      "mouse poison",
+      "rodenticide",
+      "rodenticides",
+      "brodifacoum",
+      "bromadiolone",
+      "rodent bait",
+      "rat bait"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Крысиный яд опасен для кошек; опасно и съесть отравленную мышь или крысу.",
+        "en": "Dangerous. Rat poison is dangerous to cats; eating a poisoned mouse or rat is dangerous too."
+      },
+      "why": {
+        "ru": "Чаще всего в приманках вещество, нарушающее свёртывание крови: кровотечения начинаются через несколько дней, а не сразу. Бывают и яды, действующие на нервную систему или повышающие кальций. Звонить нужно, пока признаков нет.",
+        "en": "Most baits contain a substance that stops blood from clotting: bleeding starts days later, not at once. Other baits act on the nervous system or raise calcium. Call while there are no signs yet."
+      },
+      "signs": {
+        "ru": [
+          "вялость, слабость",
+          "бледные дёсны",
+          "кровь в моче, стуле или рвоте",
+          "кровотечение из носа или дёсен",
+          "синяки на коже",
+          "затруднённое дыхание"
+        ],
+        "en": [
+          "lethargy, weakness",
+          "pale gums",
+          "blood in urine, stool or vomit",
+          "bleeding from the nose or gums",
+          "bruises on the skin",
+          "laboured breathing"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Крысиный яд опасен для собак, даже если собака выглядит здоровой.",
+        "en": "Dangerous. Rat poison is dangerous to dogs, even if the dog looks well."
+      },
+      "why": {
+        "ru": "Чаще всего в приманках вещество, нарушающее свёртывание крови: кровотечения начинаются через несколько дней. Другие яды действуют на мозг или почки. Собаки охотно едят приманку. Звонить нужно, пока признаков нет.",
+        "en": "Most baits contain a substance that stops blood from clotting: bleeding starts days later. Other poisons act on the brain or the kidneys. Dogs readily eat bait. Call while there are no signs yet."
+      },
+      "signs": {
+        "ru": [
+          "вялость, слабость",
+          "бледные дёсны",
+          "кровь в моче, стуле или рвоте",
+          "кровотечение из носа или дёсен",
+          "синяки на коже",
+          "кашель, затруднённое дыхание"
+        ],
+        "en": [
+          "lethargy, weakness",
+          "pale gums",
+          "blood in urine, stool or vomit",
+          "bleeding from the nose or gums",
+          "bruises on the skin",
+          "coughing, laboured breathing"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Уберите остатки приманки и закройте к ней доступ",
+      "Сохраните упаковку или сфотографируйте её: врачу важно действующее вещество",
+      "Прикиньте, сколько могло быть съедено и когда"
+    ],
+    "en": [
+      "Call a vet clinic right away, even if your pet seems fine",
+      "Put the rest of the bait away and block access to it",
+      "Keep the packaging or take a photo of it: the vet needs the active ingredient",
+      "Work out roughly how much was eaten and when"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте молоко, масло, уголь и другие «антидоты» из интернета",
+      "Не ждите признаков: они появляются через несколько дней"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give milk, oil, charcoal or other home “antidotes” from the internet",
+      "Do not wait for signs: they appear days later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — Poison Database"
+    },
+    {
+      "title": "MSD Veterinary Manual — Toxicology"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

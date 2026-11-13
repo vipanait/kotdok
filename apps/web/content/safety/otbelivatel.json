@@ -1,0 +1,121 @@
+{
+  "slug": "otbelivatel",
+  "category": "household",
+  "name": {
+    "ru": "Отбеливатель (хлорка)",
+    "en": "Bleach"
+  },
+  "titleRu": "отбеливатель",
+  "aliases": {
+    "ru": [
+      "хлорка",
+      "хлорный отбеливатель",
+      "белизна",
+      "гипохлорит натрия",
+      "хлорсодержащее средство"
+    ],
+    "en": [
+      "chlorine bleach",
+      "household bleach",
+      "sodium hypochlorite",
+      "clorox"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Концентрированный отбеливатель обжигает рот и желудок кошки.",
+        "en": "Dangerous. Undiluted bleach burns a cat’s mouth and stomach."
+      },
+      "why": {
+        "ru": "Хлорка раздражает и может обжигать рот, пищевод и желудок, а пары — дыхательные пути. Кошки, особенно любящие вылизывать лапы, могут отравиться, пройдясь по свежевымытому полу. Слабо разведённый раствор обычно мягче, но проверять это лучше у врача.",
+        "en": "Bleach irritates and can burn the mouth, throat and stomach, and its fumes the airways. Cats, especially those that lick their paws, can be poisoned after walking over a freshly washed floor. A weak dilution is usually milder, but a vet should confirm that."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "рвота",
+          "отказ от еды, боль во рту",
+          "кашель, затруднённое дыхание",
+          "вялость"
+        ],
+        "en": [
+          "drooling",
+          "vomiting",
+          "not eating, mouth pain",
+          "coughing, laboured breathing",
+          "lethargy"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Концентрированный отбеливатель обжигает рот и желудок собаки.",
+        "en": "Dangerous. Undiluted bleach burns a dog’s mouth and stomach."
+      },
+      "why": {
+        "ru": "Хлорка раздражает и может обжигать рот, пищевод и желудок, а пары — дыхательные пути. Слабо разведённый раствор обычно приводит к лёгкому расстройству, но при концентрированном нужна срочная помощь врача.",
+        "en": "Bleach irritates and can burn the mouth, throat and stomach, and its fumes the airways. A weak dilution usually causes only a mild upset, but with concentrated bleach a vet is needed urgently."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "рвота",
+          "боль во рту, отказ от еды",
+          "кашель, затруднённое дыхание",
+          "вялость"
+        ],
+        "en": [
+          "drooling",
+          "vomiting",
+          "mouth pain, not eating",
+          "coughing, laboured breathing",
+          "lethargy"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Уберите питомца от вещества и закройте к нему доступ",
+      "Сохраните упаковку или сфотографируйте её: врачу важны название и состав",
+      "Прикиньте, сколько могло быть съедено или попасть на шерсть, и когда"
+    ],
+    "en": [
+      "Call a vet clinic right away, even if your pet seems fine",
+      "Take your pet away from the substance and block access to it",
+      "Keep the packaging or take a photo of it: the vet needs the name and the ingredients",
+      "Work out roughly how much was eaten or got on the coat, and when"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте молоко, масло, уголь и другие «антидоты» из интернета",
+      "Не ждите признаков: они могут появиться не сразу"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give milk, oil, charcoal or other home “antidotes” from the internet",
+      "Do not wait for signs: they may not appear at once"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — Poison Database"
+    },
+    {
+      "title": "ASPCA Animal Poison Control — Toxic and Non-Toxic Plants and People Foods",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

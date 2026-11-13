@@ -1,0 +1,104 @@
+{
+  "slug": "banan",
+  "category": "food",
+  "name": {
+    "ru": "Банан",
+    "en": "Banana"
+  },
+  "titleRu": "бананы",
+  "aliases": {
+    "ru": [
+      "бананы",
+      "банановая кожура",
+      "кожура банана",
+      "мякоть банана",
+      "банан спелый"
+    ],
+    "en": [
+      "bananas",
+      "banana peel",
+      "ripe banana"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Маленький кусочек мякоти изредка можно, кожуру давать нельзя.",
+        "en": "With caution. A small piece of flesh now and then is fine; do not give the peel."
+      },
+      "why": {
+        "ru": "Мякоть банана не ядовита, но очень сладкая, и от неё легко расстроить желудок. Кожура плохо переваривается и может вызвать непроходимость. Кошке банан не нужен.",
+        "en": "Banana flesh is not poisonous, but it is very sweet and easily upsets the stomach. The peel is hard to digest and can cause a blockage. A cat does not need banana."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Пару кружочков мякоти изредка можно, кожуру давать нельзя.",
+        "en": "With caution. A couple of slices of flesh now and then are fine; do not give the peel."
+      },
+      "why": {
+        "ru": "Мякоть банана не ядовита, но очень сладкая, и от неё легко расстроить желудок. Кожура плохо переваривается и может вызвать непроходимость, особенно у небольшой собаки.",
+        "en": "Banana flesh is not poisonous, but it is very sweet and easily upsets the stomach. The peel is hard to digest and can cause a blockage, especially in a small dog."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите остатки и оцените, сколько питомец успел съесть",
+      "Понаблюдайте за питомцем в ближайшие сутки",
+      "Если появились признаки или вы не уверены, позвоните в клинику или пройдите проверку симптомов"
+    ],
+    "en": [
+      "Remove what is left and note how much your pet ate",
+      "Watch your pet over the next day",
+      "If signs appear or you are unsure, call a clinic or run a symptom check"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не ждите ухудшения, если питомец съел много"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not wait for it to get worse if your pet ate a lot"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Toxic and Non-Toxic Plants"
+    },
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/animal-poison-control/people-foods-avoid-feeding-your-pets"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

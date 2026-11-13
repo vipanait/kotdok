@@ -1,0 +1,113 @@
+{
+  "slug": "giacint",
+  "category": "plant",
+  "name": {
+    "ru": "Гиацинт",
+    "en": "Hyacinth"
+  },
+  "titleRu": "гиацинт",
+  "aliases": {
+    "ru": [
+      "гиацинты",
+      "гиацинта",
+      "луковица гиацинта",
+      "гиацинтовые луковицы"
+    ],
+    "en": [
+      "hyacinths",
+      "hyacinthus",
+      "hyacinth bulb",
+      "hyacinth bulbs"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Гиацинт ядовит для кошек, особенно луковицы.",
+        "en": "With caution. Hyacinth is poisonous to cats, especially the bulbs."
+      },
+      "why": {
+        "ru": "Вредные вещества похожи на алкалоиды нарцисса и сосредоточены в луковице. Бывает сильная рвота и понос, иногда с кровью, а также дрожь. Если съедена луковица или признаки сильные, звоните в клинику.",
+        "en": "The harmful substances resemble daffodil alkaloids and are concentrated in the bulb. Heavy vomiting and diarrhoea are possible, sometimes with blood, along with tremors. If a bulb was eaten or the signs are strong, call a clinic."
+      },
+      "signs": {
+        "ru": [
+          "сильная рвота",
+          "понос, иногда с кровью",
+          "дрожь",
+          "вялость"
+        ],
+        "en": [
+          "heavy vomiting",
+          "diarrhoea, sometimes bloody",
+          "tremors",
+          "lethargy"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Гиацинт ядовит для собак, особенно луковицы.",
+        "en": "With caution. Hyacinth is poisonous to dogs, especially the bulbs."
+      },
+      "why": {
+        "ru": "Вредные вещества похожи на алкалоиды нарцисса и сосредоточены в луковице. Бывает сильная рвота и понос, иногда с кровью, а также дрожь. Если съедена луковица или признаки сильные, звоните в клинику.",
+        "en": "The harmful substances resemble daffodil alkaloids and are concentrated in the bulb. Heavy vomiting and diarrhoea are possible, sometimes with blood, along with tremors. If a bulb was eaten or the signs are strong, call a clinic."
+      },
+      "signs": {
+        "ru": [
+          "сильная рвота",
+          "понос, иногда с кровью",
+          "дрожь",
+          "вялость"
+        ],
+        "en": [
+          "heavy vomiting",
+          "diarrhoea, sometimes bloody",
+          "tremors",
+          "lethargy"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите растение и выньте остатки из пасти питомца",
+      "Дайте питомцу свежую воду для питья",
+      "Понаблюдайте за ним несколько часов",
+      "Если появились признаки или их стало больше, позвоните в клинику"
+    ],
+    "en": [
+      "Take the plant away and remove any bits from your pet’s mouth",
+      "Make sure fresh water is available",
+      "Watch your pet for the next few hours",
+      "If signs appear or get worse, call a clinic"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте домашние «противоядия» из интернета",
+      "Не оставляйте растение в доступе после случая"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give home “antidotes” from the internet",
+      "Do not leave the plant within reach afterwards"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Hyacinth",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/hyacinth"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

@@ -1,0 +1,138 @@
+{
+  "slug": "kraski-rastvoriteli",
+  "category": "household",
+  "name": {
+    "ru": "Краски и растворители",
+    "en": "Paints and solvents"
+  },
+  "titleRu": "краски и растворители",
+  "aliases": {
+    "ru": [
+      "краска",
+      "краску",
+      "масляная краска",
+      "акриловая краска",
+      "эмаль",
+      "лак",
+      "растворитель",
+      "ацетон",
+      "уайт-спирит",
+      "разбавитель для краски",
+      "бензин",
+      "скипидар",
+      "керосин"
+    ],
+    "en": [
+      "paint",
+      "oil paint",
+      "acrylic paint",
+      "enamel",
+      "varnish",
+      "solvent",
+      "paint thinner",
+      "white spirit",
+      "turpentine",
+      "acetone",
+      "kerosene",
+      "gasoline"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Кошка слизывает краску и растворитель с шерсти и лап, а пары раздражают дыхание.",
+        "en": "Dangerous. A cat licks paint and solvent off its fur and paws, and the fumes irritate the airways."
+      },
+      "why": {
+        "ru": "Растворители, скипидар и бензин раздражают рот и желудок, действуют на нервную систему и могут повредить лёгкие, если попадут в дыхательные пути. Краски на масляной основе и с тяжёлыми добавками опаснее водных. Кошки хуже справляются со многими такими веществами.",
+        "en": "Solvents, turpentine and petrol irritate the mouth and stomach, affect the nervous system and can damage the lungs if they get into the airways. Oil-based paints and those with heavy additives are worse than water-based. Cats cope worse with many such substances."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "рвота",
+          "вялость, шаткая походка",
+          "кашель, затруднённое дыхание",
+          "раздражение кожи и глаз",
+          "дрожь"
+        ],
+        "en": [
+          "drooling",
+          "vomiting",
+          "lethargy, wobbly walking",
+          "coughing, laboured breathing",
+          "skin and eye irritation",
+          "tremors"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Собака может вылакать растворитель или краску, а пары вредны в закрытой комнате.",
+        "en": "Dangerous. A dog may lap up solvent or paint, and the fumes are harmful in a closed room."
+      },
+      "why": {
+        "ru": "Растворители, скипидар и бензин раздражают рот и желудок, действуют на нервную систему и могут повредить лёгкие. Свежая краска на масляной основе или с тяжёлыми добавками опаснее водной. Что делать, зависит от состава, поэтому врачу нужна этикетка.",
+        "en": "Solvents, turpentine and petrol irritate the mouth and stomach, affect the nervous system and can damage the lungs. Fresh oil-based paint or paint with heavy additives is worse than water-based. What to do depends on the contents, so the vet needs the label."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "рвота",
+          "вялость или возбуждение",
+          "шаткая походка",
+          "кашель, затруднённое дыхание",
+          "дрожь"
+        ],
+        "en": [
+          "drooling",
+          "vomiting",
+          "lethargy or agitation",
+          "wobbly walking",
+          "coughing, laboured breathing",
+          "tremors"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Выведите питомца на свежий воздух и проветрите помещение",
+      "Сохраните банку или сфотографируйте этикетку: важны вид краски и состав"
+    ],
+    "en": [
+      "Call a vet clinic right away, even if your pet seems fine",
+      "Take your pet into fresh air and air the room",
+      "Keep the can or photograph the label: the type of paint and the ingredients matter"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не мойте питомца растворителем и не стирайте им краску с шерсти — сначала позвоните врачу",
+      "Не ждите признаков: они могут появиться позже"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not wash your pet with solvent or take paint off the coat with it — call the vet first",
+      "Do not wait for signs: they can appear later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Poisons and Pet Safety"
+    },
+    {
+      "title": "MSD Veterinary Manual — Toxicology (poisoning in small animals)"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

@@ -1,0 +1,131 @@
+{
+  "slug": "montazhnaya-pena-klej",
+  "category": "household",
+  "name": {
+    "ru": "Монтажная пена и клей (полиуретановый)",
+    "en": "Expanding foam and polyurethane glue"
+  },
+  "titleRu": "монтажную пену и клей",
+  "aliases": {
+    "ru": [
+      "монтажная пена",
+      "пена монтажная",
+      "полиуретановая пена",
+      "полиуретановый клей",
+      "клей пу",
+      "строительный клей",
+      "клей гориллы",
+      "клей момент",
+      "супер клей"
+    ],
+    "en": [
+      "expanding foam",
+      "spray foam",
+      "polyurethane glue",
+      "polyurethane foam",
+      "gorilla glue",
+      "expanding glue",
+      "construction adhesive",
+      "super glue",
+      "superglue"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Полиуретановый клей и пена в желудке затвердевают и могут закупорить кишечник.",
+        "en": "Dangerous. Polyurethane glue and foam harden in the stomach and can block the bowel."
+      },
+      "why": {
+        "ru": "Полиуретановый клей расширяется от влаги в желудке, образует твёрдый ком и перекрывает проход. Он также раздражает рот и желудок. Суперклей на коже и шерсти склеивает и обжигает.",
+        "en": "Polyurethane glue expands with the moisture in the stomach, forms a hard lump and blocks the passage. It also irritates the mouth and the stomach. Superglue on the skin and fur sticks and burns."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "отказ от еды",
+          "вздутый или болезненный живот",
+          "вялость",
+          "слюнотечение",
+          "склеенная шерсть или лапы"
+        ],
+        "en": [
+          "vomiting",
+          "refusing food",
+          "bloated or painful belly",
+          "lethargy",
+          "drooling",
+          "glued fur or paws"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Одна из самых частых бытовых опасностей для собак: клей пухнет в желудке и требует срочной помощи.",
+        "en": "Dangerous. One of the most common household hazards for dogs: the glue swells in the stomach and needs urgent care."
+      },
+      "why": {
+        "ru": "Собаки слизывают и грызут тюбики с приятно пахнущим клеем. В желудке он расширяется и затвердевает в твёрдый ком, который сам не выйдет. Затвердевшая пена тоже может застрять в кишечнике.",
+        "en": "Dogs lick and chew tubes of pleasant-smelling glue. In the stomach it expands and hardens into a solid lump that will not pass on its own. Cured foam can lodge in the bowel too."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "отказ от еды",
+          "вздутый или болезненный живот",
+          "вялость",
+          "слюнотечение",
+          "склеенная шерсть или лапы"
+        ],
+        "en": [
+          "vomiting",
+          "refusing food",
+          "bloated or painful belly",
+          "lethargy",
+          "drooling",
+          "glued fur or paws"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Сохраните упаковку или сфотографируйте этикетку: врачу важны название и состав",
+      "Если клей на шерсти или лапах, не давайте питомцу его облизывать и скажите об этом врачу"
+    ],
+    "en": [
+      "Call a vet clinic right away, even if your pet seems fine",
+      "Keep the packaging or photograph the label: the vet needs the name and ingredients",
+      "If glue is on the fur or paws, keep your pet from licking it and tell the vet"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не отдирайте и не срезайте шерсть с клеем по советам из интернета — сначала позвоните врачу",
+      "Не ждите признаков: они могут появиться позже"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not pull off or cut glued fur on internet advice — call the vet first",
+      "Do not wait for signs: they can appear later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — Poisons: household adhesives"
+    },
+    {
+      "title": "MSD Veterinary Manual — Toxicology (poisoning in small animals)"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

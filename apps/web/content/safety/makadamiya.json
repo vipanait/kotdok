@@ -1,0 +1,119 @@
+{
+  "slug": "makadamiya",
+  "category": "food",
+  "name": {
+    "ru": "Орехи макадамия",
+    "en": "Macadamia nuts"
+  },
+  "titleRu": "орехи макадамия",
+  "aliases": {
+    "ru": [
+      "макадамия",
+      "макадамию",
+      "макадамии",
+      "макадамский орех",
+      "печенье с макадамией"
+    ],
+    "en": [
+      "macadamia",
+      "macadamias",
+      "macadamia nut",
+      "macadamia cookies"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. Для кошек макадамия не считается безопасной: данных мало, поэтому лучше не рисковать.",
+        "en": "Not safe. Macadamia is not considered safe for cats: data are thin, so do not take the risk."
+      },
+      "why": {
+        "ru": "Для собак макадамия известна как причина отравления с непонятным механизмом. По кошкам данных мало, поэтому берём более строгую оценку. Орехи к тому же очень жирные, а в печенье и сладостях есть шоколад и другие добавки.",
+        "en": "Macadamia is a known cause of poisoning in dogs, by a mechanism that is not clear. Data on cats are thin, so we take the stricter view. The nuts are also very fatty, and cookies and sweets contain chocolate and other additions."
+      },
+      "signs": {
+        "ru": [
+          "слабость, шаткая походка",
+          "дрожь",
+          "рвота",
+          "повышенная температура"
+        ],
+        "en": [
+          "weakness, unsteady walk",
+          "tremors",
+          "vomiting",
+          "raised temperature"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. Макадамия ядовита для собак, даже небольшое количество может вызвать признаки.",
+        "en": "Not safe. Macadamia is poisonous to dogs; even a small amount can cause signs."
+      },
+      "why": {
+        "ru": "Механизм до конца не изучен, но орехи вызывают слабость, дрожь и повышение температуры, обычно в первые часы. Они очень жирные и могут воспалить поджелудочную железу. Опасность не зависит от того, солёные они или нет.",
+        "en": "The mechanism is not fully understood, but the nuts cause weakness, tremors and a raised temperature, usually within hours. They are very fatty and can inflame the pancreas. Salted or not, they are equally risky."
+      },
+      "signs": {
+        "ru": [
+          "слабость, особенно задних лап",
+          "шаткая походка",
+          "дрожь",
+          "рвота",
+          "повышенная температура",
+          "боль в животе"
+        ],
+        "en": [
+          "weakness, especially in the back legs",
+          "unsteady walk",
+          "tremors",
+          "vomiting",
+          "raised temperature",
+          "belly pain"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Уберите остатки орехов",
+      "Сохраните упаковку или запомните, сколько примерно было съедено и когда"
+    ],
+    "en": [
+      "Call a vet clinic, even if your pet seems fine",
+      "Put the rest of the nuts away",
+      "Keep the packaging or note roughly how much was eaten and when"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте домашние «антидоты» из интернета",
+      "Не ждите признаков: они могут появиться не сразу"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give home “antidotes” from the internet",
+      "Do not wait for signs: they may appear later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    },
+    {
+      "title": "Pet Poison Helpline — Poison Control for Pets"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

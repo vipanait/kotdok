@@ -1,0 +1,127 @@
+{
+  "slug": "zhelezo-multivitaminy",
+  "category": "medicine",
+  "name": {
+    "ru": "Препараты железа и мультивитамины",
+    "en": "Iron supplements and multivitamins"
+  },
+  "titleRu": "препараты железа и мультивитамины",
+  "aliases": {
+    "ru": [
+      "препараты железа",
+      "железо в таблетках",
+      "добавки железа",
+      "мультивитамины",
+      "витамины для людей",
+      "витаминный комплекс",
+      "сорбифер",
+      "мальтофер",
+      "ферретаб"
+    ],
+    "en": [
+      "iron supplement",
+      "iron pills",
+      "iron tablets",
+      "multivitamin",
+      "multivitamins",
+      "ferrous sulfate",
+      "prenatal vitamins"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Железо и мультивитамины для людей опасны для кошек.",
+        "en": "Dangerous. Human iron supplements and multivitamins are dangerous to cats."
+      },
+      "why": {
+        "ru": "Много железа раздражает желудок и кишечник, а затем может повредить печень и другие органы. В мультивитаминах железа, как и других веществ, бывает много. Что делать, решает врач.",
+        "en": "Too much iron irritates the stomach and gut and can then damage the liver and other organs. Multivitamins can contain a lot of iron and other substances. The vet decides what to do."
+      },
+      "signs": {
+        "ru": [
+          "рвота, иногда с кровью",
+          "понос",
+          "вялость",
+          "боль в животе",
+          "отказ от еды"
+        ],
+        "en": [
+          "vomiting, sometimes with blood",
+          "diarrhoea",
+          "lethargy",
+          "belly pain",
+          "not eating"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Железо и мультивитамины для людей опасны для собак.",
+        "en": "Dangerous. Human iron supplements and multivitamins are dangerous to dogs."
+      },
+      "why": {
+        "ru": "Избыток железа раздражает желудок и кишечник, в тяжёлых случаях страдают печень и другие органы; признаки могут стихнуть, а потом вернуться. Насколько это опасно, оценит врач.",
+        "en": "Excess iron irritates the stomach and gut and in serious cases harms the liver and other organs; signs may ease and then return. The vet will judge how dangerous it is."
+      },
+      "signs": {
+        "ru": [
+          "рвота, иногда с кровью",
+          "чёрный или кровавый стул",
+          "вялость",
+          "боль в животе",
+          "отказ от еды"
+        ],
+        "en": [
+          "vomiting, sometimes with blood",
+          "black or bloody stool",
+          "lethargy",
+          "belly pain",
+          "not eating"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Уберите остатки препарата и назовите врачу его название",
+      "Сохраните упаковку или сфотографируйте её: врачу важны состав и форма препарата",
+      "Прикиньте, сколько могло быть съедено и когда"
+    ],
+    "en": [
+      "Call a vet clinic right away, even if your pet seems fine",
+      "Put the rest of the product away and tell the vet its name",
+      "Keep the packaging or take a photo of it: the vet needs the ingredients and the form",
+      "Work out roughly how much was eaten and when"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте молоко, масло, уголь и другие «антидоты» из интернета",
+      "Не ждите признаков: они могут появиться через несколько часов или дней"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give milk, oil, charcoal or other home “antidotes” from the internet",
+      "Do not wait for signs: they can appear hours or days later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — Poison Database"
+    },
+    {
+      "title": "MSD Veterinary Manual — Toxicology"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

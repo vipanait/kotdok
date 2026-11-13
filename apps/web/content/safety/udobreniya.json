@@ -1,0 +1,132 @@
+{
+  "slug": "udobreniya",
+  "category": "household",
+  "name": {
+    "ru": "Удобрения",
+    "en": "Fertilizers"
+  },
+  "titleRu": "удобрения",
+  "aliases": {
+    "ru": [
+      "удобрение",
+      "удобрения для растений",
+      "удобрение для газона",
+      "подкормка для растений",
+      "минеральные удобрения",
+      "костная мука",
+      "кровяная мука",
+      "нитрофоска",
+      "азотные удобрения",
+      "гранулы удобрения"
+    ],
+    "en": [
+      "fertilizer",
+      "plant food",
+      "lawn fertilizer",
+      "bone meal",
+      "blood meal",
+      "garden fertilizer",
+      "plant fertilizer",
+      "granular fertilizer"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Гранулы и жидкие подкормки раздражают желудок, а костная и кровяная мука привлекают питомцев.",
+        "en": "Dangerous. Granules and liquid feeds irritate the stomach, and bone and blood meal attract pets."
+      },
+      "why": {
+        "ru": "Состав разный: калий, азот, железо, иногда добавки против сорняков и насекомых. Удобрения раздражают рот и желудок, а некоторые повреждают органы. Костную и кровяную муку питомцы едят охотно, она может комкаться в желудке. Лизнуть свежеобработанный газон тоже небезопасно.",
+        "en": "The make-up varies: potassium, nitrogen, iron, sometimes weed or insect killers. Fertilizers irritate the mouth and stomach, and some harm organs. Pets eat bone and blood meal eagerly, and it can clump in the stomach. Licking a freshly treated lawn is not safe either."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "тошнота, рвота",
+          "понос",
+          "вялость",
+          "болезненный живот, сгорбленная поза",
+          "затруднённое дыхание"
+        ],
+        "en": [
+          "drooling",
+          "nausea, vomiting",
+          "diarrhoea",
+          "lethargy",
+          "painful belly, hunched posture",
+          "laboured breathing"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Собаки поедают гранулы, костную и кровяную муку и вылизывают обработанный газон.",
+        "en": "Dangerous. Dogs eat granules, bone and blood meal and lick a treated lawn."
+      },
+      "why": {
+        "ru": "Удобрения раздражают рот и желудок, а некоторые содержат железо или средства против насекомых, которые опаснее. Костная и кровяная мука пахнет едой и может комкаться в желудке. Точный состав нужно сообщить врачу.",
+        "en": "Fertilizers irritate the mouth and stomach, and some contain iron or insect killers, which are worse. Bone and blood meal smells like food and can clump in the stomach. The exact make-up should be told to the vet."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "тошнота, рвота",
+          "понос",
+          "вялость",
+          "болезненный живот, сгорбленная поза",
+          "затруднённое дыхание"
+        ],
+        "en": [
+          "drooling",
+          "nausea, vomiting",
+          "diarrhoea",
+          "lethargy",
+          "painful belly, hunched posture",
+          "laboured breathing"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Сохраните упаковку или сфотографируйте этикетку: врачу важны название и состав",
+      "Уберите питомца с газона или грядки; если удобрение на лапах или морде, протрите их влажной тканью"
+    ],
+    "en": [
+      "Call a vet clinic right away, even if your pet seems fine",
+      "Keep the packaging or photograph the label: the vet needs the name and ingredients",
+      "Keep your pet off the lawn or bed; if fertilizer is on the paws or muzzle, wipe them with a damp cloth"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не ждите признаков: они могут появиться позже",
+      "Не пробуйте «домашние антидоты» из интернета"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not wait for signs: they can appear later",
+      "Do not try home “antidotes” from the internet"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — Fertilizer",
+      "url": "https://www.petpoisonhelpline.com/poisons/fertilizer/"
+    },
+    {
+      "title": "ASPCA Animal Poison Control — Poisons and Pet Safety"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "slug": "ogurec",
+  "category": "food",
+  "name": {
+    "ru": "Огурец",
+    "en": "Cucumber"
+  },
+  "titleRu": "огурец",
+  "aliases": {
+    "ru": [
+      "огурцы",
+      "огурчик",
+      "огурцы свежие",
+      "свежий огурец"
+    ],
+    "en": [
+      "cucumbers",
+      "fresh cucumber"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "safe",
+      "summary": {
+        "ru": "Можно как лакомство. Свежий огурец не ядовит, но кошке он не нужен.",
+        "en": "Safe as a treat. Fresh cucumber is not poisonous, but a cat does not need it."
+      },
+      "why": {
+        "ru": "Огурец не ядовит для кошек и собак. Давайте свежий, без соли, маринада и специй, небольшими кусочками. Солёные и маринованные огурцы не подходят: в них соль, чеснок и специи.",
+        "en": "Cucumber is not poisonous to cats or dogs. Give it fresh, with no salt, brine or spices, in small pieces. Salted and pickled cucumbers are not suitable: they contain salt, garlic and spices."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "none"
+    },
+    "dog": {
+      "verdict": "safe",
+      "summary": {
+        "ru": "Можно как лакомство в небольшом количестве, свежий и без добавок.",
+        "en": "Safe as a treat in small amounts, fresh and plain."
+      },
+      "why": {
+        "ru": "Огурец не ядовит для собак. Давайте свежий, без соли, маринада и специй, кусочками. Солёные и маринованные огурцы не подходят: в них соль, чеснок и специи.",
+        "en": "Cucumber is not poisonous to dogs. Give it fresh, with no salt, brine or spices, in pieces. Salted and pickled cucumbers are not suitable: they contain salt, garlic and spices."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "none"
+    }
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Cucumber",
+      "url": "https://www.aspca.org/pet-care/animal-poison-control/toxic-and-non-toxic-plants/cucumber"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

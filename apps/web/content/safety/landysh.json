@@ -1,0 +1,115 @@
+{
+  "slug": "landysh",
+  "category": "plant",
+  "name": {
+    "ru": "Ландыш",
+    "en": "Lily of the valley"
+  },
+  "titleRu": "ландыш",
+  "aliases": {
+    "ru": [
+      "ландыши",
+      "ландыша",
+      "майский ландыш",
+      "ландыш майский",
+      "ландыши в вазе"
+    ],
+    "en": [
+      "lily-of-the-valley",
+      "lilies of the valley",
+      "convallaria",
+      "convallaria majalis",
+      "may lily"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Ландыш ядовит для кошек: он действует на сердце.",
+        "en": "Dangerous. Lily of the valley is poisonous to cats: it affects the heart."
+      },
+      "why": {
+        "ru": "Все части ландыша содержат сердечные гликозиды (карденолиды). Они могут нарушить ритм сердца и давление. Опасны не только цветы, но и листья, ягоды и вода из вазы с букетом.",
+        "en": "Every part of lily of the valley contains cardiac glycosides (cardenolides). They can upset the heart rhythm and blood pressure. Not only the flowers are dangerous but also the leaves, berries and the water from a vase."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "неровный сердечный ритм",
+          "вялость, дезориентация",
+          "судороги"
+        ],
+        "en": [
+          "vomiting",
+          "irregular heartbeat",
+          "lethargy, disorientation",
+          "seizures"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Ландыш ядовит для собак: он действует на сердце.",
+        "en": "Dangerous. Lily of the valley is poisonous to dogs: it affects the heart."
+      },
+      "why": {
+        "ru": "Все части ландыша содержат сердечные гликозиды (карденолиды). Они могут нарушить ритм сердца и давление. Опасны не только цветы, но и листья, ягоды и вода из вазы с букетом.",
+        "en": "Every part of lily of the valley contains cardiac glycosides (cardenolides). They can upset the heart rhythm and blood pressure. Not only the flowers are dangerous but also the leaves, berries and the water from a vase."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "неровный сердечный ритм",
+          "вялость, дезориентация",
+          "судороги"
+        ],
+        "en": [
+          "vomiting",
+          "irregular heartbeat",
+          "lethargy, disorientation",
+          "seizures"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Позвоните в ветеринарную клинику сразу, не дожидаясь признаков",
+      "Уберите растение туда, куда питомец не доберётся",
+      "Возьмите кусочек растения или сфотографируйте его, чтобы показать врачу",
+      "Скажите врачу, сколько примерно времени прошло"
+    ],
+    "en": [
+      "Call a vet clinic right away, without waiting for signs",
+      "Move the plant out of reach",
+      "Take a piece of the plant or a photo of it to show the vet",
+      "Tell the vet roughly how long ago it happened"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте домашние «противоядия» из интернета",
+      "Не откладывайте звонок до утра, даже если питомец выглядит бодрым"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give home “antidotes” from the internet",
+      "Do not put off the call till morning even if your pet looks fine"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Lily of the Valley",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/lily-valley"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

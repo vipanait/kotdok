@@ -1,0 +1,135 @@
+{
+  "slug": "griby",
+  "category": "food",
+  "name": {
+    "ru": "Грибы",
+    "en": "Mushrooms"
+  },
+  "titleRu": "грибы",
+  "aliases": {
+    "ru": [
+      "гриб",
+      "грибочки",
+      "дикие грибы",
+      "лесные грибы",
+      "поганка",
+      "бледная поганка",
+      "мухомор",
+      "шампиньоны",
+      "шампиньон",
+      "вёшенки",
+      "вешенки",
+      "белые грибы",
+      "лисички",
+      "опята",
+      "сыроежки"
+    ],
+    "en": [
+      "mushroom",
+      "wild mushrooms",
+      "toadstool",
+      "death cap",
+      "fly agaric",
+      "champignon",
+      "button mushrooms",
+      "shiitake",
+      "porcini",
+      "chanterelle"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. Любой дикий гриб считайте опасным: часть грибов вызывает тяжёлое поражение печени, почек и нервной системы.",
+        "en": "Not safe. Treat any wild mushroom as dangerous: some cause severe damage to the liver, kidneys and nervous system."
+      },
+      "why": {
+        "ru": "Дикие грибы трудно отличить друг от друга, и признаки могут появиться только через сутки, когда помощь уже сложнее. Магазинные шампиньоны и вёшенки сами по себе не считаются ядовитыми, но питомцу их лучше не давать: жареные, с луком, маслом и солью они вредны. Если питомец съел гриб на прогулке, считайте его ядовитым.",
+        "en": "Wild mushrooms are hard to tell apart, and signs may appear only a day later, when treatment is harder. Plain shop-bought button or oyster mushrooms are not considered poisonous in themselves, but it is best not to give them: fried, with onion, butter or salt they are harmful. If your pet ate a mushroom on a walk, assume it is poisonous."
+      },
+      "signs": {
+        "ru": [
+          "рвота и понос",
+          "слюнотечение",
+          "вялость, слабость",
+          "шаткая походка, дрожь",
+          "желтоватые дёсны или глаза"
+        ],
+        "en": [
+          "vomiting and diarrhoea",
+          "drooling",
+          "lethargy, weakness",
+          "unsteady walking, tremors",
+          "yellowish gums or eyes"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. Любой дикий гриб считайте опасным: часть грибов вызывает тяжёлое поражение печени, почек и нервной системы.",
+        "en": "Not safe. Treat any wild mushroom as dangerous: some cause severe damage to the liver, kidneys and nervous system."
+      },
+      "why": {
+        "ru": "Дикие грибы трудно отличить друг от друга, и признаки могут появиться только через сутки, когда помощь уже сложнее. Магазинные шампиньоны и вёшенки сами по себе не считаются ядовитыми, но собаке их лучше не давать: жареные, с луком, маслом и солью они вредны. Если собака съела гриб на прогулке, считайте его ядовитым.",
+        "en": "Wild mushrooms are hard to tell apart, and signs may appear only a day later, when treatment is harder. Plain shop-bought button or oyster mushrooms are not considered poisonous in themselves, but it is best not to give them: fried, with onion, butter or salt they are harmful. If your dog ate a mushroom on a walk, assume it is poisonous."
+      },
+      "signs": {
+        "ru": [
+          "рвота и понос",
+          "слюнотечение",
+          "вялость, слабость",
+          "шаткая походка, дрожь",
+          "желтоватые дёсны или глаза"
+        ],
+        "en": [
+          "vomiting and diarrhoea",
+          "drooling",
+          "lethargy, weakness",
+          "unsteady walking, tremors",
+          "yellowish gums or eyes"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Позвоните в клинику сразу, не ждите признаков",
+      "Сфотографируйте гриб или возьмите его кусочек с собой, если он остался",
+      "Уберите остатки грибов от питомца"
+    ],
+    "en": [
+      "Call a clinic right away, do not wait for signs",
+      "Photograph the mushroom or take a piece of it with you if any is left",
+      "Keep your pet away from any remaining mushrooms"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не ждите, пока появятся признаки: они могут проявиться через сутки",
+      "Не пытайтесь определить гриб сами и не считайте его безопасным"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not wait for signs: they can appear a day later",
+      "Do not try to identify the mushroom yourself or assume it is harmless"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — Mushroom Poisoning in Dogs and Cats",
+      "url": "https://www.petpoisonhelpline.com/poison/mushrooms/"
+    },
+    {
+      "title": "Merck Veterinary Manual — Mushroom Poisoning"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

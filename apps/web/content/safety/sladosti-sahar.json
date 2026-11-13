@@ -1,0 +1,113 @@
+{
+  "slug": "sladosti-sahar",
+  "category": "food",
+  "name": {
+    "ru": "Сладости и сахар",
+    "en": "Sweets and sugar"
+  },
+  "titleRu": "сладости и сахар",
+  "aliases": {
+    "ru": [
+      "сладости",
+      "сладкое",
+      "сахар",
+      "сахарный песок",
+      "печенье",
+      "пирожное",
+      "торт",
+      "вафли",
+      "варенье",
+      "мармелад",
+      "sugar"
+    ],
+    "en": [
+      "sweets",
+      "candy",
+      "sugar",
+      "sugary food",
+      "cookies",
+      "biscuits",
+      "cake",
+      "pastry",
+      "jam"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Сладкое кошке не нужно. Немного сахара не ядовито, но подсластитель ксилит и шоколад опасны.",
+        "en": "With caution. A cat does not need sweets. A little sugar is not poisonous, but the sweetener xylitol and chocolate are dangerous."
+      },
+      "why": {
+        "ru": "Кошки не чувствуют сладкий вкус, и пользы от сладкого нет. Сахар может расстроить желудок. Главная опасность — состав: ксилит и шоколад, изюм или орехи в выпечке. Проверьте этикетку; про ксилит и шоколад есть отдельные статьи.",
+        "en": "Cats cannot taste sweetness and gain nothing from it. Sugar can upset the stomach. The real danger is the ingredients: xylitol, and chocolate, raisins or nuts in baked goods. Check the label; xylitol and chocolate have their own entries."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Немного сахара не ядовито, но сладкое давать не стоит. Ксилит и шоколад в составе опасны.",
+        "en": "With caution. A little sugar is not poisonous, but sweets are best avoided. Xylitol and chocolate in the ingredients are dangerous."
+      },
+      "why": {
+        "ru": "Сахар вреден зубам и весу и может расстроить желудок. Главная опасность — состав: ксилит и шоколад, изюм или орехи в выпечке. Проверьте этикетку; про ксилит и шоколад есть отдельные статьи.",
+        "en": "Sugar is bad for teeth and weight and can upset the stomach. The real danger is the ingredients: xylitol, and chocolate, raisins or nuts in baked goods. Check the label; xylitol and chocolate have their own entries."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Прочитайте состав: нет ли ксилита, шоколада, изюма",
+      "Если есть ксилит или шоколад — сразу позвоните в клинику",
+      "Если их нет — оставьте воду и наблюдайте за питомцем сутки"
+    ],
+    "en": [
+      "Read the label for xylitol, chocolate or raisins",
+      "If xylitol or chocolate is there, call a clinic at once",
+      "If not, leave water available and watch your pet for a day"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не давайте сладкое «в награду»",
+      "Не давайте лекарства без назначения врача"
+    ],
+    "en": [
+      "Do not give sweets as a reward",
+      "Do not give any medicine unless a vet tells you to"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

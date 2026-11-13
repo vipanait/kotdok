@@ -1,0 +1,117 @@
+{
+  "slug": "pomidor",
+  "category": "food",
+  "name": {
+    "ru": "Помидоры (включая зелёные части)",
+    "en": "Tomatoes (including green parts)"
+  },
+  "titleRu": "помидоры и томаты",
+  "aliases": {
+    "ru": [
+      "помидор",
+      "помидоры",
+      "томат",
+      "томаты",
+      "зеленые помидоры",
+      "зеленый помидор",
+      "ботва помидоров",
+      "листья помидора",
+      "куст помидора",
+      "спелые помидоры"
+    ],
+    "en": [
+      "tomato",
+      "tomatoes",
+      "green tomato",
+      "green tomatoes",
+      "tomato plant",
+      "tomato leaves"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Спелый помидор — изредка и немного, а зелёные плоды, листья и стебли давать нельзя.",
+        "en": "With caution. A ripe tomato is fine now and then in a small piece, but green fruit, leaves and stems are not."
+      },
+      "why": {
+        "ru": "Куст помидора и незрелые зелёные плоды содержат соланин и томатин и вызывают расстройство желудка, слабость и слюнотечение. Мякоть спелого плода ядовитой не считается, но кошке она не нужна. Если даёте, то немного спелого помидора без соли и соусов.",
+        "en": "The tomato plant and unripe green fruit contain solanine and tomatine and cause stomach upset, weakness and drooling. Ripe fruit flesh is not considered poisonous, but a cat does not need it. If you give any, a little ripe tomato with no salt or sauce."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "рвота, понос",
+          "вялость, слабость"
+        ],
+        "en": [
+          "drooling",
+          "vomiting, diarrhoea",
+          "lethargy, weakness"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Спелый помидор — изредка и немного, а зелёные плоды, листья и стебли давать нельзя.",
+        "en": "With caution. A ripe tomato is fine now and then in a small amount, but green fruit, leaves and stems are not."
+      },
+      "why": {
+        "ru": "Куст помидора и незрелые зелёные плоды содержат соланин и томатин и вызывают расстройство желудка, слабость и слюнотечение. Мякоть спелого плода ядовитой не считается. Если даёте, то немного спелого помидора без соли и соусов. Если собака обгрызла куст, понаблюдайте за ней.",
+        "en": "The tomato plant and unripe green fruit contain solanine and tomatine and cause stomach upset, weakness and drooling. Ripe fruit flesh is not considered poisonous. If you give any, a little ripe tomato with no salt or sauce. If your dog chewed the plant, keep an eye on it."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "рвота, понос",
+          "вялость, слабость"
+        ],
+        "en": [
+          "drooling",
+          "vomiting, diarrhoea",
+          "lethargy, weakness"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите остатки и оцените, сколько питомец успел съесть",
+      "Понаблюдайте за питомцем в ближайшие сутки",
+      "Если появились признаки или вы не уверены, позвоните в клинику или пройдите проверку симптомов"
+    ],
+    "en": [
+      "Remove what is left and note how much your pet ate",
+      "Watch your pet over the next day",
+      "If signs appear or you are unsure, call a clinic or run a symptom check"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не ждите ухудшения, если питомец съел много"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not wait for it to get worse if your pet ate a lot"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Tomato Plant",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/tomato-plant"
+    },
+    {
+      "title": "ASPCA — Pets and Produce: Top Tips on Vegetable Garden Safety",
+      "url": "https://www.aspca.org/news/pets-and-produce-top-tips-vegetable-garden-safety"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

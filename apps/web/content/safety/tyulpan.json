@@ -1,0 +1,113 @@
+{
+  "slug": "tyulpan",
+  "category": "plant",
+  "name": {
+    "ru": "Тюльпан",
+    "en": "Tulip"
+  },
+  "titleRu": "тюльпан",
+  "aliases": {
+    "ru": [
+      "тюльпаны",
+      "тюльпана",
+      "луковица тюльпана",
+      "тюльпановые луковицы"
+    ],
+    "en": [
+      "tulips",
+      "tulipa",
+      "tulip bulb",
+      "tulip bulbs"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Тюльпан ядовит для кошек, больше всего — луковицы.",
+        "en": "With caution. Tulip is poisonous to cats, most of all the bulbs."
+      },
+      "why": {
+        "ru": "Опасные вещества — тюльпанин A и B, их больше всего в луковице. Листья и цветок обычно дают более слабую реакцию, чем луковица. После луковицы, особенно съеденной целиком, лучше позвонить в клинику.",
+        "en": "The harmful substances are tulipalin A and B, with the most in the bulb. Leaves and flowers usually cause a milder reaction than the bulb. After a bulb, especially one eaten whole, it is better to call a clinic."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "слюнотечение",
+          "вялость"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "drooling",
+          "lethargy"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Тюльпан ядовит для собак, больше всего — луковицы.",
+        "en": "With caution. Tulip is poisonous to dogs, most of all the bulbs."
+      },
+      "why": {
+        "ru": "Опасные вещества — тюльпанин A и B, их больше всего в луковице. Листья и цветок обычно дают более слабую реакцию, чем луковица. После луковицы, особенно съеденной целиком, лучше позвонить в клинику.",
+        "en": "The harmful substances are tulipalin A and B, with the most in the bulb. Leaves and flowers usually cause a milder reaction than the bulb. After a bulb, especially one eaten whole, it is better to call a clinic."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "слюнотечение",
+          "вялость"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "drooling",
+          "lethargy"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите растение и выньте остатки из пасти питомца",
+      "Дайте питомцу свежую воду для питья",
+      "Понаблюдайте за ним несколько часов",
+      "Если появились признаки или их стало больше, позвоните в клинику"
+    ],
+    "en": [
+      "Take the plant away and remove any bits from your pet’s mouth",
+      "Make sure fresh water is available",
+      "Watch your pet for the next few hours",
+      "If signs appear or get worse, call a clinic"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте домашние «противоядия» из интернета",
+      "Не оставляйте растение в доступе после случая"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give home “antidotes” from the internet",
+      "Do not leave the plant within reach afterwards"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Tulip",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/tulip"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

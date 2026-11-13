@@ -1,0 +1,140 @@
+{
+  "slug": "marihuana",
+  "category": "household",
+  "name": {
+    "ru": "Марихуана (каннабис, включая выпечку)",
+    "en": "Marijuana (cannabis, including edibles)"
+  },
+  "titleRu": "марихуану",
+  "aliases": {
+    "ru": [
+      "марихуана",
+      "каннабис",
+      "конопля",
+      "коноплю",
+      "гашиш",
+      "травка",
+      "косяк",
+      "каннабис в выпечке",
+      "печенье с марихуаной",
+      "конопляные сладости",
+      "сативу",
+      "жвачки с каннабисом"
+    ],
+    "en": [
+      "marijuana",
+      "cannabis",
+      "hashish",
+      "hemp",
+      "cannabis edibles",
+      "marijuana brownies",
+      "cannabis gummies",
+      "pot brownies"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. Для кошек опасен даже небольшой кусочек, а в выпечке и сладостях действующее вещество часто сочетается с шоколадом.",
+        "en": "Not safe. Even a small piece is dangerous to a cat, and edibles often combine the active ingredient with chocolate."
+      },
+      "why": {
+        "ru": "ТГК действует на нервную систему. Безопасной дозы психоактивной марихуаны для питомцев нет. Вдыхание дыма тоже вредно. В сладостях добавляются сахарозаменители и шоколад, которые опасны отдельно.",
+        "en": "THC acts on the nervous system. There is no safe dose of psychoactive marijuana for pets. Inhaling the smoke is also harmful. Edibles add sweeteners and chocolate, which are dangerous on their own."
+      },
+      "signs": {
+        "ru": [
+          "шаткая походка",
+          "вялость или возбуждение",
+          "расширенные зрачки",
+          "слюнотечение, рвота",
+          "непроизвольное мочеиспускание",
+          "замедленное дыхание",
+          "судороги"
+        ],
+        "en": [
+          "unsteady walking",
+          "lethargy or agitation",
+          "dilated pupils",
+          "drooling, vomiting",
+          "uncontrolled urination",
+          "slow breathing",
+          "seizures"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. Собаки находят и съедают траву, сигареты с ней и выпечку, и это опасно.",
+        "en": "Not safe. Dogs find and eat the plant, joints and edibles, and this is dangerous."
+      },
+      "why": {
+        "ru": "ТГК действует на нервную систему: собака шатается, пугается, может потерять сознание. В выпечке и конфетах бывают шоколад и ксилит, которые опасны отдельно. Безопасной дозы нет.",
+        "en": "THC acts on the nervous system: a dog may stagger, startle, or collapse. Edibles can contain chocolate and xylitol, which are separate dangers. There is no safe dose."
+      },
+      "signs": {
+        "ru": [
+          "шаткая походка",
+          "вялость или беспокойство",
+          "вздрагивание от звуков",
+          "слюнотечение, рвота",
+          "непроизвольное мочеиспускание",
+          "замедленное сердцебиение, слабое дыхание",
+          "судороги"
+        ],
+        "en": [
+          "unsteady walking",
+          "lethargy or restlessness",
+          "startling at sounds",
+          "drooling, vomiting",
+          "uncontrolled urination",
+          "slow heartbeat, weak breathing",
+          "seizures"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Честно скажите врачу, что именно съел питомец — это не повод для наказаний, а ускорит помощь",
+      "Сохраните упаковку выпечки или сладости: врачу важен состав, например шоколад",
+      "Держите питомца в спокойном тёмном месте и не оставляйте одного"
+    ],
+    "en": [
+      "Call a vet clinic right away, even if your pet seems fine",
+      "Be honest with the vet about what the pet ate — it speeds up care",
+      "Keep the edible's packaging: the vet needs the ingredients, e.g. chocolate",
+      "Keep your pet somewhere quiet and dim and do not leave it alone"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не ждите признаков: они могут появиться позже",
+      "Не скрывайте от врача, что это было"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not wait for signs: they can appear later",
+      "Do not hide from the vet what it was"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — Marijuana",
+      "url": "https://www.petpoisonhelpline.com/poisons/marijuana/"
+    },
+    {
+      "title": "MSD Veterinary Manual — Toxicology (poisoning in small animals)"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

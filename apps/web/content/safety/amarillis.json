@@ -1,0 +1,118 @@
+{
+  "slug": "amarillis",
+  "category": "plant",
+  "name": {
+    "ru": "Амариллис (гиппеаструм)",
+    "en": "Amaryllis (hippeastrum)"
+  },
+  "titleRu": "амариллис",
+  "aliases": {
+    "ru": [
+      "амариллис",
+      "амариллиса",
+      "гиппеаструм",
+      "гиппеаструма",
+      "гиппеаструм гибридный",
+      "амариллис белладонна"
+    ],
+    "en": [
+      "amaryllis",
+      "hippeastrum",
+      "belladonna lily",
+      "amaryllis bulb"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Амариллис (гиппеаструм) ядовит для кошек и собак, особенно луковица.",
+        "en": "Dangerous. Amaryllis (hippeastrum) is poisonous to cats and dogs, especially the bulb."
+      },
+      "why": {
+        "ru": "ASPCA относит амариллис к ядовитым для кошек и собак. Возможны рвота, слюнотечение, боль в животе, понос, вялость, потеря аппетита и дрожь. Больше всего токсинов в луковице. Позвоните в клинику, не дожидаясь признаков.",
+        "en": "The ASPCA lists amaryllis as toxic to cats and dogs. Vomiting, drooling, belly pain, diarrhoea, lethargy, loss of appetite and tremors are possible. Most of the toxin is in the bulb. Call a clinic without waiting for signs."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "слюнотечение",
+          "боль в животе",
+          "дрожь"
+        ],
+        "en": [
+          "vomiting",
+          "drooling",
+          "belly pain",
+          "tremors"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Амариллис (гиппеаструм) ядовит для кошек и собак, особенно луковица.",
+        "en": "Dangerous. Amaryllis (hippeastrum) is poisonous to cats and dogs, especially the bulb."
+      },
+      "why": {
+        "ru": "ASPCA относит амариллис к ядовитым для кошек и собак. Возможны рвота, слюнотечение, боль в животе, понос, вялость, потеря аппетита и дрожь. Больше всего токсинов в луковице. Позвоните в клинику, не дожидаясь признаков.",
+        "en": "The ASPCA lists amaryllis as toxic to cats and dogs. Vomiting, drooling, belly pain, diarrhoea, lethargy, loss of appetite and tremors are possible. Most of the toxin is in the bulb. Call a clinic without waiting for signs."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "слюнотечение",
+          "боль в животе",
+          "дрожь"
+        ],
+        "en": [
+          "vomiting",
+          "drooling",
+          "belly pain",
+          "tremors"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите растение туда, куда питомец не доберётся",
+      "Уберите остатки растения из пасти и протрите мордочку влажной тканью",
+      "Возьмите кусочек растения или сфотографируйте его",
+      "Позвоните в клинику и расскажите, что и сколько съедено"
+    ],
+    "en": [
+      "Move the plant out of the pet's reach",
+      "Remove any plant pieces from the mouth and wipe the face with a damp cloth",
+      "Take a piece of the plant or a photo of it",
+      "Call a clinic and tell them what was eaten and roughly how much"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте молоко, масло, уголь и другие «антидоты» из интернета",
+      "Не ждите, пока станет хуже, если питомец вялый или его рвёт"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give milk, oil, charcoal or other home “antidotes” from the internet",
+      "Do not wait for things to get worse if the pet is lethargic or vomiting"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Amaryllis",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/amaryllis"
+    },
+    {
+      "title": "Pet Poison Helpline — Poison Index (plants)"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

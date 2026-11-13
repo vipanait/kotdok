@@ -1,0 +1,126 @@
+{
+  "slug": "naftalin",
+  "category": "household",
+  "name": {
+    "ru": "Нафталин",
+    "en": "Mothballs (naphthalene)"
+  },
+  "titleRu": "нафталин",
+  "aliases": {
+    "ru": [
+      "нафталин",
+      "нафталиновые шарики",
+      "шарики от моли",
+      "средство от моли",
+      "таблетки от моли"
+    ],
+    "en": [
+      "naphthalene",
+      "mothball",
+      "mothballs",
+      "moth balls",
+      "moth repellent",
+      "moth crystals",
+      "paradichlorobenzene"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Кошки особенно чувствительны к нафталину: опасно проглотить шарик и опасны его пары.",
+        "en": "Dangerous. Cats are especially sensitive to naphthalene: swallowing a ball is dangerous, and so are the fumes."
+      },
+      "why": {
+        "ru": "Нафталин разрушает красные клетки крови и повреждает печень и почки. Он действует при проглатывании, через кожу и при вдыхании паров. Более новые шарики с другим веществом менее опасны, но тоже вредны.",
+        "en": "Naphthalene destroys red blood cells and damages the liver and kidneys. It acts when swallowed, through the skin and when the fumes are breathed in. Newer balls with a different substance are less toxic but still harmful."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "запах нафталина изо рта",
+          "бледные или бурые дёсны",
+          "вялость, слабость",
+          "затруднённое дыхание",
+          "дрожь, судороги"
+        ],
+        "en": [
+          "vomiting",
+          "mothball smell on the breath",
+          "pale or brownish gums",
+          "lethargy, weakness",
+          "laboured breathing",
+          "tremors, seizures"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Собаки чаще кошек глотают шарики, а пары вредны и без этого.",
+        "en": "Dangerous. Dogs swallow mothballs more often than cats, and the fumes are harmful anyway."
+      },
+      "why": {
+        "ru": "Нафталин повреждает красные клетки крови, печень и почки. Он действует при проглатывании, через кожу и при вдыхании. Шарики от моли похожи на конфеты и пахнут сильно, но питомцев это не всегда останавливает.",
+        "en": "Naphthalene harms red blood cells, the liver and the kidneys. It acts when swallowed, through the skin and when breathed in. Mothballs look like sweets and smell strongly, but that does not always stop pets."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "запах нафталина изо рта",
+          "бледные или бурые дёсны",
+          "вялость, слабость",
+          "затруднённое дыхание",
+          "дрожь, судороги"
+        ],
+        "en": [
+          "vomiting",
+          "mothball smell on the breath",
+          "pale or brownish gums",
+          "lethargy, weakness",
+          "laboured breathing",
+          "tremors, seizures"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Сохраните упаковку или сфотографируйте этикетку: врачу важны название и состав",
+      "Уберите шарики и проветрите шкаф или комнату, где они лежали"
+    ],
+    "en": [
+      "Call a vet clinic right away, even if your pet seems fine",
+      "Keep the packaging or photograph the label: the vet needs the name and ingredients",
+      "Remove the mothballs and air the cupboard or room where they were kept"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте молоко и жирную еду — сначала позвоните врачу",
+      "Не ждите признаков: они могут появиться позже"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give milk or fatty food — call the vet first",
+      "Do not wait for signs: they can appear later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — Mothballs",
+      "url": "https://www.petpoisonhelpline.com/poisons/mothballs/"
+    },
+    {
+      "title": "MSD Veterinary Manual — Toxicology (poisoning in small animals)"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

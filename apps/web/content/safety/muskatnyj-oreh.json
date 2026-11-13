@@ -1,0 +1,117 @@
+{
+  "slug": "muskatnyj-oreh",
+  "category": "food",
+  "name": {
+    "ru": "Мускатный орех",
+    "en": "Nutmeg"
+  },
+  "titleRu": "мускатный орех",
+  "aliases": {
+    "ru": [
+      "мускат",
+      "мускатный орех молотый",
+      "мускатного ореха",
+      "мускатный орешек",
+      "мускатный цвет",
+      "макис",
+      "пряность мускатный орех"
+    ],
+    "en": [
+      "nutmeg",
+      "ground nutmeg",
+      "whole nutmeg",
+      "mace"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. Мускатный орех содержит миристицин: он поражает нервную систему и вызывает рвоту, дезориентацию и учащённое сердцебиение.",
+        "en": "No. Nutmeg contains myristicin, which affects the nervous system and causes vomiting, disorientation and a fast heartbeat."
+      },
+      "why": {
+        "ru": "Мускатный орех содержит миристицин, и в количествах, которые легко съесть из выпечки или с блюдом, он вызывает отравление. Опасен и молотый, и целый орех, включая выпечку, пудинги и напитки с мускатом. Признаки могут появиться не сразу, а через несколько часов.",
+        "en": "Nutmeg contains myristicin, which in amounts easily eaten from baking or a dish can cause poisoning. Both ground and whole nutmeg are dangerous, including baking, puddings and drinks spiced with nutmeg. Signs may appear not at once but after several hours."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "дезориентация, сонливость или возбуждение",
+          "учащённое сердцебиение",
+          "дрожь, судороги"
+        ],
+        "en": [
+          "vomiting",
+          "disorientation, drowsiness or agitation",
+          "fast heartbeat",
+          "tremors, seizures"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Нельзя. Мускатный орех содержит миристицин: он поражает нервную систему и вызывает рвоту, дезориентацию и учащённое сердцебиение.",
+        "en": "No. Nutmeg contains myristicin, which affects the nervous system and causes vomiting, disorientation and a fast heartbeat."
+      },
+      "why": {
+        "ru": "Мускатный орех содержит миристицин, и в количествах, которые легко съесть из выпечки или с блюдом, он вызывает отравление. Опасен и молотый, и целый орех, включая выпечку, пудинги и напитки с мускатом. Признаки могут появиться не сразу, а через несколько часов.",
+        "en": "Nutmeg contains myristicin, which in amounts easily eaten from baking or a dish can cause poisoning. Both ground and whole nutmeg are dangerous, including baking, puddings and drinks spiced with nutmeg. Signs may appear not at once but after several hours."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "дезориентация, сонливость или возбуждение",
+          "учащённое сердцебиение",
+          "дрожь, судороги"
+        ],
+        "en": [
+          "vomiting",
+          "disorientation, drowsiness or agitation",
+          "fast heartbeat",
+          "tremors, seizures"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Уберите остатки и сохраните упаковку или косточки, если они есть",
+      "Прикиньте, сколько могло быть съедено и когда, и расскажите врачу"
+    ],
+    "en": [
+      "Call a vet clinic right away, even if your pet seems fine",
+      "Put away the leftovers and keep the packaging or pits if there are any",
+      "Work out roughly how much was eaten and when, and tell the vet"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не ждите признаков: они могут появиться через несколько часов",
+      "Не оставляйте пряности и выпечку с мускатом в доступе",
+      "Не вызывайте рвоту сами — только по указанию врача"
+    ],
+    "en": [
+      "Do not wait for signs: they can appear hours later",
+      "Do not leave spices or baking with nutmeg within reach",
+      "Do not make your pet vomit unless a vet tells you to"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — Poison Guide: Foods"
+    },
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "slug": "orhideya",
+  "category": "plant",
+  "name": {
+    "ru": "Орхидея (фаленопсис)",
+    "en": "Orchid (phalaenopsis)"
+  },
+  "titleRu": "орхидею",
+  "aliases": {
+    "ru": [
+      "орхидеи",
+      "фаленопсис",
+      "фаленопсиса",
+      "орхидея фаленопсис",
+      "мотыльковая орхидея"
+    ],
+    "en": [
+      "orchid",
+      "orchids",
+      "phalaenopsis",
+      "moth orchid",
+      "phalaenopsis orchid"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "safe",
+      "summary": {
+        "ru": "Безопасно. Орхидея фаленопсис для кошек и собак не ядовита.",
+        "en": "Non-toxic. The phalaenopsis orchid is not poisonous to cats and dogs."
+      },
+      "why": {
+        "ru": "ASPCA относит орхидею фаленопсис к неядовитым для кошек и собак. Если питомец съел много листьев или цветков, желудок может ненадолго расстроиться. Это не отравление.",
+        "en": "The ASPCA lists the phalaenopsis (moth) orchid as non-toxic to cats and dogs. If a pet eats a lot of leaves or flowers, its stomach may be briefly upset. That is not poisoning."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "none"
+    },
+    "dog": {
+      "verdict": "safe",
+      "summary": {
+        "ru": "Безопасно. Орхидея фаленопсис для кошек и собак не ядовита.",
+        "en": "Non-toxic. The phalaenopsis orchid is not poisonous to cats and dogs."
+      },
+      "why": {
+        "ru": "ASPCA относит орхидею фаленопсис к неядовитым для кошек и собак. Если питомец съел много листьев или цветков, желудок может ненадолго расстроиться. Это не отравление.",
+        "en": "The ASPCA lists the phalaenopsis (moth) orchid as non-toxic to cats and dogs. If a pet eats a lot of leaves or flowers, its stomach may be briefly upset. That is not poisoning."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "none"
+    }
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Phalaenopsis Orchid",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/phalaenopsis-orchid"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

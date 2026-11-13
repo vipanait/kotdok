@@ -1,0 +1,125 @@
+{
+  "slug": "citrusovye",
+  "category": "food",
+  "name": {
+    "ru": "Цитрусовые",
+    "en": "Citrus fruits"
+  },
+  "titleRu": "цитрусовые",
+  "aliases": {
+    "ru": [
+      "апельсин",
+      "апельсины",
+      "мандарин",
+      "мандарины",
+      "лимон",
+      "лимоны",
+      "грейпфрут",
+      "лайм",
+      "помело",
+      "клементин",
+      "мандаринку",
+      "цитрус"
+    ],
+    "en": [
+      "orange",
+      "oranges",
+      "tangerine",
+      "mandarin",
+      "lemon",
+      "lime",
+      "grapefruit",
+      "clementine",
+      "citrus"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Кошки цитрусы не любят, а кожура и масла в ней вредны; мякоть — максимум изредка и кусочек.",
+        "en": "With caution. Cats dislike citrus, and the peel and its oils are harmful; flesh is at most a small piece now and then."
+      },
+      "why": {
+        "ru": "Мякоть при случайном кусочке обычно вызывает лишь лёгкое расстройство желудка. Кожура, семена, листья и эфирные масла раздражают желудок и могут вызвать угнетение, особенно у кошек. Лимонные и лаймовые сок и кислота раздражают слизистую.",
+        "en": "A small bite of flesh usually causes no more than a mild stomach upset. Peel, seeds, leaves and essential oils irritate the stomach and may cause lethargy, especially in cats. Lemon and lime juice and acid irritate the mouth and gut."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "вялость, отказ от еды",
+          "обильное слюнотечение"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "lethargy, refusing food",
+          "heavy drooling"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Одна-две дольки мякоти без кожуры и косточек — изредка; кожура и масла вредны.",
+        "en": "With caution. One or two segments of flesh without peel or seeds, now and then; peel and oils are harmful."
+      },
+      "why": {
+        "ru": "Небольшой кусочек мякоти обычно вызывает лишь лёгкое расстройство желудка. Кожура, косточки, листья и эфирные масла раздражают желудок и могут вызвать угнетение. Лимон, лайм и грейпфрут слишком кислые и горькие, их лучше не давать.",
+        "en": "A small piece of flesh usually causes no more than a mild stomach upset. Peel, seeds, leaves and essential oils irritate the stomach and may cause lethargy. Lemon, lime and grapefruit are too sour and bitter, so best not given."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "вялость, отказ от еды",
+          "обильное слюнотечение"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "lethargy, refusing food",
+          "heavy drooling"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите остатки и убедитесь, что питомец больше не достаёт до них",
+      "Понаблюдайте за питомцем сутки; при рвоте, поносе, вялости или вздутом животе позвоните в клинику",
+      "Если съедено много или питомец маленький, позвоните в клинику сразу"
+    ],
+    "en": [
+      "Put away the leftovers so your pet cannot reach more",
+      "Watch your pet for a day; call a clinic if there is vomiting, diarrhoea, lethargy or a swollen belly",
+      "If a lot was eaten or your pet is small, call a clinic straight away"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не давайте кожуру, цедру и цитрусовые масла",
+      "Не вызывайте рвоту сами — только по указанию врача"
+    ],
+    "en": [
+      "Do not give peel, zest or citrus oils",
+      "Do not make your pet vomit unless a vet tells you to"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    },
+    {
+      "title": "Merck Veterinary Manual — Food Hazards"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

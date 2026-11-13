@@ -1,0 +1,121 @@
+{
+  "slug": "silikagel",
+  "category": "household",
+  "name": {
+    "ru": "Силикагель",
+    "en": "Silica gel"
+  },
+  "titleRu": "силикагель",
+  "aliases": {
+    "ru": [
+      "силикагель",
+      "пакетик силикагеля",
+      "пакетик из обуви",
+      "осушитель",
+      "влагопоглотитель",
+      "силикагелевые шарики"
+    ],
+    "en": [
+      "silica gel",
+      "silica gel packet",
+      "silica packets",
+      "desiccant",
+      "moisture absorber",
+      "silica beads"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "Малый риск: сам силикагель обычно не токсичен, но давать его нельзя, а пакетик может застрять.",
+        "en": "Low risk: the silica gel itself is usually non-toxic, but never give it and the packet can get stuck."
+      },
+      "why": {
+        "ru": "Силикагель не всасывается и обычно вызывает самое большее лёгкое расстройство желудка. Опасен сам пакетик или большое число шариков — они могут застрять. В некоторых пакетиках индикаторные шарики или другие осушители (например, соли) с иным составом — это нужно проверить по надписи.",
+        "en": "Silica gel is not absorbed and at most causes a mild stomach upset. The packet itself or a large number of beads can get stuck. Some packets have indicator beads or other desiccants (such as salts) with a different make-up — check the label."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "единичная рвота",
+          "вялость, потеря аппетита",
+          "запор"
+        ],
+        "en": [
+          "drooling",
+          "a single bout of vomiting",
+          "lethargy, loss of appetite",
+          "constipation"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "Малый риск: сам силикагель обычно не токсичен, но пакетик или много шариков могут застрять в кишечнике.",
+        "en": "Low risk: the silica gel itself is usually non-toxic, but the packet or many beads can lodge in the bowel."
+      },
+      "why": {
+        "ru": "Силикагель не всасывается и обычно вызывает самое большее лёгкое расстройство желудка. Крупной собаке пакетик чаще проходит, у мелкой может перекрыть кишечник. Если в пакетике не только силикагель (индикатор, соли, железо), это другой случай — смотрите надпись.",
+        "en": "Silica gel is not absorbed and at most causes a mild stomach upset. A big dog often passes a packet, but in a small one it can block the bowel. If the packet holds more than silica (indicator, salts, iron), it is another case — check the label."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "рвота",
+          "потеря аппетита",
+          "вялость",
+          "болезненный живот",
+          "запор"
+        ],
+        "en": [
+          "drooling",
+          "vomiting",
+          "loss of appetite",
+          "lethargy",
+          "painful belly",
+          "constipation"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Прочитайте надпись на пакетике: только силикагель или другое вещество",
+      "Если питомец проглотил пакетик целиком, он мелкий или появились признаки, позвоните в клинику",
+      "Уберите остальные пакетики подальше"
+    ],
+    "en": [
+      "Read the packet: is it only silica gel or another substance",
+      "If your pet swallowed a whole packet, is small, or signs appeared, call a clinic",
+      "Put other packets out of reach"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не ждите признаков: они могут появиться позже",
+      "Не давайте питомцу пакетики «поиграть»"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not wait for signs: they can appear later",
+      "Do not give packets to your pet to play with"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Poisons and Pet Safety"
+    },
+    {
+      "title": "Pet Poison Helpline — Silica gel packets"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

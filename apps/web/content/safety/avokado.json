@@ -1,0 +1,117 @@
+{
+  "slug": "avokado",
+  "category": "food",
+  "name": {
+    "ru": "Авокадо",
+    "en": "Avocado"
+  },
+  "titleRu": "авокадо",
+  "aliases": {
+    "ru": [
+      "авокадо плод",
+      "косточка авокадо",
+      "гуакамоле",
+      "мякоть авокадо"
+    ],
+    "en": [
+      "avocados",
+      "guacamole",
+      "avocado pit",
+      "avocado flesh"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Мякоть обычно не опасна, но косточка и кожура — риск.",
+        "en": "With caution. The flesh is usually not dangerous, but the pit and skin are a risk."
+      },
+      "why": {
+        "ru": "В авокадо есть персин. Птицам и травоядным он опасен, кошки и собаки к нему менее чувствительны. Главная беда — крупная косточка: её могут проглотить, и она застрянет в кишечнике. Мякоть жирная и может расстроить желудок; в гуакамоле часто есть лук и чеснок.",
+        "en": "Avocado contains persin. It is dangerous to birds and grazing animals, while cats and dogs are less sensitive. The main trouble is the large pit: it can be swallowed and block the gut. The flesh is fatty and can upset the stomach; guacamole often contains onion and garlic."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "отказ от еды",
+          "вздутый живот, если проглочена косточка"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "refusing food",
+          "swollen belly if the pit was swallowed"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Немного мякоти изредка допустимо; косточку и кожуру собаке не давайте.",
+        "en": "With caution. A little flesh now and then is acceptable; do not give the pit or skin."
+      },
+      "why": {
+        "ru": "Персин для собак слабо опасен, но косточка легко застревает в пищеводе и кишечнике, а жирная мякоть может воспалить поджелудочную железу. Изредка — маленький кусочек мякоти без косточки и кожуры. Гуакамоле с луком и чесноком давать нельзя.",
+        "en": "Persin is only weakly harmful to dogs, but the pit easily lodges in the gullet or gut, and fatty flesh can inflame the pancreas. Now and then, a small piece of flesh without pit or skin. Guacamole with onion and garlic is not for dogs."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "боль в животе",
+          "напрасные позывы на рвоту и вздутый живот, если проглочена косточка"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "belly pain",
+          "retching with nothing coming up and a swollen belly if the pit was swallowed"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите остатки и проследите за питомцем",
+      "Если появились признаки из списка или питомцу стало хуже, позвоните в клинику",
+      "Запомните, что и когда было съедено",
+      "Если проглочена косточка, позвоните в клинику сразу"
+    ],
+    "en": [
+      "Put the rest away and keep an eye on your pet",
+      "If any of the listed signs appear or your pet gets worse, call a clinic",
+      "Note what was eaten and when",
+      "If the pit was swallowed, call a clinic straight away"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте домашние «антидоты» из интернета",
+      "Не ждите признаков: они могут появиться не сразу"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give home “antidotes” from the internet",
+      "Do not wait for signs: they may appear later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Toxic and Non-Toxic Plants: Avocado",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/avocado"
+    },
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

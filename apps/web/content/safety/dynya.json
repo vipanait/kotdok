@@ -1,0 +1,108 @@
+{
+  "slug": "dynya",
+  "category": "food",
+  "name": {
+    "ru": "Дыня",
+    "en": "Melon"
+  },
+  "titleRu": "дыню",
+  "aliases": {
+    "ru": [
+      "дыни",
+      "дыньку",
+      "мякоть дыни",
+      "канталупа"
+    ],
+    "en": [
+      "melon",
+      "cantaloupe",
+      "honeydew",
+      "melon slices"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Немного мякоти без корки и семечек изредка можно, но кошке она не нужна.",
+        "en": "With caution. A little flesh without rind and seeds now and then is fine, but a cat does not need it."
+      },
+      "why": {
+        "ru": "Мякоть дыни не считается ядовитой, но в ней много сахара, и от лишнего бывает расстройство желудка. Корка и семечки могут застрять в кишечнике. Кошкам нужна мясная еда.",
+        "en": "Melon flesh is not considered poisonous, but it is high in sugar and too much can upset the stomach. Rind and seeds can get stuck in the gut. Cats need a meat diet."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "вялость, отказ от еды"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "lethargy, refusing food"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Мякоть без корки и семечек можно как редкое лакомство.",
+        "en": "With caution. Flesh without rind and seeds is fine as an occasional treat."
+      },
+      "why": {
+        "ru": "Мякоть дыни не ядовита, но сладкая: от неё бывают понос и вздутие, особенно при диабете или лишнем весе. Корка и семечки могут застрять в кишечнике. Режьте мякоть мелко и не давайте часто.",
+        "en": "Melon flesh is not poisonous but it is sweet: it can cause diarrhoea and bloating, especially with diabetes or excess weight. Rind and seeds can get stuck in the gut. Cut flesh small and do not give it often."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "вялость, отказ от еды"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "lethargy, refusing food"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите остатки и убедитесь, что питомец больше не достаёт до них",
+      "Понаблюдайте за питомцем сутки; при рвоте, поносе, вялости или вздутом животе позвоните в клинику",
+      "Если съедено много или питомец маленький, позвоните в клинику сразу"
+    ],
+    "en": [
+      "Put away the leftovers so your pet cannot reach more",
+      "Watch your pet for a day; call a clinic if there is vomiting, diarrhoea, lethargy or a swollen belly",
+      "If a lot was eaten or your pet is small, call a clinic straight away"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не давайте корку и семечки",
+      "Не вызывайте рвоту сами — только по указанию врача"
+    ],
+    "en": [
+      "Do not give the rind or seeds",
+      "Do not make your pet vomit unless a vet tells you to"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Merck Veterinary Manual — Food Hazards"
+    },
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

@@ -1,0 +1,135 @@
+{
+  "slug": "efirnye-masla",
+  "category": "household",
+  "name": {
+    "ru": "Эфирные масла",
+    "en": "Essential oils"
+  },
+  "titleRu": "эфирные масла",
+  "aliases": {
+    "ru": [
+      "эфирное масло",
+      "эфирного масла",
+      "масло чайного дерева",
+      "чайное дерево",
+      "масло эвкалипта",
+      "масло мяты",
+      "масло лаванды",
+      "цитрусовое масло",
+      "масло корицы",
+      "масло пихты",
+      "гвоздичное масло"
+    ],
+    "en": [
+      "essential oil",
+      "tea tree oil",
+      "eucalyptus oil",
+      "peppermint oil",
+      "lavender oil",
+      "citrus oil",
+      "cinnamon oil",
+      "pine oil",
+      "wintergreen oil",
+      "clove oil"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно, особенно для кошек. Масло на шерсти или лапах питомец слижет, а некоторые масла опасны и в малом количестве.",
+        "en": "Dangerous, especially for cats. A pet licks oil off its fur or paws, and some oils are dangerous even in a small amount."
+      },
+      "why": {
+        "ru": "Кошки хуже других животных справляются с веществами из эфирных масел, а при вылизывании шерсти масло попадает внутрь. Чаще всего беду приносят масло чайного дерева, цитрусовые, эвкалипт, мята, сосна и грушанка. Чистое масло опаснее разбавленного.",
+        "en": "Cats cope with the compounds in essential oils worse than other animals, and licking the coat takes oil inside. Tea tree, citrus, eucalyptus, mint, pine and wintergreen oils are the most common culprits. Undiluted oil is worse than diluted."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "рвота",
+          "вялость, шаткая походка",
+          "потеря аппетита",
+          "раздражение кожи, рта или дыхательных путей",
+          "дрожь"
+        ],
+        "en": [
+          "drooling",
+          "vomiting",
+          "lethargy, wobbly walking",
+          "loss of appetite",
+          "irritation of skin, mouth or airways",
+          "tremors"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Собака может слизать пролитое масло или погрызть флакон; чистое масло особенно опасно.",
+        "en": "Dangerous. A dog may lick spilled oil or chew a bottle; undiluted oil is especially dangerous."
+      },
+      "why": {
+        "ru": "Эфирные масла раздражают рот, желудок и дыхательные пути, а некоторые действуют на нервную систему и печень. Опасность зависит от масла и его крепости, поэтому оценить её лучше врачу.",
+        "en": "Essential oils irritate the mouth, stomach and airways, and some affect the nervous system and the liver. The risk depends on the oil and its strength, so a vet is the one to judge it."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "рвота",
+          "вялость",
+          "потеря аппетита",
+          "раздражение кожи или рта",
+          "дрожь, шаткость"
+        ],
+        "en": [
+          "drooling",
+          "vomiting",
+          "lethargy",
+          "loss of appetite",
+          "irritation of skin or mouth",
+          "tremors, unsteadiness"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Если масло на шерсти или коже, не давайте питомцу вылизываться и скажите об этом врачу",
+      "Сохраните флакон или сфотографируйте этикетку: важны название масла и его крепость"
+    ],
+    "en": [
+      "Call a vet clinic right away, even if your pet seems fine",
+      "If oil is on the fur or skin, keep your pet from licking it and tell the vet",
+      "Keep the bottle or photograph the label: the name and strength of the oil matter"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не мойте и не втирайте ничего в шерсть по советам из интернета — сначала позвоните врачу",
+      "Не ждите признаков: они могут появиться позже"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not wash or rub anything into the coat on internet advice — call the vet first",
+      "Do not wait for signs: they can appear later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — Essential Oils",
+      "url": "https://www.petpoisonhelpline.com/poisons/essential-oils/"
+    },
+    {
+      "title": "ASPCA Animal Poison Control — Poisons and Pet Safety"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

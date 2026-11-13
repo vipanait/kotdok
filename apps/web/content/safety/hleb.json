@@ -1,0 +1,108 @@
+{
+  "slug": "hleb",
+  "category": "food",
+  "name": {
+    "ru": "Хлеб",
+    "en": "Bread"
+  },
+  "titleRu": "хлеб",
+  "aliases": {
+    "ru": [
+      "хлеба",
+      "батон",
+      "белый хлеб",
+      "чёрный хлеб",
+      "черный хлеб",
+      "сухарь",
+      "булка",
+      "булку",
+      "хлебушек",
+      "bread"
+    ],
+    "en": [
+      "bread",
+      "white bread",
+      "toast",
+      "loaf",
+      "bread crust"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Корочка готового хлеба изредка не навредит, но кошке он не нужен. Сырое тесто опасно.",
+        "en": "With caution. A bit of baked bread crust now and then will not harm, but a cat does not need it. Raw dough is dangerous."
+      },
+      "why": {
+        "ru": "Готовый хлеб без добавок не ядовит, но это пустая еда для хищника. Хлеб с изюмом, чесноком, луком или орехами давать нельзя. Сырое дрожжевое тесто раздувается в желудке и выделяет спирт — это неотложный случай.",
+        "en": "Plain baked bread is not poisonous, but it is empty food for a carnivore. Do not give bread with raisins, garlic, onion or nuts. Raw yeast dough rises in the stomach and produces alcohol, which is an emergency."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Небольшой кусочек готового хлеба без добавок — изредка. Сырое тесто опасно.",
+        "en": "With caution. A small piece of plain baked bread now and then. Raw dough is dangerous."
+      },
+      "why": {
+        "ru": "Готовый хлеб без добавок не ядовит, но кормом не является. Хлеб с изюмом, чесноком, луком или орехами давать нельзя. Сырое дрожжевое тесто раздувается в желудке, может вызвать вздутие и заворот и выделяет спирт — это неотложный случай.",
+        "en": "Plain baked bread is not poisonous, but it is not a proper food. Do not give bread with raisins, garlic, onion or nuts. Raw yeast dough rises in the stomach, can cause bloating and twisting, and produces alcohol, which is an emergency."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Если съедено сырое тесто — сразу позвоните в клинику, не ждите признаков",
+      "Если это был готовый хлеб — оставьте воду и наблюдайте за питомцем сутки",
+      "Проверьте, нет ли в хлебе изюма, орехов, чеснока или лука"
+    ],
+    "en": [
+      "If raw dough was eaten, call a clinic at once and do not wait for signs",
+      "If it was baked bread, leave water available and watch your pet for a day",
+      "Check the bread for raisins, nuts, garlic or onion"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не оставляйте сырое тесто в доступном месте",
+      "Не вызывайте рвоту сами — только по указанию врача"
+    ],
+    "en": [
+      "Do not leave raw dough where pets can reach it",
+      "Do not make your pet vomit unless a vet tells you to"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

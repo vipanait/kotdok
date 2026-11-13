@@ -1,0 +1,72 @@
+{
+  "slug": "kabachok",
+  "category": "food",
+  "name": {
+    "ru": "Кабачок",
+    "en": "Zucchini"
+  },
+  "titleRu": "кабачок",
+  "aliases": {
+    "ru": [
+      "кабачки",
+      "цукини",
+      "цуккини",
+      "кабачок варёный",
+      "кабачок сырой"
+    ],
+    "en": [
+      "courgette",
+      "courgettes",
+      "zucchinis",
+      "squash zucchini"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "safe",
+      "summary": {
+        "ru": "Можно как лакомство в небольшом количестве. Кабачок не ядовит, но кошке он не нужен.",
+        "en": "Safe as a treat in small amounts. Zucchini is not poisonous, but a cat does not need it."
+      },
+      "why": {
+        "ru": "Кабачок для кошек и собак не ядовит. Давайте мелкими кусочками, сырой или варёный, без соли, масла и специй. Кошкам нужна мясная еда, и пользы от овощей им мало.",
+        "en": "Zucchini is not poisonous to cats or dogs. Give it in small pieces, raw or cooked, with no salt, butter or spices. Cats need a meat diet and get little from vegetables."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "none"
+    },
+    "dog": {
+      "verdict": "safe",
+      "summary": {
+        "ru": "Можно как лакомство в небольшом количестве, сырой или варёный, без добавок.",
+        "en": "Safe as a treat in small amounts, raw or cooked, with nothing added."
+      },
+      "why": {
+        "ru": "Кабачок для собак не ядовит. Давайте мелкими кусочками, без соли, масла и специй. Много сразу может вызвать расстройство желудка.",
+        "en": "Zucchini is not poisonous to dogs. Give it in small pieces with no salt, butter or spices. A lot at once can upset the stomach."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "none"
+    }
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Zucchini Squash",
+      "url": "https://www.aspca.org/pet-care/animal-poison-control/toxic-and-non-toxic-plants/zucchini-squash"
+    },
+    {
+      "title": "ASPCA — Pets and Produce: Top Tips on Vegetable Garden Safety",
+      "url": "https://www.aspca.org/news/pets-and-produce-top-tips-vegetable-garden-safety"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

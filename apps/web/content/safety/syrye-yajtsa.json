@@ -1,0 +1,117 @@
+{
+  "slug": "syrye-yajtsa",
+  "category": "food",
+  "name": {
+    "ru": "Сырые яйца",
+    "en": "Raw eggs"
+  },
+  "titleRu": "сырые яйца",
+  "aliases": {
+    "ru": [
+      "сырое яйцо",
+      "сырое яйцо",
+      "яйцо сырое",
+      "сырой белок",
+      "сырой желток",
+      "яичный белок"
+    ],
+    "en": [
+      "raw egg",
+      "raw eggs",
+      "egg white",
+      "raw egg white",
+      "uncooked eggs"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Сырые яйца могут нести сальмонеллу; варёное яйцо безопаснее.",
+        "en": "With caution. Raw eggs may carry salmonella; a cooked egg is the safer choice."
+      },
+      "why": {
+        "ru": "На сыром яйце бывают сальмонелла и другие бактерии. Сырой белок мешает усвоению витамина биотина, при частом кормлении страдают шерсть и кожа. Варёное яйцо без соли и масла изредка допустимо.",
+        "en": "Raw eggs may carry salmonella and other bacteria. Raw egg white interferes with absorbing the vitamin biotin, so frequent feeding harms skin and coat. A plain cooked egg without salt or butter is acceptable now and then."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "вялость",
+          "отказ от еды"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "lethargy",
+          "refusing food"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Сырые яйца могут нести сальмонеллу; варёное яйцо безопаснее.",
+        "en": "With caution. Raw eggs may carry salmonella; a cooked egg is the safer choice."
+      },
+      "why": {
+        "ru": "Сырое яйцо несёт риск сальмонеллы и других бактерий, а сырой белок мешает усвоению биотина, и при частом кормлении страдают кожа и шерсть. Варёное яйцо без соли и масла изредка допустимо.",
+        "en": "A raw egg carries a risk of salmonella and other bacteria, and raw egg white interferes with biotin, so frequent feeding harms skin and coat. A plain cooked egg without salt or butter is acceptable now and then."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос",
+          "вялость",
+          "отказ от еды"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "lethargy",
+          "refusing food"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите остатки и проследите за питомцем",
+      "Если появились признаки из списка или питомцу стало хуже, позвоните в клинику",
+      "Запомните, что и когда было съедено"
+    ],
+    "en": [
+      "Put the rest away and keep an eye on your pet",
+      "If any of the listed signs appear or your pet gets worse, call a clinic",
+      "Note what was eaten and when"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте домашние «антидоты» из интернета",
+      "Не ждите признаков: они могут появиться не сразу"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give home “antidotes” from the internet",
+      "Do not wait for signs: they may appear later"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    },
+    {
+      "title": "MSD Veterinary Manual — Food Hazards in Small Animals"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

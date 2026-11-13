@@ -1,0 +1,107 @@
+{
+  "slug": "tykva",
+  "category": "food",
+  "name": {
+    "ru": "Тыква",
+    "en": "Pumpkin"
+  },
+  "titleRu": "тыкву",
+  "aliases": {
+    "ru": [
+      "тыквы",
+      "тыква варёная",
+      "тыква сырая",
+      "тыквенное пюре",
+      "мякоть тыквы",
+      "тыквенные семечки"
+    ],
+    "en": [
+      "pumpkins",
+      "cooked pumpkin",
+      "raw pumpkin",
+      "pumpkin puree",
+      "pumpkin seeds"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Немного варёной мякоти без добавок можно, кожуру и сырую жёсткую тыкву лучше не давать.",
+        "en": "With caution. A little plain cooked flesh is fine; skip the rind and hard raw pumpkin."
+      },
+      "why": {
+        "ru": "Мякоть тыквы не считается ядовитой. Давайте варёную, без сахара, соли, масла и специй, мелкими кусочками и изредка. Готовую пряную начинку для пирога и сладкие смеси давать нельзя. Для кошки тыква не нужна, а лишнее расстроит желудок.",
+        "en": "Pumpkin flesh is not considered poisonous. Give it cooked, with no sugar, salt, butter or spices, in small pieces and only now and then. Do not give ready-made spiced pie filling or sweetened mixes. A cat does not need pumpkin, and too much upsets the stomach."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Немного варёной мякоти без добавок можно, кожуру и жёсткую сырую тыкву лучше не давать.",
+        "en": "With caution. A little plain cooked flesh is fine; skip the rind and hard raw pumpkin."
+      },
+      "why": {
+        "ru": "Мякоть тыквы не считается ядовитой. Давайте варёную или запечённую, без сахара, соли, масла и специй, мелкими кусочками и изредка. Готовую пряную начинку для пирога и сладкие смеси давать нельзя. Лишнее может вызвать понос.",
+        "en": "Pumpkin flesh is not considered poisonous. Give it cooked or baked, with no sugar, salt, butter or spices, in small pieces and only now and then. Do not give ready-made spiced pie filling or sweetened mixes. Too much can cause diarrhoea."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "понос"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите остатки и оцените, сколько питомец успел съесть",
+      "Понаблюдайте за питомцем в ближайшие сутки",
+      "Если появились признаки или вы не уверены, позвоните в клинику или пройдите проверку симптомов"
+    ],
+    "en": [
+      "Remove what is left and note how much your pet ate",
+      "Watch your pet over the next day",
+      "If signs appear or you are unsure, call a clinic or run a symptom check"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не ждите ухудшения, если питомец съел много"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not wait for it to get worse if your pet ate a lot"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Toxic and Non-Toxic Plants"
+    },
+    {
+      "title": "ASPCA — Pets and Produce: Top Tips on Vegetable Garden Safety",
+      "url": "https://www.aspca.org/news/pets-and-produce-top-tips-vegetable-garden-safety"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

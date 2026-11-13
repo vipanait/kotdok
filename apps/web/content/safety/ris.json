@@ -1,0 +1,70 @@
+{
+  "slug": "ris",
+  "category": "food",
+  "name": {
+    "ru": "Рис",
+    "en": "Rice"
+  },
+  "titleRu": "рис",
+  "aliases": {
+    "ru": [
+      "рис варёный",
+      "рис вареный",
+      "варёный рис",
+      "вареный рис",
+      "белый рис",
+      "рисовая каша",
+      "рисовую кашу"
+    ],
+    "en": [
+      "cooked rice",
+      "white rice",
+      "boiled rice",
+      "plain rice"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Немного варёного риса без соли и масла — изредка.",
+        "en": "With caution. A little boiled rice with no salt or butter, now and then."
+      },
+      "why": {
+        "ru": "Рис не ядовит, но кошке нужна мясная еда, а рис её не заменит. Давайте только хорошо проваренный, без соли, масла, специй, лука и чеснока.",
+        "en": "Rice is not poisonous, but a cat needs a meat diet and rice does not replace it. Give only well-cooked rice with no salt, butter, spices, onion or garlic."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "none"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Немного варёного риса без добавок — изредка.",
+        "en": "With caution. A little boiled rice with nothing added, now and then."
+      },
+      "why": {
+        "ru": "Рис не ядовит, но это лишь наполнитель, а не полноценный корм. Давайте только хорошо проваренный, без соли, масла, специй, лука и чеснока. Сырой рис не давайте.",
+        "en": "Rice is not poisonous, but it is only filler, not a complete food. Give only well-cooked rice with no salt, butter, spices, onion or garlic. Do not give raw rice."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "none"
+    }
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

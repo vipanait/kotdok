@@ -1,0 +1,125 @@
+{
+  "slug": "prochistka-trub",
+  "category": "household",
+  "name": {
+    "ru": "Средство для прочистки труб",
+    "en": "Drain cleaner"
+  },
+  "titleRu": "средство для прочистки труб",
+  "aliases": {
+    "ru": [
+      "прочистка труб",
+      "чистящее для труб",
+      "средство от засора",
+      "крот для труб",
+      "едкий натр",
+      "каустическая сода",
+      "щёлочь",
+      "гель для прочистки труб"
+    ],
+    "en": [
+      "drain cleaner",
+      "drain opener",
+      "lye",
+      "caustic soda",
+      "sodium hydroxide",
+      "clog remover"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Средство для прочистки труб — едкая щёлочь или кислота, опасная для кошек.",
+        "en": "Dangerous. Drain cleaner is a corrosive alkali or acid, dangerous to cats."
+      },
+      "why": {
+        "ru": "Такие средства вызывают химические ожоги рта, пищевода и желудка, повреждения могут быть тяжёлыми, даже когда снаружи ничего не видно. Опасен и контакт с кожей и глазами. Что делать, решает врач.",
+        "en": "These products cause chemical burns of the mouth, throat and stomach, and damage can be severe even when nothing is visible outside. Contact with skin and eyes is dangerous too. The vet decides what to do."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение, боль во рту",
+          "рвота, иногда с кровью",
+          "отказ от еды и воды",
+          "затруднённое дыхание",
+          "ожоги кожи или глаз"
+        ],
+        "en": [
+          "drooling, mouth pain",
+          "vomiting, sometimes with blood",
+          "refusing food and water",
+          "laboured breathing",
+          "burns of skin or eyes"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Средство для прочистки труб — едкая щёлочь или кислота, опасная для собак.",
+        "en": "Dangerous. Drain cleaner is a corrosive alkali or acid, dangerous to dogs."
+      },
+      "why": {
+        "ru": "Вызывает химические ожоги рта, пищевода и желудка; повреждения бывают тяжёлыми, даже если снаружи ничего не видно. Опасен и контакт с кожей и глазами. Что делать, решает врач.",
+        "en": "It causes chemical burns of the mouth, throat and stomach; damage can be severe even when nothing is visible outside. Contact with skin and eyes is dangerous too. The vet decides what to do."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение, боль во рту",
+          "рвота, иногда с кровью",
+          "отказ от еды и воды",
+          "затруднённое дыхание",
+          "ожоги кожи или глаз"
+        ],
+        "en": [
+          "drooling, mouth pain",
+          "vomiting, sometimes with blood",
+          "refusing food and water",
+          "laboured breathing",
+          "burns of skin or eyes"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Сразу позвоните в ветеринарную клинику, даже если питомец ведёт себя как обычно",
+      "Уберите питомца от вещества и закройте к нему доступ; если средство на шерсти или коже, спросите у врача, как действовать",
+      "Сохраните упаковку или сфотографируйте её: врачу важно, щёлочь это или кислота",
+      "Прикиньте, сколько могло быть съедено и когда"
+    ],
+    "en": [
+      "Call a vet clinic right away, even if your pet seems fine",
+      "Take your pet away from the substance and block access; if it is on the coat or skin, ask the vet what to do",
+      "Keep the packaging or take a photo of it: the vet needs to know whether it is an alkali or an acid",
+      "Work out roughly how much was eaten and when"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте молоко, масло, уголь и другие «антидоты» из интернета",
+      "Не ждите признаков: они могут появиться не сразу"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give milk, oil, charcoal or other home “antidotes” from the internet",
+      "Do not wait for signs: they may not appear at once"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Pet Poison Helpline — Poison Database"
+    },
+    {
+      "title": "MSD Veterinary Manual — Toxicology"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

@@ -1,0 +1,114 @@
+{
+  "slug": "ficus",
+  "category": "plant",
+  "name": {
+    "ru": "Фикус",
+    "en": "Ficus (weeping fig)"
+  },
+  "titleRu": "фикус",
+  "aliases": {
+    "ru": [
+      "фикус бенджамина",
+      "фикус эластика",
+      "каучуковое дерево",
+      "фикус каучуконосный",
+      "фикуса"
+    ],
+    "en": [
+      "ficus",
+      "ficus benjamina",
+      "weeping fig",
+      "rubber plant",
+      "rubber fig"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Фикус для кошек и собак ядовит: сок раздражает рот и кожу.",
+        "en": "With caution. Ficus is poisonous to cats and dogs: the sap irritates the mouth and skin."
+      },
+      "why": {
+        "ru": "ASPCA относит плакучий фикус (Ficus benjamina) к ядовитым для кошек и собак. Белый млечный сок раздражает рот, желудок и кожу. Обычно дело ограничивается расстройством желудка, но сок на шерсти питомец слизывает.",
+        "en": "The ASPCA lists the weeping fig (Ficus benjamina) as toxic to cats and dogs. The white milky sap irritates the mouth, stomach and skin. It usually ends with an upset stomach, but a pet will lick sap off its fur."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "слюнотечение",
+          "покраснение кожи или мордочки"
+        ],
+        "en": [
+          "vomiting",
+          "drooling",
+          "redness of the skin or face"
+        ]
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Фикус для кошек и собак ядовит: сок раздражает рот и кожу.",
+        "en": "With caution. Ficus is poisonous to cats and dogs: the sap irritates the mouth and skin."
+      },
+      "why": {
+        "ru": "ASPCA относит плакучий фикус (Ficus benjamina) к ядовитым для кошек и собак. Белый млечный сок раздражает рот, желудок и кожу. Обычно дело ограничивается расстройством желудка, но сок на шерсти питомец слизывает.",
+        "en": "The ASPCA lists the weeping fig (Ficus benjamina) as toxic to cats and dogs. The white milky sap irritates the mouth, stomach and skin. It usually ends with an upset stomach, but a pet will lick sap off its fur."
+      },
+      "signs": {
+        "ru": [
+          "рвота",
+          "слюнотечение",
+          "покраснение кожи или мордочки"
+        ],
+        "en": [
+          "vomiting",
+          "drooling",
+          "redness of the skin or face"
+        ]
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите растение туда, куда питомец не доберётся",
+      "Уберите остатки растения из пасти и протрите мордочку влажной тканью",
+      "Понаблюдайте за питомцем несколько часов",
+      "Если появились признаки или вы не уверены в растении, позвоните в клинику"
+    ],
+    "en": [
+      "Move the plant out of the pet's reach",
+      "Remove any plant pieces from the mouth and wipe the face with a damp cloth",
+      "Watch the pet for several hours",
+      "If signs appear or you are not sure about the plant, call a clinic"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте молоко, масло, уголь и другие «антидоты» из интернета",
+      "Не ждите, пока станет хуже, если питомец вялый или его рвёт"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give milk, oil, charcoal or other home “antidotes” from the internet",
+      "Do not wait for things to get worse if the pet is lethargic or vomiting"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Weeping Fig",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/weeping-fig"
+    },
+    {
+      "title": "Pet Poison Helpline — Poison Index (plants)"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}

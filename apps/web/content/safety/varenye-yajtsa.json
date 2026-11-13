@@ -1,0 +1,71 @@
+{
+  "slug": "varenye-yajtsa",
+  "category": "food",
+  "name": {
+    "ru": "Варёные яйца",
+    "en": "Boiled eggs"
+  },
+  "titleRu": "варёные яйца",
+  "aliases": {
+    "ru": [
+      "яйцо варёное",
+      "варёное яйцо",
+      "вареное яйцо",
+      "вареные яйца",
+      "яйца вкрутую",
+      "яйцо вкрутую",
+      "сваренное яйцо"
+    ],
+    "en": [
+      "hard boiled egg",
+      "hard-boiled eggs",
+      "boiled egg",
+      "cooked egg",
+      "cooked eggs"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Хорошо проваренное яйцо без соли — изредка и понемногу.",
+        "en": "With caution. A well-cooked egg with no salt, now and then and in small pieces."
+      },
+      "why": {
+        "ru": "Яйцо не ядовито, но кошке нужна мясная еда, а яйцо не замена корму. Сырые яйца опаснее: в них бывают сальмонелла и E. coli. Давайте только сваренное целиком, без соли, масла и специй.",
+        "en": "An egg is not poisonous, but a cat needs a meat diet and egg is no substitute for it. Raw eggs are riskier: they can carry Salmonella and E. coli. Give only fully cooked egg, with no salt, butter or spices."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "none"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "С осторожностью. Хорошо проваренное яйцо без добавок — как редкое лакомство.",
+        "en": "With caution. A well-cooked egg with nothing added, as a rare treat."
+      },
+      "why": {
+        "ru": "Яйцо не ядовито, но жирный желток при частом кормлении утяжеляет рацион. Сырые яйца могут нести сальмонеллу и E. coli, а белок мешает усвоению витамина. Давайте варёное, без соли, масла и специй, изредка.",
+        "en": "An egg is not poisonous, but the fatty yolk makes the diet heavier when fed often. Raw eggs can carry Salmonella and E. coli, and raw white can interfere with vitamin absorption. Give boiled egg, with no salt, butter or spices, now and then."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "none"
+    }
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    }
+  ],
+  "review": {
+    "status": "draft",
+    "draftedBy": "model"
+  }
+}
