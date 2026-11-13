@@ -10,8 +10,8 @@
 | Статус | ACCEPTED на iOS-симуляторе; Android не проверен (см. «Непроверенное и риски») |
 | Даты работы | 13 ноября 2026, Europe/Moscow |
 | Версия плана | [Спека](../superpowers/specs/2026-11-13-pet-safety-design.md) (раздел «Приложение»), бриф Task 4 из `.superpowers/sdd/2026-11-13-pet-safety/` |
-| Проверенный код | `303a568` на ветке `claude/can-pet-eat-f35f72` (симулятор прогонялся на рабочем дереве до коммита; отличие — только снятые временные `console.log`) |
-| PR / коммиты | PR не создан. `303a568` Mobile: «Можно ли?» tab — search, verdict card, AI answer, hand-off to a symptom check |
+| Проверенный код | `303a568`, затем раунд исправлений `66c155e` на ветке `claude/can-pet-eat-f35f72` (симулятор прогонялся на рабочем дереве до каждого коммита; отличие — только снятые временные `console.log`) |
+| PR / коммиты | PR не создан. `303a568` Mobile: «Можно ли?» tab — search, verdict card, AI answer, hand-off to a symptom check; `66c155e` Mobile: «Можно ли?» — one recent-query store cleared on sign-out, hand-over asks before moving a draft to another pet |
 | Окружение | Локальное: общий локальный Supabase (`apps/web/.env.integration`), `next dev -p 3100 --webpack` из worktree (Turbopack из worktree не находит `next`, см. «Ошибки»), ключ OpenAI — из `apps/web/.env.staging.local` основной копии; Metro (Expo SDK 57) из worktree с `EXPO_PUBLIC_*` локального стека |
 | Сборки | Debug-сборка `my.lapka.app` 1.2.1 (1), уже установленная на симуляторе iPhone 17 Pro, iOS 26.5; JS из Metro. Нативный код этап не меняет. Android — не запускался |
 
@@ -35,9 +35,11 @@
 
 ## Решения и отклонения
 
-- **Хранилище недавних.** Бриф называет AsyncStorage, но пакета в приложении нет, а нативный модуль потребовал бы новой сборки. Недавние лежат в том же хранилище, что черновик проверки (`draftStorage`, keychain), под ключом `lapka.safety-recent`, с `userId` внутри: чужой список не читается (`parseRecent`). Выход из аккаунта этот ключ не стирает (он не в `alwaysClear`, `supabase.ts` не трогал), но следующий аккаунт его не увидит.
+- **Хранилище недавних.** Бриф называет AsyncStorage, но пакета в приложении нет, а нативный модуль потребовал бы новой сборки. Недавние лежат в том же хранилище, что черновик проверки (`draftStorage`, keychain), под ключом `lapka.safety-recent`, с `userId` внутри: чужой список не читается (`parseRecent`). После ревью ключ добавлен в `alwaysClear` (`supabase.ts`), так что выход из аккаунта его стирает. Список — один на приложение (`createRecentStore` в `recent.ts` + `useSyncExternalStore`): экраны поиска и ответа ИИ больше не держат по копии и не затирают запросы друг друга.
 - **Последний выбранный питомец и остаток ИИ** держатся в памяти на время запуска (`use-safety-memory.ts`), с привязкой к аккаунту.
-- **Два файла вне списка брифа:** `use-check-draft.ts` (флаг `draftRead`) и `use-check-pet.ts` (не применять `petId` при `prefill`). Без них подстановка либо терялась под восстановленным черновиком, либо «Оставить» меняло питомца черновика. Изменения — по несколько строк.
+- **Файлы вне списка брифа:** `use-check-draft.ts` (флаг `draftRead`), `use-check-pet.ts` (не применять `petId` при `prefill`), `supabase.ts` (`RECENT_KEY` в `alwaysClear`). Без первых двух подстановка либо терялась под восстановленным черновиком, либо «Оставить» меняло питомца черновика. Изменения — по несколько строк.
+- **Подстановка не хранится в состоянии** (после ревью). Ожидающая подстановка — сами параметры маршрута; решение `prefillDecision(form, text, petId)` считается при рендере. Тот же текст про другого питомца и питомец, удалённый после открытия карточки, при начатом черновике дают вопрос; пустая форма получает текст, питомец меняется только на существующего. Сразу после отправленной проверки подстановка ждёт, пока фокус очистит форму.
+- **После `rate_limited`** остаток считается нулём: на главном экране «осталось 0 из 10 на сегодня», а не прежнее число.
 - **`otherSpecies.label`.** В модель карточки добавлено поле `label` второго вида (подпись по той же категории). Интерфейс брифа расширен, не изменён.
 - **Второй вид.** Строка «Для кошек: Нельзя ›» переключает карточку на другой вид; пометки и кнопка проверки показываются только для вида питомца.
 - **Дисклеймер.** Использован существующий `t.result.disclaimer` словаря приложения (в общем `vocab` дисклеймера нет).
@@ -52,7 +54,7 @@
 | SAFE-04.3 | Подсказки без обращения к сети | Ввод «chocolote», «milk»; лог `next dev` | Ни одного запроса во время ввода | Во время ввода запросов нет, индекс запрошен один раз при открытии вкладки | PASS | [02](safety-04/02-typo-chocolote.png) |
 | SAFE-04.4 | Вердикт для вида питомца, аллергия/хронические, «Если уже съел» по `if_eaten`, второй вид, источники, дисклеймер | Шоколад и молоко для Барсика (аллергия «milk» временно в анкете), ибупрофен для Рекса | Всё на карточке | Так: `call_now` — красная строка и вторичная кнопка; `watch` — «Наблюдайте…» и основная кнопка | PASS | [03](safety-04/03-card-chocolate-cat-top.png)–[06](safety-04/06-card-chocolate-other-species-dog.png), [08](safety-04/08-card-milk-allergy-note.png), [26](safety-04/26-ru-card-ibuprofen-rex-medicine-line.png) |
 | SAFE-04.5 | Карточка ИИ с плашкой и остатком; исчерпанный лимит объяснён | «dragon fruit» → «Ask AI» (реальный вызов) | Плашка, «Нет данных», «осталось N из 10» | Плашка нейтрального цвета, NO DATA, «8 of 10 left today» под карточкой и на главном экране. Текст `rate_limited` — только по коду (лимит не исчерпывался) | PASS (лимит — по коду и словарю) | [07](safety-04/07-miss-ask-ai-limit-line.png), [13](safety-04/13-ai-card-top.png), [14](safety-04/14-ai-card-bottom-remaining.png), [15](safety-04/15-home-remaining-after-answer.png), [12](safety-04/12-ask-failed-retry.png) |
-| SAFE-04.6 | Проверка открывается с питомцем и началом описания; черновик не теряется без вопроса | Молоко → «Check symptoms»; дописать текст; шоколад → «Check symptoms» → диалог; «Keep»; «Replace» | Подстановка; диалог; «Оставить» сохраняет | «Ate: milk. » и Barsik; диалог; «Keep» оставил черновик (лог `keep`); «Replace» заменил на «Ate: chocolate. » | PASS | [09](safety-04/09-handoff-check-form-applied.png), [10](safety-04/10-handoff-replace-dialog.png), [11](safety-04/11-handoff-keep-draft-kept.png) |
+| SAFE-04.6 | Проверка открывается с питомцем и началом описания; черновик не теряется без вопроса | Первый прогон (en): молоко → «Check symptoms»; дописать текст; шоколад → диалог. Повтор после исправлений (ru, `66c155e`): шоколад для Мурки → подстановка; шоколад для Рекса (тот же текст, другой питомец) → диалог; «Оставить»; ещё раз → «Заменить» | Подстановка; диалог; «Оставить» сохраняет и текст, и питомца; «Заменить» — текст и Рекс | Так. В первом прогоне скриншот 11 показывает результат «Replace» (ошибочное нажатие), «Keep» тогда подтверждён только строкой лога `keep`; во втором прогоне «Оставить» снят: Мурка и «Съел(а): шоколад.» на месте | PASS | [09](safety-04/09-handoff-check-form-applied.png), [10](safety-04/10-handoff-replace-dialog.png), [27](safety-04/27-fix-handoff-applied-murka.png), [28](safety-04/28-fix-other-pet-asks.png), [29](safety-04/29-fix-keep-draft-kept-murka.png), [30](safety-04/30-fix-replace-rex.png) |
 | SAFE-04.7 | Вердикт всегда с сервера; исчезнувшая позиция не роняет экран | Индекс временно отдаёт «шоколад: safe» для кошки (откачено); ссылка `lapka://safety/no-such-entry` | Список «Safe to eat», карточка «NOT SAFE»; «Этой записи больше нет» | Так | PASS | [16](safety-04/16-tampered-index-chocolate-safe.png), [17](safety-04/17-card-shows-server-verdict.png), [18](safety-04/18-entry-gone.png) |
 | SAFE-04.8 | Экран результата и медкарта не затронуты | `git show --stat 303a568` | Нет `CheckResult.tsx`, `check/[id].tsx`, `medical-record/**` | Нет | PASS | `git show --stat 303a568` |
 | SAFE-04.9 | Все тексты в `ru.ts` и `en.ts` | `i18n.test.ts` (ключи совпадают, пустых нет, не одинаковые) | Зелёный | Зелёный | PASS | `npm run test` |
@@ -72,8 +74,10 @@ DEBUG hermes object "шокалад еж" shokolad vinograd
 | Набор | Команда (корень worktree) | Ревизия | Exit | Результат |
 | --- | --- | --- | --- | --- |
 | Типы | `npm run typecheck` | рабочее дерево = `303a568` | 0 | — |
-| Линт | `npm run lint` | то же | 0 | 0 ошибок; в mobile 3 новых предупреждения react-compiler в `check/index.tsx` (setState в эффекте, как в `CheckHistory.tsx`) |
-| Тесты | `npm run test` | то же | 0 | web 603, shared 839, mobile 257 — все прошли |
+| Линт | `npm run lint` | то же | 0 | 0 ошибок; в mobile 3 новых предупреждения react-compiler в `check/index.tsx` (setState в эффекте) — сняты в `66c155e` |
+| Тесты | `npm run test` | то же | 0 | 603 + 839 + 257, все прошли (первое число — `@lapka/mobile`) |
+| Тесты после ревью | `npm run test` | `66c155e` | 0 | 608 (`@lapka/mobile`, +5) + 839 + 257, все прошли |
+| Линт после ревью | `npm run lint` | `66c155e` | 0 | mobile: 49 предупреждений, как до этапа; новых нет |
 | TDD RED | `npx vitest run src/features/safety src/features/checks/check-draft.test.ts` (apps/mobile) до реализации | — | 1 | 5 файлов упали: модулей нет, `prefillDecision is not a function` |
 | TDD GREEN | та же команда после | — | 0 | 35 passed |
 
@@ -85,7 +89,7 @@ DEBUG hermes object "шокалад еж" shokolad vinograd
 
 1. owner-b: вкладка «Safe?» ([01](safety-04/01-tab-home-en.png)); «chocolote» → Chocolate ([02](safety-04/02-typo-chocolote.png)); карточка шоколада для Barsik ([03](safety-04/03-card-chocolate-cat-top.png)–[05](safety-04/05-card-chocolate-if-eaten.png)); «For dogs ›» → карточка для собак без кнопки проверки ([06](safety-04/06-card-chocolate-other-species-dog.png)).
 2. «milkmilk» → «нет в справочнике», «up to 10 AI answers a day» ([07](safety-04/07-miss-ask-ai-limit-line.png)). Молоко с аллергией «milk» в анкете Barsik ([08](safety-04/08-card-milk-allergy-note.png)).
-3. Переход в проверку: подстановка ([09](safety-04/09-handoff-check-form-applied.png)), диалог ([10](safety-04/10-handoff-replace-dialog.png)), «Keep» ([11](safety-04/11-handoff-keep-draft-kept.png)). Проверка не отправлялась.
+3. Переход в проверку: подстановка ([09](safety-04/09-handoff-check-form-applied.png)), диалог ([10](safety-04/10-handoff-replace-dialog.png)). Скриншот [11](safety-04/11-handoff-keep-draft-kept.png) назван неверно: на нём результат «Replace», а «Keep» в этом прогоне подтверждён только строкой лога `DEBUG keep`. Проверка не отправлялась.
 4. «dragon fruit» → «Ask AI»: первый вызов — 500 (сервер без ключа, см. «Ошибки»), экран «Could not answer» с повтором ([12](safety-04/12-ask-failed-retry.png)); после перезапуска API — «Try again», ответ ИИ ([13](safety-04/13-ai-card-top.png), [14](safety-04/14-ai-card-bottom-remaining.png)), остаток на главном экране ([15](safety-04/15-home-remaining-after-answer.png)).
 5. Review Focus 5 и исчезнувшая позиция ([16](safety-04/16-tampered-index-chocolate-safe.png)–[18](safety-04/18-entry-gone.png)); пустой индекс ([19](safety-04/19-empty-index-coming-soon.png)).
 6. Без питомцев ([20](safety-04/20-no-pets-species-switch-dog.png)–[23](safety-04/23-no-pets-check-need-pet.png)).
@@ -110,8 +114,7 @@ DEBUG hermes object "шокалад еж" shokolad vinograd
 - **`rate_limited`** не воспроизводился (лимит не исчерпывался); текст и ветка — по коду.
 - **Контент (SAFE-06):** название источника MSD у шоколада на en-аккаунте — по-русски ([04](safety-04/04-card-chocolate-cat-bottom.png)); summary начинается со слова вердикта, которое уже стоит заголовком («NOT SAFE / Not safe. …»).
 - **Ответ ИИ (SAFE-07):** модель пишет «not well supported by the provided knowledge base» — внутреннюю кухню видно пользователю ([13](safety-04/13-ai-card-top.png)); `summary` советует «Use caution» при вердикте «Нет данных».
-- **Недавние после выхода** остаются в keychain (не в `alwaysClear`), хотя чужому аккаунту не показываются.
-- **Предупреждения линтера** в `check/index.tsx` (setState в эффекте) — 3 новых, ошибок нет.
+- **Недавние в памяти.** После выхода и повторного входа тем же аккаунтом в том же запуске список из памяти виден, хотя в keychain уже стёрт. Другому аккаунту он не показывается.
 
 ## Итог и следующий шаг
 
@@ -120,3 +123,4 @@ DEBUG hermes object "шокалад еж" shokolad vinograd
 ## История проверок
 
 - 13.11.2026 — TDD RED/GREEN, полный `typecheck`/`lint`/`test`, прогон в симуляторе (этот отчёт). Скриншоты — `docs/verification/safety-04/` (не в git).
+- 13.11.2026 — раунд исправлений после ревью (`66c155e`): RED/GREEN тестов общего списка недавних и `prefillDecision` с питомцем, полный `typecheck`/`lint`/`test`, повторный прогон перехода в проверку в симуляторе (скриншоты 27–30). Реальных вызовов ИИ нет.
