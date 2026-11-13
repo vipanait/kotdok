@@ -2,6 +2,7 @@ import Link from 'next/link'
 import type { CheckFollowup, SymptomCheckView } from '@lapka/contracts'
 import PetAvatar from '@/components/PetAvatar'
 import Icon from '@/components/ui/Icon'
+import CheckSources from '@/features/symptom-check/CheckSources'
 import ResultFeedback from '@/features/symptom-check/ResultFeedback'
 import ReminderCard from '@/features/followup/ReminderCard'
 import { offerPlacement } from '@/features/followup/followup-view'
@@ -221,6 +222,7 @@ export default function CheckResultContent({ check, dict, locale, timeZone, pet,
                 </details>
               )}
             </div>
+            <CheckSources fullResponse={check.full_response} dict={dict} locale={locale} />
             <p className="footnote result-disclaimer" lang={text(full.disclaimer) ? answerLang : undefined}>
               {disclaimer}
             </p>

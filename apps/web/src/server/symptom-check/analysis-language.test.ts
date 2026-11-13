@@ -35,6 +35,7 @@ describe('the language the analysis answers in', () => {
         'additional_pet_info_needed',
         'home_care_steps',
         'vet_questions',
+        'used_sources',
         'disclaimer',
       ]) {
         expect(format, `${locale}/${key}`).toContain(`"${key}"`)
@@ -60,6 +61,17 @@ describe('the language the analysis answers in', () => {
   it('carries the disclaimer into the skeleton, so the model echoes it back', () => {
     for (const locale of SUPPORTED_LOCALES) {
       expect(outputFormat(locale), locale).toContain(DISCLAIMER[locale])
+    }
+  })
+
+  it('asks which numbered materials of the context the answer used (SRC-01)', () => {
+    for (const locale of SUPPORTED_LOCALES) {
+      const format = outputFormat(locale)
+      expect(format, locale).toContain('"used_sources": [1, 2]')
+      expect(format, locale).toContain('Use only numbers that appear in the context')
+      expect(format, locale).toContain('Never write these numbers')
+      // The rule comes before the context it speaks of.
+      expect(format.indexOf('SOURCES:'), locale).toBeLessThan(format.indexOf('CONTEXT FROM VET DATABASE:'))
     }
   })
 })
