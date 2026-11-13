@@ -18,3 +18,15 @@ export function checkPrefill(itemName: string, locale: Locale): string {
   const what = inSentence(name)
   return locale === 'ru' ? `Съел(а): ${what}. ` : `Ate: ${what}. `
 }
+
+/** The titles the server falls back on when the model's own cannot be shown (ask-language.ts, SAFETY_NO_DATA). */
+const NO_DATA_TITLES = new Set(['нет данных', 'no data'])
+
+/**
+ * What an AI answer hands to the symptom check: its title, unless the title
+ * is the «No data» fallback — «Съел(а): нет данных» says nothing, so what the
+ * person typed goes instead.
+ */
+export function aiPrefillName(title: string, query: string): string {
+  return NO_DATA_TITLES.has(title.trim().toLocaleLowerCase()) ? query : title
+}

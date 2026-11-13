@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import { PetSpeciesSchema, type PetSpecies } from '@lapka/contracts'
-import { ApiError, verdictLabelKey } from '@lapka/shared'
+import { ApiError } from '@lapka/shared'
 import { withFreshSession } from '@/lib/api'
 import { describeFailure } from '@/lib/errors'
 import { useCached } from '@/lib/query-cache'
 import { queryKeys } from '@/lib/query-keys'
 import { useText } from '@/i18n'
-import { cardFromItem } from '@/features/safety/card-model'
+import { cardFromItem, entryPlaceholder } from '@/features/safety/card-model'
 import { SafetyCard, useSafetyHandOff } from '@/features/safety/SafetyCard'
 import { VerdictBlock } from '@/features/safety/VerdictBadge'
 import { Button } from '@/ui/Button'
@@ -64,15 +64,20 @@ export default function SafetyEntry() {
 
   const item = entry.data
   if (!item) {
-    const known = index.data?.items.find((one) => one.slug === slug)
     const failure = entry.error ? describeFailure(t, entry.error, t.safety.loadFailed) : null
+    // The index's verdict stands in only while loading: next to an error it would read as the answer.
+    const placeholder = entryPlaceholder(
+      index.data?.items.find((one) => one.slug === slug),
+      asked,
+      failure !== null,
+    )
     return (
-      <Screen title={known?.name} onBack={toSearch} scroll>
-        {known ? (
+      <Screen title={placeholder.title} onBack={toSearch} scroll>
+        {placeholder.verdict ? (
           <VerdictBlock
-            verdict={known.verdict[asked]}
-            label={t.safety.verdict[verdictLabelKey(known.category, known.verdict[asked])]}
-            summary={failure ? '' : t.safety.loading}
+            verdict={placeholder.verdict.verdict}
+            label={t.safety.verdict[placeholder.verdict.label]}
+            summary={t.safety.loading}
           />
         ) : null}
         {failure ? (

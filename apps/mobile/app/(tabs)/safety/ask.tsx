@@ -10,6 +10,7 @@ import { useText } from '@/i18n'
 import { useAuth } from '@/providers/AuthProvider'
 import { cardFromAi } from '@/features/safety/card-model'
 import { SafetyCard, useSafetyHandOff } from '@/features/safety/SafetyCard'
+import { aiPrefillName } from '@/features/safety/to-check'
 import { noteAiRemaining, useAiRemaining, useRecentQueries } from '@/features/safety/use-safety-memory'
 import { Button } from '@/ui/Button'
 import { Banner } from '@/ui/Card'
@@ -47,7 +48,8 @@ export default function SafetyAsk() {
 
   const pets = useCached(queryKeys.pets(), () => withFreshSession((api) => api.listPets()))
   const pet = petId ? pets.data?.find((one) => one.id === petId) ?? null : null
-  const handOff = useSafetyHandOff(phase.kind === 'ai' ? phase.answer.title : '', petId)
+  // A «No data» title hands over what the person typed instead.
+  const handOff = useSafetyHandOff(phase.kind === 'ai' ? aiPrefillName(phase.answer.title, query) : '', petId)
 
   const ask = useCallback(async () => {
     setPhase({ kind: 'asking' })

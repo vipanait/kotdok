@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { SafetyAskResult, SafetyItem, SafetySpeciesSection } from '@lapka/contracts'
-import { cardFromAi, cardFromItem } from './card-model'
+import { cardFromAi, cardFromItem, entryPlaceholder } from './card-model'
 
 const danger: SafetySpeciesSection = {
   verdict: 'danger',
@@ -104,5 +104,21 @@ describe('the card an AI answer draws', () => {
       label: 'dangerous',
       medicineLine: true,
     })
+  })
+})
+
+describe('the entry screen before the server answers', () => {
+  const known = { slug: 'vinograd', category: 'food' as const, name: 'Виноград', aliases: [], verdict: { cat: 'danger' as const, dog: 'caution' as const } }
+
+  it('stands in with the index’s name and verdict while loading', () => {
+    expect(entryPlaceholder(known, 'dog', false)).toEqual({ title: 'Виноград', verdict: { verdict: 'caution', label: 'caution' } })
+  })
+
+  it('keeps the name but drops the possibly stale verdict once loading failed', () => {
+    expect(entryPlaceholder(known, 'dog', true)).toEqual({ title: 'Виноград', verdict: null })
+  })
+
+  it('has nothing to stand in with for an entry the index does not know', () => {
+    expect(entryPlaceholder(undefined, 'cat', false)).toEqual({ title: undefined, verdict: null })
   })
 })

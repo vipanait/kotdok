@@ -9,6 +9,7 @@ import type {
   SafetyAiVerdict,
   SafetyAskResult,
   SafetyIfEaten,
+  SafetyIndexItem,
   SafetyItem,
   SafetyPetNote,
   SafetyVerdict,
@@ -82,4 +83,21 @@ export function cardFromAi(answer: Extract<SafetyAskResult, { source: 'ai' }>): 
     otherSpecies: null,
     sources: [],
   }
+}
+
+/**
+ * What the entry screen shows before the server's answer: the index's name
+ * and, while loading, its verdict as a placeholder. The index may be a day
+ * old, so once loading failed its verdict goes — a stale verdict next to an
+ * error would read as the answer.
+ */
+export function entryPlaceholder(
+  known: SafetyIndexItem | undefined,
+  species: PetSpecies,
+  failed: boolean,
+): { title: string | undefined; verdict: { verdict: SafetyVerdict; label: SafetyVerdictLabelKey } | null } {
+  if (!known) return { title: undefined, verdict: null }
+  if (failed) return { title: known.name, verdict: null }
+  const verdict = known.verdict[species]
+  return { title: known.name, verdict: { verdict, label: verdictLabelKey(known.category, verdict) } }
 }
