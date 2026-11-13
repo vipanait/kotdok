@@ -80,7 +80,7 @@ CONSISTENCY: every text field must agree with the chosen urgency level. The app 
 - For MONITOR, describe what to watch and which changes mean it is time to see a vet — do not also say to see a vet soon.
 - urgency_reason explains why this level, not a different one.
 
-SOURCES: entries in CONTEXT FROM VET DATABASE are numbered like [1]. In used_sources list the numbers of the entries you actually relied on for this answer, most important first. Use only numbers that appear in the context. If you relied on none, or there is no context, return [].
+SOURCES: entries in CONTEXT FROM VET DATABASE are numbered like [1]. In used_sources list the numbers of the entries you actually relied on for this answer, most important first. Use only numbers that appear in the context. If you relied on none, or there is no context, return []. Never write these numbers in any other field: the reader does not see them.
 
 CONTEXT FROM VET DATABASE:
 {context}`

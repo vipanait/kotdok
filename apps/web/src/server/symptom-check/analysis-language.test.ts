@@ -69,6 +69,7 @@ describe('the language the analysis answers in', () => {
       const format = outputFormat(locale)
       expect(format, locale).toContain('"used_sources": [1, 2]')
       expect(format, locale).toContain('Use only numbers that appear in the context')
+      expect(format, locale).toContain('Never write these numbers')
       // The rule comes before the context it speaks of.
       expect(format.indexOf('SOURCES:'), locale).toBeLessThan(format.indexOf('CONTEXT FROM VET DATABASE:'))
     }

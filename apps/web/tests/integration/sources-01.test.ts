@@ -116,6 +116,16 @@ describe('the sources of a symptom check (SRC-01)', () => {
     expect(stored).not.toHaveProperty('used_sources')
   })
 
+  it('keeps the numbers of the context out of the text a reader sees', async () => {
+    const { stored } = await analyse(
+      { data: FOUND, error: null },
+      { ...ANSWER, urgency_reason: 'Likely hairballs [1].', home_care_steps: ['Water [1][2]'], used_sources: [1] },
+    )
+
+    expect(stored.urgency_reason).toBe('Likely hairballs.')
+    expect(stored.home_care_steps).toEqual(['Water'])
+  })
+
   it('saves the check without sources when the model names none (SRC-01/05)', async () => {
     const before = await credits()
     const { stored } = await analyse({ data: FOUND, error: null }, ANSWER)

@@ -147,3 +147,15 @@ export function pickSources(materials: VetMaterial[], rawUsed: unknown): CheckSo
   }
   return sources
 }
+
+/** `[1]`, `[1][2]`, `[1, 3]`: a number of the context, as cited-RAG models like to write it. */
+const SOURCE_MARK = /\s*\[\d+(?:\s*,\s*\d+)*\]/g
+
+/**
+ * A text field of the answer without the numbers of the context. They mean
+ * nothing to a reader — the sources block is not numbered — and the prompt
+ * already asks the model not to write them; this is for when it does.
+ */
+export function stripSourceMarks(text: string): string {
+  return text.replace(SOURCE_MARK, '').trim()
+}

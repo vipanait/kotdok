@@ -43,7 +43,7 @@ function openai(): OpenAI {
 }
 
 import { DISCLAIMER, REASSURANCE, outputFormat } from './analysis-language'
-import { groupMaterials, pickSources, renderVetContext, type VetKnowledgeMatch, type VetMaterial } from './vet-sources'
+import { groupMaterials, pickSources, renderVetContext, stripSourceMarks, type VetKnowledgeMatch, type VetMaterial } from './vet-sources'
 
 const catSystemPrompt = (locale: Locale) => `You are a specialized feline health triage assistant.
 You have deep knowledge of cat-specific diseases, physiology, and behavioral signs of illness.
@@ -152,15 +152,20 @@ function validateAIResponse(raw: unknown, locale: Locale): SymptomCheckResult {
   if (typeof raw !== 'object' || raw === null) throw new Error('AI response is not an object')
   const r = raw as Record<string, unknown>
   if (!VALID_URGENCY.includes(r.urgency as Urgency)) throw new Error(`Invalid urgency: ${r.urgency}`)
+  // The context is numbered for `used_sources` (SRC-01); a number left in the
+  // text would reach the reader as "[1]" with nothing to point at.
+  const clean = (text: string) => stripSourceMarks(text)
+  const cleanList = (list: unknown) => (Array.isArray(list) ? list.map(item => clean(String(item))) : [])
+  const warning = pickString(r, 'species_specific_warning', 'cat_specific_warning')
   return {
     urgency: r.urgency as Urgency,
-    urgency_reason: String(r.urgency_reason ?? ''),
-    photo_observations: r.photo_observations ? String(r.photo_observations) : null,
-    possible_causes: Array.isArray(r.possible_causes) ? r.possible_causes as string[] : [],
-    species_specific_warning: pickString(r, 'species_specific_warning', 'cat_specific_warning'),
-    additional_pet_info_needed: pickStringArray(r, 'additional_pet_info_needed', 'additional_cat_info_needed'),
-    home_care_steps: Array.isArray(r.home_care_steps) ? r.home_care_steps as string[] : [],
-    vet_questions: Array.isArray(r.vet_questions) ? r.vet_questions as string[] : [],
+    urgency_reason: clean(String(r.urgency_reason ?? '')),
+    photo_observations: r.photo_observations ? clean(String(r.photo_observations)) : null,
+    possible_causes: cleanList(r.possible_causes),
+    species_specific_warning: warning === null ? null : clean(warning),
+    additional_pet_info_needed: pickStringArray(r, 'additional_pet_info_needed', 'additional_cat_info_needed').map(clean),
+    home_care_steps: cleanList(r.home_care_steps),
+    vet_questions: cleanList(r.vet_questions),
     disclaimer: String(r.disclaimer ?? DISCLAIMER[locale]),
   }
 }

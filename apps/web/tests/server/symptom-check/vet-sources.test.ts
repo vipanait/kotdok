@@ -6,6 +6,7 @@ import {
   parseUsedSources,
   pickSources,
   renderVetContext,
+  stripSourceMarks,
   type VetKnowledgeMatch,
   type VetMaterial,
 } from '@/server/symptom-check/vet-sources'
@@ -177,5 +178,18 @@ describe('the sources a check keeps', () => {
     expect(pickSources([material()], [])).toEqual([])
     expect(pickSources([material()], undefined)).toEqual([])
     expect(pickSources([material()], ['1'])).toEqual([])
+  })
+})
+
+describe('the answer text, without the numbers of the context', () => {
+  it('takes out a number the model left in a sentence', () => {
+    expect(stripSourceMarks('Vomiting can mean hairballs [1].')).toBe('Vomiting can mean hairballs.')
+    expect(stripSourceMarks('Рвота [1][2] и вялость [1, 3]')).toBe('Рвота и вялость')
+    expect(stripSourceMarks('[2] Дайте воды')).toBe('Дайте воды')
+  })
+
+  it('leaves text without marks as it was', () => {
+    expect(stripSourceMarks('Наблюдайте 48 часов')).toBe('Наблюдайте 48 часов')
+    expect(stripSourceMarks('Дозировка [по весу] у врача')).toBe('Дозировка [по весу] у врача')
   })
 })
