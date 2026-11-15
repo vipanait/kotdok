@@ -102,7 +102,8 @@ describe('the entry pages on a preview', () => {
       expect(page, title).toContain(title)
     }
     expect(page).toContain('href="/otravlenie/shokolad"')
-    expect(page).toContain('href="/o-materialah#mozhno-li"')
+    // «О материалах»: the anchor or the page, depending on what is published (design.test.ts).
+    expect(page).toMatch(/href="\/o-materialah(#mozhno-li)?"/)
     expect(page).toContain('application/ld+json')
     expect(page).toContain('"FAQPage"')
     // The way into the app is the existing call to action.

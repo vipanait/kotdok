@@ -5,7 +5,7 @@ import { safetyPath } from '@/shared/content-paths'
 import { siteUrl } from '@/shared/seo'
 import { jsonLdScript } from '@/shared/site-metadata'
 import SafetyAppCta from './SafetyAppCta'
-import SafetyFootnote, { SAFETY_ABOUT_HREF } from './SafetyFootnote'
+import SafetyFootnote, { safetyAboutHref } from './SafetyFootnote'
 import type { SafetyEntry, SafetyVerdict } from './schema'
 import { MEDICINE_LINE, SAFETY_CATEGORY_TITLES, verdictView } from './verdict'
 
@@ -103,7 +103,7 @@ export default function SafetyArticle({ entry }: { entry: SafetyEntry }) {
         <h1>{safetyHeading(entry)}</h1>
         {draft && (
           <p className="safety-draft">
-            <strong className="draft-mark">Черновик: страница ещё не опубликована и не проверена.</strong>
+            <strong className="draft-mark">Черновик: страница ещё не опубликована.</strong>
           </p>
         )}
       </header>
@@ -182,14 +182,12 @@ export default function SafetyArticle({ entry }: { entry: SafetyEntry }) {
                 </li>
               ))}
             </ul>
-            <Link href={SAFETY_ABOUT_HREF} className="safety-about-link">Как подготовлен материал</Link>
+            <Link href={safetyAboutHref()} className="safety-about-link">Как подготовлен материал</Link>
           </section>
           <SafetyAppCta title="Проверьте для своего питомца" layout="aside">
             <p>
-              В приложении Лапка ответ показан для вида вашего питомца. Если в анкете указана аллергия, приложение
-              напомнит о ней, а если указаны хронические болезни — посоветует сначала обсудить новые продукты с врачом.
-              Чего нет в справочнике, можно спросить ИИ — его ответ будет помечен. А если питомцу уже плохо, там же
-              можно проверить симптомы.
+              В приложении — ответ для вида вашего питомца с напоминанием об аллергии и хронических болезнях из
+              анкеты; ответы ИИ помечены.
             </p>
           </SafetyAppCta>
         </aside>

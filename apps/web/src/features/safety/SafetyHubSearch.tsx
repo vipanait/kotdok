@@ -155,7 +155,7 @@ export default function SafetyHubSearch({
           <section aria-labelledby="popular-title" className="safety-section">
             <div className="safety-sectionhead">
               <h2 id="popular-title">Часто спрашивают</h2>
-              <a href="#catalogue" className="safety-count">Весь справочник ↓</a>
+              <a href="#catalogue" className="safety-count">Весь справочник <span aria-hidden="true">↓</span></a>
             </div>
             <SafetyCardGrid items={popularItems} />
           </section>

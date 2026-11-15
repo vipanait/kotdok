@@ -114,6 +114,7 @@
   .safety-sectionhead { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; margin-bottom: 16px; }
   .reading .safety-sectionhead h2 { margin: 0; font-size: 25px; }
   .reading .safety-count { margin: 0; color: var(--faint); font-size: 13px; }
+  a.safety-count { display: inline-flex; align-items: center; min-height: 44px; }
   a.safety-count:hover { color: var(--green); text-decoration: underline; }
   .safety-category + .safety-category { margin-top: 28px; }
   .reading .safety-category h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; font-size: 19px; }

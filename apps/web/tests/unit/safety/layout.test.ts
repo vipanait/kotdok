@@ -81,7 +81,9 @@ describe('the entry page', () => {
     withReviewStatus(nonePublished('draft'), () => {
       const page = html(entryBySlug('ibuprofen')!)
       expect(page).toContain('Лекарства для людей не давайте питомцу без назначения врача')
-      expect(page).toContain('Черновик')
+      // Entries are reviewed by the agent before publishing: the mark says unpublished, not unchecked.
+      expect(page).toContain('Черновик: страница ещё не опубликована.')
+      expect(page).not.toContain('не опубликована и не проверена')
       expect(page).toContain('Справочная информация. Не заменяет консультацию ветеринара.')
     }))
 })

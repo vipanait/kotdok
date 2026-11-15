@@ -42,12 +42,21 @@ describe('the item pictures', () => {
 })
 
 describe('the short footnote', () => {
-  it('says the one sentence and links «О материалах» to the page that explains it', () => {
-    const page = renderToStaticMarkup(createElement(SafetyFootnote))
-    expect(page).toContain('Справочная информация. Не заменяет консультацию ветеринара.')
-    expect(page).toMatch(/<a [^>]*href="\/o-materialah#mozhno-li"[^>]*>О материалах<\/a>/)
-    expect(page).not.toContain('Ветеринарный врач их не проверял')
-  })
+  it('says the one sentence and links «О материалах» to the section that explains it once an entry is published', () =>
+    withReviewStatus(onlyPublished('shokolad'), () => {
+      const page = renderToStaticMarkup(createElement(SafetyFootnote))
+      expect(page).toContain('Справочная информация. Не заменяет консультацию ветеринара.')
+      expect(page).toMatch(/<a [^>]*href="\/o-materialah#mozhno-li"[^>]*>О материалах<\/a>/)
+      expect(page).not.toContain('Ветеринарный врач их не проверял')
+    }))
+
+  it('links the page itself while nothing is published: the section is not rendered, so no dead anchor', () =>
+    withReviewStatus(nonePublished('agent_reviewed'), () => {
+      const page = renderToStaticMarkup(createElement(SafetyFootnote))
+      expect(page).toMatch(/<a [^>]*href="\/o-materialah"[^>]*>О материалах<\/a>/)
+      expect(page).not.toContain('#mozhno-li')
+      expect(renderToStaticMarkup(AboutArticles())).not.toContain('id="mozhno-li"')
+    }))
 })
 
 describe('«О материалах»', () => {
