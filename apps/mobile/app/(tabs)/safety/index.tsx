@@ -78,16 +78,13 @@ export default function SafetyHome() {
   }
 
   return (
-    // The heading is drawn inside the scroller, under its tagline (pet-safety-v1, home): the
-    // first screen of the tab has no way back for Screen's own heading to carry.
+    // The heading is drawn inside the scroller: the first screen of the tab has no way back for
+    // Screen's own heading to carry. No brand tagline above it — the owner asked for the title alone.
     <Screen scroll>
       {/* Capped like Screen's own title: a heading names the screen, what is below it scales freely.
           `numberOfLines` too, as there: without it iOS measured the capped text at the uncapped
           height and left a gap of a screen's third under it at accessibility sizes. */}
-      <Text variant="label" tone="accent" style={styles.eyebrow} maxFontSizeMultiplier={CONTROL_FONT_LIMIT} numberOfLines={3}>
-        {t.auth.tagline.toLocaleUpperCase()}
-      </Text>
-      <Text variant="h1" accessibilityRole="header" maxFontSizeMultiplier={CONTROL_FONT_LIMIT} numberOfLines={3}>
+      <Text variant="h1" accessibilityRole="header" style={styles.title} maxFontSizeMultiplier={CONTROL_FONT_LIMIT} numberOfLines={3}>
         {t.safety.title}
       </Text>
       <Text tone="muted" style={styles.lead}>
@@ -120,6 +117,6 @@ export default function SafetyHome() {
 }
 
 const styles = StyleSheet.create({
-  eyebrow: { marginTop: 24, marginBottom: 12, letterSpacing: 1.5, fontWeight: '800' },
+  title: { marginTop: 24 },
   lead: { marginTop: space.row, marginBottom: space.block },
 })
