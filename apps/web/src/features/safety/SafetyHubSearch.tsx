@@ -19,6 +19,7 @@ const noSubscription = () => () => {}
  * page — nothing guesses the visitor's OS.
  */
 export function SafetyNoMatch({ inCategory, onAllCategories }: { inCategory: boolean; onAllCategories?: () => void }) {
+  const askId = useId()
   return (
     <div className="safety-state">
       <h3>Ничего не нашли</h3>
@@ -26,10 +27,13 @@ export function SafetyNoMatch({ inCategory, onAllCategories }: { inCategory: boo
       {inCategory && (
         <button type="button" className="btn secondary" onClick={onAllCategories}>Искать во всех категориях</button>
       )}
-      <div className="safety-state-app" role="group" aria-labelledby="ask-in-app">
-        <p id="ask-in-app">Спросить в приложении — ИИ ответит о том, чего нет в справочнике:</p>
-        <a href={APP_STORE_LINKS.ios} className="btn primary" rel="noopener">App Store <span aria-hidden="true">↗</span></a>
-        <a href={APP_STORE_LINKS.android} className="btn primary" rel="noopener">Google Play <span aria-hidden="true">↗</span></a>
+      <div className="safety-state-app" role="group" aria-labelledby={askId}>
+        <p id={askId}>Спросить в приложении — ИИ ответит о том, чего нет в справочнике:</p>
+        {/* The store links of the mint app banner below, written the same way. */}
+        <span className="safety-stores">
+          <a href={APP_STORE_LINKS.ios} className="link">App Store <span aria-hidden="true">↗</span></a>
+          <a href={APP_STORE_LINKS.android} className="link">Google Play <span aria-hidden="true">↗</span></a>
+        </span>
       </div>
     </div>
   )

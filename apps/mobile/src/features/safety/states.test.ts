@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { ApiError, ApiTimeoutError } from '@lapka/shared'
 import { en } from '@/i18n/en'
 import { ru } from '@/i18n/ru'
-import { askRequest, safetyFailure } from './states'
+import { askRequest, entryGone, safetyFailure } from './states'
 
 describe('the failure card (handoff, «Уточнение: поиск…»)', () => {
   it('names what failed: the reference or one answer', () => {
@@ -46,5 +46,14 @@ describe('the AI question and «Повторить»', () => {
 
   it('asks for the species when no saved pet is chosen', () => {
     expect(askRequest('киви', null, 'cat')).toEqual({ query: 'киви', species: 'cat' })
+  })
+})
+
+describe('an entry that is gone', () => {
+  it('takes the «Этой записи больше нет» way, not the retry card', () => {
+    expect(entryGone(new ApiError('not_found', 404, 'gone'))).toBe(true)
+    for (const cause of [new ApiError('internal_error', 500, 'boom'), new TypeError('Network request failed'), null]) {
+      expect(entryGone(cause)).toBe(false)
+    }
   })
 })

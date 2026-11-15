@@ -2,9 +2,8 @@ import { useEffect, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import { PetSpeciesSchema, type PetSpecies } from '@lapka/contracts'
-import { ApiError } from '@lapka/shared'
 import { withFreshSession } from '@/lib/api'
-import { safetyFailure } from '@/features/safety/states'
+import { entryGone, safetyFailure } from '@/features/safety/states'
 import { useCached } from '@/lib/query-cache'
 import { queryKeys } from '@/lib/query-keys'
 import { useText } from '@/i18n'
@@ -54,7 +53,7 @@ export default function SafetyEntry() {
 
   const toSearch = () => (router.canGoBack() ? router.back() : router.replace('/safety'))
 
-  if (entry.error instanceof ApiError && entry.error.code === 'not_found') {
+  if (entryGone(entry.error)) {
     return (
       <Screen title={t.safety.title} onBack={toSearch} scroll>
         <SafetyState title={t.safety.gone}>

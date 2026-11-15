@@ -40,7 +40,6 @@ export function CheckDescribeStep({
   onAddPhotos,
   onRemovePhoto,
   fromReference = false,
-  referenceHint = false,
 }: {
   pets: Pet[]
   form: CheckForm
@@ -57,10 +56,8 @@ export function CheckDescribeStep({
   onDropRecheck: () => void
   onAddPhotos: (source: 'camera' | 'library') => void
   onRemovePhoto: (index: number) => void
-  /** Opened by «Проверить симптомы» on a «Можно ли?» card. */
+  /** Opened by «Проверить симптомы» on a «Можно ли?» card, and the description still begins with its words. */
   fromReference?: boolean
-  /** The description still begins with the card's words: say where they came from. */
-  referenceHint?: boolean
 }) {
   const t = useText()
   const chosen = pets.find((pet) => pet.id === form.petId)
@@ -126,7 +123,7 @@ export function CheckDescribeStep({
         onChangeText={(symptoms) => onChange({ symptoms })}
         placeholder={recheck ? t.followup.recheckPlaceholder : t.check.symptomsPlaceholder}
         error={symptomsError}
-        hint={referenceHint ? t.check.fromReference : undefined}
+        hint={fromReference ? t.check.fromReference : undefined}
         multiline
       />
 

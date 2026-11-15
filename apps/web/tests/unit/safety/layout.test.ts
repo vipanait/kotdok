@@ -148,6 +148,10 @@ describe('quiet search and service states (handoff, «Уточнение: пои
     expect(card).toContain('href="https://apps.apple.com/')
     expect(card).toContain('href="https://play.google.com/')
     expect(card).not.toContain('<form')
+    // The store links of the mint banner, not two primary buttons side by side.
+    expect(card).toContain('class="safety-stores"')
+    expect(card).not.toContain('btn primary')
+    expect(card).not.toContain('rel="noopener"')
     expect(card).not.toContain('Искать во всех категориях')
     expect(renderToStaticMarkup(createElement(SafetyNoMatch, { inCategory: true }))).toContain('Искать во всех категориях')
   })

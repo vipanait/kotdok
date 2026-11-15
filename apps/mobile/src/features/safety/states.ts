@@ -34,6 +34,15 @@ export function safetyFailure(t: Dictionary, cause: unknown, of: SafetyFailureOf
   }
 }
 
+/**
+ * The entry is no longer in the reference (unpublished or removed): its
+ * screen says «Этой записи больше нет» with «К поиску», never a retry card —
+ * asking again would get the same answer.
+ */
+export function entryGone(cause: unknown): boolean {
+  return cause instanceof ApiError && cause.code === 'not_found'
+}
+
 /** API codes whose message tells the person to do something other than retry. */
 const ACTIONABLE_CODES = [
   'unauthorized',

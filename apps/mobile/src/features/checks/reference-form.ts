@@ -17,6 +17,22 @@ export function referenceHintShown(handedOver: string | null, symptoms: string):
   return start.length > 0 && symptoms.startsWith(start)
 }
 
+/**
+ * Whether the first step is drawn plainly, as the card opened it: only while
+ * the description still holds the card's words, and never for a re-check
+ * (that form carries its case's plaque and the pet picker). Erasing the
+ * card's text, or opening the tab for something else after it, brings the
+ * ordinary form back — with the step counter and the picker.
+ */
+export function referenceMode(handedOver: string | null, symptoms: string, recheck: boolean): boolean {
+  return !recheck && referenceHintShown(handedOver, symptoms)
+}
+
+/** The hand-over still in force after the description changed to `symptoms`; null once its words are gone. */
+export function keepHandedOver(handedOver: string | null, symptoms: string): string | null {
+  return referenceHintShown(handedOver, symptoms) ? handedOver : null
+}
+
 /** «Рекс · собака»: the pet the card was about, under the form's title. */
 export function referencePetLine(name: string, species: string): string {
   return `${name} · ${species.toLocaleLowerCase()}`

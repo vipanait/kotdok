@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { checkPrefill } from '@/features/safety/to-check'
-import { referenceHintShown, referencePetLine } from './reference-form'
+import { keepHandedOver, referenceHintShown, referenceMode, referencePetLine } from './reference-form'
 
 describe('the check form opened from a «Можно ли?» card', () => {
   const handed = checkPrefill('Виноград и изюм', 'ru')
@@ -23,5 +23,27 @@ describe('the check form opened from a «Можно ли?» card', () => {
 
   it('names the pet and its species under the title', () => {
     expect(referencePetLine('Рекс', 'Собака')).toBe('Рекс · собака')
+  })
+
+  it('is drawn plainly only while the card\'s words are in the description', () => {
+    expect(referenceMode(handed, handed, false)).toBe(true)
+    expect(referenceMode(handed, `${handed}Вырвало.`, false)).toBe(true)
+    // Erased: the ordinary form, with the step counter and the pet picker, comes back.
+    expect(referenceMode(handed, '', false)).toBe(false)
+    expect(referenceMode(handed, 'Хромает', false)).toBe(false)
+    // Never handed over: always the ordinary form.
+    expect(referenceMode(null, handed, false)).toBe(false)
+  })
+
+  it('forgets the hand-over once its words are gone, so writing them back does not bring the plain form back', () => {
+    expect(keepHandedOver(handed, `${handed}рвота`)).toBe(handed)
+    expect(keepHandedOver(handed, 'Питомец')).toBeNull()
+    expect(keepHandedOver(null, handed)).toBeNull()
+    const erased = keepHandedOver(handed, '')
+    expect(referenceMode(erased, handed, false)).toBe(false)
+  })
+
+  it('draws a re-check opened after a hand-over as the ordinary form', () => {
+    expect(referenceMode(handed, handed, true)).toBe(false)
   })
 })

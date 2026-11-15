@@ -12,7 +12,7 @@ import { emptyCheckForm, formToCheckInput, type CheckForm } from '@/features/che
 import { addPhotos, type PickedPhoto } from '@/features/checks/photos'
 import { pickPhotos } from '@/features/checks/pick-photos'
 import { prefillDecision } from '@/features/checks/check-draft'
-import { referenceHintShown } from '@/features/checks/reference-form'
+import { keepHandedOver, referenceMode } from '@/features/checks/reference-form'
 import { useCheckDraft } from '@/features/checks/use-check-draft'
 import { useCheckSubmission, useLiftedRefusal } from '@/features/checks/use-check-submission'
 import { usePetChoice, useRecordCaption } from '@/features/checks/use-check-pet'
@@ -42,8 +42,10 @@ export default function NewCheck() {
   // a restart, and the draft lives in the keychain, which is for small values.
   const [photos, setPhotos] = useState<PickedPhoto[]>([])
   const [symptomsError, setSymptomsError] = useState<string | null>(null)
-  // What a «Можно ли?» card handed over, once taken: the form is then drawn plainly
-  // (`CheckDescribeStep`'s `fromReference`). Not part of the draft; a fresh check forgets it.
+  // What a «Можно ли?» card handed over, once taken: the form is drawn plainly
+  // (`CheckDescribeStep`'s `fromReference`) only while the description still holds
+  // its words (`referenceMode`). Forgotten as soon as they are erased, by a re-check,
+  // and by a fresh check; not part of the draft.
   const [handedText, setHandedText] = useState<string | null>(null)
   const { recheckFor, openRecheck, dropRecheck } = useRecheck(t, form.petId, setForm, setStep)
   const submission = useCheckSubmission({ t, userId, finished, forgetDraft, dropRecheck })
@@ -112,6 +114,11 @@ export default function NewCheck() {
     // Retired by editing the description, the one field it is about: a red
     // «хотя бы 3 символа» under a paragraph reads as the paragraph being wrong.
     if ('symptoms' in patch) setSymptomsError(null)
+    // The card's words erased or written over: from here on it is the person's own check, drawn as usual.
+    if (patch.symptoms !== undefined) {
+      const symptoms = patch.symptoms
+      setHandedText((current) => keepHandedOver(current, symptoms))
+    }
   }
 
   useFocusEffect(
@@ -123,7 +130,11 @@ export default function NewCheck() {
       if (finished.current) startFresh()
       // After the emptying, or it would undo the pet the re-check is about.
       const asked = takeRecheck()
-      if (asked) openRecheck(asked)
+      if (asked) {
+        // A re-check is its own form, with the case's plaque and the picker: never the plain one.
+        setHandedText(null)
+        openRecheck(asked)
+      }
 
       const done = takeFinishedCheck(userId)
       if (done) {
@@ -191,6 +202,8 @@ export default function NewCheck() {
     await submission.submit(checked.value, photos, recheckFor?.caseId ?? null)
   }
 
+  const plain = referenceMode(handedText, form.symptoms, recheckFor !== null)
+
   // Before any early return: hooks run in the same order on every render.
   const withRecord = useRecordCaption(form.petId)
 
@@ -230,7 +243,7 @@ export default function NewCheck() {
       <Screen
         title={t.check.title}
         scroll
-        dock={<Button title={handedText !== null ? t.check.continue : t.common.next} onPress={next} />}
+        dock={<Button title={plain ? t.check.continue : t.common.next} onPress={next} />}
       >
         <CheckDescribeStep
           pets={pets}
@@ -249,8 +262,7 @@ export default function NewCheck() {
             })
           }
           onRemovePhoto={(index) => setPhotos((current) => current.filter((_, i) => i !== index))}
-          fromReference={handedText !== null}
-          referenceHint={referenceHintShown(handedText, form.symptoms)}
+          fromReference={plain}
         />
         {replaceDialog}
       </Screen>
