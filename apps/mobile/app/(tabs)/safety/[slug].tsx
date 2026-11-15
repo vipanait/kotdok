@@ -4,7 +4,7 @@ import { router, useLocalSearchParams } from 'expo-router'
 import { PetSpeciesSchema, type PetSpecies } from '@lapka/contracts'
 import { ApiError } from '@lapka/shared'
 import { withFreshSession } from '@/lib/api'
-import { describeFailure } from '@/lib/errors'
+import { safetyFailure } from '@/features/safety/states'
 import { useCached } from '@/lib/query-cache'
 import { queryKeys } from '@/lib/query-keys'
 import { useText } from '@/i18n'
@@ -58,7 +58,7 @@ export default function SafetyEntry() {
   if (entry.error instanceof ApiError && entry.error.code === 'not_found') {
     return (
       <Screen title={t.safety.title} onBack={toSearch} scroll>
-        <SafetyState icon="search" title={t.safety.gone}>
+        <SafetyState title={t.safety.gone}>
           <Button title={t.safety.toSearch} onPress={toSearch} />
         </SafetyState>
         <SafetyFootnote />
@@ -68,7 +68,7 @@ export default function SafetyEntry() {
 
   const item = entry.data
   if (!item) {
-    const failure = entry.error ? describeFailure(t, entry.error, t.safety.loadFailed) : null
+    const failure = entry.error ? safetyFailure(t, entry.error, 'answer') : null
     // The index's verdict stands in only while loading: next to an error it would read as the answer.
     const placeholder = entryPlaceholder(
       index.data?.items.find((one) => one.slug === slug),
@@ -86,7 +86,7 @@ export default function SafetyEntry() {
           />
         ) : null}
         {failure ? (
-          <SafetyState icon={failure.offline ? 'wifi' : 'alert'} title={t.safety.loadFailed} body={failure.text === t.safety.loadFailed ? undefined : failure.text}>
+          <SafetyState title={failure.title} body={failure.body} style={styles.failure}>
             <Button title={t.common.retry} onPress={() => void reload()} />
           </SafetyState>
         ) : (
@@ -124,4 +124,5 @@ export default function SafetyEntry() {
 const styles = StyleSheet.create({
   eyebrow: { marginBottom: space.row, letterSpacing: 1.5, fontWeight: '800' },
   skeleton: { marginTop: space.block },
+  failure: { marginTop: space.block },
 })

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { SafetyIndexItem } from '@lapka/contracts'
-import { searchView } from './search-model'
+import { homeHeading, isSearching, recentShown, searchView } from './search-model'
 
 const entry = (slug: string, name: string, category: SafetyIndexItem['category'], aliases: string[] = []): SafetyIndexItem => ({
   slug,
@@ -70,5 +70,24 @@ describe('what the search shows', () => {
     expect(searchView(index, 'лилия', 'food')).toEqual({ kind: 'miss', elsewhere: true })
     expect(searchView(index, 'кумкват', 'food')).toEqual({ kind: 'miss', elsewhere: false })
     expect(searchView(index, 'кумкват', null)).toEqual({ kind: 'miss', elsewhere: false })
+  })
+})
+
+describe('while a query is typed (handoff, «Уточнение: поиск…»)', () => {
+  const t = { title: 'Можно ли это питомцу?', lead: 'Пояснение', searchTitle: 'Поиск по справочнику' }
+
+  it('names the screen «Поиск по справочнику» and drops the lead', () => {
+    expect(homeHeading(t, '')).toEqual({ title: t.title, lead: t.lead })
+    expect(homeHeading(t, 'шок')).toEqual({ title: t.searchTitle, lead: null })
+    // Spaces and punctuation are not a query: the screen stays as it was.
+    expect(homeHeading(t, '  ')).toEqual({ title: t.title, lead: t.lead })
+    expect(isSearching(' ? ')).toBe(false)
+  })
+
+  it('hides the recent queries while typing and brings them back once the field is cleared', () => {
+    const recent = ['Шоколад', 'Лилия']
+    expect(recentShown('', recent)).toEqual(recent)
+    expect(recentShown('лил', recent)).toEqual([])
+    expect(recentShown('', [])).toEqual([])
   })
 })

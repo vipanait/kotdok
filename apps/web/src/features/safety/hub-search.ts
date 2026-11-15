@@ -17,3 +17,15 @@ export function hubSearch(index: readonly SafetyIndexItem[], query: string): Hub
   const { exact, suggestions } = matchSafety(index, query)
   return suggestions.length > 0 ? { state: 'found', items: suggestions, exact } : { state: 'missing' }
 }
+
+/** The hub's heading while a query is typed (handoff, «Уточнение: поиск, пустые результаты и ошибки»). */
+export const HUB_SEARCH_TITLE = 'Поиск по справочнику'
+
+/**
+ * Whether the hub is searching: something that can be searched for is typed.
+ * Then the heading becomes «Поиск по справочнику» and the lead and the picture
+ * step aside; the field and the chips stay. A chip alone is browsing, not a search.
+ */
+export function hubSearching(query: string): boolean {
+  return normalizeSafetyQuery(query).length > 0
+}

@@ -41,6 +41,21 @@ export default function SafetyHub() {
   const byCategory = SAFETY_CATEGORIES.map(category => ({ category, items: index.filter(item => item.category === category).sort((a, b) => a.name.localeCompare(b.name, 'ru')) }))
     .filter(group => group.items.length > 0)
 
+  // Drawn by the search while nothing is typed; a query swaps it for «Поиск по справочнику».
+  const hero = (
+    <header className="safety-hero">
+      <div>
+        <div className="eyebrow">Справочник</div>
+        <h1>Можно ли это кошке или собаке</h1>
+        <p className="short-answer">
+          Продукты со стола, комнатные растения, лекарства для людей и бытовая химия: что можно, что с осторожностью,
+          а что опасно, и что сделать, если питомец уже съел.
+        </p>
+      </div>
+      <Illustration name="pets-together" size={230} className="art safety-hero-art" eager />
+    </header>
+  )
+
   return (
     <ArticleFrame crumbs={crumbs} className="safety-page">
       <script
@@ -49,35 +64,21 @@ export default function SafetyHub() {
           __html: jsonLdScript({ '@context': 'https://schema.org', '@graph': [organizationJsonLd, breadcrumbJsonLd(siteUrl, crumbs)] }),
         }}
       />
-      <header className="safety-hero">
-        <div>
-          <div className="eyebrow">Справочник</div>
-          <h1>Можно ли это кошке или собаке</h1>
-          <p className="short-answer">
-            Продукты со стола, комнатные растения, лекарства для людей и бытовая химия: что можно, что с осторожностью,
-            а что опасно, и что сделать, если питомец уже съел.
-          </p>
-        </div>
-        <Illustration name="pets-together" size={230} className="art safety-hero-art" eager />
-      </header>
 
       {index.length === 0 ? (
-        <section className="safety-empty" aria-labelledby="empty-title">
-          <span className="safety-missing-icon" aria-hidden="true">
-            <svg className="safety-field-icon" viewBox="0 0 24 24">
-              <circle cx="10.5" cy="10.5" r="6" />
-              <path d="m15 15 5 5" />
-            </svg>
-          </span>
-          <h2 id="empty-title">Справочник скоро появится</h2>
-          <p>
-            Мы готовим ответы о продуктах, растениях и веществах. Если питомец уже съел что-то опасное, не ждите:
-            позвоните в ветеринарную клинику.
-          </p>
-          <Link href="/otravlenie" className="btn primary">Что делать при отравлении</Link>
-        </section>
+        <>
+          {hero}
+          <section className="safety-state" aria-labelledby="empty-title">
+            <h2 id="empty-title">Справочник скоро появится</h2>
+            <p>
+              Мы готовим ответы о продуктах, растениях и веществах. Если питомец уже съел что-то опасное, не ждите:
+              позвоните в ветеринарную клинику.
+            </p>
+            <Link href="/otravlenie" className="btn primary">Что делать при отравлении</Link>
+          </section>
+        </>
       ) : (
-        <SafetyHubSearch index={index} popular={POPULAR}>
+        <SafetyHubSearch hero={hero} index={index} popular={POPULAR}>
           <section id="catalogue" aria-labelledby="catalogue-title" className="safety-section">
             <div className="safety-sectionhead">
               <h2 id="catalogue-title">Весь справочник</h2>

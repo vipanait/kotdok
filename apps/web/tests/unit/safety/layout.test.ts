@@ -5,6 +5,7 @@ import { entryBySlug, visibleEntries } from '@/features/safety/load'
 import SafetyArticle from '@/features/safety/SafetyArticle'
 import type { SafetyEntry } from '@/features/safety/schema'
 import Hub from '@/app/(content)/mozhno-li/page'
+import { HUB_SEARCH_TITLE, hubSearching } from '@/features/safety/hub-search'
 import { nonePublished, withReviewStatus } from './review-states'
 
 /**
@@ -110,6 +111,32 @@ describe('the hub', () => {
       expect(page).toContain('href="/otravlenie"')
       expect(page).not.toContain('id="catalogue"')
       expect(page).not.toContain('Часто спрашивают')
+    })
+  })
+})
+
+describe('quiet search and service states (handoff, «Уточнение: поиск, пустые результаты и ошибки»)', () => {
+  it('searches only for something that can be searched for: a chip or spaces are not a query', () => {
+    expect(HUB_SEARCH_TITLE).toBe('Поиск по справочнику')
+    expect(hubSearching('шок')).toBe(true)
+    expect(hubSearching('')).toBe(false)
+    expect(hubSearching('  ? ')).toBe(false)
+  })
+
+  it('sends the full heading, lead and picture in the server HTML: nothing is typed before the script runs', () => {
+    const page = renderToStaticMarkup(Hub())
+    expect(page).toContain('<h1>Можно ли это кошке или собаке</h1>')
+    expect(page).toContain('safety-hero-art')
+    expect(page).not.toContain(HUB_SEARCH_TITLE + '</h1>')
+    expect(page.match(/<h1>/g)).toHaveLength(1)
+  })
+
+  it('draws the empty reference as a plain card: no picture on a tile', () => {
+    vi.unstubAllEnvs()
+    return withReviewStatus(nonePublished(), () => {
+      const page = renderToStaticMarkup(Hub())
+      expect(page).toMatch(/<section class="safety-state"[^>]*><h2 id="empty-title">Справочник скоро появится<\/h2>/)
+      expect(page).not.toContain('safety-missing-icon')
     })
   })
 })

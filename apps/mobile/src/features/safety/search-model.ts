@@ -81,3 +81,25 @@ export function searchView(
   const elsewhere = category !== null && matchSafety(items, query).suggestions.length > 0
   return { kind: 'miss', elsewhere }
 }
+
+/**
+ * Whether the screen is searching: something that can be searched for is
+ * typed. Then the heading says «Поиск по справочнику», the lead and the
+ * recent queries step aside, and the pet picker and the field stay.
+ */
+export function isSearching(query: string): boolean {
+  return normalizeSafetyQuery(query).length > 0
+}
+
+/** The recent queries under the field: hidden while a query is being typed. */
+export function recentShown(query: string, recent: readonly string[]): readonly string[] {
+  return isSearching(query) ? [] : recent
+}
+
+/** The tab's heading and lead: the screen's own name, or «Поиск по справочнику» without the lead while searching. */
+export function homeHeading(
+  t: { title: string; lead: string; searchTitle: string },
+  query: string,
+): { title: string; lead: string | null } {
+  return isSearching(query) ? { title: t.searchTitle, lead: null } : { title: t.title, lead: t.lead }
+}

@@ -12,6 +12,7 @@ import { cardFromAi } from '@/features/safety/card-model'
 import { SafetyCard, useSafetyHandOff } from '@/features/safety/SafetyCard'
 import { SafetyFootnote } from '@/features/safety/SafetyFootnote'
 import { SafetyContextCard, SafetyPanel, SafetyState } from '@/features/safety/SafetyParts'
+import { askRequest, safetyFailure } from '@/features/safety/states'
 import { aiPrefillName } from '@/features/safety/to-check'
 import { noteAiRemaining, useAiRemaining, useRecentQueries } from '@/features/safety/use-safety-memory'
 import { Button } from '@/ui/Button'
@@ -27,7 +28,7 @@ type Phase =
   | { kind: 'ai'; answer: AiAnswer }
   | { kind: 'unrecognized' }
   | { kind: 'limited' }
-  | { kind: 'failed' }
+  | { kind: 'failed'; cause: unknown }
 
 /**
  * The AI answer for what the reference does not hold, asked once per query.
@@ -55,9 +56,8 @@ export default function SafetyAsk() {
   const ask = useCallback(async () => {
     setPhase({ kind: 'asking' })
     try {
-      const result = await withFreshSession((api) =>
-        api.askSafety(petId ? { query, pet_id: petId } : { query, species }),
-      )
+      // From the screen's parameters: «Повторить» sends the same words for the same pet.
+      const result = await withFreshSession((api) => api.askSafety(askRequest(query, petId, species)))
       if (result.source === 'catalog') {
         router.replace({ pathname: '/safety/[slug]', params: { slug: result.slug, species, ...(petId ? { petId } : {}) } })
         return
@@ -68,7 +68,7 @@ export default function SafetyAsk() {
       const limited = cause instanceof ApiError && cause.code === 'rate_limited'
       // Refused for the limit: none left today, whatever the last answer said.
       if (limited) noteAiRemaining(userId, 0)
-      setPhase({ kind: limited ? 'limited' : 'failed' })
+      setPhase(limited ? { kind: 'limited' } : { kind: 'failed', cause })
     }
   }, [petId, query, species, userId])
 
@@ -127,7 +127,7 @@ export default function SafetyAsk() {
 
       {phase.kind === 'unrecognized' ? (
         // The question stays editable: the same screen asks the corrected words.
-        <SafetyState icon="search" title={t.safety.unrecognizedTitle} body={t.safety.unrecognizedBody}>
+        <SafetyState title={t.safety.unrecognizedTitle} body={t.safety.unrecognizedBody}>
           <Field
             label={t.safety.newQuestion}
             value={next}
@@ -136,20 +136,20 @@ export default function SafetyAsk() {
             autoCorrect={false}
           />
           <Button title={t.safety.askAi} disabled={!next.trim()} onPress={askAnother} />
-          <Text variant="caption" tone="faint" center>
+          <Text variant="caption" tone="muted">
             {aiLine}
           </Text>
         </SafetyState>
       ) : null}
 
       {phase.kind === 'limited' ? (
-        <SafetyState icon="clock" title={t.safety.rateLimitedTitle} body={t.safety.rateLimited}>
+        <SafetyState title={t.safety.rateLimitedTitle} body={t.safety.rateLimited}>
           <Button title={t.safety.backToReference} onPress={back} />
         </SafetyState>
       ) : null}
 
       {phase.kind === 'failed' ? (
-        <SafetyState icon="alert" title={t.safety.askFailedTitle} body={t.safety.askFailed}>
+        <SafetyState {...safetyFailure(t, phase.cause, 'answer')}>
           <Button title={t.common.retry} onPress={() => void ask()} />
         </SafetyState>
       ) : null}

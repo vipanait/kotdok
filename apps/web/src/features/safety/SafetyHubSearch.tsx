@@ -6,7 +6,7 @@ import { SAFETY_CATEGORIES, type SafetyCategory, type SafetyIndexItem } from '@l
 import { safetyCategoryIcon } from '@lapka/shared'
 import { SIGN_UP_HREF } from '@/features/seo-content/components/CheckCta'
 import { safetyPath } from '@/shared/content-paths'
-import { hubSearch } from './hub-search'
+import { HUB_SEARCH_TITLE, hubSearch, hubSearching } from './hub-search'
 import SafetyIcon from './SafetyIcon'
 import { SafetyCardGrid, categoryAnchor } from './SafetyItemCard'
 import { SAFETY_CATEGORY_TITLES } from './verdict'
@@ -28,12 +28,20 @@ const byName = (a: SafetyIndexItem, b: SafetyIndexItem) => a.name.localeCompare(
  * it can search, and the chips are plain links to the catalogue's sections
  * until then. A filter hides the catalogue (still in the HTML) instead of
  * removing it.
+ *
+ * The page's heading (`hero`) is drawn here too: while a query is typed it
+ * gives way to «Поиск по справочнику» alone — no lead, no picture — over the
+ * same field and chips (handoff, «Уточнение: поиск…»). Before the script runs
+ * nothing is typed, so the server's HTML carries the full heading.
  */
 export default function SafetyHubSearch({
+  hero,
   index,
   popular,
   children,
 }: {
+  /** The page's heading, title and lead with the picture; shown while nothing is typed. */
+  hero: ReactNode
   index: SafetyIndexItem[]
   /** The «Часто спрашивают» entries, in order; slugs the index lacks are skipped. */
   popular: readonly string[]
@@ -50,15 +58,18 @@ export default function SafetyHubSearch({
   const search = hubSearch(scoped, query)
   const filtering = hydrated && (search.state !== 'idle' || category !== null)
   const shown = search.state === 'found' ? search.items : search.state === 'idle' ? [...scoped].sort(byName) : []
+  const searching = hydrated && hubSearching(query)
   const popularItems = popular.flatMap(slug => index.find(item => item.slug === slug) ?? [])
-
-  const reset = () => {
-    setQuery('')
-    setCategory(null)
-  }
 
   return (
     <>
+      {searching ? (
+        <header className="safety-hero searching">
+          <h1>{HUB_SEARCH_TITLE}</h1>
+        </header>
+      ) : (
+        hero
+      )}
       <section className="safety-searchbox" aria-label="Поиск по справочнику">
         {hydrated && (
           <form
@@ -124,26 +135,24 @@ export default function SafetyHubSearch({
           <section aria-labelledby="results-title" className="safety-section">
             <div className="safety-sectionhead">
               <h2 id="results-title">{search.state === 'idle' && category ? SAFETY_CATEGORY_TITLES[category] : 'Результаты поиска'}</h2>
-              <p className="safety-count" role="status">
-                {shown.length > 0 ? `Найдено: ${shown.length}` : 'Ничего не нашлось'}
+              {/* One live region; with nothing found the card below says it, so the line is for a screen reader only. */}
+              <p className={shown.length > 0 ? 'safety-count' : 'safety-sr'} role="status">
+                {shown.length > 0 ? `Найдено: ${shown.length}` : 'Ничего не нашли'}
               </p>
             </div>
             {shown.length > 0 ? (
               <SafetyCardGrid items={shown} />
             ) : (
-              <div className="safety-missing">
-                <span className="safety-missing-icon" aria-hidden="true">
-                  <svg className="safety-field-icon" viewBox="0 0 24 24">
-                    <circle cx="10.5" cy="10.5" r="6" />
-                    <path d="m15 15 5 5" />
-                  </svg>
-                </span>
-                <h3>Пока нет в справочнике</h3>
+              // Under the field, so the query is edited or cleared right there; the AI question is the app's.
+              <div className="safety-state">
+                <h3>Ничего не нашли</h3>
                 <p>
-                  Попробуйте другое название{category ? ' или поищите во всех категориях' : ''}. О том, чего нет
-                  в справочнике, можно спросить в приложении: <Link href={SIGN_UP_HREF} className="link">зарегистрироваться</Link>
+                  Попробуйте другое название{category ? ' или поищите во всех категориях' : ''}. Чего нет
+                  в справочнике, можно спросить ИИ в приложении: <Link href={SIGN_UP_HREF} className="link">зарегистрироваться</Link>
                 </p>
-                <button type="button" className="btn primary" onClick={reset}>Сбросить поиск</button>
+                {category && (
+                  <button type="button" className="btn primary" onClick={() => setCategory(null)}>Искать во всех категориях</button>
+                )}
               </div>
             )}
           </section>

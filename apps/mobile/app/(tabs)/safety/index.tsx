@@ -1,9 +1,8 @@
 import { useState } from 'react'
-import { StyleSheet } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import { router } from 'expo-router'
 import type { Pet, SafetyIndexItem } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
-import { describeFailure } from '@/lib/errors'
 import { useCached } from '@/lib/query-cache'
 import { queryKeys } from '@/lib/query-keys'
 import { useText } from '@/i18n'
@@ -14,6 +13,8 @@ import { defaultSubject, subjectPetId, type SafetySubject } from '@/features/saf
 import { lastPetFor, rememberPet, useAiRemaining, useRecentQueries } from '@/features/safety/use-safety-memory'
 import { SafetyFootnote } from '@/features/safety/SafetyFootnote'
 import { SafetyState } from '@/features/safety/SafetyParts'
+import { homeHeading } from '@/features/safety/search-model'
+import { safetyFailure } from '@/features/safety/states'
 import { Button } from '@/ui/Button'
 import { Screen } from '@/ui/Screen'
 import { ListSkeleton } from '@/ui/Skeleton'
@@ -55,7 +56,9 @@ export default function SafetyHome() {
   const subject = stillValid(choice, pets) ?? defaultSubject(pets, lastPetFor(userId))
   const petId = subjectPetId(subject)
   const items = index.data?.items ?? null
-  const failure = index.error && !index.data ? describeFailure(t, index.error, t.safety.loadFailed) : null
+  const failure = index.error && !index.data ? safetyFailure(t, index.error, 'catalogue') : null
+  // While a query is typed: «Поиск по справочнику», no lead; the pet and the field stay.
+  const heading = homeHeading(t.safety, query)
   const aiLine = left === null ? t.safety.aiLimit : t.safety.aiRemaining(left)
 
   function choose(next: SafetySubject) {
@@ -85,18 +88,23 @@ export default function SafetyHome() {
           `numberOfLines` too, as there: without it iOS measured the capped text at the uncapped
           height and left a gap of a screen's third under it at accessibility sizes. */}
       <Text variant="h1" accessibilityRole="header" style={styles.title} maxFontSizeMultiplier={CONTROL_FONT_LIMIT} numberOfLines={3}>
-        {t.safety.title}
+        {heading.title}
       </Text>
-      <Text tone="muted" style={styles.lead}>
-        {t.safety.lead}
-      </Text>
+      {heading.lead ? (
+        <Text tone="muted" style={styles.lead}>
+          {heading.lead}
+        </Text>
+      ) : (
+        <View style={styles.leadGap} />
+      )}
       {petList.data === null && !petList.error ? (
         <ListSkeleton rows={1} />
       ) : (
         <SafetySubjectPicker pets={pets} subject={subject} onChange={choose} />
       )}
       {failure ? (
-        <SafetyState icon={failure.offline ? 'wifi' : 'alert'} title={t.safety.loadFailed} body={failure.text === t.safety.loadFailed ? undefined : failure.text}>
+        // The same request again; the typed query and the chosen pet live on this screen and stay.
+        <SafetyState title={failure.title} body={failure.body}>
           <Button title={t.common.retry} onPress={() => void index.reload()} />
         </SafetyState>
       ) : (
@@ -119,4 +127,5 @@ export default function SafetyHome() {
 const styles = StyleSheet.create({
   title: { marginTop: 24 },
   lead: { marginTop: space.row, marginBottom: space.block },
+  leadGap: { height: space.block },
 })

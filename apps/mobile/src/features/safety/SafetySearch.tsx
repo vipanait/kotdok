@@ -11,7 +11,7 @@ import { CONTROL_FONT_LIMIT, Text } from '@/ui/Text'
 import { TAP_TARGET, colour, radius, space } from '@/ui/theme'
 import { SafetyIcon, SAFETY_ICON_SIZE } from './icons/SafetyIcon'
 import { SafetyState } from './SafetyParts'
-import { searchView, type SafetyRow } from './search-model'
+import { recentShown, searchView, type SafetyRow } from './search-model'
 import { VerdictBadge } from './VerdictBadge'
 
 export { POPULAR_SLUGS } from './search-model'
@@ -74,7 +74,8 @@ export function SafetySearch({
   const t = useText()
   const [category, setCategory] = useState<SafetyCategory | null>(null)
   const view = useMemo(() => searchView(items, query, category), [items, query, category])
-  const typed = view.kind === 'results' || view.kind === 'miss'
+  // Hidden while a query is typed: the field, the chips and what they find are the screen then.
+  const recentChips = recentShown(query, recent)
 
   const field = (
     <Field
@@ -115,12 +116,12 @@ export function SafetySearch({
     ) : null
 
   const recentRow =
-    !typed && recent.length > 0 ? (
+    recentChips.length > 0 ? (
       <View style={styles.recent}>
         <Text variant="label" tone="muted">
           {t.safety.recent}
         </Text>
-        {recent.map((item) => (
+        {recentChips.map((item) => (
           <Chip key={item} label={item} onPress={() => onQuery(item)} />
         ))}
       </View>
@@ -168,34 +169,40 @@ export function SafetySearch({
       {view.kind === 'popular' ? list(t.safety.popular, view.rows) : null}
       {view.kind === 'category' && category ? list(t.safety.categories[category], view.rows) : null}
       {view.kind === 'results' ? list(t.safety.results, view.rows) : null}
-      {view.kind === 'miss' && view.elsewhere && category ? (
-        // In the reference, under another chip: the way there first, the AI question still open.
-        <SafetyState
-          icon="search"
-          title={t.safety.notInCategory(query.trim(), t.safety.categories[category])}
-          body={t.safety.notInCategoryBody}
-        >
-          <Button title={t.safety.otherCategories} onPress={() => setCategory(null)} />
-          <Button title={t.safety.askAi} kind="secondary" onPress={() => onAsk(query.trim())} />
-          <Text variant="caption" tone="faint" center>
-            {aiLine}
+      {view.kind === 'miss' ? (
+        // Under the field, so the query is edited or cleared right here; no screen of its own.
+        <>
+          <Text variant="h2" accessibilityRole="header" style={styles.listTitle}>
+            {t.safety.results}
           </Text>
-        </SafetyState>
-      ) : null}
-      {view.kind === 'miss' && !(view.elsewhere && category) ? (
-        <SafetyState icon="search" title={t.safety.notInReference(query.trim())} body={t.safety.notInReferenceBody}>
-          {/* Asked only on this press: typing never spends an AI answer. */}
-          <Button title={t.safety.askAi} onPress={() => onAsk(query.trim())} />
-          <Text variant="caption" tone="faint" center>
-            {aiLine}
-          </Text>
-        </SafetyState>
+          {view.elsewhere && category ? (
+            // In the reference, under another chip: the way there first, the AI question still open.
+            <SafetyState
+              title={t.safety.notInCategory(query.trim(), t.safety.categories[category])}
+              body={t.safety.notInCategoryBody}
+            >
+              <Button title={t.safety.otherCategories} onPress={() => setCategory(null)} />
+              <Button title={t.safety.askAi} kind="secondary" onPress={() => onAsk(query.trim())} />
+              <Text variant="caption" tone="muted">
+                {aiLine}
+              </Text>
+            </SafetyState>
+          ) : (
+            <SafetyState title={t.safety.nothingFound} body={t.safety.nothingFoundBody}>
+              {/* Asked only on this press: typing never spends an AI answer. */}
+              <Button title={t.safety.askAi} onPress={() => onAsk(query.trim())} />
+              <Text variant="caption" tone="muted">
+                {aiLine}
+              </Text>
+            </SafetyState>
+          )}
+        </>
       ) : null}
       {view.kind === 'emptyCatalogue' ? (
         // Nothing published yet (the app may reach the stores before the
         // reference does): say so, and leave the AI question open above.
-        <SafetyState icon="bowl" title={t.safety.comingSoon} body={t.safety.comingSoonBody}>
-          <Text variant="caption" tone="faint" center>
+        <SafetyState title={t.safety.comingSoon} body={t.safety.comingSoonBody} style={styles.alone}>
+          <Text variant="caption" tone="muted">
             {aiLine}
           </Text>
         </SafetyState>
@@ -219,6 +226,7 @@ const styles = StyleSheet.create({
   chipChosen: { backgroundColor: colour.accent },
   recent: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8, marginBottom: space.row },
   listTitle: { marginTop: space.block, marginBottom: space.row },
+  alone: { marginTop: space.row },
   rows: { gap: 10 },
   row: {
     flexDirection: 'row',

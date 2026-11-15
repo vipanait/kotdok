@@ -131,11 +131,15 @@
   .safety-card-chevron { flex: none; color: var(--text); font-size: 22px; line-height: 1; }
   .safety-icon { display: block; flex: none; }
 
-  .safety-missing, .safety-empty { padding: 32px 12px; text-align: center; }
-  .safety-missing-icon { display: grid; place-items: center; width: 76px; height: 76px; margin: 0 auto 20px; border-radius: 24px; background: var(--soft); color: var(--text); }
-  .reading .safety-missing h3, .reading .safety-empty h2 { margin: 0 0 10px; font-size: 32px; }
-  .reading .safety-missing p, .reading .safety-empty p { max-width: 620px; margin: 0 auto 18px; }
-  .safety-missing .link { display: inline; min-height: 0; text-decoration: underline; text-underline-offset: 3px; }
+  /* Nothing found, nothing published: a quiet white card read from the left, no picture (handoff, «Уточнение: поиск…»). */
+  .safety-state { max-width: 680px; padding: 24px; background: var(--paper); border: 1px solid var(--line); border-radius: 20px; }
+  .reading .safety-state h2, .reading .safety-state h3 { margin: 0 0 10px; font-size: 24px; line-height: 1.25; }
+  .reading .safety-state p { max-width: 52ch; margin: 0; color: var(--muted); }
+  .safety-section .safety-state { max-width: none; }
+  .safety-state .btn { margin-top: 20px; }
+  .safety-state .link { display: inline; min-height: 0; text-decoration: underline; text-underline-offset: 3px; }
+  .safety-hero.searching { padding: 8px 0 24px; }
+  .safety-page .safety-hero.searching h1 { margin: 0; font-size: 36px; }
 
   .safety-cta { margin-top: 32px; padding: 26px; border-radius: 24px; background: var(--mint); }
   .safety-cta.banner { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
@@ -151,8 +155,9 @@
   .safety-cta.aside .safety-cta-actions { margin-top: 16px; }
 
   .safety-footnote { margin: 24px 0 0; padding-top: 20px; border-top: 1px solid var(--line); }
-  .reading p.safety-footnote { color: var(--faint); font-size: 12px; }
-  .safety-footnote .link { display: inline; min-height: 0; text-decoration: underline; text-underline-offset: 3px; }
+  .reading .safety-footnote p.footnote { margin: 0; color: var(--faint); font-size: 12px; }
+  /* «О материалах» on its own line under the caption, as tall as a fingertip. */
+  .safety-footnote-link { display: flex; align-items: center; width: max-content; min-height: 44px; color: var(--green-text); font-size: 12px; text-decoration: underline; text-underline-offset: 3px; }
 
   /* The entry page. */
   .safety-back { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; margin-bottom: 8px; color: var(--green); }
@@ -199,7 +204,7 @@
   }
 
   @media (max-width: 760px) {
-    .safety-page h1 { font-size: 32px; letter-spacing: -.5px; }
+    .safety-page h1, .safety-page .safety-hero.searching h1 { font-size: 32px; letter-spacing: -.5px; }
     .safety-hero { padding: 4px 0 22px; }
     .safety-hero-art.art { display: none; }
     .reading .safety-hero .short-answer { font-size: 15px; }
@@ -215,7 +220,9 @@
     .safety-cta.banner .safety-cta-actions { align-items: flex-start; max-width: none; margin-top: 16px; }
     .safety-cta .btn { width: 100%; }
     .safety-cta-actions { align-items: stretch; }
-    .reading .safety-missing h3, .reading .safety-empty h2 { font-size: 26px; }
+    .safety-state { padding: 20px; }
+    .reading .safety-state h2, .reading .safety-state h3 { font-size: 22px; line-height: 28px; }
+    .safety-state .btn { width: 100%; }
     .safety-verdicts { grid-template-columns: minmax(0, 1fr); }
     .safety-verdict, .safety-block { padding: 18px; }
     .reading .safety-block h2, .reading .safety-sectionhead h2 { font-size: 22px; }

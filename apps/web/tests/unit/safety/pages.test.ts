@@ -195,7 +195,7 @@ describe('the hub', () => {
 
   it('draws no search field without JavaScript: the field would do nothing', () => {
     vi.stubEnv('VERCEL_ENV', 'preview')
-    const page = html(createElement(SafetyHubSearch, { index: safetyIndex('ru'), popular: [SLUG] }))
+    const page = html(createElement(SafetyHubSearch, { hero: null, index: safetyIndex('ru'), popular: [SLUG] }))
     expect(page).not.toContain('<input')
     // The category chips are links to the catalogue's sections until the script runs.
     expect(page).toContain('href="#safety-food"')

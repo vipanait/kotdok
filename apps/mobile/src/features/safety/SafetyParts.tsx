@@ -3,7 +3,6 @@ import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native'
 import type { PetSpecies } from '@lapka/contracts'
 import { useText } from '@/i18n'
 import { Avatar } from '@/ui/Card'
-import { Icon, type IconName } from '@/ui/Icon'
 import { Text } from '@/ui/Text'
 import { colour, radius, space } from '@/ui/theme'
 
@@ -49,31 +48,30 @@ export function SafetyContextCard({
 }
 
 /**
- * A whole-screen state with nothing to list — not found, the limit, a
- * failure, a query that is not a thing: a soft tile with a glyph, a title, a
- * line, and what to do next under them.
+ * A state with nothing to list — nothing found, the limit, a failure, a
+ * query that is not a thing, nothing published: a quiet white card under the
+ * screen's own heading, read from the left — a title, a line, and what to do
+ * next under them. No picture: the owner asked for these states without the
+ * big glyph on a tile (handoff, «Уточнение: поиск, пустые результаты и ошибки»).
  */
 export function SafetyState({
-  icon,
   title,
   body,
   children,
+  style,
 }: {
-  icon: IconName
   title: string
   body?: string
   children?: ReactNode
+  style?: StyleProp<ViewStyle>
 }) {
   return (
-    <View style={styles.state}>
-      <View style={styles.tile}>
-        <Icon name={icon} size={30} color={colour.text} />
-      </View>
-      <Text variant="h2" center accessibilityRole="header">
+    <View style={[styles.state, style]}>
+      <Text variant="h2" accessibilityRole="header">
         {title}
       </Text>
       {body ? (
-        <Text tone="muted" center style={styles.stateBody}>
+        <Text tone="muted" style={styles.stateBody}>
           {body}
         </Text>
       ) : null}
@@ -105,16 +103,13 @@ const styles = StyleSheet.create({
     backgroundColor: colour.surface,
   },
   contextText: { flex: 1 },
-  state: { alignItems: 'center', paddingTop: space.block, paddingHorizontal: 4 },
-  tile: {
-    width: 76,
-    height: 76,
-    borderRadius: 24,
-    backgroundColor: colour.soft,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: space.block,
+  state: {
+    padding: space.block,
+    borderRadius: radius.card,
+    borderWidth: 1,
+    borderColor: colour.line,
+    backgroundColor: colour.surface,
   },
   stateBody: { marginTop: 8 },
-  stateActions: { alignSelf: 'stretch', marginTop: space.block, gap: 8 },
+  stateActions: { marginTop: space.block, gap: space.row },
 })

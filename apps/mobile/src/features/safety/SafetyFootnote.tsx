@@ -31,7 +31,7 @@ export function SafetyFootnote({ style }: { style?: StyleProp<ViewStyle> }) {
   const t = useText().safety.about
   return (
     <View style={[styles.line, style]}>
-      <Text variant="caption" tone="faint" style={styles.caption}>
+      <Text variant="caption" tone="faint">
         {t.caption}
       </Text>
       <SafetyAboutLink label={t.action} />
@@ -86,18 +86,15 @@ export function SafetyAboutLink({ label }: { label: string }) {
 }
 
 const styles = StyleSheet.create({
-  // Under a rule, as the design closes every screen.
+  // Under a rule, as the design closes every screen: the caption, then «О материалах» on a line of its
+  // own — a button, not a break in the sentence (handoff, «Уточнение: поиск…»).
   line: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    columnGap: 8,
+    alignItems: 'flex-start',
     marginTop: space.section,
     paddingTop: space.row,
     borderTopWidth: 1,
     borderTopColor: colour.line,
   },
-  caption: { flexShrink: 1 },
   // As tall and as wide as a fingertip, though the words are caption-sized.
   action: { minHeight: TAP_TARGET, minWidth: TAP_TARGET, justifyContent: 'center', alignSelf: 'flex-start' },
   actionText: { textDecorationLine: 'underline', color: colour.accentText },

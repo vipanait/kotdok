@@ -48,6 +48,8 @@ describe('the short footnote', () => {
       expect(page).toContain('Справочная информация. Не заменяет консультацию ветеринара.')
       expect(page).toMatch(/<a [^>]*href="\/o-materialah#mozhno-li"[^>]*>О материалах<\/a>/)
       expect(page).not.toContain('Ветеринарный врач их не проверял')
+      // «О материалах» on its own line under the caption, not inside the sentence.
+      expect(page).toMatch(/<p class="footnote">Справочная информация\. Не заменяет консультацию ветеринара\.<\/p><a [^>]*class="safety-footnote-link"/)
     }))
 
   it('links the page itself while nothing is published: the section is not rendered, so no dead anchor', () =>
