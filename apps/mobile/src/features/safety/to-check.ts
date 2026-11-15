@@ -1,6 +1,6 @@
 /**
  * The first words of a symptom check opened from a «Можно ли?» card:
- * «Съел(а): виноград. » — the person goes on typing after it.
+ * «Питомец съел: виноград. » — the person goes on typing after it.
  */
 
 import type { Locale } from '@lapka/contracts'
@@ -16,7 +16,7 @@ export function checkPrefill(itemName: string, locale: Locale): string {
   const name = itemName.trim()
   if (!name) return ''
   const what = inSentence(name)
-  return locale === 'ru' ? `Съел(а): ${what}. ` : `Ate: ${what}. `
+  return locale === 'ru' ? `Питомец съел: ${what}. ` : `Your pet ate: ${what}. `
 }
 
 /** The titles the server falls back on when the model's own cannot be shown (ask-language.ts, SAFETY_NO_DATA). */
@@ -24,7 +24,7 @@ const NO_DATA_TITLES = new Set(['нет данных', 'no data'])
 
 /**
  * What an AI answer hands to the symptom check: its title, unless the title
- * is the «No data» fallback — «Съел(а): нет данных» says nothing, so what the
+ * is the «No data» fallback — «Питомец съел: нет данных» says nothing, so what the
  * person typed goes instead.
  */
 export function aiPrefillName(title: string, query: string): string {

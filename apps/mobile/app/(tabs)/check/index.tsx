@@ -12,6 +12,7 @@ import { emptyCheckForm, formToCheckInput, type CheckForm } from '@/features/che
 import { addPhotos, type PickedPhoto } from '@/features/checks/photos'
 import { pickPhotos } from '@/features/checks/pick-photos'
 import { prefillDecision } from '@/features/checks/check-draft'
+import { referenceHintShown } from '@/features/checks/reference-form'
 import { useCheckDraft } from '@/features/checks/use-check-draft'
 import { useCheckSubmission, useLiftedRefusal } from '@/features/checks/use-check-submission'
 import { usePetChoice, useRecordCaption } from '@/features/checks/use-check-pet'
@@ -41,6 +42,9 @@ export default function NewCheck() {
   // a restart, and the draft lives in the keychain, which is for small values.
   const [photos, setPhotos] = useState<PickedPhoto[]>([])
   const [symptomsError, setSymptomsError] = useState<string | null>(null)
+  // What a «Можно ли?» card handed over, once taken: the form is then drawn plainly
+  // (`CheckDescribeStep`'s `fromReference`). Not part of the draft; a fresh check forgets it.
+  const [handedText, setHandedText] = useState<string | null>(null)
   const { recheckFor, openRecheck, dropRecheck } = useRecheck(t, form.petId, setForm, setStep)
   const submission = useCheckSubmission({ t, userId, finished, forgetDraft, dropRecheck })
   const { waiting, failure, focused, watch, reset } = submission
@@ -53,6 +57,7 @@ export default function NewCheck() {
     setPhotos([])
     setStep(1)
     setSymptomsError(null)
+    setHandedText(null)
   }, [finished, reset, setForm, setStep])
 
   // The pets through the cache shared with the pet list, refreshed on every
@@ -71,7 +76,7 @@ export default function NewCheck() {
   usePetChoice(pets, form.petId, setForm, setStep)
 
   /**
-   * «Проверить симптомы» on a «Можно ли?» card: the pet and «Съел(а): …».
+   * «Проверить симптомы» on a «Можно ли?» card: the pet and «Питомец съел: …».
    *
    * Nothing is copied into state: the parameters are the pending hand-over,
    * read once the stored draft has been read and the pets are known, and
@@ -98,6 +103,7 @@ export default function NewCheck() {
       petId: known ?? current.petId,
       symptoms: current.symptoms.startsWith(text) ? current.symptoms : text,
     }))
+    setHandedText(text)
     settleHandOver()
   }
 
@@ -221,7 +227,11 @@ export default function NewCheck() {
   if (step === 1) {
     // Only the way on in the dock. This is a tab: the tab bar is the way out, and leaving keeps the draft.
     return (
-      <Screen title={t.check.title} scroll dock={<Button title={t.common.next} onPress={next} />}>
+      <Screen
+        title={t.check.title}
+        scroll
+        dock={<Button title={handedText !== null ? t.check.continue : t.common.next} onPress={next} />}
+      >
         <CheckDescribeStep
           pets={pets}
           form={form}
@@ -239,6 +249,8 @@ export default function NewCheck() {
             })
           }
           onRemovePhoto={(index) => setPhotos((current) => current.filter((_, i) => i !== index))}
+          fromReference={handedText !== null}
+          referenceHint={referenceHintShown(handedText, form.symptoms)}
         />
         {replaceDialog}
       </Screen>

@@ -15,8 +15,9 @@ import { VerdictBadge, VerdictBlock } from './VerdictBadge'
 
 /**
  * The way from the card into a symptom check: with a pet, the check itself
- * (it costs a credit, and says so); with a species picked by hand, adding a
- * pet first — a check is always about one animal.
+ * (what it costs is for the check form and the balance to say); with a
+ * species picked by hand, adding a pet first — a check is always about one
+ * animal.
  */
 export type SafetyHandOff = { kind: 'check'; onPress: () => void } | { kind: 'addPet'; onPress: () => void }
 
@@ -149,13 +150,9 @@ export function SafetyCard({
             {handOff ? (
               <View style={styles.handOff}>
                 {handOff.kind === 'check' ? (
-                  <>
-                    {/* Second to the call when every minute counts; the main way on otherwise. */}
-                    <Button title={t.safety.checkSymptoms} kind={urgent ? 'secondary' : 'primary'} onPress={handOff.onPress} />
-                    <Text variant="caption" tone="faint" style={styles.cost}>
-                      {t.safety.checkCost}
-                    </Text>
-                  </>
+                  // Second to the call when every minute counts; the main way on otherwise. No line about
+                  // the credit here (owner, 2026-11-15): the check form and the balance say what they always did.
+                  <Button title={t.safety.checkSymptoms} kind={urgent ? 'secondary' : 'primary'} onPress={handOff.onPress} />
                 ) : (
                   <Button title={t.safety.addPetToCheck} kind="secondary" onPress={handOff.onPress} />
                 )}
@@ -291,7 +288,6 @@ const styles = StyleSheet.create({
   dot: { width: 10 },
   bulletText: { flex: 1 },
   handOff: { marginTop: 16 },
-  cost: { marginTop: 8 },
   other: {
     flexDirection: 'row',
     alignItems: 'center',

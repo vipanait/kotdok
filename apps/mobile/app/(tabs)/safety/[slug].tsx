@@ -16,7 +16,6 @@ import { VerdictBlock } from '@/features/safety/VerdictBadge'
 import { Button } from '@/ui/Button'
 import { Screen } from '@/ui/Screen'
 import { DetailSkeleton } from '@/ui/Skeleton'
-import { CONTROL_FONT_LIMIT, Text } from '@/ui/Text'
 import { space } from '@/ui/theme'
 
 const OTHER: Record<PetSpecies, PetSpecies> = { cat: 'dog', dog: 'cat' }
@@ -105,9 +104,6 @@ export default function SafetyEntry() {
 
   return (
     <Screen title={item.name} onBack={toSearch} scroll>
-      <Text variant="label" tone="accent" style={styles.eyebrow} maxFontSizeMultiplier={CONTROL_FONT_LIMIT} numberOfLines={3}>
-        {`${t.safety.categories[item.category]} · ${t.safety.reference}`.toLocaleUpperCase()}
-      </Text>
       <SafetyContextCard species={shown} petName={petName} avatarUri={pet?.avatar_url} />
       <SafetyCard
         model={cardFromItem(item, shown)}
@@ -122,7 +118,6 @@ export default function SafetyEntry() {
 }
 
 const styles = StyleSheet.create({
-  eyebrow: { marginBottom: space.row, letterSpacing: 1.5, fontWeight: '800' },
   skeleton: { marginTop: space.block },
   failure: { marginTop: space.block },
 })

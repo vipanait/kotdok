@@ -137,6 +137,9 @@
   .reading .safety-state p { max-width: 52ch; margin: 0; color: var(--muted); }
   .safety-section .safety-state { max-width: none; }
   .safety-state .btn { margin-top: 20px; }
+  .safety-state-app { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 20px; }
+  .reading .safety-state-app p { flex-basis: 100%; max-width: none; margin: 0; color: var(--text); font-size: 15px; }
+  .safety-state-app .btn { margin-top: 0; }
   .safety-state .link { display: inline; min-height: 0; text-decoration: underline; text-underline-offset: 3px; }
   .safety-hero.searching { padding: 8px 0 24px; }
   .safety-page .safety-hero.searching h1 { margin: 0; font-size: 36px; }
@@ -223,6 +226,7 @@
     .safety-state { padding: 20px; }
     .reading .safety-state h2, .reading .safety-state h3 { font-size: 22px; line-height: 28px; }
     .safety-state .btn { width: 100%; }
+    .safety-state-app .btn { width: auto; flex: 1 1 140px; }
     .safety-verdicts { grid-template-columns: minmax(0, 1fr); }
     .safety-verdict, .safety-block { padding: 18px; }
     .reading .safety-block h2, .reading .safety-sectionhead h2 { font-size: 22px; }

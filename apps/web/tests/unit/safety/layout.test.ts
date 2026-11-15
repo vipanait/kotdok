@@ -6,6 +6,7 @@ import SafetyArticle from '@/features/safety/SafetyArticle'
 import type { SafetyEntry } from '@/features/safety/schema'
 import Hub from '@/app/(content)/mozhno-li/page'
 import { HUB_SEARCH_TITLE, hubSearching } from '@/features/safety/hub-search'
+import { SafetyNoMatch } from '@/features/safety/SafetyHubSearch'
 import { nonePublished, withReviewStatus } from './review-states'
 
 /**
@@ -138,5 +139,16 @@ describe('quiet search and service states (handoff, «Уточнение: пои
       expect(page).toMatch(/<section class="safety-state"[^>]*><h2 id="empty-title">Справочник скоро появится<\/h2>/)
       expect(page).not.toContain('safety-missing-icon')
     })
+  })
+
+  it('offers the app for what is not in the reference — both stores, no AI on the site', () => {
+    const card = renderToStaticMarkup(createElement(SafetyNoMatch, { inCategory: false }))
+    expect(card).toContain('<h3>Ничего не нашли</h3>')
+    expect(card).toContain('Спросить в приложении')
+    expect(card).toContain('href="https://apps.apple.com/')
+    expect(card).toContain('href="https://play.google.com/')
+    expect(card).not.toContain('<form')
+    expect(card).not.toContain('Искать во всех категориях')
+    expect(renderToStaticMarkup(createElement(SafetyNoMatch, { inCategory: true }))).toContain('Искать во всех категориях')
   })
 })

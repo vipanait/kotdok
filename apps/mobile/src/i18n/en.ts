@@ -509,6 +509,9 @@ export const en: Dictionary = {
     recordCaption: 'We take the medical record into account: vaccinations, medicines, weight',
     forPet: (pet: string) => `For ${pet}`,
     title: 'Symptom check',
+    whatHappened: 'What happened?',
+    fromReference: 'Description from the reference. You can refine it before you continue.',
+    continue: 'Continue',
     step: (current: number, of: number) => `Step ${current} of ${of}`,
     pet: 'Pet',
     noPet: 'No pet',
@@ -1043,7 +1046,6 @@ export const en: Dictionary = {
     otherSpecies: { cat: 'And for a cat?', dog: 'And for a dog?' },
     /** Over the verdict: whom it is about. */
     verdictFor: { cat: 'For cats', dog: 'For dogs' },
-    reference: 'reference',
     verdict: vocab.en.safetyVerdict,
     medicineLine: vocab.en.safetyMedicineLine,
     /** The short footnote and its «О материалах» sheet (SafetyFootnote). */
@@ -1060,7 +1062,6 @@ export const en: Dictionary = {
     firstSteps: 'What to do right away',
     avoid: 'What not to do',
     checkSymptoms: 'Check symptoms',
-    checkCost: 'A check uses 1 credit',
     addPetToCheck: 'Add a pet to check symptoms',
     sources: 'What this answer is based on',
     howPrepared: 'How this was prepared',

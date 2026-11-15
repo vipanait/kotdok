@@ -552,6 +552,10 @@ export const ru = {
       return cases ? `Проверяем у ${cases.genitive}` : `Питомец: ${pet}`
     },
     title: 'Проверка симптомов',
+    /** The form as a «Можно ли?» card opens it (handoff, «обычный экран формы проверки»). */
+    whatHappened: 'Что произошло?',
+    fromReference: 'Описание из справочника. Можно уточнить перед продолжением.',
+    continue: 'Продолжить',
     step: (current: number, of: number) => `Шаг ${current} из ${of}`,
     pet: 'Питомец',
     noPet: 'Без питомца',
@@ -1132,7 +1136,6 @@ export const ru = {
     otherSpecies: { cat: 'А для кошки?', dog: 'А для собаки?' },
     /** Over the verdict: whom it is about. */
     verdictFor: { cat: 'Кошкам', dog: 'Собакам' },
-    reference: 'справочник',
     verdict: vocab.ru.safetyVerdict,
     medicineLine: vocab.ru.safetyMedicineLine,
     /** The short footnote and its «О материалах» sheet (SafetyFootnote). */
@@ -1155,7 +1158,6 @@ export const ru = {
     firstSteps: 'Что сделать сразу',
     avoid: 'Чего не делать',
     checkSymptoms: 'Проверить симптомы',
-    checkCost: 'Проверка расходует 1 кредит',
     addPetToCheck: 'Добавьте питомца, чтобы проверить симптомы',
     sources: 'На чём основан ответ',
     howPrepared: 'Как подготовлен материал',

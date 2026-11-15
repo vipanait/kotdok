@@ -1,10 +1,9 @@
 'use client'
 
-import Link from 'next/link'
 import { useId, useState, useSyncExternalStore, type ReactNode } from 'react'
 import { SAFETY_CATEGORIES, type SafetyCategory, type SafetyIndexItem } from '@lapka/contracts'
 import { safetyCategoryIcon } from '@lapka/shared'
-import { SIGN_UP_HREF } from '@/features/seo-content/components/CheckCta'
+import { APP_STORE_LINKS } from '@/shared/app-store-links'
 import { safetyPath } from '@/shared/content-paths'
 import { HUB_SEARCH_TITLE, hubSearch, hubSearching } from './hub-search'
 import SafetyIcon from './SafetyIcon'
@@ -12,6 +11,29 @@ import { SafetyCardGrid, categoryAnchor } from './SafetyItemCard'
 import { SAFETY_CATEGORY_TITLES } from './verdict'
 
 const noSubscription = () => () => {}
+
+/**
+ * «Ничего не нашли» under the field (handoff, «Уточнение: поиск…»): a quiet
+ * card, so the query is edited or cleared right there. The AI question is the
+ * app's: «Спросить в приложении» leads to both stores, as everywhere on the
+ * page — nothing guesses the visitor's OS.
+ */
+export function SafetyNoMatch({ inCategory, onAllCategories }: { inCategory: boolean; onAllCategories?: () => void }) {
+  return (
+    <div className="safety-state">
+      <h3>Ничего не нашли</h3>
+      <p>Попробуйте другое название{inCategory ? ' или поищите во всех категориях' : ''}.</p>
+      {inCategory && (
+        <button type="button" className="btn secondary" onClick={onAllCategories}>Искать во всех категориях</button>
+      )}
+      <div className="safety-state-app" role="group" aria-labelledby="ask-in-app">
+        <p id="ask-in-app">Спросить в приложении — ИИ ответит о том, чего нет в справочнике:</p>
+        <a href={APP_STORE_LINKS.ios} className="btn primary" rel="noopener">App Store <span aria-hidden="true">↗</span></a>
+        <a href={APP_STORE_LINKS.android} className="btn primary" rel="noopener">Google Play <span aria-hidden="true">↗</span></a>
+      </div>
+    </div>
+  )
+}
 
 const byName = (a: SafetyIndexItem, b: SafetyIndexItem) => a.name.localeCompare(b.name, 'ru')
 
@@ -143,17 +165,7 @@ export default function SafetyHubSearch({
             {shown.length > 0 ? (
               <SafetyCardGrid items={shown} />
             ) : (
-              // Under the field, so the query is edited or cleared right there; the AI question is the app's.
-              <div className="safety-state">
-                <h3>Ничего не нашли</h3>
-                <p>
-                  Попробуйте другое название{category ? ' или поищите во всех категориях' : ''}. Чего нет
-                  в справочнике, можно спросить ИИ в приложении: <Link href={SIGN_UP_HREF} className="link">зарегистрироваться</Link>
-                </p>
-                {category && (
-                  <button type="button" className="btn primary" onClick={() => setCategory(null)}>Искать во всех категориях</button>
-                )}
-              </div>
+              <SafetyNoMatch inCategory={category !== null} onAllCategories={() => setCategory(null)} />
             )}
           </section>
         )}
