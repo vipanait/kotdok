@@ -22,14 +22,14 @@
   },
   "bySpecies": {
     "cat": {
-      "verdict": "danger",
+      "verdict": "caution",
       "summary": {
-        "ru": "Нельзя. В мускатном орехе есть миристицин: если питомец съел много пряности или целые орехи, возможны дезориентация, учащённое сердцебиение и судороги.",
-        "en": "No. Nutmeg contains myristicin: if a pet eats a lot of the spice or whole nuts, disorientation, a fast heartbeat and seizures are possible."
+        "ru": "С осторожностью. Крошка выпечки с мускатом вряд ли навредит, но пряность из банки и целые орехи опасны: в них миристицин.",
+        "en": "With caution. A crumb of baking with nutmeg is unlikely to harm, but the spice from the jar and whole nuts are dangerous: they contain myristicin."
       },
       "why": {
-        "ru": "Мускатный орех содержит токсин миристицин. Немного муската в готовом блюде или выпечке вряд ли вызовет серьёзное отравление — возможно лёгкое расстройство желудка. Но после большого количества пряности или целых орехов бывают дезориентация, галлюцинации, учащённое сердцебиение, повышенное давление, сухость во рту, боль в животе и судороги; признаки держатся до двух суток.",
-        "en": "Nutmeg contains a toxin called myristicin. A little nutmeg in a cooked dish or baking is unlikely to cause serious poisoning — a mild stomach upset is possible. But after a large amount of the spice or whole nuts there can be disorientation, hallucinations, a fast heartbeat, high blood pressure, dry mouth, belly pain and seizures; signs can last up to two days."
+        "ru": "Мускатный орех содержит токсин миристицин. По данным Pet Poison Helpline, немного муската в готовом блюде или выпечке вряд ли вызовет серьёзное отравление — возможно лёгкое расстройство желудка. Но после большого количества пряности или целых орехов бывают дезориентация, галлюцинации, учащённое сердцебиение, повышенное давление, сухость во рту, боль в животе и судороги; признаки держатся до двух суток. Добавлять мускат в еду питомцу не нужно.",
+        "en": "Nutmeg contains a toxin called myristicin. According to Pet Poison Helpline, a little nutmeg in a cooked dish or baking is unlikely to cause serious poisoning — a mild stomach upset is possible. But after a large amount of the spice or whole nuts there can be disorientation, hallucinations, a fast heartbeat, high blood pressure, dry mouth, belly pain and seizures; signs can last up to two days. There is no need to add nutmeg to a pet’s food."
       },
       "signs": {
         "ru": [
@@ -45,17 +45,17 @@
           "seizures"
         ]
       },
-      "ifEaten": "call_now"
+      "ifEaten": "watch"
     },
     "dog": {
-      "verdict": "danger",
+      "verdict": "caution",
       "summary": {
-        "ru": "Нельзя. В мускатном орехе есть миристицин: если питомец съел много пряности или целые орехи, возможны дезориентация, учащённое сердцебиение и судороги.",
-        "en": "No. Nutmeg contains myristicin: if a pet eats a lot of the spice or whole nuts, disorientation, a fast heartbeat and seizures are possible."
+        "ru": "С осторожностью. Крошка выпечки с мускатом вряд ли навредит, но пряность из банки и целые орехи опасны: в них миристицин.",
+        "en": "With caution. A crumb of baking with nutmeg is unlikely to harm, but the spice from the jar and whole nuts are dangerous: they contain myristicin."
       },
       "why": {
-        "ru": "Мускатный орех содержит токсин миристицин. Немного муската в готовом блюде или выпечке вряд ли вызовет серьёзное отравление — возможно лёгкое расстройство желудка. Но после большого количества пряности или целых орехов бывают дезориентация, галлюцинации, учащённое сердцебиение, повышенное давление, сухость во рту, боль в животе и судороги; признаки держатся до двух суток.",
-        "en": "Nutmeg contains a toxin called myristicin. A little nutmeg in a cooked dish or baking is unlikely to cause serious poisoning — a mild stomach upset is possible. But after a large amount of the spice or whole nuts there can be disorientation, hallucinations, a fast heartbeat, high blood pressure, dry mouth, belly pain and seizures; signs can last up to two days."
+        "ru": "Мускатный орех содержит токсин миристицин. По данным Pet Poison Helpline, немного муската в готовом блюде или выпечке вряд ли вызовет серьёзное отравление — возможно лёгкое расстройство желудка. Но после большого количества пряности или целых орехов бывают дезориентация, галлюцинации, учащённое сердцебиение, повышенное давление, сухость во рту, боль в животе и судороги; признаки держатся до двух суток. Добавлять мускат в еду питомцу не нужно.",
+        "en": "Nutmeg contains a toxin called myristicin. According to Pet Poison Helpline, a little nutmeg in a cooked dish or baking is unlikely to cause serious poisoning — a mild stomach upset is possible. But after a large amount of the spice or whole nuts there can be disorientation, hallucinations, a fast heartbeat, high blood pressure, dry mouth, belly pain and seizures; signs can last up to two days. There is no need to add nutmeg to a pet’s food."
       },
       "signs": {
         "ru": [
@@ -71,17 +71,19 @@
           "seizures"
         ]
       },
-      "ifEaten": "call_now"
+      "ifEaten": "watch"
     }
   },
   "firstSteps": {
     "ru": [
       "Если съедена пряность из банки или целый орех, сразу позвоните в клинику, даже если питомец ведёт себя как обычно",
+      "Если съедено немного выпечки или блюда с мускатом, понаблюдайте за питомцем сутки; при рвоте, дрожи или странном поведении позвоните в клинику",
       "Уберите остатки и сохраните упаковку",
       "Прикиньте, сколько могло быть съедено и когда, и расскажите врачу"
     ],
     "en": [
       "If spice from the jar or a whole nut was eaten, call a clinic right away, even if your pet seems fine",
+      "If a little baking or a dish with nutmeg was eaten, watch your pet for a day; call a clinic if there is vomiting, shaking or strange behaviour",
       "Put away the leftovers and keep the packaging",
       "Work out roughly how much was eaten and when, and tell the vet"
     ]
@@ -108,7 +110,7 @@
     "status": "agent_reviewed",
     "draftedBy": "model",
     "reviewedBy": "agent",
-    "reviewedAt": "2026-11-13",
-    "nextReviewAt": "2027-11-13"
+    "reviewedAt": "2026-11-15",
+    "nextReviewAt": "2027-11-15"
   }
 }

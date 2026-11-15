@@ -23,14 +23,14 @@
   },
   "bySpecies": {
     "cat": {
-      "verdict": "danger",
+      "verdict": "caution",
       "summary": {
-        "ru": "Опасно. Цикламен ядовит для кошек и собак, особенно клубень.",
-        "en": "Dangerous. Cyclamen is poisonous to cats and dogs, especially the tuber."
+        "ru": "С осторожностью. Цикламен ядовит для кошек и собак: обычно он расстраивает желудок, а клубень опаснее всего растения.",
+        "en": "With caution. Cyclamen is poisonous to cats and dogs: it usually upsets the stomach, and the tuber is the most dangerous part."
       },
       "why": {
-        "ru": "ASPCA относит цикламен к ядовитым для кошек и собак: в нём сапонины, больше всего — в клубне. Обычно бывают слюнотечение, рвота и понос. Если съедено много клубней, возможны нарушения ритма сердца, судороги и смерть. Съел даже немного — позвоните в клинику, не дожидаясь признаков.",
-        "en": "The ASPCA lists cyclamen as toxic to cats and dogs: it contains saponins, mostly in the tuber. Drooling, vomiting and diarrhoea are usual. After eating a lot of tuber, heart rhythm problems, seizures and death are possible. Even if only a little was eaten, call a clinic without waiting for signs."
+        "ru": "ASPCA относит цикламен к ядовитым для кошек и собак: в нём сапонины, больше всего — в клубне. Обычно бывают слюнотечение, рвота и понос; по данным Pet Poison Helpline, тяжёлые признаки возможны после большого количества, но редки. Если съедено много клубня, возможны нарушения ритма сердца, судороги и смерть. Поэтому позвоните в клинику, не дожидаясь признаков, особенно если съеден клубень.",
+        "en": "The ASPCA lists cyclamen as toxic to cats and dogs: it contains saponins, mostly in the tuber. Drooling, vomiting and diarrhoea are usual; according to Pet Poison Helpline, serious signs are possible after a large amount but uncommon. After eating a lot of tuber, heart rhythm problems, seizures and death are possible. So call a clinic without waiting for signs, especially if the tuber was eaten."
       },
       "signs": {
         "ru": [
@@ -51,14 +51,14 @@
       "ifEaten": "call_now"
     },
     "dog": {
-      "verdict": "danger",
+      "verdict": "caution",
       "summary": {
-        "ru": "Опасно. Цикламен ядовит для кошек и собак, особенно клубень.",
-        "en": "Dangerous. Cyclamen is poisonous to cats and dogs, especially the tuber."
+        "ru": "С осторожностью. Цикламен ядовит для кошек и собак: обычно он расстраивает желудок, а клубень опаснее всего растения.",
+        "en": "With caution. Cyclamen is poisonous to cats and dogs: it usually upsets the stomach, and the tuber is the most dangerous part."
       },
       "why": {
-        "ru": "ASPCA относит цикламен к ядовитым для кошек и собак: в нём сапонины, больше всего — в клубне. Обычно бывают слюнотечение, рвота и понос. Если съедено много клубней, возможны нарушения ритма сердца, судороги и смерть. Съел даже немного — позвоните в клинику, не дожидаясь признаков.",
-        "en": "The ASPCA lists cyclamen as toxic to cats and dogs: it contains saponins, mostly in the tuber. Drooling, vomiting and diarrhoea are usual. After eating a lot of tuber, heart rhythm problems, seizures and death are possible. Even if only a little was eaten, call a clinic without waiting for signs."
+        "ru": "ASPCA относит цикламен к ядовитым для кошек и собак: в нём сапонины, больше всего — в клубне. Обычно бывают слюнотечение, рвота и понос; по данным Pet Poison Helpline, тяжёлые признаки возможны после большого количества, но редки. Если съедено много клубня, возможны нарушения ритма сердца, судороги и смерть. Поэтому позвоните в клинику, не дожидаясь признаков, особенно если съеден клубень.",
+        "en": "The ASPCA lists cyclamen as toxic to cats and dogs: it contains saponins, mostly in the tuber. Drooling, vomiting and diarrhoea are usual; according to Pet Poison Helpline, serious signs are possible after a large amount but uncommon. After eating a lot of tuber, heart rhythm problems, seizures and death are possible. So call a clinic without waiting for signs, especially if the tuber was eaten."
       },
       "signs": {
         "ru": [
@@ -81,13 +81,13 @@
   },
   "firstSteps": {
     "ru": [
-      "Позвоните в клинику сразу, не дожидаясь признаков, и расскажите, что и сколько съедено",
+      "Позвоните в клинику сразу, не дожидаясь признаков, и скажите, был ли съеден клубень и сколько примерно",
       "Уберите растение туда, куда питомец не доберётся",
       "Уберите остатки растения из пасти и протрите мордочку влажной тканью",
       "Возьмите кусочек растения или сфотографируйте его"
     ],
     "en": [
-      "Call a clinic right away, without waiting for signs, and tell them what was eaten and roughly how much",
+      "Call a clinic right away, without waiting for signs, and say whether the tuber was eaten and roughly how much",
       "Move the plant out of the pet's reach",
       "Remove any plant pieces from the mouth and wipe the face with a damp cloth",
       "Take a piece of the plant or a photo of it"
@@ -123,7 +123,7 @@
     "status": "agent_reviewed",
     "draftedBy": "model",
     "reviewedBy": "agent",
-    "reviewedAt": "2026-11-13",
-    "nextReviewAt": "2027-11-13"
+    "reviewedAt": "2026-11-15",
+    "nextReviewAt": "2027-11-15"
   }
 }
