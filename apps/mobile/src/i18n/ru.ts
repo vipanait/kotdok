@@ -1120,6 +1120,8 @@ export const ru = {
     otherSpecies: { cat: 'Для кошек', dog: 'Для собак' },
     verdict: vocab.ru.safetyVerdict,
     medicineLine: vocab.ru.safetyMedicineLine,
+    /** The short footnote and its «О материалах» sheet (SafetyFootnote). */
+    about: vocab.ru.safetyAbout,
     allergy: (pet: string, allergy: string) => {
       const cases = nameCase(pet)
       return `У ${cases ? cases.genitive : pet} в анкете указана аллергия: ${allergy}`

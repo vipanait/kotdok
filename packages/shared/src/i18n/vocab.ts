@@ -24,6 +24,19 @@ export type Vocabulary = {
   safetyCategories: Record<SafetyCategory, string>
   /** The line under a medicine's verdict. */
   safetyMedicineLine: string
+  /**
+   * The short footnote under every «Можно ли» screen and what its action
+   * opens (pet-safety-v1 handoff, §8): `caption` with `action` beside it,
+   * then `title` over `paragraphs` on the site's «О материалах» page or in
+   * the app's sheet, closed with `close`.
+   */
+  safetyAbout: {
+    caption: string
+    action: string
+    title: string
+    paragraphs: readonly string[]
+    close: string
+  }
 }
 
 const ru: Vocabulary = {
@@ -78,6 +91,17 @@ const ru: Vocabulary = {
   },
   safetyCategories: { food: 'Продукты', plant: 'Растения', medicine: 'Лекарства', household: 'Быт' },
   safetyMedicineLine: 'Лекарства для людей не давайте питомцу без назначения врача',
+  safetyAbout: {
+    caption: 'Справочная информация. Не заменяет консультацию ветеринара.',
+    action: 'О материалах',
+    title: 'О материалах',
+    paragraphs: [
+      'Тексты справочника подготовлены с помощью ИИ по ветеринарным источникам. Ветеринарный врач их не проверял и не подписывал.',
+      'Источники указаны в карточках. Ответы, сгенерированные по вашему запросу, отдельно отмечены как «Ответ ИИ».',
+      'Информация носит справочный характер и не заменяет консультацию ветеринара.',
+    ],
+    close: 'Закрыть',
+  },
 }
 
 const en: Vocabulary = {
@@ -132,6 +156,17 @@ const en: Vocabulary = {
   },
   safetyCategories: { food: 'Food', plant: 'Plants', medicine: 'Medicines', household: 'Household' },
   safetyMedicineLine: 'Do not give human medicines to a pet unless a vet prescribes them',
+  safetyAbout: {
+    caption: 'For information only. Not a substitute for veterinary advice.',
+    action: 'About this content',
+    title: 'About this content',
+    paragraphs: [
+      'The reference texts were prepared with AI from veterinary sources. No vet has reviewed or signed them.',
+      'Sources are listed on each entry. Answers generated for your question are marked separately as “AI answer”.',
+      'This information is for reference only and is not a substitute for veterinary advice.',
+    ],
+    close: 'Close',
+  },
 }
 
 export const vocab = { ru, en } as const

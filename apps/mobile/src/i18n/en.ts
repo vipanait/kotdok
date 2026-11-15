@@ -1030,6 +1030,8 @@ export const en: Dictionary = {
     otherSpecies: { cat: 'For cats', dog: 'For dogs' },
     verdict: vocab.en.safetyVerdict,
     medicineLine: vocab.en.safetyMedicineLine,
+    /** The short footnote and its «О материалах» sheet (SafetyFootnote). */
+    about: vocab.en.safetyAbout,
     allergy: (pet: string, allergy: string) => `${pet}’s profile lists an allergy: ${allergy}`,
     chronic: (pet: string) => `${pet} has chronic conditions on file. Better discuss new foods with a vet first.`,
     why: 'Why',

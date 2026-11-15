@@ -88,6 +88,9 @@
   .hub-item .verdict-pair { display: flex; flex-wrap: wrap; gap: 6px; -webkit-line-clamp: unset; overflow: visible; }
   .hub-item .verdict-pair .badge { color: var(--signal); font-size: 12px; line-height: 1.2; }
   .reading .safety-empty { margin-top: 22px; }
+  /* The item pictures (SafetyIcon) keep their own colours; the short footnote (SafetyFootnote) reads as one line. */
+  .safety-icon { display: block; flex: none; }
+  .safety-footnote .link { display: inline; min-height: 0; text-decoration: underline; text-underline-offset: 3px; }
 
   @media (max-width: 760px) {
     .crumbs ol { margin-bottom: 12px; }

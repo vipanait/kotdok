@@ -4,6 +4,7 @@ import Link from 'next/link'
 import ArticleFrame, { type Crumb } from '@/features/seo-content/components/ArticleFrame'
 import Disclaimer from '@/features/seo-content/components/Disclaimer'
 import { publishedEntries } from '@/features/safety/load'
+import { vocab } from '@lapka/shared'
 
 /** Whether production shows any reference entry: until then the page does not speak of the reference. */
 function referencePublished(): boolean {
@@ -56,8 +57,13 @@ export default function AboutArticles() {
           </p>
         </section>
         {referencePublished() ? (
-          <section>
+          // `mozhno-li` is where the footnote of every reference page («О материалах») leads.
+          <section id="mozhno-li">
             <h2>Справочник «Можно ли»</h2>
+            {/* The full text behind that footnote (pet-safety-v1 handoff §8), the same words the app's sheet shows. */}
+            {vocab.ru.safetyAbout.paragraphs.map(paragraph => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
             <p>
               Справочник отвечает, можно ли кошке или собаке продукт со стола, опасно ли комнатное растение, лекарство
               для людей или бытовое вещество, и что сделать, если питомец уже съел. Ответ дан отдельно для кошек
@@ -75,12 +81,12 @@ export default function AboutArticles() {
                 Два независимых круга проверки ИИ-агентами заново сверяют ответ с источниками. Если источники
                 расходятся или данных мало, ставится более строгий ответ.
               </li>
-              <li>Редакция Лапки публикует ответ. Как и статьи, их не подписывает ветеринарный врач.</li>
+              <li>Редакция Лапки публикует ответ.</li>
             </ul>
             <p>
               На сайте — только справочник. В приложении ответ показан для вида питомца, с напоминанием об аллергии
               из анкеты и общим напоминанием при хронических болезнях, а о том, чего в справочнике нет, можно спросить
-              ИИ; такой ответ помечен как ответ ИИ.
+              ИИ.
             </p>
           </section>
         ) : null}
