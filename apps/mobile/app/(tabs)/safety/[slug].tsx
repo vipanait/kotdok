@@ -8,7 +8,7 @@ import { describeFailure } from '@/lib/errors'
 import { useCached } from '@/lib/query-cache'
 import { queryKeys } from '@/lib/query-keys'
 import { useText } from '@/i18n'
-import { cardFromItem, entryPlaceholder } from '@/features/safety/card-model'
+import { cardFromItem, entryPlaceholder, entryView, shownSpecies, type SpeciesFlip } from '@/features/safety/card-model'
 import { SafetyCard, useSafetyHandOff } from '@/features/safety/SafetyCard'
 import { SafetyFootnote } from '@/features/safety/SafetyFootnote'
 import { SafetyContextCard, SafetyState } from '@/features/safety/SafetyParts'
@@ -33,11 +33,10 @@ export default function SafetyEntry() {
   const slug = params.slug
   const petId = params.petId || null
   const asked: PetSpecies = PetSpeciesSchema.safeParse(params.species).data ?? 'cat'
-  // The other species, folded open, belongs to this entry for this pet: a link that reuses the screen
-  // for another entry or pet (a deep link, the recent list) starts again from the pet's own species.
-  const view = `${slug}|${asked}|${petId ?? ''}`
-  const [flipped, setFlipped] = useState<{ view: string; species: PetSpecies } | null>(null)
-  const shown: PetSpecies = flipped?.view === view ? flipped.species : asked
+  // The other species, folded open, belongs to this entry for this pet (`shownSpecies`).
+  const view = entryView(slug, asked, petId)
+  const [flipped, setFlipped] = useState<SpeciesFlip>(null)
+  const shown = shownSpecies(flipped, view, asked)
 
   const entry = useCached(queryKeys.safetyItem(slug, petId), () =>
     withFreshSession((api) => api.getSafetyItem(slug, petId ?? undefined)),

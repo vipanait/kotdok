@@ -92,8 +92,8 @@ export function SafetyCard({
     switch (kind) {
       case 'allergy':
         return (
-          <View key={kind} style={styles.allergy} accessible accessibilityRole="alert">
-            <Text variant="bodyStrong" style={styles.allergyText}>
+          <View key={kind} style={styles.allergy}>
+            <Text variant="bodyStrong" accessibilityRole="header" style={styles.allergyText}>
               {t.safety.allergyTitle}
             </Text>
             {notes
@@ -223,7 +223,8 @@ export function SafetyCard({
                     key={index}
                     accessibilityRole="link"
                     accessibilityLabel={source.title}
-                    onPress={() => void Linking.openURL(source.url as string)}
+                    // No handler for the link (a restricted device): nothing to open, nothing to report.
+                    onPress={() => void Linking.openURL(source.url as string).catch(() => {})}
                     style={({ pressed }) => [styles.source, { opacity: pressed ? 0.6 : 1 }]}
                   >
                     {/* The arrow as text, not Apple's emoji: U+FE0E asks for the text form. */}

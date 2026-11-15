@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { SafetyAskResult, SafetyItem, SafetySpeciesSection } from '@lapka/contracts'
-import { cardBlocks, cardFromAi, cardFromItem, entryPlaceholder } from './card-model'
+import { cardBlocks, cardFromAi, cardFromItem, entryPlaceholder, entryView, shownSpecies } from './card-model'
 
 const danger: SafetySpeciesSection = {
   verdict: 'danger',
@@ -157,5 +157,22 @@ describe('the order of a card', () => {
   it('offers to refine the name only under an AI «no data», after its actions', () => {
     expect(cardBlocks(cardFromAi(aiAnswer), null)).toEqual(['verdict', 'ifEaten', 'refine'])
     expect(cardBlocks(cardFromAi({ ...aiAnswer, verdict: 'caution' }), null)).not.toContain('refine')
+  })
+})
+
+describe('the species an entry screen shows', () => {
+  const rex = '11111111-1111-4111-8111-000000000002'
+  const grapesForRex = entryView('vinograd', 'dog', rex)
+
+  it('is the asked one until the other is folded open', () => {
+    expect(shownSpecies(null, grapesForRex, 'dog')).toBe('dog')
+    expect(shownSpecies({ view: grapesForRex, species: 'cat' }, grapesForRex, 'dog')).toBe('cat')
+  })
+
+  it('starts again from the asked species when the screen is reused for another entry, pet or species', () => {
+    const flip = { view: grapesForRex, species: 'cat' as const }
+    expect(shownSpecies(flip, entryView('kuritsa-varenaya', 'dog', rex), 'dog')).toBe('dog')
+    expect(shownSpecies(flip, entryView('vinograd', 'cat', '11111111-1111-4111-8111-000000000001'), 'cat')).toBe('cat')
+    expect(shownSpecies(flip, entryView('vinograd', 'dog', null), 'dog')).toBe('dog')
   })
 })

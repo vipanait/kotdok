@@ -141,3 +141,19 @@ export function cardBlocks(model: SafetyCardModel, petName: string | null): Safe
   if (model.sources.length > 0) blocks.push('sources')
   return blocks
 }
+
+/**
+ * The other species, folded open on an entry, belongs to that entry for that
+ * pet. The screen can be reused for another entry or pet (a deep link, the
+ * recent list) with its state kept, so the flip remembers what it was made
+ * for and gives way to the asked species anywhere else.
+ */
+export type SpeciesFlip = { view: string; species: PetSpecies } | null
+
+export function entryView(slug: string, asked: PetSpecies, petId: string | null): string {
+  return `${slug}|${asked}|${petId ?? ''}`
+}
+
+export function shownSpecies(flip: SpeciesFlip, view: string, asked: PetSpecies): PetSpecies {
+  return flip?.view === view ? flip.species : asked
+}

@@ -46,7 +46,7 @@ export function VerdictBlock({
   verdict: SafetyAiVerdict
   label: string
   summary: string
-  /** «Собакам» over the verdict; none for an AI answer that already says whom it is for. */
+  /** «Собакам» over the verdict, for a reference entry and an AI answer alike. Optional: a placeholder may lack it. */
   forWhom?: string
   children?: React.ReactNode
 }) {
@@ -59,9 +59,17 @@ export function VerdictBlock({
             {forWhom}
           </Text>
         ) : null}
-        {/* Grows with the system font like the summary under it: capped, it ended up smaller than its
-            own explanation. At the largest sizes a long label may break mid-word; it stays the larger. */}
-        <Text variant="h2" style={[styles.title, { color: tone.signal }]}>
+        {/* Grows with the system font, up to twice its size, so it stays above the summary. A word is
+            never split: one line per word at most, and a word too wide for the line shrinks the label
+            instead (unbounded, «С осторожностью» broke mid-word at the largest sizes). */}
+        <Text
+          variant="h2"
+          style={[styles.title, { color: tone.signal }]}
+          maxFontSizeMultiplier={VERDICT_FONT_LIMIT}
+          numberOfLines={label.split(/\s+/).length}
+          adjustsFontSizeToFit
+          minimumFontScale={0.5}
+        >
           {label}
         </Text>
         <Text style={[styles.summary, { color: tone.signal }]}>{summary}</Text>
@@ -70,6 +78,9 @@ export function VerdictBlock({
     </View>
   )
 }
+
+/** How far the verdict word may grow with the system font (see VerdictBlock). */
+const VERDICT_FONT_LIMIT = 2
 
 const styles = StyleSheet.create({
   badge: {
