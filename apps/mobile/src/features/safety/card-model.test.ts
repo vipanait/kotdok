@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { SafetyAskResult, SafetyItem, SafetySpeciesSection } from '@lapka/contracts'
-import { cardFromAi, cardFromItem, entryPlaceholder } from './card-model'
+import { cardBlocks, cardFromAi, cardFromItem, entryPlaceholder } from './card-model'
 
 const danger: SafetySpeciesSection = {
   verdict: 'danger',
@@ -66,7 +66,7 @@ describe('the card a reference entry draws', () => {
       summary: 'Собакам нельзя.',
       ifEaten: 'call_now',
       otherSpecies: { species: 'cat', verdict: 'danger', label: 'cannot' },
-      sources: ['ASPCA', 'MSD'],
+      sources: [{ title: 'ASPCA', url: 'https://www.aspca.org/' }, { title: 'MSD' }],
     })
   })
 
@@ -120,5 +120,42 @@ describe('the entry screen before the server answers', () => {
 
   it('has nothing to stand in with for an entry the index does not know', () => {
     expect(entryPlaceholder(undefined, 'cat', false)).toEqual({ title: undefined, verdict: null })
+  })
+})
+
+describe('the order of a card', () => {
+  const allergic: SafetyItem = {
+    ...carrot,
+    pet_notes: [{ kind: 'allergy', allergy: 'курица' }, { kind: 'chronic' }],
+  }
+
+  it('puts the actions for «call now» before the explanation, and keeps the check inside them', () => {
+    const blocks = cardBlocks(cardFromItem(grapes, 'dog'), 'Рекс')
+    expect(blocks).toEqual(['verdict', 'ifEaten', 'why', 'signs', 'otherSpecies', 'sources'])
+    expect(blocks.indexOf('ifEaten')).toBeLessThan(blocks.indexOf('why'))
+  })
+
+  it('shows the allergy above the verdict and the chronic note under it, only for the pet', () => {
+    const model = cardFromItem(allergic, 'dog')
+    expect(cardBlocks(model, 'Рекс').slice(0, 3)).toEqual(['allergy', 'verdict', 'chronic'])
+    // A species, or the other species under a pet's card: none of the pet's notes.
+    expect(cardBlocks(model, null)).not.toContain('allergy')
+    expect(cardBlocks(model, null)).not.toContain('chronic')
+  })
+
+  it('leaves out «if eaten» for `none`, and empty explanation and signs', () => {
+    const blocks = cardBlocks(cardFromItem({ ...carrot, pet_notes: [] }, 'dog'), null)
+    expect(blocks).toEqual(['verdict', 'why', 'otherSpecies', 'sources'])
+  })
+
+  it('draws an AI «danger» with «call now» like a reference one: actions first, no refine card', () => {
+    const urgent = cardFromAi({ ...aiAnswer, verdict: 'danger', if_eaten: 'call_now', why: 'Отравление.', signs: ['рвота'] })
+    expect(urgent).toMatchObject({ fromAi: true, verdict: 'danger', label: 'cannot', ifEaten: 'call_now' })
+    expect(cardBlocks(urgent, 'Рекс')).toEqual(['verdict', 'ifEaten', 'why', 'signs'])
+  })
+
+  it('offers to refine the name only under an AI «no data», after its actions', () => {
+    expect(cardBlocks(cardFromAi(aiAnswer), null)).toEqual(['verdict', 'ifEaten', 'refine'])
+    expect(cardBlocks(cardFromAi({ ...aiAnswer, verdict: 'caution' }), null)).not.toContain('refine')
   })
 })

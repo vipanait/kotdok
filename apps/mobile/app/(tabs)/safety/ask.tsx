@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import { PetSpeciesSchema, SAFETY_QUERY_MAX, type PetSpecies, type SafetyAskResult } from '@lapka/contracts'
 import { ApiError } from '@lapka/shared'
@@ -10,10 +10,11 @@ import { useText } from '@/i18n'
 import { useAuth } from '@/providers/AuthProvider'
 import { cardFromAi } from '@/features/safety/card-model'
 import { SafetyCard, useSafetyHandOff } from '@/features/safety/SafetyCard'
+import { SafetyFootnote } from '@/features/safety/SafetyFootnote'
+import { SafetyContextCard, SafetyPanel, SafetyState } from '@/features/safety/SafetyParts'
 import { aiPrefillName } from '@/features/safety/to-check'
 import { noteAiRemaining, useAiRemaining, useRecentQueries } from '@/features/safety/use-safety-memory'
 import { Button } from '@/ui/Button'
-import { Banner } from '@/ui/Card'
 import { Field } from '@/ui/Field'
 import { Screen } from '@/ui/Screen'
 import { ResultSkeleton } from '@/ui/Skeleton'
@@ -97,13 +98,16 @@ export default function SafetyAsk() {
     const answer = phase.answer
     return (
       <Screen title={answer.title} onBack={back} scroll>
+        <SafetyContextCard species={answer.species} petName={pet?.name ?? null} avatarUri={pet?.avatar_url} />
         <SafetyCard
           model={cardFromAi(answer)}
-          forWhom={pet ? t.safety.forPet(pet.name, pet.species) : t.safety.forSpecies[answer.species]}
+          species={answer.species}
           petName={pet?.name ?? null}
           handOff={handOff}
+          onRefine={back}
           aiLine={aiLine}
         />
+        <SafetyFootnote />
       </Screen>
     )
   }
@@ -115,13 +119,15 @@ export default function SafetyAsk() {
           <Text tone="muted" style={styles.lead}>
             {t.safety.asking}
           </Text>
-          <ResultSkeleton />
+          <SafetyPanel>
+            <ResultSkeleton />
+          </SafetyPanel>
         </>
       ) : null}
 
       {phase.kind === 'unrecognized' ? (
-        <View>
-          <Banner text={t.safety.unrecognized} tone="note" />
+        // The question stays editable: the same screen asks the corrected words.
+        <SafetyState icon="search" title={t.safety.unrecognizedTitle} body={t.safety.unrecognizedBody}>
           <Field
             label={t.safety.newQuestion}
             value={next}
@@ -130,25 +136,29 @@ export default function SafetyAsk() {
             autoCorrect={false}
           />
           <Button title={t.safety.askAi} disabled={!next.trim()} onPress={askAnother} />
-          <Text variant="caption" tone="faint" center style={styles.line}>
+          <Text variant="caption" tone="faint" center>
             {aiLine}
           </Text>
-        </View>
+        </SafetyState>
       ) : null}
 
-      {phase.kind === 'limited' ? <Banner text={t.safety.rateLimited} tone="note" /> : null}
+      {phase.kind === 'limited' ? (
+        <SafetyState icon="clock" title={t.safety.rateLimitedTitle} body={t.safety.rateLimited}>
+          <Button title={t.safety.backToReference} onPress={back} />
+        </SafetyState>
+      ) : null}
 
       {phase.kind === 'failed' ? (
-        <>
-          <Banner text={t.safety.askFailed} tone="error" />
-          <Button title={t.common.retry} kind="secondary" onPress={() => void ask()} />
-        </>
+        <SafetyState icon="alert" title={t.safety.askFailedTitle} body={t.safety.askFailed}>
+          <Button title={t.common.retry} onPress={() => void ask()} />
+        </SafetyState>
       ) : null}
+
+      <SafetyFootnote />
     </Screen>
   )
 }
 
 const styles = StyleSheet.create({
   lead: { marginBottom: space.block },
-  line: { marginTop: 8 },
 })

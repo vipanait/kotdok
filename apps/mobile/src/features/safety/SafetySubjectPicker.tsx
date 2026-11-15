@@ -6,12 +6,14 @@ import { Avatar } from '@/ui/Card'
 import { OptionSheet, Segment } from '@/ui/Field'
 import { Icon } from '@/ui/Icon'
 import { Text } from '@/ui/Text'
-import { colour, radius, space, TAP_TARGET } from '@/ui/theme'
+import { colour, space, TAP_TARGET } from '@/ui/theme'
+import { subjectLine } from './SafetyParts'
 import { subjectOfPet, type SafetySubject } from './subject'
 
 /**
- * Whom the answer is for. With pets, the chosen one in a pill that opens the
- * list (one pet: just its name, nothing to choose). Without, «Кошка | Собака».
+ * Whom the answer is for («Для кого смотрим»). With pets, the chosen one in a
+ * card that opens the list (one pet: just its name, nothing to choose).
+ * Without, «Кошка | Собака».
  */
 export function SafetySubjectPicker({
   pets,
@@ -26,8 +28,13 @@ export function SafetySubjectPicker({
   const [open, setOpen] = useState(false)
 
   if (subject.kind === 'species' || pets.length === 0) {
+    // No pet to name or draw: a choice of the two species, under the same caption — no invented pet.
     return (
-      <Segment<PetSpecies>
+      <View style={styles.species}>
+        <Text variant="caption" tone="muted" style={styles.speciesLabel}>
+          {t.safety.subject}
+        </Text>
+        <Segment<PetSpecies>
         label={t.safety.subject}
         labelHidden
         clearable={false}
@@ -36,10 +43,11 @@ export function SafetySubjectPicker({
           { value: 'dog', label: t.safety.speciesSwitch.dog },
         ]}
         value={subject.species}
-        onChange={(species) => {
-          if (species) onChange({ kind: 'species', species })
-        }}
-      />
+          onChange={(species) => {
+            if (species) onChange({ kind: 'species', species })
+          }}
+        />
+      </View>
     )
   }
 
@@ -54,13 +62,18 @@ export function SafetySubjectPicker({
         accessibilityHint={several ? t.safety.choosePet : undefined}
         disabled={!several}
         onPress={() => setOpen(true)}
-        style={({ pressed }) => [styles.pill, { opacity: pressed ? 0.7 : 1 }]}
+        style={({ pressed }) => [styles.card, { opacity: pressed ? 0.7 : 1 }]}
       >
-        <Avatar species={subject.species} size={28} uri={pet?.avatar_url ?? null} />
-        <Text variant="bodyStrong" numberOfLines={1} style={styles.name}>
-          {subject.name}
-        </Text>
-        {several ? <Icon name="down" size={18} color={colour.faint} /> : null}
+        <Avatar species={subject.species} size={38} uri={pet?.avatar_url ?? null} />
+        <View style={styles.text}>
+          <Text variant="caption" tone="muted">
+            {t.safety.subject}
+          </Text>
+          <Text variant="bodyStrong" numberOfLines={2}>
+            {subjectLine(t, subject.species, subject.name)}
+          </Text>
+        </View>
+        {several ? <Icon name="down" size={20} color={colour.text} /> : null}
       </Pressable>
       <OptionSheet
         visible={open}
@@ -79,19 +92,20 @@ export function SafetySubjectPicker({
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', marginBottom: space.row },
-  pill: {
+  row: { marginBottom: space.block },
+  card: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    minHeight: TAP_TARGET,
-    paddingLeft: 6,
-    paddingRight: 12,
-    borderRadius: radius.pill,
+    gap: 12,
+    minHeight: Math.max(TAP_TARGET, 64),
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: colour.line,
     backgroundColor: colour.surface,
-    maxWidth: '100%',
   },
-  name: { flexShrink: 1 },
+  text: { flex: 1 },
+  species: { marginBottom: 8 },
+  speciesLabel: { marginBottom: 6 },
 })

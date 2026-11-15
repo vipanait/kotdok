@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { StyleSheet } from 'react-native'
 import { router } from 'expo-router'
 import type { Pet, SafetyIndexItem } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
@@ -11,10 +12,13 @@ import { SafetySearch } from '@/features/safety/SafetySearch'
 import { SafetySubjectPicker } from '@/features/safety/SafetySubjectPicker'
 import { defaultSubject, subjectPetId, type SafetySubject } from '@/features/safety/subject'
 import { lastPetFor, rememberPet, useAiRemaining, useRecentQueries } from '@/features/safety/use-safety-memory'
+import { SafetyFootnote } from '@/features/safety/SafetyFootnote'
+import { SafetyState } from '@/features/safety/SafetyParts'
 import { Button } from '@/ui/Button'
-import { Banner } from '@/ui/Card'
 import { Screen } from '@/ui/Screen'
 import { ListSkeleton } from '@/ui/Skeleton'
+import { CONTROL_FONT_LIMIT, Text } from '@/ui/Text'
+import { space } from '@/ui/theme'
 
 /**
  * A choice still valid for the pets on hand: a pet deleted since, or a
@@ -74,17 +78,30 @@ export default function SafetyHome() {
   }
 
   return (
-    <Screen title={t.safety.title} scroll>
+    // The heading is drawn inside the scroller, under its tagline (pet-safety-v1, home): the
+    // first screen of the tab has no way back for Screen's own heading to carry.
+    <Screen scroll>
+      {/* Capped like Screen's own title: a heading names the screen, what is below it scales freely.
+          `numberOfLines` too, as there: without it iOS measured the capped text at the uncapped
+          height and left a gap of a screen's third under it at accessibility sizes. */}
+      <Text variant="label" tone="accent" style={styles.eyebrow} maxFontSizeMultiplier={CONTROL_FONT_LIMIT} numberOfLines={3}>
+        {t.auth.tagline.toLocaleUpperCase()}
+      </Text>
+      <Text variant="h1" accessibilityRole="header" maxFontSizeMultiplier={CONTROL_FONT_LIMIT} numberOfLines={3}>
+        {t.safety.title}
+      </Text>
+      <Text tone="muted" style={styles.lead}>
+        {t.safety.lead}
+      </Text>
       {petList.data === null && !petList.error ? (
         <ListSkeleton rows={1} />
       ) : (
         <SafetySubjectPicker pets={pets} subject={subject} onChange={choose} />
       )}
       {failure ? (
-        <>
-          <Banner text={failure.text} tone="error" icon={failure.offline ? 'wifi' : 'alert'} />
-          <Button title={t.common.retry} kind="secondary" onPress={() => void index.reload()} />
-        </>
+        <SafetyState icon={failure.offline ? 'wifi' : 'alert'} title={t.safety.loadFailed} body={failure.text === t.safety.loadFailed ? undefined : failure.text}>
+          <Button title={t.common.retry} onPress={() => void index.reload()} />
+        </SafetyState>
       ) : (
         <SafetySearch
           items={items}
@@ -97,6 +114,12 @@ export default function SafetyHome() {
           aiLine={aiLine}
         />
       )}
+      <SafetyFootnote />
     </Screen>
   )
 }
+
+const styles = StyleSheet.create({
+  eyebrow: { marginTop: 24, marginBottom: 12, letterSpacing: 1.5, fontWeight: '800' },
+  lead: { marginTop: space.row, marginBottom: space.block },
+})

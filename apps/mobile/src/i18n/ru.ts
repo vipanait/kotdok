@@ -1090,16 +1090,23 @@ export const ru = {
   /** «Можно ли это питомцу» (docs/superpowers/specs/2026-11-13-pet-safety-design.md, «Приложение»). */
   safety: {
     title: 'Можно ли это питомцу?',
+    lead: 'От кусочка яблока до комнатного растения — узнайте, что безопасно для кошек и собак.',
     search: 'Что питомец съел или может съесть',
     searchPlaceholder: 'Виноград, лилия, ибупрофен',
     clear: 'Очистить',
-    subject: 'Для кого',
+    subject: 'Для кого смотрим',
     choosePet: 'Выбрать питомца',
     speciesSwitch: { cat: 'Кошка', dog: 'Собака' },
     recent: 'Недавние',
     popular: 'Часто спрашивают',
+    results: 'Результаты поиска',
+    allCategories: 'Все',
     categories: vocab.ru.safetyCategories,
     comingSoon: 'Справочник скоро появится',
+    notInReferenceBody: 'Попробуйте другое название или спросите ИИ.',
+    otherCategories: 'Искать во всех категориях',
+    notInCategory: (query: string, category: string) => `«${query}» нет в разделе «${category}»`,
+    notInCategoryBody: 'Есть в другом разделе справочника.',
     comingSoonBody: 'А пока можно спросить ИИ. Его ответ будет помечен.',
     loadFailed: 'Не удалось загрузить справочник',
     notInReference: (query: string) => `«${query}» нет в справочнике`,
@@ -1108,16 +1115,21 @@ export const ru = {
     aiRemaining: (left: number) => `осталось ${left} из 10 на сегодня`,
     asking: 'ИИ отвечает…',
     aiBadge: 'Ответ ИИ, не из справочника',
-    unrecognized: 'Не удалось понять, что это. Назовите продукт, растение или вещество.',
+    unrecognizedTitle: 'Не удалось понять, что это',
+    unrecognizedBody: 'Назовите продукт, растение или вещество.',
     newQuestion: 'Новый вопрос',
+    rateLimitedTitle: 'Лимит ответов ИИ исчерпан',
     rateLimited: 'На сегодня ответы ИИ закончились. Справочник работает как обычно.',
+    backToReference: 'Вернуться к справочнику',
+    askFailedTitle: 'Не удалось получить ответ',
     askFailed: 'Не получилось ответить. Попробуйте ещё раз.',
-    forPet: (pet: string, species: 'cat' | 'dog') => {
-      const cases = nameCase(pet)
-      return `для ${cases ? cases.genitive : pet} (${species === 'cat' ? 'кошка' : 'собака'})`
-    },
-    forSpecies: { cat: 'для кошек', dog: 'для собак' },
-    otherSpecies: { cat: 'Для кошек', dog: 'Для собак' },
+    refineTitle: 'Можно попробовать иначе',
+    refineBody: 'Укажите точное название продукта или вещества.',
+    refine: 'Уточнить название',
+    otherSpecies: { cat: 'А для кошки?', dog: 'А для собаки?' },
+    /** Over the verdict: whom it is about. */
+    verdictFor: { cat: 'Кошкам', dog: 'Собакам' },
+    reference: 'справочник',
     verdict: vocab.ru.safetyVerdict,
     medicineLine: vocab.ru.safetyMedicineLine,
     /** The short footnote and its «О материалах» sheet (SafetyFootnote). */
@@ -1126,6 +1138,8 @@ export const ru = {
       const cases = nameCase(pet)
       return `У ${cases ? cases.genitive : pet} в анкете указана аллергия: ${allergy}`
     },
+    allergyTitle: 'Сначала учтите аллергию',
+    allergyKeep: 'Общий ответ ниже не отменяет эту пометку.',
     chronic: (pet: string) => {
       const cases = nameCase(pet)
       return `У ${cases ? cases.genitive : pet} указаны хронические болезни. Новые продукты лучше сначала обсудить с врачом.`
@@ -1135,13 +1149,13 @@ export const ru = {
     ifEaten: (pet: string | null) => (pet ? `Если ${pet} уже съел(а)` : 'Если питомец уже съел'),
     callNow: 'Сразу позвоните в клинику, не ждите признаков.',
     watch: 'Наблюдайте. Если появятся признаки — проверьте симптомы.',
-    firstSteps: 'Что сделать',
+    firstSteps: 'Что сделать сразу',
     avoid: 'Чего не делать',
     checkSymptoms: 'Проверить симптомы',
     checkCost: 'Проверка расходует 1 кредит',
     addPetToCheck: 'Добавьте питомца, чтобы проверить симптомы',
-    sources: 'Источники',
-    preparedByAi: 'Подготовлено ИИ по ветеринарным источникам. Ветеринар текст не проверял.',
+    sources: 'На чём основан ответ',
+    howPrepared: 'Как подготовлен материал',
     loading: 'Загружаем…',
     gone: 'Этой записи больше нет',
     toSearch: 'К поиску',

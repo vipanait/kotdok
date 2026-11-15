@@ -10,12 +10,13 @@ import { queryKeys } from '@/lib/query-keys'
 import { useText } from '@/i18n'
 import { cardFromItem, entryPlaceholder } from '@/features/safety/card-model'
 import { SafetyCard, useSafetyHandOff } from '@/features/safety/SafetyCard'
+import { SafetyFootnote } from '@/features/safety/SafetyFootnote'
+import { SafetyContextCard, SafetyState } from '@/features/safety/SafetyParts'
 import { VerdictBlock } from '@/features/safety/VerdictBadge'
 import { Button } from '@/ui/Button'
-import { Banner } from '@/ui/Card'
 import { Screen } from '@/ui/Screen'
 import { DetailSkeleton } from '@/ui/Skeleton'
-import { Text } from '@/ui/Text'
+import { CONTROL_FONT_LIMIT, Text } from '@/ui/Text'
 import { space } from '@/ui/theme'
 
 const OTHER: Record<PetSpecies, PetSpecies> = { cat: 'dog', dog: 'cat' }
@@ -32,7 +33,11 @@ export default function SafetyEntry() {
   const slug = params.slug
   const petId = params.petId || null
   const asked: PetSpecies = PetSpeciesSchema.safeParse(params.species).data ?? 'cat'
-  const [shown, setShown] = useState<PetSpecies>(asked)
+  // The other species, folded open, belongs to this entry for this pet: a link that reuses the screen
+  // for another entry or pet (a deep link, the recent list) starts again from the pet's own species.
+  const view = `${slug}|${asked}|${petId ?? ''}`
+  const [flipped, setFlipped] = useState<{ view: string; species: PetSpecies } | null>(null)
+  const shown: PetSpecies = flipped?.view === view ? flipped.species : asked
 
   const entry = useCached(queryKeys.safetyItem(slug, petId), () =>
     withFreshSession((api) => api.getSafetyItem(slug, petId ?? undefined)),
@@ -53,11 +58,11 @@ export default function SafetyEntry() {
 
   if (entry.error instanceof ApiError && entry.error.code === 'not_found') {
     return (
-      <Screen onBack={toSearch} scroll>
-        <Text variant="h2" style={styles.goneTitle}>
-          {t.safety.gone}
-        </Text>
-        <Button title={t.safety.toSearch} kind="secondary" onPress={toSearch} />
+      <Screen title={t.safety.title} onBack={toSearch} scroll>
+        <SafetyState icon="search" title={t.safety.gone}>
+          <Button title={t.safety.toSearch} onPress={toSearch} />
+        </SafetyState>
+        <SafetyFootnote />
       </Screen>
     )
   }
@@ -72,43 +77,52 @@ export default function SafetyEntry() {
       failure !== null,
     )
     return (
-      <Screen title={placeholder.title} onBack={toSearch} scroll>
+      <Screen title={placeholder.title ?? t.safety.title} onBack={toSearch} scroll>
         {placeholder.verdict ? (
           <VerdictBlock
             verdict={placeholder.verdict.verdict}
             label={t.safety.verdict[placeholder.verdict.label]}
             summary={t.safety.loading}
+            forWhom={t.safety.verdictFor[asked]}
           />
         ) : null}
         {failure ? (
-          <View>
-            <Banner text={failure.text} tone="error" icon={failure.offline ? 'wifi' : 'alert'} />
-            <Button title={t.common.retry} kind="secondary" onPress={() => void reload()} />
-          </View>
+          <SafetyState icon={failure.offline ? 'wifi' : 'alert'} title={t.safety.loadFailed} body={failure.text === t.safety.loadFailed ? undefined : failure.text}>
+            <Button title={t.common.retry} onPress={() => void reload()} />
+          </SafetyState>
         ) : (
-          <DetailSkeleton facts={2} />
+          <View style={styles.skeleton}>
+            <DetailSkeleton facts={2} />
+          </View>
         )}
+        <SafetyFootnote />
       </Screen>
     )
   }
 
   const own = shown === asked
-  const forWhom = own && pet ? t.safety.forPet(pet.name, pet.species) : t.safety.forSpecies[shown]
+  // The notes, «Если Рекс уже съел» and the check are about the pet, not the other species.
+  const petName = own && pet ? pet.name : null
 
   return (
     <Screen title={item.name} onBack={toSearch} scroll>
+      <Text variant="label" tone="accent" style={styles.eyebrow} maxFontSizeMultiplier={CONTROL_FONT_LIMIT} numberOfLines={3}>
+        {`${t.safety.categories[item.category]} · ${t.safety.reference}`.toLocaleUpperCase()}
+      </Text>
+      <SafetyContextCard species={shown} petName={petName} avatarUri={pet?.avatar_url} />
       <SafetyCard
         model={cardFromItem(item, shown)}
-        forWhom={forWhom}
-        // The notes and «Если Рекс уже съел» are about the pet, not the other species.
-        petName={own && pet ? pet.name : null}
+        species={shown}
+        petName={petName}
         handOff={own ? handOff : null}
-        onOtherSpecies={() => setShown(OTHER[shown])}
+        onOtherSpecies={() => setFlipped({ view, species: OTHER[shown] })}
       />
+      <SafetyFootnote />
     </Screen>
   )
 }
 
 const styles = StyleSheet.create({
-  goneTitle: { marginTop: space.block, marginBottom: space.block },
+  eyebrow: { marginBottom: space.row, letterSpacing: 1.5, fontWeight: '800' },
+  skeleton: { marginTop: space.block },
 })

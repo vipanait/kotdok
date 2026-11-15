@@ -29,23 +29,36 @@ import { TAP_TARGET, colour, space } from '@/ui/theme'
  */
 export function SafetyFootnote({ style }: { style?: StyleProp<ViewStyle> }) {
   const t = useText().safety.about
-  const [open, setOpen] = useState(false)
-  const title = useRef<View>(null)
-  const { height } = useWindowDimensions()
-
   return (
     <View style={[styles.line, style]}>
       <Text variant="caption" tone="faint" style={styles.caption}>
         {t.caption}
       </Text>
+      <SafetyAboutLink label={t.action} />
+    </View>
+  )
+}
+
+/**
+ * A text action that opens the «О материалах» sheet: «О материалах» in the
+ * footnote, «Как подготовлен материал» on a card's sources (handoff §8).
+ */
+export function SafetyAboutLink({ label }: { label: string }) {
+  const t = useText().safety.about
+  const [open, setOpen] = useState(false)
+  const title = useRef<View>(null)
+  const { height } = useWindowDimensions()
+
+  return (
+    <>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={t.action}
+        accessibilityLabel={label}
         onPress={() => setOpen(true)}
         style={({ pressed }) => [styles.action, { opacity: pressed ? 0.6 : 1 }]}
       >
         <Text variant="label" tone="accent" maxFontSizeMultiplier={CONTROL_FONT_LIMIT} style={styles.actionText}>
-          {t.action}
+          {label}
         </Text>
       </Pressable>
 
@@ -68,15 +81,25 @@ export function SafetyFootnote({ style }: { style?: StyleProp<ViewStyle> }) {
         </ScrollView>
         <Button title={t.close} kind="secondary" onPress={() => setOpen(false)} style={styles.close} />
       </Sheet>
-    </View>
+    </>
   )
 }
 
 const styles = StyleSheet.create({
-  line: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', columnGap: 8 },
+  // Under a rule, as the design closes every screen.
+  line: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    columnGap: 8,
+    marginTop: space.section,
+    paddingTop: space.row,
+    borderTopWidth: 1,
+    borderTopColor: colour.line,
+  },
   caption: { flexShrink: 1 },
   // As tall and as wide as a fingertip, though the words are caption-sized.
-  action: { minHeight: TAP_TARGET, minWidth: TAP_TARGET, justifyContent: 'center' },
+  action: { minHeight: TAP_TARGET, minWidth: TAP_TARGET, justifyContent: 'center', alignSelf: 'flex-start' },
   actionText: { textDecorationLine: 'underline', color: colour.accentText },
   title: { marginBottom: space.row },
   body: { gap: space.row },

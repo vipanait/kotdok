@@ -32,7 +32,8 @@ export type SafetyCardModel = {
   notes: SafetyPetNote[]
   /** The verdict for the species not asked about, folded under the card, captioned by the same category. */
   otherSpecies: { species: PetSpecies; verdict: SafetyVerdict; label: SafetyVerdictLabelKey } | null
-  sources: string[]
+  /** A link where the reference has one; a title alone otherwise. */
+  sources: { title: string; url?: string }[]
 }
 
 const OTHER: Record<PetSpecies, PetSpecies> = { cat: 'dog', dog: 'cat' }
@@ -62,7 +63,7 @@ export function cardFromItem(item: SafetyItem, species: PetSpecies): SafetyCardM
       verdict: item.by_species[other].verdict,
       label: verdictLabelKey(item.category, item.by_species[other].verdict),
     },
-    sources: item.sources.map((source) => source.title),
+    sources: item.sources.map((source) => (source.url ? { title: source.title, url: source.url } : { title: source.title })),
   }
 }
 
@@ -100,4 +101,43 @@ export function entryPlaceholder(
   if (failed) return { title: known.name, verdict: null }
   const verdict = known.verdict[species]
   return { title: known.name, verdict: { verdict, label: verdictLabelKey(known.category, verdict) } }
+}
+
+/**
+ * The parts of a card, top to bottom (pet-safety-v1 handoff §7).
+ *
+ * - An allergy from the pet's profile stands above the verdict: «Можно» must
+ *   not be read first and the allergy after it. The general chronic note
+ *   keeps its place under the verdict.
+ * - What to do if it was already eaten comes before the explanation, so
+ *   «call the clinic now» is seen before a paragraph about why.
+ * - The notes belong to the pet: with no pet named (a species, or the other
+ *   species folded under a pet's card) there are none.
+ * - «Можно попробовать иначе» only under an AI «Нет данных», after the
+ *   actions — never in their place.
+ */
+export type SafetyCardBlock =
+  | 'allergy'
+  | 'verdict'
+  | 'chronic'
+  | 'ifEaten'
+  | 'refine'
+  | 'why'
+  | 'signs'
+  | 'otherSpecies'
+  | 'sources'
+
+export function cardBlocks(model: SafetyCardModel, petName: string | null): SafetyCardBlock[] {
+  const blocks: SafetyCardBlock[] = []
+  const notes = petName ? model.notes : []
+  if (notes.some((note) => note.kind === 'allergy')) blocks.push('allergy')
+  blocks.push('verdict')
+  if (notes.some((note) => note.kind === 'chronic')) blocks.push('chronic')
+  if (model.ifEaten !== 'none') blocks.push('ifEaten')
+  if (model.fromAi && model.verdict === 'unknown') blocks.push('refine')
+  if (model.why) blocks.push('why')
+  if (model.signs.length > 0) blocks.push('signs')
+  if (model.otherSpecies) blocks.push('otherSpecies')
+  if (model.sources.length > 0) blocks.push('sources')
+  return blocks
 }
