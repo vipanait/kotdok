@@ -24,14 +24,14 @@
   },
   "bySpecies": {
     "cat": {
-      "verdict": "caution",
+      "verdict": "danger",
       "summary": {
-        "ru": "С осторожностью. Нарцисс ядовит для кошек: немного листьев или цветков обычно расстраивает желудок, а луковицы опаснее всего.",
-        "en": "With caution. Daffodil is poisonous to cats: a few leaves or flowers usually upset the stomach, and the bulbs are the most dangerous."
+        "ru": "Опасно. Нарцисс ядовит для кошек: луковицы и много растения вызывают судороги и сбои сердца. Звоните в клинику сразу.",
+        "en": "Dangerous. Daffodil is poisonous to cats: bulbs and large amounts cause seizures and heart problems. Call a clinic right away."
       },
       "why": {
-        "ru": "Луковицы — самая ядовитая часть, но вредно и остальное растение. Основное вещество — ликорин и родственные алкалоиды. По данным MSD Veterinary Manual, немного растения часто не даёт признаков или даёт лишь расстройство желудка, но при большом количестве возможны судороги, дрожь, падение давления и сбои сердечного ритма, поэтому лучше не ждать признаков.",
-        "en": "The bulbs are the most poisonous part, but the rest of the plant is harmful too. The main substance is lycorine and related alkaloids. According to the MSD Veterinary Manual, a small amount often causes no signs or only a stomach upset, but a large amount can bring on seizures, tremors, low blood pressure and heart rhythm problems, so it is better not to wait for signs."
+        "ru": "Луковицы — самая ядовитая часть, но вредно и остальное растение. Основное вещество — ликорин и родственные алкалоиды. По данным MSD Veterinary Manual, немного растения часто не даёт признаков или даёт лишь расстройство желудка. По данным ASPCA, при большом количестве бывают судороги, дрожь, падение давления и сбои сердечного ритма. Поэтому звоните в клинику сразу, не дожидаясь признаков, особенно если съедена луковица.",
+        "en": "The bulbs are the most poisonous part, but the rest of the plant is harmful too. The main substance is lycorine and related alkaloids. According to the MSD Veterinary Manual, a small amount often causes no signs or only a stomach upset. According to the ASPCA, a large amount causes seizures, tremors, low blood pressure and heart rhythm problems. So call a clinic right away, without waiting for signs, especially if a bulb was eaten."
       },
       "signs": {
         "ru": [
@@ -50,14 +50,14 @@
       "ifEaten": "call_now"
     },
     "dog": {
-      "verdict": "caution",
+      "verdict": "danger",
       "summary": {
-        "ru": "С осторожностью. Нарцисс ядовит для собак: немного листьев или цветков обычно расстраивает желудок, а луковицы опаснее всего.",
-        "en": "With caution. Daffodil is poisonous to dogs: a few leaves or flowers usually upset the stomach, and the bulbs are the most dangerous."
+        "ru": "Опасно. Нарцисс ядовит для собак: луковицы и много растения вызывают судороги и сбои сердца. Звоните в клинику сразу.",
+        "en": "Dangerous. Daffodil is poisonous to dogs: bulbs and large amounts cause seizures and heart problems. Call a clinic right away."
       },
       "why": {
-        "ru": "Луковицы — самая ядовитая часть, но вредно и остальное растение. Основное вещество — ликорин и родственные алкалоиды. По данным MSD Veterinary Manual, немного растения часто не даёт признаков или даёт лишь расстройство желудка, но при большом количестве возможны судороги, дрожь, падение давления и сбои сердечного ритма, поэтому лучше не ждать признаков.",
-        "en": "The bulbs are the most poisonous part, but the rest of the plant is harmful too. The main substance is lycorine and related alkaloids. According to the MSD Veterinary Manual, a small amount often causes no signs or only a stomach upset, but a large amount can bring on seizures, tremors, low blood pressure and heart rhythm problems, so it is better not to wait for signs."
+        "ru": "Луковицы — самая ядовитая часть, но вредно и остальное растение. Основное вещество — ликорин и родственные алкалоиды. По данным MSD Veterinary Manual, немного растения часто не даёт признаков или даёт лишь расстройство желудка. По данным ASPCA, при большом количестве бывают судороги, дрожь, падение давления и сбои сердечного ритма. Поэтому звоните в клинику сразу, не дожидаясь признаков, особенно если съедена луковица.",
+        "en": "The bulbs are the most poisonous part, but the rest of the plant is harmful too. The main substance is lycorine and related alkaloids. According to the MSD Veterinary Manual, a small amount often causes no signs or only a stomach upset. According to the ASPCA, a large amount causes seizures, tremors, low blood pressure and heart rhythm problems. So call a clinic right away, without waiting for signs, especially if a bulb was eaten."
       },
       "signs": {
         "ru": [
