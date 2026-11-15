@@ -20,9 +20,20 @@ describe('the failure card (handoff, «Уточнение: поиск…»)', ()
     expect(safetyFailure(en, new TypeError('Network request failed'), 'catalogue').body).toBe(en.safety.failedBody)
   })
 
-  it('says what the server said when it did answer', () => {
-    expect(safetyFailure(ru, new ApiError('internal_error', 500, 'boom'), 'answer').body).toBe(ru.errors.internal)
-    expect(safetyFailure(ru, new ApiTimeoutError('/safety/ask', 30_000), 'answer').body).toBe(ru.errors.noAnswer)
+  it('says «try again» next to «Повторить» when the server failed, not «что-то пошло не так»', () => {
+    for (const code of ['internal_error', 'dependency_unavailable', 'bad_request', 'conflict', 'not_found']) {
+      const { body } = safetyFailure(ru, new ApiError(code, 500, 'boom'), 'answer')
+      expect(body, code).toBe(ru.safety.failedBody)
+    }
+    expect(safetyFailure(ru, new ApiTimeoutError('/safety/ask', 30_000), 'answer').body).toBe(ru.safety.failedBody)
+    expect(safetyFailure(en, new ApiError('internal_error', 500, 'boom'), 'catalogue').body).toBe(en.safety.failedBody)
+  })
+
+  it('keeps the server text only when it asks for something other than a retry', () => {
+    expect(safetyFailure(ru, new ApiError('unauthorized', 401, 'no'), 'answer').body).toBe(ru.errors.unauthorized)
+    expect(safetyFailure(ru, new ApiError('reauth_required', 401, 'no'), 'answer').body).toBe(ru.errors.reauthRequired)
+    expect(safetyFailure(ru, new ApiError('consent_required', 403, 'no'), 'catalogue').body).toBe(ru.errors.consentRequired)
+    expect(safetyFailure(ru, new ApiError('rate_limited', 429, 'no'), 'catalogue').body).toBe(ru.errors.rateLimited)
   })
 })
 
