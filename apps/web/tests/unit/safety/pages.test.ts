@@ -67,7 +67,9 @@ describe('the entry pages on a preview', () => {
       expect((await generateMetadata(params(SLUG))).robots).toBeUndefined()
       const page = html(createElement(SafetyArticle, { entry: entryBySlug(SLUG)! }))
       expect(page).not.toContain('Черновик')
-      expect(page).toContain('Подготовлено с помощью ИИ')
+      // The short caption with «О материалах» replaces the long byline (handoff §8).
+      expect(page).toContain('Справочная информация. Не заменяет консультацию ветеринара.')
+      expect(page).not.toContain('Подготовлено с помощью ИИ')
     }))
 
   it('keep every title within 60 characters and every description within 160', async () => {
@@ -100,7 +102,7 @@ describe('the entry pages on a preview', () => {
       expect(page, title).toContain(title)
     }
     expect(page).toContain('href="/otravlenie/shokolad"')
-    expect(page).toContain('href="/o-materialah"')
+    expect(page).toContain('href="/o-materialah#mozhno-li"')
     expect(page).toContain('application/ld+json')
     expect(page).toContain('"FAQPage"')
     // The way into the app is the existing call to action.
@@ -192,7 +194,10 @@ describe('the hub', () => {
 
   it('draws no search field without JavaScript: the field would do nothing', () => {
     vi.stubEnv('VERCEL_ENV', 'preview')
-    expect(html(createElement(SafetyHubSearch, { index: safetyIndex('ru') }))).not.toContain('<input')
+    const page = html(createElement(SafetyHubSearch, { index: safetyIndex('ru'), popular: [SLUG] }))
+    expect(page).not.toContain('<input')
+    // The category chips are links to the catalogue's sections until the script runs.
+    expect(page).toContain('href="#safety-food"')
   })
 
   it('finds an entry by name, by alias and with a typo, and says when it has nothing', () => {

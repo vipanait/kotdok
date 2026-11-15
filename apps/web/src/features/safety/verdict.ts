@@ -5,13 +5,14 @@ import { verdictLabelKey, vocab } from '@lapka/shared'
  * How a verdict looks on the site: the app's caption for the category
  * («Можно» for a food, «Безопасно» for a plant) and the urgency colours the
  * app borrows for it (VerdictBadge.tsx in apps/mobile) — danger reads as an
- * emergency, caution as «watch», safe as healthy. The class names are the
- * urgency classes of tokens.css.
+ * emergency, caution as «watch», safe in the turquoise of the design
+ * (handoff §4: «Можно» — бирюзовый тон, the `home_care` pair). The class
+ * names are the urgency classes of tokens.css.
  */
-const TONE: Record<SafetyVerdict, 'emergency' | 'monitor' | 'healthy'> = {
+const TONE: Record<SafetyVerdict, 'emergency' | 'monitor' | 'home_care'> = {
   danger: 'emergency',
   caution: 'monitor',
-  safe: 'healthy',
+  safe: 'home_care',
 }
 
 export function verdictView(category: SafetyCategory, verdict: SafetyVerdict): { label: string; tone: string } {

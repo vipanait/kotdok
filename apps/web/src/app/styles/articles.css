@@ -68,30 +68,6 @@
   .level-legend { display: grid; gap: 10px; margin: 0; }
   .level-legend li { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; color: var(--muted); font-size: 15px; }
 
-  /* «Можно ли» reference, /mozhno-li: verdict colours are the urgency classes of tokens.css, as in the app. */
-  .reading .safety-verdicts { margin: 18px 0 0; gap: 12px; }
-  .reading .safety-verdicts .card.level { margin: 0; }
-  .safety-verdicts .badge { color: var(--signal); background: var(--tint); }
-  .reading p.safety-medicine-line { margin: 12px 0 0; }
-  .safety-why h3 { margin: 14px 0 4px; font-size: 16px; }
-  .safety-why p { margin: 0; }
-  .safety-article .article-section > h3 { margin: 18px 0 6px; font-size: 16px; }
-  .reading p.safety-lead.call_now strong { color: var(--red); }
-  .reading .safety-toxin-link { margin-top: 24px; }
-
-  .safety-search { display: grid; gap: 8px; margin: 22px 0 0; }
-  .safety-search label { font-weight: 700; font-size: 15px; }
-  .safety-results { display: grid; gap: 8px; margin: 4px 0 0; }
-  .reading p.safety-missing { margin: 6px 0 0; }
-  .safety-missing .link { display: inline; min-height: 0; text-decoration: underline; text-underline-offset: 3px; }
-  /* The verdicts are what the row says: not clamped like a description. */
-  .hub-item .verdict-pair { display: flex; flex-wrap: wrap; gap: 6px; -webkit-line-clamp: unset; overflow: visible; }
-  .hub-item .verdict-pair .badge { color: var(--signal); font-size: 12px; line-height: 1.2; }
-  .reading .safety-empty { margin-top: 22px; }
-  /* The item pictures (SafetyIcon) keep their own colours; the short footnote (SafetyFootnote) reads as one line. */
-  .safety-icon { display: block; flex: none; }
-  .safety-footnote .link { display: inline; min-height: 0; text-decoration: underline; text-underline-offset: 3px; }
-
   @media (max-width: 760px) {
     .crumbs ol { margin-bottom: 12px; }
     .article h1 { margin-bottom: 10px; }
@@ -103,6 +79,144 @@
     .hub-item strong { font-size: 15px; }
     .species-hub .hub-item span { display: none; }
     .related { grid-template-columns: minmax(0, 1fr); }
-    .safety-list.hub-list { grid-template-columns: minmax(0, 1fr); }
+  }
+
+  /* ---------- «Можно ли» reference, /mozhno-li (docs/design/pet-safety-v1) ----------
+     Every rule below is scoped to the safety classes. Verdict colours are the urgency classes of tokens.css
+     (danger → emergency, caution → monitor, safe → home_care), always next to the verdict's word. */
+  .reading.article.safety-page { max-width: 1232px; }
+  .safety-page h1 { font-size: 46px; line-height: 1.12; letter-spacing: -1.1px; }
+  .safety-page .eyebrow { margin-bottom: 14px; }
+
+  .safety-hero { display: flex; align-items: center; gap: 48px; padding: 8px 0 30px; }
+  .safety-hero > div { flex: 1; min-width: 0; }
+  .reading .safety-hero .short-answer { max-width: 640px; margin: 0; color: var(--muted); font-size: 17px; }
+  .safety-hero-art.art { flex: none; width: 230px; height: 190px; object-fit: contain; }
+
+  .safety-searchbox { padding: 26px; background: var(--paper); border: 1px solid var(--line); border-radius: 24px; box-shadow: 0 8px 24px #3a2a1a06; }
+  .safety-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .safety-field { display: flex; align-items: center; gap: 12px; padding: 0 6px 0 16px; background: var(--bg); border: 1px solid var(--line); border-radius: 14px; }
+  .safety-field:focus-within { border-color: var(--green); box-shadow: 0 0 0 2px var(--green); }
+  .safety-field input { flex: 1; min-width: 0; height: 56px; border: 0; outline: 0; background: transparent; color: var(--text); font-size: 16px; }
+  .safety-field input::placeholder { color: #7A7266; opacity: 1; }
+  .safety-field input::-webkit-search-cancel-button { appearance: none; }
+  .safety-field-icon { width: 22px; height: 22px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+  .safety-clear { display: grid; place-items: center; flex: none; width: 44px; height: 44px; border-radius: 12px; color: var(--green); font-size: 22px; line-height: 1; }
+  .safety-clear:hover { background: var(--soft); }
+  .safety-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .safety-field + .safety-chips, form + .safety-chips { margin-top: 16px; }
+  .safety-chip { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 44px; padding: 10px 16px; border-radius: 999px; background: var(--soft); color: var(--text); font-size: 15px; font-weight: 500; }
+  .safety-chip:hover { background: #EBE0CC; }
+  .safety-chip[aria-pressed='true'] { background: var(--green); color: #fff; }
+  .safety-chip[aria-pressed='true'] .safety-icon { background: var(--bg); border-radius: 6px; }
+
+  .safety-section { margin-top: 32px; }
+  .safety-sectionhead { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; margin-bottom: 16px; }
+  .reading .safety-sectionhead h2 { margin: 0; font-size: 25px; }
+  .reading .safety-count { margin: 0; color: var(--faint); font-size: 13px; }
+  a.safety-count:hover { color: var(--green); text-decoration: underline; }
+  .safety-category + .safety-category { margin-top: 28px; }
+  .reading .safety-category h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; font-size: 19px; }
+
+  .safety-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 0; padding: 0; list-style: none; }
+  .safety-grid > li { min-width: 0; }
+  .safety-card { display: flex; align-items: center; gap: 14px; height: 100%; padding: 20px; background: var(--paper); border: 1px solid var(--line); border-radius: 20px; color: var(--text); transition: border-color .15s; }
+  .safety-card:hover { border-color: var(--green); }
+  .safety-tile { display: grid; place-items: center; flex: none; width: 54px; height: 58px; border-radius: 16px; background: var(--bg); }
+  .safety-card-body { flex: 1; min-width: 0; }
+  .safety-card-name { display: block; margin-bottom: 8px; font-size: 16px; font-weight: 800; overflow-wrap: anywhere; }
+  .safety-card .verdict-pair { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+  .safety-card .badge { padding: 5px 10px; white-space: normal; font-weight: 750; }
+  .safety-card-chevron { flex: none; color: var(--text); font-size: 22px; line-height: 1; }
+  .safety-icon { display: block; flex: none; }
+
+  .safety-missing, .safety-empty { padding: 32px 12px; text-align: center; }
+  .safety-missing-icon { display: grid; place-items: center; width: 76px; height: 76px; margin: 0 auto 20px; border-radius: 24px; background: var(--soft); color: var(--text); }
+  .reading .safety-missing h3, .reading .safety-empty h2 { margin: 0 0 10px; font-size: 32px; }
+  .reading .safety-missing p, .reading .safety-empty p { max-width: 620px; margin: 0 auto 18px; }
+  .safety-missing .link { display: inline; min-height: 0; text-decoration: underline; text-underline-offset: 3px; }
+
+  .safety-cta { margin-top: 32px; padding: 26px; border-radius: 24px; background: var(--mint); }
+  .safety-cta.banner { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+  .reading .safety-cta h2 { margin: 0 0 8px; font-size: 25px; }
+  .reading .safety-cta p { margin: 0; color: var(--text); font-size: 15px; }
+  .safety-cta-actions { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; flex: none; }
+  .safety-cta.banner .safety-cta-actions { align-items: flex-end; max-width: 300px; }
+  .safety-page .btn { border-radius: 14px; min-height: 52px; padding: 12px 22px; }
+  .safety-stores { display: flex; flex-wrap: wrap; gap: 0 18px; }
+  .safety-cta.aside { margin-top: 0; padding: 24px; background: var(--paper); border: 1px solid var(--line); border-radius: 20px; }
+  .reading .safety-cta.aside h2 { font-size: 19px; }
+  .reading .safety-cta.aside p { color: var(--muted); }
+  .safety-cta.aside .safety-cta-actions { margin-top: 16px; }
+
+  .safety-footnote { margin: 24px 0 0; padding-top: 20px; border-top: 1px solid var(--line); }
+  .reading p.safety-footnote { color: var(--faint); font-size: 12px; }
+  .safety-footnote .link { display: inline; min-height: 0; text-decoration: underline; text-underline-offset: 3px; }
+
+  /* The entry page. */
+  .safety-back { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; margin-bottom: 8px; color: var(--green); }
+  .safety-back:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .safety-article h1 { margin-bottom: 22px; overflow-wrap: anywhere; }
+  .reading .safety-draft { margin: -8px 0 18px; }
+  .safety-verdicts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  .safety-verdict { padding: 22px; border-radius: 20px; background: var(--tint); color: var(--signal); }
+  .reading .safety-verdict p { margin: 0; color: var(--signal); }
+  .reading .safety-verdict .safety-verdict-who { color: var(--muted); font-size: 12px; }
+  .reading .safety-verdict .safety-verdict-label { margin: 2px 0 10px; font-family: var(--font-display); font-size: 28px; font-weight: 800; line-height: 1.15; }
+  .reading .safety-verdict .safety-verdict-summary { font-size: 15px; line-height: 1.55; }
+  .reading p.safety-medicine-line { margin: 14px 0 0; color: var(--text); }
+
+  .safety-columns { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 32px; align-items: start; margin-top: 16px; }
+  .safety-main, .safety-aside { display: grid; gap: 16px; min-width: 0; }
+  .safety-block { padding: 24px; background: var(--paper); border: 1px solid var(--line); border-radius: 20px; }
+  .reading .safety-block h2 { margin: 0 0 12px; font-size: 25px; }
+  .reading .safety-block h3 { margin: 18px 0 8px; font-size: 19px; }
+  .reading .safety-block p, .safety-block .article-list { color: var(--text); font-size: 15px; }
+  .safety-block .article-list { color: var(--text); }
+  .reading .safety-why h3 { margin-top: 0; }
+  .safety-why + .safety-why { margin-top: 18px; }
+  .reading .safety-why p { margin: 0; }
+  .safety-eaten.call-now { border-color: var(--red); border-left: 5px solid var(--red); }
+  .reading .safety-eaten.call-now h2 { color: var(--red); }
+  .safety-lead + .safety-lead { margin-top: 12px; }
+  .reading .safety-lead p { margin: 0; }
+  .reading .safety-lead .safety-for { margin-bottom: 4px; color: var(--muted); font-size: 12px; }
+  .reading .safety-lead.call_now strong { color: var(--red); }
+  .reading .safety-toxin-link { margin: 18px 0 0; }
+  .safety-toxin-link .link { display: inline; min-height: 0; text-decoration: underline; text-underline-offset: 3px; }
+  .safety-sources ul { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+  .safety-sources a { color: var(--green-text); overflow-wrap: anywhere; }
+  .safety-sources a:hover { text-decoration: underline; }
+  .safety-about-link { display: inline-flex; align-items: center; min-height: 44px; margin-top: 12px; color: var(--green-text); font-size: 12px; text-decoration: underline; text-underline-offset: 3px; }
+
+  @media (max-width: 1100px) {
+    .safety-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  @media (max-width: 900px) {
+    .safety-columns { grid-template-columns: minmax(0, 1fr); }
+  }
+
+  @media (max-width: 760px) {
+    .safety-page h1 { font-size: 32px; letter-spacing: -.5px; }
+    .safety-hero { padding: 4px 0 22px; }
+    .safety-hero-art.art { display: none; }
+    .reading .safety-hero .short-answer { font-size: 15px; }
+    .safety-searchbox { padding: 18px; }
+    .safety-chip { padding: 10px 12px; }
+    .safety-grid { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+    .safety-card { padding: 16px; }
+    /* The whole catalogue on a phone: the two verdicts side by side, so 120 entries are not a 20 000 px scroll. */
+    .safety-category .safety-card { padding: 12px 14px; }
+    .safety-category .safety-card .verdict-pair { flex-direction: row; flex-wrap: wrap; }
+    .safety-category .safety-card-name { margin-bottom: 6px; }
+    .safety-cta.banner { display: block; padding: 20px; }
+    .safety-cta.banner .safety-cta-actions { align-items: flex-start; max-width: none; margin-top: 16px; }
+    .safety-cta .btn { width: 100%; }
+    .safety-cta-actions { align-items: stretch; }
+    .reading .safety-missing h3, .reading .safety-empty h2 { font-size: 26px; }
+    .safety-verdicts { grid-template-columns: minmax(0, 1fr); }
+    .safety-verdict, .safety-block { padding: 18px; }
+    .reading .safety-block h2, .reading .safety-sectionhead h2 { font-size: 22px; }
   }
 }

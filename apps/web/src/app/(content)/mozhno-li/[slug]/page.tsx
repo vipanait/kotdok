@@ -32,7 +32,7 @@ export default async function SafetyEntryPage({ params }: Props) {
   if (!entry) notFound()
 
   return (
-    <ArticleFrame crumbs={safetyCrumbs(entry)}>
+    <ArticleFrame crumbs={safetyCrumbs(entry)} className="safety-page">
       <SafetyArticle entry={entry} />
     </ArticleFrame>
   )
