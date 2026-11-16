@@ -14,7 +14,7 @@ import { Button } from '@/ui/Button'
 import { Field } from '@/ui/Field'
 import { Icon } from '@/ui/Icon'
 import { Text } from '@/ui/Text'
-import { colour, radius, space, urgency as urgencyScale } from '@/ui/theme'
+import { TAP_TARGET, colour, radius, space, urgency as urgencyScale } from '@/ui/theme'
 import { alertText, clearedAfterAnswer, conflictNotice, isOpen, showsBlock, suggestionsFor, threadNote } from './check-questions'
 
 /** A fresh key for a question; the platform's crypto where there is one. */
@@ -111,14 +111,14 @@ export function CheckQuestions({ check }: { check: SymptomCheckRecord }) {
         const tone = urgencyScale[item.alert === 'clinic_now' ? 'emergency' : 'urgent']
         return (
           <View key={item.id} style={styles.pair}>
-            <Text variant="caption" tone="faint">
-              {words.youAsked}
-            </Text>
-            <Text variant="bodyStrong">{item.question}</Text>
-            <Text variant="caption" tone="faint" style={styles.who}>
+            <View style={styles.question}>
+              <Text variant="caption" tone="muted">{words.youAsked}</Text>
+              <Text variant="bodyStrong">{item.question}</Text>
+            </View>
+            <Text variant="label" tone="accent" style={styles.who}>
               {words.lapka}
             </Text>
-            <Text>{item.answer}</Text>
+            <Text style={styles.answer}>{item.answer}</Text>
             {plate ? (
               <View style={[styles.plate, { backgroundColor: tone.background }]} accessible accessibilityRole="alert">
                 <View style={styles.plateHead}>
@@ -137,10 +137,10 @@ export function CheckQuestions({ check }: { check: SymptomCheckRecord }) {
 
       {pending !== null ? (
         <View style={styles.pair} accessibilityState={{ busy: true }}>
-          <Text variant="caption" tone="faint">
-            {words.youAsked}
-          </Text>
-          <Text variant="bodyStrong">{pending}</Text>
+          <View style={styles.question}>
+            <Text variant="caption" tone="muted">{words.youAsked}</Text>
+            <Text variant="bodyStrong">{pending}</Text>
+          </View>
           <Text variant="label" tone="muted" style={styles.who}>
             {words.answering}
           </Text>
@@ -155,10 +155,11 @@ export function CheckQuestions({ check }: { check: SymptomCheckRecord }) {
                 <Pressable
                   key={suggestion}
                   accessibilityRole="button"
+                  accessibilityState={{ selected: text === suggestion }}
                   onPress={() => setText(suggestion)}
-                  style={({ pressed }) => [styles.suggestion, { opacity: pressed ? 0.6 : 1 }]}
+                  style={({ pressed }) => [styles.suggestion, text === suggestion ? styles.suggestionSelected : null, { opacity: pressed ? 0.6 : 1 }]}
                 >
-                  <Text variant="label">{suggestion}</Text>
+                  <Text variant="label" tone={text === suggestion ? 'accent' : 'default'}>{suggestion}</Text>
                 </Pressable>
               ))}
             </View>
@@ -199,16 +200,17 @@ export function CheckQuestions({ check }: { check: SymptomCheckRecord }) {
 const styles = StyleSheet.create({
   block: {
     marginBottom: space.block,
-    padding: 16,
-    borderRadius: radius.card,
-    backgroundColor: colour.surface,
-    borderWidth: 1,
-    borderColor: colour.line,
+    marginTop: space.row,
+    paddingTop: space.block,
+    borderTopWidth: 1,
+    borderTopColor: colour.line,
     gap: 4,
   },
-  note: { marginBottom: 8 },
-  pair: { marginTop: 12, gap: 2 },
-  who: { marginTop: 6 },
+  note: { marginTop: 4, marginBottom: 8 },
+  pair: { marginTop: space.block, gap: 6 },
+  question: { padding: 14, borderRadius: radius.field, backgroundColor: colour.soft, gap: 4 },
+  who: { marginTop: 8 },
+  answer: { lineHeight: 24 },
   plate: { marginTop: 10, padding: 14, borderRadius: radius.field, gap: 10 },
   plateHead: { flexDirection: 'row', gap: 8, alignItems: 'flex-start' },
   plateText: { flex: 1 },
@@ -216,13 +218,16 @@ const styles = StyleSheet.create({
   suggestion: {
     paddingHorizontal: 12,
     paddingVertical: 10,
-    borderRadius: 999,
+    minHeight: TAP_TARGET,
+    justifyContent: 'center',
+    borderRadius: radius.field,
     borderWidth: 1,
     borderColor: colour.line,
     backgroundColor: colour.surface,
     maxWidth: '100%',
   },
-  field: { marginTop: 8, marginBottom: 8 },
+  suggestionSelected: { borderColor: colour.accent, backgroundColor: colour.accentSoft },
+  field: { marginTop: 12, marginBottom: 12 },
   error: { marginTop: 8 },
-  footnote: { marginTop: 10 },
+  footnote: { marginTop: 12 },
 })

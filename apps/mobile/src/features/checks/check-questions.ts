@@ -41,22 +41,8 @@ export function threadNote(
 ): string {
   if (thread.closed === 'limit' || thread.remaining === 0) return words.closedLimit
   if (!isOpen(thread, now)) return words.closedExpired
-  const when = timeZone ? formatDateTime(thread.open_until, locale, { timeZone, year: false }) : onThisPhone(thread.open_until, locale)
+  const when = formatDateTime(thread.open_until, locale, { timeZone, year: false })
   return `${words.remaining(thread.remaining, thread.limit)} · ${words.until(when)}`
-}
-
-/**
- * «15 ноября, 14:20» on the phone's own clock. The time is written by hand:
- * Hermes on the iOS 26 simulator gives `formatToParts` the day and the month
- * but no hour or minute, and `formatDateTime` then wrote «15 ноября, :».
- */
-function onThisPhone(iso: string, locale: string): string {
-  const moment = new Date(iso)
-  const day = new Intl.DateTimeFormat(locale === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long' }).format(moment)
-  const hours = moment.getHours()
-  const minutes = String(moment.getMinutes()).padStart(2, '0')
-  if (locale === 'ru') return `${day}, ${String(hours).padStart(2, '0')}:${minutes}`
-  return `${day}, ${hours % 12 || 12}:${minutes} ${hours < 12 ? 'AM' : 'PM'}`
 }
 
 /**
