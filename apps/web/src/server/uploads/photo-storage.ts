@@ -4,6 +4,8 @@ import { randomUUID } from 'node:crypto'
 import { PHOTO_LIMITS, type UploadGrant, type UploadRequest } from '@lapka/contracts'
 import type { createServiceClient } from '@/server/supabase/server'
 import { removeUserAvatars } from '@/server/pets/avatar-service'
+import { removeUserDocuments } from '@/server/documents/document-service'
+import { supabaseDocumentStorage } from '@/server/documents/document-storage'
 
 type SupabaseService = ReturnType<typeof createServiceClient>
 
@@ -120,6 +122,10 @@ export async function removeUserPhotos(supabase: SupabaseService, userId: string
 
   // The pets' own photos (FB-4) go in the same step.
   await removeUserAvatars(supabase, userId)
+
+  // So are their documents (DOC-1); the rows follow with the account's data.
+  const documents = await removeUserDocuments({ supabase, storage: supabaseDocumentStorage(supabase), userId })
+  if (!documents.ok) throw new Error('document remove failed')
 }
 
 /** How many batches one sweep takes on; a guard, not an expected volume. */

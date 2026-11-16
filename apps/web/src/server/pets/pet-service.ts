@@ -3,6 +3,8 @@ import 'server-only'
 import type { createServiceClient } from '@/server/supabase/server'
 import { loadAccount } from '@/server/auth/account-state'
 import { removeDeletedPetAvatar } from '@/server/pets/avatar-service'
+import { removePetDocuments } from '@/server/documents/document-service'
+import { supabaseDocumentStorage } from '@/server/documents/document-storage'
 import { sanitizePet } from '@/shared/utils/pet-utils'
 import type { Pet } from '@/shared/types'
 import { WEIGHT_MAX_KG } from '@lapka/contracts'
@@ -323,7 +325,8 @@ export async function softDeletePetAndChecks(
   if (!deletedPet.data) return { ok: false, reason: 'not_found' }
 
   // The photo goes with the pet (FB-4); the row keeps no path to it. Its
-  // checks and its photo are two separate clean-ups of a pet already gone.
+  // checks, its photo and its documents (DOC-1) are separate clean-ups of a
+  // pet already gone; a document left behind is found by the sweep.
   const avatarPath = (deletedPet.data as Pet).avatar_path ?? null
   const [checks] = await Promise.all([
     supabase
@@ -335,6 +338,9 @@ export async function softDeletePetAndChecks(
     avatarPath
       ? supabase.from('pets').update({ avatar_path: null }).eq('id', petId).then(() => removeDeletedPetAvatar(supabase, avatarPath))
       : null,
+    removePetDocuments({ supabase, storage: supabaseDocumentStorage(supabase), userId }, petId).then((removed) => {
+      if (!removed.ok) console.error('[pet-documents] remove_failed')
+    }),
   ])
 
   if (checks.error) return { ok: false, reason: 'storage_error', message: checks.error.message }
