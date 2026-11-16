@@ -81,6 +81,18 @@ describe('sanitizePet', () => {
     expect(result.notes).toHaveLength(300)
   })
 
+  it('reads «Нет» in the medicines as an empty list, not as a medicine called «Нет»', () => {
+    expect(sanitizePet({ name: 'Барсик', medications: ['Нет'] }).medications).toEqual([])
+    expect(sanitizePet({ name: 'Барсик', medications: [' нет. ', 'НЕТУ', 'ничего', 'Не принимает', 'none', 'No', 'n/a', '—'] }).medications).toEqual([])
+    expect(sanitizePet({ name: 'Барсик', medications: ['нет', 'Нефростоп'] }).medications).toEqual(['Нефростоп'])
+  })
+
+  it('keeps «нет» in allergies and conditions, where it says «none known» rather than «not filled in»', () => {
+    const result = sanitizePet({ name: 'Барсик', allergies: ['нет'], chronic_conditions: ['Нет'] })
+    expect(result.allergies).toEqual(['нет'])
+    expect(result.chronic_conditions).toEqual(['Нет'])
+  })
+
   it('defaults dog name when empty', () => {
     expect(sanitizePet({ species: 'dog', name: '  ' }).name).toBe('Пёс')
   })
