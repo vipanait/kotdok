@@ -128,8 +128,10 @@ export default function CheckQuestions({
             const plate = alertText(item.alert, petName, words)
             return (
               <li key={item.id}>
-                <p className="small check-questions-who">{words.youAsked}</p>
-                <p className="check-questions-question">{item.question}</p>
+                <div className="check-questions-question-block">
+                  <p className="small check-questions-who">{words.youAsked}</p>
+                  <p className="check-questions-question">{item.question}</p>
+                </div>
                 <p className="small check-questions-who">{words.lapka}</p>
                 <p className="check-questions-answer">{item.answer}</p>
                 {plate && (
@@ -154,8 +156,10 @@ export default function CheckQuestions({
           })}
           {pending !== null && (
             <li aria-busy>
-              <p className="small check-questions-who">{words.youAsked}</p>
-              <p className="check-questions-question">{pending}</p>
+              <div className="check-questions-question-block">
+                <p className="small check-questions-who">{words.youAsked}</p>
+                <p className="check-questions-question">{pending}</p>
+              </div>
               <p className="small check-questions-waiting">{words.answering}</p>
             </li>
           )}
@@ -167,7 +171,7 @@ export default function CheckQuestions({
           {suggestions.length > 0 && (
             <div className="chips check-questions-suggestions" role="group" aria-label={words.suggestionsLabel}>
               {suggestions.map((suggestion) => (
-                <button key={suggestion} type="button" className="chip" onClick={() => setText(suggestion)}>
+                <button key={suggestion} type="button" className="chip" aria-pressed={text === suggestion} onClick={() => setText(suggestion)}>
                   {suggestion}
                 </button>
               ))}
