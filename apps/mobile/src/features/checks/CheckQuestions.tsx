@@ -171,6 +171,9 @@ export function CheckQuestions({ check }: { check: SymptomCheckRecord }) {
             onChangeText={(next) => setText(next.slice(0, CHECK_QUESTION_MAX))}
             multiline
             style={styles.field}
+            // Inside the field, so it rides above the keyboard with it: the
+            // button under the field is hidden while typing.
+            action={{ icon: 'send', label: words.ask, onPress: () => void ask(text.trim()) }}
           />
           <Button
             title={words.ask}
