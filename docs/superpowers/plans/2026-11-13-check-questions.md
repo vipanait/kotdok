@@ -29,7 +29,7 @@
 - **Соседние сессии.** Экран результата и контракт результата одновременно меняет сессия про источники. В `CheckResultContent.tsx` и `CheckResult.tsx` — только импорт и одна строка вставки; свои стили — в новом файле.
 - **`packages/*` переносимы.** Без Next.js, серверных SDK и DOM.
 - **Next.js.** Перед правкой `apps/web` прочитать в `node_modules/next/dist/docs/` разделы о route handlers и о серверных/клиентских компонентах (`params` — это `Promise`).
-- **Миграция.** Один файл `supabase/migrations/20261113150000_check_questions.sql`. Локальный Supabase общий для всех worktree: перед созданием сверить `supabase migration list --local` и каталоги `supabase/migrations` соседних worktree, при совпадении метки взять следующую свободную. Применять `supabase migration up --local --workdir <этот worktree>`. `supabase db reset` и `supabase config push` не выполнять. В прод миграцию применяет владелец.
+- **Миграция.** Один файл `supabase/migrations/20261116130000_check_questions.sql`. Локальный Supabase общий для всех worktree: перед созданием сверить `supabase migration list --local` и каталоги `supabase/migrations` соседних worktree, при совпадении метки взять следующую свободную. Применять `supabase migration up --local --workdir <этот worktree>`. `supabase db reset` и `supabase config push` не выполнять. В прод миграцию применяет владелец.
 - **Доступ к базе.** Таблица — как `followup_cases` в `20261025120000_followup_cases.sql`: `user_id references auth.users(id) on delete cascade`, RLS включён, политик нет, `revoke all … from anon, authenticated`, триггер `refuse_late_writes`. Функция: `security definer`, `set search_path = public`, `revoke all … from public, anon, authenticated`, `grant execute … to service_role`.
 - **Тексты.** Все новые тексты интерфейса — в `ru` и `en` обоих клиентов. Тексты уровней срочности и дисклеймер результата не менять. Блок говорит на языке проверки (`check.locale`).
 - **Выпуск.** В main не мержить, EAS Update не выпускать.
@@ -79,7 +79,7 @@ export type CheckQuestion, CheckQuestionThread, CheckQuestionInput, CheckQuestio
 ### Task 2: Таблица и резервирование места
 
 **Files:**
-- Create: `supabase/migrations/20261113150000_check_questions.sql`
+- Create: `supabase/migrations/20261116130000_check_questions.sql`
 - Test: `apps/web/tests/integration/check-questions-sql.test.ts`
 
 **Interfaces — Produces:** таблица `public.check_questions` (колонки — раздел «Данные» спеки) и
