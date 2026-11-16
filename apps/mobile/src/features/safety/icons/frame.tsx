@@ -3,7 +3,7 @@ import Svg, { G } from 'react-native-svg'
 
 /**
  * The frame every «Можно ли» item picture shares, as its SVG file has it
- * (docs/design/pet-safety-v1/icons): a 52 × 52 box, no fill unless a shape
+ * (apps/web/public/images/safety): a 52 × 52 box, no fill unless a shape
  * says so, a thin rounded #4D6557 outline. The colours are the illustration's
  * own and stay so — a picture never takes the verdict's colour.
  */

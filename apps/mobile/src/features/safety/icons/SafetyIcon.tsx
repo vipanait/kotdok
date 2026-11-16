@@ -27,7 +27,7 @@ const ICONS: Record<SafetyIconName, ComponentType<SafetyIconProps>> = {
 }
 
 /**
- * A «Можно ли» item picture, drawn natively from docs/design/pet-safety-v1/icons.
+ * A «Можно ли» item picture, drawn natively from the designer's SVGs (served copy: apps/web/public/images/safety).
  * Pick the name with `safetyIconFor(slug, category)` or
  * `safetyCategoryIcon(category)` from @lapka/shared; `size` is a number of
  * points, `SAFETY_ICON_SIZE.card` (48) or `.chip` (24) as the design has it.
