@@ -6,6 +6,7 @@ import * as SecureStore from 'expo-secure-store'
 import { PD_CONSENT_VERSION } from '@lapka/contracts'
 import { DRAFT_KEY } from '@/features/checks/check-draft'
 import { createConsentMemory } from '@/features/consent/consent-memory'
+import { RECENT_KEY } from '@/features/safety/recent'
 import { env } from '@/lib/env'
 import { createSessionStorage, type SessionStorage } from '@/lib/session-storage'
 import { installWebCrypto } from '@/lib/webcrypto'
@@ -77,9 +78,9 @@ export const sessionStorage: SessionStorage = createSessionStorage({
 export const draftStorage: SessionStorage = createSessionStorage({
   storage: keychain,
   onWriteFailure: () => {},
-  // Named so signing out removes the draft even when the check tab was never
-  // opened since launch, and nothing here has read that key.
-  alwaysClear: [DRAFT_KEY],
+  // Named so signing out removes the draft — and the «Можно ли?» recent
+  // queries kept beside it — even when nothing this launch read those keys.
+  alwaysClear: [DRAFT_KEY, RECENT_KEY],
 })
 
 /**

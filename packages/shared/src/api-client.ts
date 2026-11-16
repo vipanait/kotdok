@@ -21,6 +21,9 @@ import {
   KeyReusedDetailsSchema,
   PetSchema,
   PublicProfileSchema,
+  SafetyAskResultSchema,
+  SafetyIndexSchema,
+  SafetyItemSchema,
   ReauthProofSchema,
   SymptomCheckRecordSchema,
   UploadGrantSchema,
@@ -35,6 +38,7 @@ import {
   type PetUpdateInput,
   type ProfileUpdateInput,
   type ReauthRequest,
+  type SafetyAskInput,
   type UploadRequest,
   type CompleteItemInput,
   type HealthEventInput,
@@ -428,6 +432,14 @@ export function createApiClient(options: ApiClientOptions) {
         z.array(HealthProductSchema),
         { signal: options.signal },
       ),
+
+    /** The «Можно ли» reference: the light list the phone searches, in the account's language. */
+    getSafetyIndex: () => call('/safety/index', SafetyIndexSchema),
+    /** One entry; with a pet, its species first and the notes from its profile. */
+    getSafetyItem: (slug: string, petId?: string) =>
+      call(`/safety/items/${encodeURIComponent(slug)}`, SafetyItemSchema, { query: { pet_id: petId } }),
+    /** The AI answer for what the reference does not hold, or the entry it turned out to be. */
+    askSafety: (body: SafetyAskInput) => call('/safety/ask', SafetyAskResultSchema, { method: 'POST', body }),
 
     requestUploads: (body: UploadRequest) =>
       call('/uploads', UploadGrantSchema, { method: 'POST', body }),

@@ -552,6 +552,10 @@ export const ru = {
       return cases ? `Проверяем у ${cases.genitive}` : `Питомец: ${pet}`
     },
     title: 'Проверка симптомов',
+    /** The form as a «Можно ли?» card opens it (handoff, «обычный экран формы проверки»). */
+    whatHappened: 'Что произошло?',
+    fromReference: 'Описание из справочника. Можно уточнить перед продолжением.',
+    continue: 'Продолжить',
     step: (current: number, of: number) => `Шаг ${current} из ${of}`,
     pet: 'Питомец',
     noPet: 'Без питомца',
@@ -1087,7 +1091,86 @@ export const ru = {
     expired: 'Сессия истекла. Войдите ещё раз.',
   },
 
-  tabs: { pets: 'Питомцы', check: 'Проверка', profile: 'Профиль' },
+  /** «Можно ли это питомцу» (docs/superpowers/specs/2026-11-13-pet-safety-design.md, «Приложение»). */
+  safety: {
+    title: 'Можно ли это питомцу?',
+    lead: 'От кусочка яблока до комнатного растения — узнайте, что безопасно для кошек и собак.',
+    /** The heading while a query is typed (handoff, «Уточнение: поиск…»). */
+    searchTitle: 'Поиск по справочнику',
+    search: 'Что питомец съел или может съесть',
+    searchPlaceholder: 'Виноград, лилия, ибупрофен',
+    clear: 'Очистить',
+    subject: 'Для кого смотрим',
+    choosePet: 'Выбрать питомца',
+    speciesSwitch: { cat: 'Кошка', dog: 'Собака' },
+    recent: 'Недавние',
+    popular: 'Часто спрашивают',
+    results: 'Результаты поиска',
+    allCategories: 'Все',
+    categories: vocab.ru.safetyCategories,
+    comingSoon: 'Справочник скоро появится',
+    nothingFoundBody: 'Попробуйте другое название. Или задайте вопрос ИИ.',
+    otherCategories: 'Искать во всех категориях',
+    notInCategory: (query: string, category: string) => `«${query}» нет в разделе «${category}»`,
+    notInCategoryBody: 'Есть в другом разделе справочника.',
+    comingSoonBody: 'А пока можно спросить ИИ. Его ответ будет помечен.',
+    loadFailed: 'Не удалось загрузить справочник',
+    nothingFound: 'Ничего не нашли',
+    askAi: 'Спросить ИИ',
+    aiLimit: 'до 10 ответов ИИ в сутки',
+    aiRemaining: (left: number) => `осталось ${left} из 10 на сегодня`,
+    asking: 'ИИ отвечает…',
+    aiBadge: 'Ответ ИИ, не из справочника',
+    unrecognizedTitle: 'Не удалось понять, что это',
+    unrecognizedBody: 'Назовите продукт, растение или вещество.',
+    newQuestion: 'Новый вопрос',
+    rateLimitedTitle: 'Лимит ответов ИИ исчерпан',
+    rateLimited: 'На сегодня ответы ИИ закончились. Справочник работает как обычно.',
+    backToReference: 'Вернуться к справочнику',
+    answerFailed: 'Не удалось загрузить ответ',
+    /** Under a failure whose cause is not known: it does not claim the network is down. */
+    failedBody: 'Попробуйте ещё раз. Если не получится, проверьте подключение к интернету.',
+    refineTitle: 'Можно попробовать иначе',
+    refineBody: 'Укажите точное название продукта или вещества.',
+    refine: 'Уточнить название',
+    otherSpecies: { cat: 'А для кошки?', dog: 'А для собаки?' },
+    /** Over the verdict: whom it is about. */
+    verdictFor: { cat: 'Кошкам', dog: 'Собакам' },
+    verdict: vocab.ru.safetyVerdict,
+    medicineLine: vocab.ru.safetyMedicineLine,
+    /** The short footnote and its «О материалах» sheet (SafetyFootnote). */
+    about: vocab.ru.safetyAbout,
+    allergy: (pet: string, allergy: string) => {
+      const cases = nameCase(pet)
+      return `У ${cases ? cases.genitive : pet} в анкете указана аллергия: ${allergy}`
+    },
+    allergyTitle: 'Сначала учтите аллергию',
+    allergyKeep: 'Общий ответ ниже не отменяет эту пометку.',
+    chronic: (pet: string) => {
+      const cases = nameCase(pet)
+      return `У ${cases ? cases.genitive : pet} указаны хронические болезни. Новые продукты лучше сначала обсудить с врачом.`
+    },
+    why: 'Почему',
+    signs: 'Признаки',
+    ifEaten: (pet: string | null) => (pet ? `Если ${pet} уже съел(а)` : 'Если питомец уже съел'),
+    callNow: 'Сразу позвоните в клинику, не ждите признаков.',
+    watch: 'Наблюдайте. Если появятся признаки — проверьте симптомы.',
+    firstSteps: 'Что сделать сразу',
+    avoid: 'Чего не делать',
+    checkSymptoms: 'Проверить симптомы',
+    addPetToCheck: 'Добавьте питомца, чтобы проверить симптомы',
+    sources: 'На чём основан ответ',
+    howPrepared: 'Как подготовлен материал',
+    loading: 'Загружаем…',
+    gone: 'Этой записи больше нет',
+    toSearch: 'К поиску',
+    replaceTitle: 'Заменить начатое описание?',
+    replaceBody: 'На форме проверки уже есть описание, которое вы начали. Его можно заменить или оставить как есть.',
+    replace: 'Заменить',
+    keep: 'Оставить',
+  },
+
+  tabs: { pets: 'Питомцы', check: 'Проверка', safety: 'Можно ли?', profile: 'Профиль' },
 
   urgency: vocab.ru.urgency,
 

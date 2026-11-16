@@ -1,5 +1,5 @@
-import { useCallback, useState } from 'react'
-import { router, useFocusEffect } from 'expo-router'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
 import type { Pet } from '@lapka/contracts'
 import { withFreshSession } from '@/lib/api'
 import { useCached } from '@/lib/query-cache'
@@ -11,6 +11,8 @@ import { pendingCheck, takeFinishedCheck } from '@/features/checks/pending-check
 import { emptyCheckForm, formToCheckInput, type CheckForm } from '@/features/checks/check-form'
 import { addPhotos, type PickedPhoto } from '@/features/checks/photos'
 import { pickPhotos } from '@/features/checks/pick-photos'
+import { prefillDecision } from '@/features/checks/check-draft'
+import { keepHandedOver, referenceMode } from '@/features/checks/reference-form'
 import { useCheckDraft } from '@/features/checks/use-check-draft'
 import { useCheckSubmission, useLiftedRefusal } from '@/features/checks/use-check-submission'
 import { usePetChoice, useRecordCaption } from '@/features/checks/use-check-pet'
@@ -23,6 +25,7 @@ import { CheckWaiting } from '@/features/checks/CheckWaiting'
 import { takeRecheck } from '@/features/followup/recheck-request'
 import { Button } from '@/ui/Button'
 import { Banner } from '@/ui/Card'
+import { ConfirmDialog } from '@/ui/Dialog'
 import { Screen } from '@/ui/Screen'
 import { FormSkeleton } from '@/ui/Skeleton'
 
@@ -34,11 +37,16 @@ export default function NewCheck() {
   const t = useText()
   const { session } = useAuth()
   const userId = session?.user.id ?? null
-  const { form, setForm, step, setStep, finished, keepDraft, forgetDraft } = useCheckDraft(userId)
+  const { form, setForm, step, setStep, finished, keepDraft, forgetDraft, draftRead } = useCheckDraft(userId)
   // Not part of the draft: picked photos are cache files that may not survive
   // a restart, and the draft lives in the keychain, which is for small values.
   const [photos, setPhotos] = useState<PickedPhoto[]>([])
   const [symptomsError, setSymptomsError] = useState<string | null>(null)
+  // What a «Можно ли?» card handed over, once taken: the form is drawn plainly
+  // (`CheckDescribeStep`'s `fromReference`) only while the description still holds
+  // its words (`referenceMode`). Forgotten as soon as they are erased, by a re-check,
+  // and by a fresh check; not part of the draft.
+  const [handedText, setHandedText] = useState<string | null>(null)
   const { recheckFor, openRecheck, dropRecheck } = useRecheck(t, form.petId, setForm, setStep)
   const submission = useCheckSubmission({ t, userId, finished, forgetDraft, dropRecheck })
   const { waiting, failure, focused, watch, reset } = submission
@@ -51,6 +59,7 @@ export default function NewCheck() {
     setPhotos([])
     setStep(1)
     setSymptomsError(null)
+    setHandedText(null)
   }, [finished, reset, setForm, setStep])
 
   // The pets through the cache shared with the pet list, refreshed on every
@@ -68,11 +77,48 @@ export default function NewCheck() {
   const balance = me.data
   usePetChoice(pets, form.petId, setForm, setStep)
 
+  /**
+   * «Проверить симптомы» on a «Можно ли?» card: the pet and «Питомец съел: …».
+   *
+   * Nothing is copied into state: the parameters are the pending hand-over,
+   * read once the stored draft has been read and the pets are known, and
+   * decided against the form as it is on this render — so a form emptied by
+   * this focus is seen as empty. A begun draft, or one about another pet, is
+   * replaced only when the person says so. The parameters are dropped once
+   * it is settled, so coming back to the tab does not hand the text over again.
+   */
+  const { prefill, petId: prefillPet } = useLocalSearchParams<{ prefill?: string; petId?: string }>()
+  const handedOver = prefill && draftRead && pets ? { text: prefill, petId: prefillPet || null } : null
+  const handOverDecision = handedOver ? prefillDecision(form, handedOver.text, handedOver.petId) : null
+
+  function settleHandOver() {
+    router.setParams({ prefill: undefined, petId: undefined })
+  }
+
+  /** The text in, and the card's pet chosen while it still exists — a deleted one is not swapped for another. */
+  function takeHandOver() {
+    if (!handedOver) return
+    const { text, petId } = handedOver
+    const known = petId && pets?.some((pet) => pet.id === petId) ? petId : null
+    setForm((current) => ({
+      ...current,
+      petId: known ?? current.petId,
+      symptoms: current.symptoms.startsWith(text) ? current.symptoms : text,
+    }))
+    setHandedText(text)
+    settleHandOver()
+  }
+
   function change(patch: Partial<CheckForm>) {
     setForm((current) => ({ ...current, ...patch }))
     // Retired by editing the description, the one field it is about: a red
     // «хотя бы 3 символа» under a paragraph reads as the paragraph being wrong.
     if ('symptoms' in patch) setSymptomsError(null)
+    // The card's words erased or written over: from here on it is the person's own check, drawn as usual.
+    if (patch.symptoms !== undefined) {
+      const symptoms = patch.symptoms
+      setHandedText((current) => keepHandedOver(current, symptoms))
+    }
   }
 
   useFocusEffect(
@@ -84,7 +130,11 @@ export default function NewCheck() {
       if (finished.current) startFresh()
       // After the emptying, or it would undo the pet the re-check is about.
       const asked = takeRecheck()
-      if (asked) openRecheck(asked)
+      if (asked) {
+        // A re-check is its own form, with the case's plaque and the picker: never the plain one.
+        setHandedText(null)
+        openRecheck(asked)
+      }
 
       const done = takeFinishedCheck(userId)
       if (done) {
@@ -99,6 +149,34 @@ export default function NewCheck() {
         void keepDraft()
       }
     }, [focused, finished, keepDraft, openRecheck, startFresh, userId, watch]),
+  )
+
+  // After the focus effect, so a form it empties is not filled first and then
+  // emptied; a check just sent waits for that emptying, and the next render
+  // takes it. Taken once per hand-over: the parameters go away a moment later.
+  const takenHandOver = useRef<string | null>(null)
+  const handOverKey = handedOver ? `${handedOver.petId ?? ''}|${handedOver.text}` : null
+  useEffect(() => {
+    if (handOverKey === null) takenHandOver.current = null
+    if (handOverDecision !== 'apply' || finished.current || takenHandOver.current === handOverKey) return
+    takenHandOver.current = handOverKey
+    takeHandOver()
+  })
+
+  const replaceDialog = (
+    <ConfirmDialog
+      visible={handOverDecision === 'ask'}
+      title={t.safety.replaceTitle}
+      message={t.safety.replaceBody}
+      confirmTitle={t.safety.replace}
+      cancelTitle={t.safety.keep}
+      confirmKind="primary"
+      onConfirm={() => {
+        startFresh()
+        takeHandOver()
+      }}
+      onCancel={settleHandOver}
+    />
   )
 
   useLiftedRefusal(submission, me.reload)
@@ -123,6 +201,8 @@ export default function NewCheck() {
     }
     await submission.submit(checked.value, photos, recheckFor?.caseId ?? null)
   }
+
+  const plain = referenceMode(handedText, form.symptoms, recheckFor !== null)
 
   // Before any early return: hooks run in the same order on every render.
   const withRecord = useRecordCaption(form.petId)
@@ -160,7 +240,11 @@ export default function NewCheck() {
   if (step === 1) {
     // Only the way on in the dock. This is a tab: the tab bar is the way out, and leaving keeps the draft.
     return (
-      <Screen title={t.check.title} scroll dock={<Button title={t.common.next} onPress={next} />}>
+      <Screen
+        title={t.check.title}
+        scroll
+        dock={<Button title={plain ? t.check.continue : t.common.next} onPress={next} />}
+      >
         <CheckDescribeStep
           pets={pets}
           form={form}
@@ -178,7 +262,9 @@ export default function NewCheck() {
             })
           }
           onRemovePhoto={(index) => setPhotos((current) => current.filter((_, i) => i !== index))}
+          fromReference={plain}
         />
+        {replaceDialog}
       </Screen>
     )
   }
@@ -200,6 +286,7 @@ export default function NewCheck() {
         onChange={change}
         onBack={() => goTo(1)}
       />
+      {replaceDialog}
     </Screen>
   )
 }

@@ -3,12 +3,23 @@ import { publicPageMetadata } from '@/shared/site-metadata'
 import Link from 'next/link'
 import ArticleFrame, { type Crumb } from '@/features/seo-content/components/ArticleFrame'
 import Disclaimer from '@/features/seo-content/components/Disclaimer'
+import { publishedEntries } from '@/features/safety/load'
+import { vocab } from '@lapka/shared'
 
-export const metadata: Metadata = publicPageMetadata({
-  path: '/o-materialah',
-  title: 'Как мы готовим материалы',
-  description: 'Как появляются статьи Лапки о симптомах и отравлениях у кошек и собак, на какие правила они опираются и почему не заменяют ветеринарного врача.',
-})
+/** Whether production shows any reference entry: until then the page does not speak of the reference. */
+function referencePublished(): boolean {
+  return publishedEntries().length > 0
+}
+
+export function generateMetadata(): Metadata {
+  return publicPageMetadata({
+    path: '/o-materialah',
+    title: 'Как мы готовим материалы',
+    description: referencePublished()
+      ? 'Как появляются статьи Лапки о симптомах и отравлениях у кошек и собак и справочник «Можно ли», на какие правила они опираются и почему не заменяют ветеринарного врача.'
+      : 'Как появляются статьи Лапки о симптомах и отравлениях у кошек и собак, на какие правила они опираются и почему не заменяют ветеринарного врача.',
+  })
+}
 
 const crumbs: Crumb[] = [{ href: '/o-materialah', name: 'О материалах' }]
 
@@ -45,6 +56,40 @@ export default function AboutArticles() {
             <a className="legal-mail" href="mailto:support@lapka.my">support@lapka.my</a>.
           </p>
         </section>
+        {referencePublished() ? (
+          // `mozhno-li` is where the footnote of every reference page («О материалах») leads.
+          <section id="mozhno-li">
+            <h2>Справочник «Можно ли»</h2>
+            {/* The full text behind that footnote (pet-safety-v1 handoff §8), the same words the app's sheet shows. */}
+            {vocab.ru.safetyAbout.paragraphs.map(paragraph => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+            <p>
+              Справочник отвечает, можно ли кошке или собаке продукт со стола, опасно ли комнатное растение, лекарство
+              для людей или бытовое вещество, и что сделать, если питомец уже съел. Ответ дан отдельно для кошек
+              и для собак: «Можно», «С осторожностью» или «Нельзя» у продуктов, «Безопасно», «С осторожностью» или
+              «Опасно» у растений, «Малый риск» или «Опасно» у бытовых веществ. Лекарства для людей всегда помечены
+              как опасные: их не дают питомцу без назначения врача.
+            </p>
+            <ul>
+              <li>
+                Черновик пишет языковая модель по ветеринарным источникам: спискам ASPCA Animal Poison Control,
+                ветеринарному справочнику MSD (Merck), Pet Poison Helpline и материалам Корнеллского университета.
+                Источники перечислены на каждой странице.
+              </li>
+              <li>
+                Два независимых круга проверки ИИ-агентами заново сверяют ответ с источниками. Если источники
+                расходятся или данных мало, ставится более строгий ответ.
+              </li>
+              <li>Редакция Лапки публикует ответ.</li>
+            </ul>
+            <p>
+              На сайте — только справочник. В приложении ответ показан для вида питомца, с напоминанием об аллергии
+              из анкеты и общим напоминанием при хронических болезнях, а о том, чего в справочнике нет, можно спросить
+              ИИ.
+            </p>
+          </section>
+        ) : null}
         <section>
           <h2>Пять уровней срочности</h2>
           <p>

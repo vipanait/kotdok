@@ -67,6 +67,7 @@ import {
   ReauthProofSchema,
   ReauthRequestSchema,
 } from './deletion'
+import { SafetyAskInputSchema, SafetyAskResultSchema, SafetyIndexSchema, SafetyItemSchema } from './safety'
 
 /**
  * The OpenAPI document is built from the same schemas the runtime validates
@@ -132,6 +133,10 @@ const COMPONENTS: Array<[string, z.ZodType]> = [
   ['AccountDeletionAccepted', AccountDeletionAcceptedSchema],
   ['AccountDeletionStatus', AccountDeletionStatusSchema],
   ['Health', HealthSchema],
+  ['SafetyIndex', SafetyIndexSchema],
+  ['SafetyItem', SafetyItemSchema],
+  ['SafetyAskInput', SafetyAskInputSchema],
+  ['SafetyAskResult', SafetyAskResultSchema],
 ]
 
 for (const [id, schema] of COMPONENTS) registry.add(schema, { id })
@@ -526,6 +531,41 @@ export function buildOpenApiDocument(): Record<string, unknown> {
             },
             ...commonErrors('bad_request'),
           },
+        },
+      },
+      '/safety/index': {
+        get: {
+          summary: 'The «Можно ли» reference as a light list to search, in the account\'s language',
+          description: 'Every entry with its names, aliases and the verdict for each species. Production lists published entries only.',
+          responses: { '200': json('SafetyIndex', 'The reference'), ...commonErrors() },
+        },
+      },
+      '/safety/items/{slug}': {
+        get: {
+          summary: 'One reference entry in the account\'s language',
+          description:
+            'With `pet_id`, the pet\'s species section comes first and `pet_notes` hold what its profile adds: an allergy ' +
+            'that names the entry, or a note about chronic conditions under a verdict that is not danger. Someone ' +
+            'else\'s pet, a deleted one and an unknown or unpublished slug are 404.',
+          parameters: [
+            { name: 'slug', in: 'path', required: true, schema: { type: 'string' } },
+            { name: 'pet_id', in: 'query', required: false, schema: { type: 'string', format: 'uuid' } },
+          ],
+          responses: { '200': json('SafetyItem', 'The entry'), ...commonErrors('bad_request', 'not_found') },
+        },
+      },
+      '/safety/ask': {
+        post: {
+          summary: 'Ask the AI about something the reference does not hold',
+          description:
+            'Body `{ query, pet_id }` or `{ query, species }`. The reference is searched again first, and again by the ' +
+            'name the model gives: a hit answers `{ source: \'catalog\', slug }`. Otherwise the model\'s answer after the ' +
+            'server\'s guards (`source: \'ai\'`), or `source: \'unrecognized\'` for what is not a food, plant or ' +
+            'substance. An answer is cached for 30 days per query, species and language; a cached answer and a ' +
+            'reference hit do not spend the daily limit of 10 model calls (`rate_limited` past it). Someone else\'s ' +
+            'or a deleted pet is 404.',
+          requestBody: body('SafetyAskInput'),
+          responses: { '200': json('SafetyAskResult', 'The answer'), ...commonErrors('bad_request', 'not_found') },
         },
       },
       '/pets/due': {

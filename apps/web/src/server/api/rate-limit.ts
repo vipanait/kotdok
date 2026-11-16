@@ -34,6 +34,11 @@ export const RATE_LIMITS = {
    * Cheap, but each one rewrites a phone's notifications.
    */
   followup_write: { limit: 60, windowSeconds: 60 * 60 },
+  /**
+   * «Можно ли»: a question the reference does not hold costs a model call. Per
+   * account and day; reference hits and cached answers do not spend it.
+   */
+  safety_ask: { limit: 10, windowSeconds: 24 * 60 * 60 },
   /** Pollable without a session, so it is limited by receipt, not by user. */
   deletion_status: { limit: 60, windowSeconds: 60 * 60 },
 } as const
@@ -44,6 +49,8 @@ export type RateLimitVerdict = {
   allowed: boolean
   remaining: number
   resetAt: string
+  /** Set when the limiter could not be read and allowed the request anyway: `remaining` is then a guess. */
+  degraded?: true
 }
 
 /**
@@ -72,7 +79,7 @@ export async function consumeRateLimit(
 
   if (error || !data) {
     console.error(`rate limit check failed for ${name}, allowing the request:`, error?.message)
-    return { allowed: true, remaining: limit, resetAt: new Date().toISOString() }
+    return { allowed: true, remaining: limit, resetAt: new Date().toISOString(), degraded: true }
   }
 
   const verdict = data as { allowed: boolean; remaining: number; reset_at: string }

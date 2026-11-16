@@ -102,6 +102,6 @@ export const config = {
   // policy by next.config.ts. `tests/server/security/proxy-matcher.test.ts`
   // and `content-paths.test.ts` hold the list to this.
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|api|auth/callback(?:/|$)|robots\\.txt$|sitemap\\.xml$|manifest\\.webmanifest$|icon\\.svg$|apple-icon\\.png$|opengraph-image|twitter-image|web-app-manifest-|images/|yandex_[0-9a-f]+\\.html$|(?:simptomy|otravlenie|o-materialah)(?:/|$)).*)',
+    '/((?!_next/static|_next/image|favicon.ico|api|auth/callback(?:/|$)|robots\\.txt$|sitemap\\.xml$|manifest\\.webmanifest$|icon\\.svg$|apple-icon\\.png$|opengraph-image|twitter-image|web-app-manifest-|images/|yandex_[0-9a-f]+\\.html$|(?:simptomy|otravlenie|o-materialah|mozhno-li)(?:/|$)).*)',
   ],
 }
