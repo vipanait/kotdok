@@ -883,7 +883,7 @@
   .document-pick { cursor: pointer; justify-self: start; }
   .document-pick:focus-within { outline: 2px solid var(--green); outline-offset: 2px; }
   .document-pick.is-disabled { cursor: default; opacity: 0.6; }
-  .document-notice { margin-top: 10px; }
+  .document-notice { display: grid; gap: 4px; margin-top: 10px; padding-left: 18px; list-style: none; }
 
   .document-sheets { display: grid; gap: 16px; margin: 0; padding: 0; list-style: none; }
   .document-sheet {
@@ -901,6 +901,10 @@
   .document-pdf { display: grid; gap: 10px; justify-items: start; }
   .document-details h2 { margin-bottom: 16px; font-size: 20px; }
   .document-page-view .section-aside { display: grid; gap: 12px; align-content: start; }
+  /* One column: the pages first, then «О документе» (the sections put their aside first). */
+  @media (max-width: 900px) {
+    .document-page-view .section-aside { order: 0; }
+  }
 
   .page-zoom {
     position: fixed;

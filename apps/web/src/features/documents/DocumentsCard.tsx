@@ -17,7 +17,7 @@ export default function DocumentsCard({ petId }: { petId: string }) {
     <section className="card health-section wide documents-card" aria-labelledby="health-documents-title">
       <div className="health-card-head">
         <h2 id="health-documents-title">{words.title}</h2>
-        <Link href={documentHref.list(petId)} className="link" aria-label={words.card.open}>
+        <Link href={documentHref.list(petId)} className="link" aria-label={dict.medicalRecord.allIn.replace('{section}', words.title)}>
           {dict.medicalRecord.all}
           <Icon name="arrow" />
         </Link>

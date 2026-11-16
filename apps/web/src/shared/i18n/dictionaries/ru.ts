@@ -1711,7 +1711,7 @@ const ru = {
     recheckNote: 'Опишите, что изменилось с прошлой проверки. Прошлую проверку и отметки мы добавим сами.',
     recheckRefused: 'Эту проверку уже нельзя связать с прошлым случаем. Её можно отправить как новую — без учёта прошлой.',
   },
-  // Questions after a result (CQ-02). The block speaks the language of the check.
+  // The pet's documents (DOC-1): the list, adding one, one document's page.
   documents: {
     title: 'Документы',
     backToRecord: 'Назад к медкарте',
@@ -1738,7 +1738,6 @@ const ru = {
     saved: { added: 'Документ сохранён', changed: 'Изменения сохранены', deleted: 'Документ удалён' },
     card: {
       body: 'Ветпаспорт, рецепты, выписки и анализы — фото страниц или PDF.',
-      open: 'Открыть документы',
     },
     upload: {
       title: 'Новый документ',
@@ -1817,6 +1816,7 @@ const ru = {
       notFoundBody: 'Его удалили, или ссылка неверна.',
     },
   },
+  // Questions after a result (CQ-02). The block speaks the language of the check.
   checkQuestions: {
     title: 'Уточнить по этой проверке',
     remaining: {

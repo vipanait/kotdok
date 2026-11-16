@@ -8,11 +8,11 @@ import { useTranslations } from '@/components/LocaleProvider'
 import Icon from '@/components/ui/Icon'
 import { useLeaveGuard } from '@/features/forms/use-leave-guard'
 import ConfirmDialog from '@/features/pets/ConfirmDialog'
-import { documentApi } from './document-api'
+import { browserApi } from '@/features/api/browser-api'
 import { documentHref } from './document-view'
 import PageList, { type ChosenPage } from './PageList'
-import { addPages, movePage, PageFileError, pictureRoom, preparePages, type PagesDropped } from './prepare-pages'
-import { uploadDocument, uploadFailure, type UploadProgress } from './upload-document'
+import { addPages, movePage, pictureRoom, preparePages, type PagesDropped } from './prepare-pages'
+import { putFile, uploadDocument, uploadFailure, type UploadProgress } from './upload-document'
 
 let nextPageId = 0
 
@@ -35,7 +35,7 @@ export default function DocumentUpload({ petId, petName }: { petId: string; petN
   const [kind, setKind] = useState<DocumentKind | null>(null)
   const [pages, setPages] = useState<ChosenPage[]>([])
   const [preparing, setPreparing] = useState(false)
-  const [notice, setNotice] = useState<string | null>(null)
+  const [notices, setNotices] = useState<string[]>([])
   const [errors, setErrors] = useState<{ kind?: string; pages?: string }>({})
   const [banner, setBanner] = useState<string | null>(null)
   const [progress, setProgress] = useState<UploadProgress | null>(null)
@@ -58,23 +58,27 @@ export default function DocumentUpload({ petId, petName }: { petId: string; petN
   async function pick(files: File[]) {
     if (files.length === 0) return
     setPreparing(true)
-    setNotice(null)
+    setNotices([])
     setBanner(null)
     try {
-      const room = pictureRoom(pages)
-      const prepared = await preparePages(files, room)
-      const pictures = files.filter((file) => file.type.startsWith('image/')).length
-      const incoming = prepared.map(chosen)
+      const prepared = await preparePages(files, pictureRoom(pages))
+      const incoming = prepared.pages.map(chosen)
       const result = addPages(pages, incoming)
       const kept = new Set(result.pages.map((page) => page.id))
       for (const page of [...pages, ...incoming]) if (!kept.has(page.id)) release(page)
       setPages(result.pages)
-      setErrors((current) => ({ ...current, pages: undefined }))
-      const dropped: PagesDropped = result.dropped ?? (pictures > room && !prepared.some((p) => p.contentType === 'application/pdf') ? 'limit' : null)
-      setNotice(dropped ? form.dropped[dropped] : null)
+      if (result.pages.length) setErrors((current) => ({ ...current, pages: undefined }))
+      // A PDF picked replaces the pictures, so pictures past the room did not matter.
+      const pdfPicked = prepared.pages.some((page) => page.contentType === 'application/pdf')
+      const dropped: PagesDropped = result.dropped ?? (prepared.overflow && !pdfPicked ? 'limit' : null)
+      // Every file that could not be a page is named; the others are kept.
+      setNotices([
+        ...prepared.problems.map((problem) => form.fileProblems[problem.reason].replace('{name}', problem.fileName)),
+        ...(dropped ? [form.dropped[dropped]] : []),
+      ])
     } catch (error) {
-      if (error instanceof PageFileError) setNotice(form.fileProblems[error.reason].replace('{name}', error.fileName))
-      else setBanner(form.errors.failed)
+      console.warn('[documents] pages not prepared', error)
+      setBanner(form.errors.failed)
     } finally {
       setPreparing(false)
     }
@@ -96,9 +100,9 @@ export default function DocumentUpload({ petId, petName }: { petId: string; petN
     }
     inFlight.current = true
     setBanner(null)
-    setNotice(null)
+    setNotices([])
     try {
-      const doc = await uploadDocument(documentApi(), petId, kind!, pages, setProgress)
+      const doc = await uploadDocument({ ...browserApi(), put: putFile }, petId, kind!, pages, setProgress)
       leave(`${documentHref.view(petId, doc.id)}?saved=added`)
     } catch (error) {
       inFlight.current = false
@@ -180,7 +184,13 @@ export default function DocumentUpload({ petId, petName }: { petId: string; petN
           </label>
           <span id={`${id}-pages-hint`} className="field-hint">{form.pagesHint}</span>
           {errors.pages && <span id={`${id}-pages-error`} className="field-error" role="alert">{errors.pages}</span>}
-          {notice && <p className="banner document-notice" role="status">{notice}</p>}
+          {notices.length > 0 && (
+            <ul className="banner document-notice" role="status">
+              {notices.map((text) => (
+                <li key={text}>{text}</li>
+              ))}
+            </ul>
+          )}
         </div>
 
         {banner && <p className="banner error record-form-error" role="alert">{banner}</p>}

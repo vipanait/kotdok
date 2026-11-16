@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useReducer, useRef } from 'react'
 import type { DocumentList, PetDocument } from '@lapka/contracts'
 import { initialRecordState, loadStep, recordReducer, type RecordState } from '@/features/medical-record/record-load'
-import { documentApi } from './document-api'
+import { browserApi } from '@/features/api/browser-api'
 
 /**
  * One read of the documents API in the record's load states: a skeleton, an
@@ -41,11 +41,11 @@ function useDocumentLoad<T>(read: () => Promise<T>, petId: string, label: string
 }
 
 export function useDocumentList(petId: string) {
-  const read = useCallback(() => documentApi().list(petId), [petId])
+  const read = useCallback(() => browserApi().listDocuments(petId), [petId])
   return useDocumentLoad<DocumentList>(read, petId, 'documents')
 }
 
 export function useDocument(petId: string, docId: string) {
-  const read = useCallback(() => documentApi().read(petId, docId), [petId, docId])
+  const read = useCallback(() => browserApi().getDocument(petId, docId), [petId, docId])
   return useDocumentLoad<PetDocument>(read, petId, 'document')
 }

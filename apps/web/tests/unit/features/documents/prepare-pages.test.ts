@@ -55,7 +55,9 @@ function pdf(name = 'passport.pdf', bytes = 5000): File {
 
 describe('preparePages', () => {
   it('shrinks a picture wider than 2000 to a long side of 2000, a JPEG of quality 0.8 on white', async () => {
-    const [page] = await preparePages([image('page.png', 4000, 3000, 'image/png')])
+    const {
+      pages: [page],
+    } = await preparePages([image('page.png', 4000, 3000, 'image/png')])
 
     expect(canvases).toHaveLength(1)
     expect(canvases[0]).toMatchObject({ width: 2000, height: 1500 })
@@ -72,42 +74,60 @@ describe('preparePages', () => {
 
   it('sends a small picture of a stored type as it is', async () => {
     const file = image('small.webp', 1200, 900, 'image/webp')
-    const [page] = await preparePages([file])
+    const { pages: [page] } = await preparePages([file])
     expect(canvases).toHaveLength(0)
     expect(page.blob).toBe(file)
     expect(page.contentType).toBe('image/webp')
   })
 
   it('re-encodes a small picture of a type the server does not store (HEIC) as JPEG', async () => {
-    const [page] = await preparePages([image('photo.heic', 1000, 800, 'image/heic')])
+    const { pages: [page] } = await preparePages([image('photo.heic', 1000, 800, 'image/heic')])
     expect(canvases[0]).toMatchObject({ width: 1000, height: 800 })
     expect(page.contentType).toBe('image/jpeg')
   })
 
   it('passes a PDF unchanged', async () => {
     const file = pdf()
-    const [page] = await preparePages([file])
+    const { pages: [page] } = await preparePages([file])
     expect(canvases).toHaveLength(0)
     expect(page).toEqual({ blob: file, contentType: 'application/pdf', name: 'passport.pdf' })
   })
 
   it('does not add a ninth picture', async () => {
     const files = Array.from({ length: 9 }, (_, i) => image(`p${i + 1}.jpg`, 800, 600))
-    const pages = await preparePages(files)
+    const { pages, overflow } = await preparePages(files)
     expect(pages.map((page) => page.name)).toEqual(['p1.jpg', 'p2.jpg', 'p3.jpg', 'p4.jpg', 'p5.jpg', 'p6.jpg', 'p7.jpg', 'p8.jpg'])
+    expect(overflow).toBe(true)
   })
 
   it('counts the room left by the pages already chosen', async () => {
-    const pages = await preparePages([image('a.jpg', 800, 600), image('b.jpg', 800, 600)], 1)
+    const { pages } = await preparePages([image('a.jpg', 800, 600), image('b.jpg', 800, 600)], 1)
     expect(pages.map((page) => page.name)).toEqual(['a.jpg'])
   })
 
-  it('refuses a picture the browser cannot read, a PDF over 10 MB and a file of another kind', async () => {
+  it('keeps the good files and names each one that cannot be a page', async () => {
+    sizes.set('broken.heic', 'broken')
+    const result = await preparePages([
+      image('a.jpg', 800, 600),
+      new File(['x'], 'broken.heic', { type: 'image/heic' }),
+      pdf('big.pdf', DOCUMENT_LIMITS.pdfMaxBytes + 1),
+      new File(['x'], 'notes.txt', { type: 'text/plain' }),
+      image('b.jpg', 800, 600),
+    ])
+    expect(result.pages.map((page) => page.name)).toEqual(['a.jpg', 'b.jpg'])
+    expect(result.problems.every((problem) => problem instanceof PageFileError)).toBe(true)
+    expect(result.problems.map((problem) => [problem.fileName, problem.reason])).toEqual([
+      ['broken.heic', 'unreadable'],
+      ['big.pdf', 'pdf_too_large'],
+      ['notes.txt', 'unsupported'],
+    ])
+    expect(result.overflow).toBe(false)
+  })
+
+  it('does not count a picture it could not read against the room', async () => {
     sizes.set('broken.jpg', 'broken')
-    await expect(preparePages([new File(['x'], 'broken.jpg', { type: 'image/jpeg' })])).rejects.toMatchObject({ reason: 'unreadable', fileName: 'broken.jpg' })
-    await expect(preparePages([pdf('big.pdf', DOCUMENT_LIMITS.pdfMaxBytes + 1)])).rejects.toBeInstanceOf(PageFileError)
-    await expect(preparePages([pdf('big.pdf', DOCUMENT_LIMITS.pdfMaxBytes + 1)])).rejects.toMatchObject({ reason: 'pdf_too_large' })
-    await expect(preparePages([new File(['x'], 'notes.txt', { type: 'text/plain' })])).rejects.toMatchObject({ reason: 'unsupported' })
+    const { pages } = await preparePages([new File(['x'], 'broken.jpg', { type: 'image/jpeg' }), image('a.jpg', 800, 600)], 1)
+    expect(pages.map((page) => page.name)).toEqual(['a.jpg'])
   })
 })
 

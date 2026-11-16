@@ -1,6 +1,5 @@
 import type { DocumentKind, PetDocument } from '@lapka/contracts'
-import { ApiError, apiFailure } from '@lapka/shared'
-import type { DocumentApi } from './document-api'
+import { ApiError, apiFailure, type ApiClient } from '@lapka/shared'
 import type { PreparedPage } from './prepare-pages'
 
 /**
@@ -9,6 +8,10 @@ import type { PreparedPage } from './prepare-pages'
  * A file the server refuses removes the document there; one that did not
  * reach storage leaves a pending upload the server sweeps away. Either way
  * nothing half-saved is listed.
+ *
+ * A `complete` that got no answer (a timeout, a dropped connection) may
+ * still have stored the document: it is read again before the failure is
+ * said, so a retry does not save it twice.
  */
 
 export class PageUploadError extends Error {
@@ -20,15 +23,37 @@ export class PageUploadError extends Error {
 
 export type UploadProgress = { step: 'start' } | { step: 'page'; n: number; total: number } | { step: 'check' }
 
+export type UploadDeps = Pick<ApiClient, 'createDocument' | 'completeDocument' | 'getDocument'> & {
+  /** One file straight to storage through its signed URL; false when it did not land. */
+  put: (url: string, headers: Record<string, string>, body: Blob) => Promise<boolean>
+}
+
+/** How long one page may take to reach storage: a photo of up to 5 MB, a PDF of up to 10 MB on a slow line. */
+export const PUT_TIMEOUT_MS = 120_000
+
+/** The browser's PUT to a signed storage URL, given up after `timeoutMs`. */
+export async function putFile(url: string, headers: Record<string, string>, body: Blob, timeoutMs: number = PUT_TIMEOUT_MS): Promise<boolean> {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), timeoutMs)
+  try {
+    const response = await fetch(url, { method: 'PUT', headers, body, credentials: 'omit', signal: controller.signal })
+    return response.ok
+  } catch {
+    return false
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
 export async function uploadDocument(
-  api: Pick<DocumentApi, 'create' | 'put' | 'complete'>,
+  api: UploadDeps,
   petId: string,
   kind: DocumentKind,
   pages: PreparedPage[],
   onProgress: (progress: UploadProgress) => void = () => {},
 ): Promise<PetDocument> {
   onProgress({ step: 'start' })
-  const grant = await api.create(petId, {
+  const grant = await api.createDocument(petId, {
     kind,
     files: pages.map((page) => ({ content_type: page.contentType, size_bytes: page.blob.size })),
   })
@@ -37,7 +62,15 @@ export async function uploadDocument(
     if (!(await api.put(upload.url, upload.headers, pages[index].blob))) throw new PageUploadError()
   }
   onProgress({ step: 'check' })
-  return api.complete(petId, grant.document_id)
+  try {
+    return await api.completeDocument(petId, grant.document_id)
+  } catch (error) {
+    if (apiFailure(error) !== 'offline') throw error
+    // No answer: the server may have stored it all the same.
+    const stored = await api.getDocument(petId, grant.document_id).catch(() => null)
+    if (stored && stored.status !== 'pending') return stored
+    throw error
+  }
 }
 
 /** The server's word on a refused file (`details.reason` of a 400). */

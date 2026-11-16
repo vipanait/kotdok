@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { DOCUMENT_KINDS, DOCUMENT_LIMITS, type DocumentKind, type DocumentPatch, type PetDocument } from '@lapka/contracts'
 import { apiFailure } from '@lapka/shared'
 import { useTranslations } from '@/components/LocaleProvider'
-import { documentApi } from './document-api'
+import { browserApi } from '@/features/api/browser-api'
 
 /**
  * «О документе»: its name, kind and date, changed in place. Only what
@@ -69,7 +69,7 @@ export default function DocumentDetailsForm({
     inFlight.current = true
     setSaving(true)
     try {
-      const saved = await documentApi().patch(petId, doc.id, change)
+      const saved = await browserApi().changeDocument(petId, doc.id, change)
       onSaved(saved)
     } catch (error) {
       const failure = apiFailure(error)

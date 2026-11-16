@@ -70,6 +70,11 @@ import {
   PastEpisodeListSchema,
   type FollowupCheckinInput,
   type FollowupEnableInput,
+  DocumentGrantSchema,
+  DocumentListSchema,
+  PetDocumentSchema,
+  type DocumentCreateInput,
+  type DocumentPatch,
 } from '@lapka/contracts'
 import { z } from 'zod'
 
@@ -337,6 +342,24 @@ export function createApiClient(options: ApiClientOptions) {
       call(`/pets/${id}/avatar`, PetSchema, { method: 'PUT', body: { path } }),
     removeAvatar: (id: string) => call(`/pets/${id}/avatar`, PetSchema, { method: 'DELETE' }),
     deletePet: (id: string) => call<void>(`/pets/${id}`, null, { method: 'DELETE' }),
+
+    /**
+     * The pet's documents (DOC-1). A new one: `createDocument` hands out a
+     * signed URL per file to PUT the bytes to, then `completeDocument` has the
+     * server check them (400 `bad_request` with `details.reason` for a refused
+     * file, 409 `conflict` `limit_reached` past 30). The read links inside a
+     * document expire within the hour: read it again rather than keep them.
+     */
+    listDocuments: (petId: string) => call(`/pets/${petId}/documents`, DocumentListSchema),
+    getDocument: (petId: string, docId: string) => call(`/pets/${petId}/documents/${docId}`, PetDocumentSchema),
+    createDocument: (petId: string, body: DocumentCreateInput) =>
+      call(`/pets/${petId}/documents`, DocumentGrantSchema, { method: 'POST', body }),
+    completeDocument: (petId: string, docId: string) =>
+      call(`/pets/${petId}/documents/${docId}/complete`, PetDocumentSchema, { method: 'POST' }),
+    changeDocument: (petId: string, docId: string, body: DocumentPatch) =>
+      call(`/pets/${petId}/documents/${docId}`, PetDocumentSchema, { method: 'PATCH', body }),
+    deleteDocument: (petId: string, docId: string) =>
+      call<void>(`/pets/${petId}/documents/${docId}`, null, { method: 'DELETE' }),
 
     /**
      * `today`: the owner's calendar day (`localToday()`) — the pet form's list

@@ -12,7 +12,7 @@ import { FormNotice, FormSkeleton } from '@/features/medical-record/form-parts'
 import { RecordProblem } from '@/features/medical-record/MedicalRecordScreen'
 import SavedNotice from '@/features/medical-record/SavedNotice'
 import ConfirmDialog from '@/features/pets/ConfirmDialog'
-import { documentApi } from './document-api'
+import { browserApi } from '@/features/api/browser-api'
 import DocumentDetailsForm from './DocumentDetailsForm'
 import { documentHref, documentMeta, documentTitle, type DocumentSaved } from './document-view'
 import PageZoom from './PageZoom'
@@ -62,7 +62,7 @@ function DocumentPage({ petId, loaded, saved }: { petId: string; loaded: PetDocu
     setDeleting(true)
     setDeleteError(undefined)
     try {
-      await documentApi().remove(petId, doc.id)
+      await browserApi().deleteDocument(petId, doc.id)
       router.push(`${documentHref.list(petId)}?saved=deleted`)
     } catch (error) {
       const failure = apiFailure(error)

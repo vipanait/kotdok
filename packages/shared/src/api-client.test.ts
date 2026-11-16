@@ -494,3 +494,80 @@ describe('api client features header', () => {
     expect(await headerOf(['pet-documents'])).toBe(`${fixed},pet-documents`)
   })
 })
+
+describe('pet documents (DOC-1)', () => {
+  const pet = '11111111-1111-4111-8111-000000000001'
+  const doc = '22222222-2222-4222-8222-000000000002'
+  const file = '33333333-3333-4333-8333-000000000003'
+  const stored = {
+    id: doc,
+    kind: 'vet_passport',
+    title: '',
+    document_date: null,
+    status: 'stored',
+    failure_code: null,
+    page_count: 2,
+    created_at: '2026-11-16T10:00:00.000Z',
+    files: [{ id: file, content_type: 'image/jpeg', url: 'https://storage.example/read', page_count: null }],
+    draft: null,
+    // A field a later server adds is dropped, not refused.
+    later_field: true,
+  }
+  const grant = {
+    document_id: doc,
+    uploads: [{ file_id: file, url: 'https://storage.example/put', method: 'PUT', headers: { 'content-type': 'image/jpeg' }, expires_at: '2026-11-16T10:15:00.000Z' }],
+  }
+
+  function recording(answers: Array<{ ok: boolean; status: number; json: () => Promise<unknown> }>) {
+    const seen: Array<{ method: string; url: string; body?: string }> = []
+    const fetch: FetchLike = async (url, init) => {
+      seen.push({ method: init?.method ?? 'GET', url: String(url), body: init?.body })
+      return answers.shift()!
+    }
+    return { api: createApiClient({ baseUrl: BASE, fetch }), seen }
+  }
+
+  it('lists, reads, creates, completes, changes and deletes on the documents paths', async () => {
+    const { api, seen } = recording([
+      ok({ documents: [stored], free_recognitions_left: 3, recognition_price: 0 }),
+      ok(stored),
+      { ok: true, status: 201, json: async () => grant },
+      ok(stored),
+      ok({ ...stored, title: 'Паспорт' }),
+      { ok: true, status: 204, json: async () => null },
+    ])
+
+    const list = await api.listDocuments(pet)
+    expect(list.documents[0]).not.toHaveProperty('later_field')
+    expect((await api.getDocument(pet, doc)).status).toBe('stored')
+    const body = { kind: 'vet_passport' as const, files: [{ content_type: 'image/jpeg' as const, size_bytes: 1000 }] }
+    expect((await api.createDocument(pet, body)).uploads[0].method).toBe('PUT')
+    expect((await api.completeDocument(pet, doc)).id).toBe(doc)
+    expect((await api.changeDocument(pet, doc, { title: 'Паспорт' })).title).toBe('Паспорт')
+    await expect(api.deleteDocument(pet, doc)).resolves.toBeUndefined()
+
+    const path = `${BASE}/api/v1/pets/${pet}/documents`
+    expect(seen.map(({ method, url }) => [method, url])).toEqual([
+      ['GET', path],
+      ['GET', `${path}/${doc}`],
+      ['POST', path],
+      ['POST', `${path}/${doc}/complete`],
+      ['PATCH', `${path}/${doc}`],
+      ['DELETE', `${path}/${doc}`],
+    ])
+    expect(JSON.parse(seen[2].body!)).toEqual(body)
+    expect(JSON.parse(seen[4].body!)).toEqual({ title: 'Паспорт' })
+  })
+
+  it('keeps a refused file’s reason in the error details', async () => {
+    const { api } = recording([
+      { ok: false, status: 400, json: async () => ({ error: { code: 'bad_request', message: 'The file was refused', request_id: 'r1', details: { reason: 'encrypted' } } }) },
+    ])
+    await expect(api.completeDocument(pet, doc)).rejects.toMatchObject({ code: 'bad_request', status: 400, details: { reason: 'encrypted' } })
+  })
+
+  it('refuses a document that does not match the contract', async () => {
+    const { api } = recording([ok({ ...stored, kind: 'tattoo' })])
+    await expect(api.getDocument(pet, doc)).rejects.toMatchObject({ name: 'ApiContractError' })
+  })
+})

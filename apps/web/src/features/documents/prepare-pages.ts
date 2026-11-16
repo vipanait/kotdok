@@ -37,26 +37,45 @@ export function isPdfPage(page: PreparedPage): boolean {
   return page.contentType === PDF
 }
 
+/** What `preparePages` made of a pick: the pages, and the files that could not be pages. */
+export type PreparedPick = { pages: PreparedPage[]; problems: PageFileError[]; overflow: boolean }
+
 /**
  * The picked files as pages, in the order picked. `room`: how many more
  * pictures fit beside the pages already chosen; the ones past it are not
- * read at all. A PDF is not counted against it (it stands alone, `addPages`).
+ * read at all (`overflow`). A PDF is not counted against it (it stands
+ * alone, `addPages`). A file that cannot be a page — one this browser cannot
+ * decode, a PDF over 10 MB, a text file — is reported and skipped; the
+ * others are kept.
  */
-export async function preparePages(files: File[], room: number = DOCUMENT_LIMITS.maxImages): Promise<PreparedPage[]> {
+export async function preparePages(files: File[], room: number = DOCUMENT_LIMITS.maxImages): Promise<PreparedPick> {
   const pages: PreparedPage[] = []
+  const problems: PageFileError[] = []
   let images = 0
+  let overflow = false
   for (const file of files) {
     if (isPdfFile(file)) {
-      if (file.size > DOCUMENT_LIMITS.pdfMaxBytes) throw new PageFileError('pdf_too_large', file.name)
-      pages.push({ blob: file, contentType: PDF, name: file.name })
+      if (file.size > DOCUMENT_LIMITS.pdfMaxBytes) problems.push(new PageFileError('pdf_too_large', file.name))
+      else pages.push({ blob: file, contentType: PDF, name: file.name })
       continue
     }
-    if (!file.type.startsWith('image/')) throw new PageFileError('unsupported', file.name)
-    if (images >= room) continue
-    images += 1
-    pages.push(await prepareImage(file))
+    if (!file.type.startsWith('image/')) {
+      problems.push(new PageFileError('unsupported', file.name))
+      continue
+    }
+    if (images >= room) {
+      overflow = true
+      continue
+    }
+    try {
+      pages.push(await prepareImage(file))
+      images += 1
+    } catch (error) {
+      if (!(error instanceof PageFileError)) throw error
+      problems.push(error)
+    }
   }
-  return pages
+  return { pages, problems, overflow }
 }
 
 async function prepareImage(file: File): Promise<PreparedPage> {

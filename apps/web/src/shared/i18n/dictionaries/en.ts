@@ -1672,7 +1672,7 @@ const en: Dictionary = {
     recheckNote: "Describe what has changed since the last check. We'll add the previous check and check-ins ourselves.",
     recheckRefused: "This check can no longer join the previous case. You can send it as a new check, without the previous one.",
   },
-  // Questions after a result (CQ-02). The block speaks the language of the check.
+  // The pet's documents (DOC-1): the list, adding one, one document's page.
   documents: {
     title: 'Documents',
     backToRecord: 'Back to the medical record',
@@ -1699,7 +1699,6 @@ const en: Dictionary = {
     saved: { added: 'Document saved', changed: 'Changes saved', deleted: 'Document deleted' },
     card: {
       body: 'Pet passport, prescriptions, discharge summaries and lab results — photos of pages or a PDF.',
-      open: 'Open documents',
     },
     upload: {
       title: 'New document',
@@ -1778,6 +1777,7 @@ const en: Dictionary = {
       notFoundBody: 'It was deleted, or the link is wrong.',
     },
   },
+  // Questions after a result (CQ-02). The block speaks the language of the check.
   checkQuestions: {
     title: 'Ask about this check',
     remaining: {
