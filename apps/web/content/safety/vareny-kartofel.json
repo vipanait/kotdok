@@ -24,37 +24,79 @@
   },
   "bySpecies": {
     "cat": {
-      "verdict": "safe",
+      "verdict": "caution",
       "summary": {
-        "ru": "Можно. Кусочек простого варёного картофеля — изредка. Сырой картофель — другое дело.",
-        "en": "Safe. A piece of plain boiled potato now and then. Raw potato is a different matter."
+        "ru": "С осторожностью. Кусочек простого варёного картофеля — изредка. Сырой картофель — другое дело.",
+        "en": "With caution. A piece of plain boiled potato now and then. Raw potato is a different matter."
       },
       "why": {
         "ru": "Варёный картофель в умеренном количестве питомцам подходит, а сырой может навредить — про сырой и зелёный картофель есть отдельная статья. Условия: простой, без соли, масла, молока и специй: молочное и жирное могут расстроить желудок, а много соли опасно. Жареный картофель и чипсы — уже жирное и солёное.",
         "en": "Cooked potato in moderation is fine for pets, while raw potato can cause problems; raw and green potato has its own entry. Conditions: plain, with no salt, butter, milk or spices: dairy and fat can upset the stomach, and a lot of salt is dangerous. Fried potato and crisps count as fatty and salty food."
       },
       "signs": {
-        "ru": [],
-        "en": []
+        "ru": [
+          "рвота",
+          "понос",
+          "вялость"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "lethargy"
+        ]
       },
-      "ifEaten": "none"
+      "ifEaten": "watch"
     },
     "dog": {
-      "verdict": "safe",
+      "verdict": "caution",
       "summary": {
-        "ru": "Можно. Кусочек простого варёного картофеля — изредка. Сырой картофель — другое дело.",
-        "en": "Safe. A piece of plain boiled potato now and then. Raw potato is a different matter."
+        "ru": "С осторожностью. Кусочек простого варёного картофеля — изредка. Сырой картофель — другое дело.",
+        "en": "With caution. A piece of plain boiled potato now and then. Raw potato is a different matter."
       },
       "why": {
         "ru": "Варёный картофель в умеренном количестве питомцам подходит, а сырой может навредить — про сырой и зелёный картофель есть отдельная статья. Условия: простой, без соли, масла, молока и специй: молочное и жирное могут расстроить желудок, а много соли опасно. Жареный картофель и чипсы — уже жирное и солёное.",
         "en": "Cooked potato in moderation is fine for pets, while raw potato can cause problems; raw and green potato has its own entry. Conditions: plain, with no salt, butter, milk or spices: dairy and fat can upset the stomach, and a lot of salt is dangerous. Fried potato and crisps count as fatty and salty food."
       },
       "signs": {
-        "ru": [],
-        "en": []
+        "ru": [
+          "рвота",
+          "понос",
+          "вялость"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "lethargy"
+        ]
       },
-      "ifEaten": "none"
+      "ifEaten": "watch"
     }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите остатки еды от питомца",
+      "Оставьте питомцу миску со свежей водой",
+      "Понаблюдайте за ним до конца дня",
+      "Если появились рвота, понос или вялость, позвоните в клинику"
+    ],
+    "en": [
+      "Put the rest of the food out of your pet’s reach",
+      "Make sure fresh water is available",
+      "Watch your pet for the rest of the day",
+      "If vomiting, diarrhoea or lethargy appear, call a clinic"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте картофель с солью, маслом, соусом, луком или чесноком",
+      "Не кормите этим вместо корма"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give potato with salt, butter, sauce, onion or garlic",
+      "Do not feed it instead of pet food"
+    ]
   },
   "sources": [
     {

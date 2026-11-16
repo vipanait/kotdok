@@ -20,20 +20,28 @@
   },
   "bySpecies": {
     "cat": {
-      "verdict": "safe",
+      "verdict": "caution",
       "summary": {
-        "ru": "Можно. Немного простых варёных макарон без соуса.",
-        "en": "Safe. A little plain boiled pasta with no sauce."
+        "ru": "С осторожностью. Немного простых варёных макарон без соуса, изредка.",
+        "en": "With caution. A little plain boiled pasta with no sauce, now and then."
       },
       "why": {
         "ru": "Простые варёные макароны — один из вариантов щадящей еды, которую ветеринары советуют и кошкам, и собакам при лёгком расстройстве желудка. Условия: без соуса, соли и масла, изредка и не вместо корма: кошке нужна мясная еда. Соусы с луком и чесноком опасны.",
         "en": "Plain cooked pasta is one of the bland-diet options that vets suggest for both cats and dogs with a mild stomach upset. Conditions: no sauce, salt or butter, now and then and not instead of cat food: a cat needs a meat diet. Sauces with onion and garlic are dangerous."
       },
       "signs": {
-        "ru": [],
-        "en": []
+        "ru": [
+          "рвота",
+          "понос",
+          "вялость"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "lethargy"
+        ]
       },
-      "ifEaten": "none"
+      "ifEaten": "watch"
     },
     "dog": {
       "verdict": "safe",
@@ -51,6 +59,32 @@
       },
       "ifEaten": "none"
     }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите остатки еды от питомца",
+      "Оставьте питомцу миску со свежей водой",
+      "Понаблюдайте за ним до конца дня",
+      "Если появились рвота, понос или вялость, позвоните в клинику"
+    ],
+    "en": [
+      "Put the rest of the food out of your pet’s reach",
+      "Make sure fresh water is available",
+      "Watch your pet for the rest of the day",
+      "If vomiting, diarrhoea or lethargy appear, call a clinic"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте макароны с солью, маслом, соусом, луком или чесноком",
+      "Не кормите этим вместо корма"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give pasta with salt, butter, sauce, onion or garlic",
+      "Do not feed it instead of pet food"
+    ]
   },
   "sources": [
     {

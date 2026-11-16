@@ -24,10 +24,10 @@
   },
   "bySpecies": {
     "cat": {
-      "verdict": "caution",
+      "verdict": "danger",
       "summary": {
-        "ru": "С осторожностью. Амариллис (гиппеаструм) ядовит для кошек и собак: обычно он вызывает рвоту и слюнотечение, а много растения или луковица опаснее.",
-        "en": "With caution. Amaryllis (hippeastrum) is poisonous to cats and dogs: it usually causes vomiting and drooling, while a lot of the plant or the bulb is more dangerous."
+        "ru": "Опасно. Амариллис (гиппеаструм) ядовит для кошек и собак, особенно луковица.",
+        "en": "Dangerous. Amaryllis (hippeastrum) is poisonous to cats and dogs, especially the bulb."
       },
       "why": {
         "ru": "ASPCA относит амариллис к ядовитым для кошек и собак: в нём ликорин и другие алкалоиды. Возможны рвота, слюнотечение, боль в животе, понос, вялость, потеря аппетита и дрожь. По данным Pet Poison Helpline, алкалоиды есть в листьях, стеблях и луковице, раздражающих кристаллов больше всего в луковице, а при большом количестве бывают судороги и падение давления. Позвоните в клинику, не дожидаясь признаков.",
@@ -52,10 +52,10 @@
       "ifEaten": "call_now"
     },
     "dog": {
-      "verdict": "caution",
+      "verdict": "danger",
       "summary": {
-        "ru": "С осторожностью. Амариллис (гиппеаструм) ядовит для кошек и собак: обычно он вызывает рвоту и слюнотечение, а много растения или луковица опаснее.",
-        "en": "With caution. Amaryllis (hippeastrum) is poisonous to cats and dogs: it usually causes vomiting and drooling, while a lot of the plant or the bulb is more dangerous."
+        "ru": "Опасно. Амариллис (гиппеаструм) ядовит для кошек и собак, особенно луковица.",
+        "en": "Dangerous. Amaryllis (hippeastrum) is poisonous to cats and dogs, especially the bulb."
       },
       "why": {
         "ru": "ASPCA относит амариллис к ядовитым для кошек и собак: в нём ликорин и другие алкалоиды. Возможны рвота, слюнотечение, боль в животе, понос, вялость, потеря аппетита и дрожь. По данным Pet Poison Helpline, алкалоиды есть в листьях, стеблях и луковице, раздражающих кристаллов больше всего в луковице, а при большом количестве бывают судороги и падение давления. Позвоните в клинику, не дожидаясь признаков.",
@@ -120,7 +120,7 @@
     "status": "published",
     "draftedBy": "model",
     "reviewedBy": "agent",
-    "reviewedAt": "2026-11-15",
-    "nextReviewAt": "2027-11-15"
+    "reviewedAt": "2026-11-13",
+    "nextReviewAt": "2027-11-13"
   }
 }

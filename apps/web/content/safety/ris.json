@@ -23,20 +23,28 @@
   },
   "bySpecies": {
     "cat": {
-      "verdict": "safe",
+      "verdict": "caution",
       "summary": {
-        "ru": "Можно. Немного простого варёного риса без соли и масла.",
-        "en": "Safe. A little plain boiled rice with no salt or butter."
+        "ru": "С осторожностью. Немного простого варёного риса без соли и масла, изредка.",
+        "en": "With caution. A little plain boiled rice with no salt or butter, now and then."
       },
       "why": {
         "ru": "Варёная курица или нежирный фарш с белым рисом — щадящая еда, которой ветеринары советуют кормить и кошек, и собак при лёгком расстройстве желудка. Условия: хорошо проваренный рис без соли, масла, специй, лука и чеснока, изредка и не вместо корма: кошке нужна мясная еда, а лакомства должны быть изредка.",
         "en": "Boiled chicken or lean mince with white rice is a bland meal that vets suggest for both cats and dogs with a mild stomach upset. Conditions: well-cooked rice with no salt, butter, spices, onion or garlic, now and then and not instead of cat food: a cat needs a meat diet, and treats should be occasional."
       },
       "signs": {
-        "ru": [],
-        "en": []
+        "ru": [
+          "рвота",
+          "понос",
+          "вялость"
+        ],
+        "en": [
+          "vomiting",
+          "diarrhoea",
+          "lethargy"
+        ]
       },
-      "ifEaten": "none"
+      "ifEaten": "watch"
     },
     "dog": {
       "verdict": "safe",
@@ -54,6 +62,32 @@
       },
       "ifEaten": "none"
     }
+  },
+  "firstSteps": {
+    "ru": [
+      "Уберите остатки еды от питомца",
+      "Оставьте питомцу миску со свежей водой",
+      "Понаблюдайте за ним до конца дня",
+      "Если появились рвота, понос или вялость, позвоните в клинику"
+    ],
+    "en": [
+      "Put the rest of the food out of your pet’s reach",
+      "Make sure fresh water is available",
+      "Watch your pet for the rest of the day",
+      "If vomiting, diarrhoea or lethargy appear, call a clinic"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте рис с солью, маслом, соусом, луком или чесноком",
+      "Не кормите этим вместо корма"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give rice with salt, butter, sauce, onion or garlic",
+      "Do not feed it instead of pet food"
+    ]
   },
   "sources": [
     {
