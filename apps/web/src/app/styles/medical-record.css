@@ -827,3 +827,98 @@
    */
   .vet-summary .vet-summary-footer { display: none; }
 }
+
+/*
+ * Pet documents (DOC-1): the list, a new document's pages, one document's
+ * pages and the page over the whole window. One column on a phone (375px).
+ */
+@layer components {
+  .documents-list { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+  .document-row {
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    border-radius: 20px;
+    color: var(--muted);
+  }
+  .document-row:hover { border-color: #CFC3B0; }
+  .document-row:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+  .document-row-text { display: grid; gap: 4px; min-width: 0; }
+  .document-row-text strong { color: var(--text); font-size: 16px; overflow-wrap: anywhere; }
+  .document-row-text small { font-size: 13px; overflow-wrap: anywhere; }
+  .document-thumb {
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 72px;
+    overflow: hidden;
+    border-radius: 10px;
+    background: var(--soft);
+  }
+  .document-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .document-thumb-pdf { font-size: 12px; font-weight: 800; color: var(--muted); }
+  .documents-empty .btn { justify-self: start; margin-top: 16px; }
+  .documents-full { margin-bottom: 16px; }
+  .documents-skeleton { height: 280px; border-radius: 24px; }
+  .documents-card-body { margin: 4px 0 8px; font-size: 14px; color: var(--muted); }
+
+  .document-form { max-width: 680px; }
+  .document-pages { display: grid; gap: 10px; margin: 4px 0 12px; padding: 0; list-style: none; }
+  .document-page {
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    padding: 8px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+  }
+  .document-page-name { display: grid; gap: 2px; min-width: 0; }
+  .document-page-name small { overflow: hidden; color: var(--muted); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+  .document-page-actions { display: flex; gap: 6px; }
+  .document-page-actions .btn.compact { min-width: 44px; padding: 8px 10px; }
+  .document-page-actions .icon { width: 16px; height: 16px; }
+  .document-pick { cursor: pointer; justify-self: start; }
+  .document-pick:focus-within { outline: 2px solid var(--green); outline-offset: 2px; }
+  .document-pick.is-disabled { cursor: default; opacity: 0.6; }
+  .document-notice { margin-top: 10px; }
+
+  .document-sheets { display: grid; gap: 16px; margin: 0; padding: 0; list-style: none; }
+  .document-sheet {
+    display: block;
+    width: 100%;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: #fff;
+    cursor: zoom-in;
+  }
+  .document-sheet:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+  .document-sheet img { display: block; width: 100%; height: auto; }
+  .document-pdf { display: grid; gap: 10px; justify-items: start; }
+  .document-details h2 { margin-bottom: 16px; font-size: 20px; }
+  .document-page-view .section-aside { display: grid; gap: 12px; align-content: start; }
+
+  .page-zoom {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    overflow: auto;
+    padding: 64px 16px 24px;
+    background: rgb(31 27 21 / 0.85);
+    text-align: center;
+  }
+  /* Larger than the window, to read the small print: twice a phone's width, up to 1400px. */
+  .page-zoom img { display: inline-block; width: min(1400px, 200%); max-width: none; height: auto; background: #fff; }
+  .page-zoom-close { position: fixed; top: 12px; right: 16px; z-index: 1; }
+
+  @media (max-width: 760px) {
+    .document-row { grid-template-columns: 48px minmax(0, 1fr) auto; gap: 12px; padding: 14px; }
+    .document-row .document-thumb, .document-page .document-thumb { width: 48px; height: 62px; }
+    .document-page { grid-template-columns: 48px minmax(0, 1fr); }
+    .document-page-actions { grid-column: 1 / -1; justify-content: flex-end; }
+  }
+}

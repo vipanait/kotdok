@@ -13,6 +13,7 @@ import WeightChart from './WeightChart'
 import TodayDoses from './TodayDoses'
 import { useTodayDoses } from './doses/use-today-doses'
 import { checkDayOf } from './visits/visit-view'
+import DocumentsCard from '@/features/documents/DocumentsCard'
 import { ActiveCaseCard, PastEpisodesCard, usePetFollowup } from '@/features/followup/PetFollowupCards'
 import {
   dueBlock,
@@ -121,6 +122,7 @@ export default function MedicalRecordView({
               href={sectionOpen('weight', overview.writable) ? medicalRecordHref.section(petId, 'weight') : null}
               dict={dict}
             />
+            {sectionOpen('documents', overview.writable) && <DocumentsCard petId={petId} />}
             <ChecksCard petId={petId} checks={checks} dict={dict} today={today} onRetry={onRetry} retrying={retrying} />
           </div>
         </div>

@@ -21,7 +21,8 @@ export const ROUTE_SLICES = {
   '(auth)': ['auth'],
   /** The pet form and the first steps; the record is a group below. */
   pets: ['pets', 'onboarding', 'firstSteps'],
-  'pets/[id]': ['medicalRecord', 'followup'],
+  /** The record, its sections and the pet's documents (DOC-1). */
+  'pets/[id]': ['medicalRecord', 'followup', 'documents'],
   check: ['check', 'followup'],
   checks: ['check', 'followup'],
   /** The statistics; `check` names the questionnaire's answers in the feeds. */

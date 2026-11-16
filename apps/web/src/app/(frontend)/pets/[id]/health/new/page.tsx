@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import CabinetShell from '@/components/cabinet/CabinetShell'
 import AddRecordChooser from '@/features/medical-record/AddRecordChooser'
+import { documentHref } from '@/features/documents/document-view'
 import { RECORD_TYPES, parseRecordType, type RecordType } from '@/features/medical-record/routes'
 import { NewEventScreen } from '@/features/medical-record/events/EventFormScreen'
 import { NewWeightScreen } from '@/features/medical-record/weight/WeightFormScreen'
@@ -93,7 +94,8 @@ export default async function NewRecordPage({
       {type ? (
         <NewRecordForm type={type} petId={id} pet={pet} today={today} fromCheck={fromCheck} formWeight={formWeight} />
       ) : (
-        <AddRecordChooser petId={id} petName={pet.name} types={RECORD_TYPES} dict={dict} />
+        // The site and its API are one deploy: documents are always stored (DOC-1).
+        <AddRecordChooser petId={id} petName={pet.name} types={RECORD_TYPES} documentHref={documentHref.add(id)} dict={dict} />
       )}
     </CabinetShell>
   )
