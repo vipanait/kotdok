@@ -73,7 +73,7 @@ export function Field({
    */
   fieldRef?: (field: FieldHandle | null) => void
   /** A button inside the field, after the text: the calendar of a date field. */
-  action?: { icon: IconName; label: string; onPress: () => void }
+  action?: { icon: IconName; label: string; onPress: () => void; disabled?: boolean }
   /** For a field that shows something of its own while it is being typed in, such as suggestions. */
   onFocus?: () => void
   onBlur?: () => void
@@ -150,7 +150,7 @@ export function Field({
             onPress={() => setRevealed((was) => !was)}
           />
         ) : null}
-        {action ? <IconButton icon={action.icon} label={action.label} onPress={action.onPress} /> : null}
+        {action ? <IconButton icon={action.icon} label={action.label} onPress={action.onPress} disabled={action.disabled} /> : null}
       </View>
       {error ? (
         <Text variant="caption" tone="danger" style={styles.errorText}>

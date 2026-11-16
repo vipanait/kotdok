@@ -1672,6 +1672,43 @@ const en: Dictionary = {
     recheckNote: "Describe what has changed since the last check. We'll add the previous check and check-ins ourselves.",
     recheckRefused: "This check can no longer join the previous case. You can send it as a new check, without the previous one.",
   },
+  // Questions after a result (CQ-02). The block speaks the language of the check.
+  checkQuestions: {
+    title: 'Ask about this check',
+    remaining: {
+      one: '{n} question of {limit} left',
+      few: '{n} questions of {limit} left',
+      many: '{n} questions of {limit} left',
+      other: '{n} questions of {limit} left',
+    },
+    until: 'until {when}',
+    youAsked: 'You asked',
+    lapka: 'Lapka',
+    suggestions: {
+      emergency: ['What should I do on the way to the clinic?', 'What should I bring?', 'What should I tell the vet first?'],
+      urgent: ['What should I do until the visit?', 'Can I feed and give water?', 'What should worry me before the visit?'],
+      watch: ['What should I watch over the next day?', 'Can I feed as usual?', 'When is it definitely time for a vet?'],
+      healthy: ['When does this stop being normal?', 'Should I change anything in care?', 'What is worth checking at a routine visit?'],
+    },
+    suggestionsLabel: 'Suggested questions',
+    fieldLabel: 'Your question',
+    placeholder: 'Your question…',
+    ask: 'Ask',
+    answering: 'Lapka is answering…',
+    note: 'Lapka does not diagnose or prescribe treatment.',
+    closedLimit: 'No questions are left for this check. If something has changed, make a new check.',
+    closedExpired: 'Questions can be asked within 48 hours of the check.',
+    failed: 'Could not answer. The question was not used up — please try again.',
+    tooShort: 'Write a question of at least three characters.',
+    stillAnswering: 'The answer to this question is still on its way. Reload the page in a minute.',
+    tooOften: 'Too many questions in a row. Please try later.',
+    alertToday: 'This changes the picture. Have your pet seen by a vet today.',
+    alertTodayNamed: 'This changes the picture. Have {name} seen by a vet today.',
+    alertNow: 'This may be dangerous. Go to a clinic now.',
+    findClinic: 'Find a clinic',
+    clinicSearchQuery: 'veterinary clinic',
+    recheck: 'Check again',
+  },
 }
 
 export default en

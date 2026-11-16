@@ -31,6 +31,8 @@ afterAll(async () => {
 const SERVICE_ONLY_TABLES = new Set([
   'api_rate_limits',
   'check_jobs',
+  // Questions about a check (CQ-01): the API reads and writes them.
+  'check_questions',
   'deletion_jobs',
   'financial_archive',
   // The follow-up loop: the server reads and writes them, the apps go through the API.
@@ -49,6 +51,7 @@ const SERVICE_ONLY_TABLES = new Set([
 const REQUIRED_TABLES = [
   'api_rate_limits',
   'check_jobs',
+  'check_questions',
   'credit_ledger',
   'deletion_jobs',
   'extra_check_requests',
@@ -134,6 +137,7 @@ const REQUIRED_FUNCTIONS = [
   'reopen_stuck_data_deletions',
   'request_account_deletion',
   'reserve_check_job_credit',
+  'reserve_check_question',
   'resolve_extra_check_request',
   'search_vet_knowledge',
   'set_followup_enabled',

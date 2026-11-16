@@ -4,6 +4,7 @@ import CheckResultContent from '@/features/symptom-check/CheckResultContent'
 import { requireCabinet } from '@/components/cabinet/require-cabinet'
 import { loadCheckResult } from '@/server/checks/load-check-pages'
 import { loadResultFollowup } from '@/server/checks/load-followup-pages'
+import { loadResultQuestions } from '@/server/checks/load-question-pages'
 import { getDictionary } from '@/server/i18n/get-dictionary'
 import { getLocale } from '@/server/i18n/get-locale'
 import { getTimeZone } from '@/server/i18n/get-time-zone'
@@ -20,11 +21,14 @@ export default async function CheckResultPage({ params }: { params: Promise<{ id
   const loaded = await loadCheckResult(cabinet.user.id, id)
   if (!loaded) notFound()
 
-  const [locale, timeZone, followup] = await Promise.all([
+  const [locale, timeZone, followup, thread, checkDict] = await Promise.all([
     getLocale(),
     getTimeZone(),
     // The reminder card or the case of a re-check; a check without a pet has neither.
     loaded.pet ? loadResultFollowup(cabinet.user.id, id) : Promise.resolve(null),
+    // Questions about the check (CQ-02), in the check's own language like its answers.
+    loadResultQuestions(cabinet.user.id, id),
+    getDictionary(loaded.check.locale),
   ])
   const dict = await getDictionary(locale)
 
@@ -37,6 +41,7 @@ export default async function CheckResultPage({ params }: { params: Promise<{ id
         locale={locale}
         timeZone={timeZone}
         followup={followup}
+        questions={thread ? { thread, words: checkDict.checkQuestions } : null}
       />
     </CabinetShell>
   )

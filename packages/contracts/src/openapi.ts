@@ -48,6 +48,7 @@ import {
   FollowupSnoozeInputSchema,
   PastEpisodeListSchema,
 } from './followup'
+import { CheckQuestionInputSchema, CheckQuestionResultSchema, CheckQuestionThreadSchema } from './check-questions'
 import { CheckHistoryPageSchema, SymptomCheckRecordSchema } from './check'
 import { CheckFeedbackSchema, ExtraCheckRequestStatusSchema, FeedbackInputSchema } from './credits'
 import {
@@ -120,6 +121,9 @@ const COMPONENTS: Array<[string, z.ZodType]> = [
   ['CheckFeedback', CheckFeedbackSchema],
   ['CheckFollowup', CheckFollowupSchema],
   ['FollowupEnableInput', FollowupEnableInputSchema],
+  ['CheckQuestionThread', CheckQuestionThreadSchema],
+  ['CheckQuestionInput', CheckQuestionInputSchema],
+  ['CheckQuestionResult', CheckQuestionResultSchema],
   ['FollowupCaseSummary', FollowupCaseSummarySchema],
   ['FollowupCase', FollowupCaseSchema],
   ['FollowupCaseList', FollowupCaseListSchema],
@@ -908,6 +912,34 @@ export function buildOpenApiDocument(): Record<string, unknown> {
           responses: {
             '200': json('CheckFollowup', 'Offer and case after the change'),
             ...commonErrors('bad_request', 'not_found', 'conflict'),
+          },
+        },
+      },
+      '/checks/{id}/questions': {
+        parameters: [idParam],
+        get: {
+          summary: 'The questions asked about this result, and whether more may be asked',
+          description:
+            'Up to three questions per check, free of credits, within 48 hours of it. Only answered questions are listed. ' +
+            '`closed` says why no more are taken: `limit` or `expired`.',
+          responses: {
+            '200': json('CheckQuestionThread', 'The thread'),
+            ...commonErrors('not_found'),
+          },
+        },
+        post: {
+          summary: 'Ask one question about this result and wait for the answer',
+          description:
+            'Answers in the response, usually within seconds; allow 75 seconds. `Idempotency-Key` is required: a retry ' +
+            'with the same key returns the stored answer. 409 when the limit is reached, the 48 hours have passed, the ' +
+            'same key is still being answered, or the key was used for another question ' +
+            '(`details.reason = idempotency_key_reused`): read the thread again. 503 when no answer could be produced; ' +
+            'the question is then not counted. An answer may carry `alert`, never stronger advice than that.',
+          parameters: [{ ...idempotencyParam, required: true }],
+          requestBody: body('CheckQuestionInput'),
+          responses: {
+            '200': json('CheckQuestionResult', 'The answer and the thread after it'),
+            ...commonErrors('bad_request', 'not_found', 'conflict', 'dependency_unavailable'),
           },
         },
       },

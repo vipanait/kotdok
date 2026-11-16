@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Client } from 'pg'
 import { createServiceClient } from '@/server/supabase/server'
-import { recordFollowupCheckin, setCheckFollowup } from '@/server/followup/followup-service'
+import { RECHECK_CONTEXT_MAX, recheckContext, recordFollowupCheckin, setCheckFollowup } from '@/server/followup/followup-service'
 import { PET_IDS, connect, seedFixtures, type SeededFixtures } from './fixtures'
 
 // FU-03: a paid re-check «с учётом прошлой», on the real database, with the model faked.
@@ -170,3 +170,63 @@ describe('a re-check with the previous one in mind', () => {
     expect(user).not.toContain('PREVIOUS CHECK')
   })
 })
+
+describe('the owner’s questions after the previous check (CQ-01, criterion 15)', () => {
+  /** Answered questions on the case's latest check, as the questions service stores them. */
+  async function asked(caseId: string, questions: { question: string; alert?: string; offTopic?: boolean }[]) {
+    const { rows } = await db.query<{ check_id: string }>(
+      `select origin_check_id as check_id from public.followup_cases where id = $1`,
+      [caseId],
+    )
+    let position = 0
+    for (const q of questions) {
+      position += 1
+      await db.query(
+        `insert into public.check_questions
+           (check_id, user_id, position, question, answer, alert, off_topic, client_key, locale, created_at, answered_at)
+         values ($1, $2, $3, $4, $5, $6, $7, $8, 'ru', now() + make_interval(secs => $9), now())`,
+        [rows[0]!.check_id, seeded.ownerAId, position, q.question, `MODEL ANSWER ${position}`, q.alert ?? 'none', q.offTopic ?? false, `key-asked-${position}0000`, position],
+      )
+    }
+  }
+
+  async function context(caseId: string): Promise<string> {
+    const result = await recheckContext(createServiceClient(), seeded.ownerAId, caseId, PET_IDS.aCat)
+    expect(result.ok).toBe(true)
+    return result.ok ? result.data.text : ''
+  }
+
+  it('adds the questions, quoted, in order, with their alerts, after the check-ins', async () => {
+    const caseId = await openCase()
+    await asked(caseId, [{ question: 'Можно ли кормить?' }, { question: 'Он не ест второй день', alert: 'see_vet_today' }])
+    const text = await context(caseId)
+    const lines = text.split('\n')
+    const header = lines.indexOf("Owner's questions after that check:")
+    expect(header).toBeGreaterThan(lines.findIndex((line) => line.startsWith('Owner check-ins since:')))
+    expect(lines.slice(header + 1)).toEqual(['- "Можно ли кормить?"', '- "Он не ест второй день" (alert: see_vet_today)'])
+  })
+
+  it('leaves out the model’s answers and off-topic questions', async () => {
+    const caseId = await openCase()
+    await asked(caseId, [{ question: 'Можно ли кормить?' }, { question: 'Какая завтра погода?', offTopic: true }])
+    const text = await context(caseId)
+    expect(text).not.toContain('MODEL ANSWER')
+    expect(text).not.toContain('погода')
+  })
+
+  it('cuts a long question to 150 characters and keeps the whole within the limit', async () => {
+    const caseId = await openCase()
+    await asked(caseId, [{ question: 'я'.repeat(400) }, { question: 'ю'.repeat(400) }, { question: 'э'.repeat(400) }])
+    const text = await context(caseId)
+    expect(text).toContain(`"${'я'.repeat(150)}…"`)
+    expect(Array.from(text).length).toBeLessThanOrEqual(RECHECK_CONTEXT_MAX)
+  })
+
+  it('reads as before for a case with no questions', async () => {
+    const caseId = await openCase()
+    const text = await context(caseId)
+    expect(text).not.toContain("Owner's questions")
+    expect(text.split('\n').at(-1)).toMatch(/^- .* UTC: worse, note /)
+  })
+})
+

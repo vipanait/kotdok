@@ -1,0 +1,84 @@
+/*
+ * «Уточнить по этой проверке» under a result (CQ-02): the thread, the plate
+ * under an alarming answer, the suggestions and the field. Built from the
+ * design system's card, chips, input and buttons; the plate takes its colours
+ * from the urgency classes (tokens.css).
+ */
+@layer components {
+  .check-questions h2 { margin-bottom: 8px; }
+  .check-questions-note { color: var(--muted); }
+
+  /* Under .result-layout, whose own list rules (indent, numbers, muted colour) are for the advice. */
+  .check-questions .check-questions-thread {
+    list-style: none;
+    margin: 24px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 24px;
+  }
+
+  .check-questions .check-questions-thread > li { display: grid; gap: 4px; margin: 0; padding: 0; color: var(--text); }
+  .check-questions-who { color: var(--faint); font-size: 12px; font-weight: 600; }
+  .check-questions-question-block { padding: 14px 16px; border-radius: 14px; background: var(--soft); }
+  .check-questions-question-block .check-questions-who { margin: 0 0 4px; }
+  .check-questions-who:not(:first-child) { margin-top: 12px; color: var(--green-text); }
+
+  .check-questions-question,
+  .check-questions-answer {
+    margin: 0;
+    color: var(--text);
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+  }
+
+  .check-questions-question { font-weight: 600; }
+  .check-questions-answer { line-height: 1.75; }
+  .check-questions-waiting { color: var(--muted); font-style: italic; }
+
+  .check-questions-alert {
+    margin-top: 10px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    background: var(--tint);
+  }
+
+  .check-questions-alert > p {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin: 0;
+    font-weight: 700;
+    color: var(--signal);
+  }
+
+  .check-questions-alert-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .check-questions-suggestions { margin-top: 20px; gap: 8px; }
+  .check-questions-suggestions .chip { min-height: 44px; max-width: 100%; padding: 10px 14px; border-radius: 14px; overflow-wrap: anywhere; text-align: left; font-size: 13px; }
+  .check-questions-suggestions .chip[aria-pressed="true"] { border-color: var(--green); background: var(--mint); color: var(--green-text); }
+
+  .check-questions-form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    align-items: end;
+    margin-top: 20px;
+  }
+
+  .check-questions-form textarea.input { min-height: 112px; resize: vertical; }
+
+  .check-questions-form .btn { justify-self: end; min-width: 160px; }
+
+  @media (max-width: 560px) {
+    .check-questions-form { grid-template-columns: 1fr; }
+    .check-questions-form .btn { width: 100%; }
+  }
+
+  .check-questions-error { margin-top: 12px; }
+  .check-questions-footnote { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
+}

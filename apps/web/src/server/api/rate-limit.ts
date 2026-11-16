@@ -35,6 +35,12 @@ export const RATE_LIMITS = {
    */
   followup_write: { limit: 60, windowSeconds: 60 * 60 },
   /**
+   * A question about a check (CQ-01) costs a model call and no credit. A check
+   * takes three, so this is some six checks' worth an hour: it only stops a
+   * loop of retries.
+   */
+  check_question_create: { limit: 20, windowSeconds: 60 * 60 },
+  /**
    * «Можно ли»: a question the reference does not hold costs a model call. Per
    * account and day; reference hits and cached answers do not spend it.
    */
