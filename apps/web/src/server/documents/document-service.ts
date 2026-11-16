@@ -421,8 +421,6 @@ export async function sweepDocuments(deps: DocumentDeps, now: Date = new Date(),
         .map((file: { object_path: string }) => file.object_path),
     )
     removed += goneIds.size
-    // Nothing went: the batch is all completed documents, and would come up again.
-    if (goneIds.size === 0) break
   }
 
   for (let i = 0; i < 50; i++) {

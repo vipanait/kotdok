@@ -181,6 +181,11 @@ export type ApiClientOptions = {
   baseUrl: string
   /** Returns the current access token, or null when signed out. */
   getAccessToken?: () => Promise<string | null> | string | null
+  /**
+   * Features this client reads beyond the ones every client does, sent in
+   * X-Lapka-Features after them. A client opts in to a feature it can show.
+   */
+  features?: readonly string[]
   /** Injectable for tests; defaults to the platform fetch. */
   fetch?: FetchLike
   /**
@@ -238,7 +243,7 @@ export function createApiClient(options: ApiClientOptions) {
     // same goes for the follow-up case on a check.
     const headers: Record<string, string> = {
       accept: 'application/json',
-      [FEATURES_HEADER]: `${PET_DATES_FEATURE},${PET_AVATAR_FEATURE},${FOLLOWUP_FEATURE}`,
+      [FEATURES_HEADER]: [PET_DATES_FEATURE, PET_AVATAR_FEATURE, FOLLOWUP_FEATURE, ...(options.features ?? [])].join(','),
       ...request.headers,
     }
 

@@ -144,7 +144,7 @@ export async function getVetSummary(
   // The checks are read alongside the record: neither needs the other, and
   // a pet that is not the caller's shows in the overview's answer.
   const [overview, { data: checks, error }] = await Promise.all([
-    getHealthOverview(supabase, userId, petId, today),
+    getHealthOverview(supabase, userId, petId, today, { withDocuments: true }),
     supabase
       .from('symptom_checks')
       .select('id, created_at, urgency, symptoms_input')

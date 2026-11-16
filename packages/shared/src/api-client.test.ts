@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isKnownErrorCode } from '@lapka/contracts'
+import { FEATURES_HEADER, isKnownErrorCode } from '@lapka/contracts'
 import { ApiError, ApiTimeoutError, createApiClient, isKeyReused, type AbortSignalLike, type FetchLike } from './api-client'
 
 const BASE = 'https://example.test'
@@ -474,5 +474,23 @@ describe('pet safety reference', () => {
     const { api } = recording({ ...entry, added_later: true })
 
     await expect(api.getSafetyItem('morkov')).resolves.toEqual(entry)
+  })
+})
+
+describe('api client features header', () => {
+  const headerOf = async (features?: readonly string[]) => {
+    let seen: Record<string, string> = {}
+    const fetch: FetchLike = async (_url, init) => {
+      seen = (init?.headers ?? {}) as Record<string, string>
+      return ok([])
+    }
+    await createApiClient({ baseUrl: BASE, fetch, features }).listPets().catch(() => undefined)
+    return seen[FEATURES_HEADER]
+  }
+
+  it('sends the fixed list alone, and the extra features only when given', async () => {
+    const fixed = await headerOf()
+    expect(fixed).toBe('pet-dates,pet-avatar,followup')
+    expect(await headerOf(['pet-documents'])).toBe(`${fixed},pet-documents`)
   })
 })

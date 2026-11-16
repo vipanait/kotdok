@@ -12,6 +12,8 @@ import {
   type DocumentGrant,
 } from '@lapka/contracts'
 import { OWNER_A, PET_IDS, bearerRequest, connect, seedFixtures, signIn, type SeededFixtures } from './fixtures'
+import { createServiceClient } from '@/server/supabase/server'
+import { getHealthOverview } from '@/server/medical-record/overview-service'
 import { DOCUMENT_BUCKET } from '@/server/documents/document-storage'
 import { GET as listRoute, POST as createRoute } from '@/app/(backend)/api/v1/pets/[id]/documents/route'
 import { DELETE as deleteRoute, GET as readRoute, PATCH as patchRoute } from '@/app/(backend)/api/v1/pets/[id]/documents/[docId]/route'
@@ -241,5 +243,15 @@ describe('documents API', () => {
     expect(await read({})).not.toContain('documents')
     expect(await read({ [FEATURES_HEADER]: 'pet-avatar' })).not.toContain('documents')
     expect(await read({ [FEATURES_HEADER]: `pet-avatar, ${FEATURE_PET_DOCUMENTS}` })).toContain('documents')
+  })
+
+  it('the overview a web page loads server-side lists documents as writable', async () => {
+    const load = async (options?: { withDocuments?: boolean }) => {
+      const result = await getHealthOverview(createServiceClient(), seeded.ownerAId, PET_IDS.aCat, '2026-11-16', options)
+      if (!result.ok) throw new Error(result.reason)
+      return result.data.writable
+    }
+    expect(await load()).not.toContain('documents')
+    expect(await load({ withDocuments: true })).toContain('documents')
   })
 })

@@ -20,7 +20,7 @@ export default async function FirstRecordPage({ params }: { params: Promise<{ id
   const { cabinet, pet, dict } = await openPetPage(id, `/pets/${id}/first-record`)
   const service = createServiceClient()
   const [overview, [photoUrl]] = await Promise.all([
-    getHealthOverview(service, cabinet.user.id, id, await getOwnerToday()),
+    getHealthOverview(service, cabinet.user.id, id, await getOwnerToday(), { withDocuments: true }),
     signAvatars(service, [pet.avatar_path ?? null]),
   ])
   // A record that cannot be read offers the three records anyway: each form checks for itself.

@@ -27,7 +27,12 @@ export function documentFailure(requestId: string, reason: DocumentFailure): Nex
     case 'unsupported_media_type':
     case 'payload_too_large':
       return apiError(requestId, 'bad_request', 'The file was refused', { reason })
-    default:
+    case 'storage_error':
       return apiError(requestId, 'dependency_unavailable', 'Storage is unavailable')
+    default: {
+      // A reason added to the service without a status here fails to compile.
+      const unmapped: never = reason
+      return unmapped
+    }
   }
 }

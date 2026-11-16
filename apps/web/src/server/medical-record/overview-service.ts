@@ -33,11 +33,14 @@ export async function getHealthOverview(
   userId: string,
   petId: string,
   today: string = utcToday(),
-  /** The pet's row when the caller has just read it (the analysis), so it is not read twice. */
-  loaded?: Pet,
-  /** The client lists the `pet-documents` feature: `documents` joins `writable`. */
-  withDocuments = false,
+  options: {
+    /** The pet's row when the caller has just read it (the analysis), so it is not read twice. */
+    loaded?: Pet
+    /** The client lists the `pet-documents` feature: `documents` joins `writable`. */
+    withDocuments?: boolean
+  } = {},
 ): Promise<PetResult<HealthOverview> & { avatar_path?: string | null }> {
+  const { loaded, withDocuments = false } = options
   const pet = loaded ? { ok: true as const, data: loaded } : await getPet(supabase, userId, petId)
   if (!pet.ok) return pet
 

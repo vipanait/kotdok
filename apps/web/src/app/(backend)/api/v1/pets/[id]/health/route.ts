@@ -22,7 +22,9 @@ export const GET = withApiAuth(async (request, context: ApiContext, params: Para
   const refused = readUuidParam(id, context)
   if (refused) return refused
 
-  const result = await getHealthOverview(createServiceClient(), context.account.userId, id, requestToday(request.nextUrl), undefined, reads(request, FEATURE_PET_DOCUMENTS))
+  const result = await getHealthOverview(createServiceClient(), context.account.userId, id, requestToday(request.nextUrl), {
+    withDocuments: reads(request, FEATURE_PET_DOCUMENTS),
+  })
   if (!result.ok) return serviceFailureResponse(context.requestId, result.reason)
 
   return apiSuccess(context.requestId, { ...result.data, pet: await presentPet(request, createServiceClient(), result.data.pet, result.avatar_path ?? null) })
