@@ -11,13 +11,14 @@ export interface Crumb {
 
 /**
  * Header, breadcrumbs and footer of an article: the site's own header and
- * footer, the footer in its articles variant.
+ * footer, the footer in its articles variant. `className` adds a section's
+ * own class to the main column (the «Можно ли» pages are wider).
  */
-export default function ArticleFrame({ crumbs, children }: { crumbs?: Crumb[]; children: ReactNode }) {
+export default function ArticleFrame({ crumbs, className, children }: { crumbs?: Crumb[]; className?: string; children: ReactNode }) {
   return (
     <>
       <PublicHeader dict={ru} account="sign-in" />
-      <main className="reading article">
+      <main className={className ? `reading article ${className}` : 'reading article'}>
         {crumbs && crumbs.length > 0 && (
           <nav aria-label="Навигация по разделу" className="crumbs">
             <ol>

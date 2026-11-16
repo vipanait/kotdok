@@ -12,12 +12,19 @@ import { Text } from '@/ui/Text'
 import { colour, radius, space } from '@/ui/theme'
 import type { CheckForm } from './check-form'
 import type { PickedPhoto } from './photos'
+import { referencePetLine } from './reference-form'
 import type { Recheck } from './use-recheck'
 
 /**
  * The check's first step: which animal, what is wrong in words, and photos.
  * The content only: the check tab keeps one `Screen` across its steps, and
  * its dock holds the way on.
+ *
+ * Opened from a «Можно ли?» card (`fromReference`) the same step is drawn
+ * plainly, as the owner chose (pet-safety handoff, «обычный экран формы
+ * проверки»): no step counter or pet picker — the card's pet and its species
+ * on a line under the title — «Что произошло?» over the description the card
+ * began, and the reference's note under it instead of the general hint.
  */
 export function CheckDescribeStep({
   pets,
@@ -32,6 +39,7 @@ export function CheckDescribeStep({
   onDropRecheck,
   onAddPhotos,
   onRemovePhoto,
+  fromReference = false,
 }: {
   pets: Pet[]
   form: CheckForm
@@ -48,19 +56,25 @@ export function CheckDescribeStep({
   onDropRecheck: () => void
   onAddPhotos: (source: 'camera' | 'library') => void
   onRemovePhoto: (index: number) => void
+  /** Opened by «Проверить симптомы» on a «Можно ли?» card, and the description still begins with its words. */
+  fromReference?: boolean
 }) {
   const t = useText()
   const chosen = pets.find((pet) => pet.id === form.petId)
   return (
     <StepSlide from={from}>
-      <Steps current={1} of={2} label={t.check.step} />
+      {fromReference ? null : <Steps current={1} of={2} label={t.check.step} />}
 
       {/* Right under the steps, where a choice is looked for. With several
           animals, a sheet rather than a row of names, which stops fitting
           as soon as somebody has a few. With one there is nothing to
           choose: a quiet line, not its name in the middle of the screen,
           the most valuable place on it (FB-1/05). */}
-      {pets.length > 1 ? (
+      {fromReference && chosen ? (
+        <Text tone="muted" style={styles.referencePet}>
+          {referencePetLine(chosen.name, t.safety.speciesSwitch[chosen.species])}
+        </Text>
+      ) : pets.length > 1 ? (
         <Select
           label={t.check.pet}
           allowNone={false}
@@ -73,7 +87,7 @@ export function CheckDescribeStep({
           {t.check.forPet(chosen?.name ?? pets[0].name)}
         </Text>
       )}
-      {withRecord ? (
+      {withRecord && !fromReference ? (
         <Text variant="caption" tone="muted" style={styles.recordCaption}>
           {t.check.recordCaption}
         </Text>
@@ -104,17 +118,18 @@ export function CheckDescribeStep({
       ) : null}
 
       <Field
-        label={t.check.symptoms}
+        label={fromReference ? t.check.whatHappened : t.check.symptoms}
         value={form.symptoms}
         onChangeText={(symptoms) => onChange({ symptoms })}
         placeholder={recheck ? t.followup.recheckPlaceholder : t.check.symptomsPlaceholder}
         error={symptomsError}
+        hint={fromReference ? t.check.fromReference : undefined}
         multiline
       />
 
       <PhotoStrip t={t} photos={photos} onAdd={onAddPhotos} onRemove={onRemovePhoto} />
 
-      <Banner text={t.check.symptomsHint} />
+      {fromReference ? null : <Banner text={t.check.symptomsHint} />}
     </StepSlide>
   )
 }
@@ -133,5 +148,6 @@ const styles = StyleSheet.create({
   recheckText: { flex: 1, gap: 2 },
   recordCaption: { marginTop: -8, marginBottom: 16 },
   onlyPet: { marginBottom: space.row },
+  referencePet: { marginBottom: space.block },
   noChecks: { marginBottom: space.block },
 })

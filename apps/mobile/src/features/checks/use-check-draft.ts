@@ -47,16 +47,24 @@ export function useCheckDraft(userId: string | null) {
   // Restored once per account. A draft belonging to whoever used the phone
   // before is refused inside `parseDraft`, not here.
   const restored = useRef(false)
+  // Whether the stored draft has been read (or found missing): a description
+  // handed over from another tab waits for it, or the draft arriving after
+  // would overwrite the hand-over without asking.
+  const [draftRead, setDraftRead] = useState(false)
   useEffect(() => {
     if (!userId || restored.current) return
     restored.current = true
 
-    void draftStorage.getItem(DRAFT_KEY).then((raw) => {
-      const draft = parseDraft(raw, userId)
-      if (!draft) return
-      setForm(draft.form)
-      setStep(draft.step)
-    })
+    void draftStorage
+      .getItem(DRAFT_KEY)
+      .then((raw) => {
+        const draft = parseDraft(raw, userId)
+        if (!draft) return
+        setForm(draft.form)
+        setStep(draft.step)
+      })
+      .catch(() => {})
+      .finally(() => setDraftRead(true))
   }, [userId])
 
   useEffect(() => {
@@ -66,5 +74,5 @@ export function useCheckDraft(userId: string | null) {
     return () => subscription.remove()
   }, [keepDraft])
 
-  return { form, setForm, step, setStep, finished, keepDraft, forgetDraft }
+  return { form, setForm, step, setStep, finished, keepDraft, forgetDraft, draftRead }
 }

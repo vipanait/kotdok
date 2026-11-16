@@ -29,4 +29,30 @@ describe('shared vocabulary', () => {
     expect(Object.keys(vocab.ru.urgency)).toEqual(['emergency', 'urgent', 'monitor', 'home_care', 'healthy'])
     expect(vocab.en.urgency.healthy.label).toBe('ALL GOOD')
   })
+
+  it('captions the «Можно ли» verdicts as the spec table does, for the app and the site alike', () => {
+    expect(vocab.ru.safetyVerdict).toMatchObject({ can: 'Можно', nonToxic: 'Безопасно', caution: 'С осторожностью', lowRisk: 'Малый риск', cannot: 'Нельзя', dangerous: 'Опасно' })
+    expect(vocab.en.safetyVerdict).toMatchObject({ can: 'Safe to eat', nonToxic: 'Non-toxic', lowRisk: 'Low risk', cannot: 'Not safe', dangerous: 'Dangerous' })
+    expect(vocab.ru.safetyMedicineLine).toBe('Лекарства для людей не давайте питомцу без назначения врача')
+    expect(vocab.en.safetyMedicineLine).toBe('Do not give human medicines to a pet unless a vet prescribes them')
+  })
+
+  it('keeps the «Можно ли» footnote short and the full text behind «О материалах» (handoff §8)', () => {
+    expect(vocab.ru.safetyAbout.caption).toBe('Справочная информация. Не заменяет консультацию ветеринара.')
+    expect(vocab.ru.safetyAbout.action).toBe('О материалах')
+    expect(vocab.ru.safetyAbout.paragraphs).toEqual([
+      'Тексты справочника подготовлены с помощью ИИ по ветеринарным источникам. Ветеринарный врач их не проверял и не подписывал.',
+      'Источники указаны в карточках. Ответы, сгенерированные по вашему запросу, отдельно отмечены как «Ответ ИИ».',
+      'Информация носит справочный характер и не заменяет консультацию ветеринара.',
+    ])
+    expect(vocab.en.safetyAbout.caption).toBe('For information only. Not a substitute for veterinary advice.')
+    expect(vocab.en.safetyAbout.action).toBe('About this content')
+    expect(vocab.en.safetyAbout.paragraphs).toHaveLength(3)
+    expect(vocab.en.safetyAbout.paragraphs[0]).toMatch(/no vet has reviewed or signed/i)
+    expect(vocab.en.safetyAbout.paragraphs[1]).toContain('“AI answer”')
+    for (const language of ['ru', 'en'] as const) {
+      expect(vocab[language].safetyAbout.title).toBeTruthy()
+      expect(vocab[language].safetyAbout.close).toBeTruthy()
+    }
+  })
 })

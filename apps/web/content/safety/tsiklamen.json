@@ -1,0 +1,129 @@
+{
+  "slug": "tsiklamen",
+  "category": "plant",
+  "name": {
+    "ru": "Цикламен",
+    "en": "Cyclamen"
+  },
+  "titleRu": "цикламен",
+  "aliases": {
+    "ru": [
+      "цикламены",
+      "цикламена",
+      "альпийская фиалка",
+      "дряква",
+      "цикламен персидский"
+    ],
+    "en": [
+      "cyclamen",
+      "cyclamens",
+      "persian cyclamen",
+      "sowbread"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Цикламен ядовит для кошек: клубень и много растения вызывают сбои сердца и судороги. Звоните в клинику сразу.",
+        "en": "Dangerous. Cyclamen is poisonous to cats: the tuber and large amounts cause heart problems and seizures. Call a clinic right away."
+      },
+      "why": {
+        "ru": "ASPCA относит цикламен к ядовитым для кошек и собак: в нём сапонины, больше всего — в клубне. Обычно бывают слюнотечение, рвота и понос; по данным Pet Poison Helpline, тяжёлые признаки возможны при большом количестве, но редки. По данным ASPCA, после большого количества клубня возможны нарушения ритма сердца, судороги и смерть, а MSD Veterinary Manual упоминает судороги и паралич. Поэтому звоните в клинику сразу, не дожидаясь признаков, особенно если съеден клубень.",
+        "en": "The ASPCA lists cyclamen as toxic to cats and dogs: it contains saponins, mostly in the tuber. Drooling, vomiting and diarrhoea are usual; according to Pet Poison Helpline, serious signs are possible after a large amount but uncommon. According to the ASPCA, after a large amount of tuber, heart rhythm problems, seizures and death are possible, and the MSD Veterinary Manual mentions convulsions and paralysis. So call a clinic right away, without waiting for signs, especially if the tuber was eaten."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "рвота",
+          "понос",
+          "нарушения ритма сердца",
+          "судороги"
+        ],
+        "en": [
+          "drooling",
+          "vomiting",
+          "diarrhoea",
+          "heart rhythm problems",
+          "seizures"
+        ]
+      },
+      "ifEaten": "call_now"
+    },
+    "dog": {
+      "verdict": "danger",
+      "summary": {
+        "ru": "Опасно. Цикламен ядовит для собак: клубень и много растения вызывают сбои сердца и судороги. Звоните в клинику сразу.",
+        "en": "Dangerous. Cyclamen is poisonous to dogs: the tuber and large amounts cause heart problems and seizures. Call a clinic right away."
+      },
+      "why": {
+        "ru": "ASPCA относит цикламен к ядовитым для кошек и собак: в нём сапонины, больше всего — в клубне. Обычно бывают слюнотечение, рвота и понос; по данным Pet Poison Helpline, тяжёлые признаки возможны при большом количестве, но редки. По данным ASPCA, после большого количества клубня возможны нарушения ритма сердца, судороги и смерть, а MSD Veterinary Manual упоминает судороги и паралич. Поэтому звоните в клинику сразу, не дожидаясь признаков, особенно если съеден клубень.",
+        "en": "The ASPCA lists cyclamen as toxic to cats and dogs: it contains saponins, mostly in the tuber. Drooling, vomiting and diarrhoea are usual; according to Pet Poison Helpline, serious signs are possible after a large amount but uncommon. According to the ASPCA, after a large amount of tuber, heart rhythm problems, seizures and death are possible, and the MSD Veterinary Manual mentions convulsions and paralysis. So call a clinic right away, without waiting for signs, especially if the tuber was eaten."
+      },
+      "signs": {
+        "ru": [
+          "слюнотечение",
+          "рвота",
+          "понос",
+          "нарушения ритма сердца",
+          "судороги"
+        ],
+        "en": [
+          "drooling",
+          "vomiting",
+          "diarrhoea",
+          "heart rhythm problems",
+          "seizures"
+        ]
+      },
+      "ifEaten": "call_now"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Позвоните в клинику сразу, не дожидаясь признаков, и скажите, был ли съеден клубень и сколько примерно",
+      "Уберите растение туда, куда питомец не доберётся",
+      "Уберите остатки растения из пасти и протрите мордочку влажной тканью",
+      "Возьмите кусочек растения или сфотографируйте его"
+    ],
+    "en": [
+      "Call a clinic right away, without waiting for signs, and say whether the tuber was eaten and roughly how much",
+      "Move the plant out of the pet's reach",
+      "Remove any plant pieces from the mouth and wipe the face with a damp cloth",
+      "Take a piece of the plant or a photo of it"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не давайте молоко, масло, уголь и другие «антидоты» из интернета",
+      "Не ждите, пока станет хуже, если питомец вялый или его рвёт"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not give milk, oil, charcoal or other home “antidotes” from the internet",
+      "Do not wait for things to get worse if the pet is lethargic or vomiting"
+    ]
+  },
+  "sources": [
+    {
+      "title": "ASPCA Animal Poison Control — Cyclamen",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/toxic-and-non-toxic-plants/cyclamen"
+    },
+    {
+      "title": "Pet Poison Helpline — Cyclamen",
+      "url": "https://www.petpoisonhelpline.com/poison/cyclamen/"
+    },
+    {
+      "title": "MSD Veterinary Manual — Houseplants and Ornamentals Toxic to Animals",
+      "url": "https://www.merckvetmanual.com/toxicology/poisonous-plants/houseplants-and-ornamentals-toxic-to-animals"
+    }
+  ],
+  "review": {
+    "status": "published",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-15",
+    "nextReviewAt": "2027-11-15"
+  }
+}

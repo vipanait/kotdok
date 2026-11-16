@@ -1,0 +1,114 @@
+{
+  "slug": "zubnaya-pasta-dlya-zhivotnyh",
+  "category": "household",
+  "name": {
+    "ru": "Зубная паста для животных",
+    "en": "Pet toothpaste"
+  },
+  "titleRu": "зубную пасту для животных",
+  "aliases": {
+    "ru": [
+      "зубная паста для собак",
+      "зубная паста для кошек",
+      "зубную пасту для собак",
+      "зубную пасту для кошек",
+      "зубную пасту для животных",
+      "паста для собак",
+      "паста для кошек",
+      "паста для зубов собаке",
+      "паста для зубов кошке",
+      "собачья зубная паста",
+      "кошачья зубная паста",
+      "ветеринарная зубная паста",
+      "зубной гель для кошек",
+      "зубной гель для собак"
+    ],
+    "en": [
+      "dog toothpaste",
+      "cat toothpaste",
+      "toothpaste for dogs",
+      "toothpaste for cats",
+      "toothpaste for pets",
+      "pet tooth gel",
+      "enzymatic toothpaste",
+      "veterinary toothpaste"
+    ]
+  },
+  "bySpecies": {
+    "cat": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "Малый риск. Паста для кошек сделана так, чтобы кошка её проглатывала: при чистке она слизывает пасту со щётки.",
+        "en": "Low risk. Cat toothpaste is made to be swallowed: during brushing the cat licks it off the brush."
+      },
+      "why": {
+        "ru": "Cornell Feline Health Center советует чистить кошке зубы только пастой или гелем, сделанными для кошек: средства для людей могут быть ядовиты для кошек. Паста для кошек рассчитана на то, что кошка слизывает её со щётки. Берите пасту, на которой написано, что она для кошек. Паста для людей описана в отдельной карточке «Зубная паста (для людей)».",
+        "en": "The Cornell Feline Health Center advises brushing a cat’s teeth only with a toothpaste or gel made for cats: human products can be toxic to cats. Cat toothpaste is meant to be licked off the brush. Pick a paste whose label says it is for cats. Human toothpaste has its own entry, “Toothpaste (human)”."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "watch"
+    },
+    "dog": {
+      "verdict": "caution",
+      "summary": {
+        "ru": "Малый риск. Паста для собак сделана для чистки зубов собаке, и собака её проглатывает.",
+        "en": "Low risk. Dog toothpaste is made for brushing a dog’s teeth, and the dog swallows it."
+      },
+      "why": {
+        "ru": "MSD Veterinary Manual советует чистить собаке зубы специальной щёткой и пастой для собак. Берите пасту, на которой написано, что она для собак. Паста для людей — другое дело: в ней бывает ксилит, и для собак она бывает опасна; она описана в отдельной карточке «Зубная паста (для людей)».",
+        "en": "The MSD Veterinary Manual advises brushing a dog’s teeth with a special toothbrush and a toothpaste made for dogs. Pick a paste whose label says it is for dogs. Human toothpaste is a different matter: it may contain xylitol and can be dangerous for dogs; it has its own entry, “Toothpaste (human)”."
+      },
+      "signs": {
+        "ru": [],
+        "en": []
+      },
+      "ifEaten": "watch"
+    }
+  },
+  "firstSteps": {
+    "ru": [
+      "Проверьте на тюбике, что паста для животных; если она для людей, смотрите карточку «Зубная паста (для людей)»",
+      "Если питомец добрался до тюбика и съел много, понаблюдайте за ним сутки",
+      "При рвоте, поносе или вялости позвоните в клинику"
+    ],
+    "en": [
+      "Check the tube says it is for pets; if it is for people, see the entry “Toothpaste (human)”",
+      "If your pet got at the tube and ate a lot, watch it for a day",
+      "Call a clinic if there is vomiting, diarrhoea or lethargy"
+    ]
+  },
+  "avoid": {
+    "ru": [
+      "Не вызывайте рвоту сами — только по указанию врача",
+      "Не чистите питомцу зубы пастой для людей"
+    ],
+    "en": [
+      "Do not make your pet vomit unless a vet tells you to",
+      "Do not brush your pet’s teeth with human toothpaste"
+    ]
+  },
+  "sources": [
+    {
+      "title": "Cornell Feline Health Center — Feline Dental Disease",
+      "url": "https://www.vet.cornell.edu/departments-centers-and-institutes/cornell-feline-health-center/health-information/feline-health-topics/feline-dental-disease"
+    },
+    {
+      "title": "MSD Veterinary Manual — Routine Health Care of Dogs",
+      "url": "https://www.merckvetmanual.com/dog-owners/routine-care-and-breeding-of-dogs/routine-health-care-of-dogs"
+    },
+    {
+      "title": "ASPCA Animal Poison Control — People Foods to Avoid Feeding Your Pets",
+      "url": "https://www.aspca.org/pet-care/aspca-poison-control/people-foods-avoid-feeding-your-pets"
+    }
+  ],
+  "review": {
+    "status": "published",
+    "draftedBy": "model",
+    "reviewedBy": "agent",
+    "reviewedAt": "2026-11-15",
+    "nextReviewAt": "2027-11-15"
+  }
+}

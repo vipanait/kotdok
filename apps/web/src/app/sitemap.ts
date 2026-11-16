@@ -1,6 +1,8 @@
 import type { MetadataRoute } from 'next'
 import { pathOf, publishedPages } from '@/features/seo-content/load'
 import type { ContentPage, SymptomPage } from '@/features/seo-content/schema'
+import { publishedEntries } from '@/features/safety/load'
+import { safetyPath } from '@/shared/content-paths'
 import { siteUrl } from '@/shared/seo'
 
 const lastModified = new Date('2026-05-02')
@@ -21,6 +23,26 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const published = publishedPages()
   const symptoms = published.filter((page): page is SymptomPage => page.kind === 'symptom')
   const toxins = published.filter(page => page.kind === 'toxin')
+  // The «Можно ли» reference: published entries only, and the hub once there is one to list.
+  const entries = publishedEntries()
+  const entryChanged = (entry: (typeof entries)[number]) => new Date(entry.review.reviewedAt ?? '2026-11-13')
+  const safety: MetadataRoute.Sitemap =
+    entries.length === 0
+      ? []
+      : [
+          {
+            url: `${siteUrl}/mozhno-li`,
+            lastModified: entries.map(entryChanged).reduce((a, b) => (a > b ? a : b)),
+            changeFrequency: 'weekly',
+            priority: 0.7,
+          },
+          ...entries.map(entry => ({
+            url: `${siteUrl}${safetyPath(entry.slug)}`,
+            lastModified: entryChanged(entry),
+            changeFrequency: 'monthly' as const,
+            priority: 0.6,
+          })),
+        ]
 
   return [
     {
@@ -55,6 +77,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly' as const,
       priority: 0.7,
     })),
+    ...safety,
     {
       url: `${siteUrl}/o-materialah`,
       lastModified: new Date('2026-10-25'),

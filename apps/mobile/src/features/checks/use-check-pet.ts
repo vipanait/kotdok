@@ -41,12 +41,15 @@ export function usePetChoice(
     setForm((current) => ({ ...current, petId: pets[0].id }))
   }, [pets, petId, setForm, setStep])
 
-  const { petId: askedPet } = useLocalSearchParams<{ petId?: string }>()
+  // With a description handed over («Проверить симптомы» on a «Можно ли?»
+  // card) the form takes the pet together with the text, and only once it
+  // knows the draft may be replaced: see `check/index.tsx`.
+  const { petId: askedPet, prefill } = useLocalSearchParams<{ petId?: string; prefill?: string }>()
   useEffect(() => {
-    if (!askedPet || !pets?.some((pet) => pet.id === askedPet)) return
+    if (prefill || !askedPet || !pets?.some((pet) => pet.id === askedPet)) return
     setForm((current) => ({ ...current, petId: askedPet }))
     router.setParams({ petId: undefined })
-  }, [askedPet, pets, setForm])
+  }, [askedPet, pets, prefill, setForm])
 }
 
 /**
