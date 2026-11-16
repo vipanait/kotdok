@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { CheckQuestionThread } from '@lapka/contracts'
 import { en } from '@/i18n/en'
 import { ru } from '@/i18n/ru'
@@ -100,6 +100,23 @@ describe('the field after an answer', () => {
     expect(clearedAfterAnswer('  Можно ли кормить? ', 'Можно ли кормить?')).toBe('')
     // Typed while waiting: the next question stays.
     expect(clearedAfterAnswer('А поить?', 'Можно ли кормить?')).toBe('А поить?')
+  })
+})
+
+describe('the deadline on a phone whose Intl gives no hour or minute parts', () => {
+  afterEach(() => vi.restoreAllMocks())
+
+  it('still writes the time, on the phone\'s own clock', () => {
+    // Hermes on the iOS 26 simulator: formatToParts returns the day and the month, and no hour or minute.
+    const real = Intl.DateTimeFormat.prototype.formatToParts
+    vi.spyOn(Intl.DateTimeFormat.prototype, 'formatToParts').mockImplementation(function (this: Intl.DateTimeFormat, date) {
+      return real.call(this, date).filter((part) => part.type !== 'hour' && part.type !== 'minute')
+    })
+    const until = new Date(thread().open_until)
+    const hh = String(until.getHours()).padStart(2, '0')
+    const mm = String(until.getMinutes()).padStart(2, '0')
+    expect(threadNote(thread(), NOW, ru.checkQuestions, 'ru')).toBe(`Осталось 3 вопроса из 3 · до ${until.getDate()} ноября, ${hh}:${mm}`)
+    expect(threadNote(thread(), NOW, en.checkQuestions, 'en')).toMatch(/ · until November \d+, \d{1,2}:\d{2} (AM|PM)$/)
   })
 })
 
