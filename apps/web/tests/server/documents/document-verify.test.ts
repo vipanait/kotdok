@@ -136,7 +136,7 @@ describe('verifyDocumentFile', () => {
     expect(await verifyDocumentFile(bytes, 'application/pdf')).toEqual({ ok: false, reason: 'encrypted' })
   })
 
-  it('refuses a flate bomb in an object stream within the deadline', async () => {
+  it('refuses a flate bomb in an object stream long before the deadline', async () => {
     const bomb = deflateSync(Buffer.alloc(768 * 1024 * 1024), { level: 9 })
     expect(bomb.length).toBeLessThan(DOCUMENT_LIMITS.pdfMaxBytes)
     const started = Date.now()
@@ -144,7 +144,7 @@ describe('verifyDocumentFile', () => {
       ok: false,
       reason: 'unsupported_media_type',
     })
-    expect(Date.now() - started).toBeLessThan(15_000)
+    expect(Date.now() - started).toBeLessThan(3_000)
   }, 30_000)
 
   it('accepts a 10 page pdf and a 4096 px jpeg', async () => {

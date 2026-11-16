@@ -49,12 +49,24 @@ function verifyImage(bytes: Uint8Array): DocumentFileVerdict {
  * find it; it loads pdf-lib from node_modules at run time, which is why
  * next.config keeps pdf-lib external and traced.
  */
-const PARSE_TIMEOUT_MS = 10_000
+const PARSE_TIMEOUT_MS = 5_000
+const MAX_STREAM_BYTES = 64 * 1024 * 1024
 const PARSE_HEAP_MB = 256
 
 const PARSE_SCRIPT = `
+const path = require('node:path')
 const { parentPort, workerData } = require('node:worker_threads')
-const { PDFDocument } = require(require.resolve('pdf-lib', { paths: [workerData.cwd] }))
+const entry = require.resolve('pdf-lib', { paths: [workerData.cwd] })
+const { PDFDocument } = require(entry)
+// The heap limit does not cover typed arrays, which is where a decoded stream
+// lives. Every decoder grows its buffer through ensureBuffer, so a stream that
+// would pass the cap is cut off there.
+const DecodeStream = require(path.join(path.dirname(entry), 'core/streams/DecodeStream')).default
+const ensureBuffer = DecodeStream.prototype.ensureBuffer
+DecodeStream.prototype.ensureBuffer = function (requested) {
+  if (requested > workerData.maxStreamBytes) throw new Error('decoded stream too large')
+  return ensureBuffer.call(this, requested)
+}
 PDFDocument.load(workerData.bytes, { ignoreEncryption: true, updateMetadata: false, throwOnInvalidObject: false })
   .then((doc) => parentPort.postMessage({ pageCount: doc.getPageCount(), encrypted: doc.isEncrypted }))
   .catch(() => parentPort.postMessage(null))
@@ -66,7 +78,7 @@ function parsePdf(bytes: Uint8Array): Promise<ParseResult> {
   return new Promise((resolve) => {
     const worker = new Worker(PARSE_SCRIPT, {
       eval: true,
-      workerData: { bytes, cwd: process.cwd() },
+      workerData: { bytes, cwd: process.cwd(), maxStreamBytes: MAX_STREAM_BYTES },
       resourceLimits: { maxOldGenerationSizeMb: PARSE_HEAP_MB, maxYoungGenerationSizeMb: 32 },
     })
     const done = (result: ParseResult) => {
