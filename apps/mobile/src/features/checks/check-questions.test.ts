@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { CheckQuestionThread } from '@lapka/contracts'
 import { en } from '@/i18n/en'
 import { ru } from '@/i18n/ru'
-import { alertText, clearedAfterAnswer, conflictNotice, isOpen, showsBlock, suggestionsFor, threadNote } from './check-questions'
+import { alertText, canSend, clearedAfterAnswer, conflictNotice, isOpen, showsBlock, suggestionsFor, threadNote } from './check-questions'
 
 // CQ-03: what the questions block under a result says, on the app's own words.
 
@@ -117,6 +117,16 @@ describe('the deadline on a phone whose Intl gives no hour or minute parts', () 
     const mm = String(until.getMinutes()).padStart(2, '0')
     expect(threadNote(thread(), NOW, ru.checkQuestions, 'ru')).toBe(`Осталось 3 вопроса из 3 · до ${until.getDate()} ноября, ${hh}:${mm}`)
     expect(threadNote(thread(), NOW, en.checkQuestions, 'en')).toMatch(/ · until November \d+, \d{1,2}:\d{2} (AM|PM)$/)
+  })
+})
+
+describe('when a question may be sent, by the button and by the arrow in the field alike', () => {
+  it('needs words, no question on its way and an open thread', () => {
+    expect(canSend(thread(), NOW, 'Можно ли кормить?', null)).toBe(true)
+    expect(canSend(thread(), NOW, '   ', null)).toBe(false)
+    expect(canSend(thread(), NOW, 'Можно ли кормить?', 'Предыдущий вопрос')).toBe(false)
+    expect(canSend(thread({ remaining: 0, closed: 'limit' }), NOW, 'Можно ли кормить?', null)).toBe(false)
+    expect(canSend(thread(), new Date('2026-11-16T00:00:00.000Z'), 'Можно ли кормить?', null)).toBe(false)
   })
 })
 

@@ -148,18 +148,23 @@ export function IconButton({
   label: name,
   onPress,
   soft = false,
+  disabled = false,
   style,
 }: {
   icon: IconName
   label: string
   onPress: () => void
   soft?: boolean
+  /** Shown faint and not pressable, and said so out loud. */
+  disabled?: boolean
   style?: ViewStyle
 }) {
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={name}
+      accessibilityState={{ disabled }}
+      disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => [
         styles.iconButton,
@@ -168,7 +173,7 @@ export function IconButton({
         style,
       ]}
     >
-      <Icon name={icon} color={soft ? colour.accentText : colour.text} />
+      <Icon name={icon} color={disabled ? colour.faint : soft ? colour.accentText : colour.text} />
     </Pressable>
   )
 }

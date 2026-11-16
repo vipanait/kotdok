@@ -26,6 +26,14 @@ export function isOpen(thread: CheckQuestionThread, now: Date): boolean {
   return thread.closed === null && thread.remaining > 0 && now.getTime() < new Date(thread.open_until).getTime()
 }
 
+/**
+ * Whether «Спросить» may be pressed: the button under the field and the arrow
+ * inside it answer to the same rule, so neither sends what the other refuses.
+ */
+export function canSend(thread: CheckQuestionThread, now: Date, text: string, pending: string | null): boolean {
+  return pending === null && text.trim().length > 0 && isOpen(thread, now)
+}
+
 /** Nothing to read and nothing to ask: the block is left out entirely. */
 export function showsBlock(thread: CheckQuestionThread, now: Date): boolean {
   return thread.items.length > 0 || isOpen(thread, now)

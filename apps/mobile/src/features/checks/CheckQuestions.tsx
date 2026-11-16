@@ -15,7 +15,7 @@ import { Field } from '@/ui/Field'
 import { Icon } from '@/ui/Icon'
 import { Text } from '@/ui/Text'
 import { TAP_TARGET, colour, radius, space, urgency as urgencyScale } from '@/ui/theme'
-import { alertText, clearedAfterAnswer, conflictNotice, isOpen, showsBlock, suggestionsFor, threadNote } from './check-questions'
+import { alertText, canSend, clearedAfterAnswer, conflictNotice, isOpen, showsBlock, suggestionsFor, threadNote } from './check-questions'
 
 /** A fresh key for a question; the platform's crypto where there is one. */
 function newKey(): string {
@@ -49,6 +49,7 @@ export function CheckQuestions({ check }: { check: SymptomCheckRecord }) {
   const now = new Date()
   if (!thread || !showsBlock(thread, now)) return null
   const open = isOpen(thread, now)
+  const sendable = canSend(thread, now, text, pending)
 
   async function ask(question: string) {
     if (pending !== null) return
@@ -174,12 +175,12 @@ export function CheckQuestions({ check }: { check: SymptomCheckRecord }) {
             style={styles.field}
             // Inside the field, so it rides above the keyboard with it: the
             // button under the field is hidden while typing.
-            action={{ icon: 'send', label: words.ask, onPress: () => void ask(text.trim()) }}
+            action={{ icon: 'send', label: words.ask, onPress: () => void ask(text.trim()), disabled: !sendable }}
           />
           <Button
             title={words.ask}
             busy={pending !== null}
-            disabled={text.trim().length === 0}
+            disabled={!sendable && pending === null}
             onPress={() => void ask(text.trim())}
           />
         </>
@@ -190,6 +191,8 @@ export function CheckQuestions({ check }: { check: SymptomCheckRecord }) {
           {error}
         </Text>
       ) : null}
+      {/* Set apart from the button by its own rule, never touching it. */}
+      <View style={styles.footnoteRule} />
       <Text variant="caption" tone="faint" style={styles.footnote}>
         {words.note}
       </Text>
@@ -229,5 +232,6 @@ const styles = StyleSheet.create({
   suggestionSelected: { borderColor: colour.accent, backgroundColor: colour.accentSoft },
   field: { marginTop: 12, marginBottom: 12 },
   error: { marginTop: 8 },
-  footnote: { marginTop: 12 },
+  footnoteRule: { marginTop: space.block, height: 1, backgroundColor: colour.line },
+  footnote: { marginTop: space.row },
 })
