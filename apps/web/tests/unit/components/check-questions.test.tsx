@@ -100,3 +100,40 @@ describe('the questions block under a result', () => {
     expect(tags(block(), 'section')[0]!.attrs.lang).toBeUndefined()
   })
 })
+
+describe('the result around the block (criterion 23)', () => {
+  const check = {
+    id: null as string | null,
+    symptoms_input: 'рвота',
+    urgency: 'monitor' as const,
+    urgency_reason: 'r',
+    possible_causes: [],
+    species_specific_warning: null,
+    home_care_steps: [],
+    vet_questions: [],
+    full_response: {},
+    created_at: '2026-11-13T10:00:00.000Z',
+    locale: 'ru' as const,
+    pet_id: null,
+    pet_name: null,
+    pet_species: null,
+  }
+  const thread = { items: [], limit: 3, remaining: 3, open_until: LATER, closed: null }
+
+  it('draws no block for a result shown inside the form, which has no saved id', async () => {
+    const { default: CheckResultContent } = await import('@/features/symptom-check/CheckResultContent')
+    const html = render(
+      <CheckResultContent check={check} dict={ru} locale="ru" questions={{ thread, words: ru.checkQuestions }} onNewCheck={() => undefined} />,
+    )
+    expect(html).not.toContain('Уточнить по этой проверке')
+  })
+
+  it('draws the result without the block when the thread could not be read', async () => {
+    const { default: CheckResultContent } = await import('@/features/symptom-check/CheckResultContent')
+    const saved = { ...check, id: CHECK }
+    expect(render(<CheckResultContent check={saved} dict={ru} locale="ru" questions={null} />)).not.toContain('Уточнить по этой проверке')
+    expect(render(<CheckResultContent check={saved} dict={ru} locale="ru" questions={{ thread, words: ru.checkQuestions }} />)).toContain(
+      'Уточнить по этой проверке',
+    )
+  })
+})
