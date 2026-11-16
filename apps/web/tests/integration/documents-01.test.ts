@@ -151,6 +151,98 @@ describe('documents service', () => {
     expect(other.ok).toBe(true)
   })
 
+  it('parallel creates at 29 documents end with exactly 30', async () => {
+    for (let i = 0; i < DOCUMENT_LIMITS.perPet - 1; i++) {
+      await db.query(`insert into public.pet_documents (user_id, pet_id, kind, status) values ($1, $2, 'other', 'stored')`, [
+        seeded.ownerAId,
+        PET_IDS.aCat,
+      ])
+    }
+    const results = await Promise.all(
+      Array.from({ length: 6 }, () =>
+        createDocument(context(seeded.ownerAId), PET_IDS.aCat, { kind: 'other', files: [IMAGE_FILE] } as never),
+      ),
+    )
+    expect(results.filter((r) => r.ok)).toHaveLength(1)
+    expect(results.filter((r) => !r.ok)).toEqual(Array(5).fill({ ok: false, reason: 'limit_reached' }))
+    expect(await rows('pet_documents')).toBe(DOCUMENT_LIMITS.perPet)
+  })
+
+  it('refuses complete once the document is older than 2 hours', async () => {
+    const grant = await create(seeded.ownerAId, PET_IDS.aCat)
+    await put(grant, jpeg())
+    await db.query(`update public.pet_documents set created_at = now() - interval '2 hours 1 minute' where id = $1`, [grant.document_id])
+    expect(await completeDocument(context(seeded.ownerAId), PET_IDS.aCat, grant.document_id)).toEqual({
+      ok: false,
+      reason: 'wrong_status',
+    })
+    const { rows: left } = await db.query(`select status from public.pet_documents where id = $1`, [grant.document_id])
+    expect(left).toEqual([{ status: 'pending' }])
+  })
+
+  it('the sweep leaves a document that was completed while it ran', async () => {
+    const grant = await create(seeded.ownerAId, PET_IDS.aCat)
+    await put(grant, jpeg())
+    await db.query(`update public.pet_documents set created_at = now() - interval '4 hours' where id = $1`, [grant.document_id])
+
+    // The document turns `stored` after the sweep read it as `pending`.
+    const real = service()
+    const complete = () => db.query(`update public.pet_documents set status = 'stored' where id = $1`, [grant.document_id])
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const racing: any = {
+      from: (table: string) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const builder: any = real.from(table)
+        if (table !== 'pet_document_files') return builder
+        return {
+          select: (...args: unknown[]) => ({
+            in: async (...rest: unknown[]) => {
+              const read = await builder.select(...args).in(...rest)
+              await complete()
+              return read
+            },
+          }),
+        }
+      },
+    }
+    const deps = { supabase: Object.assign(Object.create(real), { from: racing.from }) as never, storage: supabaseDocumentStorage(real as never) }
+    expect(await sweepDocuments(deps, new Date())).toBe(0)
+    expect(await rows('pet_documents')).toBe(1)
+    expect(await objects()).toBe(1)
+  })
+
+  it('answers storage_error, not an empty link, when signing fails', async () => {
+    const grant = await create(seeded.ownerAId, PET_IDS.aCat)
+    await put(grant, jpeg())
+    await completeDocument(context(seeded.ownerAId), PET_IDS.aCat, grant.document_id)
+
+    const real = context(seeded.ownerAId)
+    const broken: DocumentContext = { ...real, storage: { ...real.storage, signRead: async (paths) => paths.map(() => null) } }
+    expect(await listDocuments(broken, PET_IDS.aCat)).toEqual({ ok: false, reason: 'storage_error' })
+    expect(await readDocument(broken, PET_IDS.aCat, grant.document_id)).toEqual({ ok: false, reason: 'storage_error' })
+  })
+
+  it('stores the size that was downloaded, not the one declared', async () => {
+    const grant = await create(seeded.ownerAId, PET_IDS.aCat, [{ content_type: 'image/jpeg', size_bytes: 5000 }])
+    const bytes = jpeg()
+    await put(grant, bytes)
+    await completeDocument(context(seeded.ownerAId), PET_IDS.aCat, grant.document_id)
+    const { rows: files } = await db.query(`select size_bytes from public.pet_document_files where document_id = $1`, [grant.document_id])
+    expect(files).toEqual([{ size_bytes: bytes.length }])
+  })
+
+  it("a document of the owner's other pet is not found under this pet", async () => {
+    const grant = await create(seeded.ownerAId, PET_IDS.aCat)
+    await put(grant, jpeg())
+    const a = context(seeded.ownerAId)
+    const notFound = { ok: false, reason: 'not_found' }
+    expect(await readDocument(a, PET_IDS.aDog, grant.document_id)).toEqual(notFound)
+    expect(await completeDocument(a, PET_IDS.aDog, grant.document_id)).toEqual(notFound)
+    expect(await patchDocument(a, PET_IDS.aDog, grant.document_id, { title: 'x' })).toEqual(notFound)
+    expect(await deleteDocument(a, PET_IDS.aDog, grant.document_id)).toEqual(notFound)
+    expect(await rows('pet_documents')).toBe(1)
+  })
+
   it('lists stored documents with a signed link, reads one, and patches it', async () => {
     const grant = await create(seeded.ownerAId, PET_IDS.aCat)
     await create(seeded.ownerAId, PET_IDS.aCat) // still pending: not listed

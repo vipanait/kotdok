@@ -32,6 +32,7 @@ const FORBIDDEN = [
 const ADAPTERS = new Set([
   'account/deletion-after.ts',
   'api/bearer-auth.ts',
+  'api/document-response.ts',
   'api/failure-response.ts',
   'api/request.ts',
   'api/response.ts',

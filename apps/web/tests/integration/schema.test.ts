@@ -110,6 +110,7 @@ const REQUIRED_FUNCTIONS = [
   'course_from_prescription',
   'create_extra_check_request',
   'create_health_event',
+  'create_pet_document',
   'create_pet_medications',
   'create_visit',
   'current_account_is_active',

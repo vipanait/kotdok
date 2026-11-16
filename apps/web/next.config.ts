@@ -29,11 +29,12 @@ const nextConfig: NextConfig = {
   // The document check parses PDFs in a worker started from an inline script
   // (src/server/documents/document-verify.ts) that requires pdf-lib at run
   // time. No bundler sees that require, so pdf-lib stays external and is
-  // traced in by hand.
+  // traced in by hand, into the documents routes only (`complete` is the one
+  // that parses a PDF).
   serverExternalPackages: ['pdf-lib'],
   outputFileTracingIncludes: {
     '/api/v1/safety/**': ['./content/safety/**/*.json'],
-    '/**': ['../../node_modules/pdf-lib/**/*', '../../node_modules/pako/**/*', '../../node_modules/tslib/**/*', '../../node_modules/@pdf-lib/**/*'],
+    '/api/v1/pets/*/documents/**': ['../../node_modules/pdf-lib/**/*', '../../node_modules/pako/**/*', '../../node_modules/tslib/**/*', '../../node_modules/@pdf-lib/**/*'],
   },
   experimental: {
     // Two root layouts, `(frontend)` and `(content)`: an unmatched URL has no

@@ -2,7 +2,6 @@ import 'server-only'
 
 import { randomUUID } from 'node:crypto'
 import {
-  DOCUMENT_LIMITS,
   type DocumentCreateInput,
   type DocumentGrant,
   type DocumentList,
@@ -45,6 +44,9 @@ export type DocumentContext = DocumentDeps & { userId: string }
 
 /** How long a read link lives: long enough for a screen, short enough not to be shared. */
 const READ_SECONDS = 60 * 60
+
+/** The most a `pending` document may wait for `complete`: the Storage URL of a grant lives two hours. */
+const COMPLETE_WITHIN_SECONDS = 2 * 60 * 60
 
 /** A grant's two hours of signed URL, plus room for a slow write. */
 const SWEEP_AFTER_SECONDS = 3 * 60 * 60
@@ -122,7 +124,9 @@ async function present(ctx: DocumentContext, docs: DocumentRow[]): Promise<Docum
   const files = await filesOf(ctx, docs.map((doc) => doc.id))
   if (!files.ok) return files
   const urls = await ctx.storage.signRead(files.value.map((file) => file.object_path), READ_SECONDS)
-  const urlOf = new Map(files.value.map((file, i) => [file.id, urls[i] ?? '']))
+  // A document without its link is no use to the client: say so, do not hand out ''.
+  if (urls.length !== files.value.length || urls.some((url) => !url)) return fail('storage_error')
+  const urlOf = new Map(files.value.map((file, i) => [file.id, urls[i] as string]))
 
   return ok(
     docs.map((doc) => {
@@ -140,7 +144,7 @@ async function present(ctx: DocumentContext, docs: DocumentRow[]): Promise<Docum
         files: own.map((file) => ({
           id: file.id,
           content_type: file.content_type,
-          url: urlOf.get(file.id) ?? '',
+          url: urlOf.get(file.id) as string,
           page_count: file.page_count,
         })),
         draft: doc.draft ?? null,
@@ -178,14 +182,6 @@ export async function createDocument(
   const pet = await ownPet(ctx, petId)
   if (!pet.ok) return pet
 
-  const { count, error: countError } = await ctx.supabase
-    .from('pet_documents')
-    .select('id', { count: 'exact', head: true })
-    .eq('pet_id', petId)
-    .eq('user_id', ctx.userId)
-  if (countError) return fail('storage_error')
-  if ((count ?? 0) >= DOCUMENT_LIMITS.perPet) return fail('limit_reached')
-
   const documentId = randomUUID()
   const planned = input.files.map((file, position) => ({
     id: randomUUID(),
@@ -207,26 +203,25 @@ export async function createDocument(
     return fail('storage_error')
   }
 
-  const { error } = await ctx.supabase
-    .from('pet_documents')
-    .insert({ id: documentId, user_id: ctx.userId, pet_id: petId, kind: input.kind, title: input.title ?? '' })
-  if (error) return fail('storage_error')
-
-  const { error: filesError } = await ctx.supabase.from('pet_document_files').insert(
-    planned.map((file) => ({
+  // One statement under the pet's row lock: the cap counts and inserts without a gap.
+  const { data: created, error } = await ctx.supabase.rpc('create_pet_document', {
+    p_user_id: ctx.userId,
+    p_pet_id: petId,
+    p_document_id: documentId,
+    p_kind: input.kind,
+    p_title: input.title ?? '',
+    p_files: planned.map((file) => ({
       id: file.id,
-      document_id: documentId,
-      user_id: ctx.userId,
       position: file.position,
       object_path: file.path,
       content_type: file.content_type,
       size_bytes: file.size_bytes,
     })),
-  )
-  if (filesError) {
-    await ctx.supabase.from('pet_documents').delete().eq('id', documentId)
-    return fail('storage_error')
-  }
+  })
+  if (error) return fail('storage_error')
+  if (created === 'limit_reached') return fail('limit_reached')
+  if (created === 'not_found') return fail('not_found')
+  if (created !== 'ok') return fail('storage_error')
 
   return ok({ document_id: documentId, uploads })
 }
@@ -247,11 +242,13 @@ export async function completeDocument(
   if (!doc.ok) return doc
   if (doc.value.status === 'stored') return presentOne(ctx, doc.value)
   if (doc.value.status !== 'pending') return fail('wrong_status')
+  // Past the grant's two hours the sweep may take it any minute: do not race it.
+  if (Date.now() - Date.parse(doc.value.created_at) > COMPLETE_WITHIN_SECONDS * 1000) return fail('wrong_status')
 
   const files = await filesOf(ctx, [docId])
   if (!files.ok) return files
 
-  const verified: { id: string; contentType: DocumentContentType; pageCount: number }[] = []
+  const verified: { id: string; contentType: DocumentContentType; pageCount: number; size: number }[] = []
   for (const file of files.value) {
     let bytes: Uint8Array
     try {
@@ -264,14 +261,14 @@ export async function completeDocument(
       await removeDocumentsOf(ctx, [docId])
       return fail(verdict.reason)
     }
-    verified.push({ id: file.id, contentType: verdict.contentType, pageCount: verdict.pageCount })
+    verified.push({ id: file.id, contentType: verdict.contentType, pageCount: verdict.pageCount, size: bytes.length })
   }
 
   const now = new Date().toISOString()
   for (const file of verified) {
     const { error } = await ctx.supabase
       .from('pet_document_files')
-      .update({ content_type: file.contentType, page_count: file.pageCount, verified_at: now })
+      .update({ content_type: file.contentType, page_count: file.pageCount, size_bytes: file.size, verified_at: now })
       .eq('id', file.id)
     if (error) return fail('storage_error')
   }
@@ -405,13 +402,27 @@ export async function sweepDocuments(deps: DocumentDeps, now: Date = new Date(),
 
     const { data: files, error: filesError } = await deps.supabase
       .from('pet_document_files')
-      .select('object_path')
+      .select('document_id, object_path')
       .in('document_id', ids)
     if (filesError) throw new Error('document sweep select failed')
-    await deps.storage.remove((files ?? []).map((file: { object_path: string }) => file.object_path))
-    const { error: deleteError } = await deps.supabase.from('pet_documents').delete().in('id', ids)
+    // Rows first, and only those still `pending`: one completed since the read stays, with its objects.
+    const { data: gone, error: deleteError } = await deps.supabase
+      .from('pet_documents')
+      .delete()
+      .in('id', ids)
+      .eq('status', 'pending')
+      .select('id')
     if (deleteError) throw new Error('document sweep delete failed')
-    removed += ids.length
+    const goneIds = new Set((gone ?? []).map((doc: { id: string }) => doc.id))
+    // A failure here leaves objects no row points at: the pass below finds them.
+    await deps.storage.remove(
+      (files ?? [])
+        .filter((file: { document_id: string }) => goneIds.has(file.document_id))
+        .map((file: { object_path: string }) => file.object_path),
+    )
+    removed += goneIds.size
+    // Nothing went: the batch is all completed documents, and would come up again.
+    if (goneIds.size === 0) break
   }
 
   for (let i = 0; i < 50; i++) {
