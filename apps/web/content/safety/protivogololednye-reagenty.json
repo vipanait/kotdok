@@ -132,7 +132,7 @@
     }
   ],
   "review": {
-    "status": "agent_reviewed",
+    "status": "published",
     "draftedBy": "model",
     "reviewedBy": "agent",
     "reviewedAt": "2026-11-15",
