@@ -95,6 +95,9 @@ docs/design/**/lapka-transparent-assets.zip
 # Brainstorm companion sessions
 .superpowers/
 
+# Designer icons for «Можно ли»: the served copy is apps/web/public/images/safety.
+/docs/design/pet-safety-v1/icons/
+
 # --- supabase/.gitignore ---
 supabase/.branches
 supabase/.temp
