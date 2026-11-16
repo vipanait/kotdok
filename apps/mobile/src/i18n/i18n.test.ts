@@ -83,4 +83,13 @@ describe('urgency in both languages', () => {
       expect(DICTIONARIES[locale].result.disclaimer.length, locale).toBeGreaterThan(30)
     }
   })
+
+  it('has the words for the sources of a result (SRC-01)', () => {
+    for (const locale of SUPPORTED_LOCALES) {
+      const { result } = DICTIONARIES[locale]
+      for (const key of ['sourcesTitle', 'sourceInEnglish', 'sourcesNote', 'openSource'] as const) {
+        expect(result[key], `${locale}/${key}`).toBeTruthy()
+      }
+    }
+  })
 })

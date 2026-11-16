@@ -24,6 +24,11 @@ describe('what is kept of the model answer', () => {
     expect(normalizeAnswer(raw({ answer: 'Текст.', alert, off_topic: false }), urgency, 'ru').alert).toBe(kept)
   })
 
+  it('drops the numbers of the knowledge base the context is marked with', () => {
+    // The context is numbered for the analysis's sources (SRC-01); an answer shows none.
+    expect(normalizeAnswer(raw({ answer: 'Дайте воды [1]. Покой [2, 3].' }), 'monitor', 'ru').answer).toBe('Дайте воды. Покой.')
+  })
+
   it('reads an alert it does not know, or none at all, as none', () => {
     expect(normalizeAnswer(raw({ answer: 'Текст.', alert: 'panic' }), 'monitor', 'ru').alert).toBe('none')
     expect(normalizeAnswer(raw({ answer: 'Текст.' }), 'monitor', 'ru')).toMatchObject({ alert: 'none', offTopic: false })

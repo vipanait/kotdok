@@ -1,5 +1,6 @@
 import type { CheckQuestionAlert, Locale, Urgency } from '@lapka/contracts'
 import { CHECK_QUESTION_ALERTS } from '@lapka/contracts'
+import { stripSourceMarks } from '@/server/symptom-check/vet-sources'
 
 /**
  * What the owner reads when the question was not about this check. Fixed, so
@@ -49,7 +50,8 @@ export function normalizeAnswer(raw: string, checkUrgency: Urgency, locale: Loca
 
   if (r.off_topic === true) return { answer: OFF_TOPIC_ANSWER[locale], alert: 'none', offTopic: true }
 
-  const answer = typeof r.answer === 'string' ? r.answer.trim() : ''
+  // The knowledge base is numbered for the analysis's sources; an answer shows none.
+  const answer = typeof r.answer === 'string' ? stripSourceMarks(r.answer) : ''
   if (!answer) throw new Error('answer is empty')
 
   const said = CHECK_QUESTION_ALERTS.find((alert) => alert === r.alert) ?? 'none'

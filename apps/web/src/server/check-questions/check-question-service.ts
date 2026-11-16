@@ -177,7 +177,7 @@ async function questionContext(
     petText,
     earlier: earlier.map((row) => ({ question: row.question, answer: row.answer ?? '' })),
     // Searched by the symptoms and the question together: the question alone is often three words.
-    vetContext: await getVetContext(supabase, `${check.symptoms_input}\n${question}`, species ?? 'cat'),
+    vetContext: (await getVetContext(supabase, `${check.symptoms_input}\n${question}`, species ?? 'cat')).context,
     question,
   }
 }

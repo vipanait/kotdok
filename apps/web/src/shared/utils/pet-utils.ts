@@ -18,6 +18,24 @@ function toStringArray(val: unknown, maxItems = 20, maxItemLen = 150): string[] 
     .filter(Boolean)
 }
 
+/**
+ * Answers that mean «takes nothing». Owners type them into the medicines
+ * field, and each entry there starts a course: «Нет» became a medicine called
+ * «Нет» in the record and the vet summary. An empty list already says it.
+ * The migration 20261115120000_form_medications_none.sql removes the courses
+ * made before; keep its list the same as this one.
+ */
+const NONE_ANSWERS = new Set([
+  'нет', 'нету', 'ничего', 'никаких', 'никакие', 'не принимает', 'не принимаем', 'не принимаю', 'отсутствуют',
+  'no', 'none', 'nothing', 'n/a', 'na', '-', '—', '–',
+])
+
+/** «Нет», « нет. », «НЕТУ!» — the answer, whatever its case and closing marks. */
+export function isNoneAnswer(entry: string): boolean {
+  const word = entry.trim().toLowerCase().replace(/ё/g, 'е').replace(/[.!,;]+$/, '').trim()
+  return NONE_ANSWERS.has(word)
+}
+
 /** `YYYY-MM-DD` or null; the contract has already refused anything else on the API. */
 function toCalendarDate(val: unknown): string | null {
   return typeof val === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(val) ? val : null
@@ -61,7 +79,9 @@ export function sanitizePet(body: Record<string, unknown>) {
     allergies: toStringArray(body.allergies),
     vaccinated: body.vaccinated != null ? Boolean(body.vaccinated) : null,
     chronic_conditions: toStringArray(body.chronic_conditions),
-    medications: toStringArray(body.medications),
+    // Allergies and conditions keep «нет»: there it says «none known», which
+    // an empty field («not filled in») does not.
+    medications: toStringArray(body.medications).filter((entry) => !isNoneAnswer(entry)),
     notes: body.notes ? String(body.notes).slice(0, 300).trim() || null : null,
     birth_date: toCalendarDate(body.birth_date),
     birth_date_approx: toCalendarDate(body.birth_date) !== null && body.birth_date_approx === true,
