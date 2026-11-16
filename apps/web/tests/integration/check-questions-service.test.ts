@@ -12,6 +12,8 @@ const model = vi.hoisted(() => ({
   requests: [] as { messages: { role: string; content: unknown }[]; max_completion_tokens?: number }[],
   options: [] as unknown[],
   embedded: [] as string[],
+  embedOptions: [] as unknown[],
+  embedFail: false,
   reply: '' as string,
   fail: false,
   /** Resolved by the test to let a held answer through. */
@@ -21,8 +23,10 @@ const model = vi.hoisted(() => ({
 vi.mock('openai', () => ({
   default: class {
     embeddings = {
-      create: async (request: { input: string }) => {
+      create: async (request: { input: string }, options: unknown) => {
         model.embedded.push(request.input)
+        model.embedOptions.push(options)
+        if (model.embedFail) throw new Error('embeddings down')
         return { data: [{ embedding: new Array(1536).fill(0) }] }
       },
     }
@@ -96,6 +100,8 @@ beforeEach(async () => {
   model.requests.length = 0
   model.options.length = 0
   model.embedded.length = 0
+  model.embedOptions.length = 0
+  model.embedFail = false
   model.fail = false
   model.hold = null
   model.reply = said({ answer: 'Небольшими порциями через два часа.', alert: 'none', off_topic: false })
@@ -192,6 +198,15 @@ describe('asking a question', () => {
     expect(model.embedded.at(-1)).toContain('На что смотреть ночью?')
     expect(request.max_completion_tokens).toBe(500)
     expect(model.options.at(-1)).toMatchObject({ timeout: 30_000, maxRetries: 1 })
+  })
+
+  it('bounds the knowledge-base search to five seconds and answers without it when it fails', async () => {
+    const id = await check()
+    model.embedFail = true
+    expect(await ask(id)).toMatchObject({ ok: true, data: { thread: { remaining: 2 } } })
+    expect(model.embedOptions.at(-1)).toMatchObject({ timeout: 5_000, maxRetries: 0 })
+    const system = String(model.requests.at(-1)!.messages.find((m) => m.role === 'system')!.content)
+    expect(system).toContain('No additional context available.')
   })
 
   it('answers about a check made without a pet, with no pet block', async () => {

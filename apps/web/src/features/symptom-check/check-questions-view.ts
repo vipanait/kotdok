@@ -46,6 +46,17 @@ export function threadNote(
   return `${count} · ${words.until.replace('{when}', when)}`
 }
 
+/**
+ * What a 409 says once the thread has been read again. While it is still open
+ * the refusal can only be this very question still being answered — on
+ * another tab, or the first try whose answer was lost: it will be spent, so
+ * «not spent, try again» would be untrue. A closed thread says why itself.
+ */
+export function conflictNotice(fresh: CheckQuestionThread | null, now: Date, words: QuestionWords): string | null {
+  if (!fresh) return words.failed
+  return isOpen(fresh, now) ? words.stillAnswering : null
+}
+
 /** The fixed words of the plate under an answer that raised an alert; null when there is none. */
 export function alertText(alert: CheckQuestionAlert, petName: string | null, words: QuestionWords): string | null {
   if (alert === 'clinic_now') return words.alertNow

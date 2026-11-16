@@ -118,11 +118,13 @@ export async function getVetContext(
   supabase: SupabaseService,
   symptoms: string,
   species: PetSpecies,
+  /** A caller with a tighter budget than the analysis's own (a question about a check). */
+  requestOptions?: { timeout: number; maxRetries: number },
 ): Promise<{ context: string; materials: VetMaterial[] }> {
   const embeddingResponse = await openai().embeddings.create({
     model: 'text-embedding-3-small',
     input: symptoms,
-  })
+  }, requestOptions)
   const embedding = embeddingResponse.data[0].embedding
 
   const { data, error } = await supabase.rpc('search_vet_knowledge', {

@@ -1700,6 +1700,7 @@ const en: Dictionary = {
     closedExpired: 'Questions can be asked within 48 hours of the check.',
     failed: 'Could not answer. The question was not used up — please try again.',
     tooShort: 'Write a question of at least three characters.',
+    stillAnswering: 'The answer to this question is still on its way. Reload the page in a minute.',
     tooOften: 'Too many questions in a row. Please try later.',
     alertToday: 'This changes the picture. Have your pet seen by a vet today.',
     alertTodayNamed: 'This changes the picture. Have {name} seen by a vet today.',

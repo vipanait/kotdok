@@ -45,6 +45,21 @@ export function threadNote(
   return `${words.remaining(thread.remaining, thread.limit)} · ${words.until(when)}`
 }
 
+/**
+ * What a 409 says once the thread has been read again: while it is open the
+ * refusal can only be this very question still being answered, which will be
+ * spent; a closed thread says why itself.
+ */
+export function conflictNotice(fresh: CheckQuestionThread | null, now: Date, words: QuestionWords): string | null {
+  if (!fresh) return words.failed
+  return isOpen(fresh, now) ? words.stillAnswering : null
+}
+
+/** The field once an answer came: emptied only if it still holds that question, not one typed meanwhile. */
+export function clearedAfterAnswer(text: string, answered: string): string {
+  return text.trim() === answered ? '' : text
+}
+
 /** The fixed words of the plate under an answer that raised an alert; null when there is none. */
 export function alertText(alert: CheckQuestionAlert, petName: string | null, words: QuestionWords): string | null {
   if (alert === 'clinic_now') return words.alertNow

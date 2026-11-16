@@ -34,13 +34,23 @@ describe('what is kept of the model answer', () => {
     expect(normalizeAnswer(raw({ answer: 'Текст.' }), 'monitor', 'ru')).toMatchObject({ alert: 'none', offTopic: false })
   })
 
-  it('answers an off-topic question with the fixed sentence and no alert', () => {
-    expect(normalizeAnswer(raw({ answer: 'Завтра дождь.', alert: 'clinic_now', off_topic: true }), 'monitor', 'ru')).toEqual({
+  it('answers an off-topic question with the fixed sentence', () => {
+    expect(normalizeAnswer(raw({ answer: 'Завтра дождь.', off_topic: true }), 'monitor', 'ru')).toEqual({
       answer: OFF_TOPIC_ANSWER.ru,
       alert: 'none',
       offTopic: true,
     })
     expect(normalizeAnswer(raw({ answer: '', off_topic: true }), 'monitor', 'en').answer).toBe(OFF_TOPIC_ANSWER.en)
+  })
+
+  it('keeps the plate of an off-topic question that is dangerous all the same', () => {
+    // «Наш второй кот съел крысиный яд» is about another pet, and still a reason to go now.
+    expect(normalizeAnswer(raw({ answer: 'Езжайте.', alert: 'clinic_now', off_topic: true }), 'monitor', 'ru')).toEqual({
+      answer: OFF_TOPIC_ANSWER.ru,
+      alert: 'clinic_now',
+      offTopic: true,
+    })
+    expect(normalizeAnswer(raw({ answer: 'x', alert: 'clinic_now', off_topic: true }), 'emergency', 'ru').alert).toBe('none')
   })
 
   it('cuts a long answer at the end of a sentence within 1500 characters', () => {

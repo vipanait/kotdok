@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { CheckQuestionThread } from '@lapka/contracts'
 import { en } from '@/i18n/en'
 import { ru } from '@/i18n/ru'
-import { alertText, isOpen, showsBlock, suggestionsFor, threadNote } from './check-questions'
+import { alertText, clearedAfterAnswer, conflictNotice, isOpen, showsBlock, suggestionsFor, threadNote } from './check-questions'
 
 // CQ-03: what the questions block under a result says, on the app's own words.
 
@@ -82,3 +82,24 @@ describe('the plate under an alarming answer', () => {
     expect(alertText('none', 'Rex', en.checkQuestions)).toBeNull()
   })
 })
+
+describe('what a refused question says (409)', () => {
+  it('says the answer is still on its way while the thread is open', () => {
+    expect(conflictNotice(thread(), NOW, ru.checkQuestions)).toBe('Ответ на этот вопрос ещё готовится. Загляните сюда через минуту.')
+  })
+
+  it('says nothing more when the thread closed, and fails when it could not be read', () => {
+    expect(conflictNotice(thread({ remaining: 0, closed: 'limit' }), NOW, ru.checkQuestions)).toBeNull()
+    expect(conflictNotice(null, NOW, ru.checkQuestions)).toBe(ru.checkQuestions.failed)
+  })
+})
+
+describe('the field after an answer', () => {
+  it('is emptied only if it still holds the question that was answered', () => {
+    expect(clearedAfterAnswer('Можно ли кормить?', 'Можно ли кормить?')).toBe('')
+    expect(clearedAfterAnswer('  Можно ли кормить? ', 'Можно ли кормить?')).toBe('')
+    // Typed while waiting: the next question stays.
+    expect(clearedAfterAnswer('А поить?', 'Можно ли кормить?')).toBe('А поить?')
+  })
+})
+

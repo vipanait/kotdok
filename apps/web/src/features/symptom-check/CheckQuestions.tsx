@@ -12,6 +12,7 @@ import { clinicSearchUrl } from '@/features/symptom-check/clinic-search'
 import type { Locale } from '@/shared/i18n/config'
 import {
   alertText,
+  conflictNotice,
   isOpen,
   recheckHref,
   showsBlock,
@@ -97,7 +98,7 @@ export default function CheckQuestions({
         // being answered: the thread itself says which.
         const fresh = await browserApi().getCheckQuestions(checkId).catch(() => null)
         if (fresh) setThread(fresh)
-        if (!fresh || isOpen(fresh, new Date())) setError(words.failed)
+        setError(conflictNotice(fresh, new Date(), words))
       } else {
         setError(words.failed)
       }

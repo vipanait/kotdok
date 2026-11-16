@@ -42,6 +42,14 @@ describe('check questions contract', () => {
     expect(CheckQuestionInputSchema.safeParse({ question: 'ест ли?', extra: 1 }).success).toBe(false)
   })
 
+  it('measures a question in characters, as the database does, not in UTF-16 units', () => {
+    // An emoji is two UTF-16 units: «🐈a» is three units but two characters.
+    expect(CheckQuestionInputSchema.safeParse({ question: '🐈a' }).success).toBe(false)
+    expect(CheckQuestionInputSchema.safeParse({ question: '🐈ab' }).success).toBe(true)
+    expect(CheckQuestionInputSchema.safeParse({ question: '🐈'.repeat(500) }).success).toBe(true)
+    expect(CheckQuestionInputSchema.safeParse({ question: '🐈'.repeat(501) }).success).toBe(false)
+  })
+
   it('reads a thread a later server added a field to', () => {
     const read = CheckQuestionThreadSchema.safeParse({ ...thread, later: true, items: [{ ...item, later: 1 }] })
     expect(read.success).toBe(true)

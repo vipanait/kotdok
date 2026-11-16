@@ -22,7 +22,8 @@ import {
   openai,
 } from '@/server/symptom-check/analyze-symptom-check'
 import { mapSymptomCheckRow, symptomCheckSelect } from '@/server/symptom-check/map-symptom-check'
-import type { Pet } from '@/shared/types'
+import { NO_VET_CONTEXT } from '@/server/symptom-check/vet-sources'
+import type { Pet, PetSpecies } from '@/shared/types'
 import { sanitizeSpecies } from '@/shared/utils/pet-utils'
 import { normalizeAnswer } from './question-answer'
 import { questionMessages, type QuestionContext } from './question-prompt'
@@ -50,6 +51,22 @@ export type QuestionResult<T> = { ok: true; data: T } | { ok: false; reason: Que
 export const QUESTION_MODEL_TIMEOUT_MS = 30_000
 export const QUESTION_MODEL_MAX_RETRIES = 1
 export const QUESTION_MAX_TOKENS = 500
+/**
+ * The knowledge-base search is an extra, not the answer: five seconds and no
+ * retry, and a failure leaves the model the check and the record alone. Its
+ * own client default (a minute, twice) would not fit the route's 90 seconds.
+ */
+export const QUESTION_SEARCH_OPTIONS = { timeout: 5_000, maxRetries: 0 }
+
+/** The knowledge base on the symptoms and the question, or nothing if it does not answer in time. */
+async function searchKnowledge(supabase: SupabaseService, text: string, species: PetSpecies): Promise<string> {
+  try {
+    return (await getVetContext(supabase, text, species, QUESTION_SEARCH_OPTIONS)).context
+  } catch (error) {
+    console.warn('check question: the knowledge base was not searched:', error instanceof Error ? error.message : error)
+    return NO_VET_CONTEXT
+  }
+}
 
 type QuestionRow = {
   id: string
@@ -177,7 +194,8 @@ async function questionContext(
     petText,
     earlier: earlier.map((row) => ({ question: row.question, answer: row.answer ?? '' })),
     // Searched by the symptoms and the question together: the question alone is often three words.
-    vetContext: (await getVetContext(supabase, `${check.symptoms_input}\n${question}`, species ?? 'cat')).context,
+    // A check without a pet is searched as a cat's, as its analysis was.
+    vetContext: await searchKnowledge(supabase, `${check.symptoms_input}\n${question}`, species ?? 'cat'),
     question,
   }
 }

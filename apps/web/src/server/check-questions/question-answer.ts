@@ -38,7 +38,7 @@ function cut(text: string): string {
  * An alert only ever adds to the check: one that says no more than the check's
  * own level already does is dropped, so an emergency result never grows a
  * second, weaker instruction under it. An off-topic question gets the fixed
- * sentence and no alert.
+ * sentence, and keeps an alert it raised.
  *
  * @throws when the text is not JSON or holds no answer — the caller gives the
  * question's place back.
@@ -48,14 +48,16 @@ export function normalizeAnswer(raw: string, checkUrgency: Urgency, locale: Loca
   if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) throw new Error('answer is not an object')
   const r = parsed as Record<string, unknown>
 
-  if (r.off_topic === true) return { answer: OFF_TOPIC_ANSWER[locale], alert: 'none', offTopic: true }
+  const said = CHECK_QUESTION_ALERTS.find((alert) => alert === r.alert) ?? 'none'
+  const alert = ALERT_RANK[said] > urgencyRank(checkUrgency) ? said : 'none'
+
+  // Off topic keeps a plate the model raised: «наш второй кот съел яд» is about
+  // another pet and still a reason to go now. A danger sign is never dropped.
+  if (r.off_topic === true) return { answer: OFF_TOPIC_ANSWER[locale], alert, offTopic: true }
 
   // The knowledge base is numbered for the analysis's sources; an answer shows none.
   const answer = typeof r.answer === 'string' ? stripSourceMarks(r.answer) : ''
   if (!answer) throw new Error('answer is empty')
-
-  const said = CHECK_QUESTION_ALERTS.find((alert) => alert === r.alert) ?? 'none'
-  const alert = ALERT_RANK[said] > urgencyRank(checkUrgency) ? said : 'none'
 
   return { answer: cut(answer), alert, offTopic: false }
 }

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { CheckQuestionThread } from '@lapka/contracts'
 import ru from '@/shared/i18n/dictionaries/ru'
 import en from '@/shared/i18n/dictionaries/en'
-import { alertText, isOpen, showsBlock, suggestionsFor, threadNote } from '@/features/symptom-check/check-questions-view'
+import { alertText, conflictNotice, isOpen, showsBlock, suggestionsFor, threadNote } from '@/features/symptom-check/check-questions-view'
 
 const NOW = new Date('2026-11-13T12:00:00.000Z')
 
@@ -104,3 +104,19 @@ describe('where «Проверить снова» leads', () => {
     expect(recheckHref(null, null)).toBe('/check')
   })
 })
+
+describe('what a refused question says (409)', () => {
+  it('says the answer is still on its way while the thread is open: the question will be spent', () => {
+    expect(conflictNotice(thread(), NOW, ru.checkQuestions)).toBe('Ответ на этот вопрос ещё готовится. Обновите страницу через минуту.')
+  })
+
+  it('says nothing more when the thread closed: its own line explains', () => {
+    expect(conflictNotice(thread({ remaining: 0, closed: 'limit' }), NOW, ru.checkQuestions)).toBeNull()
+    expect(conflictNotice(thread({ closed: 'expired' }), NOW, ru.checkQuestions)).toBeNull()
+  })
+
+  it('falls back to the failure when the thread could not be read again', () => {
+    expect(conflictNotice(null, NOW, ru.checkQuestions)).toBe(ru.checkQuestions.failed)
+  })
+})
+

@@ -15,7 +15,7 @@ import { Field } from '@/ui/Field'
 import { Icon } from '@/ui/Icon'
 import { Text } from '@/ui/Text'
 import { colour, radius, space, urgency as urgencyScale } from '@/ui/theme'
-import { alertText, isOpen, showsBlock, suggestionsFor, threadNote } from './check-questions'
+import { alertText, clearedAfterAnswer, conflictNotice, isOpen, showsBlock, suggestionsFor, threadNote } from './check-questions'
 
 /** A fresh key for a question; the platform's crypto where there is one. */
 function newKey(): string {
@@ -66,7 +66,7 @@ export function CheckQuestions({ check }: { check: SymptomCheckRecord }) {
         api.askCheckQuestion(check.id, key, { question }, localDay(new Date())),
       )
       seed([[queryKeys.checkQuestions(check.id), result.thread]])
-      setText('')
+      setText((current) => clearedAfterAnswer(current, question))
       sent.current = null
     } catch (failure) {
       if (failure instanceof ApiError && failure.code === 'rate_limited') {
@@ -76,7 +76,7 @@ export function CheckQuestions({ check }: { check: SymptomCheckRecord }) {
         // being answered: the thread itself says which.
         const fresh = await withFreshSession((api) => api.getCheckQuestions(check.id)).catch(() => null)
         if (fresh) seed([[queryKeys.checkQuestions(check.id), fresh]])
-        if (!fresh || isOpen(fresh, new Date())) setError(words.failed)
+        setError(conflictNotice(fresh, new Date(), words))
       } else {
         setError(words.failed)
       }
@@ -90,9 +90,11 @@ export function CheckQuestions({ check }: { check: SymptomCheckRecord }) {
     if (theCase && theCase.status === 'active' && check.pet_id) {
       askRecheck({ caseId: theCase.case_id, petId: check.pet_id })
     }
-    // In the check tab the form is under this result: back down to it, as «Новая проверка» does.
-    if (tab === 'check') router.dismissTo('/check')
-    else router.navigate('/check')
+    // With this pet chosen, as the history's «Проверить» does. In the check tab
+    // the form is under this result: back down to it, as «Новая проверка» does.
+    const target = check.pet_id ? { pathname: '/check' as const, params: { petId: check.pet_id } } : '/check'
+    if (tab === 'check') router.dismissTo(target)
+    else router.navigate(target)
   }
 
   const suggestions = thread.items.length === 0 && pending === null ? suggestionsFor(check.urgency, words) : []
