@@ -64,6 +64,9 @@ PLANNED означает отсутствие принятого результ�
 | FU-05…07 (приложение) | Цикл наблюдения в приложении | IN_PROGRESS | [followup-loop-mobile-implementation.md](followup-loop-mobile-implementation.md) | 25.10.2026 |
 | FU-02…07 | Цикл наблюдения: сквозная проверка на сайте и в приложении | PASS с ограничениями | [followup-loop-e2e.md](followup-loop-e2e.md) | 25.10.2026 |
 | SEO-01…04, 06 | Статьи о симптомах и отравлениях, первая волна | IN_PROGRESS | [seo-symptom-pages-wave-1.md](seo-symptom-pages-wave-1.md) | 25.10.2026 |
+| CQ-01 | Уточняющие вопросы: сервер и контракт | IN_PROGRESS (17/17 PASS, миграция в прод не применена) | [check-questions-01.md](check-questions-01.md) | 16.11.2026 |
+| CQ-02 | Уточняющие вопросы: сайт | IN_PROGRESS (7/7 PASS) | [check-questions-02.md](check-questions-02.md) | 16.11.2026 |
+| CQ-03 | Уточняющие вопросы: приложение | IN_PROGRESS (Android и сборка из стора не проверены) | [check-questions-03.md](check-questions-03.md) | 16.11.2026 |
 
 Этап 4 перечитан 9 сентября: прежний BLOCKED был написан до установки Xcode и не учитывал трёх последующих прогонов. После перепроверки на симуляторе и на настоящем планшете 4/02 и 4/04 закрыты, 4/01 и 4/03 остаются частичными — нужен физический iPhone (1.11) и выравнивание подтверждения почты на staging с продакшеном.
 
