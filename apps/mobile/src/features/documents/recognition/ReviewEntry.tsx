@@ -61,8 +61,8 @@ export function ReviewEntry({
           <Text variant="label" tone={row.date.missing ? 'danger' : 'muted'}>
             {row.date.text}
           </Text>
-          {row.details.map((line) => (
-            <Text key={line} variant="label" tone="muted">
+          {row.details.map((line, index) => (
+            <Text key={index} variant="label" tone="muted">
               {line}
             </Text>
           ))}
@@ -77,8 +77,8 @@ export function ReviewEntry({
               <Text variant="label">{row.unsure}</Text>
             </View>
           ) : null}
-          {row.missing.map((text) => (
-            <Text key={text} variant="caption" tone="danger">
+          {row.missing.map((text, index) => (
+            <Text key={index} variant="caption" tone="danger">
               {text}
             </Text>
           ))}

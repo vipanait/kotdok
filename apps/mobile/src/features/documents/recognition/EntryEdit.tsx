@@ -3,7 +3,7 @@ import { AccessibilityInfo, StyleSheet, View } from 'react-native'
 import type { PetSpecies } from '@lapka/contracts'
 import type { DraftEntry } from '@lapka/shared'
 import { useText } from '@/i18n'
-import { localToday, parseDayInput } from '@/lib/calendar-day'
+import { parseDayInput } from '@/lib/calendar-day'
 import { CourseFields } from '@/features/medical-record/CourseFields'
 import { EventItemCard } from '@/features/medical-record/EventItemCard'
 import { readDraft, type DraftErrors, type EventDraft, type ItemDraft } from '@/features/medical-record/event-form'
@@ -34,6 +34,7 @@ export function EntryEdit({
   entry,
   state,
   species,
+  today,
   onOpenPage,
   onStateChange,
   onDone,
@@ -43,6 +44,8 @@ export function EntryEdit({
   entry: DraftEntry
   state: EditState
   species: PetSpecies
+  /** The review's day: the record's date may not be later, and the confirm sends by the same day. */
+  today: string
   onOpenPage: () => void
   onStateChange: (state: EditState) => void
   onDone: (entry: DraftEntry) => void
@@ -64,7 +67,8 @@ export function EntryEdit({
 
   function done() {
     if (state.form.kind === 'event' && entry.type !== 'medication') {
-      const read = readDraft(t, state.form.draft, 'new')
+      // Noon of the review's day, so the form's own reader judges by that day and no other.
+      const read = readDraft(t, state.form.draft, 'new', new Date(`${today}T12:00:00`))
       if (!read.ok) {
         setEventErrors(read.errors)
         const first = read.errors.date ?? Object.values(read.errors.items ?? {})[0] ?? Object.values(read.errors.next ?? {})[0] ?? read.errors.form
@@ -84,7 +88,10 @@ export function EntryEdit({
         return
       }
       onDone(entryFromCourseRead(entry, read.value[0]))
+      return
     }
+    // The form always matches its entry (`editStateOf`); if it ever did not, say so rather than do nothing.
+    if (__DEV__) console.warn(`EntryEdit: the ${state.form.kind} form does not fit the ${entry.type} entry ${entry.key}`)
   }
 
   const unreadName = entry.unsure.includes('name') && entry.name ? entry.name : null
@@ -100,6 +107,7 @@ export function EntryEdit({
         <EventFields
           draft={state.form.draft}
           species={species}
+          today={today}
           errors={eventErrors}
           onChange={(draft) => {
             setEvent(draft)
@@ -137,18 +145,20 @@ export function EntryEdit({
 function EventFields({
   draft,
   species,
+  today,
   errors,
   onChange,
 }: {
   draft: EventDraft
   species: PetSpecies
+  today: string
   errors: DraftErrors
   onChange: (draft: EventDraft) => void
 }) {
   const t = useText()
   const words = t.medicalRecord
   const treatment = draft.kind === 'parasite'
-  const recordDay = parseDayInput(draft.date)
+  const recordDay = parseDayInput(draft.date, new Date(`${today}T12:00:00`))
 
   const update = (key: string, next: (item: ItemDraft) => ItemDraft) =>
     onChange({ ...draft, items: draft.items.map((item) => (item.key === key ? next(item) : item)) })
@@ -160,7 +170,7 @@ function EventFields({
         value={draft.date}
         onChangeText={(date) => onChange({ ...draft, date })}
         placeholder={words.datePlaceholder}
-        max={localToday()}
+        max={today}
         error={errors.date}
       />
       <Text variant="h3" style={styles.heading}>

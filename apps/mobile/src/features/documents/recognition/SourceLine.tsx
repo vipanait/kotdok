@@ -19,7 +19,7 @@ export function SourceLine({ title, onPress }: { title: string; onPress: () => v
   const words = t.documents.source
   return (
     <View style={styles.block}>
-      <Text variant="label" tone="muted" accessibilityRole="header">
+      <Text variant="label" tone="muted">
         {words.label}
       </Text>
       <Pressable

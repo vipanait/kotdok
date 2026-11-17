@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { AccessibilityInfo, BackHandler, StyleSheet, View, type ScrollView } from 'react-native'
+import { useFocusEffect } from 'expo-router'
 import type { PetSpecies } from '@lapka/contracts'
 import {
   confirmBody,
@@ -28,9 +29,6 @@ import { DocumentLine, Notice } from '../parts'
 import { EntryEdit } from './EntryEdit'
 import { ReviewEntry } from './ReviewEntry'
 import { editChanged, editStateOf, selectionAfterEdit, type EditState } from './recognition-view'
-
-/** How long to let the list lay out again before putting it back where it was. */
-const RESTORE_MS = 60
 
 /**
  * The review of a recognised document (design run «review», «mismatch»,
@@ -114,10 +112,13 @@ export function ReviewScreen({
   const [confirmError, setConfirmError] = useState(false)
   const [discarding, setDiscarding] = useState<'asking' | 'busy' | null>(opening?.discard ? 'asking' : null)
   const [discardError, setDiscardError] = useState(false)
-  const [returnTo, setReturnTo] = useState<{ key: string; y: number; n: number } | null>(null)
 
   const scroller = useRef<ScrollView | null>(null)
+  /** Where the list stands as it scrolls, and where it stood when an edit opened. */
   const listY = useRef(0)
+  const savedY = useRef(0)
+  /** The way back from an edit, done once the list has laid out again: its scroll, and the entry to focus. */
+  const returning = useRef<{ key: string; y: number } | null>(null)
   const editRefs = useRef(new Map<string, View | null>())
   const inFlight = useRef(false)
 
@@ -130,14 +131,27 @@ export function ReviewScreen({
   const unsaved = useUnsavedChanges(dirty && !confirming && discarding !== 'busy')
 
   function openEdit(entry: DraftEntry) {
+    // Before anything moves the scroller: the edit starts at the top.
+    savedY.current = listY.current
     setEditing(editStateOf(entry))
     scroller.current?.scrollTo({ y: 0, animated: false })
   }
 
   function closeEdit(key: string) {
     setAskingEdit(false)
+    returning.current = { key, y: savedY.current }
     setEditing(null)
-    setReturnTo((current) => ({ key, y: listY.current, n: (current?.n ?? 0) + 1 }))
+  }
+
+  /** The list has laid out again after an edit: back where it was, the focus on that entry's «Изменить». */
+  function restoreList() {
+    const back = returning.current
+    if (!back) return
+    returning.current = null
+    scroller.current?.scrollTo({ y: back.y, animated: false })
+    listY.current = back.y
+    const node = editRefs.current.get(back.key)
+    if (node) AccessibilityInfo.sendAccessibilityEvent(node, 'focus')
   }
 
   /** «← К проверке» and «Отмена»: straight back when nothing changed, a question otherwise. */
@@ -147,27 +161,24 @@ export function ReviewScreen({
     else closeEdit(editing.key)
   }
 
-  // The hardware back on an edit goes back to the list, as «← К проверке» does.
-  // Subscribed on every render, so it always asks about the edit as it is now.
+  // The hardware back on an edit goes back to the list, as «← К проверке» does —
+  // only while this screen is in front: with the original pushed over the
+  // edit, back closes the original.
+  const leaveEditNow = useRef(leaveEdit)
   useEffect(() => {
-    if (!editing) return
-    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
-      leaveEdit()
-      return true
-    })
-    return () => sub.remove()
+    leaveEditNow.current = leaveEdit
   })
-
-  // Back from an edit: the list where it was, and the focus on that entry's «Изменить».
-  useEffect(() => {
-    if (!returnTo) return
-    const timer = setTimeout(() => {
-      scroller.current?.scrollTo({ y: returnTo.y, animated: false })
-      const node = editRefs.current.get(returnTo.key)
-      if (node) AccessibilityInfo.sendAccessibilityEvent(node, 'focus')
-    }, RESTORE_MS)
-    return () => clearTimeout(timer)
-  }, [returnTo])
+  const isEditing = editing !== null
+  useFocusEffect(
+    useCallback(() => {
+      if (!isEditing) return
+      const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+        leaveEditNow.current()
+        return true
+      })
+      return () => sub.remove()
+    }, [isEditing]),
+  )
 
   async function confirm() {
     if (inFlight.current || count === 0) return
@@ -190,8 +201,8 @@ export function ReviewScreen({
     setDiscardError(false)
     try {
       await onDiscard()
-      setDiscarding(null)
       unsaved.leave(onDiscarded)
+      setDiscarding(null)
     } catch {
       setDiscarding(null)
       setDiscardError(true)
@@ -223,7 +234,7 @@ export function ReviewScreen({
       scroll
       scrollRef={scroller}
       onScrollY={(y) => {
-        if (!editing) listY.current = y
+        if (!editing && !returning.current) listY.current = y
       }}
       dock={
         editingNow ? null : (
@@ -243,6 +254,7 @@ export function ReviewScreen({
           entry={editingNow.entry}
           state={editingNow.state}
           species={species}
+          today={today}
           onOpenPage={() => onOpenPage(editingNow.entry.page, 'edit')}
           onStateChange={setEditing}
           onDone={(entry) => {
@@ -254,7 +266,8 @@ export function ReviewScreen({
           onCancel={leaveEdit}
         />
       ) : (
-        <>
+        // A new view after every edit: its first layout is when the list can go back where it was.
+        <View onLayout={restoreList}>
           {mismatch ? (
             <Notice tone="error" title={words.mismatchTitle(draft.pet_name_as_written ?? '')} body={words.mismatchBody(petName)} />
           ) : (
@@ -310,7 +323,7 @@ export function ReviewScreen({
               setDiscarding('asking')
             }}
           />
-        </>
+        </View>
       )}
 
       <ConfirmDialog
