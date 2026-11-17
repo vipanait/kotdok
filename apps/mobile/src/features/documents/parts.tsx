@@ -253,7 +253,9 @@ export function PageList({
  * Where recognition will be offered on a stored passport or prescription
  * (DOC-2). Hidden for now (ruling R2): the contract has no flag that says
  * recognition is available, and a button that can only fail is worse than
- * none. The slot stays so the offer lands here and nowhere else.
+ * none. The slot stays so the offer lands here and nowhere else: once the
+ * API says so, it renders `recognition/RecognitionStates` `RecognitionOffer`
+ * with the API's free uses, price and balance.
  */
 export function RecognitionOffer(_props: { doc: PetDocument }) {
   return null
