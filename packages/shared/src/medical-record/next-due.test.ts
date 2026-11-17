@@ -92,7 +92,7 @@ const item = (n: number, targets: string[], name: string | null): HealthItem => 
   medication_id: null,
 })
 function treatment(n: number, status: HealthEvent['status'], date: string, items: HealthItem[]): HealthEvent {
-  return { id: uuid(n), kind: 'parasite', status, date, clinic: null, notes: null, items, visit_kind: null, reason: null, diagnosis: null, check_id: null }
+  return { id: uuid(n), kind: 'parasite', status, date, clinic: null, notes: null, items, visit_kind: null, reason: null, diagnosis: null, check_id: null, source_document_id: null }
 }
 
 describe('the parasite cards (web v1 «parasites», phone «Паразиты»)', () => {

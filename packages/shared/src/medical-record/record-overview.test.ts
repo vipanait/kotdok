@@ -30,6 +30,7 @@ function event(overrides: Partial<HealthEvent> & Pick<HealthEvent, 'id' | 'kind'
     reason: null,
     diagnosis: null,
     check_id: null,
+    source_document_id: null,
     ...overrides,
   }
 }
@@ -139,7 +140,7 @@ describe('courses', () => {
     started_on,
     ended_on,
     ongoing: ended_on === null,
-    source: 'record', reminder_times: [],
+    source: 'record', reminder_times: [], source_document_id: null,
   })
 
   it('treats a course that ends today as finished', () => {

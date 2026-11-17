@@ -29,7 +29,7 @@ const pet = (overrides: Partial<Pet> = {}): Pet => ({
 const weight = (id: string, measured_on: string | null, weight_kg: number): WeightMeasurement => ({ id, measured_on, weight_kg, source: 'record' })
 const course = (overrides: Partial<Medication>): Medication => ({
   id: 'm-1', name: 'Апоквел', dosage: '1 таб', started_on: '2026-10-01', ended_on: null, ongoing: false, source: 'record',
-  reminder_times: [], ...overrides,
+  reminder_times: [], source_document_id: null, ...overrides,
 })
 const overview = (overrides: Partial<HealthOverview> = {}): HealthOverview => ({
   pet: pet(), writable: ['vaccinations', 'parasites', 'visits', 'medications', 'weight'], weights: [], events: [], medications: [], ...overrides,

@@ -82,7 +82,7 @@ describe('readEventInput', () => {
 })
 
 const fields = (over: Partial<CourseFields> = {}): CourseFields => ({ key: 'c1', name: 'Апоквел', dosage: '1 таб', start: '2026-10-01', end: '', ongoing: false, ...over })
-const course = (over: Partial<Medication> = {}): Medication => ({ id: 'c1', name: 'Апоквел', dosage: '1 таб', started_on: '2026-10-01', ended_on: null, ongoing: false, source: 'record', reminder_times: [], ...over })
+const course = (over: Partial<Medication> = {}): Medication => ({ id: 'c1', name: 'Апоквел', dosage: '1 таб', started_on: '2026-10-01', ended_on: null, ongoing: false, source: 'record', reminder_times: [], source_document_id: null, ...over })
 
 describe('courses', () => {
   it('checks a course as the server will', () => {
@@ -115,7 +115,7 @@ const visit = (over: Partial<VisitFields> = {}): VisitFields => ({
   status: 'done', date: TODAY, visitKind: 'checkup', clinic: '', reason: '', diagnosis: '', prescriptions: [], checkId: null, notes: '', ...over,
 })
 const plan: HealthEvent = {
-  id: 'v1', kind: 'visit', status: 'planned', date: '2026-11-10', visit_kind: 'checkup', clinic: null, notes: null, reason: 'Осмотр', diagnosis: null, check_id: null,
+  id: 'v1', kind: 'visit', status: 'planned', date: '2026-11-10', visit_kind: 'checkup', clinic: null, notes: null, reason: 'Осмотр', diagnosis: null, check_id: null, source_document_id: null,
   items: [],
 } as unknown as HealthEvent
 

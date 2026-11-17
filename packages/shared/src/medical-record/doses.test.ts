@@ -11,6 +11,7 @@ const course = (overrides: Partial<Medication> = {}): Medication => ({
   ongoing: true,
   source: 'record',
   reminder_times: ['08:00', '20:00'],
+  source_document_id: null,
   ...overrides,
 })
 
