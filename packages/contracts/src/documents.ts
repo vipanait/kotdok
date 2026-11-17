@@ -123,7 +123,6 @@ export const DocumentListSchema = z.object({
   recognition_price: z.union([z.literal(0), z.literal(1)]),
 })
 
-export type DocumentList = z.infer<typeof DocumentListSchema>
 
 /**
  * A document as an app reads it, tolerant of a later server: a kind this
@@ -164,9 +163,16 @@ const DocumentListReadShape = DocumentListSchema.extend({
 })
 
 /**
+ * The list as the apps hold it: the price is a count of credits, whatever
+ * today's server sends (0 or 1, {@link DocumentListSchema}). The server's
+ * own 0 fits it as well.
+ */
+export type DocumentList = z.infer<typeof DocumentListReadShape>
+
+/**
  * The list as an app reads it: each document through {@link readableDocument},
  * and one that still does not read is left out rather than taking the whole
- * list down with it.
+ * list down with it — as is one left with no file this build can open.
  */
 export const DocumentListReadSchema = z.preprocess((value) => {
   if (!value || typeof value !== 'object') return value
@@ -174,6 +180,12 @@ export const DocumentListReadSchema = z.preprocess((value) => {
   if (!Array.isArray(list.documents)) return value
   return {
     ...list,
-    documents: list.documents.map(readableDocument).filter((doc) => PetDocumentSchema.safeParse(doc).success),
+    documents: list.documents
+      .map(readableDocument)
+      // Unreadable, or with no file this build can show (every one of a later type): left out.
+      .filter((doc) => {
+        const read = PetDocumentSchema.safeParse(doc)
+        return read.success && read.data.files.length > 0
+      }),
   }
 }, DocumentListReadShape)

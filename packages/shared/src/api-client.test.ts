@@ -586,6 +586,12 @@ describe('pet documents (DOC-1)', () => {
     expect(list.documents.map((d) => d.kind)).toEqual(['other'])
   })
 
+  it('leaves out of the list a document whose every file is of a later type', async () => {
+    const later = { ...stored, files: [{ ...stored.files[0], content_type: 'image/heic' }] }
+    const { api } = recording([ok({ documents: [later, stored], free_recognitions_left: 3, recognition_price: 0 })])
+    expect((await api.listDocuments(pet)).documents).toHaveLength(1)
+  })
+
   it('reads a later price of a recognition without breaking the list', async () => {
     const { api } = recording([ok({ documents: [stored], free_recognitions_left: 0, recognition_price: 2 })])
     const list = await api.listDocuments(pet)
