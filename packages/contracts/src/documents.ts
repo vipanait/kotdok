@@ -154,6 +154,16 @@ export function readableDocument(value: unknown): unknown {
 export const PetDocumentReadSchema = z.preprocess(readableDocument, PetDocumentSchema)
 
 /**
+ * The list's shape as an app reads it: the price of a recognition is any
+ * whole number of credits, not only the 0 or 1 of today — a later price must
+ * not take the whole list down. The documented {@link DocumentListSchema}
+ * stays 0 | 1.
+ */
+const DocumentListReadShape = DocumentListSchema.extend({
+  recognition_price: z.number().int().nonnegative(),
+})
+
+/**
  * The list as an app reads it: each document through {@link readableDocument},
  * and one that still does not read is left out rather than taking the whole
  * list down with it.
@@ -166,4 +176,4 @@ export const DocumentListReadSchema = z.preprocess((value) => {
     ...list,
     documents: list.documents.map(readableDocument).filter((doc) => PetDocumentSchema.safeParse(doc).success),
   }
-}, DocumentListSchema)
+}, DocumentListReadShape)

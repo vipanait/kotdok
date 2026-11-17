@@ -586,6 +586,18 @@ describe('pet documents (DOC-1)', () => {
     expect(list.documents.map((d) => d.kind)).toEqual(['other'])
   })
 
+  it('reads a later price of a recognition without breaking the list', async () => {
+    const { api } = recording([ok({ documents: [stored], free_recognitions_left: 0, recognition_price: 2 })])
+    const list = await api.listDocuments(pet)
+    expect(list.recognition_price).toBe(2)
+    expect(list.documents).toHaveLength(1)
+  })
+
+  it('still refuses a price that is not a count of credits', async () => {
+    const { api } = recording([ok({ documents: [stored], free_recognitions_left: 0, recognition_price: -1 })])
+    await expect(api.listDocuments(pet)).rejects.toMatchObject({ name: 'ApiContractError' })
+  })
+
   it('refuses a document that does not match the contract', async () => {
     const { api } = recording([ok({ ...stored, id: 'not-a-uuid' })])
     await expect(api.getDocument(pet, doc)).rejects.toMatchObject({ name: 'ApiContractError' })
