@@ -48,13 +48,15 @@ export async function putFile(url: string, headers: Record<string, string>, body
 export async function uploadDocument(
   api: UploadDeps,
   petId: string,
-  kind: DocumentKind,
+  { kind, title }: { kind: DocumentKind; title?: string },
   pages: PreparedPage[],
   onProgress: (progress: UploadProgress) => void = () => {},
 ): Promise<PetDocument> {
   onProgress({ step: 'start' })
+  const name = title?.trim()
   const grant = await api.createDocument(petId, {
     kind,
+    ...(name ? { title: name } : {}),
     files: pages.map((page) => ({ content_type: page.contentType, size_bytes: page.blob.size })),
   })
   for (const [index, upload] of grant.uploads.entries()) {

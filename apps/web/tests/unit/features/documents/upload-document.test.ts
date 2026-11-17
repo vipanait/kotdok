@@ -15,7 +15,7 @@ function fakeApi(putOk = true, overrides: Partial<UploadDeps> = {}) {
   const calls: string[] = []
   const api: UploadDeps = {
     createDocument: vi.fn(async (_pet: string, input: DocumentCreateInput) => {
-      calls.push(`create ${input.kind} ${input.files.map((f) => `${f.content_type}:${f.size_bytes}`).join(',')}`)
+      calls.push(`create ${input.kind}${input.title ? ` «${input.title}»` : ''} ${input.files.map((f) => `${f.content_type}:${f.size_bytes}`).join(',')}`)
       return {
         document_id: DOC,
         uploads: input.files.map((_, i) => ({
@@ -48,7 +48,7 @@ describe('uploadDocument', () => {
   it('asks for the upload, puts each page in order, then completes', async () => {
     const { api, calls } = fakeApi()
     const progress: UploadProgress[] = []
-    await uploadDocument(api, PET, 'vet_passport', [page('a', 3), page('b', 5)], (p) => progress.push(p))
+    await uploadDocument(api, PET, { kind: 'vet_passport' }, [page('a', 3), page('b', 5)], (p) => progress.push(p))
     expect(calls).toEqual([
       'create vet_passport image/jpeg:3,image/jpeg:5',
       'put https://storage.example/0 3',
@@ -58,9 +58,18 @@ describe('uploadDocument', () => {
     expect(progress).toEqual([{ step: 'start' }, { step: 'page', n: 1, total: 2 }, { step: 'page', n: 2, total: 2 }, { step: 'check' }])
   })
 
+  it('sends the name given, trimmed, and none for a blank one', async () => {
+    const named = fakeApi()
+    await uploadDocument(named.api, PET, { kind: 'lab_results', title: '  Анализ крови ' }, [page('a', 3)])
+    expect(named.calls[0]).toBe('create lab_results «Анализ крови» image/jpeg:3')
+    const blank = fakeApi()
+    await uploadDocument(blank.api, PET, { kind: 'other', title: '   ' }, [page('a', 3)])
+    expect(blank.calls[0]).toBe('create other image/jpeg:3')
+  })
+
   it('stops without completing when a page does not reach storage', async () => {
     const { api, calls } = fakeApi(false)
-    await expect(uploadDocument(api, PET, 'other', [page('a', 3), page('b', 5)])).rejects.toBeInstanceOf(PageUploadError)
+    await expect(uploadDocument(api, PET, { kind: 'other' }, [page('a', 3), page('b', 5)])).rejects.toBeInstanceOf(PageUploadError)
     expect(calls).toHaveLength(2)
   })
 
@@ -70,7 +79,7 @@ describe('uploadDocument', () => {
         throw new ApiTimeoutError('/complete', 30000)
       }),
     })
-    await expect(uploadDocument(api, PET, 'other', [page('a', 3)])).resolves.toMatchObject({ id: DOC, status: 'stored' })
+    await expect(uploadDocument(api, PET, { kind: 'other' }, [page('a', 3)])).resolves.toMatchObject({ id: DOC, status: 'stored' })
     expect(calls.at(-1)).toBe(`read ${DOC}`)
   })
 
@@ -78,15 +87,15 @@ describe('uploadDocument', () => {
     const lost = new TypeError('Failed to fetch')
     const failing = { completeDocument: vi.fn(async () => { throw lost }) }
     const pending = fakeApi(true, { ...failing, getDocument: vi.fn(async () => ({ id: DOC, status: 'pending' }) as never) })
-    await expect(uploadDocument(pending.api, PET, 'other', [page('a', 3)])).rejects.toBe(lost)
+    await expect(uploadDocument(pending.api, PET, { kind: 'other' }, [page('a', 3)])).rejects.toBe(lost)
     const unread = fakeApi(true, { ...failing, getDocument: vi.fn(async () => { throw new TypeError('offline') }) })
-    await expect(uploadDocument(unread.api, PET, 'other', [page('a', 3)])).rejects.toBe(lost)
+    await expect(uploadDocument(unread.api, PET, { kind: 'other' }, [page('a', 3)])).rejects.toBe(lost)
   })
 
   it('does not read again after a refusal: the server answered', async () => {
     const refusal = new ApiError('bad_request', 400, 'x', null, { reason: 'encrypted' })
     const { api, calls } = fakeApi(true, { completeDocument: vi.fn(async () => { throw refusal }) })
-    await expect(uploadDocument(api, PET, 'other', [page('a', 3)])).rejects.toBe(refusal)
+    await expect(uploadDocument(api, PET, { kind: 'other' }, [page('a', 3)])).rejects.toBe(refusal)
     expect(calls.some((call) => call.startsWith('read'))).toBe(false)
   })
 })

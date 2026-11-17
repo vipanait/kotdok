@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DOCUMENT_LIMITS } from '@lapka/contracts'
-import { addPages, movePage, PageFileError, preparePages, type PreparedPage } from '@/features/documents/prepare-pages'
+import { addPages, focusAfterMove, movePage, PageFileError, preparePages, removePage, type PreparedPage } from '@/features/documents/prepare-pages'
 
 /**
  * The browser's image machinery, recorded: what was decoded, the canvas the
@@ -173,5 +173,26 @@ describe('movePage', () => {
     expect(movePage(pages, 0, 1).map((p) => p.name)).toEqual(['b', 'a', 'c'])
     expect(movePage(pages, 0, -1)).toBe(pages)
     expect(movePage(pages, 2, 1)).toBe(pages)
+  })
+})
+
+describe('removePage', () => {
+  it('takes one page out and keeps the order of the others, so they are sent and numbered by place', () => {
+    const pages = [page('a'), page('b'), page('c')]
+    expect(removePage(pages, 1).map((p) => p.name)).toEqual(['a', 'c'])
+    expect(removePage(removePage(removePage(pages, 0), 0), 0)).toEqual([])
+    expect(removePage(pages, 3)).toBe(pages)
+  })
+})
+
+describe('focusAfterMove', () => {
+  it('keeps focus on the same action of the moved page while it can still move that way', () => {
+    expect(focusAfterMove(2, -1, 3)).toEqual({ index: 1, action: 'up' })
+    expect(focusAfterMove(0, 1, 3)).toEqual({ index: 1, action: 'down' })
+  })
+
+  it('turns to the other action once the page reaches an end', () => {
+    expect(focusAfterMove(1, -1, 3)).toEqual({ index: 0, action: 'down' })
+    expect(focusAfterMove(1, 1, 3)).toEqual({ index: 2, action: 'up' })
   })
 })

@@ -141,3 +141,20 @@ export function movePage<T>(pages: T[], index: number, delta: -1 | 1): T[] {
   ;[next[index], next[target]] = [next[target], next[index]]
   return next
 }
+
+/** The pages without the one at `index`; the rest keep their order and are numbered again by place. */
+export function removePage<T>(pages: T[], index: number): T[] {
+  if (index < 0 || index >= pages.length) return pages
+  return pages.filter((_, i) => i !== index)
+}
+
+/**
+ * Where focus goes after a page is moved: the same action on the moved page
+ * while it can still go that way, else the other way (at the top «Выше» is
+ * gone, «Ниже» is not).
+ */
+export function focusAfterMove(index: number, delta: -1 | 1, count: number): { index: number; action: 'up' | 'down' } {
+  const target = Math.min(Math.max(index + delta, 0), count - 1)
+  if (delta === -1) return { index: target, action: target === 0 ? 'down' : 'up' }
+  return { index: target, action: target === count - 1 ? 'up' : 'down' }
+}
