@@ -1,21 +1,26 @@
 'use client'
 
+import { useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { DOCUMENT_LIMITS, type PetDocument } from '@lapka/contracts'
+import { DOCUMENT_LIMITS } from '@lapka/contracts'
 import { useLocale, useTranslations } from '@/components/LocaleProvider'
 import Icon from '@/components/ui/Icon'
 import { useToday } from '@/features/forms/use-today'
 import { RecordProblem, StaleNotice } from '@/features/medical-record/MedicalRecordScreen'
+import { RetryButton } from '@/features/medical-record/MedicalRecordView'
 import SavedNotice from '@/features/medical-record/SavedNotice'
 import { medicalRecordHref } from '@/features/medical-record/routes'
-import { documentHref, documentMeta, documentTitle, type DocumentSaved } from './document-view'
+import { formatCount } from '@/shared/i18n/plural'
+import { documentHref, documentRow, type DocumentRowView, type DocumentSaved } from './document-view'
 import { useDocumentList } from './use-documents'
 
 /**
- * `/pets/[id]/documents` (DOC-1): the pet's documents, newest first — the
- * kind, the name, the date, how many pages, and «Ждёт проверки» once
- * recognition comes (DOC-2). Each opens its page. «Добавить документ» is
- * there until the pet holds the most it can.
+ * `/pets/[id]/documents` (DOC-1): «← Медкарта», «Документы», the pet's name
+ * and how many there are; then the documents, newest first, as compact rows
+ * — the name, the kind, the date when it has one, the pages, a status worth
+ * a word, PDF or photos — each opening its page. A failed read says so with
+ * «Повторить» instead of an empty list; at the limit «Добавить документ»
+ * gives way to how to make room.
  */
 export default function DocumentList({ petId, petName, saved = null }: { petId: string; petName: string; saved?: DocumentSaved | null }) {
   const dict = useTranslations()
@@ -24,15 +29,8 @@ export default function DocumentList({ petId, petName, saved = null }: { petId: 
   const today = useToday()
   const { state, reload } = useDocumentList(petId)
 
-  if (state.status !== 'ready') {
-    return <RecordProblem state={state} petId={petId} reload={reload} loading={<ListSkeleton label={words.loading} title={words.title} />} />
-  }
-
-  const { documents } = state.data
-  const full = documents.length >= DOCUMENT_LIMITS.perPet
-
-  return (
-    <div className="health-page documents-page">
+  const head = (subtitle: string, action: React.ReactNode = null) => (
+    <>
       <Link href={medicalRecordHref.record(petId)} className="link health-back">
         <Icon name="back" />
         {words.backToRecord}
@@ -40,73 +38,117 @@ export default function DocumentList({ petId, petName, saved = null }: { petId: 
       <div className="pagehead">
         <div>
           <h1>{words.title}</h1>
-          <p>{petName}</p>
+          <p className="document-subtitle">{subtitle}</p>
         </div>
-        {!full && (
-          <Link href={documentHref.add(petId)} className="btn primary">
-            {words.add}
-          </Link>
-        )}
+        {action}
       </div>
+    </>
+  )
+
+  const skeleton = (
+      <div className="health-page documents-page" role="status" aria-live="polite" aria-busy="true">
+        {head(petName)}
+        <p className="field-hint">{words.loading}</p>
+        <div className="documents-skeleton" aria-hidden>
+          <div className="skeleton-block" />
+          <div className="skeleton-block" />
+          <div className="skeleton-block" />
+        </div>
+      </div>
+  )
+
+  if (state.status === 'loading') return skeleton
+
+  if (state.status === 'failed') {
+    return (
+      <div className="health-page documents-page">
+        {head(petName)}
+        <ListFailed title={words.failed.title} body={words.failed.body} retry={<RetryButton onRetry={reload} retrying={state.retrying} dict={dict} className="btn primary" />} />
+      </div>
+    )
+  }
+
+  if (state.status !== 'ready') {
+    return <RecordProblem state={state} petId={petId} reload={reload} loading={skeleton} />
+  }
+
+  const { documents } = state.data
+  const full = documents.length >= DOCUMENT_LIMITS.perPet
+  const empty = documents.length === 0
+  const addButton = (
+    <Link href={documentHref.add(petId)} className="btn primary">
+      <Icon name="plus" />
+      {words.add}
+    </Link>
+  )
+
+  return (
+    <div className="health-page documents-page">
+      {head(empty ? petName : `${petName} · ${formatCount(words.count, documents.length, locale)}`, full || empty ? null : addButton)}
 
       {saved && <SavedNotice text={words.saved[saved]} />}
       <StaleNotice state={state} reload={reload} />
-      {full && <p className="banner documents-full">{words.limitNote.replace('{n}', String(DOCUMENT_LIMITS.perPet))}</p>}
 
-      {documents.length === 0 ? (
-        <section className="card events-empty documents-empty" aria-labelledby="documents-empty-title">
-          <h2 id="documents-empty-title">{words.empty.title}</h2>
-          <p>{words.empty.body}</p>
-          <Link href={documentHref.add(petId)} className="btn primary">
-            {words.add}
-          </Link>
-        </section>
-      ) : (
-        <ul className="documents-list" aria-label={words.title}>
-          {documents.map((doc) => (
-            <li key={doc.id}>
-              <DocumentRow petId={petId} doc={doc} title={documentTitle(dict, doc)} meta={documentMeta(dict, locale, doc, today)} />
-            </li>
-          ))}
-        </ul>
-      )}
+      <div className="section-layout document-layout">
+        <div className="section-main document-main">
+          {full && (
+            <div className="banner document-alert" role="note">
+              <strong>{words.full.title.replace('{count}', formatCount(words.count, documents.length, locale))}</strong>
+              <p>{words.full.body}</p>
+            </div>
+          )}
+
+          {empty ? (
+            <section className="document-quiet" aria-labelledby="documents-empty-title">
+              <h2 id="documents-empty-title">{words.empty.title}</h2>
+              <p>{words.empty.body}</p>
+              {addButton}
+            </section>
+          ) : (
+            <ul className="documents-list" aria-label={words.title}>
+              {documents.map((doc) => (
+                <li key={doc.id}>
+                  <DocumentRow href={documentHref.view(petId, doc.id)} row={documentRow(dict, locale, doc, today)} formatLabel={words.format} />
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <aside className="section-aside document-aside">
+          <h2>{empty ? words.empty.asideTitle : words.listAside.title}</h2>
+          <p>{empty ? words.empty.asideBody : words.listAside.body}</p>
+        </aside>
+      </div>
     </div>
   )
 }
 
-function DocumentRow({ petId, doc, title, meta }: { petId: string; doc: PetDocument; title: string; meta: string }) {
-  const first = doc.files[0]
-  const thumb = first && first.content_type !== 'application/pdf' && first.url ? first.url : null
+function DocumentRow({ href, row, formatLabel }: { href: string; row: DocumentRowView; formatLabel: { pdf: string; photo: string } }) {
   return (
-    <Link href={documentHref.view(petId, doc.id)} className="card document-row">
-      <span className="document-thumb" aria-hidden>
-        {thumb ? (
-          // A signed link to a private object: next/image would fetch and cache it on the server.
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={thumb} alt="" loading="lazy" />
-        ) : (
-          <span className="document-thumb-pdf">PDF</span>
-        )}
-      </span>
+    <Link href={href} className="document-row">
+      <span className="document-format">{formatLabel[row.format]}</span>
       <span className="document-row-text">
-        <strong>{title}</strong>
-        <small>{meta}</small>
+        <strong>{row.title}</strong>
+        {row.meta && <small>{row.meta}</small>}
+        {row.status && <span className="document-status">{row.status}</span>}
       </span>
       <Icon name="chevron" />
     </Link>
   )
 }
 
-function ListSkeleton({ label, title }: { label: string; title: string }) {
+function ListFailed({ title, body, retry }: { title: string; body: string; retry: React.ReactNode }) {
+  const ref = useRef<HTMLHeadingElement>(null)
+  // A list that turned into an error says so to a screen reader too.
+  useEffect(() => {
+    ref.current?.focus()
+  }, [])
   return (
-    <div className="health-skeleton" role="status" aria-live="polite" aria-busy="true">
-      <span className="sr-only">{label}</span>
-      <div className="pagehead" aria-hidden>
-        <div>
-          <h1>{title}</h1>
-        </div>
-      </div>
-      <div className="skeleton-block documents-skeleton" aria-hidden />
-    </div>
+    <section className="document-quiet" aria-labelledby="documents-failed-title">
+      <h2 id="documents-failed-title" ref={ref} tabIndex={-1}>{title}</h2>
+      <p>{body}</p>
+      {retry}
+    </section>
   )
 }
