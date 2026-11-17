@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useText } from '@/i18n'
 import { IconButton, LinkButton } from './Button'
 import { hiddenAboveTop, hiddenBelowKeyboard } from './keyboard-reveal'
+import { useDockClearance } from './tab-bar-below'
 import { CONTROL_FONT_LIMIT, Text } from './Text'
 import { Icon, type IconName } from './Icon'
 import { COLUMN_MAX_WIDTH, TAP_TARGET, colour, space } from './theme'
@@ -118,6 +119,9 @@ export function Screen({
 }) {
   const t = useText()
   const [dockHeight, setDockHeight] = useState(0)
+  // Without a tab bar under it, the dock stands above the home indicator
+  // instead of on it: the intro's «Войти» sat 12 points off the bottom edge.
+  const dockClearance = useDockClearance()
 
   const ownScroller = useRef<ScrollView>(null)
   const scroller = scrollRef ?? ownScroller
@@ -357,7 +361,9 @@ export function Screen({
                 dockDepth.current = event.nativeEvent.layout.height
               }}
             >
-              <View style={[styles.dock, styles.column]}>{dock}</View>
+              <View style={[styles.dock, styles.column, { paddingBottom: styles.dock.paddingVertical + dockClearance }]}>
+                {dock}
+              </View>
             </View>
           </KeyboardAvoidingView>
         ) : null}

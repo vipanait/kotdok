@@ -14,6 +14,7 @@ import { ArrivalSkeleton } from '@/features/auth/ArrivalSkeleton'
 import { useAuth } from '@/providers/AuthProvider'
 import { useSetLocale, useText } from '@/i18n'
 import { Icon } from '@/ui/Icon'
+import { TabBarBelow } from '@/ui/tab-bar-below'
 import { colour, type } from '@/ui/theme'
 
 /** The tab bar's own height, the one the navigator uses (`TABBAR_HEIGHT_UIKIT`). */
@@ -115,7 +116,7 @@ export default function TabsLayout() {
   // list's outline while the server is asked, not an empty page.
   if (!consentSettled(userId, consentSettledFor)) return <ArrivalSkeleton />
 
-  return (
+  const tabs = (
     <Tabs
       screenListeners={({ navigation, route }) => ({
         // Another tab is about to take over and empty this one's stack. A form
@@ -198,4 +199,6 @@ export default function TabsLayout() {
       />
     </Tabs>
   )
+  // Every screen here has the tab bar under its dock (see `TabBarBelow`).
+  return <TabBarBelow.Provider value>{tabs}</TabBarBelow.Provider>
 }
