@@ -24,7 +24,7 @@ import { eventErrorTexts } from '@/features/medical-record/events/event-form-tex
 import CourseFields from '@/features/medical-record/medications/CourseFields'
 import type { CourseDraft, CoursesProblems } from '@/features/medical-record/medications/course-form'
 import { courseErrorTexts } from '@/features/medical-record/medications/course-form-text'
-import { entryFromCourseDraft, entryFromEventDraft, reviewIds, type EditState } from './recognition-view'
+import { entryFromCourseDraft, entryFromEventDraft, quoteOnce, reviewIds, type EditState } from './recognition-view'
 
 /**
  * One recognised entry opened from the review with its values (design run
@@ -152,7 +152,7 @@ export default function EntryEdit({
           {entry.unsure.length > 0 && (
             <div className="banner document-alert" role="note">
               <strong>{words.unsureTitle}</strong>
-              <p>{unreadName ? `${words.asWritten.replace('{text}', unreadName)} ${words.unsureBody}` : words.unsureBody}</p>
+              <p>{unreadName ? `${words.asWritten.replace('{text}', quoteOnce(unreadName, locale))} ${words.unsureBody}` : words.unsureBody}</p>
             </div>
           )}
           <Link
@@ -164,7 +164,7 @@ export default function EntryEdit({
             {words.openPage.replace('{n}', String(entry.page))}
           </Link>
 
-          <form className="record-form event-form recognition-edit-form" onSubmit={submit} noValidate>
+          <form className="event-form recognition-edit-form" onSubmit={submit} noValidate>
             {state.form.kind === 'event' && entry.type !== 'medication' ? (
               <EventFields
                 id={id}

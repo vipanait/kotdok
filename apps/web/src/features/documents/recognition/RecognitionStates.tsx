@@ -116,21 +116,33 @@ export function FailedState({ onRetry, originalHref, busy = false }: { onRetry: 
   )
 }
 
-/** Nothing found: «Добавить другие страницы» and «Открыть оригинал». Nothing was spent. */
-export function NothingFoundState({ addPagesHref, originalHref }: { addPagesHref: string; originalHref: string }) {
+/**
+ * Nothing found: «Добавить другие страницы» and «Открыть оригинал». Nothing
+ * was spent. `addPagesHref` null: adding pages is not possible yet (the
+ * DOC-1 API cannot add pages to a stored document) — the button is shown
+ * inert, with `note` saying why.
+ */
+export function NothingFoundState({ addPagesHref, originalHref, note }: { addPagesHref: string | null; originalHref: string; note?: string }) {
   const words = useTranslations().documents.recognition.nothing
   return (
     <section className="document-quiet" aria-labelledby="recognition-nothing-title">
       <h2 id="recognition-nothing-title">{words.title}</h2>
       <p>{words.body}</p>
       <StateActions>
-        <Link href={addPagesHref} className="btn primary">
-          {words.addPages}
-        </Link>
+        {addPagesHref ? (
+          <Link href={addPagesHref} className="btn primary">
+            {words.addPages}
+          </Link>
+        ) : (
+          <button type="button" className="btn primary" aria-disabled="true" aria-describedby={note ? 'recognition-nothing-note' : undefined}>
+            {words.addPages}
+          </button>
+        )}
         <Link href={originalHref} className="btn secondary">
           {words.original}
         </Link>
       </StateActions>
+      {note && <p id="recognition-nothing-note" className="field-hint">{note}</p>}
     </section>
   )
 }

@@ -96,6 +96,16 @@ export function entryRow(dict: Dictionary, entry: DraftEntry): EntryRowView {
   }
 }
 
+/**
+ * The text as the document has it, in guillemets once: a text that already
+ * carries quotes of its own («Мульти…» — …) is shown as it is.
+ */
+export function quoteOnce(text: string, locale: 'ru' | 'en'): string {
+  const trimmed = text.trim()
+  if (/[«»"“”„]/.test(trimmed)) return trimmed
+  return locale === 'ru' ? `«${trimmed}»` : `“${trimmed}”`
+}
+
 // ---------- The edit: an entry in the medical record's own forms ----------
 
 /**

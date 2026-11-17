@@ -117,8 +117,12 @@ function PreviewBody({ state, page, from }: { state: PreviewState; page: number;
     case 'nothing':
       return (
         <FixtureDocument title={FIXTURE_PASSPORT.title} meta={words.saved.added} originalHref={null}>
-          {/* The real «Добавить другие страницы» opens the add screen; here the fixture document. */}
-          <NothingFoundState addPagesHref={stateHref('stored')} originalHref={stateHref('original', { from: 'nothing' })} />
+          {/* Inert here: adding pages to a stored document needs an endpoint DOC-1 does not have (see the web-2 report). */}
+          <NothingFoundState
+            addPagesHref={null}
+            originalHref={stateHref('original', { from: 'nothing' })}
+            note="Тестовые данные: кнопка не работает — дозагрузка страниц в сохранённый документ появится вместе с DOC-2."
+          />
         </FixtureDocument>
       )
     case 'review':
@@ -209,11 +213,8 @@ function PreviewBody({ state, page, from }: { state: PreviewState; page: number;
                   ))}
                 </ul>
               </section>
-              <SourceLine
-                title={FIXTURE_PASSPORT.title}
-                page={FIXTURE_RECORD.sourcePage}
-                href={stateHref('original', { page: FIXTURE_RECORD.sourcePage, from: 'vaccination' })}
-              />
+              {/* As a real record draws it: no page — the contract has no `source_page`. */}
+              <SourceLine title={FIXTURE_PASSPORT.title} href={stateHref('original', { from: 'vaccination' })} />
             </div>
           </div>
         </div>

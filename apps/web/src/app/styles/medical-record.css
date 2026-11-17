@@ -1126,7 +1126,9 @@
   .recognition-confirm .field-hint { margin: 0; }
   .recognition-discard { min-height: 44px; }
 
-  .recognition-edit-form { display: grid; gap: 18px; max-width: 640px; }
+  /* On the page, no padding of its own: the fields line up with the page gutter (no «окно в окне»). */
+  .recognition-edit-form { display: grid; gap: 18px; max-width: 680px; padding: 0; }
+  .recognition-edit-form .field-hint { font-size: 13px; }
   .recognition-edit-form > .field,
   .recognition-edit-form .event-items { margin-bottom: 0; }
   .recognition-page-link { justify-self: start; min-height: 44px; }
@@ -1165,7 +1167,7 @@
   }
 
   @media (max-width: 760px) {
-    .recognition-actions { flex-direction: column; gap: 12px; }
+    .recognition-actions { flex-direction: column; gap: 12px; justify-self: stretch; width: 100%; }
     .recognition-actions .btn,
     .recognition-offer .recognition-main,
     .recognition-confirm .recognition-main { width: 100%; min-width: 0; }

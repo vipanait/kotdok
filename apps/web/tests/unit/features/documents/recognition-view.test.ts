@@ -12,6 +12,7 @@ import {
   entryFromEventDraft,
   entryRow,
   eventDraftOf,
+  quoteOnce,
   readReviewMemory,
   reviewMemoryKey,
   selectionAfterEdit,
@@ -145,5 +146,14 @@ describe('readReviewMemory', () => {
     expect(readReviewMemory('{', 'doc', ['v1'])).toBeNull()
     expect(readReviewMemory(JSON.stringify({ ...kept, focusId: 'a b"', scrollY: -5 }), 'doc', ['v1'])).toMatchObject({ focusId: null, scrollY: 0 })
     expect(reviewMemoryKey('doc')).toBe('lapka-document-review-doc')
+  })
+})
+
+describe('quoteOnce', () => {
+  it('quotes the text as written once, never twice', () => {
+    expect(quoteOnce('Мульти', 'ru')).toBe('«Мульти»')
+    expect(quoteOnce('«Мульти…» — длинное название', 'ru')).toBe('«Мульти…» — длинное название')
+    expect(quoteOnce(' Multi ', 'en')).toBe('“Multi”')
+    expect(ru.documents.recognition.edit.asWritten.replace('{text}', quoteOnce('«Мульти…» — x', 'ru'))).toBe('В документе: «Мульти…» — x')
   })
 })

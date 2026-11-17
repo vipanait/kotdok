@@ -1914,7 +1914,7 @@ const en: Dictionary = {
         openPage: 'Open page {n}',
         unsureTitle: 'Part of the record could not be read',
         unsureBody: 'Compare with the original and fill in the gaps.',
-        asWritten: 'In the document: “{text}”',
+        asWritten: 'In the document: {text}',
         done: 'Done',
         cancel: 'Cancel',
         hint: 'Nothing is in the medical record until you add the selected records.',
