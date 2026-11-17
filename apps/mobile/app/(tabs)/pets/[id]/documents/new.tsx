@@ -54,7 +54,7 @@ export default function AddDocument() {
   const invalidate = useInvalidate()
 
   const record = useCached(queryKeys.overview(id), () => withFreshSession((api) => api.getHealthOverview(id, localToday())))
-  const petName = record.data?.pet.id === id ? record.data.pet.name : null
+  const petName = record.data && record.data.pet.id === id ? record.data.pet.name : null
 
   // Asked once: whether this installed app has the native PDF picker.
   const pdfAvailable = useMemo(() => pdfPicker() !== null, [])

@@ -29,7 +29,7 @@ export default function Documents() {
 
   // The pet's name from the record every screen of this pet shares.
   const record = useCached(queryKeys.overview(id), () => withFreshSession((api) => api.getHealthOverview(id, today)))
-  const petName = record.data?.pet.id === id ? record.data.pet.name : null
+  const petName = record.data && record.data.pet.id === id ? record.data.pet.name : null
 
   const list = useCached(queryKeys.documents(id), () => withFreshSession((api) => api.listDocuments(id)))
   const documents = list.data?.documents ?? null
