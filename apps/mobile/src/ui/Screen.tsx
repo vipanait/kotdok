@@ -125,6 +125,13 @@ export function Screen({
   const scrolled = useRef(0)
   /** The same height as `dockHeight`, readable from a callback that never re-renders. */
   const dockDepth = useRef(0)
+  // A dock that went away (the review's, while an entry is edited) leaves no
+  // room under the form and is not counted above the keyboard; it is measured
+  // again when it comes back.
+  const docked = Boolean(dock)
+  useEffect(() => {
+    if (!docked) dockDepth.current = 0
+  }, [docked])
   const focusedField = useRef<Locatable | null>(null)
 
   const reveal = useCallback(() => {
@@ -316,7 +323,7 @@ export function Screen({
               styles.body,
               styles.column,
               centered ? styles.centered : null,
-              { paddingBottom: styles.body.paddingBottom + dockHeight + keyboardRoom },
+              { paddingBottom: styles.body.paddingBottom + (dock ? dockHeight : 0) + keyboardRoom },
             ]}
             keyboardShouldPersistTaps="handled"
             // `interactive`, not `on-drag`: the field worth scrolling to is the
