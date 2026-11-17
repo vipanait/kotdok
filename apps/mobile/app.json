@@ -54,6 +54,9 @@
       [
         "expo-build-properties",
         {
+          "ios": {
+            "enableSceneSupport": true
+          },
           "android": {
             "enableMinifyInReleaseBuilds": true,
             "enableShrinkResourcesInReleaseBuilds": true
