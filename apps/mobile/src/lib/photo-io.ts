@@ -10,6 +10,7 @@ import {
 } from '@/features/checks/photos'
 import { DOCUMENT_LIMITS } from '@lapka/contracts'
 import { documentPageTarget } from '@/features/documents/page-list'
+import { putWithin } from './put-deadline'
 
 /**
  * The native half of sending photos. Always re-encodes to JPEG: that is what
@@ -49,14 +50,15 @@ export async function prepareDocumentPhoto(photo: PickedPhoto): Promise<Prepared
   return { uri: saved.uri, size: new File(saved.uri).size, contentType: 'image/jpeg' }
 }
 
-/** @returns whether storage accepted the file; a dropped connection is a no. */
-export async function putFile(url: string, headers: Record<string, string>, uri: string): Promise<boolean> {
-  try {
-    const response = await fetch(url, { method: 'PUT', headers, body: new File(uri) })
+/**
+ * @returns whether storage accepted the file; a dropped connection, or no
+ * answer within `PUT_TIMEOUT_MS`, is a no.
+ */
+export function putFile(url: string, headers: Record<string, string>, uri: string): Promise<boolean> {
+  return putWithin(async (signal) => {
+    const response = await fetch(url, { method: 'PUT', headers, body: new File(uri), signal })
     return response.ok
-  } catch {
-    return false
-  }
+  })
 }
 
 /** @returns whether storage accepted the file; a dropped connection is a no. */
