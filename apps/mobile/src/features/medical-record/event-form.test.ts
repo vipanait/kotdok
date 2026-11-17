@@ -128,7 +128,7 @@ describe('editing a record', () => {
     visit_kind: null,
     reason: null,
     diagnosis: null,
-    check_id: null,
+    check_id: null, source_document_id: null,
   }
 
   it('opens with what the record holds and sees no change until there is one', () => {
@@ -156,7 +156,7 @@ describe('an overdue plan (MR-03.3)', () => {
     visit_kind: null,
     reason: null,
     diagnosis: null,
-    check_id: null,
+    check_id: null, source_document_id: null,
   }
 
   it('can be corrected without moving it, and moved only forward', () => {
@@ -259,7 +259,7 @@ describe('«Сделано» on a plan picked from the catalogue (review 2)', ()
       visit_kind: null,
       reason: null,
       diagnosis: null,
-      check_id: null,
+      check_id: null, source_document_id: null,
     }
     const item = draftFromEvent(plan).items[0]
     expect(nextDate(item, '2026-10-01', '2026-10-01')).toBe('2026-12-24')
@@ -328,7 +328,7 @@ describe('opening the record form', () => {
     visit_kind: null,
     reason: null,
     diagnosis: null,
-    check_id: null,
+    check_id: null, source_document_id: null,
     ...overrides,
   })
 

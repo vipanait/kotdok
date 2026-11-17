@@ -41,7 +41,7 @@ const event = (overrides: Partial<HealthEvent>): HealthEvent => ({
   visit_kind: null,
   reason: null,
   diagnosis: null,
-  check_id: null,
+  check_id: null, source_document_id: null,
   ...overrides,
 })
 
@@ -63,7 +63,7 @@ const course = (overrides: Partial<Medication>): Medication => ({
   started_on: null,
   ended_on: null,
   ongoing: true,
-  source: 'record', reminder_times: [],
+  source: 'record', reminder_times: [], source_document_id: null,
   ...overrides,
 })
 
@@ -124,7 +124,7 @@ describe('the memo for whoever minds the pet (FB-3/02)', () => {
   it('gives a course’s times, and a course on its last day (PR #82 review)', () => {
     const memo = sitterMemo(
       ru,
-      { ...overview({}), medications: [course({ reminder_times: ['08:00', '20:00'], ongoing: false, ended_on: TODAY })] } as HealthOverview,
+      { ...overview({}), medications: [course({ reminder_times: ['08:00', '20:00'], source_document_id: null, ongoing: false, ended_on: TODAY })] } as HealthOverview,
       TODAY,
     )
     expect(memo).toContain('— Нефростоп, 1 таблетка утром (08:00, 20:00)')
