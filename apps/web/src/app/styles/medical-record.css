@@ -1047,3 +1047,129 @@
     .modal.document-confirm .row .btn { width: 100%; min-height: 52px; }
   }
 }
+
+/*
+ * Recognition of a document (DOC-2; UI on fixtures until the API exists) —
+ * design run «stored» offer, «recognizing», «review», «edit», «mismatch»,
+ * «recipe», «confirmed», «vaccination», «failed», «nothing», «paid»,
+ * «credits», «discard». On the page, no card around the whole screen; the
+ * entries are rows with a native checkbox; action blocks stand one under
+ * the other on a phone, equal width, 12px apart.
+ */
+@layer components {
+  .document-row.no-format { grid-template-columns: minmax(0, 1fr) auto; }
+
+  .recognition-offer .recognition-main,
+  .recognition-confirm .recognition-main { min-height: 52px; min-width: 260px; max-width: 100%; white-space: normal; text-align: center; }
+
+  .recognition-progress {
+    position: relative;
+    overflow: hidden;
+    width: min(100%, 420px);
+    height: 6px;
+    margin: 6px 0;
+    border-radius: 3px;
+    background: var(--soft);
+  }
+  .recognition-progress span {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 35%;
+    border-radius: 3px;
+    background: var(--green);
+    animation: recognition-slide 1.6s ease-in-out infinite;
+  }
+  @keyframes recognition-slide {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(300%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .recognition-progress span { width: 100%; opacity: 0.35; animation: none; }
+  }
+
+  .recognition-actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 8px; }
+  .document-quiet .recognition-actions .btn { margin-top: 0; }
+  .recognition-actions .btn { min-height: 52px; min-width: 220px; }
+
+  .recognition-mismatch strong { font-size: 15px; }
+
+  .recognition-group { display: grid; gap: 4px; }
+  .recognition-group-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; }
+  .recognition-group-head h2 { font-size: 20px; }
+  .recognition-group-head span { color: var(--muted); font-size: 13px; }
+  .recognition-entries { display: grid; margin: 0; padding: 0; border-top: 1px solid var(--line); list-style: none; }
+  .recognition-entry {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    gap: 8px;
+    padding: 14px 4px;
+    border-bottom: 1px solid var(--line);
+  }
+  .recognition-check { width: 22px; height: 22px; margin: 11px; accent-color: var(--green); cursor: pointer; }
+  .recognition-check:disabled { cursor: not-allowed; }
+  .recognition-check:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
+  .recognition-entry-body { display: grid; gap: 4px; min-width: 0; }
+  .recognition-entry-name { min-height: 44px; display: flex; align-items: center; cursor: pointer; }
+  .recognition-entry-name strong { font-size: 16px; overflow-wrap: anywhere; }
+  .recognition-entry-name strong.is-missing,
+  .recognition-entry-meta.is-missing { color: var(--muted); font-style: italic; }
+  .recognition-entry-meta { color: var(--muted); font-size: 14px; overflow-wrap: anywhere; }
+  .recognition-entry-flags { display: grid; gap: 6px; font-size: 13px; }
+  .recognition-entry-flags:empty { display: none; }
+  .recognition-entry-flags .document-status { display: inline-block; margin-top: 0; }
+  .recognition-entry-flags .field-error { margin: 0; }
+  .recognition-entry-links { display: flex; flex-wrap: wrap; column-gap: 24px; }
+  .recognition-entry-links .link { min-height: 44px; font-size: 14px; }
+  .recognition-doctor { margin-top: 6px; }
+
+  .recognition-confirm { display: grid; gap: 10px; justify-items: start; margin-top: 8px; }
+  .recognition-confirm .field-hint { margin: 0; }
+  .recognition-discard { min-height: 44px; }
+
+  .recognition-edit-form { display: grid; gap: 18px; max-width: 640px; }
+  .recognition-edit-form > .field,
+  .recognition-edit-form .event-items { margin-bottom: 0; }
+  .recognition-page-link { justify-self: start; min-height: 44px; }
+
+  .recognition-confirmed { display: grid; gap: 16px; }
+  .recognition-saved { display: grid; margin: 0; padding: 0; border-top: 1px solid var(--line); list-style: none; }
+  .recognition-saved li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px 16px;
+    padding: 14px 4px;
+    border-bottom: 1px solid var(--line);
+  }
+  .recognition-saved span { color: var(--muted); font-size: 14px; }
+
+  .record-source { display: grid; gap: 6px; margin-top: 8px; }
+  .record-source h2 { font-size: 18px; }
+
+  /* The fixtures preview (`/dev/documents-states`): a test-data mark and the state list. */
+  .fixtures-mark { margin-bottom: 12px; }
+  .fixtures-states { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 20px; padding: 0; list-style: none; }
+  .fixtures-states .chip { min-height: 44px; }
+  .fixtures-sheet {
+    display: grid;
+    place-items: center;
+    max-width: 760px;
+    min-height: 320px;
+    padding: 24px;
+    border: 1px dashed var(--line);
+    border-radius: 20px;
+    background: var(--paper);
+    color: var(--muted);
+    text-align: center;
+  }
+
+  @media (max-width: 760px) {
+    .recognition-actions { flex-direction: column; gap: 12px; }
+    .recognition-actions .btn,
+    .recognition-offer .recognition-main,
+    .recognition-confirm .recognition-main { width: 100%; min-width: 0; }
+    .recognition-confirm { justify-items: stretch; }
+    .recognition-discard { justify-self: start; }
+  }
+}

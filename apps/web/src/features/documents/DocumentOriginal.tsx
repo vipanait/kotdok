@@ -53,8 +53,9 @@ function OriginalPages({ petId, doc, initialPage, back }: { petId: string; doc: 
   }, [page, pdf, petId, doc.id, back])
 
   // The top link names the opener as the app's back links do; the bottom button says where it goes.
-  const topLabel = back.to === 'document' ? words.toDocument : back.to === 'list' ? dict.documents.view.backToList : words.back
-  const backLabel = back.to === 'document' ? words.toDocument : back.to === 'list' ? words.toList : words.back
+  const opener = { document: words.toDocument, review: words.toReview, edit: words.toEdit, back: words.back }
+  const topLabel = back.to === 'list' ? dict.documents.view.backToList : opener[back.to]
+  const backLabel = back.to === 'list' ? words.toList : opener[back.to]
   const file = pdf ? undefined : doc.files[page - 1]
   const pageText = words.pageOf.replace('{n}', String(page)).replace('{total}', String(total))
   const alt = words.pageAlt.replace('{n}', String(page)).replace('{total}', String(total))

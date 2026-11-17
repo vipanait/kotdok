@@ -99,7 +99,11 @@ describe('the original', () => {
     const list = documentHref.list(PET)
     expect(originalReturn(PET, DOC, list)).toEqual({ href: list, to: 'list' })
     const review = `/pets/${PET}/documents/${DOC}/review?item=3`
-    expect(originalReturn(PET, DOC, review)).toEqual({ href: review, to: 'back' })
+    expect(originalReturn(PET, DOC, review)).toEqual({ href: review, to: 'review' })
+    const edit = documentHref.review(PET, DOC, 'entry-1')
+    expect(originalReturn(PET, DOC, edit)).toEqual({ href: edit, to: 'edit' })
+    const record = `/pets/${PET}/health/abc`
+    expect(originalReturn(PET, DOC, record)).toEqual({ href: record, to: 'back' })
     expect(documentHref.original(PET, DOC, { page: 2, from: list })).toBe(`${view}/original?page=2&from=${encodeURIComponent(list)}`)
   })
 

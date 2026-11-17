@@ -10,6 +10,12 @@ export const documentHref = {
   add: (petId: string) => `/pets/${petId}/documents/new`,
   view: (petId: string, docId: string) => `/pets/${petId}/documents/${docId}`,
   /**
+   * The review of a recognised document (DOC-2; no page serves it yet).
+   * `edit`: the entry whose edit is open, so the original can say «К правке».
+   */
+  review: (petId: string, docId: string, edit?: string) =>
+    `/pets/${petId}/documents/${docId}/review${edit ? `?edit=${encodeURIComponent(edit)}` : ''}`,
+  /**
    * The original, page by page. `from`: the screen it was opened from, to go
    * back to (the document's own page when left out).
    */
@@ -128,7 +134,7 @@ export function isArchiveKind(kind: DocumentKind): kind is 'discharge' | 'lab_re
 }
 
 /** Where the original goes back to, and what its button says. */
-export type OriginalReturn = { href: string; to: 'document' | 'list' | 'back' }
+export type OriginalReturn = { href: string; to: 'document' | 'list' | 'review' | 'edit' | 'back' }
 
 /**
  * The screen the original was opened from (`?from=`), if it is a page of
@@ -151,6 +157,7 @@ export function originalReturn(petId: string, docId: string, from: string | stri
   const path = value.split('?')[0]
   if (path === view) return { href: value, to: 'document' }
   if (path === list) return { href: value, to: 'list' }
+  if (path === `${view}/review`) return { href: value, to: /[?&]edit=/.test(value) ? 'edit' : 'review' }
   return { href: value, to: 'back' }
 }
 
