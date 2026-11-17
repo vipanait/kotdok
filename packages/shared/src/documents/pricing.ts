@@ -20,8 +20,25 @@ export function recognizeOffer(left: number, price: number, credits: number): Re
   return credits >= cost ? { kind: 'paid', price: cost, credits } : { kind: 'short', price: cost, credits }
 }
 
+/**
+ * The plural category, written out rather than asked of `Intl.PluralRules`:
+ * Hermes on iOS has no `PluralRules`, and `new Intl.PluralRules` there throws
+ * («undefined cannot be used as a constructor»), taking the screen down.
+ * Whole numbers only, which is all a count of checks ever is.
+ */
+function pluralCategory(locale: SupportedLocale, n: number): 'one' | 'few' | 'many' {
+  const whole = Math.abs(Math.trunc(n))
+  if (locale === 'en') return whole === 1 ? 'one' : 'many'
+  const tens = whole % 100
+  if (tens >= 11 && tens <= 14) return 'many'
+  const last = whole % 10
+  if (last === 1) return 'one'
+  if (last >= 2 && last <= 4) return 'few'
+  return 'many'
+}
+
 function plural(locale: SupportedLocale, n: number, forms: { one: string; few: string; many: string }): string {
-  const rule = new Intl.PluralRules(locale).select(n)
+  const rule = pluralCategory(locale, n)
   const form = rule === 'one' ? forms.one : rule === 'few' ? forms.few : forms.many
   return form.replace('{n}', String(n))
 }

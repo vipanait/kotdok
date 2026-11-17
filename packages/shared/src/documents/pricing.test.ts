@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { checksCount, recognizeLabel } from './pricing'
 
 describe('recognizeLabel', () => {
@@ -24,5 +24,27 @@ describe('recognizeLabel', () => {
 describe('checksCount', () => {
   it('says the balance in Russian plural forms', () => {
     expect([1, 3, 5, 21].map((n) => checksCount(n, 'ru'))).toEqual(['1 проверка', '3 проверки', '5 проверок', '21 проверка'])
+  })
+})
+
+describe('without Intl.PluralRules (Hermes on iOS has none)', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('still says the counts', () => {
+    vi.stubGlobal('Intl', { ...Intl, PluralRules: undefined })
+    expect([1, 2, 5, 11, 12, 21, 22, 25, 101, 111].map((n) => checksCount(n, 'ru'))).toEqual([
+      '1 проверка',
+      '2 проверки',
+      '5 проверок',
+      '11 проверок',
+      '12 проверок',
+      '21 проверка',
+      '22 проверки',
+      '25 проверок',
+      '101 проверка',
+      '111 проверок',
+    ])
+    expect([0, 1, 2].map((n) => checksCount(n, 'en'))).toEqual(['0 checks', '1 check', '2 checks'])
+    expect(recognizeLabel(0, 2, 1, 'ru')).toMatchObject({ text: 'Распознать — 2 проверки', disabled: true })
   })
 })
