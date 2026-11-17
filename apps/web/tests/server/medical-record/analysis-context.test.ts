@@ -31,7 +31,7 @@ function summary(overrides: Partial<VetSummary> = {}): VetSummary {
     visits: [
       {
         id: 'v1', kind: 'visit', status: 'done', date: '2025-11-02', clinic: null, notes: null, visit_kind: 'illness',
-        reason: 'Рвота', diagnosis: 'Обострение гастрита', check_id: null,
+        reason: 'Рвота', diagnosis: 'Обострение гастрита', check_id: null, source_document_id: null,
         items: [{ id: 'i1', name: 'Фортифлора', targets: [], source_item_id: null, product_id: null, interval: null, instructions: '1 пакетик', medication_id: null }],
       },
     ] as VetSummary['visits'],

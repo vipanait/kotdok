@@ -25,7 +25,7 @@ const food = murka.medications[0] // ongoing since 2 August
 const fortiflora = murka.medications[1] // 2–15 August, finished
 
 function course(overrides: Partial<Medication>): Medication {
-  return { id: '00000000-0000-4000-8000-000000000499', name: 'Апоквел', dosage: null, started_on: '2026-09-20', ended_on: null, ongoing: false, source: 'record', reminder_times: [], ...overrides }
+  return { id: '00000000-0000-4000-8000-000000000499', name: 'Апоквел', dosage: null, started_on: '2026-09-20', ended_on: null, ongoing: false, source: 'record', reminder_times: [], source_document_id: null, ...overrides }
 }
 
 const draft = (key: string, fields: Partial<CourseDraft>): CourseDraft => ({ ...blankCourse(key, TODAY), ...fields })

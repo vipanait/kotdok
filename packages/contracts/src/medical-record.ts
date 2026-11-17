@@ -123,6 +123,11 @@ export const HealthEventSchema = z.object({
   reason: z.string().nullable().default(null),
   diagnosis: z.string().nullable().default(null),
   check_id: UuidSchema.nullable().default(null),
+  /**
+   * The pet document the record was confirmed from (DOC-2); null for one
+   * made by hand. Read side only: a server before DOC-2 does not send it.
+   */
+  source_document_id: UuidSchema.nullable().default(null),
 })
 
 export type HealthEvent = z.infer<typeof HealthEventSchema>
@@ -363,6 +368,8 @@ export const MedicationSchema = z.object({
   source: z.enum(['record', 'form']),
   /** When it is given, «HH:MM» on the phone's clock (FB-5); none for an older server. */
   reminder_times: z.array(z.string()).default([]),
+  /** The pet document the course was confirmed from (DOC-2); null for one made by hand or by an older server. */
+  source_document_id: UuidSchema.nullable().default(null),
 })
 
 export type Medication = z.infer<typeof MedicationSchema>
