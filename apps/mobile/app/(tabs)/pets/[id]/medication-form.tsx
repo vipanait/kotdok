@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Pressable, StyleSheet, View } from 'react-native'
+import { StyleSheet } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import { MEDICATION_LIMITS } from '@lapka/contracts'
 import { ApiError, courseEditable, startMayStayEmpty } from '@lapka/shared'
@@ -12,22 +12,20 @@ import {
   blankCourse,
   canAddCourse,
   courseDraft,
-  courseEndsByToday,
   readCourses,
   type CourseDraft,
   type CourseErrors,
 } from '@/features/medical-record/medications'
 import { useUnsavedChanges } from '@/features/unsaved/useUnsavedChanges'
 import { useOverviewReader, useRecordChanged } from '@/features/medical-record/record-cache'
-import { Button, IconButton, LinkButton } from '@/ui/Button'
+import { CourseFields } from '@/features/medical-record/CourseFields'
+import { Button, LinkButton } from '@/ui/Button'
 import { Banner, Card } from '@/ui/Card'
-import { DateField } from '@/ui/DateField'
 import { SaveChangesDialog } from '@/ui/Dialog'
-import { Field } from '@/ui/Field'
 import { Screen } from '@/ui/Screen'
 import { FormSkeleton } from '@/ui/Skeleton'
 import { Text } from '@/ui/Text'
-import { TAP_TARGET, colour, space } from '@/ui/theme'
+import { space } from '@/ui/theme'
 
 /**
  * Medicines (M19): several courses at once for a new entry, one for a
@@ -136,62 +134,13 @@ export default function MedicationForm() {
       {!locked && !drafts && !error ? <FormSkeleton fields={4} /> : null}
       {!locked && drafts?.map((draft) => (
         <Card key={draft.key} outlined style={styles.card}>
-          <View style={styles.head}>
-            <View style={styles.fill}>
-              <Field
-                label={words.name}
-                value={draft.name}
-                onChangeText={(name) => change(draft.key, { name })}
-                placeholder={words.namePlaceholder}
-                autoCorrect={false}
-                error={errors[draft.key]?.name}
-              />
-            </View>
-            {drafts.length > 1 ? (
-              <IconButton
-                icon="close"
-                label={words.remove}
-                onPress={() => setDrafts(drafts.filter((other) => other.key !== draft.key))}
-              />
-            ) : null}
-          </View>
-          <Field
-            label={words.dosage}
-            value={draft.dosage}
-            onChangeText={(dosage) => change(draft.key, { dosage })}
-            placeholder={words.dosagePlaceholder}
-            error={errors[draft.key]?.dosage}
+          <CourseFields
+            draft={draft}
+            errors={errors[draft.key]}
+            startOptional={startOptional}
+            onChange={(patch) => change(draft.key, patch)}
+            onRemove={drafts.length > 1 ? () => setDrafts(drafts.filter((other) => other.key !== draft.key)) : undefined}
           />
-          <DateField
-            label={words.start}
-            value={draft.start}
-            onChangeText={(start) => change(draft.key, { start })}
-            placeholder={t.medicalRecord.datePlaceholder}
-            error={errors[draft.key]?.start}
-            hint={startOptional ? words.startUnknownHint : undefined}
-          />
-          <Pressable
-            accessibilityRole="checkbox"
-            accessibilityState={{ checked: draft.ongoing }}
-            accessibilityLabel={words.ongoing}
-            onPress={() => change(draft.key, { ongoing: !draft.ongoing, end: '' })}
-            style={styles.toggle}
-          >
-            <Text style={styles.fill}>{words.ongoing}</Text>
-            <View style={[styles.box, draft.ongoing ? styles.boxOn : null]}>
-              {draft.ongoing ? <Text style={styles.tick}>✓</Text> : null}
-            </View>
-          </Pressable>
-          {!draft.ongoing ? (
-            <DateField
-              label={words.end}
-              value={draft.end}
-              onChangeText={(end) => change(draft.key, { end })}
-              placeholder={t.medicalRecord.datePlaceholder}
-              error={errors[draft.key]?.end}
-              hint={courseEndsByToday(draft) ? words.endsNow : undefined}
-            />
-          ) : null}
         </Card>
       ))}
 
@@ -234,19 +183,5 @@ export default function MedicationForm() {
 
 const styles = StyleSheet.create({
   card: { padding: 16 },
-  head: { flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
-  fill: { flex: 1 },
-  toggle: { flexDirection: 'row', alignItems: 'center', minHeight: TAP_TARGET, marginBottom: space.row },
-  box: {
-    width: 28,
-    height: 28,
-    borderRadius: 6,
-    borderWidth: 2,
-    borderColor: colour.line,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  boxOn: { backgroundColor: colour.accent, borderColor: colour.accent },
-  tick: { color: colour.surface, fontWeight: '700' },
   note: { marginTop: space.row, marginBottom: space.block },
 })

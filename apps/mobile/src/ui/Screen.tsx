@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
   type ReactNode,
+  type RefObject,
 } from 'react'
 import { Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -82,6 +83,8 @@ export function Screen({
   dock,
   scroll = false,
   centered = false,
+  scrollRef,
+  onScrollY,
 }: {
   title?: string
   onBack?: () => void
@@ -98,11 +101,19 @@ export function Screen({
   dock?: ReactNode
   scroll?: boolean
   centered?: boolean
+  /**
+   * The scroller, for a screen that puts the list back where it was — the
+   * review of a recognised document, after an entry's edit. Only with `scroll`.
+   */
+  scrollRef?: RefObject<ScrollView | null>
+  /** Where the scroller stands, as it moves. */
+  onScrollY?: (y: number) => void
 }) {
   const t = useText()
   const [dockHeight, setDockHeight] = useState(0)
 
-  const scroller = useRef<ScrollView>(null)
+  const ownScroller = useRef<ScrollView>(null)
+  const scroller = scrollRef ?? ownScroller
   /** Where the scroller currently stands, so a relative move can be absolute. */
   const scrolled = useRef(0)
   /** The same height as `dockHeight`, readable from a callback that never re-renders. */
@@ -121,7 +132,7 @@ export function Screen({
         scroller.current?.scrollTo({ y: scrolled.current + hidden, animated: true })
       })
     }, REVEAL_SETTLE_MS)
-  }, [])
+  }, [scroller])
 
   /**
    * A field focused while it is above the scroller's top — the form was
@@ -143,7 +154,7 @@ export function Screen({
         scroller.current?.scrollTo({ y: target, animated: true })
       })
     })
-  }, [])
+  }, [scroller])
 
   const pinTop = useCallback((block: Locatable | null) => {
     // After the block has grown (the suggestions open with the focus) and the
@@ -159,7 +170,7 @@ export function Screen({
         })
       })
     }, REVEAL_SETTLE_MS * 2)
-  }, [])
+  }, [scroller])
 
   /**
    * Room under the form for the keyboard, on Android.
@@ -290,6 +301,7 @@ export function Screen({
             ref={scroller}
             onScroll={(event) => {
               scrolled.current = event.nativeEvent.contentOffset.y
+              onScrollY?.(event.nativeEvent.contentOffset.y)
             }}
             scrollEventThrottle={16}
             style={styles.fill}
