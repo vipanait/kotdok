@@ -29,6 +29,8 @@ export const ROUTE_SLICES = {
   admin: ['admin', 'check'],
   'account-deletion': ['deletion'],
   credits: ['credits'],
+  /** The fixtures previews (`/dev/…`, only with LAPKA_UI_FIXTURES=1): the screens they draw. */
+  dev: ['medicalRecord', 'documents'],
 } as const satisfies Record<string, readonly Namespace[]>
 
 export type SliceRoute = keyof typeof ROUTE_SLICES
