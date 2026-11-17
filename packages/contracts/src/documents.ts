@@ -124,3 +124,46 @@ export const DocumentListSchema = z.object({
 })
 
 export type DocumentList = z.infer<typeof DocumentListSchema>
+
+/**
+ * A document as an app reads it, tolerant of a later server: a kind this
+ * build does not know is read as `other` (named «Документ»), a status it does
+ * not know as `stored` (no status shown — the file is simply there), and a
+ * file of a type it cannot show is left out. The documented
+ * {@link PetDocumentSchema} stays closed; this is only the read side.
+ */
+export function readableDocument(value: unknown): unknown {
+  if (!value || typeof value !== 'object') return value
+  const doc = value as { kind?: unknown; status?: unknown; files?: unknown }
+  return {
+    ...doc,
+    kind: typeof doc.kind === 'string' && !(DOCUMENT_KINDS as readonly string[]).includes(doc.kind) ? 'other' : doc.kind,
+    status:
+      typeof doc.status === 'string' && !(DOCUMENT_STATUSES as readonly string[]).includes(doc.status) ? 'stored' : doc.status,
+    files: Array.isArray(doc.files)
+      ? doc.files.filter(
+          (file) =>
+            !file ||
+            typeof file !== 'object' ||
+            (DOCUMENT_CONTENT_TYPES as readonly unknown[]).includes((file as { content_type?: unknown }).content_type),
+        )
+      : doc.files,
+  }
+}
+
+export const PetDocumentReadSchema = z.preprocess(readableDocument, PetDocumentSchema)
+
+/**
+ * The list as an app reads it: each document through {@link readableDocument},
+ * and one that still does not read is left out rather than taking the whole
+ * list down with it.
+ */
+export const DocumentListReadSchema = z.preprocess((value) => {
+  if (!value || typeof value !== 'object') return value
+  const list = value as { documents?: unknown }
+  if (!Array.isArray(list.documents)) return value
+  return {
+    ...list,
+    documents: list.documents.map(readableDocument).filter((doc) => PetDocumentSchema.safeParse(doc).success),
+  }
+}, DocumentListSchema)

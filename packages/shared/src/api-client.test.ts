@@ -566,8 +566,28 @@ describe('pet documents (DOC-1)', () => {
     await expect(api.completeDocument(pet, doc)).rejects.toMatchObject({ code: 'bad_request', status: 400, details: { reason: 'encrypted' } })
   })
 
+  it('reads a kind, a status and a file type of a later server without breaking', async () => {
+    const later = {
+      ...stored,
+      kind: 'tattoo',
+      status: 'archived',
+      files: [...stored.files, { id: file, content_type: 'image/heic', url: 'https://storage.example/heic', page_count: null }],
+    }
+    const { api } = recording([ok(later)])
+    const read = await api.getDocument(pet, doc)
+    expect(read.kind).toBe('other')
+    expect(read.status).toBe('stored')
+    expect(read.files.map((f) => f.content_type)).toEqual(['image/jpeg'])
+  })
+
+  it('leaves out of the list a document that does not read, and keeps the others', async () => {
+    const { api } = recording([ok({ documents: [{ ...stored, id: 'not-a-uuid' }, { ...stored, kind: 'tattoo' }], free_recognitions_left: 3, recognition_price: 0 })])
+    const list = await api.listDocuments(pet)
+    expect(list.documents.map((d) => d.kind)).toEqual(['other'])
+  })
+
   it('refuses a document that does not match the contract', async () => {
-    const { api } = recording([ok({ ...stored, kind: 'tattoo' })])
+    const { api } = recording([ok({ ...stored, id: 'not-a-uuid' })])
     await expect(api.getDocument(pet, doc)).rejects.toMatchObject({ name: 'ApiContractError' })
   })
 })

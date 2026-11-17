@@ -71,8 +71,8 @@ import {
   type FollowupCheckinInput,
   type FollowupEnableInput,
   DocumentGrantSchema,
-  DocumentListSchema,
-  PetDocumentSchema,
+  DocumentListReadSchema,
+  PetDocumentReadSchema,
   type DocumentCreateInput,
   type DocumentPatch,
 } from '@lapka/contracts'
@@ -350,14 +350,14 @@ export function createApiClient(options: ApiClientOptions) {
      * file, 409 `conflict` `limit_reached` past 30). The read links inside a
      * document expire within the hour: read it again rather than keep them.
      */
-    listDocuments: (petId: string) => call(`/pets/${petId}/documents`, DocumentListSchema),
-    getDocument: (petId: string, docId: string) => call(`/pets/${petId}/documents/${docId}`, PetDocumentSchema),
+    listDocuments: (petId: string) => call(`/pets/${petId}/documents`, DocumentListReadSchema),
+    getDocument: (petId: string, docId: string) => call(`/pets/${petId}/documents/${docId}`, PetDocumentReadSchema),
     createDocument: (petId: string, body: DocumentCreateInput) =>
       call(`/pets/${petId}/documents`, DocumentGrantSchema, { method: 'POST', body }),
     completeDocument: (petId: string, docId: string) =>
-      call(`/pets/${petId}/documents/${docId}/complete`, PetDocumentSchema, { method: 'POST' }),
+      call(`/pets/${petId}/documents/${docId}/complete`, PetDocumentReadSchema, { method: 'POST' }),
     changeDocument: (petId: string, docId: string, body: DocumentPatch) =>
-      call(`/pets/${petId}/documents/${docId}`, PetDocumentSchema, { method: 'PATCH', body }),
+      call(`/pets/${petId}/documents/${docId}`, PetDocumentReadSchema, { method: 'PATCH', body }),
     deleteDocument: (petId: string, docId: string) =>
       call<void>(`/pets/${petId}/documents/${docId}`, null, { method: 'DELETE' }),
 
