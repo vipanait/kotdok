@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Pressable, StyleSheet, View } from 'react-native'
+import { Platform, Pressable, StyleSheet, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import { DOCUMENT_LIMITS, type DocumentPatch, type PetDocument } from '@lapka/contracts'
 import { apiFailure } from '@lapka/shared'
@@ -10,12 +10,22 @@ import { useCached, useInvalidate } from '@/lib/query-cache'
 import { queryKeys } from '@/lib/query-keys'
 import { useText } from '@/i18n'
 import { openStoredPdf } from '@/features/documents/document-io'
-import { documentFormat, documentHeadline, documentPages, documentRoute, documentTitle, isArchiveKind } from '@/features/documents/document-view'
+import {
+  documentFormat,
+  documentHeadline,
+  documentPages,
+  documentRoute,
+  documentTitle,
+  isArchiveKind,
+  pdfOpening,
+  readDetails,
+} from '@/features/documents/document-view'
+import { useUnsavedChanges } from '@/features/unsaved/useUnsavedChanges'
 import { DocumentLine, Notice, Quiet, RecognitionOffer } from '@/features/documents/parts'
 import { Button } from '@/ui/Button'
 import { Banner } from '@/ui/Card'
 import { DateField } from '@/ui/DateField'
-import { ConfirmDialog } from '@/ui/Dialog'
+import { ConfirmDialog, SaveChangesDialog } from '@/ui/Dialog'
 import { Field } from '@/ui/Field'
 import { Icon } from '@/ui/Icon'
 import { Screen } from '@/ui/Screen'
@@ -44,7 +54,8 @@ export default function StoredDocument() {
 
   const [notice, setNotice] = useState<'added' | 'changed' | null>(saved === 'added' ? 'added' : null)
   const [openFailed, setOpenFailed] = useState(false)
-  const [detailsOpen, setDetailsOpen] = useState(false)
+  // Archive kinds have nothing but the name and date to look at: open from the start.
+  const [detailsToggled, setDetailsOpen] = useState<boolean | null>(null)
   // What the owner typed; until then the document's own values.
   const [typedTitle, setTitle] = useState<string | null>(null)
   const [typedDate, setDate] = useState<string | null>(null)
@@ -56,26 +67,38 @@ export default function StoredDocument() {
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
 
+  const detailsOpen = detailsToggled ?? (doc !== null && isArchiveKind(doc.kind))
+  const loadedDate = doc?.document_date ? dayInput(doc.document_date) : ''
   const title = typedTitle ?? doc?.title ?? ''
-  const date = typedDate ?? (doc?.document_date ? dayInput(doc.document_date) : '')
+  const date = typedDate ?? loadedDate
+  const detailsChanged = doc !== null && (title !== doc.title || date !== loadedDate)
+  const unsaved = useUnsavedChanges(detailsChanged)
 
   const moved = () => invalidate([queryKeys.documents(id), queryKeys.document(id, docId)])
 
-  async function saveDetails(current: PetDocument) {
-    const name = title.trim()
-    const day = date.trim() === '' ? null : parseDayInput(date)
-    const nameProblem = name === '' ? words.view.titleRequired : name.length > DOCUMENT_LIMITS.titleMax ? words.view.titleTooLong(DOCUMENT_LIMITS.titleMax) : null
-    const dateProblem = date.trim() !== '' && day === null ? words.view.dateInvalid : null
-    setTitleError(nameProblem)
-    setDateError(dateProblem)
-    if (nameProblem || dateProblem) return
-    const patch: DocumentPatch = {
-      ...(name !== current.title ? { title: name } : {}),
-      ...(day !== current.document_date ? { document_date: day } : {}),
+  /** @returns whether the details are saved (or there was nothing to save). */
+  async function saveDetails(current: PetDocument): Promise<boolean> {
+    const day = date.trim() === '' ? null : (parseDayInput(date) ?? 'invalid')
+    const details = readDetails(current, title, day)
+    if (!details.ok) {
+      setTitleError(
+        details.title === 'required'
+          ? words.view.titleRequired
+          : details.title === 'tooLong'
+            ? words.view.titleTooLong(DOCUMENT_LIMITS.titleMax)
+            : null,
+      )
+      setDateError(details.date ? words.view.dateInvalid : null)
+      setDetailsOpen(true)
+      return false
     }
+    setTitleError(null)
+    setDateError(null)
+    const patch: DocumentPatch = details.patch
     if (Object.keys(patch).length === 0) {
-      setDetailsOpen(false)
-      return
+      setTitle(null)
+      setDate(null)
+      return true
     }
     setSaving(true)
     setSaveError(null)
@@ -86,8 +109,10 @@ export default function StoredDocument() {
       setDate(null)
       setNotice('changed')
       setDetailsOpen(false)
+      return true
     } catch (cause) {
       setSaveError(describeFailure(t, cause, words.view.saveFailed).text)
+      return false
     } finally {
       setSaving(false)
     }
@@ -110,7 +135,8 @@ export default function StoredDocument() {
     void invalidate([queryKeys.documents(id)])
     setAsking(false)
     setDeleting(false)
-    router.back()
+    // Typed changes go with the document; nothing to ask about on the way out.
+    unsaved.leave(() => router.back())
   }
 
   if (!doc) {
@@ -135,9 +161,10 @@ export default function StoredDocument() {
   const format = documentFormat(doc)
   const name = documentTitle(t, doc)
   const pages = documentPages(t, doc)
+  // The mark already says PDF on screen; the label says it once for a screen reader.
   const originalMeta =
     format === 'pdf'
-      ? [words.format.pdf, pages, words.view.pdfSystem].filter(Boolean).join(' · ')
+      ? [pages, pdfOpening(Platform.OS) === 'download' ? words.view.pdfDownload : words.view.pdfSystem].filter(Boolean).join(' · ')
       : [pages, words.view.photos].filter(Boolean).join(' · ')
 
   const openOriginal = async () => {
@@ -150,16 +177,22 @@ export default function StoredDocument() {
   }
 
   return (
-    <Screen title={name} onBack={() => router.back()} backLabel={words.backToList} subtitle={documentHeadline(t, doc)} scroll>
+    <Screen
+      title={name}
+      titleLines={0}
+      onBack={() => router.back()}
+      backLabel={words.backToList}
+      subtitle={documentHeadline(t, doc)}
+      scroll
+    >
       {notice ? <Notice title={words.saved[notice]} tone="success" /> : null}
       {error ? <Banner text={error.text} tone="error" icon={error.offline ? 'wifi' : 'alert'} /> : null}
-      {deleteError ? <Banner text={deleteError} tone="error" /> : null}
 
       <DocumentLine
         format={format}
         title={words.view.openOriginal}
         meta={originalMeta}
-        label={`${words.view.openOriginal}, ${originalMeta}`}
+        label={[words.view.openOriginal, words.format[format], originalMeta].filter(Boolean).join(', ')}
         onPress={() => void openOriginal()}
       />
       {openFailed ? <Banner text={words.view.openFailed} tone="error" /> : null}
@@ -176,7 +209,7 @@ export default function StoredDocument() {
         accessibilityRole="button"
         accessibilityState={{ expanded: detailsOpen }}
         accessibilityLabel={words.view.details}
-        onPress={() => setDetailsOpen((open) => !open)}
+        onPress={() => setDetailsOpen(!detailsOpen)}
         style={({ pressed }) => [styles.toggle, { opacity: pressed ? 0.6 : 1 }]}
       >
         <Text variant="bodyStrong" tone="accent" style={styles.fill}>
@@ -189,7 +222,16 @@ export default function StoredDocument() {
 
       {detailsOpen ? (
         <View style={styles.details}>
-          <Field label={words.view.titleField} value={title} onChangeText={setTitle} error={titleError} autoCorrect={false} />
+          <Field
+            label={words.view.titleField}
+            value={title}
+            onChangeText={setTitle}
+            error={titleError}
+            hint={doc.title.trim() === '' ? t.documents.upload.titleHint(t.documents.kinds[doc.kind]) : undefined}
+            placeholder={doc.title.trim() === '' ? t.documents.kinds[doc.kind] : undefined}
+            maxLength={DOCUMENT_LIMITS.titleMax}
+            autoCorrect={false}
+          />
           <DateField
             label={words.view.dateField}
             value={date}
@@ -205,6 +247,7 @@ export default function StoredDocument() {
       ) : null}
 
       <View style={styles.block}>
+        {deleteError ? <Banner text={deleteError} tone="error" /> : null}
         <Button title={words.view.delete} kind="outlineDanger" onPress={() => setAsking(true)} />
       </View>
 
@@ -217,6 +260,20 @@ export default function StoredDocument() {
         busy={deleting}
         onConfirm={() => void remove()}
         onCancel={() => setAsking(false)}
+      />
+
+      <SaveChangesDialog
+        visible={unsaved.pending !== null}
+        busy={saving}
+        onSave={() => {
+          const next = unsaved.pending
+          unsaved.stay()
+          void saveDetails(doc).then((done) => {
+            if (done && next) unsaved.leave(next)
+          })
+        }}
+        onDiscard={() => unsaved.pending && unsaved.leave(unsaved.pending)}
+        onStay={unsaved.stay}
       />
     </Screen>
   )

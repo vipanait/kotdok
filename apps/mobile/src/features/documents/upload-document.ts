@@ -73,6 +73,7 @@ export type UploadFailure =
   | 'rateLimited'
   | 'offline'
   | 'signedOut'
+  | 'deleting'
   | 'gone'
   | 'upload'
   | 'failed'
@@ -98,6 +99,7 @@ export function uploadFailure(error: unknown): UploadFailure {
     case 'rateLimited':
     case 'offline':
     case 'signedOut':
+    case 'deleting':
     case 'gone':
       return failure
     default:

@@ -85,6 +85,7 @@ export function Screen({
   centered = false,
   scrollRef,
   onScrollY,
+  titleLines = 2,
 }: {
   title?: string
   onBack?: () => void
@@ -108,6 +109,12 @@ export function Screen({
   scrollRef?: RefObject<ScrollView | null>
   /** Where the scroller stands, as it moves. */
   onScrollY?: (y: number) => void
+  /**
+   * How many lines the title may take; 0 for as many as it needs — for a
+   * screen named by something the owner typed (a document's name), which
+   * must wrap rather than be cut.
+   */
+  titleLines?: number
 }) {
   const t = useText()
   const [dockHeight, setDockHeight] = useState(0)
@@ -235,7 +242,7 @@ export function Screen({
   // off the bottom. The title names the screen — what the reader came
   // for is below it, and scales without limit.
   const titleText = title ? (
-    <Text variant="h1" style={styles.title} numberOfLines={2} maxFontSizeMultiplier={CONTROL_FONT_LIMIT}>
+    <Text variant="h1" style={styles.title} numberOfLines={titleLines} maxFontSizeMultiplier={CONTROL_FONT_LIMIT}>
       {title}
     </Text>
   ) : null

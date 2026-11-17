@@ -1,3 +1,4 @@
+import { Linking, Platform } from 'react-native'
 import * as ImagePicker from 'expo-image-picker'
 import * as Sharing from 'expo-sharing'
 import * as WebBrowser from 'expo-web-browser'
@@ -6,6 +7,7 @@ import { File } from 'expo-file-system'
 import { withFreshSession } from '@/lib/api'
 import { prepareDocumentPhoto, putFile } from '@/lib/photo-io'
 import { checkPdf, photoTooLarge, type PageProblem, type PickedPage, type PageSource } from './page-list'
+import { pdfOpening } from './document-view'
 import { pdfPickerFrom, type PdfPicker } from './pdf-picker'
 import type { UploadDeps } from './upload-document'
 
@@ -116,10 +118,16 @@ export async function openLocalPdf(uri: string): Promise<boolean> {
   }
 }
 
-/** A stored PDF through its signed read link, in the system's viewer. */
+/**
+ * A stored PDF through its signed read link: shown in the in-app browser on
+ * iOS; on Android handed to the browser, which saves it to Downloads (a
+ * Custom Tab would only leave a blank page behind) — the screens say so
+ * (`pdfOpening`).
+ */
 export async function openStoredPdf(url: string): Promise<boolean> {
   try {
-    await WebBrowser.openBrowserAsync(url)
+    if (pdfOpening(Platform.OS) === 'download') await Linking.openURL(url)
+    else await WebBrowser.openBrowserAsync(url)
     return true
   } catch {
     return false

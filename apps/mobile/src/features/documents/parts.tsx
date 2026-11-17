@@ -122,10 +122,13 @@ export function KindChoice({
   value,
   onChange,
   error,
+  disabled = false,
 }: {
   value: DocumentKind | null
   onChange: (kind: DocumentKind) => void
   error: string | null
+  /** While the document is on its way: the kind it was sent with stands. */
+  disabled?: boolean
 }) {
   const t = useText()
   const words = t.documents
@@ -141,10 +144,11 @@ export function KindChoice({
             <Pressable
               key={kind}
               accessibilityRole="radio"
-              accessibilityState={{ checked: chosen }}
+              accessibilityState={{ checked: chosen, disabled }}
               accessibilityLabel={words.kinds[kind]}
+              disabled={disabled}
               onPress={() => onChange(kind)}
-              style={[styles.chip, chosen ? styles.chipChosen : null, error ? styles.chipError : null]}
+              style={[styles.chip, chosen ? styles.chipChosen : null, error ? styles.chipError : null, disabled ? styles.chipOff : null]}
             >
               <Text tone={chosen ? 'accent' : 'default'} maxFontSizeMultiplier={CONTROL_FONT_LIMIT}>
                 {words.kinds[kind]}
@@ -322,6 +326,7 @@ const styles = StyleSheet.create({
   },
   chipChosen: { borderColor: colour.accent, backgroundColor: colour.accentSoft },
   chipError: { borderColor: colour.danger },
+  chipOff: { opacity: 0.6 },
   page: { paddingVertical: 10 },
   pageDivider: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colour.line },
   pageOpen: { flexDirection: 'row', alignItems: 'center', gap: space.row, minHeight: TAP_TARGET },

@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react'
-import { AccessibilityInfo, Image, Modal, StyleSheet, View } from 'react-native'
+import { AccessibilityInfo, Image, Modal, ScrollView, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router, useLocalSearchParams } from 'expo-router'
 import { DOCUMENT_LIMITS, type DocumentKind } from '@lapka/contracts'
@@ -71,7 +71,11 @@ export default function AddDocument() {
   const [progress, setProgress] = useState<UploadProgress | null>(null)
   const [message, setMessage] = useState<UploadMessage | null>(null)
   const [preview, setPreview] = useState<{ page: DraftPage; label: string } | null>(null)
+  const [titleError, setTitleError] = useState<string | null>(null)
   const busy = progress !== null
+  // Set in the same tick as the press: a second tap before the next render does not start a second upload.
+  const sending = useRef(false)
+  const scroller = useRef<ScrollView>(null)
 
   const unsaved = useUnsavedChanges(draftChanged(pages, title))
 
@@ -105,12 +109,15 @@ export default function AddDocument() {
     const next = movePage(pages, index, delta)
     setPages(next)
     // Said out loud: the list changed under the finger.
-    AccessibilityInfo.announceForAccessibility(words.pageN(index + delta + 1))
+    const page = pages[index]
+    if (page) AccessibilityInfo.announceForAccessibility(words.moved(index + delta + 1, pageCaption(t, page)))
   }
 
   function remove(index: number) {
+    const page = pages[index]
     setPages(removePage(pages, index))
     setDropped(null)
+    if (page) AccessibilityInfo.announceForAccessibility(words.removed(index + 1, pageCaption(t, page)))
   }
 
   async function open(page: DraftPage) {
@@ -123,12 +130,17 @@ export default function AddDocument() {
   }
 
   async function save() {
-    if (!kind) {
-      setKindError(true)
-      AccessibilityInfo.announceForAccessibility(words.kindRequired)
+    if (pages.length === 0 || sending.current) return
+    const tooLong = title.trim().length > DOCUMENT_LIMITS.titleMax
+    setTitleError(tooLong ? t.documents.view.titleTooLong(DOCUMENT_LIMITS.titleMax) : null)
+    if (!kind || tooLong) {
+      setKindError(!kind)
+      // The chips sit at the top, above the pages: brought into view, and the dock says it too.
+      if (!kind) scroller.current?.scrollTo({ y: 0, animated: true })
+      AccessibilityInfo.announceForAccessibility(!kind ? words.kindRequired : t.documents.view.titleTooLong(DOCUMENT_LIMITS.titleMax))
       return
     }
-    if (pages.length === 0 || busy) return
+    sending.current = true
     setMessage(null)
     setProgress({ step: 'start' })
     try {
@@ -140,6 +152,7 @@ export default function AddDocument() {
       setMessage(said)
       AccessibilityInfo.announceForAccessibility(said.kind === 'file' ? `${said.title}. ${said.body}` : said.text)
     } finally {
+      sending.current = false
       setProgress(null)
     }
   }
@@ -186,12 +199,26 @@ export default function AddDocument() {
       backLabel={t.documents.backToList}
       subtitle={petName}
       scroll
+      scrollRef={scroller}
       dock={
         <View style={styles.dock}>
           <Button title={t.documents.upload.save} busy={busy} disabled={pages.length === 0} onPress={() => void save()} />
+          {/* What stopped the save is said by the button that was pressed, wherever the form is scrolled. */}
           {progressText ? (
             <Text variant="caption" tone="muted" center accessibilityLiveRegion="polite">
               {progressText}
+            </Text>
+          ) : kindError ? (
+            <Text variant="caption" tone="danger" center>
+              {words.kindRequired}
+            </Text>
+          ) : titleError ? (
+            <Text variant="caption" tone="danger" center>
+              {titleError}
+            </Text>
+          ) : message ? (
+            <Text variant="caption" tone="danger" center>
+              {message.kind === 'file' ? message.title : message.text}
             </Text>
           ) : pages.length === 0 ? (
             <Text variant="caption" tone="faint" center>
@@ -202,8 +229,10 @@ export default function AddDocument() {
       }
     >
       {message?.kind === 'file' ? <Notice title={message.title} body={message.body} tone="error" /> : null}
+      {message?.kind === 'banner' ? <Banner text={message.text} tone="error" icon={message.offline ? 'wifi' : 'alert'} /> : null}
 
       <KindChoice
+        disabled={busy}
         value={kind}
         onChange={(next) => {
           setKind(next)
@@ -222,7 +251,7 @@ export default function AddDocument() {
       ) : (
         <>
           <Text tone="muted" style={styles.hint}>
-            {words.pagesHint}
+            {pages.some(isPdfPage) ? words.pdfPreview : words.pagesHint}
           </Text>
           <PageList pages={pages} onOpen={(page) => void open(page)} onMove={move} onRemove={remove} disabled={busy} />
           <View style={[styles.buttons, styles.more]}>
@@ -262,10 +291,11 @@ export default function AddDocument() {
         onChangeText={setTitle}
         placeholder={kind ? t.documents.kinds[kind] : undefined}
         hint={kind ? words.titleHint(t.documents.kinds[kind]) : words.titleHintNoKind}
+        error={titleError}
+        maxLength={DOCUMENT_LIMITS.titleMax}
+        editable={!busy}
         autoCorrect={false}
       />
-
-      {message?.kind === 'banner' ? <Banner text={message.text} tone="error" icon={message.offline ? 'wifi' : 'alert'} /> : null}
 
       <ConfirmDialog
         visible={unsaved.pending !== null}
@@ -285,9 +315,11 @@ export default function AddDocument() {
 /** A chosen photo, across the screen, before it is sent; the way back is a button at the bottom. */
 function PagePreview({ page, label, onClose }: { page: DraftPage | null; label: string; onClose: () => void }) {
   const t = useText()
-  const [ratio, setRatio] = useState<number | null>(null)
+  // The shape of each photo, by its file: a new page starts from A4 until it loads, an old one keeps its own.
+  const [ratios, setRatios] = useState<Record<string, number>>({})
+  const ratio = page ? ratios[page.uri] : undefined
   return (
-    <Modal visible={page !== null} animationType="slide" onRequestClose={onClose} onShow={() => setRatio(null)}>
+    <Modal visible={page !== null} animationType="slide" onRequestClose={onClose}>
       <SafeAreaView style={styles.preview}>
         <View style={styles.previewBody}>
           {page ? (
@@ -299,7 +331,7 @@ function PagePreview({ page, label, onClose }: { page: DraftPage | null; label: 
               accessibilityIgnoresInvertColors
               onLoad={(event) => {
                 const { width, height } = event.nativeEvent.source
-                if (width > 0 && height > 0) setRatio(width / height)
+                if (width > 0 && height > 0) setRatios((known) => ({ ...known, [page.uri]: width / height }))
               }}
               style={[styles.previewImage, { aspectRatio: ratio ?? 210 / 297 }]}
             />

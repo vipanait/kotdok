@@ -14,6 +14,8 @@ import {
   listSubtitle,
   originalBackTitle,
   originalPage,
+  pdfOpening,
+  readDetails,
 } from './document-view'
 
 const TODAY = '2026-11-17'
@@ -136,5 +138,36 @@ describe('the limits sentence', () => {
   it('mentions a PDF only when this build can pick one', () => {
     expect(limitsText(ru, true)).toBe('До 8 фото или один PDF. Каждое фото до 5 МБ, PDF до 10 МБ и 10 страниц.')
     expect(limitsText(ru, false)).toBe('До 8 фото, каждое до 5 МБ.')
+  })
+})
+
+describe('«Название и дата»', () => {
+  const untitled = { title: '', document_date: null }
+  const named = { title: 'Ветпаспорт Мурки', document_date: '2026-03-12' }
+
+  it('lets a document saved without a name get a date, and keeps it unnamed', () => {
+    expect(readDetails(untitled, '', '2026-03-12')).toEqual({ ok: true, patch: { document_date: '2026-03-12' } })
+  })
+
+  it('asks for a name only when the document already had one', () => {
+    expect(readDetails(named, '   ', '2026-03-12')).toEqual({ ok: false, title: 'required', date: false })
+  })
+
+  it('sends only what changed, and a cleared date as null', () => {
+    expect(readDetails(named, ' Ветпаспорт Мурки ', '2026-03-12')).toEqual({ ok: true, patch: {} })
+    expect(readDetails(named, 'Паспорт', null)).toEqual({ ok: true, patch: { title: 'Паспорт', document_date: null } })
+    expect(readDetails(untitled, 'Рецепт', null)).toEqual({ ok: true, patch: { title: 'Рецепт' } })
+  })
+
+  it('refuses a name over the limit and a date that does not read', () => {
+    expect(readDetails(named, 'я'.repeat(101), '2026-03-12')).toEqual({ ok: false, title: 'tooLong', date: false })
+    expect(readDetails(named, 'Паспорт', 'invalid')).toEqual({ ok: false, title: null, date: true })
+  })
+})
+
+describe('a stored PDF', () => {
+  it('is viewed on iOS and downloaded on Android, where Chrome does not show it', () => {
+    expect(pdfOpening('ios')).toBe('view')
+    expect(pdfOpening('android')).toBe('download')
   })
 })

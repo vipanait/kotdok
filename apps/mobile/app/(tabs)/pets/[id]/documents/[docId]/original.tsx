@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { Platform, StyleSheet, View } from 'react-native'
 import { Image } from 'expo-image'
 import { router, useLocalSearchParams } from 'expo-router'
 import { withFreshSession } from '@/lib/api'
@@ -8,7 +8,7 @@ import { useCached } from '@/lib/query-cache'
 import { queryKeys } from '@/lib/query-keys'
 import { useText } from '@/i18n'
 import { openStoredPdf } from '@/features/documents/document-io'
-import { documentFormat, documentTitle, originalBackTitle, originalPage } from '@/features/documents/document-view'
+import { documentFormat, documentTitle, originalBackTitle, originalPage, pdfOpening } from '@/features/documents/document-view'
 import { Button } from '@/ui/Button'
 import { Banner } from '@/ui/Card'
 import { Screen } from '@/ui/Screen'
@@ -68,13 +68,14 @@ export default function DocumentOriginal() {
 
   if (documentFormat(doc) === 'pdf') {
     const open = async () => setOpenFailed(!(await openStoredPdf(doc.files[0]?.url ?? '')))
+    const download = pdfOpening(Platform.OS) === 'download'
     return (
-      <Screen title={name} onBack={() => router.back()} backLabel={words.original.back} subtitle={words.format.pdf} scroll>
+      <Screen title={name} titleLines={0} onBack={() => router.back()} backLabel={words.original.back} subtitle={words.format.pdf} scroll>
         <Text tone="muted" style={styles.gap}>
-          {words.original.pdfBody}
+          {download ? words.original.pdfBodyDownload : words.original.pdfBody}
         </Text>
         {openFailed ? <Banner text={words.view.openFailed} tone="error" /> : null}
-        <Button title={words.original.openPdf} onPress={() => void open()} />
+        <Button title={download ? words.original.downloadPdf : words.original.openPdf} onPress={() => void open()} />
         <View style={styles.gap} />
         {back}
       </Screen>
@@ -89,7 +90,16 @@ export default function DocumentOriginal() {
   }
 
   return (
-    <Screen title={name} onBack={() => router.back()} backLabel={words.original.back} subtitle={words.original.pageOf(n, total)} scroll>
+    <Screen
+      title={name}
+      titleLines={0}
+      onBack={() => router.back()}
+      backLabel={words.original.back}
+      subtitle={total > 0 ? words.original.pageOf(n, total) : null}
+      scroll
+    >
+      {/* Every file of a type this build cannot show (a later server's): said, not an empty frame. */}
+      {total === 0 ? <Text tone="muted">{words.original.noFiles}</Text> : null}
       {file ? (
         <Image
           key={file.id}
@@ -108,7 +118,21 @@ export default function DocumentOriginal() {
           style={[styles.page, { aspectRatio: ratios[file.id] ?? PAGE_RATIO }]}
         />
       ) : null}
-      {failed === file?.id ? <Banner text={words.original.imageFailed} tone="error" style={styles.after} /> : null}
+      {failed !== null && failed === file?.id ? (
+        <View style={styles.after}>
+          <Banner text={words.original.imageFailed} tone="error" />
+          {/* A link that ran out while the page was open: a fresh read signs a new one. */}
+          <Button
+            title={t.common.retry}
+            kind="secondary"
+            busy={read.fetching}
+            onPress={() => {
+              setFailed(null)
+              void read.reload()
+            }}
+          />
+        </View>
+      ) : null}
 
       {total > 1 ? (
         <View style={styles.turns}>

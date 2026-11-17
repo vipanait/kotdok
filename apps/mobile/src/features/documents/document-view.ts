@@ -143,3 +143,43 @@ export function limitsText(t: Dictionary, pdf: boolean): string {
     ? words.limits(DOCUMENT_LIMITS.maxImages, imageMb, megabytes(DOCUMENT_LIMITS.pdfMaxBytes), DOCUMENT_LIMITS.pdfMaxPages)
     : words.limitsNoPdf(DOCUMENT_LIMITS.maxImages, imageMb)
 }
+
+/**
+ * How a stored PDF opens on this platform. iOS shows it in the in-app
+ * browser; Chrome on Android does not show a PDF, it saves it to Downloads,
+ * so there the screen says so and hands the link to the browser.
+ */
+export function pdfOpening(os: string): 'view' | 'download' {
+  return os === 'android' ? 'download' : 'view'
+}
+
+/** What «Название и дата» sends, or why it cannot. */
+export type DetailsRead =
+  | { ok: true; patch: { title?: string; document_date?: string | null } }
+  | { ok: false; title: 'required' | 'tooLong' | null; date: boolean }
+
+/**
+ * «Название и дата» as the site reads it (`DocumentDetailsForm`): a name is
+ * required only when the document already has one — one saved without a
+ * name (`''` on the server) can get a date and keep no name — and it is sent
+ * only when typed and changed. The date may be cleared; `day` is the typed
+ * date read as `YYYY-MM-DD`, null when the field is empty, `'invalid'`
+ * when it does not read or is in the future.
+ */
+export function readDetails(
+  current: Pick<PetDocument, 'title' | 'document_date'>,
+  typedTitle: string,
+  day: string | null | 'invalid',
+): DetailsRead {
+  const name = typedTitle.trim()
+  const titleProblem =
+    name === '' && current.title.trim() !== '' ? 'required' : name.length > DOCUMENT_LIMITS.titleMax ? 'tooLong' : null
+  if (titleProblem || day === 'invalid') return { ok: false, title: titleProblem, date: day === 'invalid' }
+  return {
+    ok: true,
+    patch: {
+      ...(name !== '' && name !== current.title ? { title: name } : {}),
+      ...(day !== current.document_date ? { document_date: day } : {}),
+    },
+  }
+}

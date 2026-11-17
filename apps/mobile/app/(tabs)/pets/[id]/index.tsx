@@ -220,18 +220,15 @@ export default function MedicalRecord() {
       ? [{ key: 'weight', icon: 'weight' as const, label: t.medicalRecord.addWeightRow, onPress: () => router.push(`/pets/${id}/weight`) }]
       : []),
     // Only when the server stores documents for this app (it asked for `pet-documents`).
-    // The list goes under the form, so its «← Документы» and the saved
-    // document's back both lead to the documents, as the design has it.
+    // `withAnchor`: the documents' own stack puts the list under the form,
+    // so its «← Документы» and the saved document's back both lead there.
     ...(shown.writable.includes('documents')
       ? [
           {
             key: 'document',
             icon: 'document' as const,
             label: t.medicalRecord.addDocumentRow,
-            onPress: () => {
-              router.push(`/pets/${id}/documents`)
-              router.push(`/pets/${id}/documents/new`)
-            },
+            onPress: () => router.push(`/pets/${id}/documents/new`, { withAnchor: true }),
           },
         ]
       : []),
