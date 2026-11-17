@@ -585,6 +585,7 @@ export const en: Dictionary = {
       details: 'Name and date',
       titleField: 'Name',
       titleRequired: 'Enter a name.',
+      titleTooLong: (max: number) => `No longer than ${max} characters.`,
       dateField: 'Document date',
       dateHint: 'Optional. When the document was issued: the day of the visit, the test or the prescription.',
       dateInvalid: 'Date — DD.MM.YYYY, not later than today',

@@ -631,6 +631,7 @@ export const ru = {
       details: 'Название и дата',
       titleField: 'Название',
       titleRequired: 'Введите название.',
+      titleTooLong: (max: number) => `Не длиннее ${max} символов.`,
       dateField: 'Дата документа',
       dateHint: 'Необязательно. Когда документ выдан: день приёма, анализа или рецепта.',
       dateInvalid: 'Дата — ДД.ММ.ГГГГ, не позже сегодняшней',

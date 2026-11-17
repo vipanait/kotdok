@@ -3,9 +3,11 @@ import * as Sharing from 'expo-sharing'
 import * as WebBrowser from 'expo-web-browser'
 import { requireOptionalNativeModule } from 'expo'
 import { File } from 'expo-file-system'
+import { withFreshSession } from '@/lib/api'
 import { prepareDocumentPhoto, putFile } from '@/lib/photo-io'
 import { checkPdf, photoTooLarge, type PageProblem, type PickedPage, type PageSource } from './page-list'
 import { pdfPickerFrom, type PdfPicker } from './pdf-picker'
+import type { UploadDeps } from './upload-document'
 
 /**
  * The native half of a document's pages (DOC-1): the camera, the library,
@@ -34,16 +36,18 @@ async function preparePhotos(
   const problems: PageProblem[] = []
   for (const asset of assets) {
     const name = source === 'library' ? (asset.fileName ?? null) : null
+    // Said by the name the phone knows it by, even a camera photo's.
+    const said = name ?? asset.fileName ?? asset.uri.split('/').pop() ?? ''
     try {
       const prepared = await prepareDocumentPhoto({ uri: asset.uri, width: asset.width, height: asset.height })
       if (photoTooLarge(prepared.size)) {
-        problems.push({ reason: 'image_too_large', name: name ?? '' })
+        problems.push({ reason: 'image_too_large', name: said })
         continue
       }
       pages.push({ uri: prepared.uri, contentType: prepared.contentType, size: prepared.size, name, source })
     } catch {
       // A file the phone cannot decode: said by name, the others are kept.
-      problems.push({ reason: 'unreadable', name: name ?? '' })
+      problems.push({ reason: 'unreadable', name: said })
     }
   }
   return { pages, problems }
@@ -120,4 +124,16 @@ export async function openStoredPdf(url: string): Promise<boolean> {
   } catch {
     return false
   }
+}
+
+/**
+ * The upload's calls, each through a fresh session on its own: a token that
+ * runs out between the pages refreshes for the next call, and never sends
+ * the whole upload again (which would ask for a second document).
+ */
+export const uploadDeps: UploadDeps = {
+  createDocument: (petId, body) => withFreshSession((api) => api.createDocument(petId, body)),
+  completeDocument: (petId, docId) => withFreshSession((api) => api.completeDocument(petId, docId)),
+  getDocument: (petId, docId) => withFreshSession((api) => api.getDocument(petId, docId)),
+  put: putPage,
 }

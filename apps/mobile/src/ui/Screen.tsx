@@ -8,14 +8,14 @@ import {
   useState,
   type ReactNode,
 } from 'react'
-import { Keyboard, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native'
+import { Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useText } from '@/i18n'
 import { IconButton, LinkButton } from './Button'
 import { hiddenAboveTop, hiddenBelowKeyboard } from './keyboard-reveal'
 import { CONTROL_FONT_LIMIT, Text } from './Text'
-import type { IconName } from './Icon'
-import { COLUMN_MAX_WIDTH, colour, space } from './theme'
+import { Icon, type IconName } from './Icon'
+import { COLUMN_MAX_WIDTH, TAP_TARGET, colour, space } from './theme'
 
 /**
  * The heading's action. A glyph when there is one («плюс»); a word when the
@@ -75,6 +75,8 @@ export function useRevealOnFocus() {
 export function Screen({
   title,
   onBack,
+  backLabel,
+  subtitle,
   action,
   children,
   dock,
@@ -83,6 +85,14 @@ export function Screen({
 }: {
   title?: string
   onBack?: () => void
+  /**
+   * Where back leads, said: «← Медкарта» on a line of its own above the
+   * title, for screens whose design names the way back (the documents).
+   * Without it the arrow stands alone beside the title, as everywhere else.
+   */
+  backLabel?: string
+  /** One line under the title: whose screen this is («Мурка · 3 документа»). */
+  subtitle?: string | null
   action?: ScreenAction
   children: ReactNode
   dock?: ReactNode
@@ -202,31 +212,58 @@ export function Screen({
     [reveal, showTop, pinTop],
   )
 
-  const heading = title ? (
-    <View style={[styles.header, styles.column]}>
-      {onBack ? (
-        <IconButton icon="back" label={t.common.back} onPress={onBack} style={styles.back} />
-      ) : null}
-      {/* Two lines and a ceiling. One line turned "Проверка симптомов" into
-          "Пров…" at the largest accessibility size; no ceiling turned it into
-          two lines of ninety points that pushed the screen's actual content
-          off the bottom. The title names the screen — what the reader came
-          for is below it, and scales without limit. */}
-      <Text
-        variant="h1"
-        style={styles.title}
-        numberOfLines={2}
-        maxFontSizeMultiplier={CONTROL_FONT_LIMIT}
-      >
-        {title}
-      </Text>
-      {action?.icon ? (
-        <IconButton icon={action.icon} label={action.label} onPress={action.onPress} soft />
-      ) : action ? (
-        <LinkButton title={action.label} onPress={action.onPress} align="right" />
-      ) : null}
-    </View>
+  const actionButton = action?.icon ? (
+    <IconButton icon={action.icon} label={action.label} onPress={action.onPress} soft />
+  ) : action ? (
+    <LinkButton title={action.label} onPress={action.onPress} align="right" />
   ) : null
+
+  // Two lines and a ceiling. One line turned "Проверка симптомов" into
+  // "Пров…" at the largest accessibility size; no ceiling turned it into
+  // two lines of ninety points that pushed the screen's actual content
+  // off the bottom. The title names the screen — what the reader came
+  // for is below it, and scales without limit.
+  const titleText = title ? (
+    <Text variant="h1" style={styles.title} numberOfLines={2} maxFontSizeMultiplier={CONTROL_FONT_LIMIT}>
+      {title}
+    </Text>
+  ) : null
+
+  const subtitleText = subtitle ? (
+    <Text variant="label" tone="muted" style={styles.subtitle}>
+      {subtitle}
+    </Text>
+  ) : null
+
+  const heading = !title ? null : onBack && backLabel ? (
+    <View style={[styles.headerStack, styles.column]}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`${t.common.back}: ${backLabel}`}
+        onPress={onBack}
+        style={({ pressed }) => [styles.backRow, { opacity: pressed ? 0.6 : 1 }]}
+      >
+        <Icon name="back" size={20} color={colour.accentText} />
+        <Text variant="bodyStrong" tone="accent" numberOfLines={1} maxFontSizeMultiplier={CONTROL_FONT_LIMIT} style={styles.backText}>
+          {backLabel}
+        </Text>
+      </Pressable>
+      <View style={styles.titleRow}>
+        {titleText}
+        {actionButton}
+      </View>
+      {subtitleText}
+    </View>
+  ) : (
+    <View style={[styles.headerStack, styles.column]}>
+      <View style={styles.titleRow}>
+        {onBack ? <IconButton icon="back" label={t.common.back} onPress={onBack} style={styles.back} /> : null}
+        {titleText}
+        {actionButton}
+      </View>
+      {subtitleText}
+    </View>
+  )
 
   return (
     <RevealContext.Provider value={revealing}>
@@ -306,10 +343,7 @@ export function Screen({
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colour.canvas },
   fill: { flex: 1 },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  headerStack: {
     paddingHorizontal: space.gutter,
     // The concept puts 12 here, measured against a drawn status bar. A real
     // iPhone's island is taller than the drawing, so the same 12 reads as the
@@ -317,6 +351,20 @@ const styles = StyleSheet.create({
     paddingTop: 24,
     paddingBottom: space.block,
   },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  // «← Медкарта»: the arrow lines up with the text below, the target is still a fingertip.
+  backRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    gap: 4,
+    minHeight: TAP_TARGET,
+    marginLeft: -4,
+    marginTop: -12,
+    paddingRight: 8,
+  },
+  backText: { flexShrink: 1 },
+  subtitle: { marginTop: 4 },
   // The arrow's 44 pt target overhangs the gutter so the glyph inside it, and
   // not the box around it, lines up with the text below.
   back: { marginLeft: -12 },
