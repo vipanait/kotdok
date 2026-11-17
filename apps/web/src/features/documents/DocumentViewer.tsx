@@ -14,17 +14,32 @@ import SavedNotice from '@/features/medical-record/SavedNotice'
 import ConfirmDialog from '@/features/pets/ConfirmDialog'
 import { browserApi } from '@/features/api/browser-api'
 import DocumentDetailsForm from './DocumentDetailsForm'
-import { documentHref, documentMeta, documentTitle, type DocumentSaved } from './document-view'
-import PageZoom from './PageZoom'
+import { documentFormat, documentHeadline, documentHref, documentPages, documentTitle, isArchiveKind, type DocumentSaved } from './document-view'
 import { useDocument } from './use-documents'
 
 /**
- * `/pets/[id]/documents/[docId]` (DOC-1): one document — its pages to look
- * at (a press opens a page large), a PDF in a new tab by its signed link,
- * its name, kind and date to change, and «Удалить документ» behind a
- * question. A document gone meanwhile is said so, with the way back to the list.
+ * `/pets/[id]/documents/[docId]` (DOC-1): one stored document — «Открыть
+ * оригинал» (the pages one by one, or the PDF in a new tab), a word that an
+ * archive kind is kept as a file, its name, kind and date behind «Название и
+ * дата», and «Удалить документ» behind a question. A document gone meanwhile
+ * is said so, with the way back to the list.
+ *
+ * `recognitionOffer`: where DOC-2 puts «Распознать» for a passport or a
+ * prescription, and only once the API says recognition is available (ruling
+ * R2 of the design run). Nothing passes it yet, so real users never see an
+ * offer that would fail.
  */
-export default function DocumentViewer({ petId, docId, saved = null }: { petId: string; docId: string; saved?: DocumentSaved | null }) {
+export default function DocumentViewer({
+  petId,
+  docId,
+  saved = null,
+  recognitionOffer = null,
+}: {
+  petId: string
+  docId: string
+  saved?: DocumentSaved | null
+  recognitionOffer?: ((doc: PetDocument) => React.ReactNode) | null
+}) {
   const dict = useTranslations()
   const words = dict.documents
   const { state, reload } = useDocument(petId, docId)
@@ -35,10 +50,20 @@ export default function DocumentViewer({ petId, docId, saved = null }: { petId: 
   if (state.status !== 'ready') {
     return <RecordProblem state={state} petId={petId} reload={reload} loading={<FormSkeleton label={dict.medicalRecord.states.loading} />} />
   }
-  return <DocumentPage key={state.data.id} petId={petId} loaded={state.data} saved={saved} />
+  return <DocumentPage key={state.data.id} petId={petId} loaded={state.data} saved={saved} recognitionOffer={recognitionOffer} />
 }
 
-function DocumentPage({ petId, loaded, saved }: { petId: string; loaded: PetDocument; saved: DocumentSaved | null }) {
+function DocumentPage({
+  petId,
+  loaded,
+  saved,
+  recognitionOffer,
+}: {
+  petId: string
+  loaded: PetDocument
+  saved: DocumentSaved | null
+  recognitionOffer: ((doc: PetDocument) => React.ReactNode) | null
+}) {
   const dict = useTranslations()
   const words = dict.documents
   const view = words.view
@@ -47,15 +72,19 @@ function DocumentPage({ petId, loaded, saved }: { petId: string; loaded: PetDocu
   const router = useRouter()
   const [doc, setDoc] = useState(loaded)
   const [notice, setNotice] = useState<{ key: number; saved: DocumentSaved } | null>(saved ? { key: 0, saved } : null)
-  const [zoomed, setZoomed] = useState<number | null>(null)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState<string | undefined>()
   const deleteRef = useRef<HTMLButtonElement>(null)
 
   const title = documentTitle(dict, doc)
-  const pdf = doc.files.find((file) => file.content_type === 'application/pdf')
-  const pageAlt = (index: number) => view.pageAlt.replace('{n}', String(index + 1))
+  const format = documentFormat(doc)
+  const pdf = format === 'pdf' ? doc.files[0] : undefined
+  const pagesText = documentPages(dict, locale, doc)
+  const originalMeta =
+    format === 'pdf'
+      ? [words.format.pdf, pagesText, view.pdfNewTab].filter(Boolean).join(' · ')
+      : [pagesText, view.photos].filter(Boolean).join(' · ')
 
   async function handleDelete() {
     if (deleting) return
@@ -81,6 +110,17 @@ function DocumentPage({ petId, loaded, saved }: { petId: string; loaded: PetDocu
     }
   }
 
+  const originalContent = (
+    <>
+      <span className="document-format" aria-hidden>{words.format[format]}</span>
+      <span className="document-row-text">
+        <strong>{view.openOriginal}</strong>
+        <small>{originalMeta}</small>
+      </span>
+      <Icon name="chevron" />
+    </>
+  )
+
   return (
     <div className="health-page document-page-view">
       <Link href={documentHref.list(petId)} className="link health-back">
@@ -89,53 +129,53 @@ function DocumentPage({ petId, loaded, saved }: { petId: string; loaded: PetDocu
       </Link>
       <div className="pagehead">
         <div>
-          <h1>{title}</h1>
-          <p>{documentMeta(dict, locale, doc, today)}</p>
+          <h1 className="document-heading">{title}</h1>
+          <p>{documentHeadline(dict, locale, doc)}</p>
         </div>
       </div>
 
       {notice && <SavedNotice key={notice.key} text={words.saved[notice.saved]} />}
 
-      <div className="section-layout">
-        <div className="section-main">
+      <div className="section-layout document-layout">
+        <div className="section-main document-main">
           {pdf ? (
-            <section className="card document-pdf">
-              <a href={pdf.url} target="_blank" rel="noopener noreferrer" className="btn primary">
-                {view.openPdf}
-              </a>
-              <p className="field-hint">{view.pdfNote}</p>
-            </section>
+            <a href={pdf.url} target="_blank" rel="noopener noreferrer" className="document-row document-original">
+              {originalContent}
+            </a>
           ) : (
-            <ol className="document-sheets">
-              {doc.files.map((file, index) => (
-                <li key={file.id}>
-                  <button type="button" className="document-sheet" aria-label={view.zoom.replace('{n}', String(index + 1))} onClick={() => setZoomed(index)}>
-                    {/* A signed link to a private object: next/image would fetch and cache it on the server. */}
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={file.url} alt={pageAlt(index)} loading={index < 2 ? 'eager' : 'lazy'} />
-                  </button>
-                </li>
-              ))}
-            </ol>
+            <Link href={documentHref.original(petId, doc.id)} className="document-row document-original">
+              {originalContent}
+            </Link>
           )}
-        </div>
 
-        <aside className="section-aside">
-          <DocumentDetailsForm
-            key={`${doc.title}|${doc.kind}|${doc.document_date}`}
-            petId={petId}
-            doc={doc}
-            today={today}
-            disabled={deleting}
-            onSaved={(next) => {
-              setDoc(next)
-              setNotice((current) => ({ key: (current?.key ?? 0) + 1, saved: 'changed' }))
-            }}
-          />
+          {isArchiveKind(doc.kind) && (
+            <section className="document-quiet" aria-labelledby="document-archive-title">
+              <h2 id="document-archive-title">{view.archiveTitle}</h2>
+              <p>{view.archiveBody[doc.kind]}</p>
+            </section>
+          )}
+
+          {recognitionOffer?.(doc)}
+
+          <details className="document-more">
+            <summary>{view.details}</summary>
+            <DocumentDetailsForm
+              key={`${doc.title}|${doc.kind}|${doc.document_date}`}
+              petId={petId}
+              doc={doc}
+              today={today}
+              disabled={deleting}
+              onSaved={(next) => {
+                setDoc(next)
+                setNotice((current) => ({ key: (current?.key ?? 0) + 1, saved: 'changed' }))
+              }}
+            />
+          </details>
+
           <button
             ref={deleteRef}
             type="button"
-            className="link danger record-form-delete"
+            className="link danger document-delete"
             onClick={() => {
               setDeleteError(undefined)
               setConfirmDelete(true)
@@ -143,17 +183,18 @@ function DocumentPage({ petId, loaded, saved }: { petId: string; loaded: PetDocu
           >
             {view.delete}
           </button>
+        </div>
+
+        <aside className="section-aside document-aside">
+          <h2>{view.asideTitle}</h2>
+          <p>{view.asideBody}</p>
         </aside>
       </div>
 
-      {zoomed !== null && doc.files[zoomed] && (
-        <PageZoom src={doc.files[zoomed].url} alt={pageAlt(zoomed)} closeLabel={view.close} onClose={() => setZoomed(null)} />
-      )}
-
       {confirmDelete && (
         <ConfirmDialog
-          title={view.deleteTitle.replace('{title}', title)}
-          body={view.deleteBody}
+          title={view.deleteTitle}
+          body={view.deleteBody.replace('{title}', title)}
           cancelLabel={view.keep}
           confirmLabel={view.deleteConfirm}
           busyLabel={view.deleting}

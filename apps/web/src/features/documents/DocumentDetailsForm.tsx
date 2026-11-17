@@ -8,7 +8,7 @@ import { useTranslations } from '@/components/LocaleProvider'
 import { browserApi } from '@/features/api/browser-api'
 
 /**
- * «О документе»: its name, kind and date, changed in place. Only what
+ * «Название и дата», under the disclosure of a document's page: its name, kind and date, changed in place. Only what
  * changed is sent; a name once given can be changed but not emptied (the
  * API keeps a name of one character at least), and the date is never after
  * the owner's today.
@@ -86,9 +86,7 @@ export default function DocumentDetailsForm({
   }
 
   return (
-    <form className="card record-form document-details" onSubmit={handleSubmit} noValidate aria-labelledby={`${id}-title`} aria-busy={saving || undefined}>
-      <h2 id={`${id}-title`}>{view.details}</h2>
-
+    <form className="document-details" onSubmit={handleSubmit} noValidate aria-label={view.details} aria-busy={saving || undefined}>
       <div className="field">
         <label className="field-label" htmlFor={`${id}-name`}>{view.titleField}</label>
         <input
@@ -141,7 +139,7 @@ export default function DocumentDetailsForm({
       {banner && <p className="banner error record-form-error" role="alert">{banner}</p>}
 
       <div className="form-actions">
-        <button type="submit" className="btn primary" aria-disabled={saving || disabled || undefined}>
+        <button type="submit" className="btn secondary" aria-disabled={saving || disabled || undefined}>
           {saving ? view.saving : view.save}
         </button>
       </div>
