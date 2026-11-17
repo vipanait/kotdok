@@ -12,6 +12,7 @@ import { recordCache } from '../record-load'
 import SavedNotice from '../SavedNotice'
 import { medicalRecordHref } from '../routes'
 import { useMedicalRecord } from '../use-medical-record'
+import { SourceDocumentLine } from '@/features/documents/recognition/SourceLine'
 import { eventSaveFailure, type EventFormKind } from './event-form'
 import { EventGone } from './EventFormScreen'
 import { eventRecord, type EventSaved } from './event-view'
@@ -148,6 +149,9 @@ export default function EventRecordScreen({
               </div>
             )}
           </section>
+          {event.source_document_id && (
+            <SourceDocumentLine petId={petId} docId={event.source_document_id} from={medicalRecordHref.recordView(petId, event.id)} />
+          )}
         </div>
 
         <aside className="section-aside">
