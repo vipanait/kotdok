@@ -4,7 +4,7 @@ import { useEffect, useId, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { MEDICATION_LIMITS, type Medication } from '@lapka/contracts'
-import { endsByToday, startMayStayEmpty } from '@lapka/shared'
+import { startMayStayEmpty } from '@lapka/shared'
 import { useTranslations } from '@/components/LocaleProvider'
 import Icon from '@/components/ui/Icon'
 import { browserApi } from '@/features/api/browser-api'
@@ -25,6 +25,7 @@ import {
   type CoursesProblems,
 } from './course-form'
 import { courseErrorTexts } from './course-form-text'
+import CourseFields from './CourseFields'
 
 type Banner = Exclude<EventSaveFailure, 'deleting'>
 
@@ -203,127 +204,20 @@ export default function CourseForm({
 
       <form className="card record-form event-form course-form" onSubmit={handleSubmit} noValidate aria-busy={saving || undefined}>
         {drafts.map((draft, index) => {
-          const own = errors.course[draft.key] ?? {}
           const title = draft.name.trim() || `${form.itemTitle}${drafts.length > 1 ? ` ${index + 1}` : ''}`
-          const startOptional = startMayStayEmpty(course)
-          const endsNow = endsByToday(draft, today)
           return (
-            <section key={draft.key} className="event-item course-item" aria-label={title}>
-              <div className="event-item-head">
-                <h3 className="event-item-title">{form.itemTitle}</h3>
-                {!course && drafts.length > 1 && (
-                  <button
-                    type="button"
-                    className="icon-button event-item-remove"
-                    aria-label={form.remove.replace('{name}', title)}
-                    disabled={saving}
-                    onClick={() => removeCourse(draft.key)}
-                  >
-                    <Icon name="close" />
-                  </button>
-                )}
-              </div>
-
-              <div className="field">
-                <label className="field-label" htmlFor={fieldId(draft.key, 'name')}>{form.name}</label>
-                <input
-                  id={fieldId(draft.key, 'name')}
-                  className="input"
-                  type="text"
-                  autoComplete="off"
-                  maxLength={MEDICATION_LIMITS.name}
-                  value={draft.name}
-                  readOnly={saving}
-                  aria-required="true"
-                  aria-invalid={own.name ? true : undefined}
-                  aria-describedby={own.name ? fieldId(draft.key, 'name-error') : undefined}
-                  onChange={(e) => change(draft.key, { name: e.target.value }, ['name'])}
-                />
-                {own.name && <span id={fieldId(draft.key, 'name-error')} className="field-error" role="alert">{own.name}</span>}
-              </div>
-
-              <div className="field">
-                <label className="field-label" htmlFor={fieldId(draft.key, 'dosage')}>
-                  {form.dosage}
-                  <span className="optional">{form.optional}</span>
-                </label>
-                <input
-                  id={fieldId(draft.key, 'dosage')}
-                  className="input"
-                  type="text"
-                  autoComplete="off"
-                  maxLength={MEDICATION_LIMITS.dosage}
-                  placeholder={form.dosagePlaceholder}
-                  value={draft.dosage}
-                  readOnly={saving}
-                  aria-invalid={own.dosage ? true : undefined}
-                  aria-describedby={own.dosage ? fieldId(draft.key, 'dosage-error') : undefined}
-                  onChange={(e) => change(draft.key, { dosage: e.target.value }, ['dosage'])}
-                />
-                {own.dosage && <span id={fieldId(draft.key, 'dosage-error')} className="field-error" role="alert">{own.dosage}</span>}
-              </div>
-
-              <div className="field">
-                <label className="field-label" htmlFor={fieldId(draft.key, 'start')}>
-                  {form.start}
-                  {startOptional && <span className="optional">{form.optional}</span>}
-                </label>
-                <input
-                  id={fieldId(draft.key, 'start')}
-                  className="input"
-                  type="date"
-                  value={draft.start}
-                  readOnly={saving}
-                  aria-required={startOptional ? undefined : 'true'}
-                  aria-invalid={own.start ? true : undefined}
-                  aria-describedby={
-                    [own.start ? fieldId(draft.key, 'start-error') : null, startOptional ? fieldId(draft.key, 'start-hint') : null]
-                      .filter(Boolean)
-                      .join(' ') || undefined
-                  }
-                  onChange={(e) => change(draft.key, { start: e.target.value }, ['start', 'end'])}
-                />
-                {own.start && <span id={fieldId(draft.key, 'start-error')} className="field-error" role="alert">{own.start}</span>}
-                {startOptional && <span id={fieldId(draft.key, 'start-hint')} className="field-hint">{form.startUnknownHint}</span>}
-              </div>
-
-              <label className="check-row course-ongoing">
-                <input
-                  type="checkbox"
-                  checked={draft.ongoing}
-                  disabled={saving}
-                  onChange={(e) => change(draft.key, { ongoing: e.target.checked }, ['end'])}
-                />
-                {form.ongoing}
-              </label>
-
-              {/* «Постоянно»: no end — the field is gone and nothing is sent for it. */}
-              {!draft.ongoing && (
-                <div className="field">
-                  <label className="field-label" htmlFor={fieldId(draft.key, 'end')}>
-                    {form.end}
-                    <span className="optional">{form.optional}</span>
-                  </label>
-                  <input
-                    id={fieldId(draft.key, 'end')}
-                    className="input"
-                    type="date"
-                    value={draft.end}
-                    min={draft.start || undefined}
-                    readOnly={saving}
-                    aria-invalid={own.end ? true : undefined}
-                    aria-describedby={
-                      [own.end ? fieldId(draft.key, 'end-error') : null, endsNow ? fieldId(draft.key, 'end-hint') : null]
-                        .filter(Boolean)
-                        .join(' ') || undefined
-                    }
-                    onChange={(e) => change(draft.key, { end: e.target.value }, ['end'])}
-                  />
-                  {own.end && <span id={fieldId(draft.key, 'end-error')} className="field-error" role="alert">{own.end}</span>}
-                  {endsNow && <span id={fieldId(draft.key, 'end-hint')} className="field-hint course-ends-now">{form.endsNow}</span>}
-                </div>
-              )}
-            </section>
+            <CourseFields
+              key={draft.key}
+              idBase={id}
+              draft={draft}
+              title={title}
+              errors={errors.course[draft.key] ?? {}}
+              startOptional={startMayStayEmpty(course)}
+              today={today}
+              saving={saving}
+              onChange={(patch, cleared) => change(draft.key, patch, cleared)}
+              onRemove={!course && drafts.length > 1 ? () => removeCourse(draft.key) : undefined}
+            />
           )
         })}
 
