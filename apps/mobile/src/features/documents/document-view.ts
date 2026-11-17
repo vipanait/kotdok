@@ -108,8 +108,8 @@ export function isArchiveKind(kind: DocumentKind): kind is 'discharge' | 'lab_re
   return kind === 'discharge' || kind === 'lab_results' || kind === 'other'
 }
 
-/** The screens the original is opened from, for the button at its bottom. */
-export type OriginalOpener = 'document' | 'list'
+/** The screens the original is opened from, for the button at its bottom: the review of a recognised document and its edit too. */
+export type OriginalOpener = 'document' | 'list' | 'review' | 'edit'
 
 /**
  * What the original's bottom button says. The original is pushed over the
@@ -118,6 +118,8 @@ export type OriginalOpener = 'document' | 'list'
  */
 export function originalBackTitle(t: Dictionary, from: string | string[] | undefined): string {
   if (from === 'list') return t.documents.original.toList
+  if (from === 'review') return t.documents.original.toReview
+  if (from === 'edit') return t.documents.original.toEdit
   if (from === 'document' || from === undefined) return t.documents.original.toDocument
   return t.documents.original.back
 }

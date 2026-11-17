@@ -109,7 +109,10 @@ describe('the original', () => {
     expect(originalBackTitle(ru, 'document')).toBe('К документу')
     expect(originalBackTitle(ru, undefined)).toBe('К документу')
     expect(originalBackTitle(ru, 'list')).toBe('К документам')
-    expect(originalBackTitle(ru, 'review')).toBe('Назад')
+    expect(originalBackTitle(ru, 'review')).toBe('К проверке')
+    expect(originalBackTitle(ru, 'edit')).toBe('К правке')
+    expect(originalBackTitle(en, 'review')).toBe('To the review')
+    expect(originalBackTitle(ru, 'somewhere')).toBe('Назад')
     expect(originalBackTitle(ru, ['list', 'x'])).toBe('Назад')
   })
 
