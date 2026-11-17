@@ -1035,3 +1035,15 @@
     .document-page-actions { padding-left: 0; justify-content: flex-end; }
   }
 }
+
+/*
+ * The documents' delete question on a phone (design run «delete»): the two
+ * answers one under the other, full width, 12px apart. Scoped to this dialog
+ * (ConfirmDialog `className`), so the app's other questions keep their row.
+ */
+@layer components {
+  @media (max-width: 760px) {
+    .modal.document-confirm .row { flex-direction: column; align-items: stretch; gap: 12px; }
+    .modal.document-confirm .row .btn { width: 100%; min-height: 52px; }
+  }
+}

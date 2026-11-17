@@ -52,6 +52,8 @@ function OriginalPages({ petId, doc, initialPage, back }: { petId: string; doc: 
     if (turned.current) headingRef.current?.focus()
   }, [page, pdf, petId, doc.id, back])
 
+  // The top link names the opener as the app's back links do; the bottom button says where it goes.
+  const topLabel = back.to === 'document' ? words.toDocument : back.to === 'list' ? dict.documents.view.backToList : words.back
   const backLabel = back.to === 'document' ? words.toDocument : back.to === 'list' ? words.toList : words.back
   const file = pdf ? undefined : doc.files[page - 1]
   const pageText = words.pageOf.replace('{n}', String(page)).replace('{total}', String(total))
@@ -66,7 +68,7 @@ function OriginalPages({ petId, doc, initialPage, back }: { petId: string; doc: 
     <div className="health-page document-original-page">
       <Link href={back.href} className="link health-back">
         <Icon name="back" />
-        {words.back}
+        {topLabel}
       </Link>
       <div className="pagehead">
         <div>

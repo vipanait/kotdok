@@ -45,6 +45,16 @@ export function documentTitle(dict: Dictionary, doc: Pick<PetDocument, 'title' |
   return doc.title.trim() || dict.documents.kinds[doc.kind]
 }
 
+/**
+ * Whether the kind is worth saying beside the name: not when the name is
+ * the kind already — no title of its own, or one that reads as the kind
+ * («Ветпаспорт» named «Ветпаспорт»).
+ */
+export function namesItsKind(dict: Dictionary, doc: Pick<PetDocument, 'title' | 'kind'>): boolean {
+  const label = dict.documents.kinds[doc.kind]
+  return documentTitle(dict, doc).trim().toLocaleLowerCase() === label.toLocaleLowerCase()
+}
+
 export type DocumentFormat = 'pdf' | 'photo'
 
 /** One PDF, or photos of pages. */
@@ -90,7 +100,7 @@ export type DocumentRowView = { title: string; meta: string; status: string | nu
 export function documentRow(dict: Dictionary, locale: Locale, doc: PetDocument, today: string): DocumentRowView {
   const words = dict.documents
   const parts = [
-    doc.title.trim() ? words.kinds[doc.kind] : null,
+    namesItsKind(dict, doc) ? null : words.kinds[doc.kind],
     doc.document_date ? recordDay(dict.medicalRecord, doc.document_date, today) : null,
     documentPages(dict, locale, doc),
   ]
@@ -102,9 +112,14 @@ export function documentRow(dict: Dictionary, locale: Locale, doc: PetDocument, 
   }
 }
 
-/** Under a document's title: «Ветпаспорт · 4 страницы». */
+/**
+ * Under a document's title: «Ветпаспорт · 4 страницы», or only «4 страницы»
+ * when the title is the kind; «PDF» when that leaves nothing to say.
+ */
 export function documentHeadline(dict: Dictionary, locale: Locale, doc: PetDocument): string {
-  return [dict.documents.kinds[doc.kind], documentPages(dict, locale, doc)].filter(Boolean).join(' · ')
+  const kind = namesItsKind(dict, doc) ? null : dict.documents.kinds[doc.kind]
+  const line = [kind, documentPages(dict, locale, doc)].filter(Boolean).join(' · ')
+  return line || dict.documents.format[documentFormat(doc)]
 }
 
 /** The kinds that are only kept and opened in this plan (no recognition is offered for them). */

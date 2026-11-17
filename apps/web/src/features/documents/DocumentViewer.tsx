@@ -201,6 +201,7 @@ function DocumentPage({
           busy={deleting}
           error={deleteError}
           tone="danger"
+          className="document-confirm"
           onCancel={() => setConfirmDelete(false)}
           onConfirm={handleDelete}
           returnFocusRef={deleteRef}

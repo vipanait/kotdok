@@ -1735,7 +1735,11 @@ const en: Dictionary = {
       choosePhotos: 'Choose photos',
       addPhotos: 'Add photos',
       choosePdf: 'Choose a PDF',
-      otherPdf: 'Choose another PDF',
+      pickBlocked: {
+        pdf_chosen: 'A document is one PDF. To choose another file, delete this one.',
+        photos_chosen: 'You can add more photos, up to {maxImages} in all. A PDF cannot go with photos: a document is either photos or one PDF.',
+        photos_full: '{maxImages} photos added — no more fit. To replace a page, delete it.',
+      },
       pagesHint: 'Press a page to open it. The order can be changed before saving.',
       pagesRequired: 'Add at least one page.',
       preparing: 'Preparing the pages…',

@@ -158,3 +158,20 @@ export function focusAfterMove(index: number, delta: -1 | 1, count: number): { i
   if (delta === -1) return { index: target, action: target === 0 ? 'down' : 'up' }
   return { index: target, action: target === count - 1 ? 'up' : 'down' }
 }
+
+/** Why a way of picking is not offered: a PDF stands alone; eight photos are the most. */
+export type PickBlock = 'pdf_chosen' | 'photos_chosen' | 'photos_full' | null
+
+/**
+ * The ways of picking that can still add to the chosen pages, as the
+ * contract allows them: nothing chosen — photos or a PDF; photos — more
+ * photos up to eight, never a PDF beside them; a PDF — nothing (it is the
+ * whole document; removing it brings the choice back). `block` says why a
+ * way is missing, in one line under the list.
+ */
+export function pickMethods(current: PreparedPage[]): { photos: boolean; pdf: boolean; block: PickBlock } {
+  if (current.length === 0) return { photos: true, pdf: true, block: null }
+  if (current.some(isPdfPage)) return { photos: false, pdf: false, block: 'pdf_chosen' }
+  if (current.length >= DOCUMENT_LIMITS.maxImages) return { photos: false, pdf: false, block: 'photos_full' }
+  return { photos: true, pdf: false, block: 'photos_chosen' }
+}

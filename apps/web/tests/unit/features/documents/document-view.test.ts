@@ -39,6 +39,10 @@ describe('documentRow', () => {
     expect(row).toEqual({ title: 'Назначение от 12 ноября', meta: 'Рецепт · 12 ноября · 1 страница', status: null, format: 'pdf' })
   })
 
+  it('leaves out the kind when the title is the kind label', () => {
+    expect(documentRow(ru, 'ru', doc({ title: 'Ветпаспорт' }), TODAY).meta).toBe('4 страницы')
+  })
+
   it('leaves out the pages of a PDF not counted yet rather than guessing', () => {
     expect(documentRow(ru, 'ru', doc({ files: [file('application/pdf')] }), TODAY).meta).toBe('')
   })
@@ -53,7 +57,17 @@ describe('documentRow', () => {
 describe('documentHeadline', () => {
   it('is the kind and the pages under the title', () => {
     expect(documentHeadline(ru, 'ru', doc({ title: 'Ветпаспорт Мурки' }))).toBe('Ветпаспорт · 4 страницы')
-    expect(documentHeadline(en, 'en', doc({ kind: 'lab_results', files: [file('application/pdf', 2)] }))).toBe('Lab results · 2 pages')
+    expect(documentHeadline(en, 'en', doc({ kind: 'lab_results', title: 'Blood test', files: [file('application/pdf', 2)] }))).toBe('Lab results · 2 pages')
+  })
+
+  it('does not repeat the kind when the title is the kind', () => {
+    expect(documentHeadline(ru, 'ru', doc())).toBe('4 страницы')
+    expect(documentHeadline(ru, 'ru', doc({ title: 'Ветпаспорт', files: [file('image/jpeg'), file('image/jpeg', null, 1), file('image/jpeg', null, 2)] }))).toBe('3 страницы')
+    expect(documentHeadline(ru, 'ru', doc({ title: ' ветпаспорт ' }))).toBe('4 страницы')
+  })
+
+  it('says PDF when nothing else is known', () => {
+    expect(documentHeadline(ru, 'ru', doc({ files: [file('application/pdf')] }))).toBe('PDF')
   })
 })
 

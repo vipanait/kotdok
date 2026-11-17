@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DOCUMENT_LIMITS } from '@lapka/contracts'
-import { addPages, focusAfterMove, movePage, PageFileError, preparePages, removePage, type PreparedPage } from '@/features/documents/prepare-pages'
+import { addPages, focusAfterMove, movePage, PageFileError, pickMethods, preparePages, removePage, type PreparedPage } from '@/features/documents/prepare-pages'
 
 /**
  * The browser's image machinery, recorded: what was decoded, the canvas the
@@ -194,5 +194,21 @@ describe('focusAfterMove', () => {
   it('turns to the other action once the page reaches an end', () => {
     expect(focusAfterMove(1, -1, 3)).toEqual({ index: 0, action: 'down' })
     expect(focusAfterMove(1, 1, 3)).toEqual({ index: 2, action: 'up' })
+  })
+})
+
+describe('pickMethods', () => {
+  it('offers photos and a PDF before anything is chosen', () => {
+    expect(pickMethods([])).toEqual({ photos: true, pdf: true, block: null })
+  })
+
+  it('offers only more photos beside photos, and nothing at eight', () => {
+    expect(pickMethods([page('a'), page('b')])).toEqual({ photos: true, pdf: false, block: 'photos_chosen' })
+    const eight = Array.from({ length: DOCUMENT_LIMITS.maxImages }, (_, i) => page(`p${i}`))
+    expect(pickMethods(eight)).toEqual({ photos: false, pdf: false, block: 'photos_full' })
+  })
+
+  it('offers nothing beside a PDF: it is the whole document', () => {
+    expect(pickMethods([page('doc.pdf', 'application/pdf')])).toEqual({ photos: false, pdf: false, block: 'pdf_chosen' })
   })
 })

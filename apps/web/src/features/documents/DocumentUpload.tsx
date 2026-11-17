@@ -12,7 +12,7 @@ import { browserApi } from '@/features/api/browser-api'
 import { documentHref, withLimits } from './document-view'
 import PageList, { type ChosenPage } from './PageList'
 import PageZoom from './PageZoom'
-import { addPages, isPdfPage, movePage, pictureRoom, preparePages, removePage, type PagesDropped } from './prepare-pages'
+import { addPages, isPdfPage, movePage, pickMethods, pictureRoom, preparePages, removePage, type PagesDropped } from './prepare-pages'
 import { FILE_REFUSALS, putFile, uploadDocument, uploadFailure, type UploadFailure, type UploadProgress } from './upload-document'
 
 let nextPageId = 0
@@ -148,45 +148,38 @@ export default function DocumentUpload({ petId, petName }: { petId: string; petN
         ? form.checking
         : form.saving
 
-  const hasPdf = pages.some(isPdfPage)
-  const photoRoom = hasPdf || pages.length < DOCUMENT_LIMITS.maxImages
-  const pickers = (
+  const methods = pickMethods(pages)
+  const fileInput = (accept: string, multiple: boolean, ref?: React.Ref<HTMLInputElement>) => (
+    <input
+      ref={ref}
+      className="sr-only"
+      type="file"
+      accept={accept}
+      multiple={multiple}
+      disabled={busy}
+      aria-describedby={`${id}-limits`}
+      onChange={(e) => {
+        const files = Array.from(e.target.files ?? [])
+        e.target.value = ''
+        void pick(files)
+      }}
+    />
+  )
+  const pickers = (methods.photos || methods.pdf) && (
     <div className="document-pickers">
-      {photoRoom && (
+      {methods.photos && (
         <label className={`btn ${pages.length ? 'secondary' : 'primary'} document-pick${busy ? ' is-disabled' : ''}`}>
           <Icon name="plus" />
-          {preparing ? form.preparing : pages.length && !hasPdf ? form.addPhotos : form.choosePhotos}
-          <input
-            ref={photosRef}
-            className="sr-only"
-            type="file"
-            accept="image/*"
-            multiple
-            disabled={busy}
-            aria-describedby={`${id}-limits`}
-            onChange={(e) => {
-              const files = Array.from(e.target.files ?? [])
-              e.target.value = ''
-              void pick(files)
-            }}
-          />
+          {preparing ? form.preparing : pages.length ? form.addPhotos : form.choosePhotos}
+          {fileInput('image/*', true, photosRef)}
         </label>
       )}
-      <label className={`btn secondary document-pick${busy ? ' is-disabled' : ''}`}>
-        {hasPdf ? form.otherPdf : form.choosePdf}
-        <input
-          className="sr-only"
-          type="file"
-          accept="application/pdf,.pdf"
-          disabled={busy}
-          aria-describedby={`${id}-limits`}
-          onChange={(e) => {
-            const files = Array.from(e.target.files ?? [])
-            e.target.value = ''
-            void pick(files)
-          }}
-        />
-      </label>
+      {methods.pdf && (
+        <label className={`btn secondary document-pick${busy ? ' is-disabled' : ''}`}>
+          {form.choosePdf}
+          {fileInput('application/pdf,.pdf', false)}
+        </label>
+      )}
     </div>
   )
 
@@ -264,7 +257,9 @@ export default function DocumentUpload({ petId, petName }: { petId: string; petN
                 onEmptied={focusPicker}
               />
               {pickers}
-              <p id={`${id}-limits`} className="field-hint">{withLimits(form.limits)}</p>
+              <p id={`${id}-limits`} className="field-hint">
+                {methods.block ? withLimits(form.pickBlocked[methods.block]) : withLimits(form.limits)}
+              </p>
             </section>
           )}
 

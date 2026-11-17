@@ -1775,7 +1775,12 @@ const ru = {
       choosePhotos: 'Выбрать фото',
       addPhotos: 'Добавить фото',
       choosePdf: 'Выбрать PDF',
-      otherPdf: 'Выбрать другой PDF',
+      /** Under the chosen pages, when a way of picking is not offered (a document is photos or one PDF). */
+      pickBlocked: {
+        pdf_chosen: 'Документ — это один PDF. Чтобы выбрать другой файл, удалите этот.',
+        photos_chosen: 'Можно добавить ещё фото, всего до {maxImages}. PDF к фотографиям не добавить: в документе либо фото, либо один PDF.',
+        photos_full: 'Добавлено {maxImages} фото — больше не поместится. Чтобы заменить страницу, удалите её.',
+      },
       pagesHint: 'Нажмите на страницу, чтобы открыть её. Порядок можно изменить до сохранения.',
       pagesRequired: 'Добавьте хотя бы одну страницу.',
       preparing: 'Готовим страницы…',
