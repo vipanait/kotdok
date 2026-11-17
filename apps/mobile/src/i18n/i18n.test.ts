@@ -39,8 +39,9 @@ describe('the two languages', () => {
       return other === value
     })
 
-    // One string is genuinely the same in both languages: the example address.
-    expect(shared.map(([path]) => path)).toEqual(['auth.emailPlaceholder'])
+    // Two strings are genuinely the same in both languages: the example
+    // address, and the «PDF» mark on a document row.
+    expect(shared.map(([path]) => path)).toEqual(['auth.emailPlaceholder', 'documents.format.pdf'])
   })
 })
 

@@ -135,7 +135,7 @@ describe('notifications for open cases', () => {
     const sync = createReminderSync({ notifier, settings: async () => DEFAULT_REMINDERS, t: () => ru, now: () => NOW })
     const courses = Array.from({ length: 4 }, (_, index) => ({
       pet: { id: PET, name: 'Мурка' },
-      course: { id: `c${index}`, name: 'Нефростоп', dosage: null, started_on: '2026-09-01', ended_on: null, ongoing: true, source: 'record' as const, reminder_times: ['08:00', '13:00', '18:00', '22:00'] },
+      course: { id: `c${index}`, name: 'Нефростоп', dosage: null, started_on: '2026-09-01', ended_on: null, ongoing: true, source: 'record' as const, reminder_times: ['08:00', '13:00', '18:00', '22:00'], source_document_id: null },
     }))
     const late = summary({ next_due_at: at(31, 10) })
     await sync.run({ userId: 'user-a', load: async () => ({ due: [], pets: [{ id: PET, name: 'Мурка' }], courses, doses: [], followups: [late] }) })

@@ -30,6 +30,12 @@ export const queryKeys = {
   /** Questions about one result (CQ-03). */
   checkQuestions: (checkId: string) => ['check-questions', checkId] as const,
   episodes: (petId: string) => ['episodes', petId] as const,
+  /**
+   * A pet's documents (DOC-1), and one of them. Never persisted: their read
+   * links are signed and expire within the hour.
+   */
+  documents: (petId: string) => ['documents', petId] as const,
+  document: (petId: string, docId: string) => ['document', petId, docId] as const,
   /** The «Можно ли?» reference's light list, searched on the phone. */
   safetyIndex: () => ['safety-index'] as const,
   /** One entry, as the server answers it for a pet (with its notes) or without one. */

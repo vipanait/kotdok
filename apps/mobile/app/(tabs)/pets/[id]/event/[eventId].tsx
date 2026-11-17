@@ -11,6 +11,7 @@ import { useText } from '@/i18n'
 import { useRecordChanged } from '@/features/medical-record/record-cache'
 import { dueLine, dueStatus, itemName, marksFromRow, targetList } from '@/features/medical-record/due'
 import { AddToCalendar } from '@/features/medical-record/AddToCalendar'
+import { SourceDocumentLine } from '@/features/documents/recognition/SourceLine'
 import { Button, LinkButton } from '@/ui/Button'
 import { Banner, Card } from '@/ui/Card'
 import { ConfirmDialog } from '@/ui/Dialog'
@@ -145,6 +146,9 @@ export default function EventView() {
           ))}
 
           {!planned ? <Text tone="muted">{words.doneReadOnly}</Text> : null}
+
+          {/* Confirmed from a document (DOC-2): its name, a way to it, no preview. */}
+          {event.source_document_id ? <SourceDocumentLine petId={id} docId={event.source_document_id} /> : null}
 
           {event.notes ? (
             <View style={styles.notes}>

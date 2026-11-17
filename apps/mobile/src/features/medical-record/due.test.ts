@@ -19,7 +19,7 @@ function event(overrides: Partial<HealthEvent>): HealthEvent {
     visit_kind: null,
     reason: null,
     diagnosis: null,
-    check_id: null,
+    check_id: null, source_document_id: null,
     ...overrides,
   }
 }

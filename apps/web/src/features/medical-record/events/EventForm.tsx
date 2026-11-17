@@ -3,8 +3,7 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { HEALTH_EVENT_LIMITS, type HealthEvent, type HealthTarget, type PetSpecies } from '@lapka/contracts'
-import { PARASITE_GROUPS, nextDayMin, parasiteGroups, toggleParasiteGroup, vaccineTargetsFor } from '@lapka/shared'
+import { HEALTH_EVENT_LIMITS, type HealthEvent, type PetSpecies } from '@lapka/contracts'
 import { useLocale, useTranslations } from '@/components/LocaleProvider'
 import Icon from '@/components/ui/Icon'
 import { browserApi } from '@/features/api/browser-api'
@@ -14,6 +13,7 @@ import ConfirmDialog from '@/features/pets/ConfirmDialog'
 import { recordCache } from '../record-load'
 import { medicalRecordHref, withSaved } from '../routes'
 import CatalogCombobox from './CatalogCombobox'
+import EventItemCard from './EventItemCard'
 import {
   EVENT_FORM_KINDS,
   blankEventDraft,
@@ -28,14 +28,13 @@ import {
   readNewEvent,
   readPlanChange,
   switchStatus,
-  toggleTarget,
   type EventDraft,
   type EventFormKind,
   type EventProblems,
   type EventSaveFailure,
   type ItemDraft,
 } from './event-form'
-import { eventErrorTexts, eventFailureText, nextHintText } from './event-form-text'
+import { eventErrorTexts, eventFailureText } from './event-form-text'
 
 type Banner = { failure: Exclude<EventSaveFailure, 'deleting'> }
 
@@ -218,22 +217,6 @@ export default function EventForm({
     }
   }
 
-  const targetChoices: Array<{ value: string; label: string; pressed: (item: ItemDraft) => boolean; toggle: (item: ItemDraft) => ItemDraft }> =
-    kind === 'vaccination'
-      ? vaccineTargetsFor(species).map((code) => ({
-          value: code,
-          label: (words.targets as Record<string, string>)[code] ?? code,
-          pressed: (item) => item.targets.includes(code),
-          toggle: (item) => followSuggestion(toggleTarget(item, code), draft, today),
-        }))
-      : PARASITE_GROUPS.map((group) => ({
-          value: group,
-          label: words.parasiteGroups[group],
-          pressed: (item) => parasiteGroups(item.targets).includes(group),
-          // Worms alone or not changes the usual interval of an item without its own.
-          toggle: (item) => followSuggestion({ ...item, targets: toggleParasiteGroup(item.targets, group) as HealthTarget[] }, draft, today),
-        }))
-
   return (
     <div className="health-page event-form-page">
       <div className="pagehead">
@@ -314,113 +297,21 @@ export default function EventForm({
           )}
           {errors.items && <span id={`${id}-items-error`} className="field-error" role="alert">{errors.items}</span>}
 
-          {draft.items.map((item) => {
-            const itemErrors = errors.item[item.key] ?? {}
-            const title = item.source === 'none' ? form.noProductTitle : item.name.trim() || form.nameLabel
-            const targetsId = `${id}-${item.key}-targets`
-            return (
-              <section key={item.key} id={`${id}-${item.key}-item`} tabIndex={-1} className="event-item" aria-label={title}>
-                <div className="event-item-head">
-                  {item.source === 'manual' ? (
-                    <div className="field event-item-name">
-                      <label className="field-label" htmlFor={`${id}-${item.key}-name`}>{form.nameLabel}</label>
-                      <input
-                        id={`${id}-${item.key}-name`}
-                        className="input"
-                        type="text"
-                        autoComplete="off"
-                        maxLength={HEALTH_EVENT_LIMITS.itemName}
-                        value={item.name}
-                        readOnly={saving}
-                        aria-required="true"
-                        aria-invalid={itemErrors.name ? true : undefined}
-                        aria-describedby={itemErrors.name ? `${id}-${item.key}-name-error` : undefined}
-                        onChange={(e) => updateItem(item.key, (current) => ({ ...current, name: e.target.value }))}
-                      />
-                      {itemErrors.name && (
-                        <span id={`${id}-${item.key}-name-error`} className="field-error" role="alert">{itemErrors.name}</span>
-                      )}
-                    </div>
-                  ) : (
-                    <h3 className="event-item-title">{title}</h3>
-                  )}
-                  <button
-                    type="button"
-                    className="icon-button event-item-remove"
-                    aria-label={form.removeItem.replace('{name}', title)}
-                    disabled={saving}
-                    onClick={() => removeItem(item.key)}
-                  >
-                    <Icon name="close" />
-                  </button>
-                </div>
-                {item.source === 'none' && <p className="field-hint event-item-hint">{form.noProductHint}</p>}
-
-                <span id={`${targetsId}-label`} className="chip-group-label">{kindWords.targetsLabel}</span>
-                <div
-                  id={targetsId}
-                  className="chips"
-                  role="group"
-                  tabIndex={-1}
-                  aria-labelledby={`${targetsId}-label`}
-                  aria-describedby={itemErrors.targets ? `${targetsId}-error` : undefined}
-                >
-                  {targetChoices.map((choice, index) => (
-                    <button
-                      key={choice.value}
-                      id={index === 0 ? `${targetsId}-first` : undefined}
-                      type="button"
-                      className="chip"
-                      aria-pressed={choice.pressed(item)}
-                      disabled={saving}
-                      onClick={() => updateItem(item.key, choice.toggle)}
-                    >
-                      {choice.label}
-                    </button>
-                  ))}
-                </div>
-                {itemErrors.targets && <span id={`${targetsId}-error`} className="field-error event-targets-error" role="alert">{itemErrors.targets}</span>}
-
-                {done && (
-                  <div className="field event-item-next">
-                    <label className="field-label" htmlFor={`${id}-${item.key}-next`}>
-                      {form.nextLabel}
-                      <span className="optional">{form.optional}</span>
-                    </label>
-                    <div className="event-next-row">
-                      <input
-                        id={`${id}-${item.key}-next`}
-                        className="input"
-                        type="date"
-                        value={item.next}
-                        min={nextDayMin(draft.date, today)}
-                        readOnly={saving}
-                        aria-invalid={itemErrors.next ? true : undefined}
-                        aria-describedby={[itemErrors.next ? `${id}-${item.key}-next-error` : null, `${id}-${item.key}-next-hint`].filter(Boolean).join(' ')}
-                        onChange={(e) => updateItem(item.key, (current) => ({ ...current, next: e.target.value, nextTouched: true }))}
-                      />
-                      {item.next !== '' && (
-                        <button
-                          type="button"
-                          className="link event-next-clear"
-                          disabled={saving}
-                          onClick={() => updateItem(item.key, (current) => ({ ...current, next: '', nextTouched: true }))}
-                        >
-                          {form.clearNext}
-                        </button>
-                      )}
-                    </div>
-                    {itemErrors.next && (
-                      <span id={`${id}-${item.key}-next-error`} className="field-error" role="alert">{itemErrors.next}</span>
-                    )}
-                    <span id={`${id}-${item.key}-next-hint`} className="field-hint">
-                      {nextHintText(dict, locale, kind, item, draft.date, item.next, today)}
-                    </span>
-                  </div>
-                )}
-              </section>
-            )
-          })}
+          {draft.items.map((item) => (
+            <EventItemCard
+              key={item.key}
+              idBase={id}
+              kind={kind}
+              species={species}
+              item={item}
+              draft={draft}
+              today={today}
+              errors={errors.item[item.key] ?? {}}
+              saving={saving}
+              onChange={(change) => updateItem(item.key, change)}
+              onRemove={() => removeItem(item.key)}
+            />
+          ))}
 
           {!full && draft.items.length > 0 && (
             <button

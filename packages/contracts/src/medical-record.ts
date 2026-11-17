@@ -4,10 +4,10 @@ import { CalendarDateSchema, UuidSchema } from './primitives'
 import { HealthTargetSchema, ParasiteTargetSchema, VaccineTargetSchema } from './health-targets'
 
 /**
- * The five sections of a pet's medical record, in the order the screen lists
+ * The sections of a pet's medical record, in the order the screen lists
  * them. The spec: docs/design/medical-record-spec.md, §3.
  */
-export const HEALTH_SECTIONS = ['vaccinations', 'parasites', 'visits', 'medications', 'weight'] as const
+export const HEALTH_SECTIONS = ['vaccinations', 'parasites', 'visits', 'medications', 'weight', 'documents'] as const
 
 export const HealthSectionSchema = z.enum(HEALTH_SECTIONS)
 
@@ -123,6 +123,11 @@ export const HealthEventSchema = z.object({
   reason: z.string().nullable().default(null),
   diagnosis: z.string().nullable().default(null),
   check_id: UuidSchema.nullable().default(null),
+  /**
+   * The pet document the record was confirmed from (DOC-2); null for one
+   * made by hand. Read side only: a server before DOC-2 does not send it.
+   */
+  source_document_id: UuidSchema.nullable().default(null),
 })
 
 export type HealthEvent = z.infer<typeof HealthEventSchema>
@@ -363,6 +368,8 @@ export const MedicationSchema = z.object({
   source: z.enum(['record', 'form']),
   /** When it is given, «HH:MM» on the phone's clock (FB-5); none for an older server. */
   reminder_times: z.array(z.string()).default([]),
+  /** The pet document the course was confirmed from (DOC-2); null for one made by hand or by an older server. */
+  source_document_id: UuidSchema.nullable().default(null),
 })
 
 export type Medication = z.infer<typeof MedicationSchema>
@@ -529,11 +536,21 @@ export function readableWeights(value: unknown): unknown {
     : value
 }
 
+/** Leaves out sections a later server lists that this app has no screen for. */
+function readableSections(value: unknown): unknown {
+  return Array.isArray(value) ? value.filter((section) => (HEALTH_SECTIONS as readonly unknown[]).includes(section)) : value
+}
+
 /** The overview as a client reads it: see {@link readableEvents}, {@link readableWeights}. */
 export const HealthOverviewReadSchema = z.preprocess((value) => {
   if (!value || typeof value !== 'object') return value
-  const overview = value as { events?: unknown; weights?: unknown }
-  return { ...overview, events: readableEvents(overview.events), weights: readableWeights(overview.weights) }
+  const overview = value as { events?: unknown; weights?: unknown; writable?: unknown }
+  return {
+    ...overview,
+    events: readableEvents(overview.events),
+    weights: readableWeights(overview.weights),
+    writable: readableSections(overview.writable),
+  }
 }, HealthOverviewSchema)
 
 /**

@@ -42,7 +42,7 @@ function item(n: number, targets: string[], name: string | null): HealthItem {
 }
 
 function event(n: number, fields: Partial<HealthEvent> & Pick<HealthEvent, 'kind' | 'status' | 'date'>): HealthEvent {
-  return { id: uuid(n), clinic: null, notes: null, items: [], visit_kind: null, reason: null, diagnosis: null, check_id: null, ...fields }
+  return { id: uuid(n), clinic: null, notes: null, items: [], visit_kind: null, reason: null, diagnosis: null, check_id: null, source_document_id: null, ...fields }
 }
 
 export const murka: HealthOverview = {
@@ -93,8 +93,8 @@ export const murka: HealthOverview = {
     event(108, { kind: 'visit', status: 'planned', date: '2026-10-03', visit_kind: 'checkup', reason: 'Контрольный осмотр' }),
   ],
   medications: [
-    { id: uuid(401), name: 'Лечебный корм', dosage: null, started_on: '2026-08-02', ended_on: null, ongoing: true, source: 'record', reminder_times: [] },
-    { id: uuid(402), name: 'Фортифлора', dosage: '1 пакетик в день', started_on: '2026-08-02', ended_on: '2026-08-15', ongoing: false, source: 'record', reminder_times: [] },
+    { id: uuid(401), name: 'Лечебный корм', dosage: null, started_on: '2026-08-02', ended_on: null, ongoing: true, source: 'record', reminder_times: [], source_document_id: null },
+    { id: uuid(402), name: 'Фортифлора', dosage: '1 пакетик в день', started_on: '2026-08-02', ended_on: '2026-08-15', ongoing: false, source: 'record', reminder_times: [], source_document_id: null },
   ],
 }
 

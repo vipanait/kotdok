@@ -28,7 +28,7 @@ export const generateMetadata = privatePageMetadata(d => d.shell.pets)
 async function readRecordForForm(petId: string, path: string): Promise<HealthOverview | null> {
   if (!UuidSchema.safeParse(petId).success) return null
   const cabinet = await requireCabinet(`/login?next=${encodeURIComponent(path)}`)
-  const overview = await getHealthOverview(createServiceClient(), cabinet.user.id, petId, await getOwnerToday())
+  const overview = await getHealthOverview(createServiceClient(), cabinet.user.id, petId, await getOwnerToday(), { withDocuments: true })
   if (overview.ok) return overview.data
   // Someone else's or a deleted pet: the gate answers 404; nothing to report.
   if (overview.reason !== 'not_found') {

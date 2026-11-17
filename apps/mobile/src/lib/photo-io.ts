@@ -8,6 +8,9 @@ import {
   type PickedPhoto,
   type PreparedPhoto,
 } from '@/features/checks/photos'
+import { DOCUMENT_LIMITS } from '@lapka/contracts'
+import { documentPageTarget } from '@/features/documents/page-list'
+import { putWithin } from './put-deadline'
 
 /**
  * The native half of sending photos. Always re-encodes to JPEG: that is what
@@ -33,16 +36,36 @@ export async function prepareAvatar(photo: PickedPhoto): Promise<PreparedPhoto> 
   return { uri: saved.uri, size: new File(saved.uri).size, contentType: 'image/jpeg' }
 }
 
+/**
+ * A photo of a document's page (DOC-1): the long side at most
+ * `DOCUMENT_LIMITS.clientLongSide`, JPEG at `clientQuality` — the numbers the
+ * site uses too — re-encoded the same way, so a HEIC page becomes a JPEG.
+ */
+export async function prepareDocumentPhoto(photo: PickedPhoto): Promise<PreparedPhoto> {
+  const context = ImageManipulator.manipulate(photo.uri)
+  const target = documentPageTarget(photo)
+  if (target) context.resize(target)
+  const image = await context.renderAsync()
+  const saved = await image.saveAsync({ format: SaveFormat.JPEG, compress: DOCUMENT_LIMITS.clientQuality })
+  return { uri: saved.uri, size: new File(saved.uri).size, contentType: 'image/jpeg' }
+}
+
+/**
+ * @returns whether storage accepted the file; a dropped connection, or no
+ * answer within `PUT_TIMEOUT_MS`, is a no.
+ */
+export function putFile(url: string, headers: Record<string, string>, uri: string): Promise<boolean> {
+  return putWithin(async (signal) => {
+    const response = await fetch(url, { method: 'PUT', headers, body: new File(uri), signal })
+    return response.ok
+  })
+}
+
 /** @returns whether storage accepted the file; a dropped connection is a no. */
 export async function putPhoto(
   url: string,
   headers: Record<string, string>,
   file: PreparedPhoto,
 ): Promise<boolean> {
-  try {
-    const response = await fetch(url, { method: 'PUT', headers, body: new File(file.uri) })
-    return response.ok
-  } catch {
-    return false
-  }
+  return putFile(url, headers, file.uri)
 }

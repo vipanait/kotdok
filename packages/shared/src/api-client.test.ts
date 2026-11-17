@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isKnownErrorCode } from '@lapka/contracts'
+import { FEATURES_HEADER, isKnownErrorCode } from '@lapka/contracts'
 import { ApiError, ApiTimeoutError, createApiClient, isKeyReused, type AbortSignalLike, type FetchLike } from './api-client'
 
 const BASE = 'https://example.test'
@@ -474,5 +474,138 @@ describe('pet safety reference', () => {
     const { api } = recording({ ...entry, added_later: true })
 
     await expect(api.getSafetyItem('morkov')).resolves.toEqual(entry)
+  })
+})
+
+describe('api client features header', () => {
+  const headerOf = async (features?: readonly string[]) => {
+    let seen: Record<string, string> = {}
+    const fetch: FetchLike = async (_url, init) => {
+      seen = (init?.headers ?? {}) as Record<string, string>
+      return ok([])
+    }
+    await createApiClient({ baseUrl: BASE, fetch, features }).listPets().catch(() => undefined)
+    return seen[FEATURES_HEADER]
+  }
+
+  it('sends the fixed list alone, and the extra features only when given', async () => {
+    const fixed = await headerOf()
+    expect(fixed).toBe('pet-dates,pet-avatar,followup')
+    expect(await headerOf(['pet-documents'])).toBe(`${fixed},pet-documents`)
+  })
+})
+
+describe('pet documents (DOC-1)', () => {
+  const pet = '11111111-1111-4111-8111-000000000001'
+  const doc = '22222222-2222-4222-8222-000000000002'
+  const file = '33333333-3333-4333-8333-000000000003'
+  const stored = {
+    id: doc,
+    kind: 'vet_passport',
+    title: '',
+    document_date: null,
+    status: 'stored',
+    failure_code: null,
+    page_count: 2,
+    created_at: '2026-11-16T10:00:00.000Z',
+    files: [{ id: file, content_type: 'image/jpeg', url: 'https://storage.example/read', page_count: null }],
+    draft: null,
+    // A field a later server adds is dropped, not refused.
+    later_field: true,
+  }
+  const grant = {
+    document_id: doc,
+    uploads: [{ file_id: file, url: 'https://storage.example/put', method: 'PUT', headers: { 'content-type': 'image/jpeg' }, expires_at: '2026-11-16T10:15:00.000Z' }],
+  }
+
+  function recording(answers: Array<{ ok: boolean; status: number; json: () => Promise<unknown> }>) {
+    const seen: Array<{ method: string; url: string; body?: string }> = []
+    const fetch: FetchLike = async (url, init) => {
+      seen.push({ method: init?.method ?? 'GET', url: String(url), body: init?.body })
+      return answers.shift()!
+    }
+    return { api: createApiClient({ baseUrl: BASE, fetch }), seen }
+  }
+
+  it('lists, reads, creates, completes, changes and deletes on the documents paths', async () => {
+    const { api, seen } = recording([
+      ok({ documents: [stored], free_recognitions_left: 3, recognition_price: 0 }),
+      ok(stored),
+      { ok: true, status: 201, json: async () => grant },
+      ok(stored),
+      ok({ ...stored, title: 'Паспорт' }),
+      { ok: true, status: 204, json: async () => null },
+    ])
+
+    const list = await api.listDocuments(pet)
+    expect(list.documents[0]).not.toHaveProperty('later_field')
+    expect((await api.getDocument(pet, doc)).status).toBe('stored')
+    const body = { kind: 'vet_passport' as const, files: [{ content_type: 'image/jpeg' as const, size_bytes: 1000 }] }
+    expect((await api.createDocument(pet, body)).uploads[0].method).toBe('PUT')
+    expect((await api.completeDocument(pet, doc)).id).toBe(doc)
+    expect((await api.changeDocument(pet, doc, { title: 'Паспорт' })).title).toBe('Паспорт')
+    await expect(api.deleteDocument(pet, doc)).resolves.toBeUndefined()
+
+    const path = `${BASE}/api/v1/pets/${pet}/documents`
+    expect(seen.map(({ method, url }) => [method, url])).toEqual([
+      ['GET', path],
+      ['GET', `${path}/${doc}`],
+      ['POST', path],
+      ['POST', `${path}/${doc}/complete`],
+      ['PATCH', `${path}/${doc}`],
+      ['DELETE', `${path}/${doc}`],
+    ])
+    expect(JSON.parse(seen[2].body!)).toEqual(body)
+    expect(JSON.parse(seen[4].body!)).toEqual({ title: 'Паспорт' })
+  })
+
+  it('keeps a refused file’s reason in the error details', async () => {
+    const { api } = recording([
+      { ok: false, status: 400, json: async () => ({ error: { code: 'bad_request', message: 'The file was refused', request_id: 'r1', details: { reason: 'encrypted' } } }) },
+    ])
+    await expect(api.completeDocument(pet, doc)).rejects.toMatchObject({ code: 'bad_request', status: 400, details: { reason: 'encrypted' } })
+  })
+
+  it('reads a kind, a status and a file type of a later server without breaking', async () => {
+    const later = {
+      ...stored,
+      kind: 'tattoo',
+      status: 'archived',
+      files: [...stored.files, { id: file, content_type: 'image/heic', url: 'https://storage.example/heic', page_count: null }],
+    }
+    const { api } = recording([ok(later)])
+    const read = await api.getDocument(pet, doc)
+    expect(read.kind).toBe('other')
+    expect(read.status).toBe('stored')
+    expect(read.files.map((f) => f.content_type)).toEqual(['image/jpeg'])
+  })
+
+  it('leaves out of the list a document that does not read, and keeps the others', async () => {
+    const { api } = recording([ok({ documents: [{ ...stored, id: 'not-a-uuid' }, { ...stored, kind: 'tattoo' }], free_recognitions_left: 3, recognition_price: 0 })])
+    const list = await api.listDocuments(pet)
+    expect(list.documents.map((d) => d.kind)).toEqual(['other'])
+  })
+
+  it('leaves out of the list a document whose every file is of a later type', async () => {
+    const later = { ...stored, files: [{ ...stored.files[0], content_type: 'image/heic' }] }
+    const { api } = recording([ok({ documents: [later, stored], free_recognitions_left: 3, recognition_price: 0 })])
+    expect((await api.listDocuments(pet)).documents).toHaveLength(1)
+  })
+
+  it('reads a later price of a recognition without breaking the list', async () => {
+    const { api } = recording([ok({ documents: [stored], free_recognitions_left: 0, recognition_price: 2 })])
+    const list = await api.listDocuments(pet)
+    expect(list.recognition_price).toBe(2)
+    expect(list.documents).toHaveLength(1)
+  })
+
+  it('still refuses a price that is not a count of credits', async () => {
+    const { api } = recording([ok({ documents: [stored], free_recognitions_left: 0, recognition_price: -1 })])
+    await expect(api.listDocuments(pet)).rejects.toMatchObject({ name: 'ApiContractError' })
+  })
+
+  it('refuses a document that does not match the contract', async () => {
+    const { api } = recording([ok({ ...stored, id: 'not-a-uuid' })])
+    await expect(api.getDocument(pet, doc)).rejects.toMatchObject({ name: 'ApiContractError' })
   })
 })

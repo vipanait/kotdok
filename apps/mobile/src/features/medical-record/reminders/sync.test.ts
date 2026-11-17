@@ -43,7 +43,7 @@ describe('keeping the phone’s notifications in step', () => {
   it('schedules a course’s doses as well, which open the pet when tapped (FB-5/03)', async () => {
     const { notifier, scheduled } = fakeNotifier()
     const sync = createReminderSync({ notifier, settings: async () => DEFAULT_REMINDERS, t: () => ru, now: () => NOW })
-    const course = { id: 'c1', name: 'Нефростоп', dosage: '1 таблетка', started_on: '2026-09-01', ended_on: null, ongoing: true, source: 'record' as const, reminder_times: ['20:00'] }
+    const course = { id: 'c1', name: 'Нефростоп', dosage: '1 таблетка', started_on: '2026-09-01', ended_on: null, ongoing: true, source: 'record' as const, reminder_times: ['20:00'], source_document_id: null }
     await sync.run({
       userId: 'user-a',
       load: async () => ({ due: [], pets: [{ id: A_PET, name: 'Мурка' }], courses: [{ pet: { id: A_PET, name: 'Мурка' }, course }], doses: [] }),
@@ -59,7 +59,7 @@ describe('keeping the phone’s notifications in step', () => {
     // 4 courses × 4 times × 7 days = 112 doses, more than the phone keeps.
     const courses = Array.from({ length: 4 }, (_, index) => ({
       pet: { id: A_PET, name: 'Мурка' },
-      course: { id: `c${index}`, name: 'Нефростоп', dosage: null, started_on: '2026-09-01', ended_on: null, ongoing: true, source: 'record' as const, reminder_times: ['08:00', '13:00', '18:00', '22:00'] },
+      course: { id: `c${index}`, name: 'Нефростоп', dosage: null, started_on: '2026-09-01', ended_on: null, ongoing: true, source: 'record' as const, reminder_times: ['08:00', '13:00', '18:00', '22:00'], source_document_id: null },
     }))
     const soon = { ...item(A_PET), date: '2026-09-26' }
     await sync.run({ userId: 'user-a', load: async () => ({ due: [soon], pets: [{ id: A_PET, name: 'Мурка' }], courses, doses: [] }) })
@@ -71,7 +71,7 @@ describe('keeping the phone’s notifications in step', () => {
   it('does nothing about doses while reminders are off (FB-5/03)', async () => {
     const { notifier, scheduled } = fakeNotifier()
     const sync = createReminderSync({ notifier, settings: async () => ({ ...DEFAULT_REMINDERS, enabled: false }), t: () => ru, now: () => NOW })
-    const course = { id: 'c1', name: 'Нефростоп', dosage: null, started_on: '2026-09-01', ended_on: null, ongoing: true, source: 'record' as const, reminder_times: ['20:00'] }
+    const course = { id: 'c1', name: 'Нефростоп', dosage: null, started_on: '2026-09-01', ended_on: null, ongoing: true, source: 'record' as const, reminder_times: ['20:00'], source_document_id: null }
     await sync.run({ userId: 'user-a', load: async () => ({ due: [], pets: [], courses: [{ pet: { id: A_PET, name: 'Мурка' }, course }], doses: [] }) })
     expect(scheduled.size).toBe(0)
   })

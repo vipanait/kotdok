@@ -1,9 +1,11 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import type { Client } from 'pg'
-import { connect, resetFixtures, seedFixtures, type SeededFixtures } from './fixtures'
+import { PET_IDS, connect, resetFixtures, seedFixtures, type SeededFixtures } from './fixtures'
 import { createDeletionWorkerDeps } from '@/server/account/deletion-worker'
 import { PHOTO_BUCKET, grantUploads } from '@/server/uploads/photo-storage'
+import { DOCUMENT_BUCKET, supabaseDocumentStorage } from '@/server/documents/document-storage'
+import { createDocument } from '@/server/documents/document-service'
 
 /** Stage 8/08 for the one bucket that holds user files: gone before the Auth user. */
 
@@ -24,6 +26,7 @@ beforeEach(async () => {
   await resetFixtures(db)
   seeded = await seedFixtures(db)
   await service().storage.emptyBucket(PHOTO_BUCKET)
+  await service().storage.emptyBucket(DOCUMENT_BUCKET)
   await db.query('truncate table public.photo_uploads')
 })
 
@@ -47,6 +50,30 @@ describe('deleting an account with photos', () => {
     expect(rows[0].name.startsWith(`${seeded.ownerBId}/`)).toBe(true)
     const { rows: uploads } = await db.query('select user_id from public.photo_uploads')
     expect(uploads).toEqual([{ user_id: seeded.ownerBId }])
+  })
+
+  it('photos step clears pet-documents', async () => {
+    const supabase = service() as never
+    const storage = supabaseDocumentStorage(supabase)
+    for (const [userId, petId] of [
+      [seeded.ownerAId, PET_IDS.aCat],
+      [seeded.ownerAId, PET_IDS.aDog],
+      [seeded.ownerBId, PET_IDS.bCat],
+    ] as const) {
+      const made = await createDocument({ supabase, storage, userId }, petId, {
+        kind: 'other',
+        files: [{ content_type: 'image/jpeg', size_bytes: 4 }],
+      })
+      if (!made.ok) throw new Error(made.reason)
+      const upload = made.value.uploads[0]!
+      expect((await fetch(upload.url, { method: 'PUT', headers: upload.headers, body: new Uint8Array(4) })).ok).toBe(true)
+    }
+
+    await createDeletionWorkerDeps(service() as never).deletePhotos(seeded.ownerAId)
+
+    const { rows } = await db.query(`select name from storage.objects where bucket_id = $1`, [DOCUMENT_BUCKET])
+    expect(rows).toHaveLength(1)
+    expect(rows[0].name.startsWith(`${seeded.ownerBId}/`)).toBe(true)
   })
 
   it('is safe to run again when nothing is left', async () => {

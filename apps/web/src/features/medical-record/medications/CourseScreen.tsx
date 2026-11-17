@@ -20,6 +20,7 @@ import { doseTimesKey } from './dose-times-field'
 import TodayDoses from '../TodayDoses'
 import { useTodayDoses } from '../doses/use-today-doses'
 import { medicalRecordHref } from '../routes'
+import { SourceDocumentLine } from '@/features/documents/recognition/SourceLine'
 
 /**
  * One medication course (web v1 «course», «course-finished»). A current
@@ -194,6 +195,9 @@ export default function CourseScreen({ petId, courseId, saved }: { petId: string
               </>
             )}
           </section>
+          {course.source_document_id && (
+            <SourceDocumentLine petId={petId} docId={course.source_document_id} from={medicalRecordHref.recordView(petId, course.id)} />
+          )}
 
           <DoseTimesField
             key={doseTimesKey(course)}

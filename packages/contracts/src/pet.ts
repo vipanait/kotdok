@@ -68,6 +68,8 @@ export const PET_DATES_FEATURE = 'pet-dates'
 export const PET_DATE_FIELDS = ['birth_date', 'birth_date_approx', 'adopted_on'] as const
 /** The pet's photo (FB-4): `avatar_url` only for a client that lists it. */
 export const PET_AVATAR_FEATURE = 'pet-avatar'
+/** Pet documents (DOC-1): the `documents` section is offered only to a client that lists it. */
+export const FEATURE_PET_DOCUMENTS = 'pet-documents'
 
 /** Asking to write a pet's photo straight to storage (FB-4); the bytes never pass through the API. */
 export const AvatarGrantRequestSchema = z.strictObject({

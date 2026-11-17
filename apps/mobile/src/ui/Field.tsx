@@ -45,6 +45,8 @@ export function Field({
   action,
   onFocus,
   onBlur,
+  maxLength,
+  editable = true,
 }: {
   label: string
   /** Draw the name or not; either way the field answers to it out loud. */
@@ -77,6 +79,10 @@ export function Field({
   /** For a field that shows something of its own while it is being typed in, such as suggestions. */
   onFocus?: () => void
   onBlur?: () => void
+  /** The most characters the server takes: typing stops there rather than the save failing later. */
+  maxLength?: number
+  /** Off while what was typed is already on its way. */
+  editable?: boolean
 }) {
   const t = useText()
   const [focused, setFocused] = useState(false)
@@ -139,7 +145,10 @@ export function Field({
           autoCapitalize={autoCapitalize ?? 'sentences'}
           autoComplete={autoComplete}
           autoCorrect={autoCorrect}
+          maxLength={maxLength}
+          editable={editable}
           accessibilityLabel={label}
+          accessibilityState={{ disabled: !editable }}
         />
         {/* Typing a password blind on a phone keyboard is how people end up
             locked out of an account they know the password to. */}

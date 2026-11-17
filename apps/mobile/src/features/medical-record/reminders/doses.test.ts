@@ -12,7 +12,7 @@ const course = (overrides: Partial<Medication> = {}): Medication => ({
   ended_on: null,
   ongoing: true,
   source: 'record',
-  reminder_times: ['08:00', '20:00'],
+  reminder_times: ['08:00', '20:00'], source_document_id: null,
   ...overrides,
 })
 
@@ -57,7 +57,7 @@ describe('the doses ahead (FB-5/03)', () => {
   })
 
   it('keeps within the phone’s limit, nearest first', () => {
-    const many = Array.from({ length: 10 }, (_, index) => ({ pet, course: course({ id: `c${index}`, reminder_times: ['08:00', '14:00', '20:00', '23:00'] }) }))
+    const many = Array.from({ length: 10 }, (_, index) => ({ pet, course: course({ id: `c${index}`, reminder_times: ['08:00', '14:00', '20:00', '23:00'], source_document_id: null }) }))
     const plan = planDoseReminders(ru, many, [], NOW)
     expect(plan).toHaveLength(REMINDER_LIMIT)
     expect(plan[0].day).toBe('2026-10-20')

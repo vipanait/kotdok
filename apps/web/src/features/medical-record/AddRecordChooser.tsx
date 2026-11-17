@@ -12,17 +12,22 @@ const TYPE_ICON: Record<RecordType, IconName> = {
 }
 
 /**
- * «Что добавить?» (web v1, «add»): the record types, in the chooser's order.
+ * «Что добавить?» (web v1, «add»): the record types, in the chooser's order,
+ * then «Документ» (DOC-1) — photos or a PDF kept with the pet, when the
+ * page offers it (`documentHref`).
  */
 export default function AddRecordChooser({
   petId,
   petName,
   types,
+  documentHref = null,
   dict,
 }: {
   petId: string
   petName: string
   types: readonly RecordType[]
+  /** Where a new document is added; none, no row. */
+  documentHref?: string | null
   dict: Dictionary
 }) {
   const words = dict.medicalRecord.addPage
@@ -48,6 +53,14 @@ export default function AddRecordChooser({
               </Link>
             </li>
           ))}
+          {documentHref && (
+            <li className="record-line">
+              <Link href={documentHref} className="link">
+                <Icon name="copy" />
+                {dict.documents.chooserRow}
+              </Link>
+            </li>
+          )}
         </ul>
       </nav>
     </div>

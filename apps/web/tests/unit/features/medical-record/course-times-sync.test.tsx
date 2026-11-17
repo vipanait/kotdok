@@ -14,6 +14,7 @@ const course: Medication = {
   ongoing: true,
   source: 'record',
   reminder_times: ['08:00'],
+  source_document_id: null,
 }
 
 describe('the course page follows times set elsewhere', () => {

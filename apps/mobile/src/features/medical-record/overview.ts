@@ -109,7 +109,15 @@ export function importantFacts(
  * can store; an app older than the server must not draw a chevron for a
  * section it cannot open. Each stage adds its section here with its screen.
  */
-const OPENABLE_SECTIONS: readonly HealthSection[] = ['vaccinations', 'parasites', 'visits', 'medications', 'weight']
+const OPENABLE_SECTIONS: readonly HealthSection[] = ['vaccinations', 'parasites', 'visits', 'medications', 'weight', 'documents']
+
+/**
+ * Sections listed only when the server says it stores them: documents
+ * (DOC-1) are not part of the record's history, and a server without them
+ * (an older one, or a client that did not ask for `pet-documents`) gets no
+ * row that leads to an empty screen.
+ */
+const LISTED_ONLY_WHEN_WRITABLE: readonly HealthSection[] = ['documents']
 
 export type SectionRow = {
   section: HealthSection
@@ -148,11 +156,13 @@ function summary(t: Dictionary, section: HealthSection, overview: HealthOverview
     }
     case 'visits':
       return visitSummary(t, overview.events, today) ?? words.noRecords
+    case 'documents':
+      return words.documentsSummary
   }
 }
 
 export function sectionRows(t: Dictionary, overview: HealthOverview, today: string): SectionRow[] {
-  return HEALTH_SECTIONS.map((section) => ({
+  return HEALTH_SECTIONS.filter((section) => !LISTED_ONLY_WHEN_WRITABLE.includes(section) || overview.writable.includes(section)).map((section) => ({
     section,
     title: t.medicalRecord.sections[section],
     summary: summary(t, section, overview, today),

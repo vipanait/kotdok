@@ -15,6 +15,7 @@ import { Banner, Card } from '@/ui/Card'
 import { ConfirmDialog } from '@/ui/Dialog'
 import { Screen } from '@/ui/Screen'
 import { DoseTimes } from '@/features/medical-record/DoseTimes'
+import { SourceDocumentLine } from '@/features/documents/recognition/SourceLine'
 import { useRecordChanged } from '@/features/medical-record/record-cache'
 import { DetailSkeleton } from '@/ui/Skeleton'
 import { Text } from '@/ui/Text'
@@ -123,6 +124,8 @@ export default function MedicationView() {
             {course.dosage ? <Text tone="muted">{course.dosage}</Text> : null}
             <Text tone="muted">{courseDates(t, course, today)}</Text>
           </Card>
+          {/* Confirmed from a prescription (DOC-2): its name, a way to it, no preview. */}
+          {course.source_document_id ? <SourceDocumentLine petId={id} docId={course.source_document_id} /> : null}
           {courseEditable(course, today) ? <DoseTimes petId={id} course={course} onChanged={setCourse} /> : null}
           {courseEditable(course, today) ? (
             <LinkButton title={words.edit} align="left" onPress={() => router.push(`/pets/${id}/medication-form?medicationId=${course.id}`)} />

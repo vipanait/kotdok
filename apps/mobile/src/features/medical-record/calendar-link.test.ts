@@ -35,7 +35,7 @@ describe('what a planned record becomes in the calendar (FB-3 review)', () => {
     visit_kind: null,
     reason: null,
     diagnosis: null,
-    check_id: null,
+    check_id: null, source_document_id: null,
     ...overrides,
   })
   const item = (name: string | null, targets: string[] = []) =>

@@ -19,6 +19,9 @@ type SupabaseService = ReturnType<typeof createServiceClient>
  */
 const WRITABLE_SECTIONS: HealthSection[] = ['vaccinations', 'parasites', 'visits', 'medications', 'weight']
 
+/** Offered only to a client that reads documents (DOC-1): an older app's schema would not know it. */
+const DOCUMENTS_SECTION: HealthSection = 'documents'
+
 /**
  * The medical record of one pet.
  *
@@ -30,9 +33,14 @@ export async function getHealthOverview(
   userId: string,
   petId: string,
   today: string = utcToday(),
-  /** The pet's row when the caller has just read it (the analysis), so it is not read twice. */
-  loaded?: Pet,
+  options: {
+    /** The pet's row when the caller has just read it (the analysis), so it is not read twice. */
+    loaded?: Pet
+    /** The client lists the `pet-documents` feature: `documents` joins `writable`. */
+    withDocuments?: boolean
+  } = {},
 ): Promise<PetResult<HealthOverview> & { avatar_path?: string | null }> {
+  const { loaded, withDocuments = false } = options
   const pet = loaded ? { ok: true as const, data: loaded } : await getPet(supabase, userId, petId)
   if (!pet.ok) return pet
 
@@ -62,7 +70,7 @@ export async function getHealthOverview(
     avatar_path: pet.data.avatar_path ?? null,
     data: {
       pet: medications.data.length > 0 ? { ...form, medications: names } : form,
-      writable: [...WRITABLE_SECTIONS],
+      writable: withDocuments ? [...WRITABLE_SECTIONS, DOCUMENTS_SECTION] : [...WRITABLE_SECTIONS],
       weights: weights.data,
       events: events.data,
       medications: medications.data,

@@ -17,6 +17,8 @@ interface Props {
   onConfirm: () => void
   /** Where focus goes back when the dialog closes; the focused element by default. */
   returnFocusRef?: React.RefObject<HTMLElement | null>
+  /** A class of the dialog itself, for a screen that lays its answers out its own way. */
+  className?: string
 }
 
 const FOCUSABLE = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
@@ -39,6 +41,7 @@ export default function ConfirmDialog({
   onCancel,
   onConfirm,
   returnFocusRef,
+  className,
 }: Props) {
   const titleId = useId()
   const bodyId = useId()
@@ -90,7 +93,7 @@ export default function ConfirmDialog({
     >
       <section
         ref={dialogRef}
-        className="modal"
+        className={className ? `modal ${className}` : 'modal'}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}

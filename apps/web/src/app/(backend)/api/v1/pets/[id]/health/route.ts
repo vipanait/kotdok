@@ -1,8 +1,9 @@
 import { createServiceClient } from '@/server/supabase/server'
 import { getHealthOverview } from '@/server/medical-record/overview-service'
 import { requestToday } from '@/server/medical-record/weight-service'
+import { FEATURE_PET_DOCUMENTS } from '@lapka/contracts'
 import { apiSuccess } from '@/server/api/response'
-import { presentPet } from '@/server/pets/pet-contract'
+import { presentPet, reads } from '@/server/pets/pet-contract'
 import { serviceFailureResponse } from '@/server/api/failure-response'
 import { readUuidParam } from '@/server/api/request'
 import { withApiAuth, type ApiContext } from '@/server/api/with-api-auth'
@@ -21,7 +22,9 @@ export const GET = withApiAuth(async (request, context: ApiContext, params: Para
   const refused = readUuidParam(id, context)
   if (refused) return refused
 
-  const result = await getHealthOverview(createServiceClient(), context.account.userId, id, requestToday(request.nextUrl))
+  const result = await getHealthOverview(createServiceClient(), context.account.userId, id, requestToday(request.nextUrl), {
+    withDocuments: reads(request, FEATURE_PET_DOCUMENTS),
+  })
   if (!result.ok) return serviceFailureResponse(context.requestId, result.reason)
 
   return apiSuccess(context.requestId, { ...result.data, pet: await presentPet(request, createServiceClient(), result.data.pet, result.avatar_path ?? null) })

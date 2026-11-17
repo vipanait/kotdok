@@ -48,6 +48,9 @@ const paths = {
   calendar: '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4m10-4v4M3 10h18"/>',
   bell: '<path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4Z"/><path d="M10 21h4"/>',
   calendarAlert: '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4m10-4v4M3 10h18m-9 3v3m0 2h.01"/>',
+  // The pet's documents (DOC-1): not in either concept nor in the documents
+  // prototype, drawn here in their stroke — a page with a folded corner.
+  document: '<path d="M6 3h8l5 5v13H6Z"/><path d="M14 3v5h5M9 13h7m-7 4h5"/>',
   // Search, for the «Можно ли?» states with nothing found.
   search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',
   // The «Можно ли?» tab: not in either concept, drawn here in their stroke —

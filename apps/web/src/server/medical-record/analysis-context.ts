@@ -226,7 +226,7 @@ export async function loadAnalysisContext(
 ): Promise<LoadedContext> {
   try {
     // The overview, not the full summary: the checks are not part of the context.
-    const overview = await getHealthOverview(supabase, userId, petId, today, pet)
+    const overview = await getHealthOverview(supabase, userId, petId, today, { loaded: pet, withDocuments: true })
     if (!overview.ok) throw new Error(`${overview.reason}${overview.message ? `: ${overview.message}` : ''}`)
     const summary = { data: summarise({ ...overview.data, checks: [], today }) }
     const { text } = analysisContext(summary.data, today)

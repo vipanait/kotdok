@@ -21,13 +21,16 @@ export const ROUTE_SLICES = {
   '(auth)': ['auth'],
   /** The pet form and the first steps; the record is a group below. */
   pets: ['pets', 'onboarding', 'firstSteps'],
-  'pets/[id]': ['medicalRecord', 'followup'],
+  /** The record, its sections and the pet's documents (DOC-1). */
+  'pets/[id]': ['medicalRecord', 'followup', 'documents'],
   check: ['check', 'followup'],
   checks: ['check', 'followup'],
   /** The statistics; `check` names the questionnaire's answers in the feeds. */
   admin: ['admin', 'check'],
   'account-deletion': ['deletion'],
   credits: ['credits'],
+  /** The fixtures previews (`/dev/…`, only with LAPKA_UI_FIXTURES=1): the screens they draw. */
+  dev: ['medicalRecord', 'documents'],
 } as const satisfies Record<string, readonly Namespace[]>
 
 export type SliceRoute = keyof typeof ROUTE_SLICES

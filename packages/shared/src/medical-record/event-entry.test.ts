@@ -25,6 +25,7 @@ function event(partial: Partial<HealthEvent> & Pick<HealthEvent, 'id' | 'status'
     reason: null,
     diagnosis: null,
     check_id: null,
+    source_document_id: null,
     ...partial,
   }
 }

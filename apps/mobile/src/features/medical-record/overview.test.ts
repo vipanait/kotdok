@@ -115,7 +115,7 @@ describe('sections', () => {
     const done: HealthEvent = {
       id: 'd', kind: 'vaccination', status: 'done', date: '2026-03-12', clinic: null, notes: null,
       items: [{ id: 'i', name: null, targets: ['rabies'], source_item_id: null, product_id: null, interval: null, instructions: null, medication_id: null }],
-      visit_kind: null, reason: null, diagnosis: null, check_id: null,
+      visit_kind: null, reason: null, diagnosis: null, check_id: null, source_document_id: null,
     }
     expect(sectionRows(ru, overview({ vaccinated: false }, [], [done]), TODAY)[0].summary).toBe('Последняя — 12 марта 2026')
   })
@@ -150,6 +150,19 @@ describe('sections', () => {
   })
 })
 
+describe('the documents row (DOC-1)', () => {
+  it('is listed, last and openable, only when the server stores documents for this app', () => {
+    const rows = sectionRows(ru, { ...overview(), writable: ['vaccinations', 'documents'] }, TODAY)
+    expect(rows.map((row) => row.section)).toEqual(['vaccinations', 'parasites', 'visits', 'medications', 'weight', 'documents'])
+    expect(rows[5]).toMatchObject({ title: 'Документы', openable: true })
+  })
+
+  it('is not listed by a server that does not store them (an older one)', () => {
+    const rows = sectionRows(ru, overview(), TODAY)
+    expect(rows.map((row) => row.section)).not.toContain('documents')
+  })
+})
+
 describe('weight in the record', () => {
   const history: WeightMeasurement[] = [
     { id: 'a', measured_on: '2026-09-12', weight_kg: 4.2, source: 'record' },
@@ -179,16 +192,16 @@ describe('weight in the record', () => {
 describe('medicines in «Важно знать»', () => {
   it('lists the courses going on, «постоянно» where it is so', () => {
     const facts = importantFacts(ru, pet({ medications: ['Лечебный корм'] }), [
-      { id: 'a', name: 'Лечебный корм', dosage: null, started_on: '2026-08-02', ended_on: null, ongoing: true, source: 'record', reminder_times: [] },
-      { id: 'b', name: 'Фортифлора', dosage: null, started_on: '2026-08-02', ended_on: '2026-08-15', ongoing: false, source: 'record', reminder_times: [] },
+      { id: 'a', name: 'Лечебный корм', dosage: null, started_on: '2026-08-02', ended_on: null, ongoing: true, source: 'record', reminder_times: [], source_document_id: null },
+      { id: 'b', name: 'Фортифлора', dosage: null, started_on: '2026-08-02', ended_on: '2026-08-15', ongoing: false, source: 'record', reminder_times: [], source_document_id: null },
     ], TODAY)
     expect(facts).toEqual([{ label: 'Принимает сейчас', value: 'Лечебный корм (постоянно)' }])
   })
 
   it('leaves out a course that starts later, as the summary for the vet does (MW-07)', () => {
     const facts = importantFacts(ru, pet({ medications: ['Лечебный корм', 'Витамины'] }), [
-      { id: 'a', name: 'Лечебный корм', dosage: null, started_on: '2026-08-02', ended_on: null, ongoing: true, source: 'record', reminder_times: [] },
-      { id: 'c', name: 'Витамины', dosage: null, started_on: '2026-10-01', ended_on: null, ongoing: false, source: 'record', reminder_times: [] },
+      { id: 'a', name: 'Лечебный корм', dosage: null, started_on: '2026-08-02', ended_on: null, ongoing: true, source: 'record', reminder_times: [], source_document_id: null },
+      { id: 'c', name: 'Витамины', dosage: null, started_on: '2026-10-01', ended_on: null, ongoing: false, source: 'record', reminder_times: [], source_document_id: null },
     ], TODAY)
     expect(facts).toEqual([{ label: 'Принимает сейчас', value: 'Лечебный корм (постоянно)' }])
   })

@@ -35,6 +35,7 @@ const SECTION_ICONS: Record<SectionRow['section'], IconName> = {
   visits: 'visit',
   medications: 'med',
   weight: 'weight',
+  documents: 'document',
 }
 
 /** The shape of the record while it loads: header, one card, the section list. */
@@ -61,6 +62,7 @@ const SECTION_ROUTES: Partial<Record<SectionRow['section'], string>> = {
   visits: 'visits',
   medications: 'medications',
   weight: 'weight',
+  documents: 'documents',
 }
 
 /** At most this many due dates on the record itself; the rest behind «Все напоминания» (spec §7.2). */
@@ -216,6 +218,19 @@ export default function MedicalRecord() {
       : []),
     ...(shown.writable.includes('weight')
       ? [{ key: 'weight', icon: 'weight' as const, label: t.medicalRecord.addWeightRow, onPress: () => router.push(`/pets/${id}/weight`) }]
+      : []),
+    // Only when the server stores documents for this app (it asked for `pet-documents`).
+    // `withAnchor`: the documents' own stack puts the list under the form,
+    // so its «← Документы» and the saved document's back both lead there.
+    ...(shown.writable.includes('documents')
+      ? [
+          {
+            key: 'document',
+            icon: 'document' as const,
+            label: t.medicalRecord.addDocumentRow,
+            onPress: () => router.push(`/pets/${id}/documents/new`, { withAnchor: true }),
+          },
+        ]
       : []),
   ]
 

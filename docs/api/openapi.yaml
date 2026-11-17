@@ -575,6 +575,7 @@ components:
               - visits
               - medications
               - weight
+              - documents
         weights:
           default: []
           type: array
@@ -907,6 +908,13 @@ components:
               format: uuid
               pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
             - type: "null"
+        source_document_id:
+          default: null
+          anyOf:
+            - type: string
+              format: uuid
+              pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+            - type: "null"
       required:
         - id
         - kind
@@ -919,6 +927,7 @@ components:
         - reason
         - diagnosis
         - check_id
+        - source_document_id
       additionalProperties: false
     HealthEventInput:
       type: object
@@ -1272,6 +1281,13 @@ components:
           type: array
           items:
             type: string
+        source_document_id:
+          default: null
+          anyOf:
+            - type: string
+              format: uuid
+              pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+            - type: "null"
       required:
         - id
         - name
@@ -1281,6 +1297,7 @@ components:
         - ongoing
         - source
         - reminder_times
+        - source_document_id
       additionalProperties: false
     MedicationTimes:
       type: object
@@ -2810,6 +2827,227 @@ components:
       required:
         - status
       additionalProperties: false
+    DocumentCreateInput:
+      type: object
+      properties:
+        kind:
+          type: string
+          enum:
+            - vet_passport
+            - prescription
+            - discharge
+            - lab_results
+            - other
+        title:
+          type: string
+          minLength: 1
+          maxLength: 100
+        files:
+          minItems: 1
+          maxItems: 8
+          type: array
+          items:
+            type: object
+            properties:
+              content_type:
+                type: string
+                enum:
+                  - image/jpeg
+                  - image/png
+                  - image/webp
+                  - application/pdf
+              size_bytes:
+                type: integer
+                minimum: 1
+                maximum: 10485760
+            required:
+              - content_type
+              - size_bytes
+            additionalProperties: false
+      required:
+        - kind
+        - files
+      additionalProperties: false
+    DocumentGrant:
+      type: object
+      properties:
+        document_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        uploads:
+          type: array
+          items:
+            type: object
+            properties:
+              file_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              url:
+                type: string
+                format: uri
+              method:
+                type: string
+                const: PUT
+              headers:
+                type: object
+                propertyNames:
+                  type: string
+                additionalProperties:
+                  type: string
+              expires_at:
+                type: string
+                format: date-time
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+            required:
+              - file_id
+              - url
+              - method
+              - headers
+              - expires_at
+            additionalProperties: false
+      required:
+        - document_id
+        - uploads
+      additionalProperties: false
+    DocumentPatch:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 100
+        kind:
+          type: string
+          enum:
+            - vet_passport
+            - prescription
+            - discharge
+            - lab_results
+            - other
+        document_date:
+          anyOf:
+            - type: string
+              format: date
+              pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+            - type: "null"
+      additionalProperties: false
+    PetDocument:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        kind:
+          type: string
+          enum:
+            - vet_passport
+            - prescription
+            - discharge
+            - lab_results
+            - other
+        title:
+          type: string
+        document_date:
+          anyOf:
+            - type: string
+              format: date
+              pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+            - type: "null"
+        status:
+          type: string
+          enum:
+            - pending
+            - stored
+            - recognizing
+            - review
+            - confirmed
+            - failed
+        failure_code:
+          type:
+            - string
+            - "null"
+        page_count:
+          anyOf:
+            - type: integer
+              minimum: -9007199254740991
+              maximum: 9007199254740991
+            - type: "null"
+        created_at:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+        files:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              content_type:
+                type: string
+                enum:
+                  - image/jpeg
+                  - image/png
+                  - image/webp
+                  - application/pdf
+              url:
+                type: string
+              page_count:
+                anyOf:
+                  - type: integer
+                    minimum: -9007199254740991
+                    maximum: 9007199254740991
+                  - type: "null"
+            required:
+              - id
+              - content_type
+              - url
+              - page_count
+            additionalProperties: false
+        draft:
+          default: null
+          anyOf:
+            - {}
+            - type: "null"
+      required:
+        - id
+        - kind
+        - title
+        - document_date
+        - status
+        - failure_code
+        - page_count
+        - created_at
+        - files
+        - draft
+      additionalProperties: false
+    DocumentList:
+      type: object
+      properties:
+        documents:
+          type: array
+          items:
+            $ref: "#/components/schemas/PetDocument"
+        free_recognitions_left:
+          type: integer
+          minimum: -9007199254740991
+          maximum: 9007199254740991
+        recognition_price:
+          anyOf:
+            - type: number
+              const: 0
+            - type: number
+              const: 1
+      required:
+        - documents
+        - free_recognitions_left
+        - recognition_price
+      additionalProperties: false
     Health:
       type: object
       properties:
@@ -3564,8 +3802,8 @@ paths:
         required: false
         description: "Comma-separated features the client reads. `pet-dates`: the pet's birth_date,
           birth_date_approx and adopted_on. `pet-avatar`: the pet's avatar_url, a link signed for an
-          hour. `followup`: a check's followup (the case it belongs to). Without them those fields
-          are left out."
+          hour. `followup`: a check's followup (the case it belongs to). `pet-documents`: the
+          `documents` section in a pet's `writable` list. Without them those fields are left out."
         schema:
           type: string
           example: pet-dates,pet-avatar,followup
@@ -3704,7 +3942,7 @@ paths:
         name: id
         in: path
         required: true
-        schema: &a7
+        schema: &a8
           type: string
           format: uuid
       - *a1
@@ -4170,7 +4408,7 @@ paths:
           name: Idempotency-Key
           in: header
           required: false
-          schema: &a6
+          schema: &a7
             type: string
             minLength: 8
             maxLength: 200
@@ -6131,6 +6369,570 @@ paths:
                   code: internal_error
                   message: Unexpected server error
                   request_id: 01J000000000000000000000
+  /pets/{id}/documents:
+    parameters:
+      - *a2
+    get:
+      summary: The pet's documents (DOC-1)
+      description: Stored documents, newest first, each file with a read link good for an hour; one still
+        pending (an upload in progress) is not listed. Carries the free recognitions left.
+      responses:
+        "200":
+          description: The documents
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentList"
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
+                  request_id: 01J000000000000000000000
+        "404":
+          description: No such resource for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: not_found
+                  message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
+        "503":
+          description: A dependency is temporarily unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: dependency_unavailable
+                  message: A dependency is temporarily unavailable
+                  request_id: 01J000000000000000000000
+    post:
+      summary: "Ask to upload a document: one to eight pictures, or one PDF (DOC-1)"
+      description: Makes a pending document and answers with a signed URL for each file to PUT the bytes
+        to, with the headers given. Then call complete. At most 30 documents a pet (409 conflict,
+        details.reason limit_reached); 20 requests an hour.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DocumentCreateInput"
+      responses:
+        "201":
+          description: Where to put the files
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentGrant"
+        "400":
+          description: Request body or query is invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: bad_request
+                  message: Request body or query is invalid
+                  request_id: 01J000000000000000000000
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
+                  request_id: 01J000000000000000000000
+        "404":
+          description: No such resource for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: not_found
+                  message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "409":
+          description: Same idempotency key with different data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: conflict
+                  message: Same idempotency key with different data
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
+        "503":
+          description: A dependency is temporarily unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: dependency_unavailable
+                  message: A dependency is temporarily unavailable
+                  request_id: 01J000000000000000000000
+  /pets/{id}/documents/{doc_id}:
+    parameters:
+      - *a2
+      - &a6
+        name: doc_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      summary: One document with fresh read links (DOC-1)
+      responses:
+        "200":
+          description: The document
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PetDocument"
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
+                  request_id: 01J000000000000000000000
+        "404":
+          description: No such resource for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: not_found
+                  message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
+        "503":
+          description: A dependency is temporarily unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: dependency_unavailable
+                  message: A dependency is temporarily unavailable
+                  request_id: 01J000000000000000000000
+    patch:
+      summary: Change a stored document's title, kind or date (DOC-1)
+      description: A document still pending answers 409 conflict (details.reason wrong_status).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DocumentPatch"
+      responses:
+        "200":
+          description: The document
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PetDocument"
+        "400":
+          description: Request body or query is invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: bad_request
+                  message: Request body or query is invalid
+                  request_id: 01J000000000000000000000
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
+                  request_id: 01J000000000000000000000
+        "404":
+          description: No such resource for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: not_found
+                  message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "409":
+          description: Same idempotency key with different data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: conflict
+                  message: Same idempotency key with different data
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
+        "503":
+          description: A dependency is temporarily unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: dependency_unavailable
+                  message: A dependency is temporarily unavailable
+                  request_id: 01J000000000000000000000
+    delete:
+      summary: Remove the document and its files; the medical record's entries stay (DOC-1)
+      responses:
+        "204":
+          description: Removed
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
+                  request_id: 01J000000000000000000000
+        "404":
+          description: No such resource for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: not_found
+                  message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
+        "503":
+          description: A dependency is temporarily unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: dependency_unavailable
+                  message: A dependency is temporarily unavailable
+                  request_id: 01J000000000000000000000
+  /pets/{id}/documents/{doc_id}/complete:
+    parameters:
+      - *a2
+      - *a6
+    post:
+      summary: "Every file is uploaded: check them and store the document (DOC-1)"
+      description: "Downloads the files and checks their bytes. A file that is not what was declared
+        removes the document with its files and answers 400 bad_request with details.reason:
+        too_many_pages, encrypted, unsupported_media_type or payload_too_large. A file not uploaded
+        yet answers 503 and the document can be completed again. A stored document answers as it is;
+        one older than two hours answers 409 conflict (details.reason wrong_status)."
+      responses:
+        "200":
+          description: The stored document
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PetDocument"
+        "400":
+          description: Request body or query is invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: bad_request
+                  message: Request body or query is invalid
+                  request_id: 01J000000000000000000000
+        "401":
+          description: Missing, malformed, expired or foreign access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: unauthorized
+                  message: Missing, malformed, expired or foreign access token
+                  request_id: 01J000000000000000000000
+        "403":
+          description: Account is being deleted, or consent to personal data processing is required
+            (error.code tells which)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: account_deleting
+                  message: Account is being deleted, or consent to personal data processing is required (error.code
+                    tells which)
+                  request_id: 01J000000000000000000000
+        "404":
+          description: No such resource for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: not_found
+                  message: No such resource for this user
+                  request_id: 01J000000000000000000000
+        "409":
+          description: Same idempotency key with different data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: conflict
+                  message: Same idempotency key with different data
+                  request_id: 01J000000000000000000000
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: rate_limited
+                  message: Too many requests
+                  request_id: 01J000000000000000000000
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: internal_error
+                  message: Unexpected server error
+                  request_id: 01J000000000000000000000
+        "503":
+          description: A dependency is temporarily unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error:
+                  code: dependency_unavailable
+                  message: A dependency is temporarily unavailable
+                  request_id: 01J000000000000000000000
   /pets/{id}/health/visits:
     parameters:
       - *a2
@@ -7160,7 +7962,7 @@ paths:
         - name: Idempotency-Key
           in: header
           required: true
-          schema: *a6
+          schema: *a7
       requestBody:
         required: true
         content:
@@ -7345,7 +8147,7 @@ paths:
       - name: case_id
         in: path
         required: true
-        schema: *a7
+        schema: *a8
     get:
       summary: "One case with its timeline: checks, answers and linked visits"
       responses:
@@ -7417,7 +8219,7 @@ paths:
       - name: case_id
         in: path
         required: true
-        schema: *a7
+        schema: *a8
     post:
       summary: Answer «how is the pet?»; a fixed rule decides what comes next
       description: The same Idempotency-Key returns the stored answer (200) instead of a second one (201).
@@ -7427,7 +8229,7 @@ paths:
         - name: Idempotency-Key
           in: header
           required: true
-          schema: *a6
+          schema: *a7
       requestBody:
         required: true
         content:
@@ -7531,7 +8333,7 @@ paths:
       - name: case_id
         in: path
         required: true
-        schema: *a7
+        schema: *a8
     post:
       summary: "Stop reminding: close an open case with no medical outcome"
       responses:
@@ -7614,7 +8416,7 @@ paths:
       - name: case_id
         in: path
         required: true
-        schema: *a7
+        schema: *a8
     post:
       summary: Hide an open case until the client's tomorrow morning (at most 48 hours ahead)
       requestBody:
@@ -7714,7 +8516,7 @@ paths:
       - name: case_id
         in: path
         required: true
-        schema: *a7
+        schema: *a8
     put:
       summary: Keep a closed case in the health record («Перенесённые случаи»)
       description: Repeating it changes nothing. 409 while the case is open.
@@ -7875,7 +8677,7 @@ paths:
       - name: job_id
         in: path
         required: true
-        schema: *a7
+        schema: *a8
     get:
       summary: Job state, and the check id once it succeeded
       responses:

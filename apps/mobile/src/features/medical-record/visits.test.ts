@@ -27,7 +27,7 @@ const TODAY = '2026-09-24'
 function visit(overrides: Partial<HealthEvent>): HealthEvent {
   return {
     id: 'v', kind: 'visit', status: 'done', date: '2026-08-02', clinic: 'Айболит', notes: null, items: [],
-    visit_kind: 'illness', reason: 'Рвота два дня', diagnosis: 'Обострение гастрита', check_id: null, ...overrides,
+    visit_kind: 'illness', reason: 'Рвота два дня', diagnosis: 'Обострение гастрита', check_id: null, source_document_id: null, ...overrides,
   }
 }
 

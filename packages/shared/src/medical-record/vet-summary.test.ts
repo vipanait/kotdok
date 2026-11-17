@@ -17,7 +17,7 @@ import {
 const TODAY = '2026-09-26'
 
 function course(overrides: Partial<Medication>): Medication {
-  return { id: 'm', name: 'Лечебный корм', dosage: null, started_on: '2026-08-02', ended_on: null, ongoing: true, source: 'record', reminder_times: [], ...overrides }
+  return { id: 'm', name: 'Лечебный корм', dosage: null, started_on: '2026-08-02', ended_on: null, ongoing: true, source: 'record', reminder_times: [], source_document_id: null, ...overrides }
 }
 
 const pet = (overrides: Partial<VetSummary['pet']> = {}) => ({ medications: [], weight_kg: null, ...overrides }) as unknown as VetSummary['pet']
@@ -80,7 +80,7 @@ describe('a visit', () => {
   })
   const visit = (overrides: Partial<HealthEvent>): HealthEvent => ({
     id: 'v', kind: 'visit', status: 'done', date: '2026-08-02', clinic: null, notes: null, items: [],
-    visit_kind: 'illness', reason: null, diagnosis: null, check_id: null, ...overrides,
+    visit_kind: 'illness', reason: null, diagnosis: null, check_id: null, source_document_id: null, ...overrides,
   })
 
   it('says its diagnosis, else its reason, and the named prescriptions', () => {

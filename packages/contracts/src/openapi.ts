@@ -8,6 +8,7 @@ import {
   AvatarGrantRequestSchema,
   AvatarGrantSchema,
   FEATURES_HEADER,
+  FEATURE_PET_DOCUMENTS,
   PET_AVATAR_FEATURE,
   PET_DATE_FIELDS,
   PET_DATES_FEATURE,
@@ -35,6 +36,13 @@ import {
   WeightMeasurementSchema,
   WeightPatchSchema,
 } from './medical-record'
+import {
+  DocumentCreateInputSchema,
+  DocumentGrantSchema,
+  DocumentListSchema,
+  DocumentPatchSchema,
+  PetDocumentSchema,
+} from './documents'
 import { VetSummarySchema } from './vet-summary'
 import {
   CheckFollowupSchema,
@@ -136,6 +144,11 @@ const COMPONENTS: Array<[string, z.ZodType]> = [
   ['AccountDeletionRequest', AccountDeletionRequestSchema],
   ['AccountDeletionAccepted', AccountDeletionAcceptedSchema],
   ['AccountDeletionStatus', AccountDeletionStatusSchema],
+  ['DocumentCreateInput', DocumentCreateInputSchema],
+  ['DocumentGrant', DocumentGrantSchema],
+  ['DocumentPatch', DocumentPatchSchema],
+  ['PetDocument', PetDocumentSchema],
+  ['DocumentList', DocumentListSchema],
   ['Health', HealthSchema],
   ['SafetyIndex', SafetyIndexSchema],
   ['SafetyItem', SafetyItemSchema],
@@ -315,9 +328,12 @@ const featuresParam = {
   description:
     `Comma-separated features the client reads. \`${PET_DATES_FEATURE}\`: the pet's birth_date, birth_date_approx and ` +
     `adopted_on. \`${PET_AVATAR_FEATURE}\`: the pet's avatar_url, a link signed for an hour. \`${FOLLOWUP_FEATURE}\`: a ` +
-    `check's followup (the case it belongs to). Without them those fields are left out.`,
+    `check's followup (the case it belongs to). \`${FEATURE_PET_DOCUMENTS}\`: the \`documents\` section in a pet's \`writable\` list. ` +
+    `Without them those fields are left out.`,
   schema: { type: 'string', example: `${PET_DATES_FEATURE},${PET_AVATAR_FEATURE},${FOLLOWUP_FEATURE}` },
 }
+
+const docIdParam = { name: 'doc_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }
 
 const medicationIdParam = { name: 'medication_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }
 
@@ -744,6 +760,64 @@ export function buildOpenApiDocument(): Record<string, unknown> {
         delete: {
           summary: 'Remove the pet\'s photo; the drawing shows again',
           responses: { '200': json('Pet', 'The pet without a photo'), ...commonErrors('not_found') },
+        },
+      },
+      '/pets/{id}/documents': {
+        parameters: [idParam],
+        get: {
+          summary: 'The pet\'s documents (DOC-1)',
+          description:
+            'Stored documents, newest first, each file with a read link good for an hour; one still pending ' +
+            '(an upload in progress) is not listed. Carries the free recognitions left.',
+          responses: { '200': json('DocumentList', 'The documents'), ...commonErrors('not_found', 'dependency_unavailable') },
+        },
+        post: {
+          summary: 'Ask to upload a document: one to eight pictures, or one PDF (DOC-1)',
+          description:
+            'Makes a pending document and answers with a signed URL for each file to PUT the bytes to, with the ' +
+            'headers given. Then call complete. At most 30 documents a pet (409 conflict, details.reason limit_reached); ' +
+            '20 requests an hour.',
+          requestBody: body('DocumentCreateInput'),
+          responses: {
+            '201': json('DocumentGrant', 'Where to put the files'),
+            ...commonErrors('bad_request', 'not_found', 'conflict', 'dependency_unavailable'),
+          },
+        },
+      },
+      '/pets/{id}/documents/{doc_id}': {
+        parameters: [idParam, docIdParam],
+        get: {
+          summary: 'One document with fresh read links (DOC-1)',
+          responses: { '200': json('PetDocument', 'The document'), ...commonErrors('not_found', 'dependency_unavailable') },
+        },
+        patch: {
+          summary: 'Change a stored document\'s title, kind or date (DOC-1)',
+          description: 'A document still pending answers 409 conflict (details.reason wrong_status).',
+          requestBody: body('DocumentPatch'),
+          responses: {
+            '200': json('PetDocument', 'The document'),
+            ...commonErrors('bad_request', 'not_found', 'conflict', 'dependency_unavailable'),
+          },
+        },
+        delete: {
+          summary: 'Remove the document and its files; the medical record\'s entries stay (DOC-1)',
+          responses: { '204': { description: 'Removed' }, ...commonErrors('not_found', 'dependency_unavailable') },
+        },
+      },
+      '/pets/{id}/documents/{doc_id}/complete': {
+        parameters: [idParam, docIdParam],
+        post: {
+          summary: 'Every file is uploaded: check them and store the document (DOC-1)',
+          description:
+            'Downloads the files and checks their bytes. A file that is not what was declared removes the document ' +
+            'with its files and answers 400 bad_request with details.reason: too_many_pages, encrypted, ' +
+            'unsupported_media_type or payload_too_large. A file not uploaded yet answers 503 and the document can be ' +
+            'completed again. A stored document answers as it is; one older than two hours answers 409 conflict ' +
+            '(details.reason wrong_status).',
+          responses: {
+            '200': json('PetDocument', 'The stored document'),
+            ...commonErrors('bad_request', 'not_found', 'conflict', 'dependency_unavailable'),
+          },
         },
       },
       '/pets/{id}/health/visits': {

@@ -1,0 +1,24 @@
+import { Stack, useLocalSearchParams } from 'expo-router'
+import { stackOptions } from '@/ui/stack'
+
+/**
+ * The documents as a stack of their own, with the list at its bottom: a
+ * screen opened straight into it (`router.push(…, { withAnchor: true })`
+ * from «Что добавить?», or a link to one document) has the list under it,
+ * so «← Документы» and back after a save both lead there. One push, not
+ * two in the same tick while the sheet is closing.
+ *
+ * The list the router puts there is created without params, so it would
+ * read the pet as `undefined` and ask for `/pets/undefined/documents`. The
+ * pet comes from this layout's own segment instead.
+ */
+export const unstable_settings = { initialRouteName: 'index' }
+
+export default function DocumentsStack() {
+  const { id } = useLocalSearchParams<{ id: string }>()
+  return (
+    <Stack screenOptions={stackOptions}>
+      <Stack.Screen name="index" initialParams={{ id }} />
+    </Stack>
+  )
+}

@@ -1,3 +1,4 @@
+import { FEATURE_PET_DOCUMENTS } from '@lapka/contracts'
 import { createApiClient, type ApiClient, type FetchLike } from '@lapka/shared'
 import { createClient } from '@/features/auth/lib/supabase-browser'
 
@@ -29,6 +30,8 @@ export function browserApi(): ApiClient {
   client = createApiClient({
     // Same origin: the page and the API are one site.
     baseUrl: '',
+    // The site shows documents; the mobile app, sharing this client, does not claim them yet.
+    features: [FEATURE_PET_DOCUMENTS],
     fetch: browserFetch,
     getAccessToken: async () => {
       const { data } = await supabase.auth.getSession()

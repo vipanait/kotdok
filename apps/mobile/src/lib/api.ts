@@ -1,4 +1,5 @@
 import { createApiClient, ApiError, type ApiClient } from '@lapka/shared'
+import { FEATURE_PET_DOCUMENTS } from '@lapka/contracts'
 import { env } from '@/lib/env'
 import { supabase } from '@/lib/supabase'
 import { createRefreshCoordinator } from '@/lib/token-refresh'
@@ -57,6 +58,10 @@ async function currentAccessToken(): Promise<string | null> {
 const client = createApiClient({
   baseUrl: env.apiUrl,
   getAccessToken: currentAccessToken,
+  // Features only this app reads, beyond the ones every client does: with
+  // `pet-documents` the server lists `documents` in a pet's `writable`, and
+  // the record shows its row and «Документ» in «Что добавить?» (DOC-1).
+  features: [FEATURE_PET_DOCUMENTS],
 })
 
 /**
