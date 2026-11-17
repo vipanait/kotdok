@@ -57,7 +57,8 @@ export default function Documents() {
 
       {documents === null && error ? (
         <Quiet title={words.failed.title} body={error.offline ? words.failed.body : error.text}>
-          <Button title={t.common.retry} kind="secondary" busy={list.fetching} onPress={() => void list.reload()} />
+          {/* The one way forward on this screen, as the design has it. */}
+          <Button title={t.common.retry} busy={list.fetching} onPress={() => void list.reload()} />
         </Quiet>
       ) : null}
 
