@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { createClient } from '@supabase/supabase-js'
 import type { Client } from 'pg'
-import { PD_CONSENT_VERSION } from '@lapka/contracts'
+import { PD_CONSENT_LEGACY_VERSION, PD_CONSENT_VERSION } from '@lapka/contracts'
 import { FIXTURE_PASSWORD, OWNER_A, connect, seedFixtures, type SeededFixtures } from './fixtures'
 
 let db: Client
@@ -45,12 +45,29 @@ afterAll(async () => {
 })
 
 describe('personal data consent schema', () => {
-  it('accepts the edition the code ships', async () => {
-    const { rows } = await db.query<{ ok: boolean }>(
-      `select public.pd_consent_version_is_current($1) as ok`,
-      [PD_CONSENT_VERSION],
+  it('accepts the edition the code ships, and the one older app builds still send', async () => {
+    const { rows } = await db.query<{ ok: boolean; legacy: boolean }>(
+      `select public.pd_consent_version_is_current($1) as ok, public.pd_consent_version_is_current($2) as legacy`,
+      [PD_CONSENT_VERSION, PD_CONSENT_LEGACY_VERSION],
     )
-    expect(rows[0].ok).toBe(true)
+    expect(rows[0]).toEqual({ ok: true, legacy: true })
+  })
+
+  it('keeps the latest edition an account accepted on its profile', async () => {
+    const latest = async () =>
+      (await db.query<{ v: string | null }>(`select pd_consent_version as v from public.profiles where id = $1`, [
+        seeded.ownerAId,
+      ])).rows[0].v
+    expect(await latest()).toBeNull()
+
+    const give = (version: string) =>
+      db.query(`insert into public.personal_data_consents (user_id, version, source) values ($1, $2, 'web')`, [
+        seeded.ownerAId,
+        version,
+      ])
+    await give(PD_CONSENT_VERSION)
+    await give(PD_CONSENT_LEGACY_VERSION)
+    expect(await latest()).toBe(PD_CONSENT_VERSION)
   })
 
   it('rejects any other edition', async () => {

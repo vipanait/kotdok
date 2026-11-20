@@ -360,7 +360,7 @@ describe('what the client says it can read (FB-2 release)', () => {
       return ok([]) as never
     }
     await createApiClient({ baseUrl: BASE, fetch }).listPets()
-    expect(seen[0]['X-Lapka-Features']).toBe('pet-dates,pet-avatar,followup')
+    expect(seen[0]['X-Lapka-Features']).toBe('pet-dates,pet-avatar,followup,consent-editions')
   })
 })
 
@@ -490,7 +490,7 @@ describe('api client features header', () => {
 
   it('sends the fixed list alone, and the extra features only when given', async () => {
     const fixed = await headerOf()
-    expect(fixed).toBe('pet-dates,pet-avatar,followup')
+    expect(fixed).toBe('pet-dates,pet-avatar,followup,consent-editions')
     expect(await headerOf(['pet-documents'])).toBe(`${fixed},pet-documents`)
   })
 })
