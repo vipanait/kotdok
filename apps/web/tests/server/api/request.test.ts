@@ -14,6 +14,7 @@ const context: ApiContext = {
     locale: 'ru',
     credits: 3,
     pdConsentRequired: false,
+    consentEdition: 'current',
   },
 }
 

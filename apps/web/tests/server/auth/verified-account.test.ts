@@ -8,6 +8,7 @@ const account: AccountContext = {
   locale: 'ru',
   credits: 3,
   pdConsentRequired: false,
+  consentEdition: 'current' as const,
 }
 
 /** A client that fails the test if the profile is read at all. */

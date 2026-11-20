@@ -15,6 +15,7 @@ const account = {
   locale: 'ru' as const,
   credits: 2,
   pdConsentRequired: true,
+  consentEdition: 'current' as const,
 }
 
 describe('consent carried to the provider callback', () => {

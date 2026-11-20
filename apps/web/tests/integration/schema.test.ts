@@ -151,6 +151,7 @@ const REQUIRED_FUNCTIONS = [
   'stale_document_objects',
   'stale_photo_objects',
   'sync_form_medications',
+  'sync_pd_consent_version',
   'sync_pet_medications',
   'sync_pet_vaccinated',
   'sync_pet_weight',

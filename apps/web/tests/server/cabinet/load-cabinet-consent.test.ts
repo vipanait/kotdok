@@ -17,6 +17,7 @@ const account = {
   locale: 'ru' as const,
   credits: 1,
   pdConsentRequired: false,
+  consentEdition: 'current' as const,
 }
 
 describe('the cabinet and consent', () => {

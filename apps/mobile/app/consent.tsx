@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { Platform, StyleSheet } from 'react-native'
 import { Redirect, router } from 'expo-router'
 import * as WebBrowser from 'expo-web-browser'
-import { PD_CONSENT_VERSION } from '@lapka/contracts'
 import { consentScreenDone, withFreshSession } from '@/lib/api'
 import { consentMemory } from '@/lib/supabase'
 import { useAuth } from '@/providers/AuthProvider'
@@ -46,9 +45,12 @@ export default function Consent() {
     setBusy(true)
     setError(null)
     try {
-      await withFreshSession((api) =>
-        api.giveConsent({ version: PD_CONSENT_VERSION, source: consentSource(Platform.OS) }),
-      )
+      // The edition the server asks for, not the one compiled in: the link
+      // above opens the live text, and a later edition then needs no new build.
+      await withFreshSession(async (api) => {
+        const { version } = await api.getConsentStatus()
+        await api.giveConsent({ version, source: consentSource(Platform.OS) })
+      })
       // Given just now, so the next launch need not ask before opening.
       if (session) await consentMemory.remember(session.user.id)
       consentScreenDone()

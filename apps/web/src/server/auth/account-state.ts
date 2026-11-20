@@ -1,7 +1,13 @@
 import 'server-only'
 
 import { AsyncLocalStorage } from 'node:async_hooks'
-import { PD_CONSENT_VERSION, type AccountStatus, type Locale, type UserRole } from '@lapka/contracts'
+import {
+  PD_CONSENT_LEGACY_VERSION,
+  PD_CONSENT_VERSION,
+  type AccountStatus,
+  type Locale,
+  type UserRole,
+} from '@lapka/contracts'
 import type { createServiceClient } from '@/server/supabase/server'
 
 type SupabaseService = ReturnType<typeof createServiceClient>
@@ -18,11 +24,38 @@ export type AccountContext = {
   locale: Locale
   credits: number
   /**
-   * A new account that has not consented to the current edition of the
-   * personal data consent. Business operations wait until it has; the profile,
-   * the consent itself and leaving do not.
+   * The account owes the personal data consent its client asks for (see
+   * `consentEdition`). Business operations wait until it has given it; the
+   * profile, the consent itself and leaving do not.
    */
   pdConsentRequired: boolean
+  /** Which rules `pdConsentRequired` was decided by. */
+  consentEdition: ConsentEdition
+}
+
+/**
+ * Which consent the caller's client asks for. `current`: the site and every
+ * app that sends `consent-editions` — any account owes the current edition
+ * until it has accepted it. `legacy`: an app build from before that, which
+ * shows and sends 2026-09-26 — only an account created since 26 September 2026
+ * owes a consent, and any edition settles it, as before the second edition.
+ */
+export type ConsentEdition = 'current' | 'legacy'
+
+/** The edition a client of this kind shows and sends. */
+export function consentVersionFor(edition: ConsentEdition): string {
+  return edition === 'current' ? PD_CONSENT_VERSION : PD_CONSENT_LEGACY_VERSION
+}
+
+/** Whether a profile still owes the consent its client asks for. */
+export function owesConsent(
+  profile: { pd_consent_required: boolean | null; pd_consent_version: string | null },
+  edition: ConsentEdition,
+): boolean {
+  // Editions are ISO dates: a later one than asked for settles it too.
+  const accepted = profile.pd_consent_version
+  if (edition === 'current') return !accepted || accepted < PD_CONSENT_VERSION
+  return Boolean(profile.pd_consent_required) && !accepted
 }
 
 export type AccountLookupFailure =
@@ -58,33 +91,19 @@ export function withVerifiedAccount<T>(account: AccountContext, run: () => T): T
 export async function loadAccount(
   supabase: SupabaseService,
   userId: string,
+  { consentEdition = 'current' }: { consentEdition?: ConsentEdition } = {},
 ): Promise<AccountLookup> {
   const known = verifiedAccount.getStore()
   if (known && known.userId === userId) return { ok: true, account: known }
 
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, status, role, locale, credits, pd_consent_required')
+    .select('id, status, role, locale, credits, pd_consent_required, pd_consent_version')
     .eq('id', userId)
     .maybeSingle()
 
   if (error || !data) return { ok: false, reason: 'not_found' }
   if (data.status !== 'active') return { ok: false, reason: 'account_deleting' }
-
-  // Only accounts created after consent became a separate act carry the flag,
-  // so only they pay for the second query.
-  let pdConsentRequired = false
-  if (data.pd_consent_required) {
-    const { data: consent, error: consentError } = await supabase
-      .from('personal_data_consents')
-      .select('id')
-      .eq('user_id', data.id)
-      .eq('version', PD_CONSENT_VERSION)
-      .limit(1)
-      .maybeSingle()
-    if (consentError) return { ok: false, reason: 'not_found' }
-    pdConsentRequired = !consent
-  }
 
   return {
     ok: true,
@@ -94,7 +113,8 @@ export async function loadAccount(
       role: data.role,
       locale: data.locale,
       credits: data.credits ?? 0,
-      pdConsentRequired,
+      pdConsentRequired: owesConsent(data, consentEdition),
+      consentEdition,
     },
   }
 }

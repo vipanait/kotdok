@@ -2,8 +2,9 @@ import 'server-only'
 
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import type { NextRequest } from 'next/server'
+import { CONSENT_EDITIONS_FEATURE, FEATURES_HEADER } from '@lapka/contracts'
 import { createServiceClient } from '@/server/supabase/server'
-import { loadAccount, type AccountContext } from '@/server/auth/account-state'
+import { loadAccount, type AccountContext, type ConsentEdition } from '@/server/auth/account-state'
 
 /**
  * Authentication for /api/v1.
@@ -35,6 +36,16 @@ export function readBearerToken(request: NextRequest): string | null {
 }
 
 /**
+ * The consent rules the caller's client asks for: `current` when it names
+ * `consent-editions` in X-Lapka-Features (the site, apps from 1.3.0), `legacy`
+ * for an older app build. See `ConsentEdition`.
+ */
+export function consentEditionOf(request: NextRequest): ConsentEdition {
+  const features = (request.headers.get(FEATURES_HEADER) ?? '').split(',').map((name) => name.trim())
+  return features.includes(CONSENT_EDITIONS_FEATURE) ? 'current' : 'legacy'
+}
+
+/**
  * Verifies the token against Supabase and then loads the account. The user id
  * comes only from the verified session — never from the request body, a query
  * parameter or a header the caller controls.
@@ -54,7 +65,9 @@ export async function authenticateBearer(request: NextRequest): Promise<AuthResu
   const { data, error } = await supabase.auth.getUser(token)
   if (error || !data.user) return { ok: false, reason: 'invalid_token' }
 
-  const account = await loadAccount(createServiceClient(), data.user.id)
+  const account = await loadAccount(createServiceClient(), data.user.id, {
+    consentEdition: consentEditionOf(request),
+  })
   if (!account.ok) {
     return account.reason === 'account_deleting'
       ? { ok: false, reason: 'account_deleting' }
