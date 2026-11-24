@@ -46,8 +46,8 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Lapka uses the photos you pick for your pet's profile picture and for a symptom check. Symptom check photos are deleted right after the analysis.",
-          "cameraPermission": "Lapka uses the camera to take your pet's profile picture or a photo of a symptom for a check. Symptom check photos are deleted right after the analysis.",
+          "photosPermission": "Lapka uses the photos you pick for your pet's profile picture, a symptom check and your pet's documents, such as the vet passport. Symptom check photos are deleted after the analysis; the profile picture and documents are kept until you delete them.",
+          "cameraPermission": "Lapka uses the camera to take your pet's profile picture, a photo of a symptom for a check, or a photo of your pet's documents, such as the vet passport. Symptom check photos are deleted after the analysis; the profile picture and documents are kept until you delete them.",
           "microphonePermission": false
         }
       ],

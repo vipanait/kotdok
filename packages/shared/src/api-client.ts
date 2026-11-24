@@ -59,6 +59,7 @@ import {
   MedicationDoseSchema,
   type MedicationDoseInput,
   FOLLOWUP_FEATURE,
+  CONSENT_EDITIONS_FEATURE,
   CheckQuestionResultSchema,
   CheckQuestionThreadSchema,
   type CheckQuestionInput,
@@ -248,7 +249,7 @@ export function createApiClient(options: ApiClientOptions) {
     // same goes for the follow-up case on a check.
     const headers: Record<string, string> = {
       accept: 'application/json',
-      [FEATURES_HEADER]: [PET_DATES_FEATURE, PET_AVATAR_FEATURE, FOLLOWUP_FEATURE, ...(options.features ?? [])].join(','),
+      [FEATURES_HEADER]: [PET_DATES_FEATURE, PET_AVATAR_FEATURE, FOLLOWUP_FEATURE, CONSENT_EDITIONS_FEATURE, ...(options.features ?? [])].join(','),
       ...request.headers,
     }
 
