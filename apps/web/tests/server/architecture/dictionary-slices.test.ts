@@ -53,6 +53,28 @@ function namespacesRead(source: string): Set<string> {
   return read
 }
 
+/**
+ * What the plain helpers a client file imports read from a `dict: Dictionary`
+ * they are handed: in the browser that is the route's dictionary too
+ * (`petSummary(pet, dict, locale)` reads `dict.pets`). Only the functions the
+ * client file imports by name count, each read to the next top-level export.
+ */
+function namespacesReadByHelpers(clientFile: string): Set<string> {
+  const read = new Set<string>()
+  for (const [, names, spec] of files.get(clientFile)!.matchAll(/import \{([^}]+)\} from '([^']+)'/g)) {
+    const helper = resolve(spec, clientFile)
+    const source = helper ? files.get(helper)! : ''
+    if (!helper || /^'use client'/m.test(source)) continue
+    const wanted = new Set(names.split(',').map((n) => n.replace(/^\s*type\s+/, '').split(/\s+as\s+/)[0].trim()))
+    for (const chunk of source.split(/^(?=export )/m)) {
+      const fn = /^export function (\w+)\(/.exec(chunk)?.[1]
+      if (!fn || !wanted.has(fn) || !/\bdict: Dictionary\b/.test(chunk)) continue
+      for (const [, ns] of chunk.matchAll(/\bdict\.([a-zA-Z]+)/g)) read.add(ns)
+    }
+  }
+  return read
+}
+
 function reachable(start: string): Set<string> {
   const seen = new Set<string>()
   const stack = [start]
@@ -93,7 +115,9 @@ describe('dictionary slices by route', () => {
     for (const page of pages) {
       const has = provided(page)
       for (const file of reachable(page)) {
-        for (const name of namespacesRead(files.get(file)!)) {
+        const own = namespacesRead(files.get(file)!)
+        const read = own.size ? new Set([...own, ...namespacesReadByHelpers(file)]) : own
+        for (const name of read) {
           if (SLICED.has(name as Namespace) && !has.has(name)) missing.push(`${relative(FRONTEND, page)} reads ${name} (${relative(SRC, file)})`)
         }
       }
