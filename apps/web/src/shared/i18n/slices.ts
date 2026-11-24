@@ -23,7 +23,8 @@ export const ROUTE_SLICES = {
   pets: ['pets', 'onboarding', 'firstSteps'],
   /** The record, its sections and the pet's documents (DOC-1). */
   'pets/[id]': ['medicalRecord', 'followup', 'documents'],
-  check: ['check', 'followup'],
+  /** `pets`: the form's pet line says the age (`petSummary`, `petHealthFacts`). */
+  check: ['check', 'followup', 'pets'],
   checks: ['check', 'followup'],
   /** The statistics; `check` names the questionnaire's answers in the feeds. */
   admin: ['admin', 'check'],
